@@ -21,6 +21,28 @@ describe("rest: resources", () => {
     });
   });
 
+  it("getResourceTypeKey works for base classes", async () => {
+    const runner = await createRestTestRunner();
+    const { Thing } = (await runner.compile(`
+
+      model BaseThing {
+        @key
+        id: string;
+      }
+
+      @test
+      @resource("things")
+      model Thing extends BaseThing {
+        extra: string;
+      }
+    `)) as { Thing: Model };
+
+    // Check the key property to ensure the segment got added
+    const key = getResourceTypeKey(runner.program, Thing);
+    ok(key, "No key property found.");
+    strictEqual(getSegment(runner.program, key.keyProperty), "things");
+  });
+
   it("@resource decorator applies @segment decorator on the @key property", async () => {
     const runner = await createRestTestRunner();
     const { Thing } = (await runner.compile(`
