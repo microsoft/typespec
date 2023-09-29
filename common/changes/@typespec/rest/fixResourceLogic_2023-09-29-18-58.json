@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/rest",
-      "comment": "Fix issue where getResourceTypeKey did not examine base classes.",
+      "comment": "Fix: `@key` can now appear on the base model of a resource.",
       "type": "none"
     }
   ],
