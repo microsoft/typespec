@@ -2402,6 +2402,11 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   type ParamLikeTag = DocTemplateTagNode | DocParamTagNode;
   type SimpleTag = DocReturnsTagNode | DocErrorsTagNode | DocUnknownTagNode;
 
+  /**
+   * Parses a documentation tag.
+   *
+   * @see <a href="https://microsoft.github.io/typespec/language-basics/documentation#tsdoc-doc-comments">TypeSpec documentation docs</a>
+   */
   function parseDocTag(): DocTag {
     const pos = tokenPos();
     parseExpected(Token.At);
@@ -2422,11 +2427,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   /**
-   * Handles param-like documentation comment tags: `@param` and
-   * `@typeParam` (or `@template`).
-   *
-   * @see <a href="https://tsdoc.org/pages/tags/param/">@param</a>
-   * @see <a href="https://tsdoc.org/pages/tags/typeparam/">@typeParam</a>
+   * Handles param-like documentation comment tags.
+   * For example, `@param` and `@template`.
    */
   function parseDocParamLikeTag(
     pos: number,
@@ -2435,7 +2437,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
   ): ParamLikeTag {
     const name = parseDocIdentifier(messageId);
-    parseParamLikeHyphen();
+    parseOptionalHyphenDocParamLikeTag();
     const content = parseDocContent();
 
     return {
@@ -2448,12 +2450,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   /**
-   * Handles the optional hyphen in param-like comment tags.
+   * Handles the optional hyphen in param-like documentation comment tags.
    *
-   * The TSDoc spec expects a hyphen in the `@param` case, but it does not
-   * require it in practice. Thus, TypeSpec should handle both cases.
+   * TypeSpec recommends no hyphen, but supports a hyphen to match TSDoc.
+   * (Original design discussion recorded in [2390].)
+   *
+   * [2390]: https://github.com/microsoft/typespec/issues/2390
    */
-  function parseParamLikeHyphen() {
+  function parseOptionalHyphenDocParamLikeTag() {
     while (parseOptional(Token.Whitespace)); // Skip whitespace
     if (parseOptional(Token.Hyphen)) {
       // The doc content started with a hyphen, so skip subsequent whitespace
