@@ -109,10 +109,10 @@ export const $lib = createTypeSpecLibrary({
     ruleSets: {
       recommended: {
         // (optional) A ruleset takes a map of rules to explicitly enable
-        enable: { [`@typespec/my-linter:${requiredDocRule.name}`]: true },
+        enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
 
         // (optional) A rule set can extend another rule set
-        extends: ["@typespec/best-practices:recommended"],
+        extends: ["@typespec/best-practices/recommended"],
 
         // (optional) A rule set can disable a rule enabled in a ruleset it extended.
         disable: {
