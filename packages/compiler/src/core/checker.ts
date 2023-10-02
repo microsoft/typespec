@@ -285,7 +285,6 @@ export function createChecker(program: Program): Checker {
   };
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceType = createGlobalNamespaceType();
-  let typespecNamespaceNode: NamespaceStatementNode | undefined;
 
   // Caches the deprecation test of nodes in the program
   const nodeDeprecationMap = new Map<Node, boolean>();
@@ -328,22 +327,20 @@ export function createChecker(program: Program): Checker {
     mergeSourceFile(file);
   }
 
-  for (const file of program.sourceFiles.values()) {
-    setUsingsForFile(file);
-  }
-
   const typespecNamespaceBinding = globalNamespaceNode.symbol.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
     // the typespec namespace binding will be absent if we've passed
     // the no-std-lib option.
     // the first declaration here is the JS file for the typespec script.
-    typespecNamespaceNode = typespecNamespaceBinding.declarations[1] as NamespaceStatementNode;
     initializeTypeSpecIntrinsics();
     for (const file of program.sourceFiles.values()) {
       addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
     }
   }
 
+  for (const file of program.sourceFiles.values()) {
+    setUsingsForFile(file);
+  }
   let evalContext: EvalContext | undefined = undefined;
 
   const checker: Checker = {
@@ -461,10 +458,6 @@ export function createChecker(program: Program): Checker {
       }
       usedUsing.add(namespaceSym);
       addUsingSymbols(sym.exports!, parentNs.locals!);
-    }
-
-    if (typespecNamespaceNode) {
-      addUsingSymbols(typespecNamespaceBinding!.exports!, file.locals);
     }
   }
 

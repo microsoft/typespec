@@ -63,6 +63,16 @@ export function getResourceTypeKey(program: Program, resourceType: Model): Resou
     }
   });
 
+  // if still no key, search the base model
+  if (resourceKey === undefined && resourceType.baseModel !== undefined) {
+    resourceKey = getResourceTypeKey(program, resourceType.baseModel);
+
+    if (resourceKey !== undefined) {
+      // Cache the key for future queries
+      setResourceTypeKey(program, resourceType, resourceKey.keyProperty);
+    }
+  }
+
   return resourceKey;
 }
 

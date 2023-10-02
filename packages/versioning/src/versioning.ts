@@ -179,7 +179,10 @@ export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: En
   program.stateMap(madeOptionalKey).set(t, version);
 }
 
-function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
+/**
+ * @returns the array of RenamedFrom metadata if applicable.
+ */
+export function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
   return p.stateMap(renamedFromKey).get(t) as Array<RenamedFrom>;
 }
 
