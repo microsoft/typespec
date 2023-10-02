@@ -116,7 +116,7 @@ export const $lib = createTypeSpecLibrary({
 
         // (optional) A rule set can disable a rule enabled in a ruleset it extended.
         disable: {
-          "`@typespec/best-practices:no-a": "This doesn't apply in this ruleset.",
+          "`@typespec/best-practices/no-a": "This doesn't apply in this ruleset.",
         },
       },
     },
@@ -124,7 +124,7 @@ export const $lib = createTypeSpecLibrary({
 });
 ```
 
-When referencing a rule or ruleset(in `enable`, `extends`, `disable`) the rule or rule set id must be used which in this format: `<libraryName>:<ruleName>`
+When referencing a rule or ruleset(in `enable`, `extends`, `disable`) the rule or rule set id must be used which in this format: `<libraryName>/<ruleName>`
 
 ## Testing a linter
 
@@ -147,7 +147,7 @@ describe("required-doc rule", () => {
 
   it("emit diagnostics when using model named foo", async () => {
     await ruleTester.expect(`model Foo {}`).toEmitDiagnostics({
-      code: "@typespec/my-linter:no-foo-model",
+      code: "@typespec/my-linter/no-foo-model",
       message: "Cannot name a model with 'Foo'",
     });
   });
