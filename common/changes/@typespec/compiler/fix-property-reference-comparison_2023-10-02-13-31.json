@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Resolve property reference type when checking if assignable",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

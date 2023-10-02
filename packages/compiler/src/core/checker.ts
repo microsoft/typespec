@@ -5323,8 +5323,16 @@ export function createChecker(program: Program): Checker {
           );
         }
       } else {
+        // It is possible that the property type is a reference to another
+        // property so make sure we're comparing against the referenced
+        // property's type and not the ModelProperty itself
+        const sourcePropertyType =
+          sourceProperty.type.kind === "ModelProperty"
+            ? sourceProperty.type.type
+            : sourceProperty.type;
+
         const [related, propDiagnostics] = isTypeAssignableToInternal(
-          sourceProperty.type,
+          sourcePropertyType,
           prop.type,
           diagnosticTarget,
           relationCache

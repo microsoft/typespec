@@ -668,6 +668,14 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    it("can assign object with property reference that is assignable", async () => {
+      await expectTypeAssignable({
+        source: "{ name: Foo.name }",
+        target: "{ name: string }",
+        commonCode: `model Foo { name: string; }`,
+      });
+    });
+
     it("emit diagnostic when required property is missing", async () => {
       await expectTypeNotAssignable(
         { source: `{foo: "abc"}`, target: `{foo: string, bar: string}` },
@@ -695,6 +703,20 @@ describe("compiler: checker: type relations", () => {
         {
           code: "unassignable",
           message: "Type 'string[] | int32[]' is not assignable to type '{}'",
+        }
+      );
+    });
+
+    it("emit diagnostic when property reference type is not assignable", async () => {
+      await expectTypeNotAssignable(
+        {
+          source: "{ name: Foo.name }",
+          target: "{ name: string }",
+          commonCode: `model Foo { name: int32; }`,
+        },
+        {
+          code: "unassignable",
+          message: "Type 'int32' is not assignable to type 'string'",
         }
       );
     });
