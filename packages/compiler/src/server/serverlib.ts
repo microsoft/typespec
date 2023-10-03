@@ -391,7 +391,7 @@ export function createServer(host: ServerHost): Server {
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
 
-    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {});
+    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
     const options: CompilerOptions = {
       ...optionsFromConfig,
       ...serverOptions,
