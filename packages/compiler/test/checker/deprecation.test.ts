@@ -323,6 +323,64 @@ describe("compiler: checker: deprecation", () => {
 
       expectDiagnosticEmpty(diagnostics);
     });
+
+    describe("skips type deprecation warning when referenced in a deprecated parent context", () => {
+      it("deprecated model used in deprecated types", async () => {
+        await expectDeprecations(
+          `
+            #deprecated "OldFoo is deprecated"
+            model OldFoo {
+              foo: string;
+            }
+
+            #deprecated "oldOp is deprecated"
+            op oldOp(): OldFoo;
+
+            #deprecated "OldBar is deprecated"
+            model OldBar is OldFoo {}
+
+            #deprecated "OldBlah is deprecated"
+            model OldBlah extends OldFoo {}
+
+            #deprecated "OldFooReference is deprecated"
+            model OldFooReference {
+              foo: OldFoo.foo;
+            }
+
+            #deprecated "OldFooProperty is deprecated"
+            model OldFooProperty {
+              foo: OldFoo;
+            }
+
+            #deprecated "OldBaz is deprecated"
+            interface OldBaz {
+              op oldBaz(): OldFoo;
+              op oldBazTwo(): string | OldFoo;
+              op oldBazThree(): OldFoo & { bar: string };
+            }
+          `,
+          []
+        );
+      });
+
+      it("deprecated operation used in deprecated types", async () => {
+        await expectDeprecations(
+          `
+            #deprecated "oldFoo is deprecated"
+            op oldFoo(): string;
+
+            #deprecated "oldBar is deprecated"
+            op oldBar is oldFoo;
+
+            #deprecated "OldBaz is deprecated"
+            interface OldBaz {
+              op oldBaz is oldBar;
+            }
+          `,
+          []
+        );
+      });
+    });
   });
 
   describe("@deprecated decorator", () => {

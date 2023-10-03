@@ -159,35 +159,6 @@ describe("openapi3: return types", () => {
     );
   });
 
-  it("defines separate responses for each status code property in return type", async () => {
-    const res = await openApiFor(
-      `
-      model CreatedOrUpdatedResponse {
-        @statusCode ok: "200";
-        @statusCode created: "201";
-      }
-      model DateHeader {
-        @header date: utcDateTime;
-      }
-      model Key {
-        key: string;
-      }
-      @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-      `
-    );
-    ok(res.paths["/"].put.responses["200"]);
-    ok(res.paths["/"].put.responses["201"]);
-    // Note: 200 and 201 response should be equal except for description
-    deepStrictEqual(
-      res.paths["/"].put.responses["200"].headers,
-      res.paths["/"].put.responses["201"].headers
-    );
-    deepStrictEqual(
-      res.paths["/"].put.responses["200"].content,
-      res.paths["/"].put.responses["201"].content
-    );
-  });
-
   it("defines separate responses for each variant of a union return type", async () => {
     const res = await openApiFor(
       `

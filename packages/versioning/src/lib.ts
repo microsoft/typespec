@@ -89,6 +89,12 @@ const libDef = {
         default: paramMessage`Property '${"name"}' marked with @madeOptional but is required. Should be '${"name"}?'`,
       },
     },
+    "renamed-duplicate-property": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Property '${"name"}' marked with '@renamedFrom' conflicts with existing property in version ${"version"}.`,
+      },
+    },
   },
 } as const;
 export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);

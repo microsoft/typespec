@@ -159,13 +159,22 @@ function renderInterfacesFile(
   return renderMarkdowDoc(content);
 }
 
-function renderDataTypes(renderer: DocusaurusRenderer, refDoc: TypeSpecRefDoc): string | undefined {
+export type DataTypeRenderOptions = {
+  title?: string;
+};
+
+export function renderDataTypes(
+  renderer: DocusaurusRenderer,
+  refDoc: TypeSpecRefDoc,
+  options?: DataTypeRenderOptions
+): string | undefined {
   if (!refDoc.namespaces.some((x) => x.models.length > 0)) {
     return undefined;
   }
+  const title = options?.title ?? "Data types";
   const content: MarkdownDoc = [
     "---",
-    `title: "Data types"`,
+    `title: "${title}"`,
     "toc_min_heading_level: 2",
     "toc_max_heading_level: 3",
     "---",

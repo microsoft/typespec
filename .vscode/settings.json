@@ -10,7 +10,8 @@
     "docs/spec.html": true,
     "common/config/rush/pnpm-lock.yaml": true,
     "**/node_modules/**": true,
-    "packages/website/versioned_docs/**": true
+    "packages/website/versioned_docs/**": true,
+    "packages/samples/scratch/**": false // Those files are in gitignore but we still want to search for them
   },
   "files.exclude": {
     "**/common/temp/**": true,
@@ -87,6 +88,7 @@
     "rush.json": "jsonc",
     "common-versions.json": "jsonc",
     "command-line.json": "jsonc",
+    "pnpm-config.json": "jsonc",
     "version-policies.json": "jsonc"
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",

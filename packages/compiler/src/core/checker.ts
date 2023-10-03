@@ -285,7 +285,9 @@ export function createChecker(program: Program): Checker {
   };
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceType = createGlobalNamespaceType();
-  let typespecNamespaceNode: NamespaceStatementNode | undefined;
+
+  // Caches the deprecation test of nodes in the program
+  const nodeDeprecationMap = new Map<Node, boolean>();
 
   const errorType: ErrorType = createType({ kind: "Intrinsic", name: "ErrorType" });
   const voidType = createType({ kind: "Intrinsic", name: "void" } as const);
@@ -325,22 +327,20 @@ export function createChecker(program: Program): Checker {
     mergeSourceFile(file);
   }
 
-  for (const file of program.sourceFiles.values()) {
-    setUsingsForFile(file);
-  }
-
   const typespecNamespaceBinding = globalNamespaceNode.symbol.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
     // the typespec namespace binding will be absent if we've passed
     // the no-std-lib option.
     // the first declaration here is the JS file for the typespec script.
-    typespecNamespaceNode = typespecNamespaceBinding.declarations[1] as NamespaceStatementNode;
     initializeTypeSpecIntrinsics();
     for (const file of program.sourceFiles.values()) {
       addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
     }
   }
 
+  for (const file of program.sourceFiles.values()) {
+    setUsingsForFile(file);
+  }
   let evalContext: EvalContext | undefined = undefined;
 
   const checker: Checker = {
@@ -458,10 +458,6 @@ export function createChecker(program: Program): Checker {
       }
       usedUsing.add(namespaceSym);
       addUsingSymbols(sym.exports!, parentNs.locals!);
-    }
-
-    if (typespecNamespaceNode) {
-      addUsingSymbols(typespecNamespaceBinding!.exports!, file.locals);
     }
   }
 
@@ -867,6 +863,48 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  function isTypeReferenceContextDeprecated(node: Node): boolean {
+    function checkDeprecatedNode(node: Node) {
+      // Perform a simple check if the parent node is deprecated.  We do this
+      // out of band because `checkDirectives` usually gets called on the parent
+      // type after child types have already been checked (including their
+      // deprecations).
+      if (!nodeDeprecationMap.has(node)) {
+        nodeDeprecationMap.set(
+          node,
+          (node.directives ?? []).findIndex((d) => d.target.sv === "deprecated") >= 0
+        );
+      }
+
+      return nodeDeprecationMap.get(node)!;
+    }
+
+    // Walk the parent hierarchy up to a node which might have a
+    // deprecation which would mitigate the deprecation warning of the original
+    // type reference. This is done to prevent multiple deprecation notices from
+    // being raised when a parent context is already being deprecated.
+    switch (node.kind) {
+      case SyntaxKind.ModelStatement:
+        return checkDeprecatedNode(node);
+      case SyntaxKind.OperationStatement:
+        return (
+          checkDeprecatedNode(node) ||
+          (node.parent!.kind === SyntaxKind.InterfaceStatement &&
+            isTypeReferenceContextDeprecated(node.parent!))
+        );
+      case SyntaxKind.InterfaceStatement:
+        return checkDeprecatedNode(node);
+      case SyntaxKind.IntersectionExpression:
+      case SyntaxKind.UnionExpression:
+      case SyntaxKind.ModelProperty:
+      case SyntaxKind.OperationSignatureDeclaration:
+      case SyntaxKind.OperationSignatureReference:
+        return isTypeReferenceContextDeprecated(node.parent!);
+      default:
+        return false;
+    }
+  }
+
   function checkTypeReferenceArgs(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined
@@ -1065,10 +1103,14 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    // Check for deprecations here, first on symbol, then on type.
+    // Check for deprecations here, first on symbol, then on type.  However,
+    // don't raise deprecation when the usage site is also a deprecated
+    // declaration.
     const declarationNode = sym?.declarations[0];
     if (declarationNode && mapper === undefined) {
-      checkDeprecated(baseType, declarationNode, node);
+      if (!isTypeReferenceContextDeprecated(node.parent!)) {
+        checkDeprecated(baseType, declarationNode, node);
+      }
     }
 
     return baseType;
@@ -3130,10 +3172,7 @@ export function createChecker(program: Program): Checker {
       ) {
         const doc = extractParamDoc(prop.parent.parent.parent, type.name);
         if (doc) {
-          type.decorators.unshift({
-            decorator: $docFromComment,
-            args: [{ value: createLiteralType(doc), jsValue: doc }],
-          });
+          type.decorators.unshift(createDocFromCommentDecorator("self", doc));
         }
       }
       finishType(type);
@@ -3144,7 +3183,20 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  function createDocFromCommentDecorator(key: "self" | "returns" | "errors", doc: string) {
+    return {
+      decorator: $docFromComment,
+      args: [
+        { value: createLiteralType(key), jsValue: key },
+        { value: createLiteralType(doc), jsValue: doc },
+      ],
+    };
+  }
+
   function isValueType(type: Type): boolean {
+    if (type === nullType) {
+      return true;
+    }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
   }
@@ -3387,10 +3439,16 @@ export function createChecker(program: Program): Checker {
     // Doc comment should always be the first decorator in case an explicit @doc must override it.
     const docComment = extractMainDoc(targetType);
     if (docComment) {
-      decorators.unshift({
-        decorator: $docFromComment,
-        args: [{ value: createLiteralType(docComment), jsValue: docComment }],
-      });
+      decorators.unshift(createDocFromCommentDecorator("self", docComment));
+    }
+    if (targetType.kind === "Operation") {
+      const returnTypesDocs = extractReturnsDocs(targetType);
+      if (returnTypesDocs.returns) {
+        decorators.unshift(createDocFromCommentDecorator("returns", returnTypesDocs.returns));
+      }
+      if (returnTypesDocs.errors) {
+        decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
+      }
     }
     return decorators;
   }
@@ -3879,15 +3937,31 @@ export function createChecker(program: Program): Checker {
 
   function checkDirectives(node: Node, type: Type): void {
     let hasDeprecation: boolean = false;
-    (node.directives ?? []).forEach((directive) => {
+    for (const directive of node.directives ?? []) {
       if (directive.target.sv === "deprecated") {
-        if (directive.arguments[0].kind !== SyntaxKind.StringLiteral) {
+        const message = directive.arguments[0];
+        if (message === undefined) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "invalid-deprecation-argument",
+              messageId: "missing",
+              target: directive,
+            })
+          );
+          continue;
+        }
+        let messageStr;
+        if (message.kind !== SyntaxKind.StringLiteral) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-deprecation-argument",
+              format: { kind: SyntaxKind[message.kind] },
               target: directive.arguments[0],
             })
           );
+          messageStr = "<missing message>";
+        } else {
+          messageStr = message.value;
         }
 
         if (hasDeprecation === true) {
@@ -3897,11 +3971,11 @@ export function createChecker(program: Program): Checker {
         } else {
           hasDeprecation = true;
           markDeprecated(program, type, {
-            message: (directive.arguments[0] as StringLiteralNode).value,
+            message: messageStr,
           });
         }
       }
-    });
+    }
   }
 
   // the types here aren't ideal and could probably be refactored.
@@ -5172,7 +5246,8 @@ export function createChecker(program: Program): Checker {
   }
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
-    if (isVoidType(target) || isNeverType(target)) return false;
+    if (isNeverType(source)) return true;
+    if (isVoidType(target)) return false;
     if (isUnknownType(target)) return true;
     if (isReflectionType(target)) {
       return source.kind === ReflectionNameToKind[target.name];
@@ -5473,7 +5548,7 @@ const numericRanges: Record<
   uint8: [0, 255, { int: true }],
   safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, { int: true }],
   float32: [-3.4e38, 3.4e38, { int: false }],
-  float64: [Number.MIN_VALUE, Number.MAX_VALUE, { int: false }],
+  float64: [-Number.MAX_VALUE, Number.MAX_VALUE, { int: false }],
 };
 
 /**
@@ -5756,6 +5831,30 @@ function extractMainDoc(type: Type): string | undefined {
   }
   const trimmed = mainDoc.trim();
   return trimmed === "" ? undefined : trimmed;
+}
+
+function extractReturnsDocs(type: Type): {
+  returns: string | undefined;
+  errors: string | undefined;
+} {
+  const result: { returns: string | undefined; errors: string | undefined } = {
+    returns: undefined,
+    errors: undefined,
+  };
+  if (type.node?.docs === undefined) {
+    return result;
+  }
+  for (const doc of type.node.docs) {
+    for (const tag of doc.tags) {
+      if (tag.kind === SyntaxKind.DocReturnsTag) {
+        result.returns = getDocContent(tag.content);
+      }
+      if (tag.kind === SyntaxKind.DocErrorsTag) {
+        result.errors = getDocContent(tag.content);
+      }
+    }
+  }
+  return result;
 }
 
 function extractParamDoc(node: OperationStatementNode, paramName: string): string | undefined {

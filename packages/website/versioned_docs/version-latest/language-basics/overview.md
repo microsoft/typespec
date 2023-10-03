@@ -47,7 +47,7 @@ _Details: [Decorators](./decorators.md)_
 | Use decorator with arguments | `@tag("abc")`                                                                       |
 | Declare a decorator in JS    | `export function $tag(context: DecoratorContext, target: Type, name: string) {...}` |
 | Save state in decorator      | `context.program.stateMap(key).set(target, <value>)`                                |
-| Augment decorator            | `@@tag(MyType, "abc")`                                                              |
+| Augment decorator            | `@@tag(MyType, "abc");`                                                             |
 
 ## Scalars
 

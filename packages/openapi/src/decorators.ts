@@ -12,7 +12,7 @@ import { setStatusCode } from "@typespec/http";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey } from "./types.js";
 
-export const namespace = "OpenAPI";
+export const namespace = "TypeSpec.OpenAPI";
 
 const operationIdsKey = createStateSymbol("operationIds");
 /**

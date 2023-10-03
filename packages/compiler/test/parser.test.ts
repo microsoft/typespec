@@ -803,37 +803,55 @@ describe("compiler: parser", () => {
            *
            * @param x the param
            * that continues on another line
+           * @param y - another param
            * @template T some template
+           * @template U - another template
            * @returns something
            * @pretend this an unknown tag
            */
-          op test<T>(x: string): string;
+          op test<T, U>(x: string, y: string): string;
           `,
           (script) => {
             const docs = script.statements[0].docs;
             strictEqual(docs?.length, 1);
             strictEqual(docs[0].content.length, 1);
+
             strictEqual(
               docs[0].content[0].text,
               "This one has a `code span` and a code fence and it spreads over\nmore than one line.\n\n```\nThis is not a @tag because we're in a code fence.\n```\n\n`This is not a @tag either because we're in a code span`."
             );
-            strictEqual(docs[0].tags.length, 4);
-            strictEqual(docs[0].tags[0].kind, SyntaxKind.DocParamTag as const);
-            strictEqual(docs[0].tags[0].tagName.sv, "param");
-            strictEqual(docs[0].tags[0].paramName.sv, "x");
-            strictEqual(
-              docs[0].tags[0].content[0].text,
-              "the param\nthat continues on another line"
-            );
-            strictEqual(docs[0].tags[1].kind, SyntaxKind.DocTemplateTag as const);
-            strictEqual(docs[0].tags[1].tagName.sv, "template");
-            strictEqual(docs[0].tags[1].paramName.sv, "T");
-            strictEqual(docs[0].tags[2].kind, SyntaxKind.DocReturnsTag as const);
-            strictEqual(docs[0].tags[2].tagName.sv, "returns");
-            strictEqual(docs[0].tags[2].content[0].text, "something");
-            strictEqual(docs[0].tags[3].kind, SyntaxKind.DocUnknownTag as const);
-            strictEqual(docs[0].tags[3].tagName.sv, "pretend");
-            strictEqual(docs[0].tags[3].content[0].text, "this an unknown tag");
+            strictEqual(docs[0].tags.length, 6);
+            const [xParam, yParam, tTemplate, uTemplate, returns, pretend] = docs[0].tags;
+
+            strictEqual(xParam.kind, SyntaxKind.DocParamTag as const);
+            strictEqual(xParam.tagName.sv, "param");
+            strictEqual(xParam.paramName.sv, "x");
+            strictEqual(xParam.content[0].text, "the param\nthat continues on another line");
+
+            // `y` has hyphen in doc string, which should be dropped
+            strictEqual(yParam.kind, SyntaxKind.DocParamTag as const);
+            strictEqual(yParam.tagName.sv, "param");
+            strictEqual(yParam.paramName.sv, "y");
+            strictEqual(yParam.content[0].text, "another param");
+
+            strictEqual(tTemplate.kind, SyntaxKind.DocTemplateTag as const);
+            strictEqual(tTemplate.tagName.sv, "template");
+            strictEqual(tTemplate.paramName.sv, "T");
+            strictEqual(tTemplate.content[0].text, "some template");
+
+            // `U` has hyphen in doc string, which should be dropped
+            strictEqual(uTemplate.kind, SyntaxKind.DocTemplateTag as const);
+            strictEqual(uTemplate.tagName.sv, "template");
+            strictEqual(uTemplate.paramName.sv, "U");
+            strictEqual(uTemplate.content[0].text, "another template");
+
+            strictEqual(returns.kind, SyntaxKind.DocReturnsTag as const);
+            strictEqual(returns.tagName.sv, "returns");
+            strictEqual(returns.content[0].text, "something");
+
+            strictEqual(pretend.kind, SyntaxKind.DocUnknownTag as const);
+            strictEqual(pretend.tagName.sv, "pretend");
+            strictEqual(pretend.content[0].text, "this an unknown tag");
           },
         ],
       ],

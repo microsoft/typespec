@@ -60,6 +60,20 @@ describe("compiler: range limiting decorators", () => {
       strictEqual(getMaxValue(runner.program, percentProp), 32.9);
     });
 
+    it("applies @minLength and @maxLength decorators on nullable numeric", async () => {
+      const { Foo } = (await runner.compile(`
+        @test model Foo {
+          @minValue(2.5)
+          @maxValue(32.9)
+          percent: float64 | null;
+        }
+      `)) as { Foo: Model };
+      const percentProp = Foo.properties.get("percent")!;
+
+      strictEqual(getMinValue(runner.program, percentProp), 2.5);
+      strictEqual(getMaxValue(runner.program, percentProp), 32.9);
+    });
+
     it("emit diagnostic if @minValue used on non numeric type", async () => {
       const diagnostics = await runner.diagnose(`
       @test model Foo {
@@ -69,7 +83,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @minValue decorator to non-numeric type",
+        message: "Cannot apply @minValue decorator to type it is not a numeric",
       });
     });
 
@@ -82,7 +96,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @maxValue decorator to non-numeric type",
+        message: "Cannot apply @maxValue decorator to type it is not a numeric",
       });
     });
 
@@ -116,6 +130,20 @@ describe("compiler: range limiting decorators", () => {
       strictEqual(getMaxLength(runner.program, nameProp), 10);
     });
 
+    it("applies @minLength and @maxLength decorators on nullable strings", async () => {
+      const { Foo } = (await runner.compile(`
+        @test model Foo {
+          @minLength(2)
+          @maxLength(10)
+          name: string | null;
+        }
+      `)) as { Foo: Model };
+      const nameProp = Foo.properties.get("name")!;
+
+      strictEqual(getMinLength(runner.program, nameProp), 2);
+      strictEqual(getMaxLength(runner.program, nameProp), 10);
+    });
+
     it("emit diagnostic if @minLength used on non string", async () => {
       const diagnostics = await runner.diagnose(`
       @test model Foo {
@@ -125,7 +153,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @minLength decorator to type it is not one of: string",
+        message: "Cannot apply @minLength decorator to type it is not a string",
       });
     });
 
@@ -138,7 +166,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @maxLength decorator to type it is not one of: string",
+        message: "Cannot apply @maxLength decorator to type it is not a string",
       });
     });
 

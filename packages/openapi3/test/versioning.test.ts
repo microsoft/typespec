@@ -118,7 +118,7 @@ describe("openapi3: versioning", () => {
 
     const runner = createTestWrapper(host, {
       autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
-      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "OpenAPI", "TypeSpec.Versioning"],
+      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "TypeSpec.OpenAPI", "TypeSpec.Versioning"],
       compilerOptions: { emit: ["@typespec/openapi3"] },
     });
 

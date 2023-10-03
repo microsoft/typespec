@@ -88,7 +88,7 @@ This extension is meant for debugging and should not be depended on.
 
 ## Decorators
 
-### OpenAPI
+### TypeSpec.OpenAPI
 
 - [`@oneOf`](#@oneof)
 - [`@useRef`](#@useref)
@@ -98,12 +98,12 @@ This extension is meant for debugging and should not be depended on.
 Specify that `oneOf` should be used instead of `anyOf` for that union.
 
 ```typespec
-@OpenAPI.oneOf
+@TypeSpec.OpenAPI.oneOf
 ```
 
 ##### Target
 
-`Union`
+`union Union | ModelProperty`
 
 ##### Parameters
 
@@ -114,7 +114,7 @@ None
 Specify an external reference that should be used inside of emitting this type.
 
 ```typespec
-@OpenAPI.useRef(ref: valueof string)
+@TypeSpec.OpenAPI.useRef(ref: valueof string)
 ```
 
 ##### Target

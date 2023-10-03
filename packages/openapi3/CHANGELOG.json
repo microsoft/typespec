@@ -2,6 +2,50 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.48.1",
+      "tag": "@typespec/openapi3_v0.48.1",
+      "date": "Tue, 19 Sep 2023 19:28:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Correctly generate discriminated union mapping property with multiple visibilities involved"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/openapi3_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fixed issue where parameters on a PATCH request marked with visibility \"create\" did not appear."
+          },
+          {
+            "comment": "Changed yaml parser from `js-yaml` to `yaml`"
+          },
+          {
+            "comment": "Fix: `exclusiveMinimum` and `exclusiveMaximum` properties are booleans in openapi3"
+          },
+          {
+            "comment": "Use `anyOf` instead of `oneOf` for shared route with different request/response bodies"
+          },
+          {
+            "comment": "Fix handling of `Record<T>` in `model is` and `model extends`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/openapi3_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

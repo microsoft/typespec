@@ -347,6 +347,7 @@ export function printNode(
     case SyntaxKind.DocParamTag:
     case SyntaxKind.DocTemplateTag:
     case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocErrorsTag:
     case SyntaxKind.DocUnknownTag:
       // https://github.com/microsoft/typespec/issues/1319 Tracks pretty-printing doc comments.
       compilerAssert(
@@ -421,7 +422,6 @@ export function canAttachComment(node: Node): boolean {
       kind !== SyntaxKind.LineComment &&
       kind !== SyntaxKind.BlockComment &&
       kind !== SyntaxKind.EmptyStatement &&
-      kind !== SyntaxKind.Doc &&
       kind !== SyntaxKind.DocParamTag &&
       kind !== SyntaxKind.DocReturnsTag &&
       kind !== SyntaxKind.DocTemplateTag &&
@@ -689,18 +689,8 @@ function printEnumBlock(
     return "{}";
   }
 
-  return group([
-    "{",
-    indent([
-      hardline,
-      join(
-        hardline,
-        path.map((x) => [print(x as any), ","], "members")
-      ),
-    ]),
-    hardline,
-    "}",
-  ]);
+  const body = joinMembersInBlock(path, "members", options, print, ",", hardline);
+  return group(["{", indent(body), hardline, "}"]);
 }
 
 export function printEnumMember(
@@ -711,12 +701,10 @@ export function printEnumMember(
   const node = path.getValue();
   const id = path.call(print, "id");
   const value = node.value ? [": ", path.call(print, "value")] : "";
-  const { decorators, multiline } = printDecorators(path, options, print, {
+  const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.enumMember,
   });
-  const propertyIndex = path.stack[path.stack.length - 2];
-  const isNotFirst = typeof propertyIndex === "number" && propertyIndex > 0;
-  return [multiline && isNotFirst ? hardline : "", decorators, id, value];
+  return [decorators, id, value];
 }
 
 function printEnumSpreadMember(
@@ -748,18 +736,8 @@ export function printUnionVariantsBlock(
     return "{}";
   }
 
-  return group([
-    "{",
-    indent([
-      hardline,
-      join(
-        hardline,
-        path.map((x) => [print(x as any), ","], "options")
-      ),
-    ]),
-    hardline,
-    "}",
-  ]);
+  const body = joinMembersInBlock(path, "options", options, print, ",", hardline);
+  return group(["{", indent(body), hardline, "}"]);
 }
 
 export function printUnionVariant(
@@ -767,12 +745,11 @@ export function printUnionVariant(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const id = path.call(print, "id");
-  const value = [": ", path.call(print, "value")];
+  const id = path.node.id === undefined ? "" : [path.call(print, "id"), ": "];
   const { decorators } = printDecorators(path, options, print, {
     tryInline: DecoratorsTryInline.unionVariant,
   });
-  return [decorators, id, value];
+  return [decorators, id, path.call(print, "value")];
 }
 
 export function printInterfaceStatement(
@@ -966,7 +943,9 @@ export function printModelExpression(
     const properties =
       node.properties.length === 0
         ? ""
-        : indent(joinPropertiesInBlock(path as any, options, print, ifBreak(",", ", "), softline));
+        : indent(
+            joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline)
+          );
     return group([properties, softline]);
   }
 }
@@ -1020,28 +999,29 @@ function printModelPropertiesBlock(
   const lineDoc = tryInline ? softline : hardline;
   const seperator = isModelAValue(path) ? "," : ";";
 
-  const body = [joinPropertiesInBlock(path as any, options, print, seperator, lineDoc)];
+  const body = [joinMembersInBlock(path, "properties", options, print, seperator, lineDoc)];
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
   return group(["{", indent(body), lineDoc, "}"]);
 }
 
-function joinPropertiesInBlock(
-  path: AstPath<
-    Node & {
-      properties: readonly (
-        | ModelPropertyNode
-        | ModelSpreadPropertyNode
-        | ProjectionModelPropertyNode
-        | ProjectionModelSpreadPropertyNode
-      )[];
-    }
-  >,
+/**
+ * Join members nodes that are in a block by adding extra new lines when needed.(e.g. when there are decorators or doc comments )
+ * @param path Prettier AST Path.
+ * @param options Prettier options
+ * @param print Prettier print callback
+ * @param separator Separator
+ * @param regularLine What line to use when we should split lines
+ * @returns
+ */
+function joinMembersInBlock<T extends Node>(
+  path: AstPath<T>,
+  member: keyof T,
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint,
   separator: Doc,
-  regularLine: Doc
+  regularLine: Doc = hardline
 ): Doc {
   const doc: Doc[] = [regularLine];
   const propertyContainerNode = path.getValue();
@@ -1049,8 +1029,8 @@ function joinPropertiesInBlock(
   let newLineBeforeNextProp = false;
   path.each((item, propertyIndex) => {
     const isFirst = propertyIndex === 0;
-    const isLast = propertyIndex === propertyContainerNode.properties.length - 1;
-    const shouldWrapInNewLines = shouldWrapPropertyInNewLines(item as any, options);
+    const isLast = propertyIndex === (propertyContainerNode[member] as any).length - 1;
+    const shouldWrapInNewLines = shouldWrapMemberInNewLines(item as any, options);
 
     if ((newLineBeforeNextProp || shouldWrapInNewLines) && !isFirst) {
       doc.push(hardline);
@@ -1066,7 +1046,7 @@ function joinPropertiesInBlock(
         newLineBeforeNextProp = true;
       }
     }
-  }, "properties");
+  }, member as any);
   return doc;
 }
 
@@ -1076,10 +1056,13 @@ function joinPropertiesInBlock(
  * - has decorators on lines above
  * - has leading comments
  */
-function shouldWrapPropertyInNewLines(
+function shouldWrapMemberInNewLines(
   path: AstPath<
     | ModelPropertyNode
     | ModelSpreadPropertyNode
+    | EnumMemberNode
+    | EnumSpreadMemberNode
+    | UnionVariantNode
     | ProjectionModelPropertyNode
     | ProjectionModelSpreadPropertyNode
   >,
@@ -1087,7 +1070,9 @@ function shouldWrapPropertyInNewLines(
 ): boolean {
   const node = path.getValue();
   return (
-    ((node.kind === SyntaxKind.ModelProperty || node.kind === SyntaxKind.ProjectionModelProperty) &&
+    (node.kind !== SyntaxKind.ModelSpreadProperty &&
+      node.kind !== SyntaxKind.ProjectionModelSpreadProperty &&
+      node.kind !== SyntaxKind.EnumSpreadMember &&
       shouldDecoratorBreakLine(path as any, options, {
         tryInline: DecoratorsTryInline.modelProperty,
       })) ||
@@ -1310,7 +1295,7 @@ function getLastStatement(statements: Statement[]): Statement | undefined {
 
 export function printUnion(
   path: AstPath<UnionExpressionNode>,
-  options: object,
+  options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
   const node = path.getValue();

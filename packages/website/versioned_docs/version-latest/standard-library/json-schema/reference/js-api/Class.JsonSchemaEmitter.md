@@ -1,15 +1,15 @@
 ---
 jsApi: true
 title: "[C] JsonSchemaEmitter"
----
 
+---
 ## Extends
 
 - `TypeEmitter`< `Record`< `string`, `any` \>, [`JSONSchemaEmitterOptions`](Interface.JSONSchemaEmitterOptions.md) \>
 
 ## Constructors
 
-### constructor()
+### new JsonSchemaEmitter
 
 ```ts
 new JsonSchemaEmitter(emitter): JsonSchemaEmitter
@@ -20,8 +20,8 @@ call `createAssetEmitter` on the emitter context object.
 
 #### Parameters
 
-| Parameter | Type                                                                                                                 | Description       |
-| :-------- | :------------------------------------------------------------------------------------------------------------------- | :---------------- |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
 | `emitter` | `AssetEmitter`< `Record`< `string`, `any` \>, [`JSONSchemaEmitterOptions`](Interface.JSONSchemaEmitterOptions.md) \> | The asset emitter |
 
 #### Returns
@@ -32,22 +32,18 @@ call `createAssetEmitter` on the emitter context object.
 
 TypeEmitter<Record<string, any\>, JSONSchemaEmitterOptions\>.constructor
 
-#### Source
-
-compiler/dist/src/emitter-framework/type-emitter.d.ts:124
-
 ## Properties
 
-| Property                       | Type                                                                                                                 |
-| :----------------------------- | :------------------------------------------------------------------------------------------------------------------- |
-| `private` `#refToDecl`         | `Map`< `string`, `Declaration`< `Record`< `string`, `unknown` \> \> \>                                               |
-| `private` `#seenIds`           | `Set`< `unknown` \>                                                                                                  |
-| `private` `#typeForSourceFile` | `Map`< `SourceFile`< `any` \>, [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) \>                           |
-| `protected` `emitter`          | `AssetEmitter`< `Record`< `string`, `any` \>, [`JSONSchemaEmitterOptions`](Interface.JSONSchemaEmitterOptions.md) \> |
+| Property | Type |
+| :------ | :------ |
+| `private` `#refToDecl` | `Map`< `string`, `Declaration`< `Record`< `string`, `unknown` \> \> \> |
+| `private` `#seenIds` | `Set`< `unknown` \> |
+| `private` `#typeForSourceFile` | `Map`< `SourceFile`< `any` \>, [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) \> |
+| `protected` `emitter` | `AssetEmitter`< `Record`< `string`, `any` \>, [`JSONSchemaEmitterOptions`](Interface.JSONSchemaEmitterOptions.md) \> |
 
 ## Methods
 
-### #applyConstraints()
+### #applyConstraints
 
 ```ts
 private #applyConstraints(type, schema): void
@@ -55,22 +51,18 @@ private #applyConstraints(type, schema): void
 
 #### Parameters
 
-| Parameter | Type                                                        |
-| :-------- | :---------------------------------------------------------- |
-| `type`    | `Model` \| `ModelProperty` \| `Scalar` \| `Enum` \| `Union` |
-| `schema`  | `ObjectBuilder`< `unknown` \>                               |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | `Model` \| `ModelProperty` \| `Scalar` \| `Enum` \| `Union` |
+| `schema` | `ObjectBuilder`< `unknown` \> |
 
 #### Returns
 
 `void`
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:407](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L407)
-
----
-
-### #checkForDuplicateId()
+### #checkForDuplicateId
 
 ```ts
 private #checkForDuplicateId(id): string
@@ -78,21 +70,17 @@ private #checkForDuplicateId(id): string
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `id`      | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `id` | `string` |
 
 #### Returns
 
 `string`
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:652](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L652)
-
----
-
-### #createDeclaration()
+### #createDeclaration
 
 ```ts
 private #createDeclaration(
@@ -103,23 +91,19 @@ private #createDeclaration(
 
 #### Parameters
 
-| Parameter | Type                                                     |
-| :-------- | :------------------------------------------------------- |
-| `type`    | [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) |
-| `name`    | `string`                                                 |
-| `schema`  | `ObjectBuilder`< `unknown` \>                            |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) |
+| `name` | `string` |
+| `schema` | `ObjectBuilder`< `unknown` \> |
 
 #### Returns
 
 `Declaration`< `Record`< `string`, `any` \> \>
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:503](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L503)
-
----
-
-### #fileExtension()
+### #fileExtension
 
 ```ts
 private #fileExtension(): "json" | "yaml"
@@ -129,13 +113,9 @@ private #fileExtension(): "json" | "yaml"
 
 `"json"` \| `"yaml"`
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:741](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L741)
-
----
-
-### #getCurrentSourceFile()
+### #getCurrentSourceFile
 
 ```ts
 private #getCurrentSourceFile(): SourceFile< object >
@@ -145,13 +125,9 @@ private #getCurrentSourceFile(): SourceFile< object >
 
 `SourceFile`< `object` \>
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:604](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L604)
-
----
-
-### #getDeclId()
+### #getDeclId
 
 ```ts
 private #getDeclId(type, name): string
@@ -159,22 +135,18 @@ private #getDeclId(type, name): string
 
 #### Parameters
 
-| Parameter | Type                                                     |
-| :-------- | :------------------------------------------------------- |
-| `type`    | [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) |
-| `name`    | `string`                                                 |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) |
+| `name` | `string` |
 
 #### Returns
 
 `string`
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:617](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L617)
-
----
-
-### #isStdType()
+### #isStdType
 
 ```ts
 private #isStdType(type): boolean
@@ -182,21 +154,17 @@ private #isStdType(type): boolean
 
 #### Parameters
 
-| Parameter | Type   |
-| :-------- | :----- |
-| `type`    | `Type` |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | `Type` |
 
 #### Returns
 
 `boolean`
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:513](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L513)
-
----
-
-### #newFileScope()
+### #newFileScope
 
 ```ts
 private #newFileScope(type): object
@@ -204,23 +172,19 @@ private #newFileScope(type): object
 
 #### Parameters
 
-| Parameter | Type                                                     |
-| :-------- | :------------------------------------------------------- |
-| `type`    | [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) |
+| Parameter | Type |
+| :------ | :------ |
+| `type` | [`JsonSchemaDeclaration`](Type.JsonSchemaDeclaration.md) |
 
 #### Returns
 
-| Member  | Type                                     |
-| :------ | :--------------------------------------- |
+| Member | Type |
+| :------ | :------ |
 | `scope` | `Scope`< `Record`< `string`, `any` \> \> |
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:727](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L727)
-
----
-
-### #requiredModelProperties()
+### #requiredModelProperties
 
 ```ts
 private #requiredModelProperties(model): undefined | string[]
@@ -228,21 +192,17 @@ private #requiredModelProperties(model): undefined | string[]
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `model`   | `Model` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
 
 #### Returns
 
 `undefined` \| `string`[]
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:138](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L138)
-
----
-
-### #scalarBuiltinBaseType()
+### #scalarBuiltinBaseType
 
 ```ts
 private #scalarBuiltinBaseType(scalar): null | Scalar
@@ -250,21 +210,17 @@ private #scalarBuiltinBaseType(scalar): null | Scalar
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `scalar`  | `Scalar` |
+| Parameter | Type |
+| :------ | :------ |
+| `scalar` | `Scalar` |
 
 #### Returns
 
 `null` \| `Scalar`
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:490](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L490)
-
----
-
-### arrayDeclaration()
+### arrayDeclaration
 
 ```ts
 arrayDeclaration(
@@ -275,11 +231,11 @@ arrayDeclaration(
 
 #### Parameters
 
-| Parameter     | Type     |
-| :------------ | :------- |
-| `array`       | `Model`  |
-| `name`        | `string` |
-| `elementType` | `Type`   |
+| Parameter | Type |
+| :------ | :------ |
+| `array` | `Model` |
+| `name` | `string` |
+| `elementType` | `Type` |
 
 #### Returns
 
@@ -289,13 +245,9 @@ arrayDeclaration(
 
 TypeEmitter.arrayDeclaration
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:118](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L118)
-
----
-
-### arrayDeclarationContext()
+### arrayDeclarationContext
 
 ```ts
 arrayDeclarationContext(array): Context
@@ -303,9 +255,9 @@ arrayDeclarationContext(array): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `array`   | `Model` |
+| Parameter | Type |
+| :------ | :------ |
+| `array` | `Model` |
 
 #### Returns
 
@@ -315,13 +267,9 @@ arrayDeclarationContext(array): Context
 
 TypeEmitter.arrayDeclarationContext
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:693](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L693)
-
----
-
-### arrayDeclarationReferenceContext()
+### arrayDeclarationReferenceContext
 
 ```ts
 arrayDeclarationReferenceContext(
@@ -332,11 +280,11 @@ arrayDeclarationReferenceContext(
 
 #### Parameters
 
-| Parameter     | Type     |
-| :------------ | :------- |
-| `array`       | `Model`  |
-| `name`        | `string` |
-| `elementType` | `Type`   |
+| Parameter | Type |
+| :------ | :------ |
+| `array` | `Model` |
+| `name` | `string` |
+| `elementType` | `Type` |
 
 #### Returns
 
@@ -346,13 +294,9 @@ arrayDeclarationReferenceContext(
 
 TypeEmitter.arrayDeclarationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:254
-
----
-
-### arrayLiteral()
+### arrayLiteral
 
 ```ts
 arrayLiteral(array, elementType): EmitterOutput< object >
@@ -360,10 +304,10 @@ arrayLiteral(array, elementType): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter     | Type    |
-| :------------ | :------ |
-| `array`       | `Model` |
-| `elementType` | `Type`  |
+| Parameter | Type |
+| :------ | :------ |
+| `array` | `Model` |
+| `elementType` | `Type` |
 
 #### Returns
 
@@ -373,13 +317,9 @@ arrayLiteral(array, elementType): EmitterOutput< object >
 
 TypeEmitter.arrayLiteral
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:131](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L131)
-
----
-
-### arrayLiteralContext()
+### arrayLiteralContext
 
 ```ts
 arrayLiteralContext(array, elementType): Context
@@ -387,10 +327,10 @@ arrayLiteralContext(array, elementType): Context
 
 #### Parameters
 
-| Parameter     | Type    |
-| :------------ | :------ |
-| `array`       | `Model` |
-| `elementType` | `Type`  |
+| Parameter | Type |
+| :------ | :------ |
+| `array` | `Model` |
+| `elementType` | `Type` |
 
 #### Returns
 
@@ -400,13 +340,9 @@ arrayLiteralContext(array, elementType): Context
 
 TypeEmitter.arrayLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:256
-
----
-
-### arrayLiteralReferenceContext()
+### arrayLiteralReferenceContext
 
 ```ts
 arrayLiteralReferenceContext(array, elementType): Context
@@ -414,10 +350,10 @@ arrayLiteralReferenceContext(array, elementType): Context
 
 #### Parameters
 
-| Parameter     | Type    |
-| :------------ | :------ |
-| `array`       | `Model` |
-| `elementType` | `Type`  |
+| Parameter | Type |
+| :------ | :------ |
+| `array` | `Model` |
+| `elementType` | `Type` |
 
 #### Returns
 
@@ -427,13 +363,9 @@ arrayLiteralReferenceContext(array, elementType): Context
 
 TypeEmitter.arrayLiteralReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:257
-
----
-
-### booleanLiteral()
+### booleanLiteral
 
 ```ts
 booleanLiteral(boolean): EmitterOutput< object >
@@ -441,8 +373,8 @@ booleanLiteral(boolean): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type             |
-| :-------- | :--------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `boolean` | `BooleanLiteral` |
 
 #### Returns
@@ -453,13 +385,9 @@ booleanLiteral(boolean): EmitterOutput< object >
 
 TypeEmitter.booleanLiteral
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:174](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L174)
-
----
-
-### booleanLiteralContext()
+### booleanLiteralContext
 
 ```ts
 booleanLiteralContext(boolean): Context
@@ -467,8 +395,8 @@ booleanLiteralContext(boolean): Context
 
 #### Parameters
 
-| Parameter | Type             |
-| :-------- | :--------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `boolean` | `BooleanLiteral` |
 
 #### Returns
@@ -479,13 +407,9 @@ booleanLiteralContext(boolean): Context
 
 TypeEmitter.booleanLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:264
-
----
-
-### declarationName()
+### declarationName
 
 ```ts
 declarationName(declarationType): undefined | string
@@ -493,8 +417,8 @@ declarationName(declarationType): undefined | string
 
 #### Parameters
 
-| Parameter         | Type                  |
-| :---------------- | :-------------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `declarationType` | `TypeSpecDeclaration` |
 
 #### Returns
@@ -505,13 +429,9 @@ declarationName(declarationType): undefined | string
 
 TypeEmitter.declarationName
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:316
-
----
-
-### enumDeclaration()
+### enumDeclaration
 
 ```ts
 enumDeclaration(en, name): EmitterOutput< object >
@@ -519,10 +439,10 @@ enumDeclaration(en, name): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `en`      | `Enum`   |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `en` | `Enum` |
+| `name` | `string` |
 
 #### Returns
 
@@ -532,13 +452,9 @@ enumDeclaration(en, name): EmitterOutput< object >
 
 TypeEmitter.enumDeclaration
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:186](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L186)
-
----
-
-### enumDeclarationContext()
+### enumDeclarationContext
 
 ```ts
 enumDeclarationContext(en): Context
@@ -546,9 +462,9 @@ enumDeclarationContext(en): Context
 
 #### Parameters
 
-| Parameter | Type   |
-| :-------- | :----- |
-| `en`      | `Enum` |
+| Parameter | Type |
+| :------ | :------ |
+| `en` | `Enum` |
 
 #### Returns
 
@@ -558,13 +474,9 @@ enumDeclarationContext(en): Context
 
 TypeEmitter.enumDeclarationContext
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:701](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L701)
-
----
-
-### enumMember()
+### enumMember
 
 ```ts
 enumMember(member): EmitterOutput< Record< string, any > >
@@ -572,9 +484,9 @@ enumMember(member): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type         |
-| :-------- | :----------- |
-| `member`  | `EnumMember` |
+| Parameter | Type |
+| :------ | :------ |
+| `member` | `EnumMember` |
 
 #### Returns
 
@@ -584,13 +496,9 @@ enumMember(member): EmitterOutput< Record< string, any > >
 
 TypeEmitter.enumMember
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:292
-
----
-
-### enumMemberContext()
+### enumMemberContext
 
 ```ts
 enumMemberContext(member): object
@@ -598,9 +506,9 @@ enumMemberContext(member): object
 
 #### Parameters
 
-| Parameter | Type         |
-| :-------- | :----------- |
-| `member`  | `EnumMember` |
+| Parameter | Type |
+| :------ | :------ |
+| `member` | `EnumMember` |
 
 #### Returns
 
@@ -610,13 +518,9 @@ enumMemberContext(member): object
 
 TypeEmitter.enumMemberContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:293
-
----
-
-### enumMemberReference()
+### enumMemberReference
 
 ```ts
 enumMemberReference(member): EmitterOutput< Record< string, any > >
@@ -624,9 +528,9 @@ enumMemberReference(member): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type         |
-| :-------- | :----------- |
-| `member`  | `EnumMember` |
+| Parameter | Type |
+| :------ | :------ |
+| `member` | `EnumMember` |
 
 #### Returns
 
@@ -636,13 +540,9 @@ enumMemberReference(member): EmitterOutput< Record< string, any > >
 
 TypeEmitter.enumMemberReference
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:207](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L207)
-
----
-
-### enumMembers()
+### enumMembers
 
 ```ts
 enumMembers(en): EmitterOutput< Record< string, any > >
@@ -650,9 +550,9 @@ enumMembers(en): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type   |
-| :-------- | :----- |
-| `en`      | `Enum` |
+| Parameter | Type |
+| :------ | :------ |
+| `en` | `Enum` |
 
 #### Returns
 
@@ -662,13 +562,9 @@ enumMembers(en): EmitterOutput< Record< string, any > >
 
 TypeEmitter.enumMembers
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:290
-
----
-
-### enumMembersContext()
+### enumMembersContext
 
 ```ts
 enumMembersContext(en): Context
@@ -676,9 +572,9 @@ enumMembersContext(en): Context
 
 #### Parameters
 
-| Parameter | Type   |
-| :-------- | :----- |
-| `en`      | `Enum` |
+| Parameter | Type |
+| :------ | :------ |
+| `en` | `Enum` |
 
 #### Returns
 
@@ -688,13 +584,9 @@ enumMembersContext(en): Context
 
 TypeEmitter.enumMembersContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:291
-
----
-
-### interfaceDeclaration()
+### interfaceDeclaration
 
 ```ts
 interfaceDeclaration(iface, name): EmitterOutput< Record< string, any > >
@@ -702,10 +594,10 @@ interfaceDeclaration(iface, name): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type        |
-| :-------- | :---------- |
-| `iface`   | `Interface` |
-| `name`    | `string`    |
+| Parameter | Type |
+| :------ | :------ |
+| `iface` | `Interface` |
+| `name` | `string` |
 
 #### Returns
 
@@ -715,13 +607,9 @@ interfaceDeclaration(iface, name): EmitterOutput< Record< string, any > >
 
 TypeEmitter.interfaceDeclaration
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:283
-
----
-
-### interfaceDeclarationContext()
+### interfaceDeclarationContext
 
 ```ts
 interfaceDeclarationContext(iface, name): Context
@@ -729,10 +617,10 @@ interfaceDeclarationContext(iface, name): Context
 
 #### Parameters
 
-| Parameter | Type        |
-| :-------- | :---------- |
-| `iface`   | `Interface` |
-| `name`    | `string`    |
+| Parameter | Type |
+| :------ | :------ |
+| `iface` | `Interface` |
+| `name` | `string` |
 
 #### Returns
 
@@ -742,13 +630,9 @@ interfaceDeclarationContext(iface, name): Context
 
 TypeEmitter.interfaceDeclarationContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:284
-
----
-
-### interfaceDeclarationOperations()
+### interfaceDeclarationOperations
 
 ```ts
 interfaceDeclarationOperations(iface): EmitterOutput< Record< string, any > >
@@ -756,9 +640,9 @@ interfaceDeclarationOperations(iface): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type        |
-| :-------- | :---------- |
-| `iface`   | `Interface` |
+| Parameter | Type |
+| :------ | :------ |
+| `iface` | `Interface` |
 
 #### Returns
 
@@ -768,13 +652,9 @@ interfaceDeclarationOperations(iface): EmitterOutput< Record< string, any > >
 
 TypeEmitter.interfaceDeclarationOperations
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:286
-
----
-
-### interfaceDeclarationOperationsContext()
+### interfaceDeclarationOperationsContext
 
 ```ts
 interfaceDeclarationOperationsContext(iface): Context
@@ -782,9 +662,9 @@ interfaceDeclarationOperationsContext(iface): Context
 
 #### Parameters
 
-| Parameter | Type        |
-| :-------- | :---------- |
-| `iface`   | `Interface` |
+| Parameter | Type |
+| :------ | :------ |
+| `iface` | `Interface` |
 
 #### Returns
 
@@ -794,13 +674,9 @@ interfaceDeclarationOperationsContext(iface): Context
 
 TypeEmitter.interfaceDeclarationOperationsContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:273
-
----
-
-### interfaceDeclarationOperationsReferenceContext()
+### interfaceDeclarationOperationsReferenceContext
 
 ```ts
 interfaceDeclarationOperationsReferenceContext(iface): Context
@@ -808,9 +684,9 @@ interfaceDeclarationOperationsReferenceContext(iface): Context
 
 #### Parameters
 
-| Parameter | Type        |
-| :-------- | :---------- |
-| `iface`   | `Interface` |
+| Parameter | Type |
+| :------ | :------ |
+| `iface` | `Interface` |
 
 #### Returns
 
@@ -820,13 +696,9 @@ interfaceDeclarationOperationsReferenceContext(iface): Context
 
 TypeEmitter.interfaceDeclarationOperationsReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:274
-
----
-
-### interfaceDeclarationReferenceContext()
+### interfaceDeclarationReferenceContext
 
 ```ts
 interfaceDeclarationReferenceContext(iface, name): Context
@@ -834,10 +706,10 @@ interfaceDeclarationReferenceContext(iface, name): Context
 
 #### Parameters
 
-| Parameter | Type        |
-| :-------- | :---------- |
-| `iface`   | `Interface` |
-| `name`    | `string`    |
+| Parameter | Type |
+| :------ | :------ |
+| `iface` | `Interface` |
+| `name` | `string` |
 
 #### Returns
 
@@ -847,13 +719,9 @@ interfaceDeclarationReferenceContext(iface, name): Context
 
 TypeEmitter.interfaceDeclarationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:285
-
----
-
-### interfaceOperationDeclaration()
+### interfaceOperationDeclaration
 
 ```ts
 interfaceOperationDeclaration(operation, name): EmitterOutput< Record< string, any > >
@@ -861,10 +729,10 @@ interfaceOperationDeclaration(operation, name): EmitterOutput< Record< string, a
 
 #### Parameters
 
-| Parameter   | Type        |
-| :---------- | :---------- |
+| Parameter | Type |
+| :------ | :------ |
 | `operation` | `Operation` |
-| `name`      | `string`    |
+| `name` | `string` |
 
 #### Returns
 
@@ -874,13 +742,9 @@ interfaceOperationDeclaration(operation, name): EmitterOutput< Record< string, a
 
 TypeEmitter.interfaceOperationDeclaration
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:287
-
----
-
-### interfaceOperationDeclarationContext()
+### interfaceOperationDeclarationContext
 
 ```ts
 interfaceOperationDeclarationContext(operation, name): Context
@@ -888,10 +752,10 @@ interfaceOperationDeclarationContext(operation, name): Context
 
 #### Parameters
 
-| Parameter   | Type        |
-| :---------- | :---------- |
+| Parameter | Type |
+| :------ | :------ |
 | `operation` | `Operation` |
-| `name`      | `string`    |
+| `name` | `string` |
 
 #### Returns
 
@@ -901,13 +765,9 @@ interfaceOperationDeclarationContext(operation, name): Context
 
 TypeEmitter.interfaceOperationDeclarationContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:275
-
----
-
-### interfaceOperationDeclarationReferenceContext()
+### interfaceOperationDeclarationReferenceContext
 
 ```ts
 interfaceOperationDeclarationReferenceContext(operation, name): Context
@@ -915,10 +775,10 @@ interfaceOperationDeclarationReferenceContext(operation, name): Context
 
 #### Parameters
 
-| Parameter   | Type        |
-| :---------- | :---------- |
+| Parameter | Type |
+| :------ | :------ |
 | `operation` | `Operation` |
-| `name`      | `string`    |
+| `name` | `string` |
 
 #### Returns
 
@@ -928,13 +788,9 @@ interfaceOperationDeclarationReferenceContext(operation, name): Context
 
 TypeEmitter.interfaceOperationDeclarationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:276
-
----
-
-### intrinsic()
+### intrinsic
 
 ```ts
 intrinsic(intrinsic, name): EmitterOutput< object >
@@ -942,10 +798,10 @@ intrinsic(intrinsic, name): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter   | Type            |
-| :---------- | :-------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `intrinsic` | `IntrinsicType` |
-| `name`      | `string`        |
+| `name` | `string` |
 
 #### Returns
 
@@ -955,13 +811,9 @@ intrinsic(intrinsic, name): EmitterOutput< object >
 
 TypeEmitter.intrinsic
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:517](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L517)
-
----
-
-### intrinsicContext()
+### intrinsicContext
 
 ```ts
 intrinsicContext(intrinsic, name): Context
@@ -969,10 +821,10 @@ intrinsicContext(intrinsic, name): Context
 
 #### Parameters
 
-| Parameter   | Type            |
-| :---------- | :-------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `intrinsic` | `IntrinsicType` |
-| `name`      | `string`        |
+| `name` | `string` |
 
 #### Returns
 
@@ -982,13 +834,9 @@ intrinsicContext(intrinsic, name): Context
 
 TypeEmitter.intrinsicContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:263
-
----
-
-### modelDeclaration()
+### modelDeclaration
 
 ```ts
 modelDeclaration(model, name): EmitterOutput< object >
@@ -996,10 +844,10 @@ modelDeclaration(model, name): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `model`   | `Model`  |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
+| `name` | `string` |
 
 #### Returns
 
@@ -1009,13 +857,9 @@ modelDeclaration(model, name): EmitterOutput< object >
 
 TypeEmitter.modelDeclaration
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:72](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L72)
-
----
-
-### modelDeclarationContext()
+### modelDeclarationContext
 
 ```ts
 modelDeclarationContext(model, name): Context
@@ -1023,10 +867,10 @@ modelDeclarationContext(model, name): Context
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `model`   | `Model`  |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
+| `name` | `string` |
 
 #### Returns
 
@@ -1036,13 +880,9 @@ modelDeclarationContext(model, name): Context
 
 TypeEmitter.modelDeclarationContext
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:671](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L671)
-
----
-
-### modelDeclarationReferenceContext()
+### modelDeclarationReferenceContext
 
 ```ts
 modelDeclarationReferenceContext(model, name): Context
@@ -1052,10 +892,10 @@ Set reference context for a model declaration.
 
 #### Parameters
 
-| Parameter | Type     | Description |
-| :-------- | :------- | :---------- |
-| `model`   | `Model`  |             |
-| `name`    | `string` | -           |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `model` | `Model` |  |
+| `name` | `string` | - |
 
 #### Returns
 
@@ -1065,13 +905,9 @@ Set reference context for a model declaration.
 
 TypeEmitter.modelDeclarationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:187
-
----
-
-### modelInstantiation()
+### modelInstantiation
 
 ```ts
 modelInstantiation(model, name): EmitterOutput< Record< string, any > >
@@ -1079,10 +915,10 @@ modelInstantiation(model, name): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type                    |
-| :-------- | :---------------------- |
-| `model`   | `Model`                 |
-| `name`    | `undefined` \| `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
+| `name` | `undefined` \| `string` |
 
 #### Returns
 
@@ -1092,13 +928,9 @@ modelInstantiation(model, name): EmitterOutput< Record< string, any > >
 
 TypeEmitter.modelInstantiation
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:110](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L110)
-
----
-
-### modelInstantiationContext()
+### modelInstantiationContext
 
 ```ts
 modelInstantiationContext(model, name): Context
@@ -1106,10 +938,10 @@ modelInstantiationContext(model, name): Context
 
 #### Parameters
 
-| Parameter | Type                    |
-| :-------- | :---------------------- |
-| `model`   | `Model`                 |
-| `name`    | `undefined` \| `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
+| `name` | `undefined` \| `string` |
 
 #### Returns
 
@@ -1119,13 +951,9 @@ modelInstantiationContext(model, name): Context
 
 TypeEmitter.modelInstantiationContext
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:683](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L683)
-
----
-
-### modelInstantiationReferenceContext()
+### modelInstantiationReferenceContext
 
 ```ts
 modelInstantiationReferenceContext(model, name): Context
@@ -1135,10 +963,10 @@ Set reference context for a model declaration.
 
 #### Parameters
 
-| Parameter | Type                    | Description |
-| :-------- | :---------------------- | :---------- |
-| `model`   | `Model`                 |             |
-| `name`    | `undefined` \| `string` | -           |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `model` | `Model` |  |
+| `name` | `undefined` \| `string` | - |
 
 #### Returns
 
@@ -1148,13 +976,9 @@ Set reference context for a model declaration.
 
 TypeEmitter.modelInstantiationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:208
-
----
-
-### modelLiteral()
+### modelLiteral
 
 ```ts
 modelLiteral(model): EmitterOutput< object >
@@ -1162,9 +986,9 @@ modelLiteral(model): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `model`   | `Model` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
 
 #### Returns
 
@@ -1174,13 +998,9 @@ modelLiteral(model): EmitterOutput< object >
 
 TypeEmitter.modelLiteral
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:96](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L96)
-
----
-
-### modelLiteralContext()
+### modelLiteralContext
 
 ```ts
 modelLiteralContext(model): Context
@@ -1190,9 +1010,9 @@ Set lexical context for a model literal.
 
 #### Parameters
 
-| Parameter | Type    | Description |
-| :-------- | :------ | :---------- |
-| `model`   | `Model` |             |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `model` | `Model` |  |
 
 #### Returns
 
@@ -1202,13 +1022,9 @@ Set lexical context for a model literal.
 
 TypeEmitter.modelLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:162
-
----
-
-### modelLiteralReferenceContext()
+### modelLiteralReferenceContext
 
 ```ts
 modelLiteralReferenceContext(model): Context
@@ -1218,9 +1034,9 @@ Set reference context for a model literal.
 
 #### Parameters
 
-| Parameter | Type    | Description |
-| :-------- | :------ | :---------- |
-| `model`   | `Model` |             |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `model` | `Model` |  |
 
 #### Returns
 
@@ -1230,13 +1046,9 @@ Set reference context for a model literal.
 
 TypeEmitter.modelLiteralReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:167
-
----
-
-### modelProperties()
+### modelProperties
 
 ```ts
 modelProperties(model): EmitterOutput< object >
@@ -1244,9 +1056,9 @@ modelProperties(model): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `model`   | `Model` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
 
 #### Returns
 
@@ -1256,13 +1068,9 @@ modelProperties(model): EmitterOutput< object >
 
 TypeEmitter.modelProperties
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:150](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L150)
-
----
-
-### modelPropertiesContext()
+### modelPropertiesContext
 
 ```ts
 modelPropertiesContext(model): Context
@@ -1270,9 +1078,9 @@ modelPropertiesContext(model): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `model`   | `Model` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
 
 #### Returns
 
@@ -1282,13 +1090,9 @@ modelPropertiesContext(model): Context
 
 TypeEmitter.modelPropertiesContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:216
-
----
-
-### modelPropertiesReferenceContext()
+### modelPropertiesReferenceContext
 
 ```ts
 modelPropertiesReferenceContext(model): Context
@@ -1296,9 +1100,9 @@ modelPropertiesReferenceContext(model): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `model`   | `Model` |
+| Parameter | Type |
+| :------ | :------ |
+| `model` | `Model` |
 
 #### Returns
 
@@ -1308,13 +1112,9 @@ modelPropertiesReferenceContext(model): Context
 
 TypeEmitter.modelPropertiesReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:217
-
----
-
-### modelPropertyLiteral()
+### modelPropertyLiteral
 
 ```ts
 modelPropertyLiteral(property): EmitterOutput< object >
@@ -1322,8 +1122,8 @@ modelPropertyLiteral(property): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter  | Type            |
-| :--------- | :-------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `property` | `ModelProperty` |
 
 #### Returns
@@ -1334,13 +1134,9 @@ modelPropertyLiteral(property): EmitterOutput< object >
 
 TypeEmitter.modelPropertyLiteral
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:161](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L161)
-
----
-
-### modelPropertyLiteralContext()
+### modelPropertyLiteralContext
 
 ```ts
 modelPropertyLiteralContext(property): Context
@@ -1350,9 +1146,9 @@ Set lexical context for a property of a model.
 
 #### Parameters
 
-| Parameter  | Type            | Description |
-| :--------- | :-------------- | :---------- |
-| `property` | `ModelProperty` |             |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `property` | `ModelProperty` |  |
 
 #### Returns
 
@@ -1362,13 +1158,9 @@ Set lexical context for a property of a model.
 
 TypeEmitter.modelPropertyLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:229
-
----
-
-### modelPropertyLiteralReferenceContext()
+### modelPropertyLiteralReferenceContext
 
 ```ts
 modelPropertyLiteralReferenceContext(property): Context
@@ -1378,9 +1170,9 @@ Set reference context for a property of a model.
 
 #### Parameters
 
-| Parameter  | Type            | Description |
-| :--------- | :-------------- | :---------- |
-| `property` | `ModelProperty` |             |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `property` | `ModelProperty` |  |
 
 #### Returns
 
@@ -1390,13 +1182,9 @@ Set reference context for a property of a model.
 
 TypeEmitter.modelPropertyLiteralReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:235
-
----
-
-### modelPropertyReference()
+### modelPropertyReference
 
 ```ts
 modelPropertyReference(property): EmitterOutput< object >
@@ -1404,8 +1192,8 @@ modelPropertyReference(property): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter  | Type            |
-| :--------- | :-------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `property` | `ModelProperty` |
 
 #### Returns
@@ -1416,13 +1204,9 @@ modelPropertyReference(property): EmitterOutput< object >
 
 TypeEmitter.modelPropertyReference
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:249](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L249)
-
----
-
-### namespace()
+### namespace
 
 ```ts
 namespace(namespace): EmitterOutput< Record< string, any > >
@@ -1432,9 +1216,9 @@ Emit a namespace
 
 #### Parameters
 
-| Parameter   | Type        | Description |
-| :---------- | :---------- | :---------- |
-| `namespace` | `Namespace` |             |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `namespace` | `Namespace` |  |
 
 #### Returns
 
@@ -1446,13 +1230,9 @@ Emitter output
 
 TypeEmitter.namespace
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:139
-
----
-
-### namespaceContext()
+### namespaceContext
 
 ```ts
 namespaceContext(namespace): Context
@@ -1462,9 +1242,9 @@ Set lexical context for a namespace
 
 #### Parameters
 
-| Parameter   | Type        | Description |
-| :---------- | :---------- | :---------- |
-| `namespace` | `Namespace` |             |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `namespace` | `Namespace` |  |
 
 #### Returns
 
@@ -1474,13 +1254,9 @@ Set lexical context for a namespace
 
 TypeEmitter.namespaceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:145
-
----
-
-### namespaceReferenceContext()
+### namespaceReferenceContext
 
 ```ts
 namespaceReferenceContext(namespace): Context
@@ -1490,9 +1266,9 @@ Set reference context for a namespace.
 
 #### Parameters
 
-| Parameter   | Type        | Description |
-| :---------- | :---------- | :---------- |
-| `namespace` | `Namespace` |             |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `namespace` | `Namespace` |  |
 
 #### Returns
 
@@ -1502,13 +1278,9 @@ Set reference context for a namespace.
 
 TypeEmitter.namespaceReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:151
-
----
-
-### numericLiteral()
+### numericLiteral
 
 ```ts
 numericLiteral(number): EmitterOutput< object >
@@ -1516,9 +1288,9 @@ numericLiteral(number): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type             |
-| :-------- | :--------------- |
-| `number`  | `NumericLiteral` |
+| Parameter | Type |
+| :------ | :------ |
+| `number` | `NumericLiteral` |
 
 #### Returns
 
@@ -1528,13 +1300,9 @@ numericLiteral(number): EmitterOutput< object >
 
 TypeEmitter.numericLiteral
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:182](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L182)
-
----
-
-### numericLiteralContext()
+### numericLiteralContext
 
 ```ts
 numericLiteralContext(number): Context
@@ -1542,9 +1310,9 @@ numericLiteralContext(number): Context
 
 #### Parameters
 
-| Parameter | Type             |
-| :-------- | :--------------- |
-| `number`  | `NumericLiteral` |
+| Parameter | Type |
+| :------ | :------ |
+| `number` | `NumericLiteral` |
 
 #### Returns
 
@@ -1554,13 +1322,9 @@ numericLiteralContext(number): Context
 
 TypeEmitter.numericLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:268
-
----
-
-### operationDeclaration()
+### operationDeclaration
 
 ```ts
 operationDeclaration(operation, name): EmitterOutput< Record< string, any > >
@@ -1568,10 +1332,10 @@ operationDeclaration(operation, name): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter   | Type        |
-| :---------- | :---------- |
+| Parameter | Type |
+| :------ | :------ |
 | `operation` | `Operation` |
-| `name`      | `string`    |
+| `name` | `string` |
 
 #### Returns
 
@@ -1581,13 +1345,9 @@ operationDeclaration(operation, name): EmitterOutput< Record< string, any > >
 
 TypeEmitter.operationDeclaration
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:270
-
----
-
-### operationDeclarationContext()
+### operationDeclarationContext
 
 ```ts
 operationDeclarationContext(operation, name): Context
@@ -1595,10 +1355,10 @@ operationDeclarationContext(operation, name): Context
 
 #### Parameters
 
-| Parameter   | Type        |
-| :---------- | :---------- |
+| Parameter | Type |
+| :------ | :------ |
 | `operation` | `Operation` |
-| `name`      | `string`    |
+| `name` | `string` |
 
 #### Returns
 
@@ -1608,13 +1368,9 @@ operationDeclarationContext(operation, name): Context
 
 TypeEmitter.operationDeclarationContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:271
-
----
-
-### operationDeclarationReferenceContext()
+### operationDeclarationReferenceContext
 
 ```ts
 operationDeclarationReferenceContext(operation, name): Context
@@ -1622,10 +1378,10 @@ operationDeclarationReferenceContext(operation, name): Context
 
 #### Parameters
 
-| Parameter   | Type        |
-| :---------- | :---------- |
+| Parameter | Type |
+| :------ | :------ |
 | `operation` | `Operation` |
-| `name`      | `string`    |
+| `name` | `string` |
 
 #### Returns
 
@@ -1635,13 +1391,9 @@ operationDeclarationReferenceContext(operation, name): Context
 
 TypeEmitter.operationDeclarationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:272
-
----
-
-### operationParameters()
+### operationParameters
 
 ```ts
 operationParameters(operation, parameters): EmitterOutput< Record< string, any > >
@@ -1649,10 +1401,10 @@ operationParameters(operation, parameters): EmitterOutput< Record< string, any >
 
 #### Parameters
 
-| Parameter    | Type        |
-| :----------- | :---------- |
-| `operation`  | `Operation` |
-| `parameters` | `Model`     |
+| Parameter | Type |
+| :------ | :------ |
+| `operation` | `Operation` |
+| `parameters` | `Model` |
 
 #### Returns
 
@@ -1662,13 +1414,9 @@ operationParameters(operation, parameters): EmitterOutput< Record< string, any >
 
 TypeEmitter.operationParameters
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:277
-
----
-
-### operationParametersContext()
+### operationParametersContext
 
 ```ts
 operationParametersContext(operation, parameters): Context
@@ -1676,10 +1424,10 @@ operationParametersContext(operation, parameters): Context
 
 #### Parameters
 
-| Parameter    | Type        |
-| :----------- | :---------- |
-| `operation`  | `Operation` |
-| `parameters` | `Model`     |
+| Parameter | Type |
+| :------ | :------ |
+| `operation` | `Operation` |
+| `parameters` | `Model` |
 
 #### Returns
 
@@ -1689,13 +1437,9 @@ operationParametersContext(operation, parameters): Context
 
 TypeEmitter.operationParametersContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:278
-
----
-
-### operationParametersReferenceContext()
+### operationParametersReferenceContext
 
 ```ts
 operationParametersReferenceContext(operation, parameters): Context
@@ -1703,10 +1447,10 @@ operationParametersReferenceContext(operation, parameters): Context
 
 #### Parameters
 
-| Parameter    | Type        |
-| :----------- | :---------- |
-| `operation`  | `Operation` |
-| `parameters` | `Model`     |
+| Parameter | Type |
+| :------ | :------ |
+| `operation` | `Operation` |
+| `parameters` | `Model` |
 
 #### Returns
 
@@ -1716,13 +1460,9 @@ operationParametersReferenceContext(operation, parameters): Context
 
 TypeEmitter.operationParametersReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:279
-
----
-
-### operationReturnType()
+### operationReturnType
 
 ```ts
 operationReturnType(operation, returnType): EmitterOutput< Record< string, any > >
@@ -1730,10 +1470,10 @@ operationReturnType(operation, returnType): EmitterOutput< Record< string, any >
 
 #### Parameters
 
-| Parameter    | Type        |
-| :----------- | :---------- |
-| `operation`  | `Operation` |
-| `returnType` | `Type`      |
+| Parameter | Type |
+| :------ | :------ |
+| `operation` | `Operation` |
+| `returnType` | `Type` |
 
 #### Returns
 
@@ -1743,13 +1483,9 @@ operationReturnType(operation, returnType): EmitterOutput< Record< string, any >
 
 TypeEmitter.operationReturnType
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:280
-
----
-
-### operationReturnTypeContext()
+### operationReturnTypeContext
 
 ```ts
 operationReturnTypeContext(operation, returnType): Context
@@ -1757,10 +1493,10 @@ operationReturnTypeContext(operation, returnType): Context
 
 #### Parameters
 
-| Parameter    | Type        |
-| :----------- | :---------- |
-| `operation`  | `Operation` |
-| `returnType` | `Type`      |
+| Parameter | Type |
+| :------ | :------ |
+| `operation` | `Operation` |
+| `returnType` | `Type` |
 
 #### Returns
 
@@ -1770,13 +1506,9 @@ operationReturnTypeContext(operation, returnType): Context
 
 TypeEmitter.operationReturnTypeContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:281
-
----
-
-### operationReturnTypeReferenceContext()
+### operationReturnTypeReferenceContext
 
 ```ts
 operationReturnTypeReferenceContext(operation, returnType): Context
@@ -1784,10 +1516,10 @@ operationReturnTypeReferenceContext(operation, returnType): Context
 
 #### Parameters
 
-| Parameter    | Type        |
-| :----------- | :---------- |
-| `operation`  | `Operation` |
-| `returnType` | `Type`      |
+| Parameter | Type |
+| :------ | :------ |
+| `operation` | `Operation` |
+| `returnType` | `Type` |
 
 #### Returns
 
@@ -1797,13 +1529,9 @@ operationReturnTypeReferenceContext(operation, returnType): Context
 
 TypeEmitter.operationReturnTypeReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:282
-
----
-
-### programContext()
+### programContext
 
 ```ts
 programContext(program): Context
@@ -1811,8 +1539,8 @@ programContext(program): Context
 
 #### Parameters
 
-| Parameter | Type      |
-| :-------- | :-------- |
+| Parameter | Type |
+| :------ | :------ |
 | `program` | `Program` |
 
 #### Returns
@@ -1823,13 +1551,9 @@ programContext(program): Context
 
 TypeEmitter.programContext
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:662](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L662)
-
----
-
-### reference()
+### reference
 
 ```ts
 reference(
@@ -1841,12 +1565,12 @@ reference(
 
 #### Parameters
 
-| Parameter           | Type                                                   |
-| :------------------ | :----------------------------------------------------- |
-| `targetDeclaration` | `Declaration`< `Record`< `string`, `unknown` \> \>     |
-| `pathUp`            | `Scope`< `Record`< `string`, `unknown` \> \>[]         |
-| `pathDown`          | `Scope`< `Record`< `string`, `unknown` \> \>[]         |
-| `commonScope`       | `null` \| `Scope`< `Record`< `string`, `unknown` \> \> |
+| Parameter | Type |
+| :------ | :------ |
+| `targetDeclaration` | `Declaration`< `Record`< `string`, `unknown` \> \> |
+| `pathUp` | `Scope`< `Record`< `string`, `unknown` \> \>[] |
+| `pathDown` | `Scope`< `Record`< `string`, `unknown` \> \>[] |
+| `commonScope` | `null` \| `Scope`< `Record`< `string`, `unknown` \> \> |
 
 #### Returns
 
@@ -1856,13 +1580,9 @@ reference(
 
 TypeEmitter.reference
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:263](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L263)
-
----
-
-### scalarDeclaration()
+### scalarDeclaration
 
 ```ts
 scalarDeclaration(scalar, name): EmitterOutput< object >
@@ -1870,10 +1590,10 @@ scalarDeclaration(scalar, name): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `scalar`  | `Scalar` |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `scalar` | `Scalar` |
+| `name` | `string` |
 
 #### Returns
 
@@ -1883,13 +1603,9 @@ scalarDeclaration(scalar, name): EmitterOutput< object >
 
 TypeEmitter.scalarDeclaration
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:300](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L300)
-
----
-
-### scalarDeclarationContext()
+### scalarDeclarationContext
 
 ```ts
 scalarDeclarationContext(scalar): Context
@@ -1897,9 +1613,9 @@ scalarDeclarationContext(scalar): Context
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `scalar`  | `Scalar` |
+| Parameter | Type |
+| :------ | :------ |
+| `scalar` | `Scalar` |
 
 #### Returns
 
@@ -1909,13 +1625,9 @@ scalarDeclarationContext(scalar): Context
 
 TypeEmitter.scalarDeclarationContext
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:717](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L717)
-
----
-
-### scalarInstantiation()
+### scalarInstantiation
 
 ```ts
 scalarInstantiation(scalar, name): EmitterOutput< Record< string, any > >
@@ -1923,10 +1635,10 @@ scalarInstantiation(scalar, name): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type                    |
-| :-------- | :---------------------- |
-| `scalar`  | `Scalar`                |
-| `name`    | `undefined` \| `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `scalar` | `Scalar` |
+| `name` | `undefined` \| `string` |
 
 #### Returns
 
@@ -1936,13 +1648,9 @@ scalarInstantiation(scalar, name): EmitterOutput< Record< string, any > >
 
 TypeEmitter.scalarInstantiation
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:260
-
----
-
-### scalarInstantiationContext()
+### scalarInstantiationContext
 
 ```ts
 scalarInstantiationContext(scalar, name): Context
@@ -1950,10 +1658,10 @@ scalarInstantiationContext(scalar, name): Context
 
 #### Parameters
 
-| Parameter | Type                    |
-| :-------- | :---------------------- |
-| `scalar`  | `Scalar`                |
-| `name`    | `undefined` \| `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `scalar` | `Scalar` |
+| `name` | `undefined` \| `string` |
 
 #### Returns
 
@@ -1963,13 +1671,9 @@ scalarInstantiationContext(scalar, name): Context
 
 TypeEmitter.scalarInstantiationContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:261
-
----
-
-### sourceFile()
+### sourceFile
 
 ```ts
 sourceFile(sourceFile): EmittedSourceFile
@@ -1977,8 +1681,8 @@ sourceFile(sourceFile): EmittedSourceFile
 
 #### Parameters
 
-| Parameter    | Type                      |
-| :----------- | :------------------------ |
+| Parameter | Type |
+| :------ | :------ |
 | `sourceFile` | `SourceFile`< `object` \> |
 
 #### Returns
@@ -1989,13 +1693,9 @@ sourceFile(sourceFile): EmittedSourceFile
 
 TypeEmitter.sourceFile
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:550](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L550)
-
----
-
-### stringLiteral()
+### stringLiteral
 
 ```ts
 stringLiteral(string): EmitterOutput< object >
@@ -2003,9 +1703,9 @@ stringLiteral(string): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type            |
-| :-------- | :-------------- |
-| `string`  | `StringLiteral` |
+| Parameter | Type |
+| :------ | :------ |
+| `string` | `StringLiteral` |
 
 #### Returns
 
@@ -2015,13 +1715,9 @@ stringLiteral(string): EmitterOutput< object >
 
 TypeEmitter.stringLiteral
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:178](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L178)
-
----
-
-### stringLiteralContext()
+### stringLiteralContext
 
 ```ts
 stringLiteralContext(string): Context
@@ -2029,9 +1725,9 @@ stringLiteralContext(string): Context
 
 #### Parameters
 
-| Parameter | Type            |
-| :-------- | :-------------- |
-| `string`  | `StringLiteral` |
+| Parameter | Type |
+| :------ | :------ |
+| `string` | `StringLiteral` |
 
 #### Returns
 
@@ -2041,13 +1737,9 @@ stringLiteralContext(string): Context
 
 TypeEmitter.stringLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:266
-
----
-
-### tupleLiteral()
+### tupleLiteral
 
 ```ts
 tupleLiteral(tuple): EmitterOutput< Record< string, any > >
@@ -2055,9 +1747,9 @@ tupleLiteral(tuple): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `tuple`   | `Tuple` |
+| Parameter | Type |
+| :------ | :------ |
+| `tuple` | `Tuple` |
 
 #### Returns
 
@@ -2067,13 +1759,9 @@ tupleLiteral(tuple): EmitterOutput< Record< string, any > >
 
 TypeEmitter.tupleLiteral
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:309
-
----
-
-### tupleLiteralContext()
+### tupleLiteralContext
 
 ```ts
 tupleLiteralContext(tuple): Context
@@ -2081,9 +1769,9 @@ tupleLiteralContext(tuple): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `tuple`   | `Tuple` |
+| Parameter | Type |
+| :------ | :------ |
+| `tuple` | `Tuple` |
 
 #### Returns
 
@@ -2093,13 +1781,9 @@ tupleLiteralContext(tuple): Context
 
 TypeEmitter.tupleLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:310
-
----
-
-### tupleLiteralReferenceContext()
+### tupleLiteralReferenceContext
 
 ```ts
 tupleLiteralReferenceContext(tuple): Context
@@ -2107,9 +1791,9 @@ tupleLiteralReferenceContext(tuple): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `tuple`   | `Tuple` |
+| Parameter | Type |
+| :------ | :------ |
+| `tuple` | `Tuple` |
 
 #### Returns
 
@@ -2119,13 +1803,9 @@ tupleLiteralReferenceContext(tuple): Context
 
 TypeEmitter.tupleLiteralReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:312
-
----
-
-### tupleLiteralValues()
+### tupleLiteralValues
 
 ```ts
 tupleLiteralValues(tuple): EmitterOutput< Record< string, any > >
@@ -2133,9 +1813,9 @@ tupleLiteralValues(tuple): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `tuple`   | `Tuple` |
+| Parameter | Type |
+| :------ | :------ |
+| `tuple` | `Tuple` |
 
 #### Returns
 
@@ -2145,13 +1825,9 @@ tupleLiteralValues(tuple): EmitterOutput< Record< string, any > >
 
 TypeEmitter.tupleLiteralValues
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:311
-
----
-
-### unionDeclaration()
+### unionDeclaration
 
 ```ts
 unionDeclaration(union, name): EmitterOutput< object >
@@ -2159,10 +1835,10 @@ unionDeclaration(union, name): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `union`   | `Union`  |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
+| `name` | `string` |
 
 #### Returns
 
@@ -2172,13 +1848,9 @@ unionDeclaration(union, name): EmitterOutput< object >
 
 TypeEmitter.unionDeclaration
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:219](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L219)
-
----
-
-### unionDeclarationContext()
+### unionDeclarationContext
 
 ```ts
 unionDeclarationContext(union): Context
@@ -2186,9 +1858,9 @@ unionDeclarationContext(union): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2198,13 +1870,9 @@ unionDeclarationContext(union): Context
 
 TypeEmitter.unionDeclarationContext
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:709](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L709)
-
----
-
-### unionDeclarationReferenceContext()
+### unionDeclarationReferenceContext
 
 ```ts
 unionDeclarationReferenceContext(union): Context
@@ -2212,9 +1880,9 @@ unionDeclarationReferenceContext(union): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2224,13 +1892,9 @@ unionDeclarationReferenceContext(union): Context
 
 TypeEmitter.unionDeclarationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:296
-
----
-
-### unionInstantiation()
+### unionInstantiation
 
 ```ts
 unionInstantiation(union, name): EmitterOutput< Record< string, any > >
@@ -2238,10 +1902,10 @@ unionInstantiation(union, name): EmitterOutput< Record< string, any > >
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `union`   | `Union`  |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
+| `name` | `string` |
 
 #### Returns
 
@@ -2251,13 +1915,9 @@ unionInstantiation(union, name): EmitterOutput< Record< string, any > >
 
 TypeEmitter.unionInstantiation
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:297
-
----
-
-### unionInstantiationContext()
+### unionInstantiationContext
 
 ```ts
 unionInstantiationContext(union, name): Context
@@ -2265,10 +1925,10 @@ unionInstantiationContext(union, name): Context
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `union`   | `Union`  |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
+| `name` | `string` |
 
 #### Returns
 
@@ -2278,13 +1938,9 @@ unionInstantiationContext(union, name): Context
 
 TypeEmitter.unionInstantiationContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:298
-
----
-
-### unionInstantiationReferenceContext()
+### unionInstantiationReferenceContext
 
 ```ts
 unionInstantiationReferenceContext(union, name): Context
@@ -2292,10 +1948,10 @@ unionInstantiationReferenceContext(union, name): Context
 
 #### Parameters
 
-| Parameter | Type     |
-| :-------- | :------- |
-| `union`   | `Union`  |
-| `name`    | `string` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
+| `name` | `string` |
 
 #### Returns
 
@@ -2305,13 +1961,9 @@ unionInstantiationReferenceContext(union, name): Context
 
 TypeEmitter.unionInstantiationReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:299
-
----
-
-### unionLiteral()
+### unionLiteral
 
 ```ts
 unionLiteral(union): EmitterOutput< object >
@@ -2319,9 +1971,9 @@ unionLiteral(union): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2331,13 +1983,9 @@ unionLiteral(union): EmitterOutput< object >
 
 TypeEmitter.unionLiteral
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:230](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L230)
-
----
-
-### unionLiteralContext()
+### unionLiteralContext
 
 ```ts
 unionLiteralContext(union): Context
@@ -2345,9 +1993,9 @@ unionLiteralContext(union): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2357,13 +2005,9 @@ unionLiteralContext(union): Context
 
 TypeEmitter.unionLiteralContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:301
-
----
-
-### unionLiteralReferenceContext()
+### unionLiteralReferenceContext
 
 ```ts
 unionLiteralReferenceContext(union): Context
@@ -2371,9 +2015,9 @@ unionLiteralReferenceContext(union): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2383,13 +2027,9 @@ unionLiteralReferenceContext(union): Context
 
 TypeEmitter.unionLiteralReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:302
-
----
-
-### unionVariant()
+### unionVariant
 
 ```ts
 unionVariant(variant): EmitterOutput< object >
@@ -2397,8 +2037,8 @@ unionVariant(variant): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type           |
-| :-------- | :------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `variant` | `UnionVariant` |
 
 #### Returns
@@ -2409,13 +2049,9 @@ unionVariant(variant): EmitterOutput< object >
 
 TypeEmitter.unionVariant
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:245](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L245)
-
----
-
-### unionVariantContext()
+### unionVariantContext
 
 ```ts
 unionVariantContext(union): Context
@@ -2423,9 +2059,9 @@ unionVariantContext(union): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2435,13 +2071,9 @@ unionVariantContext(union): Context
 
 TypeEmitter.unionVariantContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:307
-
----
-
-### unionVariantReferenceContext()
+### unionVariantReferenceContext
 
 ```ts
 unionVariantReferenceContext(union): Context
@@ -2449,9 +2081,9 @@ unionVariantReferenceContext(union): Context
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2461,13 +2093,9 @@ unionVariantReferenceContext(union): Context
 
 TypeEmitter.unionVariantReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:308
-
----
-
-### unionVariants()
+### unionVariants
 
 ```ts
 unionVariants(union): EmitterOutput< object >
@@ -2475,9 +2103,9 @@ unionVariants(union): EmitterOutput< object >
 
 #### Parameters
 
-| Parameter | Type    |
-| :-------- | :------ |
-| `union`   | `Union` |
+| Parameter | Type |
+| :------ | :------ |
+| `union` | `Union` |
 
 #### Returns
 
@@ -2487,13 +2115,9 @@ unionVariants(union): EmitterOutput< object >
 
 TypeEmitter.unionVariants
 
-#### Source
+***
 
-[json-schema/src/json-schema-emitter.ts:237](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L237)
-
----
-
-### unionVariantsContext()
+### unionVariantsContext
 
 ```ts
 unionVariantsContext(): Context
@@ -2507,13 +2131,9 @@ unionVariantsContext(): Context
 
 TypeEmitter.unionVariantsContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:304
-
----
-
-### unionVariantsReferenceContext()
+### unionVariantsReferenceContext
 
 ```ts
 unionVariantsReferenceContext(): Context
@@ -2527,13 +2147,9 @@ unionVariantsReferenceContext(): Context
 
 TypeEmitter.unionVariantsReferenceContext
 
-#### Source
+***
 
-compiler/dist/src/emitter-framework/type-emitter.d.ts:305
-
----
-
-### writeOutput()
+### writeOutput
 
 ```ts
 writeOutput(sourceFiles): Promise< void >
@@ -2541,8 +2157,8 @@ writeOutput(sourceFiles): Promise< void >
 
 #### Parameters
 
-| Parameter     | Type                                            |
-| :------------ | :---------------------------------------------- |
+| Parameter | Type |
+| :------ | :------ |
 | `sourceFiles` | `SourceFile`< `Record`< `string`, `any` \> \>[] |
 
 #### Returns
@@ -2552,7 +2168,3 @@ writeOutput(sourceFiles): Promise< void >
 #### Overrides
 
 TypeEmitter.writeOutput
-
-#### Source
-
-[json-schema/src/json-schema-emitter.ts:531](https://github.com/markcowl/cadl/blob/1a6d2b70/packages/json-schema/src/json-schema-emitter.ts#L531)
