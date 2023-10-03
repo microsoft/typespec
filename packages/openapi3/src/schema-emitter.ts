@@ -1,5 +1,6 @@
 import {
   BooleanLiteral,
+  compilerAssert,
   Enum,
   EnumMember,
   getDeprecated,
@@ -19,6 +20,8 @@ import {
   getSummary,
   IntrinsicScalarName,
   IntrinsicType,
+  isArrayModelType,
+  isNullType,
   isSecret,
   Model,
   ModelProperty,
@@ -42,7 +45,9 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
-import { getExtensions } from "@typespec/openapi";
+import { getExtensions, isReadonlyProperty } from "@typespec/openapi";
+import { getOneOf } from "./decorators.js";
+import { reportDiagnostic } from "./lib.js";
 import { OpenAPI3Schema } from "./types.js";
 
 export interface OpenAPI3SchemaEmitterOptions {}
@@ -135,17 +140,50 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return props;
   }
 
-  modelPropertyLiteral(property: ModelProperty): EmitterOutput<object> {
-    const result = this.emitter.emitTypeReference(property.type);
+  modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
+    const program = this.emitter.getProgram();
+    const description = getDoc(program, prop);
 
-    if (result.kind !== "code") {
+    const refSchema = this.emitter.emitTypeReference(prop.type);
+    if (refSchema.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
 
-    const withConstraints = new ObjectBuilder(result.value);
-    this.#applyConstraints(property, withConstraints);
+    const schema = this.#applyEncoding(prop, refSchema.value as any);
+    // Apply decorators on the property to the type's schema
+    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
+    if (description) {
+      additionalProps.description = description;
+    }
 
-    return withConstraints;
+    if (prop.default) {
+      additionalProps.default = this.#getDefaultValue(prop.type, prop.default);
+    }
+
+    if (isReadonlyProperty(program, prop)) {
+      additionalProps.readOnly = true;
+    }
+
+    // Attach any additional OpenAPI extensions
+    this.#attachExtensions(program, prop, additionalProps);
+
+    if (schema && "$ref" in schema) {
+      if (Object.keys(additionalProps).length === 0) {
+        return schema;
+      } else {
+        return {
+          allOf: [schema],
+          ...additionalProps,
+        };
+      }
+    } else {
+      if (getOneOf(program, prop) && schema.anyOf) {
+        schema.oneOf = schema.anyOf;
+        delete schema.anyOf;
+      }
+
+      return { ...schema, ...additionalProps };
+    }
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
@@ -222,18 +260,63 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.emitter.emitTypeReference(variant.type);
   }
 
-  modelPropertyReference(property: ModelProperty): EmitterOutput<object> {
-    // this is interesting - model property references will generally need to inherit
-    // the relevant decorators from the property they are referencing. I wonder if this
-    // could be made easier, as it's a bit subtle.
+  modelPropertyReference(prop: ModelProperty): EmitterOutput<object> {
+    return this.modelPropertyLiteral(prop);
+  }
 
-    const refSchema = this.emitter.emitTypeReference(property.type);
-    if (refSchema.kind !== "code") {
-      throw new Error("Unexpected non-code result from emit reference");
+  #attachExtensions(program: Program, type: Type, emitObject: OpenAPI3Schema) {
+    // Attach any OpenAPI extensions
+    const extensions = getExtensions(program, type);
+    if (extensions) {
+      for (const key of extensions.keys()) {
+        emitObject[key] = extensions.get(key);
+      }
     }
-    const schema = new ObjectBuilder(refSchema.value);
-    this.#applyConstraints(property, schema);
-    return schema;
+  }
+
+  #getDefaultValue(type: Type, defaultType: Type): any {
+    const program = this.emitter.getProgram();
+
+    switch (defaultType.kind) {
+      case "String":
+        return defaultType.value;
+      case "Number":
+        return defaultType.value;
+      case "Boolean":
+        return defaultType.value;
+      case "Tuple":
+        compilerAssert(
+          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+          "setting tuple default to non-tuple value"
+        );
+
+        if (type.kind === "Tuple") {
+          return defaultType.values.map((defaultTupleValue, index) =>
+            this.#getDefaultValue(type.values[index], defaultTupleValue)
+          );
+        } else {
+          return defaultType.values.map((defaultTuplevalue) =>
+            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue)
+          );
+        }
+
+      case "Intrinsic":
+        return isNullType(defaultType)
+          ? null
+          : reportDiagnostic(program, {
+              code: "invalid-default",
+              format: { type: defaultType.kind },
+              target: defaultType,
+            });
+      case "EnumMember":
+        return defaultType.value ?? defaultType.name;
+      default:
+        reportDiagnostic(program, {
+          code: "invalid-default",
+          format: { type: defaultType.kind },
+          target: defaultType,
+        });
+    }
   }
 
   reference(
@@ -259,8 +342,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<OpenAPI3Schema> {
+    const isStd = this.#isStdType(scalar);
     const schema = this.#getSchemaForScalar(scalar);
-    return this.#createDeclaration(scalar, name, schema);
+    // Don't create a declaration for std types
+    return isStd ? schema : this.#createDeclaration(scalar, name, schema);
   }
 
   #getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
@@ -385,10 +470,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       "deprecated"
     );
 
-    const extensions = getExtensions(program, type);
-    for (const [key, value] of extensions.entries()) {
-      schema[key] = value;
-    }
+    this.#attachExtensions(program, type, schema);
 
     const values = getKnownValues(program, type as any);
     if (values) {

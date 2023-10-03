@@ -922,7 +922,7 @@ function createOAPIEmitter(
     }
 
     if (type.kind === "ModelProperty") {
-      return resolveProperty(type, visibility);
+      return callSchemaEmitter(type);
     }
 
     type = metadataInfo.getEffectivePayloadType(type, visibility);
