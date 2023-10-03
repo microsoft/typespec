@@ -15,14 +15,13 @@ export interface ResolveCompilerOptionsOptions extends ConfigToOptionsOptions {
 }
 
 export interface ConfigToOptionsOptions {
-  /** Current working directory. This will be used to interpolate `{cwd}` in the config.
-   * @default to `process.cwd()`
+  /**
+   * Current working directory. This will be used to interpolate `{cwd}` in the config.
    */
-  cwd?: string;
+  cwd: string;
 
   /**
    * Environment variables.
-   * @default process.env
    */
   env?: Record<string, string | undefined>;
 
@@ -74,7 +73,7 @@ export async function resolveCompilerOptions(
  * @returns
  */
 export function resolveOptionsFromConfig(config: TypeSpecConfig, options: ConfigToOptionsOptions) {
-  const cwd = normalizePath(options.cwd ?? process.cwd());
+  const cwd = normalizePath(options.cwd);
   const diagnostics = createDiagnosticCollector();
 
   const configWithOverrides: TypeSpecConfig = {
@@ -86,7 +85,7 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
     expandConfigVariables(configWithOverrides, {
       cwd,
       outputDir: options.overrides?.outputDir,
-      env: options.env ?? process.env,
+      env: options.env ?? {},
       args: options.args,
     })
   );
