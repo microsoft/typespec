@@ -50,6 +50,7 @@ import {
   findTypeSpecConfigPath,
   loadTypeSpecConfigFile,
 } from "../config/config-loader.js";
+import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
 import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import {
@@ -390,10 +391,10 @@ export function createServer(host: ServerHost): Server {
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
 
-    const options = {
+    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {});
+    const options: CompilerOptions = {
+      ...optionsFromConfig,
       ...serverOptions,
-      emit: config.emit,
-      options: config.options,
     };
 
     if (!upToDate(document)) {

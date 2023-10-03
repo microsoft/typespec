@@ -36,9 +36,7 @@ steps:
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).
-  # Append "|| cd ." to command to ignore errors (works on both Windows and Linux) as a workaround
-  # for microsoft/rushstack#4334.
-  - script: node common/scripts/install-run-rush.js purge || cd .
+  - script: node common/scripts/install-run-rush.js purge
     displayName: "Purge dependencies"
     condition: always()
 

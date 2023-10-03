@@ -6,13 +6,15 @@ import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
 import { EmitterOptions, TypeSpecConfig } from "./types.js";
 
-export interface ResolveCompilerOptionsOptions {
+export interface ResolveCompilerOptionsOptions extends ConfigToOptionsOptions {
   /** Absolute entrypoint path */
   entrypoint: string;
 
   /** Explicit config path. */
   configPath?: string;
+}
 
+export interface ConfigToOptionsOptions {
   /** Current working directory. This will be used to interpolate `{cwd}` in the config.
    * @default to `process.cwd()`
    */
@@ -42,7 +44,6 @@ export async function resolveCompilerOptions(
   host: CompilerHost,
   options: ResolveCompilerOptionsOptions
 ): Promise<[CompilerOptions, readonly Diagnostic[]]> {
-  const cwd = normalizePath(options.cwd ?? process.cwd());
   const diagnostics = createDiagnosticCollector();
 
   const entrypointStat = await doIO(
@@ -61,6 +62,20 @@ export async function resolveCompilerOptions(
     options.configPath === undefined
   );
   config.diagnostics.forEach((x) => diagnostics.add(x));
+
+  const compilerOptions = diagnostics.pipe(resolveOptionsFromConfig(config, options));
+  return diagnostics.wrap(compilerOptions);
+}
+
+/**
+ * Resolve the compiler options from the given raw TypeSpec config
+ * @param config TypeSpec config.
+ * @param options Options for interpolation in the config.
+ * @returns
+ */
+export function resolveOptionsFromConfig(config: TypeSpecConfig, options: ConfigToOptionsOptions) {
+  const cwd = normalizePath(options.cwd ?? process.cwd());
+  const diagnostics = createDiagnosticCollector();
 
   const configWithOverrides: TypeSpecConfig = {
     ...config,
