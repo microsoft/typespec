@@ -28,8 +28,6 @@ import {
   getSummary,
   ignoreDiagnostics,
   interpolatePath,
-  IntrinsicScalarName,
-  IntrinsicType,
   isArrayModelType,
   isDeprecated,
   isErrorType,
@@ -1342,13 +1340,12 @@ function createOAPIEmitter(
 
     switch (type.kind) {
       case "Intrinsic":
-        return getSchemaForIntrinsicType(type);
+      case "Scalar":
+        return callSchemaEmitter(type);
       case "Model":
         return getSchemaForModel(type, visibility);
       case "ModelProperty":
         return getSchemaForType(type.type, visibility);
-      case "Scalar":
-        return getSchemaForScalar(type);
       case "Union":
         return getSchemaForUnion(type, visibility);
       case "UnionVariant":
@@ -1373,20 +1370,6 @@ function createOAPIEmitter(
       target: type,
     });
     return undefined;
-  }
-
-  function getSchemaForIntrinsicType(type: IntrinsicType): OpenAPI3Schema {
-    switch (type.name) {
-      case "unknown":
-        return {};
-    }
-
-    reportDiagnostic(program, {
-      code: "invalid-schema",
-      format: { type: type.name },
-      target: type,
-    });
-    return {};
   }
 
   function getSchemaForEnum(e: Enum) {
@@ -1793,7 +1776,7 @@ function createOAPIEmitter(
     const encodeData = getEncode(program, typespecType);
     if (encodeData) {
       const newTarget = { ...target };
-      const newType = getSchemaForScalar(encodeData.type);
+      const newType = callSchemaEmitter(encodeData.type);
       newTarget.type = newType.type;
       // If the target already has a format it takes priority. (e.g. int32)
       newTarget.format = mergeFormatAndEncoding(
@@ -1874,79 +1857,6 @@ function createOAPIEmitter(
       return applyIntrinsicDecorators(typespecType, array);
     }
     return undefined;
-  }
-
-  function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
-    let result: OpenAPI3Schema = {};
-    const isStd = program.checker.isStdType(scalar);
-    if (isStd) {
-      result = getSchemaForStdScalars(scalar);
-    } else if (scalar.baseScalar) {
-      result = getSchemaForScalar(scalar.baseScalar);
-    }
-    const withDecorators = applyEncoding(scalar, applyIntrinsicDecorators(scalar, result));
-    if (isStd) {
-      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
-      delete withDecorators.description;
-    }
-    return withDecorators;
-  }
-
-  function getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
-    switch (scalar.name) {
-      case "bytes":
-        return { type: "string", format: "byte" };
-      case "numeric":
-        return { type: "number" };
-      case "integer":
-        return { type: "integer" };
-      case "int8":
-        return { type: "integer", format: "int8" };
-      case "int16":
-        return { type: "integer", format: "int16" };
-      case "int32":
-        return { type: "integer", format: "int32" };
-      case "int64":
-        return { type: "integer", format: "int64" };
-      case "safeint":
-        return { type: "integer", format: "int64" };
-      case "uint8":
-        return { type: "integer", format: "uint8" };
-      case "uint16":
-        return { type: "integer", format: "uint16" };
-      case "uint32":
-        return { type: "integer", format: "uint32" };
-      case "uint64":
-        return { type: "integer", format: "uint64" };
-      case "float":
-        return { type: "number" };
-      case "float64":
-        return { type: "number", format: "double" };
-      case "float32":
-        return { type: "number", format: "float" };
-      case "decimal":
-        return { type: "number", format: "decimal" };
-      case "decimal128":
-        return { type: "number", format: "decimal128" };
-      case "string":
-        return { type: "string" };
-      case "boolean":
-        return { type: "boolean" };
-      case "plainDate":
-        return { type: "string", format: "date" };
-      case "utcDateTime":
-      case "offsetDateTime":
-        return { type: "string", format: "date-time" };
-      case "plainTime":
-        return { type: "string", format: "time" };
-      case "duration":
-        return { type: "string", format: "duration" };
-      case "url":
-        return { type: "string", format: "uri" };
-      default:
-        const _assertNever: never = scalar.name;
-        return {};
-    }
   }
 
   function processAuth(serviceNamespace: Namespace):

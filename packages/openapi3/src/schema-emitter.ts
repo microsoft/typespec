@@ -3,9 +3,10 @@ import {
   Enum,
   EnumMember,
   getDeprecated,
-  getDirectoryPath,
   getDoc,
+  getEncode,
   getFormat,
+  getKnownValues,
   getMaxItems,
   getMaxLength,
   getMaxValue,
@@ -15,10 +16,10 @@ import {
   getMinValue,
   getMinValueExclusive,
   getPattern,
-  getRelativePathFromDirectory,
   getSummary,
   IntrinsicScalarName,
   IntrinsicType,
+  isSecret,
   Model,
   ModelProperty,
   NumericLiteral,
@@ -160,6 +161,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
+    return this.#createDeclaration(en, name, this.#enumSchema(en));
+  }
+
+  #enumSchema(en: Enum): OpenAPI3Schema {
     const enumTypes = new Set<string>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
@@ -174,8 +179,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
       enum: [...enumValues],
     });
-    this.#applyConstraints(en, withConstraints);
-    return this.#createDeclaration(en, name, withConstraints);
+    return this.#applyConstraints(en, withConstraints);
   }
 
   enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
@@ -251,42 +255,28 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       currentSfScope.sourceFile.meta.bundledRefs.push(targetDeclaration);
     }
 
-    if (targetDeclaration.value.$id) {
-      return { $ref: targetDeclaration.value.$id };
-    }
-
-    if (!commonScope) {
-      // when either targetSfScope or currentSfScope are undefined, we have a common scope
-      // (i.e. we are doing a self-reference)
-      const resolved = getRelativePathFromDirectory(
-        getDirectoryPath(currentSfScope!.sourceFile.path),
-        targetSfScope!.sourceFile.path,
-        false
-      );
-      return { $ref: resolved };
-    }
-
-    throw new Error("$ref to $defs not yet supported.");
+    return { $ref: `#/components/schemas/${targetDeclaration.name}` };
   }
 
-  scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
-    const baseBuiltIn = this.#scalarBuiltinBaseType(scalar);
+  scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<OpenAPI3Schema> {
+    const schema = this.#getSchemaForScalar(scalar);
+    return this.#createDeclaration(scalar, name, schema);
+  }
 
-    if (baseBuiltIn === undefined) {
-      return new ObjectBuilder({});
+  #getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
+    let result: OpenAPI3Schema = {};
+    const isStd = this.#isStdType(scalar);
+    if (isStd) {
+      result = this.#getSchemaForStdScalars(scalar);
+    } else if (scalar.baseScalar) {
+      result = this.#getSchemaForScalar(scalar.baseScalar);
     }
-
-    const schema = this.#getSchemaForStdScalars(baseBuiltIn);
-
-    const builderSchema = new ObjectBuilder(schema);
-
-    // avoid creating declarations for built-in TypeSpec types
-    if (baseBuiltIn === scalar) {
-      return builderSchema;
+    const withDecorators = this.#applyEncoding(scalar, this.#applyConstraints(scalar, result));
+    if (isStd) {
+      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+      delete withDecorators.description;
     }
-
-    this.#applyConstraints(scalar, builderSchema);
-    return this.#createDeclaration(scalar, name, builderSchema);
+    return withDecorators;
   }
 
   #getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
@@ -348,10 +338,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
-    schema: ObjectBuilder<unknown>
-  ) {
-    const applyConstraint = (fn: (p: Program, t: Type) => any, key: string) => {
-      const value = fn(this.emitter.getProgram(), type);
+    schema: OpenAPI3Schema
+  ): OpenAPI3Schema {
+    const program = this.emitter.getProgram();
+    const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPI3Schema) => {
+      const value = fn(program, type);
       if (value !== undefined) {
         schema[key] = value;
       }
@@ -360,12 +351,26 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
     applyConstraint(getMinValue, "minimum");
-    applyConstraint(getMinValueExclusive, "exclusiveMinimum");
     applyConstraint(getMaxValue, "maximum");
-    applyConstraint(getMaxValueExclusive, "exclusiveMinimum");
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");
+
+    const minValueExclusive = getMinValueExclusive(program, type);
+    if (minValueExclusive !== undefined) {
+      schema.minimum = minValueExclusive;
+      schema.exclusiveMinimum = true;
+    }
+
+    const maxValueExclusive = getMaxValueExclusive(program, type);
+    if (maxValueExclusive !== undefined) {
+      schema.maximum = maxValueExclusive;
+      schema.exclusiveMaximum = true;
+    }
+
+    if (isSecret(program, type)) {
+      schema.format = "password";
+    }
 
     // the stdlib applies a format of "url" but json schema wants "uri",
     // so ignore this format if it's the built-in type.
@@ -380,32 +385,76 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       "deprecated"
     );
 
-    const extensions = getExtensions(this.emitter.getProgram(), type);
-    for (const [key, value] of Object.entries(extensions)) {
-      schema.set(key, value);
+    const extensions = getExtensions(program, type);
+    for (const [key, value] of extensions.entries()) {
+      schema[key] = value;
     }
+
+    const values = getKnownValues(program, type as any);
+    if (values) {
+      return {
+        oneOf: [schema, this.#enumSchema(values)],
+      };
+    }
+
+    return schema;
   }
 
-  #scalarBuiltinBaseType(scalar: Scalar): (Scalar & { name: IntrinsicScalarName }) | undefined {
-    let current = scalar;
-    while (current.baseScalar && !this.#isStdType(current)) {
-      current = current.baseScalar;
-    }
-
-    if (this.#isStdType(current)) {
-      return current;
-    }
-
-    return undefined;
-  }
-
-  #createDeclaration(type: Type, name: string, schema: ObjectBuilder<unknown>) {
+  #createDeclaration(type: Type, name: string, schema: OpenAPI3Schema) {
     const decl = this.emitter.result.declaration(name, schema);
     return decl;
   }
 
   #isStdType(type: Type): type is Scalar & { name: IntrinsicScalarName } {
     return this.emitter.getProgram().checker.isStdType(type);
+  }
+
+  #applyEncoding(typespecType: Scalar | ModelProperty, target: OpenAPI3Schema): OpenAPI3Schema {
+    const encodeData = getEncode(this.emitter.getProgram(), typespecType);
+    if (encodeData) {
+      const newTarget = { ...target };
+      const newType = this.#getSchemaForStdScalars(encodeData.type as any);
+
+      newTarget.type = newType.type;
+      // If the target already has a format it takes priority. (e.g. int32)
+      newTarget.format = this.#mergeFormatAndEncoding(
+        newTarget.format,
+        encodeData.encoding,
+        newType.format
+      );
+      return newTarget;
+    }
+    return target;
+  }
+  #mergeFormatAndEncoding(
+    format: string | undefined,
+    encoding: string,
+    encodeAsFormat: string | undefined
+  ): string {
+    switch (format) {
+      case undefined:
+        return encodeAsFormat ?? encoding;
+      case "date-time":
+        switch (encoding) {
+          case "rfc3339":
+            return "date-time";
+          case "unixTimestamp":
+            return "unixtime";
+          case "rfc7231":
+            return "http-date";
+          default:
+            return encoding;
+        }
+      case "duration":
+        switch (encoding) {
+          case "ISO8601":
+            return "duration";
+          default:
+            return encodeAsFormat ?? encoding;
+        }
+      default:
+        return encodeAsFormat ?? encoding;
+    }
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
