@@ -98,6 +98,7 @@ import { buildVersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getOneOf, getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Discriminator,
   OpenAPI3Document,
@@ -122,7 +123,7 @@ const defaultOptions = {
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
-  const emitter = createOAPIEmitter(context.program, options);
+  const emitter = createOAPIEmitter(context, options);
   await emitter.emitOpenAPI();
 }
 
@@ -209,7 +210,13 @@ interface ProcessedSchema extends PendingSchema {
   schema: OpenAPI3Schema | undefined;
 }
 
-function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOptions) {
+function createOAPIEmitter(
+  context: EmitContext<OpenAPI3EmitterOptions>,
+  options: ResolvedOpenAPI3EmitterOptions
+) {
+  let program = context.program;
+  const schemaEmitter = context.getAssetEmitter(OpenAPI3SchemaEmitter as any);
+
   let root: OpenAPI3Document;
 
   // Get the service namespace string for use in name shortening
@@ -887,6 +894,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
+  function callSchemaEmitter(type: Type) {
+    return (schemaEmitter.emitType(type) as any).value;
+  }
+
   function getSchemaOrRef(type: Type, visibility: Visibility): any {
     const refUrl = getRef(program, type);
     if (refUrl) {
@@ -896,25 +907,20 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
 
     if (type.kind === "Scalar" && program.checker.isStdType(type)) {
-      return getSchemaForScalar(type);
+      return callSchemaEmitter(type);
     }
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
       // For literal types, we just want to emit them directly as well.
-      return getSchemaForLiterals(type);
+      return callSchemaEmitter(type);
     }
 
     if (type.kind === "Intrinsic" && type.name === "unknown") {
-      return getSchemaForIntrinsicType(type);
+      return callSchemaEmitter(type);
     }
 
     if (type.kind === "EnumMember") {
-      // Enum members are just the OA representation of their values.
-      if (typeof type.value === "number") {
-        return { type: "number", enum: [type.value] };
-      } else {
-        return { type: "string", enum: [type.value ?? type.name] };
-      }
+      return callSchemaEmitter(type);
     }
 
     if (type.kind === "ModelProperty") {
