@@ -1,5 +1,4 @@
 import {
-  BooleanLiteral,
   compilerAssert,
   DiscriminatedUnion,
   EmitContext,
@@ -41,7 +40,6 @@ import {
   Namespace,
   navigateTypesInNamespace,
   NewLine,
-  NumericLiteral,
   Operation,
   Program,
   ProjectionApplication,
@@ -49,11 +47,9 @@ import {
   resolvePath,
   Scalar,
   Service,
-  StringLiteral,
   TwoLevelMap,
   Type,
   TypeNameOptions,
-  Union,
 } from "@typespec/compiler";
 
 import * as http from "@typespec/http";
@@ -350,7 +346,7 @@ function createOAPIEmitter(
         if (prop.type.kind === "Enum") {
           variable.enum = callSchemaEmitter(prop.type).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum as any;
+          variable.enum = callSchemaEmitter(prop.type).enum;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -1332,140 +1328,12 @@ function createOAPIEmitter(
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
-    const builtinType = getSchemaForLiterals(type);
-    if (builtinType !== undefined) return builtinType;
-
     switch (type.kind) {
-      case "Intrinsic":
-      case "Scalar":
-        return callSchemaEmitter(type);
       case "Model":
         return getSchemaForModel(type, visibility);
-      case "ModelProperty":
-      case "Union":
-      case "UnionVariant":
-      case "Enum":
-      case "Tuple":
-        return callSchemaEmitter(type);
-      case "TemplateParameter":
-        // Note: This should never happen if it does there is a bug in the compiler.
-        reportDiagnostic(program, {
-          code: "invalid-schema",
-          format: { type: `${type.node.id.sv} (template parameter)` },
-          target: type,
-        });
-        return undefined;
     }
 
-    reportDiagnostic(program, {
-      code: "invalid-schema",
-      format: { type: type.kind },
-      target: type,
-    });
-    return undefined;
-  }
-
-  /**
-   * A TypeSpec union maps to a variety of OA3 structures according to the following rules:
-   *
-   * * A union containing `null` makes a `nullable` schema comprised of the remaining
-   *   union variants.
-   * * A union containing literal types are converted to OA3 enums. All literals of the
-   *   same type are combined into single enums.
-   * * A union that contains multiple items (after removing null and combining like-typed
-   *   literals into enums) is an `anyOf` union unless `oneOf` is applied to the union
-   *   declaration.
-   */
-  function getSchemaForUnion(union: Union, visibility: Visibility): OpenAPI3Schema {
-    if (union.variants.size === 0) {
-      reportDiagnostic(program, { code: "empty-union", target: union });
-      return {};
-    }
-    const variants = Array.from(union.variants.values());
-    const literalVariantEnumByType: Record<string, any> = {};
-    const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
-    const schemaMembers: { schema: any; type: Type | null }[] = [];
-    let nullable = false;
-    const discriminator = getDiscriminator(program, union);
-
-    for (const variant of variants) {
-      if (isNullType(variant.type)) {
-        nullable = true;
-        continue;
-      }
-
-      if (isLiteralType(variant.type)) {
-        if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = getSchemaForLiterals(variant.type);
-          literalVariantEnumByType[variant.type.kind] = enumSchema;
-          schemaMembers.push({ schema: enumSchema, type: null });
-        } else {
-          literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
-        }
-        continue;
-      }
-
-      schemaMembers.push({ schema: getSchemaOrRef(variant.type, visibility), type: variant.type });
-    }
-
-    if (schemaMembers.length === 0) {
-      if (nullable) {
-        // This union is equivalent to just `null` but OA3 has no way to specify
-        // null as a value, so we throw an error.
-        reportDiagnostic(program, { code: "union-null", target: union });
-        return {};
-      } else {
-        // completely empty union can maybe only happen with bugs?
-        compilerAssert(false, "Attempting to emit an empty union");
-      }
-    }
-
-    if (schemaMembers.length === 1) {
-      // we can just return the single schema member after applying nullable
-      const schema = schemaMembers[0].schema;
-      const type = schemaMembers[0].type;
-
-      if (nullable) {
-        if (schema.$ref) {
-          // but we can't make a ref "nullable", so wrap in an allOf (for models)
-          // or oneOf (for all other types)
-          if (type && type.kind === "Model") {
-            return { type: "object", allOf: [schema], nullable: true };
-          } else {
-            return { oneOf: [schema], nullable: true };
-          }
-        } else {
-          schema.nullable = true;
-        }
-      }
-
-      return schema;
-    }
-
-    const schema: any = {
-      [ofType]: schemaMembers.map((m) => m.schema),
-    };
-
-    if (nullable) {
-      schema.nullable = true;
-    }
-
-    if (discriminator) {
-      // the decorator validates that all the variants will be a model type
-      // with the discriminator field present.
-      schema.discriminator = { ...discriminator };
-      // Diagnostic already reported in compiler for unions
-      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
-      if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = getDiscriminatorMapping(discriminatedUnion, visibility);
-      }
-    }
-
-    return applyIntrinsicDecorators(union, schema);
-  }
-
-  function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
-    return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
+    return callSchemaEmitter(type);
   }
 
   function getDefaultValue(type: Type, defaultType: Type): any {
@@ -1780,25 +1648,6 @@ function createOAPIEmitter(
     const externalDocs = getExternalDocs(program, typespecType);
     if (externalDocs) {
       target.externalDocs = externalDocs;
-    }
-  }
-
-  // Map an TypeSpec type to an OA schema. Returns undefined when the resulting
-  // OA schema is just a regular object schema.
-  function getSchemaForLiterals(
-    typespecType: NumericLiteral | StringLiteral | BooleanLiteral
-  ): OpenAPI3Schema;
-  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined;
-  function getSchemaForLiterals(typespecType: Type): OpenAPI3Schema | undefined {
-    switch (typespecType.kind) {
-      case "Number":
-        return { type: "number", enum: [typespecType.value] };
-      case "String":
-        return { type: "string", enum: [typespecType.value] };
-      case "Boolean":
-        return { type: "boolean", enum: [typespecType.value] };
-      default:
-        return undefined;
     }
   }
 
