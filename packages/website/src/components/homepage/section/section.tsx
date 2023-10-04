@@ -1,7 +1,6 @@
 import {
   Caption1,
   Divider,
-  Link,
   Subtitle2,
   Title2,
   makeStyles,
@@ -12,6 +11,7 @@ import { FluentImageName, FluentImg } from "../../fluent-img";
 
 import { AssetImg } from "../../asset-img/asset-img";
 import { Card } from "../../card/card";
+import { Link } from "../../link/link";
 import style from "./section.module.css";
 
 interface SectionItem {

@@ -1,11 +1,11 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Button, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
+import { Links } from "@site/src/constants";
 import { Card } from "../card/card";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
-import { Links } from "@site/src/constants";
 
 const useFluentStyles = makeStyles({
   bg: { backgroundColor: tokens.colorNeutralBackground3 },

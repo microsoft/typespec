@@ -74,7 +74,7 @@
 
 .item {
   display: flex;
-  gap: 12px
+  gap: 12px;
 }
 
 .item-image {
