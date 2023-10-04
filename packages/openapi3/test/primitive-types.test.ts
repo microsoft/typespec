@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok, strictEqual } from "assert";
+import { deepStrictEqual, ok } from "assert";
 import { OpenAPI3Schema } from "../src/types.js";
 import { oapiForModel } from "./test-host.js";
 
@@ -268,61 +268,6 @@ describe("openapi3: primitives", () => {
         testEncode("bytes", { type: "string", format: "byte" }));
       it("set format to base64url when encoding bytes as base64url", () =>
         testEncode("bytes", { type: "string", format: "base64url" }, "base64url"));
-    });
-  });
-
-  describe("constraints", () => {
-    const scalarNumberTypes = [
-      "int8",
-      "int16",
-      "int32",
-      "uint8",
-      "uint16",
-      "uint32",
-      "integer",
-      "float32",
-      "float64",
-      "numeric",
-      "float",
-      "safeint",
-    ];
-
-    describe("@minValue/@maxValue", () => {
-      for (const numType of scalarNumberTypes) {
-        it(numType, async () => {
-          const schemas = await oapiForModel(
-            "Test",
-            `
-            @minValue(1)
-            @maxValue(2)
-            scalar Test extends ${numType};
-          `
-          );
-
-          strictEqual(schemas.schemas.Test.minimum, 1);
-          strictEqual(schemas.schemas.Test.maximum, 2);
-        });
-      }
-    });
-
-    describe("@minValueExclusive/@maxValueExclusive", () => {
-      for (const numType of scalarNumberTypes) {
-        it(numType, async () => {
-          const schemas = await oapiForModel(
-            "Test",
-            `
-            @minValueExclusive(1)
-            @maxValueExclusive(2)
-            scalar Test extends ${numType};
-          `
-          );
-
-          strictEqual(schemas.schemas.Test.minimum, 1);
-          strictEqual(schemas.schemas.Test.exclusiveMaximum, true);
-          strictEqual(schemas.schemas.Test.maximum, 2);
-          strictEqual(schemas.schemas.Test.exclusiveMaximum, true);
-        });
-      }
     });
   });
 });

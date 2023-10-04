@@ -150,7 +150,9 @@ describe("openapi3: parameters", () => {
         @header({name: "$multi", format: "multi"}) multis: string[],
         #suppress "@typespec/openapi3/invalid-format" "test"
         @header({name: "$tsv", format: "tsv"}) tsvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
         @header({name: "$ssv", format: "ssv"}) ssvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
         @header({name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
       `
@@ -187,28 +189,18 @@ describe("openapi3: parameters", () => {
     deepStrictEqual(params[3], {
       in: "header",
       name: "$ssv",
-      style: "spaceDelimited",
       required: true,
       schema: {
-        type: "array",
-        items: {
-          type: "string",
-        },
+        type: "string",
       },
-      explode: false,
     });
     deepStrictEqual(params[4], {
       in: "header",
       name: "$pipes",
-      style: "pipeDelimited",
       required: true,
       schema: {
-        type: "array",
-        items: {
-          type: "string",
-        },
+        type: "string",
       },
-      explode: false,
     });
   });
 

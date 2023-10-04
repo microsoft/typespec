@@ -27,7 +27,7 @@ jobs:
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
-      - script: npx @microsoft/rush publish --publish --pack --include-all
+      - script: node common/scripts/install-run-rush.js publish --publish --pack --include-all
         displayName: Pack packages
 
       - publish: $(Build.SourcesDirectory)/common/temp/artifacts/packages

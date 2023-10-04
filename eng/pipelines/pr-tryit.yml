@@ -16,13 +16,7 @@ jobs:
       - checkout: self
         persistCredentials: true
 
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 16.x
-        displayName: Install Node.js
-
-      - script: node common/scripts/install-run-rush.js install --max-install-attempts 3
-        displayName: Install JavaScript Dependencies
+      - template: ./templates/install.yml
 
       - template: ./templates/build.yml
 
@@ -51,7 +45,3 @@ jobs:
               --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
               --source "./packages/website/build/" \
               --overwrite
-
-      - script: node eng/scripts/create-tryit-comment.js
-        displayName: Check already commented
-        continueOnError: true # Setting this in case this starts working again
