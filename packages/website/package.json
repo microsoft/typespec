@@ -58,7 +58,8 @@
     "eslint": "^8.49.0",
     "rimraf": "~5.0.1",
     "dotenv": "~16.3.1",
-    "swc-loader": "^0.2.3"
+    "swc-loader": "^0.2.3",
+    "raw-loader": "~4.0.2"
   },
   "browserslist": {
     "production": [

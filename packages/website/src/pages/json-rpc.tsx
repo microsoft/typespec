@@ -49,7 +49,7 @@ const JsonRpcContent = () => {
           header="Ecosystem"
           title="Test API endpoints as you code"
           description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          image="illustrations/openapi3.png"
+          illustration="illustrations/openapi3.png"
           items={[
             {
               title: "TypeSpec for JSON RPC developer",
@@ -65,7 +65,7 @@ const JsonRpcContent = () => {
           header="Ecosystem"
           title="Test API endpoints as you code"
           description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          image="illustrations/openapi3.png"
+          illustration="illustrations/openapi3.png"
           items={[
             {
               title: "TypeSpec for JSON RPC developer",

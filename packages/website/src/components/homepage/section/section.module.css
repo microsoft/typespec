@@ -17,7 +17,6 @@
 }
 
 .info-container {
-  width: 50vw;
   display: flex;
   justify-content: center;
 }
@@ -57,6 +56,10 @@
   width: 80vw;
   padding: 0;
   overflow: hidden;
+}
+
+.illustration :global(.theme-code-block) {
+  margin-bottom: 0;
 }
 
 @media only screen and (min-width: 1200px) {

@@ -25,7 +25,7 @@ interface SectionProps {
   header: string;
   title: string;
   description: string;
-  image: string;
+  illustration: string | React.ReactNode;
   items: SectionItem[];
   layout?: "text-left" | "text-right";
 }
@@ -35,7 +35,14 @@ const useFluentStyles = makeStyles({
   descriptionText: { color: tokens.colorNeutralForeground3 },
 });
 
-export const Section = ({ header, title, description, items, layout, image }: SectionProps) => {
+export const Section = ({
+  header,
+  title,
+  description,
+  items,
+  layout,
+  illustration,
+}: SectionProps) => {
   const fluentStyles = useFluentStyles();
   return (
     <div
@@ -68,7 +75,7 @@ export const Section = ({ header, title, description, items, layout, image }: Se
         </div>
       </div>
       <Card className={style["illustration"]}>
-        <AssetImg src={image} />
+        {typeof illustration === "string" ? <AssetImg src={illustration} /> : illustration}
       </Card>
     </div>
   );

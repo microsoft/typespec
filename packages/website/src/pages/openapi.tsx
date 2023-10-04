@@ -1,4 +1,6 @@
+import abstractionCode from "!!raw-loader!@site/static/tsp-samples/openapi3/abstraction.tsp";
 import { Links } from "@site/src/constants";
+import CodeBlock from "@theme/CodeBlock";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
@@ -7,7 +9,6 @@ import {
   UseCaseFeatureGroup,
 } from "../components/use-case-feature/use-case-feature";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
-
 export default function Home() {
   return (
     <FluentLayout>
@@ -50,7 +51,7 @@ const OpenApiContent = () => {
           header="Ecosystem"
           title="Interoperate with the OpenAPI ecosystem"
           description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          image="illustrations/openapi3.png"
+          illustration="illustrations/openapi3.png"
           items={[
             {
               title: "Api Gateway",
@@ -76,14 +77,15 @@ const OpenApiContent = () => {
         <Section
           layout="text-right"
           header="Ecosystem"
-          title="Test API endpoints as you code"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          image="illustrations/openapi3.png"
+          title="Abstract common patterns"
+          description="Codify API patterns into reusable components, diving up quality and consistency across your API surface."
+          illustration={<OpenAPI3AbstractCode />}
           items={[
             {
-              title: "TypeSpec for JSON RPC developer",
-              description: "Description todo",
-              image: "design",
+              title: "Example: TypeSpec Azure Library",
+              description:
+                "Azure library for TypeSpec allows a multitude of teams to reuse approved patterns.",
+              image: "document-cloud",
               link: "/json-rpc",
             },
           ]}
@@ -91,4 +93,8 @@ const OpenApiContent = () => {
       </SectionedLayout>
     </div>
   );
+};
+
+export const OpenAPI3AbstractCode = () => {
+  return <CodeBlock language="tsp">{abstractionCode}</CodeBlock>;
 };
