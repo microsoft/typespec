@@ -30,7 +30,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   getProgram(): Program;
   emitTypeReference(type: Type): EmitEntity<T>;
   emitDeclarationName(type: TypeSpecDeclaration): string | undefined;
-  emitType(type: Type): EmitEntity<T>;
+  emitType(type: Type, context?: Partial<ContextState>): EmitEntity<T>;
   emitProgram(options?: { emitGlobalNamespace?: boolean; emitTypeSpecNamespace?: boolean }): void;
   emitModelProperties(model: Model): EmitEntity<T>;
   emitModelProperty(prop: ModelProperty): EmitEntity<T>;

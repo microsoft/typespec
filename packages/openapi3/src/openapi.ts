@@ -886,9 +886,7 @@ function createOAPIEmitter(
   }
 
   function callSchemaEmitter(type: Type, visibility: Visibility) {
-    schemaEmitter.getContext().visibility = visibility; // TODO this doesn't work need another way to set context
-    console.log("Schema emitter", type.kind, (type as any).name, Visibility[visibility]);
-    return { ...(schemaEmitter.emitType(type) as any).value };
+    return { ...(schemaEmitter.emitType(type, { referenceContext: { visibility } }) as any).value };
   }
 
   function getSchemaOrRef(type: Type, visibility: Visibility): any {

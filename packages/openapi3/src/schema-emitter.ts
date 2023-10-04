@@ -154,7 +154,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       getOpenAPITypeName(program, model, typeNameOptions) +
       getVisibilitySuffix(visibility, Visibility.Read);
 
-    console.log("Name is", name, Visibility[visibility]);
     return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
   }
 

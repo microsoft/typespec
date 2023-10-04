@@ -318,7 +318,12 @@ export function createAssetEmitter<T, TOptions extends object>(
       return typeEmitter.writeOutput(sourceFiles);
     },
 
-    emitType(type) {
+    emitType(type, context?: ContextState) {
+      if (context?.referenceContext) {
+        incomingReferenceContext = context?.referenceContext ?? incomingReferenceContext;
+        incomingReferenceContextTarget = type ?? incomingReferenceContextTarget;
+      }
+
       const declName =
         isDeclaration(type) && type.kind !== "Namespace" ? typeEmitter.declarationName(type) : null;
       const key = typeEmitterKey(type);
