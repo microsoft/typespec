@@ -54,6 +54,7 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
 
   return {
     name: "playground-manifest",
+    enforce: "pre", // Need to run before resolving library imports to stub `@typespec/playground/manifest`
     async configResolved(c) {
       viteConfig = c;
     },
