@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Fix: Usage of the package in vite dev mode was broken. Some errors due to the loading of the manifest as well as monaco editor workers.\n**BREAKING CHANGE:** Changed `import { PlaygroundManifest } from \"@typespec/playground/manifest\";` to`import PlaygroundManifest from \"@typespec/playground/manifest\";`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
