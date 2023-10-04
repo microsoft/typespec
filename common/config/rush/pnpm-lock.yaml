@@ -871,7 +871,7 @@ importers:
         specifier: ^4.18.0
         version: 4.18.0
       '@typespec/bundler':
-        specifier: workspace:~0.1.0-alpha.0
+        specifier: workspace:~0.1.0-alpha.1
         version: link:../bundler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.48.0
@@ -934,7 +934,7 @@ importers:
         specifier: workspace:~0.48.1
         version: link:../openapi3
       '@typespec/playground':
-        specifier: workspace:~0.1.0-alpha.0
+        specifier: workspace:~0.1.0-alpha.1
         version: link:../playground
       '@typespec/protobuf':
         specifier: workspace:~0.48.0
