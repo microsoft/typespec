@@ -1,6 +1,6 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a typespec library.",
   "homepage": "https://microsoft.github.io/typespec",
