@@ -42,7 +42,7 @@ const OpenApiContent = () => {
           <UseCaseFeature
             image="design"
             title="Abstract common patterns"
-            subtitle="Codify API patterns into reusable components, diving up quality and consistency across your API surface"
+            subtitle="Codify API patterns into reusable components, improving up quality and consistency across your API surface"
             link={Links.spectral}
           />
         </UseCaseFeatureGroup>
@@ -78,7 +78,7 @@ const OpenApiContent = () => {
           layout="text-right"
           header="Ecosystem"
           title="Abstract common patterns"
-          description="Codify API patterns into reusable components, diving up quality and consistency across your API surface."
+          description="Codify API patterns into reusable components, improving up quality and consistency across your API surface."
           illustration={<OpenAPI3AbstractCode />}
           items={[
             {

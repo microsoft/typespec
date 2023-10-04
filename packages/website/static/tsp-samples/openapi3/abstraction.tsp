@@ -1,16 +1,13 @@
 import "@typespec/http";
-import "@typespec/rest";
 
 using TypeSpec.Http;
-using TypeSpec.Rest;
 
 /**
- * Define a resource action
+ * Define abstraction for resource lifecyle
  */
-@autoRoute op ResourceList<T>(@query filter: string): T[];
-@autoRoute op ResourceRead<T>(@path id: string): T;
-@post @autoRoute op ResourceCreate<T>(...T): T;
-@autoRoute @actionSeparator(":") op ResourceAction<T>(): T;
+op ResourceList<T>(@query filter: string): T[];
+op ResourceRead<T>(@path id: string): T;
+@post op ResourceCreate<T>(...T): T;
 
 model Pet {
   name: string;
@@ -22,5 +19,4 @@ interface Pets {
   list is ResourceList<Pet>;
   create is ResourceCreate<Pet>;
   read is ResourceRead<Pet>;
-  @action("adopt") adopt is ResourceAction<Pet>;
 }
