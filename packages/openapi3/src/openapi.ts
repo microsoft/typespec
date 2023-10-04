@@ -4,8 +4,6 @@ import {
   DiscriminatedUnion,
   EmitContext,
   emitFile,
-  Enum,
-  EnumMember,
   getAllTags,
   getAnyExtensionFromPath,
   getDiscriminatedUnion,
@@ -56,7 +54,6 @@ import {
   Type,
   TypeNameOptions,
   Union,
-  UnionVariant,
 } from "@typespec/compiler";
 
 import * as http from "@typespec/http";
@@ -351,7 +348,7 @@ function createOAPIEmitter(
         };
 
         if (prop.type.kind === "Enum") {
-          variable.enum = getSchemaForEnum(prop.type).enum;
+          variable.enum = callSchemaEmitter(prop.type).enum;
         } else if (prop.type.kind === "Union") {
           variable.enum = getSchemaForUnion(prop.type, Visibility.Read).enum as any;
         } else if (prop.type.kind === "String") {
@@ -1345,13 +1342,12 @@ function createOAPIEmitter(
       case "Model":
         return getSchemaForModel(type, visibility);
       case "ModelProperty":
-        return getSchemaForType(type.type, visibility);
+        return callSchemaEmitter(type);
       case "Union":
         return getSchemaForUnion(type, visibility);
       case "UnionVariant":
-        return getSchemaForUnionVariant(type, visibility);
       case "Enum":
-        return getSchemaForEnum(type);
+        return callSchemaEmitter(type);
       case "Tuple":
         return { type: "array", items: {} };
       case "TemplateParameter":
@@ -1370,37 +1366,6 @@ function createOAPIEmitter(
       target: type,
     });
     return undefined;
-  }
-
-  function getSchemaForEnum(e: Enum) {
-    const values = [];
-    if (e.members.size === 0) {
-      reportDiagnostic(program, { code: "empty-enum", target: e });
-
-      return {};
-    }
-    const type = enumMemberType(e.members.values().next().value);
-    for (const option of e.members.values()) {
-      if (type !== enumMemberType(option)) {
-        reportDiagnostic(program, { code: "enum-unique-type", target: e });
-        continue;
-      }
-
-      values.push(option.value ?? option.name);
-    }
-
-    const schema: any = { type, description: getDoc(program, e) };
-    if (values.length > 0) {
-      schema.enum = values;
-    }
-
-    return schema;
-    function enumMemberType(member: EnumMember) {
-      if (typeof member.value === "number") {
-        return "number";
-      }
-      return "string";
-    }
   }
 
   /**
@@ -1500,11 +1465,6 @@ function createOAPIEmitter(
     }
 
     return applyIntrinsicDecorators(union, schema);
-  }
-
-  function getSchemaForUnionVariant(variant: UnionVariant, visibility: Visibility) {
-    const schema: any = getSchemaForType(variant.type, visibility);
-    return schema;
   }
 
   function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
@@ -1760,7 +1720,7 @@ function createOAPIEmitter(
     const values = getKnownValues(program, typespecType as any);
     if (values) {
       return {
-        oneOf: [newTarget, getSchemaForEnum(values)],
+        oneOf: [newTarget, callSchemaEmitter(values)],
       };
     }
 

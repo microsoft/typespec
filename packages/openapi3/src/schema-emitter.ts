@@ -203,21 +203,26 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   #enumSchema(en: Enum): OpenAPI3Schema {
+    const program = this.emitter.getProgram();
+    if (en.members.size === 0) {
+      reportDiagnostic(program, { code: "empty-enum", target: en });
+      return {};
+    }
+
     const enumTypes = new Set<string>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
-      // ???: why do we let emitters decide what the default type of an enum is
-      enumTypes.add(member.value ? typeof member.value : "string");
+      enumTypes.add(typeof member.value === "number" ? "number" : "string");
       enumValues.add(member.value ?? member.name);
     }
 
-    const enumTypesArray = [...enumTypes];
+    if (enumTypes.size > 1) {
+      reportDiagnostic(program, { code: "enum-unique-type", target: en });
+    }
 
-    const withConstraints = new ObjectBuilder({
-      type: enumTypesArray.length === 1 ? enumTypesArray[0] : enumTypesArray,
-      enum: [...enumValues],
-    });
-    return this.#applyConstraints(en, withConstraints);
+    const schema: OpenAPI3Schema = { type: enumTypes.values().next().value, enum: [...enumValues] };
+
+    return this.#applyConstraints(en, schema);
   }
 
   enumMember(member: EnumMember): EmitterOutput<Record<string, any>> {
