@@ -2,9 +2,7 @@ import "@typespec/http";
 
 using TypeSpec.Http;
 
-/**
- * Define abstraction for resource lifecyle
- */
+// Define abstraction for resource lifecyle
 op ResourceList<T>(@query filter: string): T[];
 op ResourceRead<T>(@path id: string): T;
 @post op ResourceCreate<T>(...T): T;
