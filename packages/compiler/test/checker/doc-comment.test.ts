@@ -30,6 +30,14 @@ describe("compiler: checker: doc comments", () => {
     );
 
     testMainDoc(
+      "templated model",
+      `${docComment}
+      @test("target") model Foo<T> {}
+
+      model Bar { foo: Foo<string> }`
+    );
+
+    testMainDoc(
       "model property",
       `
       model Foo {
@@ -231,12 +239,13 @@ describe("compiler: checker: doc comments", () => {
   });
 
   it("using @param in doc comment of operation applies doc on the parameters", async () => {
+    // One @param has a hyphen but the other does not (should handle both cases)
     const { addUser } = (await runner.compile(`
     
     /**
      * This is the operation doc.
      * @param name This is the name param doc.
-     * @param age This is the age param doc.
+     * @param age - This is the age param doc.
      */
     @test op addUser(name: string, age: string): void;
     `)) as { addUser: Operation };
