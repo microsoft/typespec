@@ -1,6 +1,5 @@
 import {
   Caption1,
-  CardHeader,
   Divider,
   Link,
   Subtitle2,
@@ -11,6 +10,7 @@ import {
 } from "@fluentui/react-components";
 import { FluentImageName, FluentImg } from "../../fluent-img";
 
+import { AssetImg } from "../../asset-img/asset-img";
 import { Card } from "../../card/card";
 import style from "./section.module.css";
 
@@ -25,6 +25,7 @@ interface SectionProps {
   header: string;
   title: string;
   description: string;
+  image: string;
   items: SectionItem[];
   layout?: "text-left" | "text-right";
 }
@@ -34,7 +35,7 @@ const useFluentStyles = makeStyles({
   descriptionText: { color: tokens.colorNeutralForeground3 },
 });
 
-export const Section = ({ header, title, description, items, layout }: SectionProps) => {
+export const Section = ({ header, title, description, items, layout, image }: SectionProps) => {
   const fluentStyles = useFluentStyles();
   return (
     <div
@@ -66,7 +67,9 @@ export const Section = ({ header, title, description, items, layout }: SectionPr
           </Card>
         </div>
       </div>
-      <Card className={style["illustration"]}></Card>
+      <Card className={style["illustration"]}>
+        <AssetImg src={image} />
+      </Card>
     </div>
   );
 };
@@ -75,17 +78,15 @@ const SectionItem = ({ title, description, image, link }: SectionItem) => {
   const fluentStyles = useFluentStyles();
 
   return (
-    <CardHeader
-      image={<FluentImg className={style["item-image"]} name={image} />}
-      header={<Subtitle2 block={true}>{title}</Subtitle2>}
-      description={
-        <div className={style["item-content"]}>
-          <Caption1 block={true} className={fluentStyles.descriptionText}>
-            {description}
-          </Caption1>
-          <Link href={link}>Learn more</Link>
-        </div>
-      }
-    ></CardHeader>
+    <div className={style["item"]}>
+      <FluentImg className={style["item-image"]} name={image} />
+      <div className={style["item-content"]}>
+        <Subtitle2 block={true}>{title}</Subtitle2>
+        <Caption1 block={true} className={fluentStyles.descriptionText}>
+          {description}
+        </Caption1>
+        <Link href={link}>Learn more →</Link>
+      </div>
+    </div>
   );
 };

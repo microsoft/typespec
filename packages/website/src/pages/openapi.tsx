@@ -1,3 +1,4 @@
+import { Links } from "@site/src/constants";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
@@ -19,17 +20,17 @@ const OpenApiContent = () => {
   return (
     <div>
       <UseCaseOverview
-        title="Action-oriented use case description over two lines"
-        subtitle="Meet TypeSpec, a language for describing APIs. Compile to OpenAPI, JSON RPC, client and server code, docs, and more."
-        link=""
+        title="Write TypeSpec, emit OpenAPI"
+        subtitle="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+        link={Links.gettingStartedOpenAPI}
       />
       <SectionedLayout>
         <UseCaseFeatureGroup>
           <UseCaseFeature
             image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
+            title="Use HTTP/REST libraries"
+            subtitle="Drastically reduce the verbosity of your spec."
+            link={Links.gettingStartedWithHttp}
           />
           <UseCaseFeature
             image="design"
@@ -39,22 +40,35 @@ const OpenApiContent = () => {
           />
           <UseCaseFeature
             image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
+            title="Abstract common patterns"
+            subtitle="Codify API patterns into reusable components, diving up quality and consistency across your API surface"
+            link={Links.spectral}
           />
         </UseCaseFeatureGroup>
 
         <Section
           header="Ecosystem"
-          title="Test API endpoints as you code"
+          title="Interoperate with the OpenAPI ecosystem"
           description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          image="illustrations/openapi3.png"
           items={[
             {
-              title: "TypeSpec for JSON RPC developer",
+              title: "Api Gateway",
               description: "Description todo",
-              image: "design",
+              image: "document-cloud",
               link: "/json-rpc",
+            },
+            {
+              title: "Code Generators",
+              description: "Use the generated OpenAPI to generate code.",
+              image: "document-add",
+              link: Links.spectral,
+            },
+            {
+              title: "Linters",
+              description: "Integrate with spectral to lint your OpenAPI.",
+              image: "shield-blue",
+              link: Links.spectral,
             },
           ]}
         />
@@ -64,6 +78,7 @@ const OpenApiContent = () => {
           header="Ecosystem"
           title="Test API endpoints as you code"
           description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          image="illustrations/openapi3.png"
           items={[
             {
               title: "TypeSpec for JSON RPC developer",

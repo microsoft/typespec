@@ -55,19 +55,28 @@
 
 .illustration {
   width: 80vw;
-  height: 70vw;
+  padding: 0;
+  overflow: hidden;
 }
 
 @media only screen and (min-width: 1200px) {
   .illustration {
     width: 50vw;
-    height: 40vw;
   }
 }
 
 .item-card {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
+.item {
+  display: flex;
+  gap: 12px
+}
+
 .item-image {
   width: 52px;
   height: 52px;

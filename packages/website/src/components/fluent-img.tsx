@@ -7,13 +7,17 @@ export interface FluentImgProps {
 }
 
 export type FluentImageName =
-  | "checkmark"
   | "chat"
+  | "checkmark"
+  | "design-layout"
   | "design"
+  | "document-add"
+  | "document-cloud"
   | "editor"
   | "eye-dev"
   | "firework"
-  | "people-shield";
+  | "people-shield"
+  | "shield-blue";
 
 /**
  * Component for rendering a Fluent image.

@@ -5,6 +5,7 @@ import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
+import { Links } from "@site/src/constants";
 
 const useFluentStyles = makeStyles({
   bg: { backgroundColor: tokens.colorNeutralBackground3 },
@@ -93,18 +94,19 @@ const OpenAPISection = () => {
       header="Productivity"
       title="Streamline your OpenAPI workflow"
       description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+      image="illustrations/openapi3.png"
       items={[
         {
           title: "TypeSpec for OpenAPI developers",
-          description: "Description todo",
+          description: "Get started with using TypeSpec coming from OpenAPI.",
           image: "design",
-          link: "/openapi",
+          link: Links.gettingStartedOpenAPI,
         },
         {
-          title: "Title",
-          description: "Description todo",
-          image: "checkmark",
-          link: "todo",
+          title: "OpenAPI emitter reference",
+          description: "Reference documentation for the OpenAPI 3.0 emitter.",
+          image: "document-add",
+          link: "/docs/standard-library/openapi3/reference",
         },
       ]}
     />
@@ -117,12 +119,19 @@ const EcoSystemSection = () => {
       header="Ecosystem"
       title="Test API endpoints as you code"
       description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+      image="illustrations/openapi3.png"
       items={[
         {
           title: "TypeSpec for JSON RPC developer",
           description: "Description todo",
           image: "design",
           link: "/json-rpc",
+        },
+        {
+          title: "Validate messages with JSON Schema",
+          description: "Generate the JSON Schema for your JSON RPC message.",
+          image: "people-shield",
+          link: "/docs/standard-library/json-schema/reference",
         },
       ]}
     />
@@ -135,6 +144,7 @@ const FlexibilitySection = () => {
       header="Ecosystem"
       title="Action-oriented title todo"
       description="With TypeSpec, align your team around a common type vocabulary. "
+      image="illustrations/openapi3.png"
       items={[
         {
           title: "Title todo",
