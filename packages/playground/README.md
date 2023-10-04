@@ -42,7 +42,7 @@ export default config;
 In `src/main.tsx`:
 
 ```tsx
-import { PlaygroundManifest } from "@typespec/playground/manifest";
+import PlaygroundManifest from "@typespec/playground/manifest";
 import { renderReactPlayground } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import "./style.css";
