@@ -21,7 +21,10 @@
   "exports": {
     ".": "./dist/src/index.js",
     "./vite": "./dist/src/vite/index.js",
-    "./manifest": "./dist/src/manifest.js",
+    "./manifest": {
+      "default": "./do-not-use-virtual-import",
+      "types": "./definitions/manifest.d.ts"
+    },
     "./react": "./dist/src/react/index.js",
     "./react/viewers": "./dist/src/react/viewers.js"
   },

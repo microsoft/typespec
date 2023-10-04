@@ -58,13 +58,13 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
       viteConfig = c;
     },
     resolveId(id: string) {
-      if (id === "playground-manifest.js") {
+      if (id === "@typespec/playground/manifest") {
         return id;
       }
       return null;
     },
     load(id: string) {
-      if (id === `playground-manifest.js`) {
+      if (id === `@typespec/playground/manifest`) {
         const sampleImport = Object.values(samples)
           .map(
             (sampleValue, index) =>
