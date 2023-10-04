@@ -871,7 +871,7 @@ importers:
         specifier: ^4.18.0
         version: 4.18.0
       '@typespec/bundler':
-        specifier: workspace:~0.1.0-alpha.1
+        specifier: workspace:~0.1.0-alpha.0
         version: link:../bundler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.48.0
