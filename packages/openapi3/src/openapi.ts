@@ -344,9 +344,9 @@ function createOAPIEmitter(
         };
 
         if (prop.type.kind === "Enum") {
-          variable.enum = callSchemaEmitter(prop.type).enum;
+          variable.enum = callSchemaEmitter(prop.type, Visibility.Read).enum;
         } else if (prop.type.kind === "Union") {
-          variable.enum = callSchemaEmitter(prop.type).enum;
+          variable.enum = callSchemaEmitter(prop.type, Visibility.Read).enum;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -885,7 +885,9 @@ function createOAPIEmitter(
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
-  function callSchemaEmitter(type: Type) {
+  function callSchemaEmitter(type: Type, visibility: Visibility) {
+    schemaEmitter.getContext().visibility = visibility; // TODO this doesn't work need another way to set context
+    console.log("Schema emitter", type.kind, (type as any).name, Visibility[visibility]);
     return { ...(schemaEmitter.emitType(type) as any).value };
   }
 
@@ -898,24 +900,24 @@ function createOAPIEmitter(
     }
 
     if (type.kind === "Scalar" && program.checker.isStdType(type)) {
-      return callSchemaEmitter(type);
+      return callSchemaEmitter(type, visibility);
     }
 
     if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
       // For literal types, we just want to emit them directly as well.
-      return callSchemaEmitter(type);
+      return callSchemaEmitter(type, visibility);
     }
 
     if (type.kind === "Intrinsic" && type.name === "unknown") {
-      return callSchemaEmitter(type);
+      return callSchemaEmitter(type, visibility);
     }
 
     if (type.kind === "EnumMember") {
-      return callSchemaEmitter(type);
+      return callSchemaEmitter(type, visibility);
     }
 
     if (type.kind === "ModelProperty") {
-      return callSchemaEmitter(type);
+      return callSchemaEmitter(type, visibility);
     }
 
     type = metadataInfo.getEffectivePayloadType(type, visibility);
@@ -1333,7 +1335,7 @@ function createOAPIEmitter(
         return getSchemaForModel(type, visibility);
     }
 
-    return callSchemaEmitter(type);
+    return callSchemaEmitter(type, visibility);
   }
 
   function getDefaultValue(type: Type, defaultType: Type): any {
@@ -1585,7 +1587,7 @@ function createOAPIEmitter(
     const values = getKnownValues(program, typespecType as any);
     if (values) {
       return {
-        oneOf: [newTarget, callSchemaEmitter(values)],
+        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read)],
       };
     }
 
@@ -1601,7 +1603,7 @@ function createOAPIEmitter(
     const encodeData = getEncode(program, typespecType);
     if (encodeData) {
       const newTarget = { ...target };
-      const newType = callSchemaEmitter(encodeData.type);
+      const newType = callSchemaEmitter(encodeData.type, Visibility.Read);
       newTarget.type = newType.type;
       // If the target already has a format it takes priority. (e.g. int32)
       newTarget.format = mergeFormatAndEncoding(

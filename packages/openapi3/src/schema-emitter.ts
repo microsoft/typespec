@@ -19,14 +19,17 @@ import {
   getMinLength,
   getMinValue,
   getMinValueExclusive,
+  getNamespaceFullName,
   getPattern,
   getSummary,
   ignoreDiagnostics,
   IntrinsicScalarName,
   IntrinsicType,
   isArrayModelType,
+  isNeverType,
   isNullType,
   isSecret,
+  isTemplateDeclaration,
   Model,
   ModelProperty,
   NumericLiteral,
@@ -35,11 +38,13 @@ import {
   StringLiteral,
   Tuple,
   Type,
+  TypeNameOptions,
   Union,
   UnionVariant,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
+  AssetEmitter,
   Context,
   Declaration,
   EmitEntity,
@@ -50,36 +55,114 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
-import { getExtensions, isReadonlyProperty } from "@typespec/openapi";
+import { createMetadataInfo, getVisibilitySuffix, MetadataInfo, Visibility } from "@typespec/http";
+import {
+  getExtensions,
+  getExternalDocs,
+  getOpenAPITypeName,
+  isReadonlyProperty,
+} from "@typespec/openapi";
 import { getOneOf } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
-import { OpenAPI3Schema } from "./types.js";
+import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
 
+const typeNameOptions: TypeNameOptions = {
+  // shorten type names by removing TypeSpec and service namespace
+  namespaceFilter(ns) {
+    const name = getNamespaceFullName(ns);
+    return name !== "Foo"; // TODO FIXME
+  },
+};
 export interface OpenAPI3SchemaEmitterOptions {}
 export class OpenAPI3SchemaEmitter extends TypeEmitter<
   Record<string, any>,
   OpenAPI3SchemaEmitterOptions
 > {
-  modelDeclaration(model: Model, name: string): EmitterOutput<object> {
-    const schema = new ObjectBuilder({
+  #metadataInfo: MetadataInfo;
+  constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3SchemaEmitterOptions>) {
+    super(emitter);
+    this.#metadataInfo = createMetadataInfo(emitter.getProgram(), {
+      canonicalVisibility: Visibility.Read,
+      canShareProperty: (p) => isReadonlyProperty(emitter.getProgram(), p),
+    });
+  }
+  modelDeclaration(model: Model, _: string): EmitterOutput<object> {
+    const program = this.emitter.getProgram();
+    const visibility = this.emitter.getContext().visibility ?? Visibility.Read;
+    const schema: ObjectBuilder<OpenAPI3Schema> = new ObjectBuilder({
       type: "object",
       properties: this.emitter.emitModelProperties(model),
-      required: this.#requiredModelProperties(model),
     });
-
-    if (model.baseModel) {
-      const allOf = new ArrayBuilder();
-      allOf.push(this.emitter.emitTypeReference(model.baseModel));
-      schema.set("allOf", allOf);
-    }
+    const properties: OpenAPI3Schema["properties"] = {};
 
     if (model.indexer) {
       schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
     }
 
-    this.#applyConstraints(model, schema);
+    const derivedModels = model.derivedModels.filter(includeDerivedModel);
+    // getSchemaOrRef on all children to push them into components.schemas
+    for (const child of derivedModels) {
+      this.emitter.emitTypeReference(child);
+    }
 
-    return this.#createDeclaration(model, name, schema);
+    const discriminator = getDiscriminator(program, model);
+    if (discriminator) {
+      const [union] = getDiscriminatedUnion(model, discriminator);
+
+      const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
+      if (union.variants.size > 0) {
+        openApiDiscriminator.mapping = this.#getDiscriminatorMapping(union);
+      }
+
+      schema.discriminator = openApiDiscriminator;
+      properties[discriminator.propertyName] = {
+        type: "string",
+        description: `Discriminator property for ${model.name}.`,
+      };
+    }
+
+    this.#applyExternalDocs(model, schema);
+
+    for (const [name, prop] of model.properties) {
+      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+        continue;
+      }
+
+      if (isNeverType(prop.type)) {
+        // If the property has a type of 'never', don't include it in the schema
+        continue;
+      }
+
+      if (!this.#metadataInfo.isOptional(prop, visibility)) {
+        if (!schema.required) {
+          schema.required = [];
+        }
+        schema.required.push(name);
+      }
+    }
+
+    if (model.baseModel) {
+      const baseSchema = this.emitter.emitTypeReference(model.baseModel);
+      schema.allOf = [baseSchema];
+    }
+
+    if (Object.keys(properties).length > 0) {
+      schema.properties = properties;
+    }
+
+    const name =
+      getOpenAPITypeName(program, model, typeNameOptions) +
+      getVisibilitySuffix(visibility, Visibility.Read);
+
+    console.log("Name is", name, Visibility[visibility]);
+    return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
+  }
+
+  #applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
+    const externalDocs = getExternalDocs(this.emitter.getProgram(), typespecType);
+    if (externalDocs) {
+      target.externalDocs = externalDocs;
+    }
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
@@ -679,4 +762,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
 function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
   return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
+}
+
+function includeDerivedModel(model: Model): boolean {
+  return (
+    !isTemplateDeclaration(model) &&
+    (model.templateMapper?.args === undefined ||
+      model.templateMapper.args?.length === 0 ||
+      model.derivedModels.length > 0)
+  );
 }
