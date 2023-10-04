@@ -59,6 +59,7 @@ enum Qux {
    * A test enum value.
    */
   QUUX: 0,
+
   /**
    * Another test enum value.
    */
