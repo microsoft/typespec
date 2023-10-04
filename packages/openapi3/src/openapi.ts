@@ -1342,14 +1342,11 @@ function createOAPIEmitter(
       case "Model":
         return getSchemaForModel(type, visibility);
       case "ModelProperty":
-        return callSchemaEmitter(type);
       case "Union":
-        return getSchemaForUnion(type, visibility);
       case "UnionVariant":
       case "Enum":
-        return callSchemaEmitter(type);
       case "Tuple":
-        return { type: "array", items: {} };
+        return callSchemaEmitter(type);
       case "TemplateParameter":
         // Note: This should never happen if it does there is a bug in the compiler.
         reportDiagnostic(program, {

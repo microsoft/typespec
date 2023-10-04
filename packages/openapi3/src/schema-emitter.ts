@@ -1,9 +1,12 @@
 import {
   BooleanLiteral,
   compilerAssert,
+  DiscriminatedUnion,
   Enum,
   EnumMember,
   getDeprecated,
+  getDiscriminatedUnion,
+  getDiscriminator,
   getDoc,
   getEncode,
   getFormat,
@@ -18,6 +21,7 @@ import {
   getMinValueExclusive,
   getPattern,
   getSummary,
+  ignoreDiagnostics,
   IntrinsicScalarName,
   IntrinsicType,
   isArrayModelType,
@@ -29,6 +33,7 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  Tuple,
   Type,
   Union,
   UnionVariant,
@@ -242,19 +247,117 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
-    const withConstraints = new ObjectBuilder({
-      anyOf: this.emitter.emitUnionVariants(union),
-    });
+    const schema = this.#unionSchema(union);
+    return this.#createDeclaration(union, name, schema);
+  }
 
-    this.#applyConstraints(union, withConstraints);
-    return this.#createDeclaration(union, name, withConstraints);
+  #unionSchema(union: Union) {
+    const program = this.emitter.getProgram();
+    if (union.variants.size === 0) {
+      reportDiagnostic(program, { code: "empty-union", target: union });
+      return {};
+    }
+    const variants = Array.from(union.variants.values());
+    const literalVariantEnumByType: Record<string, any> = {};
+    const ofType = getOneOf(program, union) ? "oneOf" : "anyOf";
+    const schemaMembers: { schema: any; type: Type | null }[] = [];
+    let nullable = false;
+    const discriminator = getDiscriminator(program, union);
+
+    for (const variant of variants) {
+      if (isNullType(variant.type)) {
+        nullable = true;
+        continue;
+      }
+
+      if (isLiteralType(variant.type)) {
+        if (!literalVariantEnumByType[variant.type.kind]) {
+          const enumSchema = this.emitter.emitTypeReference(variant.type);
+          compilerAssert(
+            enumSchema.kind === "code",
+            "Unexpected enum schema. Should be kind: code"
+          );
+          literalVariantEnumByType[variant.type.kind] = enumSchema.value;
+          schemaMembers.push({ schema: enumSchema.value, type: null });
+        } else {
+          literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
+        }
+        continue;
+      }
+
+      const enumSchema = this.emitter.emitTypeReference(variant.type);
+      compilerAssert(enumSchema.kind === "code", "Unexpected enum schema. Should be kind: code");
+      schemaMembers.push({ schema: enumSchema.value, type: variant.type });
+    }
+
+    if (schemaMembers.length === 0) {
+      if (nullable) {
+        // This union is equivalent to just `null` but OA3 has no way to specify
+        // null as a value, so we throw an error.
+        reportDiagnostic(program, { code: "union-null", target: union });
+        return {};
+      } else {
+        // completely empty union can maybe only happen with bugs?
+        compilerAssert(false, "Attempting to emit an empty union");
+      }
+    }
+
+    if (schemaMembers.length === 1) {
+      // we can just return the single schema member after applying nullable
+      const schema = schemaMembers[0].schema;
+      const type = schemaMembers[0].type;
+
+      if (nullable) {
+        if (schema.$ref) {
+          // but we can't make a ref "nullable", so wrap in an allOf (for models)
+          // or oneOf (for all other types)
+          if (type && type.kind === "Model") {
+            return { type: "object", allOf: [schema], nullable: true };
+          } else {
+            return { oneOf: [schema], nullable: true };
+          }
+        } else {
+          schema.nullable = true;
+        }
+      }
+
+      return schema;
+    }
+
+    const schema: any = {
+      [ofType]: schemaMembers.map((m) => m.schema),
+    };
+
+    if (nullable) {
+      schema.nullable = true;
+    }
+
+    if (discriminator) {
+      // the decorator validates that all the variants will be a model type
+      // with the discriminator field present.
+      schema.discriminator = { ...discriminator };
+      // Diagnostic already reported in compiler for unions
+      const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
+      if (discriminatedUnion.variants.size > 0) {
+        schema.discriminator.mapping = this.#getDiscriminatorMapping(discriminatedUnion);
+      }
+    }
+
+    return this.#applyConstraints(union, schema);
+  }
+
+  #getDiscriminatorMapping(union: DiscriminatedUnion) {
+    const mapping: Record<string, string> | undefined = {};
+    for (const [key, model] of union.variants.entries()) {
+      const ref = this.emitter.emitTypeReference(model);
+      compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
+      mapping[key] = (ref.value as any).$ref;
+    }
+    return mapping;
   }
 
   unionLiteral(union: Union): EmitterOutput<object> {
-    this.emitter.getProgram().resolveTypeReference("Cadl.Foo");
-    return new ObjectBuilder({
-      anyOf: this.emitter.emitUnionVariants(union),
-    });
+    return this.#unionSchema(union);
   }
 
   unionVariants(union: Union): EmitterOutput<object> {
@@ -364,6 +467,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#getSchemaForScalar(scalar);
   }
 
+  tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    return { type: "array", items: {} };
+  }
   #getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
     let result: OpenAPI3Schema = {};
     const isStd = this.#isStdType(scalar);
@@ -558,13 +664,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
     switch (name) {
-      case "null":
-        return { type: "null" };
       case "unknown":
         return {};
-      case "never":
-      case "void":
-        return { not: {} };
     }
 
     throw new Error("Unknown intrinsic type " + name);
@@ -574,4 +675,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const sourceFile = this.emitter.createSourceFile("openapi");
     return { scope: sourceFile.globalScope };
   }
+}
+
+function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {
+  return type.kind === "Boolean" || type.kind === "String" || type.kind === "Number";
 }
