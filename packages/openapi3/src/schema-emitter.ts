@@ -220,15 +220,19 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#applyConstraints(en, withConstraints);
   }
 
+  enumMember(member: EnumMember): EmitterOutput<Record<string, any>> {
+    return this.enumMemberReference(member);
+  }
+
   enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
     // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
     switch (typeof member.value) {
       case "undefined":
-        return { type: "string", const: member.name };
+        return { type: "string", enum: [member.name] };
       case "string":
-        return { type: "string", const: member.value };
+        return { type: "string", enum: [member.value] };
       case "number":
-        return { type: "number", const: member.value };
+        return { type: "number", enum: [member.value] };
     }
   }
 
@@ -348,6 +352,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return isStd ? schema : this.#createDeclaration(scalar, name, schema);
   }
 
+  scalarInstantiation(
+    scalar: Scalar,
+    name: string | undefined
+  ): EmitterOutput<Record<string, any>> {
+    return this.#getSchemaForScalar(scalar);
+  }
+
   #getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
     let result: OpenAPI3Schema = {};
     const isStd = this.#isStdType(scalar);
@@ -423,8 +434,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
-    schema: OpenAPI3Schema
+    original: OpenAPI3Schema
   ): OpenAPI3Schema {
+    const schema = { ...original };
     const program = this.emitter.getProgram();
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPI3Schema) => {
       const value = fn(program, type);

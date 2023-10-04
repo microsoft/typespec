@@ -893,7 +893,7 @@ function createOAPIEmitter(
   }
 
   function callSchemaEmitter(type: Type) {
-    return (schemaEmitter.emitType(type) as any).value;
+    return { ...(schemaEmitter.emitType(type) as any).value };
   }
 
   function getSchemaOrRef(type: Type, visibility: Visibility): any {
