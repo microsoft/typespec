@@ -1,6 +1,10 @@
 import abstractionCode from "!!raw-loader!@site/static/tsp-samples/openapi3/abstraction.tsp";
+import interoperateTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/main.tsp";
+import interoperateOpenapi from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/openapi.yaml";
+import interoperateSpectral from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/spectral.txt";
 import { Links } from "@site/src/constants";
 import CodeBlock from "@theme/CodeBlock";
+import { AssetImg } from "../components/asset-img/asset-img";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
@@ -9,6 +13,7 @@ import {
   UseCaseFeatureGroup,
 } from "../components/use-case-feature/use-case-feature";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
+import style from "./openapi.module.css";
 export default function Home() {
   return (
     <FluentLayout>
@@ -50,8 +55,8 @@ const OpenApiContent = () => {
         <Section
           header="Ecosystem"
           title="Interoperate with the OpenAPI ecosystem"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          illustration="illustrations/openapi3.png"
+          description="Write TypeSpec, emit OpenAPI. Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+          illustration={<OpenAPI3InteroperateIllustration />}
           items={[
             {
               title: "Api Gateway",
@@ -95,6 +100,22 @@ const OpenApiContent = () => {
   );
 };
 
+export const OpenAPI3InteroperateIllustration = () => {
+  return (
+    <div className={style["interoperate-illustration"]}>
+      <div className={style["interoperate-tsp"]}>
+        <CodeBlock language="tsp">{interoperateTsp}</CodeBlock>
+      </div>
+      <div className={style["interoperate-openapi"]}>
+        <CodeBlock language="yaml">{interoperateOpenapi}</CodeBlock>
+      </div>
+      <div className={style["interoperate-spectral"]}>
+        <CodeBlock language="shell-session">{interoperateSpectral}</CodeBlock>
+      </div>
+      <AssetImg className={style["interoperate-swagger-ui"]} src="illustrations/swagger-ui.png" />
+    </div>
+  );
+};
 export const OpenAPI3AbstractCode = () => {
   return <CodeBlock language="tsp">{abstractionCode}</CodeBlock>;
 };

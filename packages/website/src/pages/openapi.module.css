@@ -1,0 +1,23 @@
+.interoperate-illustration {
+  display: grid;
+  grid-template-areas: 
+    "tsp openapi"
+    "swagger-ui openapi"
+    "spectral spectral";
+  gap: 5px;
+}
+
+.interoperate-tsp {
+  grid-area: tsp;
+}
+.interoperate-openapi {
+  grid-area: openapi;
+}
+.interoperate-spectral {
+  grid-area: spectral;
+}
+
+.interoperate-swagger-ui {
+  grid-area: swagger-ui;
+
+}

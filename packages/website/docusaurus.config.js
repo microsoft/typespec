@@ -195,7 +195,7 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: themes.dracula,
-        additionalLanguages: [],
+        additionalLanguages: ["shell-session"],
       },
       mermaid: {},
       algolia: {
