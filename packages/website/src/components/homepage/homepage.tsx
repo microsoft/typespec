@@ -117,21 +117,15 @@ const EcoSystemSection = () => {
   return (
     <Section
       header="Ecosystem"
-      title="Test API endpoints as you code"
-      description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+      title="Generate Json Schema for your models"
+      description="Use the json schema emitter to get the json schema for your types and use them to validate your data."
       illustration="illustrations/openapi3.png"
       items={[
         {
-          title: "TypeSpec for JSON RPC developer",
-          description: "Description todo",
-          image: "design",
-          link: "/json-rpc",
-        },
-        {
-          title: "Validate messages with JSON Schema",
-          description: "Generate the JSON Schema for your JSON RPC message.",
+          title: "Json schema emitter reference",
+          description: "Generate the JSON Schema for your types.",
           image: "people-shield",
-          link: "/docs/standard-library/json-schema/reference",
+          link: Links.libraryReferences.jsonSchema,
         },
       ]}
     />

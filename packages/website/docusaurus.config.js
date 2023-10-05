@@ -124,8 +124,8 @@ const config = {
                 to: "/openapi",
               },
               {
-                label: "JSON RPC",
-                to: "/json-rpc",
+                label: "JSON Schema",
+                to: "/json-schema",
               },
               {
                 label: "Data validation and type consistency",

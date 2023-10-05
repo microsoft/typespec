@@ -1,11 +1,8 @@
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
-import {
-  UseCaseFeature,
-  UseCaseFeatureGroup,
-} from "../components/use-case-feature/use-case-feature";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
+import { Links } from "../constants";
 
 export default function Home() {
   return (
@@ -19,32 +16,11 @@ const JsonRpcContent = () => {
   return (
     <div>
       <UseCaseOverview
-        title="Action-oriented use case description over two lines"
-        subtitle="Meet TypeSpec, a language for describing APIs. Compile to OpenAPI, JSON RPC, client and server code, docs, and more."
-        link=""
+        title="Use Json Schema to validate your data"
+        subtitle="Benefit from the Json Schema ecosystem to validate your data while writing a much more concise and readable code."
+        link={Links.libraryReferences.jsonSchema}
       />
       <SectionedLayout>
-        <UseCaseFeatureGroup>
-          <UseCaseFeature
-            image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
-          />
-          <UseCaseFeature
-            image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
-          />
-          <UseCaseFeature
-            image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
-          />
-        </UseCaseFeatureGroup>
-
         <Section
           header="Ecosystem"
           title="Test API endpoints as you code"
