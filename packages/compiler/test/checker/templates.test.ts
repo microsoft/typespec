@@ -60,7 +60,7 @@ describe("compiler: templates", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
-    strictEqual(diagnostics[0].message, "Too few template arguments provided.");
+    strictEqual(diagnostics[0].message, "Template argument 'T' is required and not specified.");
     // Should point to the start of A
     deepStrictEqual(getLineAndCharOfDiagnostic(diagnostics[0]), {
       line: 3,
@@ -162,7 +162,7 @@ describe("compiler: templates", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].code, "invalid-template-args");
-    strictEqual(diagnostics[0].message, "Too few template arguments provided.");
+    strictEqual(diagnostics[0].message, "Template argument 'U' is required and not specified.");
   });
 
   it("emits diagnostics when non-defaulted template parameter comes after defaulted one", async () => {
@@ -220,7 +220,7 @@ describe("compiler: templates", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-args",
-      message: "Too few template arguments provided.",
+      message: "Template argument 'T' is required and not specified.",
     });
   });
 
@@ -304,7 +304,7 @@ describe("compiler: templates", () => {
       "main.tsp",
       `
         @test model A<T, X = Foo<T>> { b: X }
-        model B { 
+        model B {
           foo: A<"bye">
         };
 
@@ -513,6 +513,65 @@ describe("compiler: templates", () => {
             }
           }
         `);
+    });
+  });
+
+  describe("named template argument instantiations", async () => {
+    it("can instantiate a template with named arguments", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          @test model A<T> { a: T }
+          model B {
+            foo: A<T = string>
+          };
+        `
+      );
+
+      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+      const a = A.properties.get("a")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "string");
+    });
+
+    it("can instantiate a template with named arguments out of order", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          @test model A<T, U> { a: T, b: U }
+          model B {
+            foo: A<U = int32, T = string>
+          };
+        `
+      );
+
+      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+      const a = A.properties.get("a")!;
+      const b = A.properties.get("b")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "string");
+      strictEqual(b.type.kind, "Scalar");
+      strictEqual(b.type.name, "int32");
+    });
+
+    it("can instantiate a template with named arguments and defaults", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          @test model A<T = int32, U = string> { a: T, b: U }
+          model B {
+            foo: A<U = "foo">
+          };
+        `
+      );
+
+      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
+      const a = A.properties.get("a")!;
+      const b = A.properties.get("b")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "int32");
+      strictEqual(b.type.kind, "String");
+      strictEqual(b.type.value, "foo");
     });
   });
 });

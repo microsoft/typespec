@@ -107,6 +107,7 @@ import {
   SymbolLinks,
   SymbolTable,
   SyntaxKind,
+  TemplateArgumentNode,
   TemplateDeclarationNode,
   TemplateParameter,
   TemplateParameterDeclarationNode,
@@ -473,7 +474,7 @@ export function createChecker(program: Program): Checker {
     for (const decNode of augmentDecorators) {
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
       if (ref) {
-        let args: readonly Expression[] = [];
+        let args: readonly TemplateArgumentNode[] = [];
         if (ref.declarations[0].kind === SyntaxKind.AliasStatement) {
           const aliasNode = ref.declarations[0] as AliasStatementNode;
           if (aliasNode.value.kind === SyntaxKind.TypeReference) {
@@ -653,6 +654,8 @@ export function createChecker(program: Program): Checker {
         return checkFunctionDeclaration(node, mapper);
       case SyntaxKind.TypeReference:
         return checkTypeReference(node, mapper);
+      case SyntaxKind.TemplateArgument:
+        return checkTemplateArgument(node, mapper);
       case SyntaxKind.TemplateParameterDeclaration:
         return checkTemplateParameterDeclaration(node, mapper);
       case SyntaxKind.ProjectionStatement:
@@ -830,6 +833,10 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  function checkTemplateArgument(node: TemplateArgumentNode, mapper: TypeMapper | undefined): Type {
+    return getTypeForNode(node.argument, mapper);
+  }
+
   function resolveTypeReference(
     node: TypeReferenceNode
   ): [Type | undefined, readonly Diagnostic[]] {
@@ -923,67 +930,161 @@ export function createChecker(program: Program): Checker {
 
   function checkTemplateInstantiationArgs(
     node: Node,
-    args: [Node, Type][],
-    declarations: readonly TemplateParameterDeclarationNode[]
-  ): [TemplateParameter[], Type[]] {
-    if (args.length > declarations.length) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "invalid-template-args",
-          messageId: "tooMany",
-          target: node,
-        })
-      );
-      // Too many args shouldn't matter for instantiating we can still go ahead
+    args: readonly TemplateArgumentNode[],
+    decls: readonly TemplateParameterDeclarationNode[],
+    mapper: TypeMapper | undefined
+  ): Map<TemplateParameter, Type> {
+    const params = new Map<string, TemplateParameter>();
+    const positional: TemplateParameter[] = [];
+    interface TemplateParameterInit {
+      decl: TemplateParameterDeclarationNode;
+      // Deferred initializer so that we evaluate the param arguments in definition order.
+      init: (() => [Node, Type]) | null;
     }
+    const initMap = new Map<TemplateParameter, TemplateParameterInit>(
+      decls.map(function (decl) {
+        const declaredType = getTypeForNode(decl)! as TemplateParameter;
 
-    const values: Type[] = [];
-    const params: TemplateParameter[] = [];
-    let tooFew = false;
+        positional.push(declaredType);
+        params.set(decl.id.sv, declaredType);
 
-    for (let i = 0; i < declarations.length; i++) {
-      const declaration = declarations[i];
-      const declaredType = getTypeForNode(declaration)! as TemplateParameter;
-      params.push(declaredType);
+        return [
+          declaredType,
+          {
+            decl,
+            init: null,
+          },
+        ];
+      })
+    );
 
-      if (i < args.length) {
-        let [valueNode, value] = args[i];
-        if (declaredType.constraint) {
-          if (!checkTypeAssignable(value, declaredType.constraint, valueNode)) {
-            // TODO-TIM check if we expose this below
-            value =
-              declaredType.constraint?.kind === "Value" ? unknownType : declaredType.constraint;
-          }
-        }
-        values.push(value);
-      } else {
-        const mapper = createTypeMapper(params, values);
-        const defaultValue = getResolvedTypeParameterDefault(declaredType, declaration, mapper);
-        if (defaultValue) {
-          values.push(defaultValue);
-        } else {
-          tooFew = true;
-          values.push(
-            // TODO-TIM check if we expose this below
-            declaredType.constraint?.kind === "Value"
-              ? unknownType
-              : declaredType.constraint ?? unknownType
+    let named = false;
+
+    for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
+      function deferCheck(): [Node, Type] {
+        return [arg, getTypeForNode(arg.argument, mapper)];
+      }
+
+      if (arg.name) {
+        named = true;
+
+        const param = params.get(arg.name.sv);
+
+        if (!param) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "unknownName",
+              format: {
+                name: arg.name.sv,
+              },
+              target: arg,
+            })
           );
+          continue;
         }
+
+        if (initMap.get(param)!.init !== null) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "respecified",
+              format: {
+                name: arg.name.sv,
+              },
+              target: arg,
+            })
+          );
+          continue;
+        }
+
+        initMap.get(param)!.init = deferCheck;
+      } else {
+        if (named) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "positionalAfterNamed",
+              target: arg,
+            })
+          );
+          // we just throw this arg away. any missing args will be filled with ErrorType
+        }
+
+        if (idx >= positional.length) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "tooMany",
+              target: node,
+            })
+          );
+          continue;
+        }
+
+        let param = positional[idx];
+
+        if (initMap.get(param)!.init !== null) {
+          throw new Error("Unreachable: positional param already initialized");
+        }
+
+        initMap.get(param)!.init = deferCheck;
       }
     }
 
-    if (tooFew) {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "invalid-template-args",
-          messageId: "tooFew",
-          target: node,
-        })
-      );
+    const finalMap = initMap as unknown as Map<TemplateParameter, Type>;
+    const mapperParams: TemplateParameter[] = [];
+    const mapperArgs: Type[] = [];
+    for (const [param, { decl, init }] of [...initMap]) {
+      function commit(param: TemplateParameter, type: Type): void {
+        finalMap.set(param, type);
+        mapperParams.push(param);
+        mapperArgs.push(type);
+      }
+
+      if (init === null) {
+        const argumentMapper = createTypeMapper(mapperParams, mapperArgs);
+        const defaultValue = getResolvedTypeParameterDefault(param, decl, argumentMapper);
+        if (defaultValue) {
+          commit(param, defaultValue);
+        } else {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-template-args",
+              messageId: "missing",
+              format: {
+                name: decl.id.sv,
+              },
+              target: node,
+            })
+          );
+
+          // TODO-TIM check if we expose this below
+          commit(
+            param,
+            param.constraint?.kind === "Value" ? unknownType : param.constraint ?? unknownType
+          );
+        }
+
+        continue;
+      }
+
+      const [argNode, type] = init();
+
+      if (param.constraint) {
+        if (!checkTypeAssignable(type, param.constraint, argNode)) {
+          // TODO-TIM check if we expose this below
+          const effectiveType = param.constraint?.kind === "Value" ? unknownType : param.constraint;
+
+          commit(param, effectiveType);
+          continue;
+        }
+      }
+
+      commit(param, type);
     }
 
-    return [params, values];
+    return finalMap;
   }
 
   /**
@@ -1016,9 +1117,9 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
+    const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];
     const symbolLinks = getSymbolLinks(sym);
     let baseType;
-    const args = checkTypeReferenceArgs(node, mapper);
     if (
       sym.flags &
       (SymbolFlags.Model |
@@ -1030,7 +1131,7 @@ export function createChecker(program: Program): Checker {
     ) {
       const decl = sym.declarations[0] as TemplateableNode;
       if (!isTemplatedNode(decl)) {
-        if (args.length > 0) {
+        if (argumentNodes.length > 0) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "invalid-template-args",
@@ -1054,22 +1155,24 @@ export function createChecker(program: Program): Checker {
         const declaredType = getOrCheckDeclaredType(sym, decl, mapper);
 
         const templateParameters = decl.templateParameters;
-        const [params, instantiationArgs] = checkTemplateInstantiationArgs(
+        const instantiation = checkTemplateInstantiationArgs(
           node,
-          args,
-          templateParameters
+          argumentNodes,
+          templateParameters,
+          mapper
         );
+
         baseType = getOrInstantiateTemplate(
           decl,
-          params,
-          instantiationArgs,
+          [...instantiation.keys()],
+          [...instantiation.values()],
           declaredType.templateMapper,
           instantiateTemplates
         );
       }
     } else {
       // some other kind of reference
-      if (args.length > 0) {
+      if (argumentNodes.length > 0) {
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "invalid-template-args",

@@ -92,6 +92,7 @@ import {
   StringLiteralNode,
   Sym,
   SyntaxKind,
+  TemplateArgumentNode,
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
@@ -1139,12 +1140,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ...finishNode(pos),
     };
   }
+
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
-    const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
+    const args = parseOptionalList(ListKind.TemplateArguments, parseTemplateArgument);
 
     return {
       kind: SyntaxKind.TypeReference,
@@ -1152,6 +1154,36 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       arguments: args,
       ...finishNode(pos),
     };
+  }
+
+  function parseTemplateArgument(): TemplateArgumentNode {
+    const pos = tokenPos();
+
+    const expr = parseExpression();
+
+    const eq = parseOptional(Token.Equals);
+
+    if (eq) {
+      const isBareIdentifier =
+        expr.kind === SyntaxKind.TypeReference && expr.target.kind === SyntaxKind.Identifier;
+
+      if (!isBareIdentifier) {
+        error({ code: "invalid-template-argument-name", target: expr });
+      }
+
+      return {
+        kind: SyntaxKind.TemplateArgument,
+        name: isBareIdentifier ? expr.target : createMissingIdentifier(),
+        argument: parseExpression(),
+        ...finishNode(pos),
+      };
+    } else {
+      return {
+        kind: SyntaxKind.TemplateArgument,
+        argument: expr,
+        ...finishNode(pos),
+      };
+    }
   }
 
   function parseAugmentDecorator(): AugmentDecoratorStatementNode {
@@ -3146,6 +3178,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return (
         visitNode(cb, node.id) || visitNode(cb, node.constraint) || visitNode(cb, node.default)
       );
+    case SyntaxKind.TemplateArgument:
+      return (node.name && visitNode(cb, node.name)) || visitNode(cb, node.argument);
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
       return visitNode(cb, node.id);
     case SyntaxKind.ProjectionParameterDeclaration:
