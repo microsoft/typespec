@@ -1160,6 +1160,9 @@ importers:
       '@typespec/http':
         specifier: workspace:~0.48.0
         version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:~0.48.0
+        version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.48.0
         version: link:../openapi
