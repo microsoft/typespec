@@ -17,7 +17,8 @@ export type FluentImageName =
   | "eye-dev"
   | "firework"
   | "people-shield"
-  | "shield-blue";
+  | "shield-blue"
+  | "shield-settings";
 
 /**
  * Component for rendering a Fluent image.

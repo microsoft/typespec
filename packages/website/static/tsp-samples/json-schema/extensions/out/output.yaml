@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: output.yaml
+$defs:
+  Person:
+    $schema: https://json-schema.org/draft/2020-12/schema
+    $id: Person
+    type: object
+    properties:
+      name:
+        type: string
+        description: The person's full name.
+    required:
+      - name
+    x-tag:
+      validate: true
+      category: users

@@ -1,8 +1,6 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-// const lightCodeTheme = require("prism-react-renderer/themes/github");
-const lightCodeTheme = require("./themes/prism/atom-one-light.js");
 const { themes } = require("prism-react-renderer");
 const { resolve } = require("path");
 
@@ -193,8 +191,8 @@ const config = {
         copyright: `Copyright © ${new Date().getFullYear()} Microsoft Corp.`,
       },
       prism: {
-        theme: lightCodeTheme,
-        darkTheme: themes.dracula,
+        theme: themes.oneLight,
+        darkTheme: themes.oneDark,
         additionalLanguages: ["shell-session"],
       },
       mermaid: {},

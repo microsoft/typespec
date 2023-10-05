@@ -26,15 +26,16 @@ const JsonRpcContent = () => {
       <SectionedLayout>
         <Section
           header="Ecosystem"
-          title="Test API endpoints as you code"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          title="Individual json schema files"
+          description="Use the json schema emitter to produce many individual json schema that cross reference."
           illustration={<MultiFileIllustration />}
           items={[
             {
-              title: "TypeSpec for JSON RPC developer",
-              description: "Description todo",
-              image: "design",
-              link: "/json-rpc",
+              title: "Configure the json schema emitter",
+              description:
+                "Change how the json schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml.",
+              image: "shield-settings",
+              link: Links.libraryReferences.jsonSchema,
             },
           ]}
         />
@@ -44,7 +45,7 @@ const JsonRpcContent = () => {
           header="Ecosystem"
           title="Test API endpoints as you code"
           description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          illustration="illustrations/openapi3.png"
+          illustration={<JsonSchemaExtensionsIllustration />}
           items={[
             {
               title: "TypeSpec for JSON RPC developer",
@@ -79,6 +80,22 @@ const MultiFileIllustration = () => {
       </TabItem>
       <TabItem value="Person.yaml">
         <CodeBlock language="yaml">{multiFilePerson}</CodeBlock>
+      </TabItem>
+    </Tabs>
+  );
+};
+
+import extensionsTsp from "!!raw-loader!@site/static/tsp-samples/json-schema/extensions/main.tsp";
+import extensionsYaml from "!!raw-loader!@site/static/tsp-samples/json-schema/extensions/out/output.yaml";
+
+const JsonSchemaExtensionsIllustration = () => {
+  return (
+    <Tabs>
+      <TabItem value="main.tsp">
+        <CodeBlock language="tsp">{extensionsTsp}</CodeBlock>
+      </TabItem>
+      <TabItem value="output.yaml">
+        <CodeBlock language="yaml">{extensionsYaml}</CodeBlock>
       </TabItem>
     </Tabs>
   );
