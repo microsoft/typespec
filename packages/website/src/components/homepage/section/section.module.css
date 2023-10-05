@@ -63,8 +63,12 @@
   overflow: hidden;
 }
 
-.illustration :global(.theme-code-block) {
+.illustration :global(.tabs-container) {
   margin-bottom: 0;
+}
+
+.illustration :global(.tabs-container) :global(.margin-top--md) {
+  margin-top: 0 !important;
 }
 
 @media only screen and (min-width: 1200px) {

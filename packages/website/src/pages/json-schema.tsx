@@ -1,7 +1,10 @@
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
+
 import { Links } from "../constants";
 
 export default function Home() {
@@ -25,7 +28,7 @@ const JsonRpcContent = () => {
           header="Ecosystem"
           title="Test API endpoints as you code"
           description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          illustration="illustrations/openapi3.png"
+          illustration={<MultiFileIllustration />}
           items={[
             {
               title: "TypeSpec for JSON RPC developer",
@@ -53,5 +56,30 @@ const JsonRpcContent = () => {
         />
       </SectionedLayout>
     </div>
+  );
+};
+
+import multiFileTsp from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/main.tsp";
+import multiFileAddress from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/out/Address.yaml";
+import multiFileCar from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/out/Car.yaml";
+import multiFilePerson from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/out/Person.yaml";
+import { CodeBlock } from "../components/code-block/code-block";
+
+const MultiFileIllustration = () => {
+  return (
+    <Tabs>
+      <TabItem value="main.tsp">
+        <CodeBlock language="tsp">{multiFileTsp}</CodeBlock>
+      </TabItem>
+      <TabItem value="Address.yaml">
+        <CodeBlock language="yaml">{multiFileAddress}</CodeBlock>
+      </TabItem>
+      <TabItem value="Car.yaml">
+        <CodeBlock language="yaml">{multiFileCar}</CodeBlock>
+      </TabItem>
+      <TabItem value="Person.yaml">
+        <CodeBlock language="yaml">{multiFilePerson}</CodeBlock>
+      </TabItem>
+    </Tabs>
   );
 };

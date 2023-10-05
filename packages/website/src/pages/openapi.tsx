@@ -3,8 +3,8 @@ import interoperateTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/inte
 import interoperateOpenapi from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/openapi.yaml";
 import interoperateSpectral from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/spectral.txt";
 import { Links } from "@site/src/constants";
-import CodeBlock from "@theme/CodeBlock";
 import { AssetImg } from "../components/asset-img/asset-img";
+import { CodeBlock } from "../components/code-block/code-block";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
