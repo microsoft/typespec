@@ -1,16 +1,16 @@
 $schema: https://json-schema.org/draft/2020-12/schema
 $id: output.yaml
 $defs:
-  Person:
+  Server:
     $schema: https://json-schema.org/draft/2020-12/schema
-    $id: Person
+    $id: Server
     type: object
     properties:
-      name:
+      hostname:
         type: string
-        description: The person's full name.
+        format: hostname
     required:
-      - name
+      - hostname
     x-tag:
       validate: true
       category: users

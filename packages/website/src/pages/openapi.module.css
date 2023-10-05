@@ -1,6 +1,6 @@
 .interoperate-illustration {
   display: grid;
-  grid-template-areas: 
+  grid-template-areas:
     "tsp openapi"
     "swagger-ui openapi"
     "spectral spectral";
@@ -19,5 +19,4 @@
 
 .interoperate-swagger-ui {
   grid-area: swagger-ui;
-
 }

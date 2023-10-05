@@ -21,11 +21,11 @@ const JsonRpcContent = () => {
       <UseCaseOverview
         title="Use Json Schema to validate your data"
         subtitle="Benefit from the Json Schema ecosystem to validate your data while writing a much more concise and readable code."
-        link={Links.libraryReferences.jsonSchema}
+        link={Links.libraryReferences.jsonSchema.index}
       />
       <SectionedLayout>
         <Section
-          header="Ecosystem"
+          header="Output"
           title="Individual json schema files"
           description="Use the json schema emitter to produce many individual json schema that cross reference."
           illustration={<MultiFileIllustration />}
@@ -35,23 +35,23 @@ const JsonRpcContent = () => {
               description:
                 "Change how the json schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml.",
               image: "shield-settings",
-              link: Links.libraryReferences.jsonSchema,
+              link: Links.libraryReferences.jsonSchema.index,
             },
           ]}
         />
 
         <Section
           layout="text-right"
-          header="Ecosystem"
-          title="Test API endpoints as you code"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          header="Customize"
+          title="Json Schema Decorators"
+          description="The json schema library provide decorators to customize the output with json schema specific concept."
           illustration={<JsonSchemaExtensionsIllustration />}
           items={[
             {
-              title: "TypeSpec for JSON RPC developer",
-              description: "Description todo",
+              title: "Json Schema Decorators Reference",
+              description: "Read the reference documentation for available options.",
               image: "design",
-              link: "/json-rpc",
+              link: Links.libraryReferences.jsonSchema.decorators,
             },
           ]}
         />

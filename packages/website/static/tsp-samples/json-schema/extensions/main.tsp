@@ -10,7 +10,7 @@ using TypeSpec.JsonSchema;
     category: "users",
   }>
 )
-model Person {
-  /** The person's full name. */
-  name: string;
+model Server {
+  @format("hostname")
+  hostname: string;
 }

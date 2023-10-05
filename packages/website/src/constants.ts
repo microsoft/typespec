@@ -3,7 +3,14 @@ export const Links = {
   gettingStartedWithHttp: "/docs/getting-started/getting-started-http",
 
   libraryReferences: {
-    jsonSchema: "/docs/standard-library/json-schema/reference",
+    openapi3: {
+      index: "/docs/standard-library/openapi3/reference",
+      decorators: "/docs/standard-library/openapi3/reference/decorators",
+    },
+    jsonSchema: {
+      index: "/docs/standard-library/json-schema/reference",
+      decorators: "/docs/standard-library/json-schema/reference/decorators",
+    },
   },
   // External
   spectral: "https://stoplight.io/open-source/spectral",
