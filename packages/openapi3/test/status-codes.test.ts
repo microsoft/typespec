@@ -53,7 +53,7 @@ describe("openapi3: response status codes", () => {
       {
         code: "@typespec/openapi3/unsupported-status-code-range",
         message:
-          "Status code range '455 to '495' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX.",
+          "Status code range '455 to '495' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX. Example: `@minValue(400) @maxValue(499)` for 4XX.",
       },
     ]);
   });
