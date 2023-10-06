@@ -104,6 +104,7 @@ import {
   OpenAPI3Server,
   OpenAPI3ServerVariable,
 } from "./types.js";
+import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -216,6 +217,7 @@ function createOAPIEmitter(
   let currentEndpoint: OpenAPI3Operation;
 
   let metadataInfo: MetadataInfo;
+  let visibilityUsage: VisibilityUsageTracker;
 
   // Keep a map of all Types+Visibility combinations that were encountered
   // that need schema definitions.
@@ -582,6 +584,7 @@ function createOAPIEmitter(
     multipleService: boolean,
     version?: string
   ) {
+    visibilityUsage = resolveVisibilityUsage(program, service.type);
     initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
@@ -886,7 +889,13 @@ function createOAPIEmitter(
   }
 
   function callSchemaEmitter(type: Type, visibility: Visibility) {
-    return { ...(schemaEmitter.emitType(type, { referenceContext: { visibility } }) as any).value };
+    const usage = visibilityUsage.getUsage(type);
+    const shouldAddSuffix = usage !== undefined && usage.size > 1;
+    return {
+      ...(
+        schemaEmitter.emitType(type, { referenceContext: { visibility, shouldAddSuffix } }) as any
+      ).value,
+    };
   }
 
   function getSchemaOrRef(type: Type, visibility: Visibility): any {

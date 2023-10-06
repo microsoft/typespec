@@ -150,9 +150,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       schema.properties = properties;
     }
 
+    const shouldAddSuffix = this.emitter.getContext().shouldAddSuffix;
     const name =
       getOpenAPITypeName(program, model, typeNameOptions) +
-      getVisibilitySuffix(visibility, Visibility.Read);
+      (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
     return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
   }
