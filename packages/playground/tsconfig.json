@@ -16,5 +16,12 @@
     "lib": ["DOM"],
     "types": ["@emotion/react"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "e2e/**/*.ts", "vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "e2e/**/*.ts",
+    "vite.config.ts",
+    "definitions/*.d.ts"
+  ]
 }

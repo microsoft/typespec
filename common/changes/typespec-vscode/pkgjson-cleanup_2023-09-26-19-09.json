@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vscode",
+      "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vscode"
+}

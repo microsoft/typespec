@@ -934,7 +934,7 @@ importers:
         specifier: workspace:~0.48.1
         version: link:../openapi3
       '@typespec/playground':
-        specifier: workspace:~0.1.0-alpha.0
+        specifier: workspace:~0.1.0-alpha.1
         version: link:../playground
       '@typespec/protobuf':
         specifier: workspace:~0.48.0
@@ -1160,6 +1160,9 @@ importers:
       '@typespec/http':
         specifier: workspace:~0.48.0
         version: link:../http
+      '@typespec/json-schema':
+        specifier: workspace:~0.48.0
+        version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.48.0
         version: link:../openapi

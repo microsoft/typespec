@@ -1,6 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import manifest from "playground-manifest.js";
-import { PlaygroundConfig } from "./vite/types.js";
+/**
+ * THIS FILE IS MEANT TO BE STUBBED using the manifest plugin.
+ */
+import { PlaygroundConfig } from "../src/vite/types.js";
 
-export const PlaygroundManifest: PlaygroundConfig = manifest;
+const config: PlaygroundConfig = {} as any;
+export default config;

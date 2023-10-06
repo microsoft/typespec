@@ -54,17 +54,18 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
 
   return {
     name: "playground-manifest",
+    enforce: "pre", // Need to run before resolving library imports to stub `@typespec/playground/manifest`
     async configResolved(c) {
       viteConfig = c;
     },
     resolveId(id: string) {
-      if (id === "playground-manifest.js") {
+      if (id === "@typespec/playground/manifest") {
         return id;
       }
       return null;
     },
     load(id: string) {
-      if (id === `playground-manifest.js`) {
+      if (id === `@typespec/playground/manifest`) {
         const sampleImport = Object.values(samples)
           .map(
             (sampleValue, index) =>
