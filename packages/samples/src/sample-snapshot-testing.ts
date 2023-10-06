@@ -95,6 +95,7 @@ function defineSampleSnaphotTest(
       overrides.emit = config.emit;
     }
     const [options, diagnostics] = await resolveCompilerOptions(host, {
+      cwd: process.cwd(),
       entrypoint: sample.fullPath,
       overrides,
     });

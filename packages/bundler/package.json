@@ -1,10 +1,10 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.1",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a typespec library.",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",

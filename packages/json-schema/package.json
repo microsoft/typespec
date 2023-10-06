@@ -4,7 +4,7 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
   "homepage": "https://github.com/microsoft/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
