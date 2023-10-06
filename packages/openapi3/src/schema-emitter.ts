@@ -57,6 +57,7 @@ import {
 } from "@typespec/compiler/emitter-framework";
 import { getVisibilitySuffix, MetadataInfo, Visibility } from "@typespec/http";
 import {
+  checkDuplicateTypeName,
   getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
@@ -727,6 +728,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return schema;
     }
     const decl = this.emitter.result.declaration(name, schema);
+    checkDuplicateTypeName(
+      this.emitter.getProgram(),
+      type,
+      name,
+      Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true]))
+    );
     return decl;
   }
 
