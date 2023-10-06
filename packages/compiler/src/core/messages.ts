@@ -277,13 +277,12 @@ const diagnostics = {
     messages: {
       default: "Invalid template arguments.",
       notTemplate: "Can't pass template arguments to non-templated type",
-      // tooFew: "Too few template arguments provided.",
       tooMany: "Too many template arguments provided.",
-      unknownName: paramMessage`No template parameter named '${"name"}' exists in the target template.`,
+      unknownName: paramMessage`No template argument named '${"name"}' exists in the target template.`,
       positionalAfterNamed:
         "Positional template arguments cannot follow named arguments in the same argument list.",
       missing: paramMessage`Template argument '${"name"}' is required and not specified.`,
-      respecified: paramMessage`Cannot respecify template argument ${"name"}.`,
+      respecified: paramMessage`Cannot specify template argument ${"name"} again.`,
     },
   },
   "intersect-non-model": {

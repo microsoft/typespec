@@ -516,7 +516,7 @@ describe("compiler: templates", () => {
     });
   });
 
-  describe.only("named template argument instantiations", async () => {
+  describe("named template argument instantiations", async () => {
     it("with named arguments", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
@@ -695,7 +695,7 @@ describe("compiler: templates", () => {
       });
     });
 
-    it.only("decorators are applied in the correct order", async () => {
+    it("decorators are applied in the correct order", async () => {
       const members: [Type, Type][] = [];
 
       testHost.addJsFile("effect.js", {
