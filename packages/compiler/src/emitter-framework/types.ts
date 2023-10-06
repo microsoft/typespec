@@ -57,6 +57,9 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
     none(): NoEmit;
   };
   writeOutput(): Promise<void>;
+
+  // TODO - is is a good way?????
+  getSourceFiles(): SourceFile<T>[];
 }
 
 export interface ScopeBase<T> {

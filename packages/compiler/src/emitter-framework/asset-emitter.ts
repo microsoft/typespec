@@ -318,6 +318,10 @@ export function createAssetEmitter<T, TOptions extends object>(
       return typeEmitter.writeOutput(sourceFiles);
     },
 
+    getSourceFiles() {
+      return sourceFiles;
+    },
+
     emitType(type, context?: ContextState) {
       if (context?.referenceContext) {
         incomingReferenceContext = context?.referenceContext ?? incomingReferenceContext;

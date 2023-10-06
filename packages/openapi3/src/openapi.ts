@@ -1,12 +1,9 @@
 import {
   compilerAssert,
-  DiscriminatedUnion,
   EmitContext,
   emitFile,
   getAllTags,
   getAnyExtensionFromPath,
-  getDiscriminatedUnion,
-  getDiscriminator,
   getDoc,
   getEncode,
   getFormat,
@@ -31,11 +28,8 @@ import {
   isGlobalNamespace,
   isNeverType,
   isNullType,
-  isRecordModelType,
   isSecret,
-  isTemplateDeclaration,
   listServices,
-  Model,
   ModelProperty,
   Namespace,
   navigateTypesInNamespace,
@@ -47,18 +41,17 @@ import {
   resolvePath,
   Scalar,
   Service,
-  TwoLevelMap,
   Type,
   TypeNameOptions,
 } from "@typespec/compiler";
 
+import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import * as http from "@typespec/http";
 import {
   createMetadataInfo,
   getAuthentication,
   getHttpService,
   getStatusCodeDescription,
-  getVisibilitySuffix,
   HeaderFieldOptions,
   HttpAuth,
   HttpOperation,
@@ -75,7 +68,6 @@ import {
   Visibility,
 } from "@typespec/http";
 import {
-  checkDuplicateTypeName,
   getExtensions,
   getExternalDocs,
   getInfo,
@@ -87,11 +79,10 @@ import {
 } from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
-import { getOneOf, getRef } from "./decorators.js";
+import { getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
-import { OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { OpenAPI3SchemaEmitter, OpenAPI3SchemaEmitterOptions } from "./schema-emitter.js";
 import {
-  OpenAPI3Discriminator,
   OpenAPI3Document,
   OpenAPI3Header,
   OpenAPI3OAuthFlows,
@@ -99,10 +90,10 @@ import {
   OpenAPI3Parameter,
   OpenAPI3ParameterBase,
   OpenAPI3Schema,
-  OpenAPI3SchemaProperty,
   OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
+  Refable,
 } from "./types.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 
@@ -160,54 +151,12 @@ export interface ResolvedOpenAPI3EmitterOptions {
   includeXTypeSpecName: "inline-only" | "never";
 }
 
-/**
- * Represents a node that will hold a JSON reference. The value is computed
- * at the end so that we can defer decisions about the name that is
- * referenced.
- */
-class Ref {
-  value?: string;
-  toJSON() {
-    compilerAssert(this.value, "Reference value never set.");
-    return this.value;
-  }
-}
-
-/**
- * Represents a non-inlined schema that will be emitted as a definition.
- * Computation of the OpenAPI schema object is deferred.
- */
-interface PendingSchema {
-  /** The TYPESPEC type for the schema */
-  type: Type;
-
-  /** The visibility to apply when computing the schema */
-  visibility: Visibility;
-
-  /**
-   * The JSON reference to use to point to this schema.
-   *
-   * Note that its value will not be computed until all schemas have been
-   * computed as we will add a suffix to the name if more than one schema
-   * must be emitted for the type for different visibilities.
-   */
-  ref: Ref;
-}
-
-/**
- * Represents a schema that is ready to emit as its OpenAPI representation
- * has been produced.
- */
-interface ProcessedSchema extends PendingSchema {
-  schema: OpenAPI3Schema | undefined;
-}
-
 function createOAPIEmitter(
   context: EmitContext<OpenAPI3EmitterOptions>,
   options: ResolvedOpenAPI3EmitterOptions
 ) {
   let program = context.program;
-  const schemaEmitter = context.getAssetEmitter(OpenAPI3SchemaEmitter as any);
+  let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
 
   let root: OpenAPI3Document;
 
@@ -218,13 +167,6 @@ function createOAPIEmitter(
 
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
-
-  // Keep a map of all Types+Visibility combinations that were encountered
-  // that need schema definitions.
-  let pendingSchemas = new TwoLevelMap<Type, Visibility, PendingSchema>();
-
-  // Reuse a single ref object per Type+Visibility combination.
-  let refs = new TwoLevelMap<Type, Visibility, Ref>();
 
   // Keep track of inline types still in the process of having their schema computed
   // This is used to detect cycles in inline types, which is an
@@ -283,12 +225,19 @@ function createOAPIEmitter(
 
     serviceNamespace = getNamespaceFullName(service.type);
     currentPath = root.paths;
-    pendingSchemas = new TwoLevelMap();
-    refs = new TwoLevelMap();
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
     });
+    visibilityUsage = resolveVisibilityUsage(program, metadataInfo, service.type);
+    schemaEmitter = context.getAssetEmitter(
+      class extends OpenAPI3SchemaEmitter {
+        constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3SchemaEmitterOptions>) {
+          super(emitter, metadataInfo, visibilityUsage);
+        }
+      } as any
+    );
+
     inProgressInlineTypes = new Set();
     params = new Map();
     paramModels = new Set();
@@ -346,9 +295,9 @@ function createOAPIEmitter(
         };
 
         if (prop.type.kind === "Enum") {
-          variable.enum = callSchemaEmitter(prop.type, Visibility.Read).enum;
+          variable.enum = getSchemaValue(prop.type, Visibility.Read).enum as any;
         } else if (prop.type.kind === "Union") {
-          variable.enum = callSchemaEmitter(prop.type, Visibility.Read).enum;
+          variable.enum = getSchemaValue(prop.type, Visibility.Read).enum as any;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -584,7 +533,6 @@ function createOAPIEmitter(
     multipleService: boolean,
     version?: string
   ) {
-    visibilityUsage = resolveVisibilityUsage(program, service.type);
     initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
@@ -888,44 +836,53 @@ function createOAPIEmitter(
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
-  function callSchemaEmitter(type: Type, visibility: Visibility) {
-    const usage = visibilityUsage.getUsage(type);
-    const shouldAddSuffix = usage !== undefined && usage.size > 1;
-    return {
-      ...(
-        schemaEmitter.emitType(type, {
-          referenceContext: { visibility, shouldAddSuffix, serviceNamespaceName: serviceNamespace },
-        }) as any
-      ).value,
-    };
+  function callSchemaEmitter(type: Type, visibility: Visibility): Refable<OpenAPI3Schema> {
+    const result = emitTypeWithSchemaEmitter(type, visibility);
+
+    switch (result.kind) {
+      case "code":
+        return result.value as any;
+      case "declaration":
+        return { $ref: `#/components/schemas/${result.name}` };
+      case "circular":
+      case "none":
+        return {};
+    }
+  }
+
+  function getSchemaValue(type: Type, visibility: Visibility): OpenAPI3Schema {
+    const result = emitTypeWithSchemaEmitter(type, visibility);
+
+    switch (result.kind) {
+      case "code":
+      case "declaration":
+        return result.value as any;
+      case "circular":
+      case "none":
+        return {};
+    }
+  }
+
+  function emitTypeWithSchemaEmitter(
+    type: Type,
+    visibility: Visibility
+  ): EmitEntity<OpenAPI3Schema> {
+    return schemaEmitter.emitType(type, {
+      referenceContext: { visibility, serviceNamespaceName: serviceNamespace },
+    }) as any;
   }
 
   function getSchemaOrRef(type: Type, visibility: Visibility): any {
-    const refUrl = getRef(program, type);
-    if (refUrl) {
-      return {
-        $ref: refUrl,
-      };
-    }
-
-    if (type.kind === "Scalar" && program.checker.isStdType(type)) {
-      return callSchemaEmitter(type, visibility);
-    }
-
-    if (type.kind === "String" || type.kind === "Number" || type.kind === "Boolean") {
-      // For literal types, we just want to emit them directly as well.
-      return callSchemaEmitter(type, visibility);
-    }
-
-    if (type.kind === "Intrinsic" && type.name === "unknown") {
-      return callSchemaEmitter(type, visibility);
-    }
-
-    if (type.kind === "EnumMember") {
-      return callSchemaEmitter(type, visibility);
-    }
-
-    if (type.kind === "ModelProperty") {
+    if (
+      (type.kind === "Scalar" && program.checker.isStdType(type)) ||
+      type.kind === "String" ||
+      type.kind === "Number" ||
+      type.kind === "Boolean" ||
+      (type.kind === "Intrinsic" && type.name === "unknown") ||
+      type.kind === "EnumMember" ||
+      type.kind === "ModelProperty"
+    ) {
+      // Those types should just be inlined.
       return callSchemaEmitter(type, visibility);
     }
 
@@ -951,14 +908,8 @@ function createOAPIEmitter(
       if (!metadataInfo.isTransformed(type, visibility)) {
         visibility = Visibility.Read;
       }
-      const pending = pendingSchemas.getOrAdd(type, visibility, () => ({
-        type,
-        visibility,
-        ref: refs.getOrAdd(type, visibility, () => new Ref()),
-      }));
-      return {
-        $ref: pending.ref,
-      };
+
+      return callSchemaEmitter(type, visibility);
     }
   }
 
@@ -1270,50 +1221,30 @@ function createOAPIEmitter(
   }
 
   function emitSchemas(serviceNamespace: Namespace) {
-    const processedSchemas = new TwoLevelMap<Type, Visibility, ProcessedSchema>();
-
-    processSchemas();
     if (!options.omitUnreachableTypes) {
       processUnreferencedSchemas();
     }
 
-    // Emit the processed schemas. Only now can we compute the names as it
-    // depends on whether we have produced multiple schemas for a single
-    // TYPESPEC type.
-    for (const group of processedSchemas.values()) {
-      for (const [visibility, processed] of group) {
-        let name = getOpenAPITypeName(program, processed.type, typeNameOptions);
-        if (group.size > 1) {
-          name += getVisibilitySuffix(visibility, Visibility.Read);
-        }
-        checkDuplicateTypeName(program, processed.type, name, root.components!.schemas);
-        processed.ref.value = "#/components/schemas/" + encodeURIComponent(name);
-        if (processed.schema) {
-          root.components!.schemas![name] = processed.schema;
-        }
-      }
-    }
-
-    function processSchemas() {
-      // Process pending schemas. Note that getSchemaForType may pull in new
-      // pending schemas so we iterate until there are no pending schemas
-      // remaining.
-      while (pendingSchemas.size > 0) {
-        for (const [type, group] of pendingSchemas) {
-          for (const [visibility, pending] of group) {
-            processedSchemas.getOrAdd(type, visibility, () => ({
-              ...pending,
-              schema: getSchemaForType(type, visibility),
-            }));
-          }
-          pendingSchemas.delete(type);
-        }
+    const files = schemaEmitter.getSourceFiles();
+    if (files.length > 0) {
+      compilerAssert(
+        files.length === 1,
+        `Should only have a single file for now but got ${files.length}`
+      );
+      const schemas = root.components!.schemas!;
+      const declarations = files[0].globalScope.declarations;
+      for (const declaration of declarations) {
+        schemas[declaration.name] = declaration.value as any;
       }
     }
 
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
-        if (!processedSchemas.has(type) && !paramModels.has(type) && !shouldInline(program, type)) {
+        if (
+          visibilityUsage.getUsage(type) === undefined &&
+          !paramModels.has(type) &&
+          !shouldInline(program, type)
+        ) {
           getSchemaOrRef(type, Visibility.Read);
         }
       };
@@ -1328,7 +1259,6 @@ function createOAPIEmitter(
         },
         { skipSubNamespaces }
       );
-      processSchemas();
     }
   }
 
@@ -1339,12 +1269,7 @@ function createOAPIEmitter(
   }
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
-    switch (type.kind) {
-      case "Model":
-        return getSchemaForModel(type, visibility);
-    }
-
-    return callSchemaEmitter(type, visibility);
+    return callSchemaEmitter(type, visibility) as any;
   }
 
   function getDefaultValue(type: Type, defaultType: Type): any {
@@ -1390,128 +1315,6 @@ function createOAPIEmitter(
     }
   }
 
-  function includeDerivedModel(model: Model): boolean {
-    return (
-      !isTemplateDeclaration(model) &&
-      (model.templateMapper?.args === undefined ||
-        model.templateMapper.args?.length === 0 ||
-        model.derivedModels.length > 0)
-    );
-  }
-
-  function getSchemaForModel(model: Model, visibility: Visibility) {
-    const array = getArrayType(model, visibility);
-    if (array) {
-      return array;
-    }
-
-    const modelSchema: OpenAPI3Schema = {
-      type: "object",
-      description: getDoc(program, model),
-    };
-    const properties: OpenAPI3Schema["properties"] = {};
-
-    if (isRecordModelType(program, model)) {
-      modelSchema.additionalProperties = getSchemaOrRef(model.indexer.value, visibility);
-    }
-
-    const derivedModels = model.derivedModels.filter(includeDerivedModel);
-    // getSchemaOrRef on all children to push them into components.schemas
-    for (const child of derivedModels) {
-      getSchemaOrRef(child, visibility);
-    }
-
-    const discriminator = getDiscriminator(program, model);
-    if (discriminator) {
-      const [union] = getDiscriminatedUnion(model, discriminator);
-
-      const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
-      if (union.variants.size > 0) {
-        openApiDiscriminator.mapping = getDiscriminatorMapping(union, visibility);
-      }
-
-      modelSchema.discriminator = openApiDiscriminator;
-      properties[discriminator.propertyName] = {
-        type: "string",
-        description: `Discriminator property for ${model.name}.`,
-      };
-    }
-
-    applyExternalDocs(model, modelSchema);
-
-    for (const [name, prop] of model.properties) {
-      if (!metadataInfo.isPayloadProperty(prop, visibility)) {
-        continue;
-      }
-
-      if (isNeverType(prop.type)) {
-        // If the property has a type of 'never', don't include it in the schema
-        continue;
-      }
-
-      if (!metadataInfo.isOptional(prop, visibility)) {
-        if (!modelSchema.required) {
-          modelSchema.required = [];
-        }
-        modelSchema.required.push(name);
-      }
-
-      properties[name] = resolveProperty(prop, visibility);
-    }
-
-    if (model.baseModel) {
-      const baseSchema = getSchemaOrRef(model.baseModel, visibility);
-      modelSchema.allOf = [baseSchema];
-    }
-
-    if (Object.keys(properties).length > 0) {
-      modelSchema.properties = properties;
-    }
-    // Attach any OpenAPI extensions
-    attachExtensions(program, model, modelSchema);
-    return modelSchema;
-  }
-
-  function resolveProperty(prop: ModelProperty, visibility: Visibility): OpenAPI3SchemaProperty {
-    const description = getDoc(program, prop);
-
-    const schema = applyEncoding(prop, getSchemaOrRef(prop.type, visibility));
-    // Apply decorators on the property to the type's schema
-    const additionalProps: Partial<OpenAPI3Schema> = applyIntrinsicDecorators(prop, {});
-    if (description) {
-      additionalProps.description = description;
-    }
-
-    if (prop.default) {
-      additionalProps.default = getDefaultValue(prop.type, prop.default);
-    }
-
-    if (isReadonlyProperty(program, prop)) {
-      additionalProps.readOnly = true;
-    }
-
-    // Attach any additional OpenAPI extensions
-    attachExtensions(program, prop, additionalProps);
-
-    if (schema && "$ref" in schema) {
-      if (Object.keys(additionalProps).length === 0) {
-        return schema;
-      } else {
-        return {
-          allOf: [schema],
-          ...additionalProps,
-        };
-      }
-    } else {
-      if (getOneOf(program, prop) && schema.anyOf) {
-        schema.oneOf = schema.anyOf;
-        delete schema.anyOf;
-      }
-
-      return { ...schema, ...additionalProps };
-    }
-  }
-
   function attachExtensions(program: Program, type: Type, emitObject: any) {
     // Attach any OpenAPI extensions
     const extensions = getExtensions(program, type);
@@ -1520,14 +1323,6 @@ function createOAPIEmitter(
         emitObject[key] = extensions.get(key);
       }
     }
-  }
-
-  function getDiscriminatorMapping(union: DiscriminatedUnion, visibility: Visibility) {
-    const mapping: Record<string, string> | undefined = {};
-    for (const [key, model] of union.variants.entries()) {
-      mapping[key] = getSchemaOrRef(model, visibility).$ref;
-    }
-    return mapping;
   }
 
   function applyIntrinsicDecorators(typespecType: Type, target: OpenAPI3Schema): OpenAPI3Schema {
@@ -1612,7 +1407,7 @@ function createOAPIEmitter(
     const encodeData = getEncode(program, typespecType);
     if (encodeData) {
       const newTarget = { ...target };
-      const newType = callSchemaEmitter(encodeData.type, Visibility.Read);
+      const newType = callSchemaEmitter(encodeData.type, Visibility.Read) as OpenAPI3Schema;
       newTarget.type = newType.type;
       // If the target already has a format it takes priority. (e.g. int32)
       newTarget.format = mergeFormatAndEncoding(
@@ -1660,20 +1455,6 @@ function createOAPIEmitter(
     if (externalDocs) {
       target.externalDocs = externalDocs;
     }
-  }
-
-  /**
-   * Map TypeSpec intrinsic models to open api definitions
-   */
-  function getArrayType(typespecType: Model, visibility: Visibility): OpenAPI3Schema | undefined {
-    if (isArrayModelType(program, typespecType)) {
-      const array: OpenAPI3Schema = {
-        type: "array",
-        items: getSchemaOrRef(typespecType.indexer.value!, visibility | Visibility.Item),
-      };
-      return applyIntrinsicDecorators(typespecType, array);
-    }
-    return undefined;
   }
 
   function processAuth(serviceNamespace: Namespace):
@@ -1742,17 +1523,11 @@ function serializeDocument(root: OpenAPI3Document, fileType: FileType): string {
     case "json":
       return prettierOutput(JSON.stringify(root, null, 2));
     case "yaml":
-      return stringify(
-        root,
-        (key, value) => {
-          return value instanceof Ref ? value.toJSON() : value;
-        },
-        {
-          singleQuote: true,
-          aliasDuplicateObjects: false,
-          lineWidth: 0,
-        }
-      );
+      return stringify(root, {
+        singleQuote: true,
+        aliasDuplicateObjects: false,
+        lineWidth: 0,
+      });
   }
 }
 

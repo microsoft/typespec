@@ -55,38 +55,48 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
-import { createMetadataInfo, getVisibilitySuffix, MetadataInfo, Visibility } from "@typespec/http";
+import { getVisibilitySuffix, MetadataInfo, Visibility } from "@typespec/http";
 import {
   getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
   isReadonlyProperty,
+  shouldInline,
 } from "@typespec/openapi";
-import { getOneOf } from "./decorators.js";
+import { getOneOf, getRef } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
-import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
+import { OpenAPI3Discriminator, OpenAPI3Schema, OpenAPI3SchemaProperty } from "./types.js";
+import { VisibilityUsageTracker } from "./visibility-usage.js";
 
 export interface OpenAPI3SchemaEmitterOptions {}
+
+/**
+ * OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
+ */
 export class OpenAPI3SchemaEmitter extends TypeEmitter<
   Record<string, any>,
   OpenAPI3SchemaEmitterOptions
 > {
   #metadataInfo: MetadataInfo;
-  constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3SchemaEmitterOptions>) {
+  #visibilityUsage: VisibilityUsageTracker;
+  constructor(
+    emitter: AssetEmitter<Record<string, any>, OpenAPI3SchemaEmitterOptions>,
+    metadataInfo: MetadataInfo,
+    visibilityUsage: VisibilityUsageTracker
+  ) {
     super(emitter);
-    this.#metadataInfo = createMetadataInfo(emitter.getProgram(), {
-      canonicalVisibility: Visibility.Read,
-      canShareProperty: (p) => isReadonlyProperty(emitter.getProgram(), p),
-    });
+    this.#metadataInfo = metadataInfo;
+    this.#visibilityUsage = visibilityUsage;
   }
+
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
-    const visibility = this.emitter.getContext().visibility ?? Visibility.Read;
-    const schema: ObjectBuilder<OpenAPI3Schema> = new ObjectBuilder({
+    const visibility = this.#getVisibilityContext();
+    const schema: ObjectBuilder<any> = new ObjectBuilder({
       type: "object",
       properties: this.emitter.emitModelProperties(model),
+      required: this.#requiredModelProperties(model, visibility),
     });
-    const properties: OpenAPI3Schema["properties"] = {};
 
     if (model.indexer) {
       schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
@@ -108,45 +118,20 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
 
       schema.discriminator = openApiDiscriminator;
-      properties[discriminator.propertyName] = {
-        type: "string",
-        description: `Discriminator property for ${model.name}.`,
-      };
     }
 
     this.#applyExternalDocs(model, schema);
 
-    for (const [name, prop] of model.properties) {
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
-        continue;
-      }
-
-      if (isNeverType(prop.type)) {
-        // If the property has a type of 'never', don't include it in the schema
-        continue;
-      }
-
-      if (!this.#metadataInfo.isOptional(prop, visibility)) {
-        if (!schema.required) {
-          schema.required = [];
-        }
-        schema.required.push(name);
-      }
-    }
-
     if (model.baseModel) {
-      const baseSchema = this.emitter.emitTypeReference(model.baseModel);
-      schema.allOf = [baseSchema];
+      schema.set("allOf", B.array([this.emitter.emitTypeReference(model.baseModel)]));
     }
 
-    if (Object.keys(properties).length > 0) {
-      schema.properties = properties;
-    }
+    const usage = this.#visibilityUsage.getUsage(model);
+    const shouldAddSuffix = usage !== undefined && usage.size > 1;
 
-    const shouldAddSuffix = this.emitter.getContext().shouldAddSuffix;
+    const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
     const name =
-      getOpenAPITypeName(program, model, this.#typeNameOptions()) +
-      (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
+      baseName + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
     return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
   }
@@ -169,11 +154,15 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     };
   }
 
+  #getVisibilityContext(): Visibility {
+    return this.emitter.getContext().visibility ?? Visibility.Read;
+  }
+
   modelLiteral(model: Model): EmitterOutput<object> {
     const schema = new ObjectBuilder({
       type: "object",
       properties: this.emitter.emitModelProperties(model),
-      required: this.#requiredModelProperties(model),
+      required: this.#requiredModelProperties(model, this.#getVisibilityContext()),
     });
 
     if (model.indexer) {
@@ -197,9 +186,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       items: this.emitter.emitTypeReference(elementType),
     });
 
-    this.#applyConstraints(array, schema);
+    return this.#createDeclaration(array, name, this.#applyConstraints(array, schema));
+  }
 
-    return this.#createDeclaration(array, name, schema);
+  arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
+    return {
+      visibility: this.#getVisibilityContext() | Visibility.Item,
+    };
   }
 
   arrayLiteral(array: Model, elementType: Type): EmitterOutput<object> {
@@ -209,11 +202,25 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     });
   }
 
-  #requiredModelProperties(model: Model): string[] | undefined {
+  arrayLiteralReferenceContext(array: Model, elementType: Type): Context {
+    return {
+      visibility: this.#getVisibilityContext() | Visibility.Item,
+    };
+  }
+
+  #requiredModelProperties(model: Model, visibility: Visibility): string[] | undefined {
     const requiredProps = [];
 
     for (const prop of model.properties.values()) {
-      if (!prop.optional) {
+      if (isNeverType(prop.type)) {
+        // If the property has a type of 'never', don't include it in the schema
+        continue;
+      }
+      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+        continue;
+      }
+
+      if (!this.#metadataInfo.isOptional(prop, visibility)) {
         requiredProps.push(prop.name);
       }
     }
@@ -221,12 +228,32 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
-  modelProperties(model: Model): EmitterOutput<object> {
+  modelProperties(model: Model): EmitterOutput<Record<string, OpenAPI3SchemaProperty>> {
     const props = new ObjectBuilder();
+    const visibility = this.emitter.getContext().visibility;
 
     for (const [name, prop] of model.properties) {
+      if (isNeverType(prop.type)) {
+        // If the property has a type of 'never', don't include it in the schema
+        continue;
+      }
+      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+        continue;
+      }
       const result = this.emitter.emitModelProperty(prop);
       props.set(name, result);
+    }
+
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator && !(discriminator.propertyName in props)) {
+      props.set(discriminator.propertyName, {
+        type: "string",
+        description: `Discriminator property for ${model.name}.`,
+      });
+    }
+
+    if (Object.keys(props).length === 0) {
+      return this.emitter.result.none();
     }
 
     return props;
@@ -234,20 +261,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
-    const description = getDoc(program, prop);
 
     const refSchema = this.emitter.emitTypeReference(prop.type);
     if (refSchema.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
 
+    const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
+
     const schema = this.#applyEncoding(prop, refSchema.value as any);
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
-    if (description) {
-      additionalProps.description = description;
-    }
-
     if (prop.default) {
       additionalProps.default = this.#getDefaultValue(prop.type, prop.default);
     }
@@ -259,7 +283,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Attach any additional OpenAPI extensions
     this.#attachExtensions(program, prop, additionalProps);
 
-    if (schema && "$ref" in schema) {
+    if (schema && isRef) {
       if (Object.keys(additionalProps).length === 0) {
         return schema;
       } else {
@@ -369,12 +393,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         } else {
           literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
         }
-        continue;
+      } else {
+        const enumSchema = this.emitter.emitTypeReference(variant.type);
+        compilerAssert(enumSchema.kind === "code", "Unexpected enum schema. Should be kind: code");
+        schemaMembers.push({ schema: enumSchema.value, type: variant.type });
       }
-
-      const enumSchema = this.emitter.emitTypeReference(variant.type);
-      compilerAssert(enumSchema.kind === "code", "Unexpected enum schema. Should be kind: code");
-      schemaMembers.push({ schema: { ...enumSchema.value }, type: variant.type });
     }
 
     if (schemaMembers.length === 0) {
@@ -391,20 +414,20 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     if (schemaMembers.length === 1) {
       // we can just return the single schema member after applying nullable
-      const schema = schemaMembers[0].schema;
+      let schema = schemaMembers[0].schema;
       const type = schemaMembers[0].type;
 
       if (nullable) {
-        if (schema.$ref) {
+        if (schema instanceof Placeholder || "$ref" in schema) {
           // but we can't make a ref "nullable", so wrap in an allOf (for models)
           // or oneOf (for all other types)
           if (type && type.kind === "Model") {
-            return { type: "object", allOf: [schema], nullable: true };
+            return B.object({ type: "object", allOf: B.array([schema]), nullable: true });
           } else {
-            return { oneOf: [schema], nullable: true };
+            return B.object({ oneOf: B.array([schema]), nullable: true });
           }
         } else {
-          schema.nullable = true;
+          schema = { ...schema, nullable: true };
         }
       }
 
@@ -693,6 +716,16 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   #createDeclaration(type: Type, name: string, schema: OpenAPI3Schema) {
+    const refUrl = getRef(this.emitter.getProgram(), type);
+    if (refUrl) {
+      return {
+        $ref: refUrl,
+      };
+    }
+
+    if (shouldInline(this.emitter.getProgram(), type)) {
+      return schema;
+    }
     const decl = this.emitter.result.declaration(name, schema);
     return decl;
   }
@@ -701,10 +734,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.emitter.getProgram().checker.isStdType(type);
   }
 
-  #applyEncoding(typespecType: Scalar | ModelProperty, target: OpenAPI3Schema): OpenAPI3Schema {
+  #applyEncoding(
+    typespecType: Scalar | ModelProperty,
+    target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>
+  ): OpenAPI3Schema {
     const encodeData = getEncode(this.emitter.getProgram(), typespecType);
     if (encodeData) {
-      const newTarget = { ...target };
+      const newTarget = new ObjectBuilder(target);
       const newType = this.#getSchemaForStdScalars(encodeData.type as any);
 
       newTarget.type = newType.type;
@@ -716,7 +752,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       );
       return newTarget;
     }
-    return target;
+    return new ObjectBuilder(target);
   }
   #mergeFormatAndEncoding(
     format: string | undefined,
@@ -776,3 +812,20 @@ function includeDerivedModel(model: Model): boolean {
       model.derivedModels.length > 0)
   );
 }
+
+const B = {
+  array: <T>(items: T[]): ArrayBuilder<T> => {
+    const builder = new ArrayBuilder<T>();
+    for (const item of items) {
+      builder.push(item);
+    }
+    return builder;
+  },
+  object: <T extends Record<string, unknown>>(obj: T): ObjectBuilder<T[string]> => {
+    const builder = new ObjectBuilder<T[string]>();
+    for (const [key, value] of Object.entries(obj)) {
+      builder.set(key, value as any);
+    }
+    return builder;
+  },
+} as const;
