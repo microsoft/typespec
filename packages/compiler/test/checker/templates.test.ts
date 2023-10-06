@@ -1,6 +1,6 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
-import { Diagnostic, Model, StringLiteral } from "../../src/core/types.js";
+import { Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -516,62 +516,229 @@ describe("compiler: templates", () => {
     });
   });
 
-  describe("named template argument instantiations", async () => {
-    it("can instantiate a template with named arguments", async () => {
+  describe.only("named template argument instantiations", async () => {
+    it("with named arguments", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-          @test model A<T> { a: T }
-          model B {
+          model A<T> { a: T }
+          @test model B {
             foo: A<T = string>
           };
         `
       );
 
-      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
-      const a = A.properties.get("a")!;
+      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
       strictEqual(a.type.kind, "Scalar");
       strictEqual(a.type.name, "string");
     });
 
-    it("can instantiate a template with named arguments out of order", async () => {
+    it("with named arguments out of order", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-          @test model A<T, U> { a: T, b: U }
-          model B {
+          model A<T, U> { a: T, b: U }
+          @test model B {
             foo: A<U = int32, T = string>
           };
         `
       );
 
-      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
-      const a = A.properties.get("a")!;
-      const b = A.properties.get("b")!;
+      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      const b = foo.properties.get("b")!;
       strictEqual(a.type.kind, "Scalar");
       strictEqual(a.type.name, "string");
       strictEqual(b.type.kind, "Scalar");
       strictEqual(b.type.name, "int32");
     });
 
-    it("can instantiate a template with named arguments and defaults", async () => {
+    it("with named arguments and defaults", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
-          @test model A<T = int32, U = string> { a: T, b: U }
-          model B {
-            foo: A<U = "foo">
+          model A<T = int32, U = string> { a: T, b: U }
+          @test model B {
+            foo: A<U = "bar">
           };
         `
       );
 
-      const { A } = (await testHost.compile("main.tsp")) as { A: Model };
-      const a = A.properties.get("a")!;
-      const b = A.properties.get("b")!;
+      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      const b = foo.properties.get("b")!;
       strictEqual(a.type.kind, "Scalar");
       strictEqual(a.type.name, "int32");
       strictEqual(b.type.kind, "String");
-      strictEqual(b.type.value, "foo");
+      strictEqual(b.type.value, "bar");
+    });
+
+    it("with named and positional arguments", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model A<T, U = int32, V extends string = string> { a: T, b: U, c: V }
+
+          @test model B {
+            foo: A<boolean, V = "bar">
+          }
+
+          @test model C {
+            foo: A<T = boolean, V = "bar">
+          }
+        `
+      );
+
+      const { B, C } = (await testHost.compile("main.tsp")) as { B: Model; C: Model };
+
+      for (const M of [B, C]) {
+        const foo = M.properties.get("foo")!.type;
+        strictEqual(foo.kind, "Model");
+        const a = foo.properties.get("a")!;
+        const b = foo.properties.get("b")!;
+        const c = foo.properties.get("c")!;
+        strictEqual(a.type.kind, "Scalar");
+        strictEqual(a.type.name, "boolean");
+        strictEqual(b.type.kind, "Scalar");
+        strictEqual(b.type.name, "int32");
+        strictEqual(c.type.kind, "String");
+        strictEqual(c.type.value, "bar");
+      }
+    });
+
+    it("cannot specify positional argument after named argument", async () => {
+      const { pos, end, source } = extractSquiggles(`
+      model A<T, U, V extends string = string> { a: T, b: U, c: V }
+
+      @test model B {
+        foo: ~~~A<boolean, V = "bar", string>~~~
+      }
+    `);
+
+      testHost.addTypeSpecFile("main.tsp", source);
+
+      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
+        { B: Model },
+        Diagnostic[],
+      ];
+
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      const b = foo.properties.get("b")!;
+      const c = foo.properties.get("c")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "boolean");
+      strictEqual(b.type.kind, "Intrinsic");
+      strictEqual(b.type.name, "unknown");
+      strictEqual(c.type.kind, "String");
+      strictEqual(c.type.value, "bar");
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-template-args",
+          message:
+            "Positional template arguments cannot follow named arguments in the same argument list.",
+          pos: pos + 22,
+          end: end - 1,
+        },
+        {
+          code: "invalid-template-args",
+          message: "Template argument 'U' is required and not specified.",
+          pos,
+          end,
+        },
+      ]);
+    });
+
+    it("cannot specify positional argument after named argument with default omitted", async () => {
+      const { pos, end, source } = extractSquiggles(`
+      model A<T, U = int32, V extends string = string> { a: T, b: U, c: V }
+
+      @test model B {
+        foo: A<boolean, V = "bar", ~~~string~~~>
+      }
+    `);
+
+      testHost.addTypeSpecFile("main.tsp", source);
+
+      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
+        { B: Model },
+        Diagnostic[],
+      ];
+
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      const b = foo.properties.get("b")!;
+      const c = foo.properties.get("c")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "boolean");
+      strictEqual(b.type.kind, "Scalar");
+      strictEqual(b.type.name, "int32");
+      strictEqual(c.type.kind, "String");
+      strictEqual(c.type.value, "bar");
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-template-args",
+        message:
+          "Positional template arguments cannot follow named arguments in the same argument list.",
+        pos: pos,
+        end: end,
+      });
+    });
+
+    it.only("decorators are applied in the correct order", async () => {
+      const members: [Type, Type][] = [];
+
+      testHost.addJsFile("effect.js", {
+        $effect: (_: DecoratorContext, target: Type, value: Type) => {
+          members.push([target, value]);
+        },
+      });
+
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        import "./effect.js";
+
+        @effect(T)
+        model Dec<T> { t: T }
+
+        model A<T, U> { a: T, b: U }
+
+        @test model B {
+          bar: A<U = Dec<string>, T = Dec<int32>>
+        }
+        `
+      );
+
+      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
+      const bar = B.properties.get("bar")!.type;
+      strictEqual(bar.kind, "Model");
+      const a = bar.properties.get("a")!;
+      const b = bar.properties.get("b")!;
+      strictEqual(a.type.kind, "Model");
+      strictEqual(a.type.name, "Dec");
+      strictEqual(b.type.kind, "Model");
+      strictEqual(b.type.name, "Dec");
+
+      // Assert that the members are added (decorators executed) in _declaration_ order
+      // rather than in the order they appear in the template instantiation.
+      strictEqual(members.length, 2);
+      strictEqual(members[0][0], a.type);
+      strictEqual(members[0][1].kind, "Scalar");
+      strictEqual(members[0][1].name, "int32");
+      strictEqual(members[1][0], b.type);
+      strictEqual(members[1][1].kind, "Scalar");
+      strictEqual(members[1][1].name, "string");
     });
   });
 });
