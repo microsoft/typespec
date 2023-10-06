@@ -66,13 +66,6 @@ import { getOneOf } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
 import { OpenAPI3Discriminator, OpenAPI3Schema } from "./types.js";
 
-const typeNameOptions: TypeNameOptions = {
-  // shorten type names by removing TypeSpec and service namespace
-  namespaceFilter(ns) {
-    const name = getNamespaceFullName(ns);
-    return name !== "Foo"; // TODO FIXME
-  },
-};
 export interface OpenAPI3SchemaEmitterOptions {}
 export class OpenAPI3SchemaEmitter extends TypeEmitter<
   Record<string, any>,
@@ -152,7 +145,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const shouldAddSuffix = this.emitter.getContext().shouldAddSuffix;
     const name =
-      getOpenAPITypeName(program, model, typeNameOptions) +
+      getOpenAPITypeName(program, model, this.#typeNameOptions()) +
       (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
     return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
@@ -163,6 +156,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     if (externalDocs) {
       target.externalDocs = externalDocs;
     }
+  }
+
+  #typeNameOptions(): TypeNameOptions {
+    const serviceNamespaceName = this.emitter.getContext().serviceNamespaceName;
+    return {
+      // shorten type names by removing TypeSpec and service namespace
+      namespaceFilter(ns) {
+        const name = getNamespaceFullName(ns);
+        return name !== serviceNamespaceName; // TODO FIXME
+      },
+    };
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
@@ -370,7 +374,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
       const enumSchema = this.emitter.emitTypeReference(variant.type);
       compilerAssert(enumSchema.kind === "code", "Unexpected enum schema. Should be kind: code");
-      schemaMembers.push({ schema: enumSchema.value, type: variant.type });
+      schemaMembers.push({ schema: { ...enumSchema.value }, type: variant.type });
     }
 
     if (schemaMembers.length === 0) {

@@ -893,7 +893,9 @@ function createOAPIEmitter(
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     return {
       ...(
-        schemaEmitter.emitType(type, { referenceContext: { visibility, shouldAddSuffix } }) as any
+        schemaEmitter.emitType(type, {
+          referenceContext: { visibility, shouldAddSuffix, serviceNamespaceName: serviceNamespace },
+        }) as any
       ).value,
     };
   }
