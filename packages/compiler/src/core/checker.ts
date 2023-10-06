@@ -972,7 +972,7 @@ export function createChecker(program: Program): Checker {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "invalid-template-args",
-              messageId: "respecified",
+              messageId: "specifiedAgain",
               format: {
                 name: arg.name.sv,
               },
@@ -1006,7 +1006,7 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        let param = positional[idx];
+        const param = positional[idx];
 
         initMap.get(param)!.checkArgument ??= deferredCheck;
       }
