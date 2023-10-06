@@ -912,22 +912,6 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkTypeReferenceArgs(
-    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
-    mapper: TypeMapper | undefined
-  ): [Node, Type][] {
-    const args: [Node, Type][] = [];
-    if (node.kind !== SyntaxKind.TypeReference) {
-      return args;
-    }
-
-    for (const arg of node.arguments) {
-      const value = getTypeForNode(arg, mapper);
-      args.push([arg, value]);
-    }
-    return args;
-  }
-
   function checkTemplateInstantiationArgs(
     node: Node,
     args: readonly TemplateArgumentNode[],
@@ -939,7 +923,7 @@ export function createChecker(program: Program): Checker {
     interface TemplateParameterInit {
       decl: TemplateParameterDeclarationNode;
       // Deferred initializer so that we evaluate the param arguments in definition order.
-      init: (() => [Node, Type]) | null;
+      checkArgument: (() => [Node, Type]) | null;
     }
     const initMap = new Map<TemplateParameter, TemplateParameterInit>(
       decls.map(function (decl) {
@@ -952,7 +936,7 @@ export function createChecker(program: Program): Checker {
           declaredType,
           {
             decl,
-            init: null,
+            checkArgument: null,
           },
         ];
       })
@@ -961,7 +945,7 @@ export function createChecker(program: Program): Checker {
     let named = false;
 
     for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
-      function deferCheck(): [Node, Type] {
+      function deferredCheck(): [Node, Type] {
         return [arg, getTypeForNode(arg.argument, mapper)];
       }
 
@@ -984,7 +968,7 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        if (initMap.get(param)!.init !== null) {
+        if (initMap.get(param)!.checkArgument !== null) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "invalid-template-args",
@@ -998,7 +982,7 @@ export function createChecker(program: Program): Checker {
           continue;
         }
 
-        initMap.get(param)!.init = deferCheck;
+        initMap.get(param)!.checkArgument = deferredCheck;
       } else {
         if (named) {
           reportCheckerDiagnostic(
@@ -1024,18 +1008,14 @@ export function createChecker(program: Program): Checker {
 
         let param = positional[idx];
 
-        if (initMap.get(param)!.init !== null) {
-          throw new Error("Unreachable: positional param already initialized");
-        }
-
-        initMap.get(param)!.init = deferCheck;
+        initMap.get(param)!.checkArgument ??= deferredCheck;
       }
     }
 
     const finalMap = initMap as unknown as Map<TemplateParameter, Type>;
     const mapperParams: TemplateParameter[] = [];
     const mapperArgs: Type[] = [];
-    for (const [param, { decl, init }] of [...initMap]) {
+    for (const [param, { decl, checkArgument: init }] of [...initMap]) {
       function commit(param: TemplateParameter, type: Type): void {
         finalMap.set(param, type);
         mapperParams.push(param);
