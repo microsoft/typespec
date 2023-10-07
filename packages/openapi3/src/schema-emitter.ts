@@ -22,6 +22,7 @@ import {
   getNamespaceFullName,
   getPattern,
   getSummary,
+  getTypeName,
   ignoreDiagnostics,
   IntrinsicScalarName,
   IntrinsicType,
@@ -65,38 +66,53 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { getOneOf, getRef } from "./decorators.js";
-import { reportDiagnostic } from "./lib.js";
+import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPI3Discriminator, OpenAPI3Schema, OpenAPI3SchemaProperty } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
-
-export interface OpenAPI3SchemaEmitterOptions {}
 
 /**
  * OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
  */
 export class OpenAPI3SchemaEmitter extends TypeEmitter<
   Record<string, any>,
-  OpenAPI3SchemaEmitterOptions
+  OpenAPI3EmitterOptions
 > {
   #metadataInfo: MetadataInfo;
   #visibilityUsage: VisibilityUsageTracker;
+  #options: ResolvedOpenAPI3EmitterOptions;
   constructor(
-    emitter: AssetEmitter<Record<string, any>, OpenAPI3SchemaEmitterOptions>,
+    emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
-    visibilityUsage: VisibilityUsageTracker
+    visibilityUsage: VisibilityUsageTracker,
+    options: ResolvedOpenAPI3EmitterOptions
   ) {
     super(emitter);
     this.#metadataInfo = metadataInfo;
     this.#visibilityUsage = visibilityUsage;
+    this.#options = options;
+  }
+
+  // TODO should we need this for all the types?
+  modelDeclarationReferenceContext(model: Model, name: string): Context {
+    const visibility = this.#getVisibilityContext();
+    if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(model, visibility)) {
+      return {
+        visibility: Visibility.Read,
+      };
+    }
+
+    return {};
   }
 
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const visibility = this.#getVisibilityContext();
+    console.log("MOdel", model.name, visibility);
     const schema: ObjectBuilder<any> = new ObjectBuilder({
       type: "object",
-      properties: this.emitter.emitModelProperties(model),
       required: this.#requiredModelProperties(model, visibility),
+      properties: this.emitter.emitModelProperties(model),
     });
 
     if (model.indexer) {
@@ -127,14 +143,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       schema.set("allOf", B.array([this.emitter.emitTypeReference(model.baseModel)]));
     }
 
-    const usage = this.#visibilityUsage.getUsage(model);
-    const shouldAddSuffix = usage !== undefined && usage.size > 1;
-
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
-    const name =
-      baseName + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
-    return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
+    return this.#createDeclaration(model, baseName, this.#applyConstraints(model, schema));
   }
 
   #applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
@@ -197,10 +208,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   arrayLiteral(array: Model, elementType: Type): EmitterOutput<object> {
-    return new ObjectBuilder({
-      type: "array",
-      items: this.emitter.emitTypeReference(elementType),
-    });
+    return this.#inlineType(
+      array,
+      new ObjectBuilder({
+        type: "array",
+        items: this.emitter.emitTypeReference(elementType),
+      })
+    );
   }
 
   arrayLiteralReferenceContext(array: Model, elementType: Type): Context {
@@ -316,7 +330,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
-    return this.#createDeclaration(en, name, this.#enumSchema(en));
+    return this.#createDeclaration(en, name, new ObjectBuilder(this.#enumSchema(en)));
   }
 
   #enumSchema(en: Enum): OpenAPI3Schema {
@@ -568,7 +582,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const isStd = this.#isStdType(scalar);
     const schema = this.#getSchemaForScalar(scalar);
     // Don't create a declaration for std types
-    return isStd ? schema : this.#createDeclaration(scalar, name, schema);
+    return isStd ? schema : this.#createDeclaration(scalar, name, new ObjectBuilder(schema));
   }
 
   scalarInstantiation(
@@ -657,8 +671,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   #applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema
-  ): OpenAPI3Schema {
-    const schema = { ...original };
+  ): ObjectBuilder<OpenAPI3Schema> {
+    const schema = new ObjectBuilder(original);
     const program = this.emitter.getProgram();
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPI3Schema) => {
       const value = fn(program, type);
@@ -708,15 +722,21 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const values = getKnownValues(program, type as any);
     if (values) {
-      return {
+      return new ObjectBuilder({
         oneOf: [schema, this.#enumSchema(values)],
-      };
+      });
     }
 
-    return schema;
+    return new ObjectBuilder(schema);
   }
 
-  #createDeclaration(type: Type, name: string, schema: OpenAPI3Schema) {
+  #inlineType(type: Type, schema: ObjectBuilder<any>) {
+    if (this.#options.includeXTypeSpecName !== "never") {
+      schema.set("x-typespec-name", getTypeName(type, this.#typeNameOptions()));
+    }
+    return schema;
+  }
+  #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
     const refUrl = getRef(this.emitter.getProgram(), type);
     if (refUrl) {
       return {
@@ -725,13 +745,21 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     if (shouldInline(this.emitter.getProgram(), type)) {
-      return schema;
+      return this.#inlineType(type, schema);
     }
-    const decl = this.emitter.result.declaration(name, schema);
+
+    const usage = this.#visibilityUsage.getUsage(type);
+    const shouldAddSuffix = usage !== undefined && usage.size > 1;
+    const visibility = this.#getVisibilityContext();
+    const fullName =
+      name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
+
+    const decl = this.emitter.result.declaration(fullName, schema);
+    // TODO  is there a
     checkDuplicateTypeName(
       this.emitter.getProgram(),
       type,
-      name,
+      fullName,
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true]))
     );
     return decl;

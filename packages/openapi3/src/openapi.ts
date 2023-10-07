@@ -89,7 +89,7 @@ import { buildVersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
-import { OpenAPI3SchemaEmitter, OpenAPI3SchemaEmitterOptions } from "./schema-emitter.js";
+import { OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
   OpenAPI3Header,
@@ -204,6 +204,19 @@ function createOAPIEmitter(
   return { emitOpenAPI };
 
   function initializeEmitter(service: Service, version?: string) {
+    metadataInfo = createMetadataInfo(program, {
+      canonicalVisibility: Visibility.Read,
+      canShareProperty: (p) => isReadonlyProperty(program, p),
+    });
+    visibilityUsage = resolveVisibilityUsage(program, metadataInfo, service.type);
+    schemaEmitter = context.getAssetEmitter(
+      class extends OpenAPI3SchemaEmitter {
+        constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
+          super(emitter, metadataInfo, visibilityUsage, options);
+        }
+      } as any
+    );
+
     const auth = processAuth(service.type);
 
     root = {
@@ -234,18 +247,6 @@ function createOAPIEmitter(
 
     serviceNamespace = getNamespaceFullName(service.type);
     currentPath = root.paths;
-    metadataInfo = createMetadataInfo(program, {
-      canonicalVisibility: Visibility.Read,
-      canShareProperty: (p) => isReadonlyProperty(program, p),
-    });
-    visibilityUsage = resolveVisibilityUsage(program, metadataInfo, service.type);
-    schemaEmitter = context.getAssetEmitter(
-      class extends OpenAPI3SchemaEmitter {
-        constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3SchemaEmitterOptions>) {
-          super(emitter, metadataInfo, visibilityUsage);
-        }
-      } as any
-    );
 
     inProgressInlineTypes = new Set();
     params = new Map();
@@ -969,9 +970,6 @@ function createOAPIEmitter(
       }
 
       // helps to read output and correlate to TypeSpec
-      if (schema && options.includeXTypeSpecName !== "never") {
-        schema["x-typespec-name"] = name;
-      }
       return schema;
     } else {
       // Use shared schema when type is not transformed by visibility from the canonical read visibility.
