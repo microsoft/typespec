@@ -150,7 +150,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       // shorten type names by removing TypeSpec and service namespace
       namespaceFilter(ns) {
         const name = getNamespaceFullName(ns);
-        return name !== serviceNamespaceName; // TODO FIXME
+        return name !== serviceNamespaceName;
       },
     };
   }

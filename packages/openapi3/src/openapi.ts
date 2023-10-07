@@ -845,6 +845,12 @@ function createOAPIEmitter(
       case "declaration":
         return { $ref: `#/components/schemas/${result.name}` };
       case "circular":
+        reportDiagnostic(program, {
+          code: "inline-cycle",
+          format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+          target: type,
+        });
+        return {};
       case "none":
         return {};
     }
@@ -858,6 +864,12 @@ function createOAPIEmitter(
       case "declaration":
         return result.value as any;
       case "circular":
+        reportDiagnostic(program, {
+          code: "inline-cycle",
+          format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+          target: type,
+        });
+        return {};
       case "none":
         return {};
     }
