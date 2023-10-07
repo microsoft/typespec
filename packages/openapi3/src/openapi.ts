@@ -1,5 +1,6 @@
 import {
   compilerAssert,
+  DiagnosticTarget,
   EmitContext,
   emitFile,
   getAllTags,
@@ -46,11 +47,11 @@ import {
 } from "@typespec/compiler";
 
 import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
-import * as http from "@typespec/http";
 import {
   createMetadataInfo,
   getAuthentication,
   getHttpService,
+  getServers,
   getStatusCodeDescription,
   HeaderFieldOptions,
   HttpAuth,
@@ -59,11 +60,17 @@ import {
   HttpOperationParameters,
   HttpOperationRequestBody,
   HttpOperationResponse,
+  HttpOperationResponseContent,
+  HttpServer,
+  HttpStatusCodeRange,
+  HttpStatusCodesEntry,
+  HttpVerb,
   isContentTypeHeader,
   isOverloadSameEndpoint,
   MetadataInfo,
   QueryParameterOptions,
   reportIfNoRoutes,
+  resolveRequestVisibility,
   ServiceAuthentication,
   Visibility,
 } from "@typespec/http";
@@ -73,6 +80,7 @@ import {
   getInfo,
   getOpenAPITypeName,
   getParameterKey,
+  isDefaultResponse,
   isReadonlyProperty,
   resolveOperationId,
   shouldInline,
@@ -93,6 +101,7 @@ import {
   OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
+  OpenAPI3StatusCode,
   Refable,
 } from "./types.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
@@ -218,7 +227,7 @@ function createOAPIEmitter(
         securitySchemes: auth?.securitySchemes ?? {},
       },
     };
-    const servers = http.getServers(program, service.type);
+    const servers = getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);
     }
@@ -281,7 +290,7 @@ function createOAPIEmitter(
     return isValid;
   }
 
-  function resolveServers(servers: http.HttpServer[]): OpenAPI3Server[] {
+  function resolveServers(servers: HttpServer[]): OpenAPI3Server[] {
     return servers.map((server) => {
       const variables: Record<string, OpenAPI3ServerVariable> = {};
       for (const [name, prop] of server.parameters) {
@@ -356,16 +365,11 @@ function createOAPIEmitter(
   /**
    * Validates that common responses are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonResponses(
-    ops: HttpOperation[],
-    statusCode: string
-  ): HttpOperationResponse[] {
+  function validateCommonResponses(ops: HttpOperation[]): HttpOperationResponse[] {
     const statusCodeResponses: HttpOperationResponse[] = [];
     for (const op of ops) {
       for (const response of op.responses) {
-        if (response.statusCode === statusCode) {
-          statusCodeResponses.push(response);
-        }
+        statusCodeResponses.push(response);
       }
     }
     const ref = statusCodeResponses[0];
@@ -441,11 +445,69 @@ function createOAPIEmitter(
     operationId: string;
     description: string | undefined;
     summary: string | undefined;
-    verb: http.HttpVerb;
+    verb: HttpVerb;
     parameters: HttpOperationParameters;
     bodies: HttpOperationRequestBody[] | undefined;
     responses: Map<string, HttpOperationResponse[]>;
     operations: Operation[];
+  }
+
+  function getOpenAPI3StatusCodes(
+    statusCodes: HttpStatusCodesEntry,
+    response: Type
+  ): OpenAPI3StatusCode[] {
+    if (isDefaultResponse(program, response) || statusCodes === "*") {
+      return ["default"];
+    } else if (typeof statusCodes === "number") {
+      return [String(statusCodes)];
+    } else {
+      return rangeToOpenAPI(statusCodes, response);
+    }
+  }
+
+  function rangeToOpenAPI(
+    range: HttpStatusCodeRange,
+    diagnosticTarget: DiagnosticTarget
+  ): OpenAPI3StatusCode[] {
+    const reportInvalid = () =>
+      reportDiagnostic(program, {
+        code: "unsupported-status-code-range",
+        format: { start: String(range.start), end: String(range.end) },
+        target: diagnosticTarget,
+      });
+
+    const codes: OpenAPI3StatusCode[] = [];
+    let start = range.start;
+    let end = range.end;
+
+    if (range.start < 100) {
+      reportInvalid();
+      start = 100;
+      codes.push("default");
+    } else if (range.end > 599) {
+      reportInvalid();
+      codes.push("default");
+      end = 599;
+    }
+    const groups = [1, 2, 3, 4, 5];
+
+    for (const group of groups) {
+      if (start > end) {
+        break;
+      }
+      const groupStart = group * 100;
+      const groupEnd = groupStart + 99;
+      if (start >= groupStart && start <= groupEnd) {
+        codes.push(`${group}XX`);
+        if (start !== groupStart || end < groupEnd) {
+          reportInvalid();
+        }
+
+        start = groupStart + 100;
+      }
+    }
+
+    return codes;
   }
 
   function buildSharedOperations(operations: HttpOperation[]): SharedHttpOperation[] {
@@ -464,10 +526,13 @@ function createOAPIEmitter(
       }
       // determine which responses are shared by shared route operations
       for (const response of op.responses) {
-        if (responseMap.has(response.statusCode)) {
-          responseMap.get(response.statusCode)!.push(op);
-        } else {
-          responseMap.set(response.statusCode, [op]);
+        const statusCodes = getOpenAPI3StatusCodes(response.statusCodes, op.operation);
+        for (const statusCode of statusCodes) {
+          if (responseMap.has(statusCode)) {
+            responseMap.get(statusCode)!.push(op);
+          } else {
+            responseMap.set(statusCode, [op]);
+          }
         }
       }
     }
@@ -493,7 +558,7 @@ function createOAPIEmitter(
     }
     shared.bodies = validateCommonBodies(operations);
     for (const [statusCode, ops] of responseMap) {
-      shared.responses.set(statusCode, validateCommonResponses(ops, statusCode));
+      shared.responses.set(statusCode, validateCommonResponses(ops));
     }
     results.push(shared);
     return results;
@@ -631,7 +696,7 @@ function createOAPIEmitter(
     // Error out if shared routes do not have consistent `@parameterVisibility`. We can
     // lift this restriction in the future if a use case develops.
     const visibilities = shared.operations.map((op) => {
-      return http.resolveRequestVisibility(program, op, verb);
+      return resolveRequestVisibility(program, op, verb);
     });
     if (visibilities.some((v) => v !== visibilities[0])) {
       reportDiagnostic(program, {
@@ -639,7 +704,7 @@ function createOAPIEmitter(
         target: ops[0],
       });
     }
-    const visibility = http.resolveRequestVisibility(program, shared.operations[0], verb);
+    const visibility = resolveRequestVisibility(program, shared.operations[0], verb);
     emitEndpointParameters(shared.parameters.parameters, visibility);
     if (shared.bodies) {
       if (shared.bodies.length === 1) {
@@ -687,7 +752,7 @@ function createOAPIEmitter(
     currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
-    const visibility = http.resolveRequestVisibility(program, operation.operation, verb);
+    const visibility = resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
@@ -698,18 +763,20 @@ function createOAPIEmitter(
   }
 
   function emitSharedResponses(responses: Map<string, HttpOperationResponse[]>) {
-    for (const [_, statusCodeResponses] of responses) {
+    for (const [statusCode, statusCodeResponses] of responses) {
       if (statusCodeResponses.length === 1) {
-        emitResponseObject(statusCodeResponses[0]);
+        emitResponseObject(statusCode, statusCodeResponses[0]);
       } else {
-        emitMergedResponseObject(statusCodeResponses);
+        emitMergedResponseObject(statusCode, statusCodeResponses);
       }
     }
   }
 
   function emitResponses(responses: HttpOperationResponse[]) {
     for (const response of responses) {
-      emitResponseObject(response);
+      for (const statusCode of getOpenAPI3StatusCodes(response.statusCodes, response.type)) {
+        emitResponseObject(statusCode, response);
+      }
     }
   }
 
@@ -722,17 +789,10 @@ function createOAPIEmitter(
     );
   }
 
-  function getOpenAPIStatuscode(response: HttpOperationResponse): string {
-    switch (response.statusCode) {
-      case "*":
-        return "default";
-      default:
-        return response.statusCode;
-    }
-  }
-
-  function emitMergedResponseObject(responses: HttpOperationResponse[]) {
-    const statusCode = getOpenAPIStatuscode(responses[0]);
+  function emitMergedResponseObject(
+    statusCode: OpenAPI3StatusCode,
+    responses: HttpOperationResponse[]
+  ) {
     const openApiResponse: any = {
       description: undefined,
       content: {},
@@ -754,8 +814,10 @@ function createOAPIEmitter(
     }
   }
 
-  function emitResponseObject(response: Readonly<HttpOperationResponse>) {
-    const statusCode = getOpenAPIStatuscode(response);
+  function emitResponseObject(
+    statusCode: OpenAPI3StatusCode,
+    response: Readonly<HttpOperationResponse>
+  ) {
     const openApiResponse = currentEndpoint.responses[statusCode] ?? {
       description: response.description ?? getResponseDescriptionForStatusCode(statusCode),
     };
@@ -764,11 +826,7 @@ function createOAPIEmitter(
     currentEndpoint.responses[statusCode] = openApiResponse;
   }
 
-  function emitResponseHeaders(
-    obj: any,
-    responses: http.HttpOperationResponseContent[],
-    target: Type
-  ) {
+  function emitResponseHeaders(obj: any, responses: HttpOperationResponseContent[], target: Type) {
     for (const data of responses) {
       if (data.headers && Object.keys(data.headers).length > 0) {
         obj.headers ??= {};
@@ -793,7 +851,7 @@ function createOAPIEmitter(
 
   function emitResponseContent(
     obj: any,
-    responses: http.HttpOperationResponseContent[],
+    responses: HttpOperationResponseContent[],
     schemaMap: Map<string, any[]> | undefined = undefined
   ) {
     schemaMap ??= new Map<string, any[]>();
