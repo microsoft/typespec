@@ -54,7 +54,7 @@ describe("http: response descriptions", () => {
       @error model Error {}
       @error @doc("Not found model") model NotFound {@statusCode _: 404}
       @errorsDoc("Generic error")
-      op read(): { @statusCode _: 200, content: string } |  { @statusCode _: 201, content: string } | Error | NotFound;
+      op read(): { @statusCode _: 200, content: string } |  { @statusCode _: 201, content: string } | NotFound | Error ;
       `
     );
     strictEqual(op.responses[0].description, "The request has succeeded.");
