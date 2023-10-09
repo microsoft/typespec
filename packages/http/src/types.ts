@@ -325,11 +325,29 @@ export interface RoutePath {
   shared: boolean;
 }
 
-export type StatusCode = `${number}` | "*";
 export interface HttpOperationResponse {
+  /** @deprecated use {@link statusCodes} */
+  // eslint-disable-next-line deprecation/deprecation
   statusCode: StatusCode;
+
+  /**
+   * Status code or range of status code for the response.
+   */
+  statusCodes: HttpStatusCodeRange | number | "*";
+
+  /**
+   * Response typespec type.
+   */
   type: Type;
+
+  /**
+   * Response description.
+   */
   description?: string;
+
+  /**
+   * Responses contents.
+   */
   responses: HttpOperationResponseContent[];
 }
 
@@ -349,3 +367,16 @@ export interface HttpOperationBody {
    */
   type: Type;
 }
+
+export interface HttpStatusCodeRange {
+  start: number;
+  end: number;
+}
+
+/**
+ * @deprecated Use `HttpStatusCodesEntry` instead.
+ */
+export type StatusCode = `${number}` | "*";
+
+export type HttpStatusCodesEntry = HttpStatusCodeRange | number | "*";
+export type HttpStatusCodes = HttpStatusCodesEntry[];

@@ -14,6 +14,7 @@ import {
   getQueryParamName,
   getQueryParamOptions,
   getServers,
+  getStatusCodes,
   includeInapplicableMetadataInPayload,
   isBody,
   isHeader,
@@ -424,14 +425,87 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("set the statusCode with @statusCode", async () => {
-      const { code } = await runner.compile(`
+    it("emits error if multiple properties are decorated with `@statusCode` in return type", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        model CreatedOrUpdatedResponse {
+          @statusCode ok: "200";
+          @statusCode created: "201";
+        }
+        model DateHeader {
+          @header date: utcDateTime;
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
+        `
+      );
+      expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
+    });
+
+    it("emits error if multiple `@statusCode` decorators are composed together", async () => {
+      const diagnostics = await runner.diagnose(
+        `      
+        model CustomUnauthorizedResponse {
+          @statusCode _: 401;
+          @body body: UnauthorizedResponse;
+        }
+  
+        model Pet {
+          name: string;
+        }
+        
+        model PetList {
+          @statusCode _: 200;
+          @body body: Pet[];
+        }
+        
+        op list(): PetList | CustomUnauthorizedResponse;
+        `
+      );
+      expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
+    });
+
+    it("set numeric statusCode with @statusCode", async () => {
+      const { code } = (await runner.compile(`
           op test(): {
             @test @statusCode code: 201
           };
-        `);
+        `)) as { code: ModelProperty };
 
       ok(isStatusCode(runner.program, code));
+      deepStrictEqual(getStatusCodes(runner.program, code), [201]);
+    });
+
+    it("set range statusCode with @statusCode", async () => {
+      const { code } = (await runner.compile(`
+          op test(): {
+            @test @statusCode @minValue(200) @maxValue(299) code: int32;
+          };
+        `)) as { code: ModelProperty };
+
+      ok(isStatusCode(runner.program, code));
+      deepStrictEqual(getStatusCodes(runner.program, code), [{ start: 200, end: 299 }]);
+    });
+
+    describe("invalid status codes", () => {
+      async function checkInvalid(code: string, message: string) {
+        const diagnostics = await runner.diagnose(`
+        op test(): {
+          @statusCode code: ${code}
+        };
+      `);
+
+        expectDiagnostics(diagnostics, { code: "@typespec/http/status-code-invalid", message });
+      }
+
+      it("emit diagnostic if status code is not a number", () =>
+        checkInvalid(`"Ok"`, "statusCode value must be a three digit code between 100 and 599"));
+      it("emit diagnostic if status code is a number with more than 3 digit", () =>
+        checkInvalid("12345", "statusCode value must be a three digit code between 100 and 599"));
+      it("emit diagnostic if status code is not an integer", () =>
+        checkInvalid("200.3", "statusCode value must be a three digit code between 100 and 599"));
     });
   });
 

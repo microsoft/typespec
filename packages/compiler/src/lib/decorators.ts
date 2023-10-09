@@ -2,7 +2,6 @@ import {
   isIntrinsicType,
   validateDecoratorNotOnType,
   validateDecoratorTarget,
-  validateDecoratorTargetIntrinsic,
 } from "../core/decorator-utils.js";
 import { getDeprecationDetails, markDeprecated } from "../core/deprecation.js";
 import {
@@ -78,6 +77,10 @@ export function getSummary(program: Program, type: Type): string | undefined {
 }
 
 const docsKey = createStateSymbol("docs");
+const returnsDocsKey = createStateSymbol("returnsDocs");
+const errorsDocsKey = createStateSymbol("errorDocs");
+type DocTarget = "self" | "returns" | "errors";
+
 export interface DocData {
   /**
    * Doc value.
@@ -89,7 +92,7 @@ export interface DocData {
    * - `@doc` means the `@doc` decorator was used
    * - `comment` means it was set from a `/** comment * /`
    */
-  source: "@doc" | "comment";
+  source: "decorator" | "comment";
 }
 /**
  * @doc attaches a documentation string. Works great with multi-line string literals.
@@ -104,19 +107,50 @@ export function $doc(context: DecoratorContext, target: Type, text: string, sour
   if (sourceObject) {
     text = replaceTemplatedStringFromProperties(text, sourceObject);
   }
-  setDocData(context.program, target, { value: text, source: "@doc" });
+  setDocData(context.program, target, "self", { value: text, source: "decorator" });
 }
 
 /**
  * @internal to be used to set the `@doc` from doc comment.
  */
-export function $docFromComment(context: DecoratorContext, target: Type, text: string) {
-  setDocData(context.program, target, { value: text, source: "comment" });
+export function $docFromComment(
+  context: DecoratorContext,
+  target: Type,
+  key: DocTarget,
+  text: string
+) {
+  setDocData(context.program, target, key, { value: text, source: "comment" });
 }
 
-function setDocData(program: Program, target: Type, data: DocData) {
-  program.stateMap(docsKey).set(target, data);
+function getDocKey(target: DocTarget): symbol {
+  switch (target) {
+    case "self":
+      return docsKey;
+    case "returns":
+      return returnsDocsKey;
+    case "errors":
+      return errorsDocsKey;
+  }
 }
+
+function setDocData(program: Program, target: Type, key: DocTarget, data: DocData) {
+  program.stateMap(getDocKey(key)).set(target, data);
+}
+
+/**
+ * Get the documentation information for the given type. In most cases you probably just want to use {@link getDoc}
+ * @param program Program
+ * @param target Type
+ * @returns Doc data with source information.
+ */
+export function getDocDataInternal(
+  program: Program,
+  target: Type,
+  key: DocTarget
+): DocData | undefined {
+  return program.stateMap(getDocKey(key)).get(target);
+}
+
 /**
  * Get the documentation information for the given type. In most cases you probably just want to use {@link getDoc}
  * @param program Program
@@ -124,7 +158,7 @@ function setDocData(program: Program, target: Type, data: DocData) {
  * @returns Doc data with source information.
  */
 export function getDocData(program: Program, target: Type): DocData | undefined {
-  return program.stateMap(docsKey).get(target);
+  return getDocDataInternal(program, target, "self");
 }
 
 /**
@@ -134,7 +168,57 @@ export function getDocData(program: Program, target: Type): DocData | undefined 
  * @returns Documentation value
  */
 export function getDoc(program: Program, target: Type): string | undefined {
-  return getDocData(program, target)?.value;
+  return getDocDataInternal(program, target, "self")?.value;
+}
+
+export function $returnsDoc(context: DecoratorContext, target: Operation, text: string) {
+  validateDecoratorUniqueOnNode(context, target, $doc);
+  setDocData(context.program, target, "returns", { value: text, source: "decorator" });
+}
+
+/**
+ * Get the documentation information for the return success types of an operation. In most cases you probably just want to use {@link getReturnsDoc}
+ * @param program Program
+ * @param target Type
+ * @returns Doc data with source information.
+ */
+export function getReturnsDocData(program: Program, target: Operation): DocData | undefined {
+  return getDocDataInternal(program, target, "returns");
+}
+
+/**
+ * Get the documentation string for the return success types of an operation.
+ * @param program Program
+ * @param target Type
+ * @returns Documentation value
+ */
+export function getReturnsDoc(program: Program, target: Operation): string | undefined {
+  return getDocDataInternal(program, target, "returns")?.value;
+}
+
+export function $errorsDoc(context: DecoratorContext, target: Operation, text: string) {
+  validateDecoratorUniqueOnNode(context, target, $doc);
+  setDocData(context.program, target, "errors", { value: text, source: "decorator" });
+}
+
+/**
+ * Get the documentation information for the return errors types of an operation. In most cases you probably just want to use {@link getErrorsDoc}
+ * @param program Program
+ * @param target Type
+ * @returns Doc data with source information.
+ */
+export function getErrorsDocData(program: Program, target: Operation): DocData | undefined {
+  return getDocDataInternal(program, target, "errors");
+}
+
+/**
+ * Get the documentation string for the return errors types of an operation.
+ * @param program Program
+ * @param target Type
+ * @returns Documentation value
+ */
+export function getErrorsDoc(program: Program, target: Operation): string | undefined {
+  return getDocDataInternal(program, target, "errors")?.value;
 }
 
 export function $inspectType(program: Program, target: Type, text: string) {
@@ -178,7 +262,61 @@ export function isNumericType(program: Program | ProjectedProgram, target: Type)
 }
 
 /**
- * Check if a model is an array type.
+ * Check the given type is matching the given condition or is a union of null and types matching the condition.
+ * @param type Type to test
+ * @param condition Condition
+ * @returns Boolean
+ */
+function isTypeIn(type: Type, condition: (type: Type) => boolean): boolean {
+  if (type.kind === "Union") {
+    return [...type.variants.values()].some((v) => condition(v.type));
+  }
+
+  return condition(type);
+}
+
+function validateTargetingANumeric(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  decoratorName: string
+) {
+  const valid = isTypeIn(getPropertyType(target), (x) => isNumericType(context.program, x));
+  if (!valid) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to: `type it is not a numeric`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+
+/**
+ * Validate the given target is a string type or a union containing at least a string type.
+ */
+function validateTargetingAString(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  decoratorName: string
+) {
+  const valid = isTypeIn(getPropertyType(target), (x) => isStringType(context.program, x));
+  if (!valid) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to: `type it is not a string`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+
+/**
  * @param type Model type
  */
 export function isArrayModelType(program: Program, type: Model): type is ArrayModelType {
@@ -242,7 +380,7 @@ const formatValuesKey = createStateSymbol("formatValues");
 export function $format(context: DecoratorContext, target: Scalar | ModelProperty, format: string) {
   validateDecoratorUniqueOnNode(context, target, $format);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@format", ["string", "bytes"])) {
+  if (!validateTargetingAString(context, target, "@format")) {
     return;
   }
   const targetType = getPropertyType(target);
@@ -272,7 +410,7 @@ export function $pattern(
 ) {
   validateDecoratorUniqueOnNode(context, target, $pattern);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@pattern", ["string"])) {
+  if (!validateTargetingAString(context, target, "@pattern")) {
     return;
   }
 
@@ -295,7 +433,7 @@ export function $minLength(
   validateDecoratorUniqueOnNode(context, target, $minLength);
 
   if (
-    !validateDecoratorTargetIntrinsic(context, target, "@minLength", ["string"]) ||
+    !validateTargetingAString(context, target, "@minLength") ||
     !validateRange(context, minLength, getMaxLength(context.program, target))
   ) {
     return;
@@ -320,7 +458,7 @@ export function $maxLength(
   validateDecoratorUniqueOnNode(context, target, $maxLength);
 
   if (
-    !validateDecoratorTargetIntrinsic(context, target, "@maxLength", ["string"]) ||
+    !validateTargetingAString(context, target, "@maxLength") ||
     !validateRange(context, getMinLength(context.program, target), maxLength)
   ) {
     return;
@@ -411,14 +549,7 @@ export function $minValue(
   validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
   const { program } = context;
 
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@minValue", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@minValue")) {
     return;
   }
 
@@ -450,14 +581,7 @@ export function $maxValue(
   validateDecoratorUniqueOnNode(context, target, $maxValue);
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@maxValue", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@maxValue")) {
     return;
   }
 
@@ -490,14 +614,7 @@ export function $minValueExclusive(
   validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
   const { program } = context;
 
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@minValueExclusive", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@minValueExclusive")) {
     return;
   }
 
@@ -529,14 +646,7 @@ export function $maxValueExclusive(
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
   const { program } = context;
-  if (!isNumericType(program, getPropertyType(target))) {
-    program.reportDiagnostic(
-      createDiagnostic({
-        code: "decorator-wrong-target",
-        format: { decorator: "@maxValue", to: "non-numeric type" },
-        target,
-      })
-    );
+  if (!validateTargetingANumeric(context, target, "@maxValueExclusive")) {
     return;
   }
 
@@ -568,7 +678,7 @@ const secretTypesKey = createStateSymbol("secretTypes");
 export function $secret(context: DecoratorContext, target: Scalar | ModelProperty) {
   validateDecoratorUniqueOnNode(context, target, $secret);
 
-  if (!validateDecoratorTargetIntrinsic(context, target, "@secret", ["string"])) {
+  if (!validateTargetingAString(context, target, "@secret")) {
     return;
   }
   context.program.stateMap(secretTypesKey).set(target, true);
@@ -646,7 +756,9 @@ function validateEncodeData(context: DecoratorContext, target: Scalar, encodeDat
       const typeName = getTypeName(encodeData.type.projectionBase ?? encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
-        messageId: "wrongEncodingType",
+        messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding)
+          ? "wrongNumericEncodingType"
+          : "wrongEncodingType",
         format: {
           encoding: encodeData.encoding,
           type: getTypeName(target),
@@ -897,17 +1009,15 @@ export function $knownValues(
   target: Scalar | ModelProperty,
   knownValues: Enum
 ) {
-  if (
-    !validateDecoratorTargetIntrinsic(context, target, "@knownValues", [
-      "string",
-      "int8",
-      "int16",
-      "int32",
-      "int64",
-      "float32",
-      "float64",
-    ])
-  ) {
+  const type = getPropertyType(target);
+  if (!isStringType(context.program, type) && !isNumericType(context.program, type)) {
+    context.program.reportDiagnostic(
+      createDiagnostic({
+        code: "decorator-wrong-target",
+        format: { decorator: "@knownValues", to: "type, it is  not a string or numeric" },
+        target,
+      })
+    );
     return;
   }
 

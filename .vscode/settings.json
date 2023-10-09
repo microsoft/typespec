@@ -6,11 +6,10 @@
     "**/dist-dev/**": true,
     "**/.docusaurus/**": true,
     "**/CHANGELOG.json": true,
-    "**/CHANGELOG.md": true,
     "docs/spec.html": true,
-    "common/config/rush/pnpm-lock.yaml": true,
     "**/node_modules/**": true,
-    "packages/website/versioned_docs/**": true
+    "packages/website/versioned_docs/**": true,
+    "packages/samples/scratch/**": false // Those files are in gitignore but we still want to search for them
   },
   "files.exclude": {
     "**/common/temp/**": true,
@@ -19,7 +18,8 @@
     "**/.git": true,
     "**/.DS_Store": true
   },
-  "[javascript]": {
+
+  "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53
     "editor.insertSpaces": true,
@@ -27,38 +27,7 @@
     "editor.detectIndentation": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[typescript]": {
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[jsonc]": {
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[yaml]": {
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typespec]": {
+  "[json][[jsonc][yaml][typespec][markdown]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.insertSpaces": true,
@@ -69,24 +38,18 @@
   "[csharp]": {
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
-    "editor.tabSize": 2
+    "editor.tabSize": 4
   },
   "[xml]": {
     "editor.insertSpaces": true,
     "editor.detectIndentation": false,
     "editor.tabSize": 2
   },
-  "[markdown]": {
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 2,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
   "files.associations": {
     "rush.json": "jsonc",
     "common-versions.json": "jsonc",
     "command-line.json": "jsonc",
+    "pnpm-config.json": "jsonc",
     "version-policies.json": "jsonc"
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",

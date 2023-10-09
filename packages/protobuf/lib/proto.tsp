@@ -74,6 +74,7 @@ namespace WellKnown {
  * Uses variable-length encoding. These more efficiently encode negative numbers than regular int32s.
  */
 scalar sint32 extends int32;
+
 /**
  * A signed 64-bit integer that will use the `sint64` encoding when used in a Protobuf message.
  *
@@ -82,6 +83,7 @@ scalar sint32 extends int32;
  * Uses variable-length encoding. These more efficiently encode negative numbers than regular `int64s`.
  */
 scalar sint64 extends int64;
+
 /**
  * A signed 32-bit integer that will use the `sfixed32` encoding when used in a Protobuf message.
  *
@@ -90,6 +92,7 @@ scalar sint64 extends int64;
  * Always four bytes.
  */
 scalar sfixed32 extends int32;
+
 /**
  * A signed 64-bit integer that will use the `sfixed64` encoding when used in a Protobuf message.
  *
@@ -98,6 +101,7 @@ scalar sfixed32 extends int32;
  * Always eight bytes.
  */
 scalar sfixed64 extends int64;
+
 /**
  * An unsigned 32-bit integer that will use the `fixed32` encoding when used in a Protobuf message.
  *
@@ -106,6 +110,7 @@ scalar sfixed64 extends int64;
  * Always four bytes. More efficient than `uint32` if values are often greater than 2<sup>28</sup>.
  */
 scalar fixed32 extends uint32;
+
 /**
  * An unsigned 64-bit integer that will use the `fixed64` encoding when used in a Protobuf message.
  *
@@ -265,16 +270,19 @@ enum StreamMode {
    * other until the connections are closed.
    */
   Duplex,
+
   /**
    * The input of the operation is streaming. The client will send a stream of events; and, once the stream is closed,
    * the service will respond with a message.
    */
   In,
+
   /**
    * The output of the operation is streaming. The client will send a message to the service, and the service will send
    * a stream of events back to the client.
    */
   Out,
+
   /**
    * Neither the input nor the output are streaming. This is the default mode of an operation without the `@stream`
    * decorator.

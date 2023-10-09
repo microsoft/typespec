@@ -27,6 +27,7 @@ import {
   DirectiveArgument,
   DirectiveExpressionNode,
   DocContent,
+  DocErrorsTagNode,
   DocNode,
   DocParamTagNode,
   DocReturnsTagNode,
@@ -2399,8 +2400,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   }
 
   type ParamLikeTag = DocTemplateTagNode | DocParamTagNode;
-  type SimpleTag = DocReturnsTagNode | DocUnknownTagNode;
+  type SimpleTag = DocReturnsTagNode | DocErrorsTagNode | DocUnknownTagNode;
 
+  /**
+   * Parses a documentation tag.
+   *
+   * @see <a href="https://microsoft.github.io/typespec/language-basics/documentation#tsdoc-doc-comments">TypeSpec documentation docs</a>
+   */
   function parseDocTag(): DocTag {
     const pos = tokenPos();
     parseExpected(Token.At);
@@ -2413,11 +2419,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       case "return":
       case "returns":
         return parseDocSimpleTag(pos, tagName, SyntaxKind.DocReturnsTag);
+      case "errors":
+        return parseDocSimpleTag(pos, tagName, SyntaxKind.DocErrorsTag);
       default:
         return parseDocSimpleTag(pos, tagName, SyntaxKind.DocUnknownTag);
     }
   }
 
+  /**
+   * Handles param-like documentation comment tags.
+   * For example, `@param` and `@template`.
+   */
   function parseDocParamLikeTag(
     pos: number,
     tagName: IdentifierNode,
@@ -2425,7 +2437,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     messageId: keyof CompilerDiagnostics["doc-invalid-identifier"]
   ): ParamLikeTag {
     const name = parseDocIdentifier(messageId);
+    parseOptionalHyphenDocParamLikeTag();
     const content = parseDocContent();
+
     return {
       kind,
       tagName,
@@ -2433,6 +2447,23 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       content,
       ...finishNode(pos),
     };
+  }
+
+  /**
+   * Handles the optional hyphen in param-like documentation comment tags.
+   *
+   * TypeSpec recommends no hyphen, but supports a hyphen to match TSDoc.
+   * (Original design discussion recorded in [2390].)
+   *
+   * [2390]: https://github.com/microsoft/typespec/issues/2390
+   */
+  function parseOptionalHyphenDocParamLikeTag() {
+    while (parseOptional(Token.Whitespace)); // Skip whitespace
+    if (parseOptional(Token.Hyphen)) {
+      // The doc content started with a hyphen, so skip subsequent whitespace
+      // (The if statement already advanced past the hyphen itself.)
+      while (parseOptional(Token.Whitespace));
+    }
   }
 
   function parseDocSimpleTag(
@@ -3127,6 +3158,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
         visitNode(cb, node.tagName) || visitNode(cb, node.paramName) || visitEach(cb, node.content)
       );
     case SyntaxKind.DocReturnsTag:
+    case SyntaxKind.DocErrorsTag:
     case SyntaxKind.DocUnknownTag:
       return visitNode(cb, node.tagName) || visitEach(cb, node.content);
 

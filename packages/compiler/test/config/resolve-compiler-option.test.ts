@@ -3,7 +3,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { resolveCompilerOptions } from "../../src/config/index.js";
 import { NodeHost } from "../../src/core/node-host.js";
-import { resolvePath } from "../../src/index.js";
+import { normalizePath, resolvePath } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 
 const scenarioRoot = resolvePath(
@@ -17,6 +17,7 @@ describe("compiler: resolve compiler options", () => {
     const resolveOptions = async (path: string) => {
       const fullPath = resolvePath(scenarioRoot, path);
       return await resolveCompilerOptions(NodeHost, {
+        cwd: normalizePath(process.cwd()),
         entrypoint: fullPath, // not really used here
         configPath: fullPath,
       });

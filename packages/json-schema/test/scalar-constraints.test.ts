@@ -1,43 +1,62 @@
 import assert from "assert";
 import { emitSchema } from "./utils.js";
 
-describe("emitting scalars with constraints", () => {
-  const scalarNumberTypes = [
-    "int8",
-    "int16",
-    "int32",
-    "uint8",
-    "uint16",
-    "uint32",
-    "integer",
-    "float32",
-    "float64",
-    "numeric",
-    "float",
-    "safeint",
-  ];
+describe("jsonschema: scalar constraints", () => {
+  describe("numeric constraints", () => {
+    const scalarNumberTypes = [
+      "int8",
+      "int16",
+      "int32",
+      "uint8",
+      "uint16",
+      "uint32",
+      "integer",
+      "float32",
+      "float64",
+      "numeric",
+      "float",
+      "safeint",
+    ];
 
-  describe("number decl constraints", () => {
-    for (const numType of scalarNumberTypes) {
-      it(`handles ${numType}`, async () => {
-        const schemas = await emitSchema(`
+    function assertNumericConstraints(schema: any) {
+      assert.strictEqual(schema.minimum, 1);
+      assert.strictEqual(schema.maximum, 2);
+      assert.strictEqual(schema.multipleOf, 10);
+    }
+
+    describe("on scalar declaration", () => {
+      for (const numType of scalarNumberTypes) {
+        it(`handles ${numType}`, async () => {
+          const schemas = await emitSchema(`
           @minValue(1)
           @maxValue(2)
           @multipleOf(10)
           scalar Test extends ${numType};
         `);
 
-        assert.strictEqual(schemas["Test.json"].minimum, 1);
-        assert.strictEqual(schemas["Test.json"].maximum, 2);
-        assert.strictEqual(schemas["Test.json"].multipleOf, 10);
-      });
-    }
-  });
+          assertNumericConstraints(schemas["Test.json"]);
+        });
+      }
 
-  describe("number property constraints", () => {
-    for (const numType of scalarNumberTypes) {
-      it(`handles ${numType} properties`, async () => {
+      it("on a union", async () => {
         const schemas = await emitSchema(`
+      @minValue(1)
+      @maxValue(2)
+      @multipleOf(10)
+      union Test {
+        int32,
+        string,
+        null
+      };
+    `);
+        assertNumericConstraints(schemas["Test.json"]);
+      });
+    });
+
+    describe("on property", () => {
+      for (const numType of [...scalarNumberTypes, "int32 | string | null"]) {
+        it(`handles ${numType} properties`, async () => {
+          const schemas = await emitSchema(`
           model Test {
             @minValue(1)
             @maxValue(2)
@@ -45,16 +64,26 @@ describe("emitting scalars with constraints", () => {
             prop: ${numType};
           }
         `);
-
-        assert.strictEqual(schemas["Test.json"].properties.prop.minimum, 1);
-        assert.strictEqual(schemas["Test.json"].properties.prop.maximum, 2);
-        assert.strictEqual(schemas["Test.json"].properties.prop.multipleOf, 10);
-      });
-    }
+          assertNumericConstraints(schemas["Test.json"].properties.prop);
+        });
+      }
+    });
   });
 
-  it("handles string decl constraints", async () => {
-    const schemas = await emitSchema(`
+  describe("string constraints", () => {
+    function assertStringConstraints(schema: any) {
+      assert.strictEqual(schema.minLength, 1);
+      assert.strictEqual(schema.maxLength, 2);
+      assert.strictEqual(schema.pattern, "a|b");
+      assert.strictEqual(schema.format, "ipv4");
+      assert.strictEqual(schema.contentEncoding, "base64url");
+      assert.strictEqual(schema.contentMediaType, "application/jwt");
+      assert.deepStrictEqual(schema.contentSchema, {
+        $ref: "JwtToken.json",
+      });
+    }
+    it("on scalar declaration", async () => {
+      const schemas = await emitSchema(`
       @minLength(1)
       @maxLength(2)
       @pattern("a|b")
@@ -66,19 +95,29 @@ describe("emitting scalars with constraints", () => {
 
       model JwtToken is Array<Record<string>>;
     `);
-    assert.strictEqual(schemas["shortString.json"].minLength, 1);
-    assert.strictEqual(schemas["shortString.json"].maxLength, 2);
-    assert.strictEqual(schemas["shortString.json"].pattern, "a|b");
-    assert.strictEqual(schemas["shortString.json"].format, "ipv4");
-    assert.strictEqual(schemas["shortString.json"].contentEncoding, "base64url");
-    assert.strictEqual(schemas["shortString.json"].contentMediaType, "application/jwt");
-    assert.deepStrictEqual(schemas["shortString.json"].contentSchema, {
-      $ref: "JwtToken.json",
+      assertStringConstraints(schemas["shortString.json"]);
     });
-  });
 
-  it("handles string property constraints", async () => {
-    const schemas = await emitSchema(`
+    it("on union", async () => {
+      const schemas = await emitSchema(`
+      @minLength(1)
+      @maxLength(2)
+      @pattern("a|b")
+      @format("ipv4")
+      @contentEncoding("base64url")
+      @contentMediaType("application/jwt")
+      @contentSchema(JwtToken)
+      union Test {
+        string, int32, null
+      }
+
+      model JwtToken is Array<Record<string>>;
+    `);
+      assertStringConstraints(schemas["Test.json"]);
+    });
+
+    it("on property", async () => {
+      const schemas = await emitSchema(`
       model Test {
         @minLength(1)
         @maxLength(2)
@@ -92,14 +131,7 @@ describe("emitting scalars with constraints", () => {
 
       model JwtToken is Array<Record<string>>;
     `);
-    assert.strictEqual(schemas["Test.json"].properties.prop.minLength, 1);
-    assert.strictEqual(schemas["Test.json"].properties.prop.maxLength, 2);
-    assert.strictEqual(schemas["Test.json"].properties.prop.pattern, "a|b");
-    assert.strictEqual(schemas["Test.json"].properties.prop.format, "ipv4");
-    assert.strictEqual(schemas["Test.json"].properties.prop.contentEncoding, "base64url");
-    assert.strictEqual(schemas["Test.json"].properties.prop.contentMediaType, "application/jwt");
-    assert.deepStrictEqual(schemas["Test.json"].properties.prop.contentSchema, {
-      $ref: "JwtToken.json",
+      assertStringConstraints(schemas["Test.json"].properties.prop);
     });
   });
 });

@@ -70,7 +70,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PersonUpdate'
-  '/hello/{id}':
+  /hello/{id}:
     get:
       operationId: Hello_read
       parameters:
@@ -81,13 +81,13 @@ paths:
             type: string
         - name: fieldMask
           in: query
-          style: form
-          explode: true
           required: true
           schema:
             type: array
             items:
               type: string
+          style: form
+          explode: true
       responses:
         '200':
           description: The request has succeeded.

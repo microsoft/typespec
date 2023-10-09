@@ -105,6 +105,36 @@ describe("compiler: using statements", () => {
     strictEqual(Y.properties.size, 1);
   });
 
+  it("TypeSpec.Xyz namespace doesn't need TypeSpec prefix in using", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      `
+    );
+    testHost.addTypeSpecFile(
+      "a.tsp",
+      `
+      namespace TypeSpec.Xyz;
+      model X { x: int32 }
+      `
+    );
+    testHost.addTypeSpecFile(
+      "b.tsp",
+      `
+      using Xyz;
+      @test model Y { ... X }
+      `
+    );
+
+    const { Y } = (await testHost.compile("./")) as {
+      Y: Model;
+    };
+
+    strictEqual(Y.properties.size, 1);
+  });
+
   it("can use 2 namespace with the same last name", async () => {
     testHost.addTypeSpecFile(
       "main.tsp",
@@ -303,7 +333,10 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
-      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      {
+        code: "ambiguous-symbol",
+        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+      },
       { code: "unknown-decorator" },
     ]);
   });
@@ -327,7 +360,10 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
-      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      {
+        code: "ambiguous-symbol",
+        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+      },
       { code: "unknown-decorator" },
       { code: "missing-implementation" },
     ]);

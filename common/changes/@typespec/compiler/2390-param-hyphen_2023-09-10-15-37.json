@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Handle hyphen in @param doc comment",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

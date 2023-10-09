@@ -91,8 +91,10 @@ export interface OpenAPI3Components extends Extensions {
   links?: Record<string, OpenAPI3Link>;
 }
 
-export type OpenAPI2Responses = {
-  [status: string]: Refable<OpenAPI3Response>;
+export type OpenAPI3StatusCode = string | "default" | "1XX" | "2XX" | "3XX" | "4XX" | "5XX";
+
+export type OpenAPI3Responses = {
+  [status: OpenAPI3StatusCode]: Refable<OpenAPI3Response>;
 } & Extensions;
 
 export type OpenAPI3Response = Extensions & {

@@ -2,7 +2,6 @@ import { css } from "@emotion/react";
 import { Diagnostic, Program } from "@typespec/compiler";
 import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import "swagger-ui/dist/swagger-ui.css";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { FileOutput } from "./file-output.js";
 import { OutputTabs, Tab } from "./output-tabs.js";
