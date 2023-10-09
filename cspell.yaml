@@ -5,6 +5,8 @@ dictionaries:
   - node
   - typescript
 words:
+  - astro
+  - astrojs
   - autorest
   - azsdkengsys
   - azurecr

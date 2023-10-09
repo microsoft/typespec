@@ -181,6 +181,12 @@
       "shouldPublish": false
     },
     {
+      "packageName": "@typespec/website-astro",
+      "projectFolder": "packages/website-astro",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
       "packageName": "@typespec/bundler",
       "projectFolder": "packages/bundler",
       "reviewCategory": "production",
