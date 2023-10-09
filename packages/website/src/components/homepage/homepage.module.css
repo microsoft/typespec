@@ -99,3 +99,7 @@
   flex: 1 0 0;
   margin: auto;
 }
+
+.codeblock-seperator {
+  height: 10px;
+}

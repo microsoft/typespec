@@ -218,6 +218,7 @@ const ExtensibilityIllustration = () => {
       <CodeBlock language="tsp" title="lib.tsp">
         {extensibilityTsp}
       </CodeBlock>
+      <div className={style["codeblock-seperator"]}></div>
       <CodeBlock language="ts" title="lib.ts">
         {extensibilityTs}
       </CodeBlock>
