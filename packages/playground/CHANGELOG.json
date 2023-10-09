@@ -1,0 +1,17 @@
+{
+  "name": "@typespec/openapi",
+  "entries": [
+    {
+      "version": "0.1.0-alpha.1",
+      "tag": "@typespec/playground_v0.1.0-alpha.1",
+      "date": "Wed, 03 Oct 2023 18:00:18 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: Usage of the package in vite dev mode was broken. Some errors due to the loading of the manifest as well as monaco editor workers.\n**BREAKING CHANGE:** Changed `import { PlaygroundManifest } from \"@typespec/playground/manifest\";` to`import PlaygroundManifest from \"@typespec/playground/manifest\";`"
+          }
+        ]
+      }
+    }
+  ]
+}

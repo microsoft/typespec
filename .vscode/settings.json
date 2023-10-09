@@ -6,7 +6,6 @@
     "**/dist-dev/**": true,
     "**/.docusaurus/**": true,
     "**/CHANGELOG.json": true,
-    "**/CHANGELOG.md": true,
     "docs/spec.html": true,
     "**/node_modules/**": true,
     "packages/website/versioned_docs/**": true,
