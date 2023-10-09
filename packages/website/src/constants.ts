@@ -20,6 +20,12 @@ export const Links = {
     code: "/docs/introduction/editor/code",
     visualStudio: "/docs/introduction/editor/visual-studio",
   },
+  extensibility: {
+    gettingStarted: "/docs/extending-typespec/basics",
+    decorators: "/docs/extending-typespec/create-decorators",
+    emitter: "/docs/extending-typespec/emitters",
+  },
+
   // External
   spectral: "https://stoplight.io/open-source/spectral",
   typespecAzure: "https://azure.github.io/typespec-azure",

@@ -2,6 +2,7 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Button, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
 import { Card } from "../card/card";
+import { CodeBlock } from "../code-block/code-block";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
@@ -22,6 +23,7 @@ export const HomeContent = () => {
         <EcoSystemSection />
         <FlexibilitySection />
         <EditorSection />
+        <ExtensibilitySection />
       </SectionedLayout>
       <Closing />
     </>
@@ -176,6 +178,50 @@ const EditorSection = () => {
         },
       ]}
     />
+  );
+};
+
+const ExtensibilitySection = () => {
+  return (
+    <Section
+      header="Extensibility"
+      title="Custom decorators and emitters"
+      description="Typespec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
+      illustration={<ExtensibilityIllustration />}
+      items={[
+        {
+          title: "Getting started with writing a library",
+          description: "",
+          link: Links.extensibility.gettingStarted,
+        },
+        {
+          title: "Create a decorator",
+          description: "",
+          link: Links.extensibility.decorators,
+        },
+        {
+          title: "Create an emitter",
+          description: "",
+          link: Links.extensibility.decorators,
+        },
+      ]}
+    />
+  );
+};
+
+import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
+import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
+
+const ExtensibilityIllustration = () => {
+  return (
+    <div>
+      <CodeBlock language="tsp" title="lib.tsp">
+        {extensibilityTsp}
+      </CodeBlock>
+      <CodeBlock language="ts" title="lib.ts">
+        {extensibilityTs}
+      </CodeBlock>
+    </div>
   );
 };
 
