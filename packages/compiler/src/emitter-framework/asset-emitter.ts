@@ -238,6 +238,7 @@ export function createAssetEmitter<T, TOptions extends object>(
         entity: EmitEntity<T>
       ): EmitEntity<T> {
         if (entity.kind !== "declaration") {
+          typeEmitter.circularReference(entity);
           return entity;
         }
 

@@ -702,6 +702,13 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  circularReference(target: EmitEntity<T>): EmitEntity<T> | T {
+    // if (target.kind === "declaration") {
+    //   return this.reference(target, pathUp, pathDown, commonScope);
+    // }
+    return this.emitter.result.none();
+  }
+
   declarationName(declarationType: TypeSpecDeclaration): string | undefined {
     compilerAssert(
       declarationType.name !== undefined,

@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert, { strictEqual } from "assert";
 import * as prettier from "prettier";
 import {
   Enum,
@@ -734,5 +734,92 @@ describe("emitter-framework: object emitter", () => {
     await assetEmitter.writeOutput();
     const contents = JSON.parse((await host.compilerHost.readFile("tsp-output/test.json")!).text);
     assert.strictEqual(contents.declarations.length, 2);
+  });
+
+  describe.only("circular references", () => {
+    interface FindOptions {
+      noDeclaration: boolean;
+      circleReference: boolean;
+    }
+    async function findCircularReferences(options: FindOptions) {
+      const invalidReferences: any[] = [];
+
+      const cls = class extends TypeEmitter<any, any> {
+        modelDeclaration(model: Model, _: string): EmitterOutput<object> {
+          const obj = new ObjectBuilder();
+          obj.set("props", this.emitter.emitModelProperties(model));
+          if (options.noDeclaration) {
+            return obj; // Never make a declaration
+          } else {
+            return this.emitter.result.declaration(model.name, obj);
+          }
+        }
+
+        modelProperties(model: Model) {
+          const arr = new ArrayBuilder();
+          for (const prop of model.properties.values()) {
+            arr.push(this.emitter.emitModelProperty(prop));
+          }
+          return arr;
+        }
+
+        modelPropertyLiteral(property: ModelProperty) {
+          if (options.circleReference) {
+            return this.emitter.emitTypeReference(property.type);
+          } else {
+            const obj = new ObjectBuilder();
+            obj.set("name", property.name);
+            return obj;
+          }
+        }
+
+        programContext(program: Program): Context {
+          const sourceFile = this.emitter.createSourceFile("main");
+          return { scope: sourceFile.globalScope };
+        }
+
+        circularReference(target: EmitEntity<any>) {
+          invalidReferences.push({ entity: target });
+        }
+      };
+
+      const host = await getHostForTypeSpecFile(
+        `
+      model Foo {
+        foo: Foo
+      }
+      `
+      );
+      const assetEmitter = createAssetEmitter(host.program, cls, {
+        emitterOutputDir: host.program.compilerOptions.outputDir!,
+        options: {},
+      } as any);
+      assetEmitter.emitProgram();
+
+      return invalidReferences;
+    }
+    it("self referencing with declaration works fine", async () => {
+      const invalidReferences = await findCircularReferences({
+        noDeclaration: false,
+        circleReference: true,
+      });
+      strictEqual(invalidReferences.length, 0);
+    });
+
+    it("self referencing without declaration report circular reference", async () => {
+      const invalidReferences = await findCircularReferences({
+        noDeclaration: true,
+        circleReference: true,
+      });
+      strictEqual(invalidReferences.length, 1);
+    });
+
+    it("without circular reference inline types cause no issue", async () => {
+      const invalidReferences = await findCircularReferences({
+        noDeclaration: true,
+        circleReference: true,
+      });
+      strictEqual(invalidReferences.length, 0);
+    });
   });
 });
