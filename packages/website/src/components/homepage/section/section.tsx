@@ -16,8 +16,8 @@ import style from "./section.module.css";
 
 interface SectionItem {
   title: string;
-  description: string;
-  image: FluentImageName;
+  description?: string;
+  image?: FluentImageName;
   link: string;
 }
 
@@ -86,7 +86,7 @@ const SectionItem = ({ title, description, image, link }: SectionItem) => {
 
   return (
     <div className={style["item"]}>
-      <FluentImg className={style["item-image"]} name={image} />
+      {image && <FluentImg className={style["item-image"]} name={image} />}
       <div className={style["item-content"]}>
         <Subtitle2 block={true}>{title}</Subtitle2>
         <Caption1 block={true} className={fluentStyles.descriptionText}>

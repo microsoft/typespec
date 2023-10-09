@@ -15,6 +15,11 @@ export const Links = {
       decorators: "/docs/standard-library/json-schema/reference/decorators",
     },
   },
+
+  editor: {
+    code: "/docs/introduction/editor/code",
+    visualStudio: "/docs/introduction/editor/visual-studio",
+  },
   // External
   spectral: "https://stoplight.io/open-source/spectral",
   typespecAzure: "https://azure.github.io/typespec-azure",

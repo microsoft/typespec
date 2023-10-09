@@ -21,6 +21,7 @@ export const HomeContent = () => {
         <OpenAPISection />
         <EcoSystemSection />
         <FlexibilitySection />
+        <EditorSection />
       </SectionedLayout>
       <Closing />
     </>
@@ -151,6 +152,27 @@ const FlexibilitySection = () => {
           description: "Description todo",
           image: "chat",
           link: "todo",
+        },
+      ]}
+    />
+  );
+};
+
+const EditorSection = () => {
+  return (
+    <Section
+      header="IDE"
+      title="First party support for code editor"
+      description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
+      illustration="illustrations/ide.png"
+      items={[
+        {
+          title: "TypeSpec for Visual Studio Code",
+          link: Links.editor.code,
+        },
+        {
+          title: "TypeSpec for Visual Studio",
+          link: Links.editor.visualStudio,
         },
       ]}
     />
