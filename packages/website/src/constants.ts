@@ -2,6 +2,9 @@ export const Links = {
   gettingStartedOpenAPI: "/docs/getting-started/typespec-for-openapi-dev",
   gettingStartedWithHttp: "/docs/getting-started/getting-started-http",
 
+  standardLibrary: {
+    decorators: "/docs/standard-library/built-in-decorators",
+  },
   libraryReferences: {
     openapi3: {
       index: "/docs/standard-library/openapi3/reference",

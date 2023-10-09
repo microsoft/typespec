@@ -125,7 +125,7 @@ const EcoSystemSection = () => {
           title: "Json schema emitter reference",
           description: "Generate the JSON Schema for your types.",
           image: "people-shield",
-          link: Links.libraryReferences.jsonSchema,
+          link: Links.libraryReferences.jsonSchema.index,
         },
       ]}
     />
