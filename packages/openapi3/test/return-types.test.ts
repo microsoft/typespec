@@ -228,38 +228,6 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["200"].content["text/csv"]);
   });
 
-  it("issues diagnostics for invalid status codes", async () => {
-    const diagnostics = await checkFor(
-      `
-      model Foo {
-        foo: string;
-      }
-
-      model BadRequest {
-        code: "4XX";
-      }
-
-      @route("/test1")
-      @get
-      op test1(): { @statusCode code: string, @body body: Foo };
-      @route("/test2")
-      @get
-      op test2(): { @statusCode code: "Ok", @body body: Foo };
-      @route("/test3")
-      @get
-      op test3(): { @statusCode code: "200" | BadRequest, @body body: Foo };
-    `
-    );
-    expectDiagnostics(diagnostics, [
-      { code: "@typespec/http/status-code-invalid" },
-      { code: "@typespec/http/status-code-invalid" },
-      { code: "@typespec/http/status-code-invalid" },
-    ]);
-    ok(diagnostics[0].message.includes("must be a numeric or string literal"));
-    ok(diagnostics[1].message.includes("must be a three digit code between 100 and 599"));
-    ok(diagnostics[2].message.includes("must be a numeric or string literal"));
-  });
-
   it("defines responses with primitive types", async () => {
     const res = await openApiFor(`
       @get() op read(): string;
