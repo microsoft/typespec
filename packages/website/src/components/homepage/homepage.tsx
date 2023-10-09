@@ -1,5 +1,5 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
+import { Button, Text, Title1, Title2 } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
 import { Card } from "../card/card";
 import { CodeBlock } from "../code-block/code-block";
@@ -7,11 +7,6 @@ import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
-
-const useFluentStyles = makeStyles({
-  bg: { backgroundColor: tokens.colorNeutralBackground3 },
-  descriptionText: { color: tokens.colorNeutralForeground3 },
-});
 
 export const HomeContent = () => {
   return (
@@ -227,14 +222,10 @@ const ExtensibilityIllustration = () => {
 };
 
 const Closing = () => {
-  const fluentStyles = useFluentStyles();
   return (
     <div className={style["closing"]}>
       <div className={style["closing-content"]}>
         <Title2 block={true}>Ready to get started?</Title2>
-        <Text block={true} className={fluentStyles.descriptionText}>
-          Description
-        </Text>
         <Button as="a" appearance="secondary" href="/docs">
           Docs
         </Button>
