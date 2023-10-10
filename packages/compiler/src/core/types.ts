@@ -1038,7 +1038,6 @@ export type Expression =
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
-  | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
@@ -1547,6 +1546,7 @@ export interface IdentifierContext {
 
 export enum IdentifierKind {
   TypeReference,
+  TemplateArgument,
   Decorator,
   Function,
   Using,

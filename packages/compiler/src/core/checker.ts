@@ -5,7 +5,12 @@ import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
-import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
+import {
+  exprIsBareIdentifier,
+  getIdentifierContext,
+  hasParseError,
+  visitChildren,
+} from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
 import { createProjectionMembers } from "./projection-members.js";
 import {
@@ -247,6 +252,11 @@ export interface TypeSpecCompletionItem {
    *  Optional label if different from the text to complete.
    */
   label?: string;
+
+  /**
+   * Optional text to be appended to the completion if accepted.
+   */
+  suffix?: string;
 }
 
 /**
@@ -2027,7 +2037,18 @@ export function createChecker(program: Program): Checker {
         }
         sym = resolveTypeReferenceSym(ref, mapper, resolveDecorator);
         break;
+      case IdentifierKind.TemplateArgument:
+        const templates = getTemplateDeclarationsForArgument(node as TemplateArgumentNode, mapper);
 
+        const firstMatchingArgumentDecl = templates
+          .flatMap((t) => t.templateParameters)
+          .find((p) => p.id.sv === id.sv);
+
+        if (firstMatchingArgumentDecl) {
+          sym = getMergedSymbol(firstMatchingArgumentDecl.symbol);
+        }
+
+        break;
       default:
         const _assertNever: never = kind;
         compilerAssert(false, "Unreachable");
@@ -2036,9 +2057,17 @@ export function createChecker(program: Program): Checker {
     return sym?.symbolSource ?? sym;
   }
 
+  function getTemplateDeclarationsForArgument(
+    node: TemplateArgumentNode,
+    mapper: TypeMapper | undefined
+  ) {
+    const resolved = resolveTypeReferenceSym(node.parent as TypeReferenceNode, mapper, false);
+    return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
+  }
+
   function resolveCompletions(identifier: IdentifierNode): Map<string, TypeSpecCompletionItem> {
     const completions = new Map<string, TypeSpecCompletionItem>();
-    const { kind } = getIdentifierContext(identifier);
+    const { kind, node: ancestor } = getIdentifierContext(identifier);
 
     switch (kind) {
       case IdentifierKind.Using:
@@ -2050,6 +2079,20 @@ export function createChecker(program: Program): Checker {
         return completions; // not implemented
       case IdentifierKind.Declaration:
         return completions; // cannot complete, name can be chosen arbitrarily
+      case IdentifierKind.TemplateArgument: {
+        const templates = getTemplateDeclarationsForArgument(
+          ancestor as TemplateArgumentNode,
+          undefined
+        );
+
+        for (const template of templates) {
+          for (const param of template.templateParameters) {
+            addCompletion(param.id.sv, param.symbol);
+          }
+        }
+
+        return completions;
+      }
       default:
         const _assertNever: never = kind;
         compilerAssert(false, "Unreachable");
@@ -2073,6 +2116,26 @@ export function createChecker(program: Program): Checker {
         }
       }
     } else {
+      // We will only add template arguments if the template isn't already named
+      // to avoid completing the name of the argument again.
+      if (
+        kind === IdentifierKind.TypeReference &&
+        exprIsBareIdentifier(ancestor as TypeReferenceNode) &&
+        ancestor.parent?.kind === SyntaxKind.TemplateArgument &&
+        ancestor.parent.name === undefined
+      ) {
+        const templates = getTemplateDeclarationsForArgument(
+          ancestor.parent as TemplateArgumentNode,
+          undefined
+        );
+
+        for (const template of templates) {
+          for (const param of template.templateParameters) {
+            addCompletion(param.id.sv, param.symbol, { suffix: " = " });
+          }
+        }
+      }
+
       let scope: Node | undefined = identifier.parent;
       while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
         if (scope.symbol && scope.symbol.exports) {
@@ -2123,7 +2186,7 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    function addCompletion(key: string, sym: Sym) {
+    function addCompletion(key: string, sym: Sym, options: { suffix?: string } = {}) {
       if (sym.symbolSource) {
         sym = sym.symbolSource;
       }
@@ -2134,7 +2197,7 @@ export function createChecker(program: Program): Checker {
         key = key.slice(1);
       }
       if (!completions.has(key)) {
-        completions.set(key, { sym });
+        completions.set(key, { ...options, sym });
       }
     }
 
@@ -2149,6 +2212,8 @@ export function createChecker(program: Program): Checker {
         case IdentifierKind.TypeReference:
           // Do not return functions or decorators when completing types
           return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
+        case IdentifierKind.TemplateArgument:
+          return !!(sym.flags & SymbolFlags.TemplateParameter);
         default:
           compilerAssert(false, "We should have bailed up-front on other kinds.");
       }
@@ -2825,7 +2890,6 @@ export function createChecker(program: Program): Checker {
         switch (node.value.kind) {
           case SyntaxKind.MemberExpression:
           case SyntaxKind.TypeReference:
-          case SyntaxKind.Identifier:
             const resolvedSym = resolveTypeReferenceSym(node.value, undefined);
             if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
               return resolveAliasedSymbol(resolvedSym);

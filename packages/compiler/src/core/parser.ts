@@ -1159,13 +1159,24 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseTemplateArgument(): TemplateArgumentNode {
     const pos = tokenPos();
 
-    const expr = parseExpression();
+    // Early error recovery for missing identifier followed by eq
+    if (token() === Token.Equals) {
+      error({ code: "token-expected", messageId: "identifier" });
+      nextToken();
+      return {
+        kind: SyntaxKind.TemplateArgument,
+        name: createMissingIdentifier(),
+        argument: parseExpression(),
+        ...finishNode(pos),
+      };
+    }
+
+    const expr: Expression = parseExpression();
 
     const eq = parseOptional(Token.Equals);
 
     if (eq) {
-      const isBareIdentifier =
-        expr.kind === SyntaxKind.TypeReference && expr.target.kind === SyntaxKind.Identifier;
+      const isBareIdentifier = exprIsBareIdentifier(expr);
 
       if (!isBareIdentifier) {
         error({ code: "invalid-template-argument-name", target: expr });
@@ -1575,7 +1586,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       target = {
         kind: SyntaxKind.FunctionParameter,
         id: createMissingIdentifier(),
-        type: createMissingIdentifier(),
+        type: createMissingTypeReference(),
         optional: false,
         rest: false,
         ...finishNode(pos),
@@ -2619,6 +2630,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function createMissingTypeReference(): TypeReferenceNode {
+    const pos = tokenPos();
+
+    return {
+      kind: SyntaxKind.TypeReference,
+      target: createMissingIdentifier(),
+      arguments: [],
+      ...finishNode(pos),
+    };
+  }
+
   function finishNode(pos: number): TextRange & { flags: NodeFlags; symbol: Sym } {
     const flags = parseErrorInNextFinishedNode ? NodeFlags.ThisNodeHasError : NodeFlags.None;
     parseErrorInNextFinishedNode = false;
@@ -2988,6 +3010,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 }
 
 export type NodeCallback<T> = (c: Node) => T;
+
+export function exprIsBareIdentifier(
+  expr: Expression
+): expr is TypeReferenceNode & { target: IdentifierNode; arguments: [] } {
+  return (
+    expr.kind === SyntaxKind.TypeReference &&
+    expr.target.kind === SyntaxKind.Identifier &&
+    expr.arguments.length === 0
+  );
+}
 
 export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined {
   if (node.directives) {
@@ -3374,6 +3406,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
       break;
     case SyntaxKind.UsingStatement:
       kind = IdentifierKind.Using;
+      break;
+    case SyntaxKind.TemplateArgument:
+      kind = IdentifierKind.TemplateArgument;
       break;
     default:
       kind =
