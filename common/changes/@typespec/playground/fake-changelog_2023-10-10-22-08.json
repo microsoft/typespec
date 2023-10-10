@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
