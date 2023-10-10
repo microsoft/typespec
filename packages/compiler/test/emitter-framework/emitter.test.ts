@@ -736,7 +736,7 @@ describe("emitter-framework: object emitter", () => {
     assert.strictEqual(contents.declarations.length, 2);
   });
 
-  describe.only("circular references", () => {
+  describe("circular references", () => {
     interface FindOptions {
       noDeclaration: boolean;
       circleReference: boolean;

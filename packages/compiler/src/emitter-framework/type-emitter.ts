@@ -703,9 +703,16 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /**
+   * Handle circular references. When this method is called it means we are resolving a circular reference.
+   * By default if the target is a declaration it will call to {@link reference} otherwise it means we have an inline reference
+   * @param target Reference target.
+   * @param scope Current scope.
+   * @returns Resolved reference entity.
+   */
   circularReference(target: EmitEntity<T>, scope: Scope<T>): EmitEntity<T> | T {
     if (target.kind !== "declaration") {
-      return target; // TODO ? throw maybe ?
+      throw new Error("Found circular reference without a declaration");
     }
     const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
     return this.reference(target, pathUp, pathDown, commonScope);
