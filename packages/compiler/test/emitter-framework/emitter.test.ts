@@ -781,6 +781,7 @@ describe("emitter-framework: object emitter", () => {
         circularReference(target: EmitEntity<any>, scope: Scope<any>) {
           if (target.kind !== "declaration") {
             invalidReferences.push({ entity: target });
+            return target;
           }
           return super.circularReference(target, scope);
         }

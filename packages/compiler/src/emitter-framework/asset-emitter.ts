@@ -241,17 +241,17 @@ export function createAssetEmitter<T, TOptions extends object>(
       ): EmitEntity<T> {
         let ref;
         const scope = currentScope();
-        compilerAssert(
-          scope,
-          "Emit context must have a scope set in order to create references to declarations."
-        );
+
         if (circular) {
           ref = typeEmitter.circularReference(entity, scope);
         } else {
           if (entity.kind !== "declaration") {
             return entity;
           }
-
+          compilerAssert(
+            scope,
+            "Emit context must have a scope set in order to create references to declarations."
+          );
           const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(entity, scope);
           ref = typeEmitter.reference(entity, pathUp, pathDown, commonScope);
         }

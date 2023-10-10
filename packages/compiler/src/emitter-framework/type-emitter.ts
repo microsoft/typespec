@@ -710,10 +710,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
    * @param scope Current scope.
    * @returns Resolved reference entity.
    */
-  circularReference(target: EmitEntity<T>, scope: Scope<T>): EmitEntity<T> | T {
+  circularReference(target: EmitEntity<T>, scope: Scope<T> | undefined): EmitEntity<T> | T {
     if (target.kind !== "declaration") {
       throw new Error("Found circular reference without a declaration");
     }
+    compilerAssert(
+      scope,
+      "Emit context must have a scope set in order to create references to declarations."
+    );
     const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
     return this.reference(target, pathUp, pathDown, commonScope);
   }
