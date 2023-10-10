@@ -4,7 +4,7 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec REST protocol binding",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,13 +20,17 @@
   "main": "dist/src/index.js",
   "tspMain": "lib/rest.tsp",
   "exports": {
-    ".": {
-      "default": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
-    },
-    "./testing": {
-      "default": "./dist/src/testing/index.js",
-      "types": "./dist/src/testing/index.d.ts"
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/src/index.d.ts"
+      ],
+      "testing": [
+        "./dist/src/testing/index.d.ts"
+      ]
     }
   },
   "engines": {
