@@ -7,6 +7,11 @@
 }
 
 @media only screen and (min-width: 1200px) {
+  .section {
+    max-width: 100%;
+    padding: 0 40px;
+  }
+
   .text-left {
     flex-direction: row;
   }
@@ -17,7 +22,6 @@
 }
 
 .info-container {
-  width: 50vw;
   display: flex;
   justify-content: center;
 }
@@ -55,19 +59,36 @@
 
 .illustration {
   width: 80vw;
-  height: 70vw;
+  padding: 0;
+  overflow: hidden;
+}
+
+.illustration :global(.tabs-container) {
+  margin-bottom: 0;
+}
+
+.illustration :global(.tabs-container) :global(.margin-top--md) {
+  margin-top: 0 !important;
 }
 
 @media only screen and (min-width: 1200px) {
   .illustration {
     width: 50vw;
-    height: 40vw;
   }
 }
 
 .item-card {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
+.item {
+  display: flex;
+  gap: 12px;
+}
+
 .item-image {
   width: 52px;
   height: 52px;

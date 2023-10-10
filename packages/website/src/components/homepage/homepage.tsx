@@ -1,15 +1,12 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button, Text, Title1, Title2, makeStyles, tokens } from "@fluentui/react-components";
+import { Button, Text, Title1, Title2 } from "@fluentui/react-components";
+import { Links } from "@site/src/constants";
 import { Card } from "../card/card";
+import { CodeBlock } from "../code-block/code-block";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
-
-const useFluentStyles = makeStyles({
-  bg: { backgroundColor: tokens.colorNeutralBackground3 },
-  descriptionText: { color: tokens.colorNeutralForeground3 },
-});
 
 export const HomeContent = () => {
   return (
@@ -20,6 +17,8 @@ export const HomeContent = () => {
         <OpenAPISection />
         <EcoSystemSection />
         <FlexibilitySection />
+        <EditorSection />
+        <ExtensibilitySection />
       </SectionedLayout>
       <Closing />
     </>
@@ -93,18 +92,19 @@ const OpenAPISection = () => {
       header="Productivity"
       title="Streamline your OpenAPI workflow"
       description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+      illustration="illustrations/openapi3.png"
       items={[
         {
           title: "TypeSpec for OpenAPI developers",
-          description: "Description todo",
+          description: "Get started with using TypeSpec coming from OpenAPI.",
           image: "design",
-          link: "/openapi",
+          link: Links.gettingStartedOpenAPI,
         },
         {
-          title: "Title",
-          description: "Description todo",
-          image: "checkmark",
-          link: "todo",
+          title: "OpenAPI emitter reference",
+          description: "Reference documentation for the OpenAPI 3.0 emitter.",
+          image: "document-add",
+          link: "/docs/standard-library/openapi3/reference",
         },
       ]}
     />
@@ -115,14 +115,15 @@ const EcoSystemSection = () => {
   return (
     <Section
       header="Ecosystem"
-      title="Test API endpoints as you code"
-      description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+      title="Generate Json Schema for your models"
+      description="Use the json schema emitter to get the json schema for your types and use them to validate your data."
+      illustration="illustrations/openapi3.png"
       items={[
         {
-          title: "TypeSpec for JSON RPC developer",
-          description: "Description todo",
-          image: "design",
-          link: "/json-rpc",
+          title: "Json schema emitter reference",
+          description: "Generate the JSON Schema for your types.",
+          image: "people-shield",
+          link: Links.libraryReferences.jsonSchema.index,
         },
       ]}
     />
@@ -135,6 +136,7 @@ const FlexibilitySection = () => {
       header="Ecosystem"
       title="Action-oriented title todo"
       description="With TypeSpec, align your team around a common type vocabulary. "
+      illustration="illustrations/openapi3.png"
       items={[
         {
           title: "Title todo",
@@ -153,15 +155,77 @@ const FlexibilitySection = () => {
   );
 };
 
+const EditorSection = () => {
+  return (
+    <Section
+      header="IDE"
+      title="First party support for code editor"
+      description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
+      illustration="illustrations/ide.png"
+      items={[
+        {
+          title: "TypeSpec for Visual Studio Code",
+          link: Links.editor.code,
+        },
+        {
+          title: "TypeSpec for Visual Studio",
+          link: Links.editor.visualStudio,
+        },
+      ]}
+    />
+  );
+};
+
+const ExtensibilitySection = () => {
+  return (
+    <Section
+      header="Extensibility"
+      title="Custom decorators and emitters"
+      description="Typespec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
+      illustration={<ExtensibilityIllustration />}
+      items={[
+        {
+          title: "Getting started with writing a library",
+          description: "",
+          link: Links.extensibility.gettingStarted,
+        },
+        {
+          title: "Create a decorator",
+          description: "",
+          link: Links.extensibility.decorators,
+        },
+        {
+          title: "Create an emitter",
+          description: "",
+          link: Links.extensibility.decorators,
+        },
+      ]}
+    />
+  );
+};
+
+import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
+import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
+
+const ExtensibilityIllustration = () => {
+  return (
+    <div>
+      <CodeBlock language="tsp" title="lib.tsp">
+        {extensibilityTsp}
+      </CodeBlock>
+      <div className={style["codeblock-seperator"]}></div>
+      <CodeBlock language="ts" title="lib.ts">
+        {extensibilityTs}
+      </CodeBlock>
+    </div>
+  );
+};
+
 const Closing = () => {
-  const fluentStyles = useFluentStyles();
   return (
     <div className={style["closing"]}>
       <div className={style["closing-content"]}>
         <Title2 block={true}>Ready to get started?</Title2>
-        <Text block={true} className={fluentStyles.descriptionText}>
-          Description
-        </Text>
         <Button as="a" appearance="secondary" href="/docs">
           Docs
         </Button>

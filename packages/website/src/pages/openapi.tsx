@@ -1,3 +1,10 @@
+import abstractionCode from "!!raw-loader!@site/static/tsp-samples/openapi3/abstraction.tsp";
+import interoperateTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/main.tsp";
+import interoperateOpenapi from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/openapi.yaml";
+import interoperateSpectral from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/spectral.txt";
+import { Links } from "@site/src/constants";
+import { AssetImg } from "../components/asset-img/asset-img";
+import { CodeBlock } from "../components/code-block/code-block";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
@@ -6,7 +13,7 @@ import {
   UseCaseFeatureGroup,
 } from "../components/use-case-feature/use-case-feature";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
-
+import style from "./openapi.module.css";
 export default function Home() {
   return (
     <FluentLayout>
@@ -19,17 +26,17 @@ const OpenApiContent = () => {
   return (
     <div>
       <UseCaseOverview
-        title="Action-oriented use case description over two lines"
-        subtitle="Meet TypeSpec, a language for describing APIs. Compile to OpenAPI, JSON RPC, client and server code, docs, and more."
-        link=""
+        title="Write TypeSpec, emit OpenAPI"
+        subtitle="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+        link={Links.gettingStartedOpenAPI}
       />
       <SectionedLayout>
         <UseCaseFeatureGroup>
           <UseCaseFeature
             image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
+            title="Use HTTP/REST libraries"
+            subtitle="Drastically reduce the verbosity of your spec."
+            link={Links.gettingStartedWithHttp}
           />
           <UseCaseFeature
             image="design"
@@ -39,22 +46,35 @@ const OpenApiContent = () => {
           />
           <UseCaseFeature
             image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
+            title="Abstract common patterns"
+            subtitle="Codify API patterns into reusable components, improving up quality and consistency across your API surface"
+            link={Links.spectral}
           />
         </UseCaseFeatureGroup>
 
         <Section
           header="Ecosystem"
-          title="Test API endpoints as you code"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          title="Interoperate with the OpenAPI ecosystem"
+          description="Write TypeSpec, emit OpenAPI. Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+          illustration={<OpenAPI3InteroperateIllustration />}
           items={[
             {
-              title: "TypeSpec for JSON RPC developer",
+              title: "Api Gateway",
               description: "Description todo",
-              image: "design",
+              image: "document-cloud",
               link: "/json-rpc",
+            },
+            {
+              title: "Code Generators",
+              description: "Use the generated OpenAPI to generate code.",
+              image: "document-add",
+              link: Links.spectral,
+            },
+            {
+              title: "Linters",
+              description: "Integrate with spectral to lint your OpenAPI.",
+              image: "shield-blue",
+              link: Links.spectral,
             },
           ]}
         />
@@ -62,13 +82,15 @@ const OpenApiContent = () => {
         <Section
           layout="text-right"
           header="Ecosystem"
-          title="Test API endpoints as you code"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          title="Abstract common patterns"
+          description="Codify API patterns into reusable components, improving up quality and consistency across your API surface."
+          illustration={<OpenAPI3AbstractCode />}
           items={[
             {
-              title: "TypeSpec for JSON RPC developer",
-              description: "Description todo",
-              image: "design",
+              title: "Example: TypeSpec Azure Library",
+              description:
+                "Azure library for TypeSpec allows a multitude of teams to reuse approved patterns.",
+              image: "document-cloud",
               link: "/json-rpc",
             },
           ]}
@@ -76,4 +98,24 @@ const OpenApiContent = () => {
       </SectionedLayout>
     </div>
   );
+};
+
+export const OpenAPI3InteroperateIllustration = () => {
+  return (
+    <div className={style["interoperate-illustration"]}>
+      <div className={style["interoperate-tsp"]}>
+        <CodeBlock language="tsp">{interoperateTsp}</CodeBlock>
+      </div>
+      <div className={style["interoperate-openapi"]}>
+        <CodeBlock language="yaml">{interoperateOpenapi}</CodeBlock>
+      </div>
+      <div className={style["interoperate-spectral"]}>
+        <CodeBlock language="shell-session">{interoperateSpectral}</CodeBlock>
+      </div>
+      <AssetImg className={style["interoperate-swagger-ui"]} src="illustrations/swagger-ui.png" />
+    </div>
+  );
+};
+export const OpenAPI3AbstractCode = () => {
+  return <CodeBlock language="tsp">{abstractionCode}</CodeBlock>;
 };

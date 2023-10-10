@@ -1,10 +1,7 @@
+import { CodeBlock } from "../components/code-block/code-block";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
-import {
-  UseCaseFeature,
-  UseCaseFeatureGroup,
-} from "../components/use-case-feature/use-case-feature";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
 
 export default function Home() {
@@ -24,56 +21,28 @@ const DataValidationContent = () => {
         link=""
       />
       <SectionedLayout>
-        <UseCaseFeatureGroup>
-          <UseCaseFeature
-            image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
-          />
-          <UseCaseFeature
-            image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
-          />
-          <UseCaseFeature
-            image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
-          />
-        </UseCaseFeatureGroup>
-
         <Section
-          header="Ecosystem"
-          title="Test API endpoints as you code"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
+          header="Standard library"
+          title="Use built-in decorators"
+          description="TypeSpec standard library provides decorators for common validation patterns."
+          illustration={<ValidationDecoratorsIllustration />}
           items={[
             {
-              title: "TypeSpec for JSON RPC developer",
-              description: "Description todo",
-              image: "design",
-              link: "/json-rpc",
-            },
-          ]}
-        />
-
-        <Section
-          layout="text-right"
-          header="Ecosystem"
-          title="Test API endpoints as you code"
-          description="Build a complete JSON RPC interface for your service, call it from your web browser, and test out endpoints in a breeze."
-          items={[
-            {
-              title: "TypeSpec for JSON RPC developer",
-              description: "Description todo",
-              image: "design",
-              link: "/json-rpc",
+              title: "Standard library reference",
+              description: "Browse the standard library reference documentation for details.",
+              image: "people-shield",
+              link: Links.standardLibrary.decorators,
             },
           ]}
         />
       </SectionedLayout>
     </div>
   );
+};
+
+import validationDecoratorsTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/validation-decorators.tsp";
+import { Links } from "../constants";
+
+const ValidationDecoratorsIllustration = () => {
+  return <CodeBlock language="tsp">{validationDecoratorsTsp}</CodeBlock>;
 };

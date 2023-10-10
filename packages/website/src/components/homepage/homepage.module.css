@@ -1,6 +1,6 @@
 .intro-container {
   background-repeat: no-repeat;
-  width: 100vw;
+  width: 100%;
   background-size: 100vw 94%;
 
   display: flex;
@@ -94,8 +94,11 @@
   display: flex;
   padding: 80px 60px;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
-  flex: 1 0 0;
   margin: auto;
+}
+
+.codeblock-seperator {
+  height: 10px;
 }
