@@ -847,7 +847,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     const openApiResponse: any = {
       description: undefined,
       content: {},
-      statusCode: statusCode,
     };
     const schemaMap = new Map<string, any[]>();
     for (const response of responses) {
