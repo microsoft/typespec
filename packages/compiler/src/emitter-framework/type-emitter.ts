@@ -22,6 +22,7 @@ import {
 } from "../core/index.js";
 import { code, StringBuilder } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
+import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import {
   AssetEmitter,
   Context,
@@ -702,11 +703,12 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  circularReference(target: EmitEntity<T>): EmitEntity<T> | T {
-    // if (target.kind === "declaration") {
-    //   return this.reference(target, pathUp, pathDown, commonScope);
-    // }
-    return this.emitter.result.none();
+  circularReference(target: EmitEntity<T>, scope: Scope<T>): EmitEntity<T> | T {
+    if (target.kind !== "declaration") {
+      return target; // TODO ? throw maybe ?
+    }
+    const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
+    return this.reference(target, pathUp, pathDown, commonScope);
   }
 
   declarationName(declarationType: TypeSpecDeclaration): string | undefined {

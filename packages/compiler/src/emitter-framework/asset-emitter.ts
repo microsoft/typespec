@@ -10,6 +10,7 @@ import {
 } from "../core/index.js";
 import { CustomKeyMap } from "./custom-key-map.js";
 import { Placeholder } from "./placeholder.js";
+import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import { TypeEmitter } from "./type-emitter.js";
 import {
   AssetEmitter,
@@ -224,50 +225,36 @@ export function createAssetEmitter<T, TOptions extends object>(
             lexicalTypeStack,
             context,
           },
-          cb: (entity) => invokeReference(this, entity),
+          cb: (entity) => invokeReference(this, entity, true),
         });
 
         placeholder = new Placeholder();
         return this.result.rawCode(placeholder);
       } else {
-        return invokeReference(this, entity);
+        return invokeReference(this, entity, false);
       }
 
       function invokeReference(
         assetEmitter: AssetEmitter<T, TOptions>,
-        entity: EmitEntity<T>
+        entity: EmitEntity<T>,
+        circular: boolean
       ): EmitEntity<T> {
-        if (entity.kind !== "declaration") {
-          typeEmitter.circularReference(entity);
-          return entity;
-        }
-
+        let ref;
         const scope = currentScope();
         compilerAssert(
           scope,
           "Emit context must have a scope set in order to create references to declarations."
         );
-        const targetScope = entity.scope;
-        const targetChain = scopeChain(targetScope);
-        const currentChain = scopeChain(scope);
-        let diffStart = 0;
-        while (
-          targetChain[diffStart] &&
-          currentChain[diffStart] &&
-          targetChain[diffStart] === currentChain[diffStart]
-        ) {
-          diffStart++;
+        if (circular) {
+          ref = typeEmitter.circularReference(entity, scope);
+        } else {
+          if (entity.kind !== "declaration") {
+            return entity;
+          }
+
+          const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(entity, scope);
+          ref = typeEmitter.reference(entity, pathUp, pathDown, commonScope);
         }
-
-        const pathUp: Scope<T>[] = currentChain.slice(diffStart);
-        const pathDown: Scope<T>[] = targetChain.slice(diffStart);
-
-        let ref = typeEmitter.reference(
-          entity,
-          pathUp,
-          pathDown,
-          targetChain[diffStart - 1] ?? null
-        );
 
         if (!(ref instanceof EmitterResult)) {
           ref = assetEmitter.result.rawCode(ref) as RawCode<T>;
@@ -298,16 +285,6 @@ export function createAssetEmitter<T, TOptions extends object>(
         }
 
         return ref;
-      }
-
-      function scopeChain(scope: Scope<T> | null) {
-        const chain = [];
-        while (scope) {
-          chain.unshift(scope);
-          scope = scope.parentScope;
-        }
-
-        return chain;
       }
     },
 

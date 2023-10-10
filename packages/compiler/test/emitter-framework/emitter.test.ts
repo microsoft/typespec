@@ -778,8 +778,11 @@ describe("emitter-framework: object emitter", () => {
           return { scope: sourceFile.globalScope };
         }
 
-        circularReference(target: EmitEntity<any>) {
-          invalidReferences.push({ entity: target });
+        circularReference(target: EmitEntity<any>, scope: Scope<any>) {
+          if (target.kind !== "declaration") {
+            invalidReferences.push({ entity: target });
+          }
+          return super.circularReference(target, scope);
         }
       };
 
@@ -817,7 +820,7 @@ describe("emitter-framework: object emitter", () => {
     it("without circular reference inline types cause no issue", async () => {
       const invalidReferences = await findCircularReferences({
         noDeclaration: true,
-        circleReference: true,
+        circleReference: false,
       });
       strictEqual(invalidReferences.length, 0);
     });
