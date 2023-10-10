@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix `tsp init` was ignoring the `files` specified in an init template",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
