@@ -299,7 +299,7 @@ const typeArguments: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.definition.typeparameters.end.tsp" },
   },
-  patterns: [expression, punctuationComma],
+  patterns: [identifierExpression, operatorAssignment, expression, punctuationComma],
 };
 
 const typeParameterConstraint: BeginEndRule = {

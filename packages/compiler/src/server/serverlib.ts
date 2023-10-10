@@ -1105,6 +1105,9 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.DocUnknownTag:
           classifyDocTag(node.tagName, SemanticTokenKind.Macro);
           break;
+        case SyntaxKind.TemplateArgument:
+          if (node.name) classify(node.name, SemanticTokenKind.TypeParameter);
+          break;
         default:
           break;
       }
