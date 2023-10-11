@@ -1,4 +1,6 @@
-# TypeSpec Visual Studio Extension
+---
+title: TypeSpec Visual Studio Extension
+---
 
 ## Installation
 
