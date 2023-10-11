@@ -1,7 +1,6 @@
 ---
 id: introduction
 title: Introduction
-slug: /
 ---
 
 # Introduction to TypeSpec

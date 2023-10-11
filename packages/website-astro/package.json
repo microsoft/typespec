@@ -8,7 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "copy-docs": "cp -r ../../docs/ ./src/content/docs/next/"
+    "copy-docs": "cp -r ../../docs/ ./src/content/docs/current/"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.11.0",

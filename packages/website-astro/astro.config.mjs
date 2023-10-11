@@ -12,8 +12,12 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: "Introduction",
-          autogenerate: { directory: "introduction" },
+          label: `Next 🚧`,
+          autogenerate: { directory: "current" },
+        },
+        {
+          label: `Latest 🚀`,
+          autogenerate: { directory: "current" },
         },
       ],
     }),
