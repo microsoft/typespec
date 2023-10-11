@@ -2,6 +2,80 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.49.0",
+      "tag": "@typespec/compiler_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle hyphen in @param doc comment"
+          },
+          {
+            "comment": "The `never` type is now assignable to all types"
+          },
+          {
+            "comment": "Allow nullable types for constraint decorators(min/max value, length, etc)"
+          },
+          {
+            "comment": "Add support for `@returns` and `@errors` doc comment tags. `@returns`(or `@returnsDoc` decorator) can be used to describe the success return types of an operation. `@errors`(or `@errorsDoc` decorator) can be used to describe the error return types of an operation."
+          },
+          {
+            "comment": "Fix: Colorization of line comment was bleeding over to the next line(s)."
+          },
+          {
+            "comment": "Fix crash when using parenthesis on directives"
+          },
+          {
+            "comment": "Fix: Assigning negative and 0 to float64"
+          },
+          {
+            "comment": "`tsp format` now returns a non-zero exit code when it fails to format a file"
+          },
+          {
+            "comment": "Fix: Anonymous union variants were formatted with an extra leading `:`"
+          },
+          {
+            "comment": "Formatter: Unions and Enums members are now formatted following the same rules as model properties. An extra line will be added between members if the member is annotated with a decorator, directive or doc comment."
+          },
+          {
+            "comment": "Fix: Correct formatting of comments between a directive or doc and its node"
+          },
+          {
+            "comment": "Fix: `tsp init` was not creating the `tspconfig.yaml` file for templates that specified it"
+          },
+          {
+            "comment": "Fix: `tsp init` will create a placeholder `tspconfig.yaml` file for templates that don't specify an explicit one."
+          },
+          {
+            "comment": "Fix `tsp init` was ignoring the `files` specified in an init template"
+          },
+          {
+            "comment": "Fix: Language Server wasn't loading the `tspconfig.yaml` correctly resulting in some options being dropped like the linter configuration."
+          },
+          {
+            "comment": "Fix: Allow `null` to be assigned as a default value"
+          },
+          {
+            "comment": "Fix: Using `TypeSpec.Xyz` namespace shouldn't require the `TypeSpec Prefix`"
+          },
+          {
+            "comment": "Skip emit of `deprecated` diagnostic for a type reference that is used in a deprecated declaration statement"
+          },
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "Remove `decorators` export, import decorators individually"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.4` to `~0.4.5`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.48.1",
       "tag": "@typespec/compiler_v0.48.1",
       "date": "Tue, 19 Sep 2023 19:28:32 GMT",
