@@ -2,9 +2,13 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import { readFileSync } from "fs";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 
-const grammarPath = "../../packages/compiler/dist/typespec.tmLanguage.json";
-const tspGrammar = JSON.parse(readFileSync(grammarPath));
+const websiteRoot = dirname(fileURLToPath(import.meta.url));
+
+const grammarPath = resolve(websiteRoot, "../compiler/dist/typespec.tmLanguage.json");
+const tspGrammar = JSON.parse(readFileSync(grammarPath).toString());
 
 const myLanguage = {
   id: "typespec",
@@ -36,6 +40,7 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: {
+      theme: "one-dark-pro",
       langs: [myLanguage],
     },
   },
