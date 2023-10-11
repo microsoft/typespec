@@ -12,13 +12,13 @@
   {
     "definitionName": "lockStepVersion",
     "policyName": "typespec",
-    "version": "0.49.0",
+    "version": "0.50.0",
     "nextBump": "minor"
   },
   {
     "definitionName": "lockStepVersion",
     "policyName": "playground",
-    "version": "0.1.0-alpha.1",
+    "version": "0.1.0-alpha.2",
     "nextBump": "prerelease"
   }
   // {

@@ -2,6 +2,24 @@
   "name": "@typespec/rest",
   "entries": [
     {
+      "version": "0.50.0",
+      "tag": "@typespec/rest_v0.50.0",
+      "date": "Wed, 11 Oct 2023 22:05:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Correct rest → http peer dependency. Fixes #2391"
+          },
+          {
+            "comment": "Fix: `@key` can now appear on the base model of a resource."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.48.0",
       "tag": "@typespec/rest_v0.48.0",
       "date": "Tue, 12 Sep 2023 21:47:11 GMT",

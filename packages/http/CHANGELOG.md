@@ -1,6 +1,16 @@
 # Change Log - @typespec/http
 
-This log was last generated on Tue, 12 Sep 2023 21:47:11 GMT and should not be manually modified.
+This log was last generated on Wed, 11 Oct 2023 22:05:05 GMT and should not be manually modified.
+
+## 0.50.0
+Wed, 11 Oct 2023 22:05:05 GMT
+
+### Updates
+
+- Add support for `@returns` and `@errors` doc comment tags.
+- Add support for status code ranges for http responses. **Change to API** Http responses can now also return a `HttpStatusCodeRange` object for their status codes
+- Emit error when multiple properties on a response model have the `@statusCode` decorator.
+- Update dependencies
 
 ## 0.48.0
 Tue, 12 Sep 2023 21:47:11 GMT

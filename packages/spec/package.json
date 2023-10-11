@@ -22,6 +22,6 @@
   "devDependencies": {
     "@types/node": "~18.11.9",
     "ecmarkup": "~12.0.3",
-    "@typespec/internal-build-utils": "workspace:~0.48.0"
+    "@typespec/internal-build-utils": "workspace:~0.50.0"
   }
 }

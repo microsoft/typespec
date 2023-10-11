@@ -1,6 +1,6 @@
 {
   "name": "@typespec/eslint-config-typespec",
-  "version": "0.48.0",
+  "version": "0.50.0",
   "description": "ESLint config for typespec packages",
   "main": "index.js",
   "repository": {

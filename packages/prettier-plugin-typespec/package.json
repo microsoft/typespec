@@ -1,6 +1,6 @@
 {
   "name": "@typespec/prettier-plugin-typespec",
-  "version": "0.48.0",
+  "version": "0.50.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -16,8 +16,8 @@
   },
   "devDependencies": {
     "prettier_2": "npm:prettier@2.8.7",
-    "@typespec/compiler": "workspace:~0.48.1",
-    "@typespec/internal-build-utils": "workspace:~0.48.0",
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/internal-build-utils": "workspace:~0.50.0",
     "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-json": "~6.0.0",
     "@rollup/plugin-node-resolve": "~15.2.1",

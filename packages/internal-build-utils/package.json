@@ -1,6 +1,6 @@
 {
   "name": "@typespec/internal-build-utils",
-  "version": "0.48.0",
+  "version": "0.50.0",
   "author": "Microsoft Corporation",
   "description": "Internal library to TypeSpec providing helpers to build.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -48,7 +48,7 @@
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/yargs": "~17.0.24",
-    "@typespec/eslint-config-typespec": "workspace:~0.48.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
     "@types/semver": "^7.5.2",
     "eslint": "^8.49.0",
     "mocha": "~10.2.0",
