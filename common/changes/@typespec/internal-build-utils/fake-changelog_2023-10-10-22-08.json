@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/internal-build-utils",
-      "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files",
+      "comment": "",
       "type": "none"
     }
   ],

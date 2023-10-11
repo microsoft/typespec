@@ -1,4 +1,6 @@
-# Discriminated types
+---
+title: Discriminated types
+---
 
 TypeSpec can express unions and inheritance. However, when sending types over the wire many languages need a way to discriminate between the various union variants or models in an inheritance hierarchy.
 
