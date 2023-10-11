@@ -1,4 +1,6 @@
-# Content types
+---
+title: Content types
+---
 
 ## Default behavior
 

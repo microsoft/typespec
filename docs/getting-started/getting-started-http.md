@@ -1,4 +1,6 @@
-# Getting Started with TypeSpec For Http
+---
+title: Getting Started with TypeSpec For Http
+---
 
 Let's create a REST API definition with TypeSpec. TypeSpec has an official HTTP API "binding" called `@typespec/http`. It's a set of TypeSpec declarations and decorators that describe HTTP APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
 Built on top of the http library there is the rest library `@typespec/rest` which provide some REST concept like resources.
