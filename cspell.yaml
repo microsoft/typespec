@@ -57,6 +57,7 @@ words:
   - safeint
   - segmentof
   - sfixed
+  - shiki
   - sint
   - ssvs
   - strs

@@ -889,4 +889,8 @@ export async function main() {
   });
   await mkdir("./dist", { recursive: true });
   await writeFile("./dist/typespec.tmLanguage", plist);
+  const json = await tm.emitJSON(grammar, {
+    errorSourceFilePath: resolve("./src/tmlanguage.ts"),
+  });
+  await writeFile("./dist/typespec.tmLanguage.json", json);
 }

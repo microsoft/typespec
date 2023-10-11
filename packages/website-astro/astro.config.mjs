@@ -1,6 +1,18 @@
 // @ts-check
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+import { readFileSync } from "fs";
+
+const grammarPath = "../../packages/compiler/dist/typespec.tmLanguage.json";
+const tspGrammar = JSON.parse(readFileSync(grammarPath));
+
+const myLanguage = {
+  id: "typespec",
+  scopeName: "source.tsp",
+  path: grammarPath,
+  grammar: tspGrammar,
+  aliases: ["typespec", "tsp"],
+};
 
 // https://astro.build/config
 export default defineConfig({
@@ -22,4 +34,9 @@ export default defineConfig({
       ],
     }),
   ],
+  markdown: {
+    shikiConfig: {
+      langs: [myLanguage],
+    },
+  },
 });
