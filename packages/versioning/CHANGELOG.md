@@ -1,6 +1,14 @@
 # Change Log - @typespec/versioning
 
-This log was last generated on Tue, 12 Sep 2023 21:47:11 GMT and should not be manually modified.
+This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+
+## 0.49.0
+Wed, 11 Oct 2023 23:31:35 GMT
+
+### Updates
+
+- Update dependencies
+- Ensure that use of `@renamedFrom` does not result in duplicate properties on a model.
 
 ## 0.48.0
 Tue, 12 Sep 2023 21:47:11 GMT
