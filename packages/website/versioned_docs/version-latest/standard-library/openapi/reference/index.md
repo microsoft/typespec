@@ -31,18 +31,18 @@ npm install --save-peer @typespec/openapi
 </TabItem>
 </Tabs>
 
-## OpenAPI
+## TypeSpec.OpenAPI
 
 ### Decorators
 
-- [`@defaultResponse`](./decorators.md#@OpenAPI.defaultResponse)
-- [`@extension`](./decorators.md#@OpenAPI.extension)
-- [`@externalDocs`](./decorators.md#@OpenAPI.externalDocs)
-- [`@info`](./decorators.md#@OpenAPI.info)
-- [`@operationId`](./decorators.md#@OpenAPI.operationId)
+- [`@defaultResponse`](./decorators.md#@TypeSpec.OpenAPI.defaultResponse)
+- [`@extension`](./decorators.md#@TypeSpec.OpenAPI.extension)
+- [`@externalDocs`](./decorators.md#@TypeSpec.OpenAPI.externalDocs)
+- [`@info`](./decorators.md#@TypeSpec.OpenAPI.info)
+- [`@operationId`](./decorators.md#@TypeSpec.OpenAPI.operationId)
 
 ### Models
 
-- [`AdditionalInfo`](./data-types.md#OpenAPI.AdditionalInfo)
-- [`Contact`](./data-types.md#OpenAPI.Contact)
-- [`License`](./data-types.md#OpenAPI.License)
+- [`AdditionalInfo`](./data-types.md#TypeSpec.OpenAPI.AdditionalInfo)
+- [`Contact`](./data-types.md#TypeSpec.OpenAPI.Contact)
+- [`License`](./data-types.md#TypeSpec.OpenAPI.License)
