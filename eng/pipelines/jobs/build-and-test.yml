@@ -27,6 +27,10 @@ steps:
   - script: node eng/scripts/check-for-changed-files.js
     displayName: Check Git Status For Changed Files
 
+  - script: node eng/scripts/check-docs.js
+    displayName: Check docs
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
+
   - script: node common/scripts/install-run-rush.js cspell
     displayName: Spell check
     condition: ne(variables['Agent.OS'], 'Windows_NT')

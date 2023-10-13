@@ -3,1378 +3,539 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Index
-
-### Namespaces
-
-- [decorators](Namespace.decorators.md)
+## Exports
 
 ### Enumerations
 
-- [IdentifierKind](Enumeration.IdentifierKind.md)
-- [KeywordLimit](Enumeration.KeywordLimit.md)
-- [ListenerFlow](Enumeration.ListenerFlow.md)
-- [ModifierFlags](Enumeration.ModifierFlags.md)
-- [NodeFlags](Enumeration.NodeFlags.md)
-- [SemanticTokenKind](Enumeration.SemanticTokenKind.md)
-- [SymbolFlags](Enumeration.SymbolFlags.md)
-- [SyntaxKind](Enumeration.SyntaxKind.md)
-- [Token](Enumeration.Token.md)
-- [TokenFlags](Enumeration.TokenFlags.md)
-- [UsageFlags](Enumeration.UsageFlags.md)
+- [IdentifierKind](enumerations/IdentifierKind.md)
+- [ListenerFlow](enumerations/ListenerFlow.md)
+- [ModifierFlags](enumerations/ModifierFlags.md)
+- [NodeFlags](enumerations/NodeFlags.md)
+- [SemanticTokenKind](enumerations/SemanticTokenKind.md)
+- [SymbolFlags](enumerations/SymbolFlags.md)
+- [SyntaxKind](enumerations/SyntaxKind.md)
+- [Token](enumerations/Token.md)
+- [TokenFlags](enumerations/TokenFlags.md)
+- [UsageFlags](enumerations/UsageFlags.md)
 
 ### Classes
 
-- [DuplicateTracker](Class.DuplicateTracker.md)
-- [EventEmitter](Class.EventEmitter.md)
-- [InvalidEncodingError](Class.InvalidEncodingError.md)
-- [ProjectionError](Class.ProjectionError.md)
-- [Queue](Class.Queue.md)
-- [ResolveModuleError](Class.ResolveModuleError.md)
+- [DuplicateTracker](classes/DuplicateTracker.md)
+- [EventEmitter](classes/EventEmitter.md)
+- [InvalidEncodingError](classes/InvalidEncodingError.md)
+- [ProjectionError](classes/ProjectionError.md)
+- [Queue](classes/Queue.md)
+- [ResolveModuleError](classes/ResolveModuleError.md)
 
 ### Interfaces
 
-- [AliasStatementNode](Interface.AliasStatementNode.md)
-- [AnyKeywordNode](Interface.AnyKeywordNode.md)
-- [ArrayExpressionNode](Interface.ArrayExpressionNode.md)
-- [ArrayModelType](Interface.ArrayModelType.md)
-- [AugmentDecoratorStatementNode](Interface.AugmentDecoratorStatementNode.md)
-- [BaseNode](Interface.BaseNode.md)
-- [BaseType](Interface.BaseType.md)
-- [BlockComment](Interface.BlockComment.md)
-- [BooleanLiteral](Interface.BooleanLiteral.md)
-- [BooleanLiteralNode](Interface.BooleanLiteralNode.md)
-- [CallableMessage](Interface.CallableMessage.md)
-- [Checker](Interface.Checker.md)
-- [CompilerHost](Interface.CompilerHost.md)
-- [CompilerLocationContext](Interface.CompilerLocationContext.md)
-- [CompilerOptions](Interface.CompilerOptions.md)
-- [DeclarationNode](Interface.DeclarationNode.md)
-- [DecoratedType](Interface.DecoratedType.md)
-- [Decorator](Interface.Decorator.md)
-- [DecoratorApplication](Interface.DecoratorApplication.md)
-- [DecoratorArgument](Interface.DecoratorArgument.md)
-- [DecoratorContext](Interface.DecoratorContext.md)
-- [DecoratorDeclarationStatementNode](Interface.DecoratorDeclarationStatementNode.md)
-- [DecoratorDefinition](Interface.DecoratorDefinition.md)
-- [DecoratorExpressionNode](Interface.DecoratorExpressionNode.md)
-- [DecoratorFunction](Interface.DecoratorFunction.md)
-- [DecoratorParamDefinition](Interface.DecoratorParamDefinition.md)
-- [DecoratorValidator](Interface.DecoratorValidator.md)
-- [DeprecatedDirective](Interface.DeprecatedDirective.md)
-- [DeprecationDetails](Interface.DeprecationDetails.md)
-- [Diagnostic](Interface.Diagnostic.md)
-- [DiagnosticCollector](Interface.DiagnosticCollector.md)
-- [DiagnosticCreator](Interface.DiagnosticCreator.md)
-- [DiagnosticDefinition](Interface.DiagnosticDefinition.md)
-- [DiagnosticMessages](Interface.DiagnosticMessages.md)
-- [DirectiveBase](Interface.DirectiveBase.md)
-- [DirectiveExpressionNode](Interface.DirectiveExpressionNode.md)
-- [Dirent](Interface.Dirent.md)
-- [DiscriminatedUnion](Interface.DiscriminatedUnion.md)
-- [DocNode](Interface.DocNode.md)
-- [DocParamTagNode](Interface.DocParamTagNode.md)
-- [DocReturnsTagNode](Interface.DocReturnsTagNode.md)
-- [DocTagBaseNode](Interface.DocTagBaseNode.md)
-- [DocTemplateTagNode](Interface.DocTemplateTagNode.md)
-- [DocTextNode](Interface.DocTextNode.md)
-- [DocUnknownTagNode](Interface.DocUnknownTagNode.md)
-- [EmitContext](Interface.EmitContext.md)
-- [EmitFileOptions](Interface.EmitFileOptions.md)
-- [EmptyStatementNode](Interface.EmptyStatementNode.md)
-- [Enum](Interface.Enum.md)
-- [EnumMember](Interface.EnumMember.md)
-- [EnumMemberNode](Interface.EnumMemberNode.md)
-- [EnumSpreadMemberNode](Interface.EnumSpreadMemberNode.md)
-- [EnumStatementNode](Interface.EnumStatementNode.md)
-- [ErrorType](Interface.ErrorType.md)
-- [ExternKeywordNode](Interface.ExternKeywordNode.md)
-- [FileLibraryMetadata](Interface.FileLibraryMetadata.md)
-- [FunctionDeclarationStatementNode](Interface.FunctionDeclarationStatementNode.md)
-- [FunctionParameter](Interface.FunctionParameter.md)
-- [FunctionParameterNode](Interface.FunctionParameterNode.md)
-- [FunctionType](Interface.FunctionType.md)
-- [IdentifierContext](Interface.IdentifierContext.md)
-- [IdentifierNode](Interface.IdentifierNode.md)
-- [ImportStatementNode](Interface.ImportStatementNode.md)
-- [Interface](Interface.Interface.md)
-- [InterfaceStatementNode](Interface.InterfaceStatementNode.md)
-- [IntersectionExpressionNode](Interface.IntersectionExpressionNode.md)
-- [IntrinsicType](Interface.IntrinsicType.md)
-- [InvalidStatementNode](Interface.InvalidStatementNode.md)
-- [JSONSchemaValidator](Interface.JSONSchemaValidator.md)
-- [JsNamespaceDeclarationNode](Interface.JsNamespaceDeclarationNode.md)
-- [JsSourceFileNode](Interface.JsSourceFileNode.md)
-- [LibraryInstance](Interface.LibraryInstance.md)
-- [LibraryLocationContext](Interface.LibraryLocationContext.md)
-- [LineAndCharacter](Interface.LineAndCharacter.md)
-- [LineComment](Interface.LineComment.md)
-- [LinterDefinition](Interface.LinterDefinition.md)
-- [LinterRule](Interface.LinterRule.md)
-- [LinterRuleContext](Interface.LinterRuleContext.md)
-- [LinterRuleDefinition](Interface.LinterRuleDefinition.md)
-- [LinterRuleSet](Interface.LinterRuleSet.md)
-- [ListOperationOptions](Interface.ListOperationOptions.md)
-- [LogInfo](Interface.LogInfo.md)
-- [LogSink](Interface.LogSink.md)
-- [Logger](Interface.Logger.md)
-- [MemberExpressionNode](Interface.MemberExpressionNode.md)
-- [Model](Interface.Model.md)
-- [ModelExpressionNode](Interface.ModelExpressionNode.md)
-- [ModelProperty](Interface.ModelProperty.md)
-- [ModelPropertyNode](Interface.ModelPropertyNode.md)
-- [ModelSpreadPropertyNode](Interface.ModelSpreadPropertyNode.md)
-- [ModelStatementNode](Interface.ModelStatementNode.md)
-- [ModuleLibraryMetadata](Interface.ModuleLibraryMetadata.md)
-- [Namespace](Interface.Namespace.md)
-- [NamespaceNavigationOptions](Interface.NamespaceNavigationOptions.md)
-- [NamespaceStatementNode](Interface.NamespaceStatementNode.md)
-- [NavigationOptions](Interface.NavigationOptions.md)
-- [NeverKeywordNode](Interface.NeverKeywordNode.md)
-- [NeverType](Interface.NeverType.md)
-- [NodePackage](Interface.NodePackage.md)
-- [NullType](Interface.NullType.md)
-- [NumericLiteral](Interface.NumericLiteral.md)
-- [NumericLiteralNode](Interface.NumericLiteralNode.md)
-- [ObjectType](Interface.ObjectType.md)
-- [Operation](Interface.Operation.md)
-- [OperationSignatureDeclarationNode](Interface.OperationSignatureDeclarationNode.md)
-- [OperationSignatureReferenceNode](Interface.OperationSignatureReferenceNode.md)
-- [OperationStatementNode](Interface.OperationStatementNode.md)
-- [ParseOptions](Interface.ParseOptions.md)
-- [ProcessedLog](Interface.ProcessedLog.md)
-- [Program](Interface.Program.md)
-- [ProjectLocationContext](Interface.ProjectLocationContext.md)
-- [ProjectedNameView](Interface.ProjectedNameView.md)
-- [ProjectedProgram](Interface.ProjectedProgram.md)
-- [Projection](Interface.Projection.md)
-- [ProjectionApplication](Interface.ProjectionApplication.md)
-- [ProjectionArithmeticExpressionNode](Interface.ProjectionArithmeticExpressionNode.md)
-- [ProjectionBlockExpressionNode](Interface.ProjectionBlockExpressionNode.md)
-- [ProjectionCallExpressionNode](Interface.ProjectionCallExpressionNode.md)
-- [ProjectionDecoratorReferenceExpressionNode](Interface.ProjectionDecoratorReferenceExpressionNode.md)
-- [ProjectionEnumMemberSelectorNode](Interface.ProjectionEnumMemberSelectorNode.md)
-- [ProjectionEnumSelectorNode](Interface.ProjectionEnumSelectorNode.md)
-- [ProjectionEqualityExpressionNode](Interface.ProjectionEqualityExpressionNode.md)
-- [ProjectionExpressionStatementNode](Interface.ProjectionExpressionStatementNode.md)
-- [ProjectionIfExpressionNode](Interface.ProjectionIfExpressionNode.md)
-- [ProjectionInterfaceSelectorNode](Interface.ProjectionInterfaceSelectorNode.md)
-- [ProjectionLambdaExpressionNode](Interface.ProjectionLambdaExpressionNode.md)
-- [ProjectionLambdaParameterDeclarationNode](Interface.ProjectionLambdaParameterDeclarationNode.md)
-- [ProjectionLogicalExpressionNode](Interface.ProjectionLogicalExpressionNode.md)
-- [ProjectionMemberExpressionNode](Interface.ProjectionMemberExpressionNode.md)
-- [ProjectionModelExpressionNode](Interface.ProjectionModelExpressionNode.md)
-- [ProjectionModelPropertyNode](Interface.ProjectionModelPropertyNode.md)
-- [ProjectionModelPropertySelectorNode](Interface.ProjectionModelPropertySelectorNode.md)
-- [ProjectionModelSelectorNode](Interface.ProjectionModelSelectorNode.md)
-- [ProjectionModelSpreadPropertyNode](Interface.ProjectionModelSpreadPropertyNode.md)
-- [ProjectionNode](Interface.ProjectionNode.md)
-- [ProjectionOperationSelectorNode](Interface.ProjectionOperationSelectorNode.md)
-- [ProjectionParameterDeclarationNode](Interface.ProjectionParameterDeclarationNode.md)
-- [ProjectionReferenceNode](Interface.ProjectionReferenceNode.md)
-- [ProjectionRelationalExpressionNode](Interface.ProjectionRelationalExpressionNode.md)
-- [ProjectionStatementNode](Interface.ProjectionStatementNode.md)
-- [ProjectionTupleExpressionNode](Interface.ProjectionTupleExpressionNode.md)
-- [ProjectionUnaryExpressionNode](Interface.ProjectionUnaryExpressionNode.md)
-- [ProjectionUnionSelectorNode](Interface.ProjectionUnionSelectorNode.md)
-- [ProjectionUnionVariantSelectorNode](Interface.ProjectionUnionVariantSelectorNode.md)
-- [Projector](Interface.Projector.md)
-- [RecordModelType](Interface.RecordModelType.md)
-- [ResolveCompilerOptionsOptions](Interface.ResolveCompilerOptionsOptions.md)
-- [ResolveModuleHost](Interface.ResolveModuleHost.md)
-- [ResolveModuleOptions](Interface.ResolveModuleOptions.md)
-- [ResolvedFile](Interface.ResolvedFile.md)
-- [ResolvedModule](Interface.ResolvedModule.md)
-- [ReturnExpressionNode](Interface.ReturnExpressionNode.md)
-- [ReturnRecord](Interface.ReturnRecord.md)
-- [RmOptions](Interface.RmOptions.md)
-- [Scalar](Interface.Scalar.md)
-- [ScalarStatementNode](Interface.ScalarStatementNode.md)
-- [Scanner](Interface.Scanner.md)
-- [SemanticToken](Interface.SemanticToken.md)
-- [Server](Interface.Server.md)
-- [ServerHost](Interface.ServerHost.md)
-- [ServerSourceFile](Interface.ServerSourceFile.md)
-- [ServerWorkspaceFolder](Interface.ServerWorkspaceFolder.md)
-- [SourceFile](Interface.SourceFile.md)
-- [SourceLocation](Interface.SourceLocation.md)
-- [SourceLocationOptions](Interface.SourceLocationOptions.md)
-- [StringLiteral](Interface.StringLiteral.md)
-- [StringLiteralNode](Interface.StringLiteralNode.md)
-- [SuppressDirective](Interface.SuppressDirective.md)
-- [Sym](Interface.Sym.md)
-- [SymbolLinks](Interface.SymbolLinks.md)
-- [SyntheticLocationContext](Interface.SyntheticLocationContext.md)
-- [TemplateDeclarationNode](Interface.TemplateDeclarationNode.md)
-- [TemplateParameter](Interface.TemplateParameter.md)
-- [TemplateParameterDeclarationNode](Interface.TemplateParameterDeclarationNode.md)
-- [TemplatedTypeBase](Interface.TemplatedTypeBase.md)
-- [TextRange](Interface.TextRange.md)
-- [Tracer](Interface.Tracer.md)
-- [TracerOptions](Interface.TracerOptions.md)
-- [Tuple](Interface.Tuple.md)
-- [TupleExpressionNode](Interface.TupleExpressionNode.md)
-- [TypeInstantiationMap](Interface.TypeInstantiationMap.md)
-- [TypeMapper](Interface.TypeMapper.md)
-- [TypeNameOptions](Interface.TypeNameOptions.md)
-- [TypeReferenceNode](Interface.TypeReferenceNode.md)
-- [TypeSpecCompletionItem](Interface.TypeSpecCompletionItem.md)
-- [TypeSpecLibrary](Interface.TypeSpecLibrary.md)
-- [TypeSpecLibraryDef](Interface.TypeSpecLibraryDef.md)
-- [TypeSpecManifest](Interface.TypeSpecManifest.md)
-- [TypeSpecScriptNode](Interface.TypeSpecScriptNode.md)
-- [Union](Interface.Union.md)
-- [UnionExpressionNode](Interface.UnionExpressionNode.md)
-- [UnionStatementNode](Interface.UnionStatementNode.md)
-- [UnionVariant](Interface.UnionVariant.md)
-- [UnionVariantNode](Interface.UnionVariantNode.md)
-- [UnknownType](Interface.UnknownType.md)
-- [UsageTracker](Interface.UsageTracker.md)
-- [UsingStatementNode](Interface.UsingStatementNode.md)
-- [ValueOfExpressionNode](Interface.ValueOfExpressionNode.md)
-- [ValueType](Interface.ValueType.md)
-- [VoidKeywordNode](Interface.VoidKeywordNode.md)
-- [VoidType](Interface.VoidType.md)
+- [AliasStatementNode](interfaces/AliasStatementNode.md)
+- [AnyKeywordNode](interfaces/AnyKeywordNode.md)
+- [ArrayExpressionNode](interfaces/ArrayExpressionNode.md)
+- [ArrayModelType](interfaces/ArrayModelType.md)
+- [AugmentDecoratorStatementNode](interfaces/AugmentDecoratorStatementNode.md)
+- [BaseNode](interfaces/BaseNode.md)
+- [BaseType](interfaces/BaseType.md)
+- [BlockComment](interfaces/BlockComment.md)
+- [BooleanLiteral](interfaces/BooleanLiteral.md)
+- [BooleanLiteralNode](interfaces/BooleanLiteralNode.md)
+- [CallableMessage](interfaces/CallableMessage.md)
+- [Checker](interfaces/Checker.md)
+- [CompilerHost](interfaces/CompilerHost.md)
+- [CompilerLocationContext](interfaces/CompilerLocationContext.md)
+- [CompilerOptions](interfaces/CompilerOptions.md)
+- [DeclarationNode](interfaces/DeclarationNode.md)
+- [DecoratedType](interfaces/DecoratedType.md)
+- [Decorator](interfaces/Decorator.md)
+- [DecoratorApplication](interfaces/DecoratorApplication.md)
+- [DecoratorArgument](interfaces/DecoratorArgument.md)
+- [DecoratorContext](interfaces/DecoratorContext.md)
+- [DecoratorDeclarationStatementNode](interfaces/DecoratorDeclarationStatementNode.md)
+- [DecoratorDefinition](interfaces/DecoratorDefinition.md)
+- [DecoratorExpressionNode](interfaces/DecoratorExpressionNode.md)
+- [DecoratorFunction](interfaces/DecoratorFunction.md)
+- [DecoratorParamDefinition](interfaces/DecoratorParamDefinition.md)
+- [DecoratorValidator](interfaces/DecoratorValidator.md)
+- [DeprecatedDirective](interfaces/DeprecatedDirective.md)
+- [DeprecationDetails](interfaces/DeprecationDetails.md)
+- [Diagnostic](interfaces/Diagnostic.md)
+- [DiagnosticCollector](interfaces/DiagnosticCollector.md)
+- [DiagnosticCreator](interfaces/DiagnosticCreator.md)
+- [DiagnosticDefinition](interfaces/DiagnosticDefinition.md)
+- [DiagnosticMessages](interfaces/DiagnosticMessages.md)
+- [DirectiveBase](interfaces/DirectiveBase.md)
+- [DirectiveExpressionNode](interfaces/DirectiveExpressionNode.md)
+- [Dirent](interfaces/Dirent.md)
+- [DiscriminatedUnion](interfaces/DiscriminatedUnion.md)
+- [Discriminator](interfaces/Discriminator.md)
+- [DocData](interfaces/DocData.md)
+- [DocErrorsTagNode](interfaces/DocErrorsTagNode.md)
+- [DocNode](interfaces/DocNode.md)
+- [DocParamTagNode](interfaces/DocParamTagNode.md)
+- [DocReturnsTagNode](interfaces/DocReturnsTagNode.md)
+- [DocTagBaseNode](interfaces/DocTagBaseNode.md)
+- [DocTemplateTagNode](interfaces/DocTemplateTagNode.md)
+- [DocTextNode](interfaces/DocTextNode.md)
+- [DocUnknownTagNode](interfaces/DocUnknownTagNode.md)
+- [EmitContext](interfaces/EmitContext.md)
+- [EmitFileOptions](interfaces/EmitFileOptions.md)
+- [EmptyStatementNode](interfaces/EmptyStatementNode.md)
+- [EncodeData](interfaces/EncodeData.md)
+- [Enum](interfaces/Enum.md)
+- [EnumMember](interfaces/EnumMember.md)
+- [EnumMemberNode](interfaces/EnumMemberNode.md)
+- [EnumSpreadMemberNode](interfaces/EnumSpreadMemberNode.md)
+- [EnumStatementNode](interfaces/EnumStatementNode.md)
+- [ErrorType](interfaces/ErrorType.md)
+- [ExternKeywordNode](interfaces/ExternKeywordNode.md)
+- [FileLibraryMetadata](interfaces/FileLibraryMetadata.md)
+- [FunctionDeclarationStatementNode](interfaces/FunctionDeclarationStatementNode.md)
+- [FunctionParameter](interfaces/FunctionParameter.md)
+- [FunctionParameterNode](interfaces/FunctionParameterNode.md)
+- [FunctionType](interfaces/FunctionType.md)
+- [IdentifierContext](interfaces/IdentifierContext.md)
+- [IdentifierNode](interfaces/IdentifierNode.md)
+- [ImportStatementNode](interfaces/ImportStatementNode.md)
+- [Interface](interfaces/Interface.md)
+- [InterfaceStatementNode](interfaces/InterfaceStatementNode.md)
+- [IntersectionExpressionNode](interfaces/IntersectionExpressionNode.md)
+- [IntrinsicType](interfaces/IntrinsicType.md)
+- [InvalidStatementNode](interfaces/InvalidStatementNode.md)
+- [JSONSchemaValidator](interfaces/JSONSchemaValidator.md)
+- [JsNamespaceDeclarationNode](interfaces/JsNamespaceDeclarationNode.md)
+- [JsSourceFileNode](interfaces/JsSourceFileNode.md)
+- [LibraryInstance](interfaces/LibraryInstance.md)
+- [LibraryLocationContext](interfaces/LibraryLocationContext.md)
+- [LineAndCharacter](interfaces/LineAndCharacter.md)
+- [LineComment](interfaces/LineComment.md)
+- [LinterDefinition](interfaces/LinterDefinition.md)
+- [LinterRule](interfaces/LinterRule.md)
+- [LinterRuleContext](interfaces/LinterRuleContext.md)
+- [LinterRuleDefinition](interfaces/LinterRuleDefinition.md)
+- [LinterRuleSet](interfaces/LinterRuleSet.md)
+- [ListOperationOptions](interfaces/ListOperationOptions.md)
+- [LogInfo](interfaces/LogInfo.md)
+- [LogSink](interfaces/LogSink.md)
+- [Logger](interfaces/Logger.md)
+- [MemberExpressionNode](interfaces/MemberExpressionNode.md)
+- [Model](interfaces/Model.md)
+- [ModelExpressionNode](interfaces/ModelExpressionNode.md)
+- [ModelProperty](interfaces/ModelProperty.md)
+- [ModelPropertyNode](interfaces/ModelPropertyNode.md)
+- [ModelSpreadPropertyNode](interfaces/ModelSpreadPropertyNode.md)
+- [ModelStatementNode](interfaces/ModelStatementNode.md)
+- [ModuleLibraryMetadata](interfaces/ModuleLibraryMetadata.md)
+- [Namespace](interfaces/Namespace.md)
+- [NamespaceNavigationOptions](interfaces/NamespaceNavigationOptions.md)
+- [NamespaceStatementNode](interfaces/NamespaceStatementNode.md)
+- [NavigationOptions](interfaces/NavigationOptions.md)
+- [NeverKeywordNode](interfaces/NeverKeywordNode.md)
+- [NeverType](interfaces/NeverType.md)
+- [NodePackage](interfaces/NodePackage.md)
+- [NullType](interfaces/NullType.md)
+- [NumericLiteral](interfaces/NumericLiteral.md)
+- [NumericLiteralNode](interfaces/NumericLiteralNode.md)
+- [ObjectType](interfaces/ObjectType.md)
+- [Operation](interfaces/Operation.md)
+- [OperationSignatureDeclarationNode](interfaces/OperationSignatureDeclarationNode.md)
+- [OperationSignatureReferenceNode](interfaces/OperationSignatureReferenceNode.md)
+- [OperationStatementNode](interfaces/OperationStatementNode.md)
+- [ParseOptions](interfaces/ParseOptions.md)
+- [ProcessedLog](interfaces/ProcessedLog.md)
+- [Program](interfaces/Program.md)
+- [ProjectLocationContext](interfaces/ProjectLocationContext.md)
+- [ProjectedNameView](interfaces/ProjectedNameView.md)
+- [ProjectedProgram](interfaces/ProjectedProgram.md)
+- [Projection](interfaces/Projection.md)
+- [ProjectionApplication](interfaces/ProjectionApplication.md)
+- [ProjectionArithmeticExpressionNode](interfaces/ProjectionArithmeticExpressionNode.md)
+- [ProjectionBlockExpressionNode](interfaces/ProjectionBlockExpressionNode.md)
+- [ProjectionCallExpressionNode](interfaces/ProjectionCallExpressionNode.md)
+- [ProjectionDecoratorReferenceExpressionNode](interfaces/ProjectionDecoratorReferenceExpressionNode.md)
+- [ProjectionEnumMemberSelectorNode](interfaces/ProjectionEnumMemberSelectorNode.md)
+- [ProjectionEnumSelectorNode](interfaces/ProjectionEnumSelectorNode.md)
+- [ProjectionEqualityExpressionNode](interfaces/ProjectionEqualityExpressionNode.md)
+- [ProjectionExpressionStatementNode](interfaces/ProjectionExpressionStatementNode.md)
+- [ProjectionIfExpressionNode](interfaces/ProjectionIfExpressionNode.md)
+- [ProjectionInterfaceSelectorNode](interfaces/ProjectionInterfaceSelectorNode.md)
+- [ProjectionLambdaExpressionNode](interfaces/ProjectionLambdaExpressionNode.md)
+- [ProjectionLambdaParameterDeclarationNode](interfaces/ProjectionLambdaParameterDeclarationNode.md)
+- [ProjectionLogicalExpressionNode](interfaces/ProjectionLogicalExpressionNode.md)
+- [ProjectionMemberExpressionNode](interfaces/ProjectionMemberExpressionNode.md)
+- [ProjectionModelExpressionNode](interfaces/ProjectionModelExpressionNode.md)
+- [ProjectionModelPropertyNode](interfaces/ProjectionModelPropertyNode.md)
+- [ProjectionModelPropertySelectorNode](interfaces/ProjectionModelPropertySelectorNode.md)
+- [ProjectionModelSelectorNode](interfaces/ProjectionModelSelectorNode.md)
+- [ProjectionModelSpreadPropertyNode](interfaces/ProjectionModelSpreadPropertyNode.md)
+- [ProjectionNode](interfaces/ProjectionNode.md)
+- [ProjectionOperationSelectorNode](interfaces/ProjectionOperationSelectorNode.md)
+- [ProjectionParameterDeclarationNode](interfaces/ProjectionParameterDeclarationNode.md)
+- [ProjectionReferenceNode](interfaces/ProjectionReferenceNode.md)
+- [ProjectionRelationalExpressionNode](interfaces/ProjectionRelationalExpressionNode.md)
+- [ProjectionStatementNode](interfaces/ProjectionStatementNode.md)
+- [ProjectionTupleExpressionNode](interfaces/ProjectionTupleExpressionNode.md)
+- [ProjectionUnaryExpressionNode](interfaces/ProjectionUnaryExpressionNode.md)
+- [ProjectionUnionSelectorNode](interfaces/ProjectionUnionSelectorNode.md)
+- [ProjectionUnionVariantSelectorNode](interfaces/ProjectionUnionVariantSelectorNode.md)
+- [Projector](interfaces/Projector.md)
+- [RecordModelType](interfaces/RecordModelType.md)
+- [ResolveCompilerOptionsOptions](interfaces/ResolveCompilerOptionsOptions.md)
+- [ResolveModuleHost](interfaces/ResolveModuleHost.md)
+- [ResolveModuleOptions](interfaces/ResolveModuleOptions.md)
+- [ResolvedFile](interfaces/ResolvedFile.md)
+- [ResolvedModule](interfaces/ResolvedModule.md)
+- [ReturnExpressionNode](interfaces/ReturnExpressionNode.md)
+- [ReturnRecord](interfaces/ReturnRecord.md)
+- [RmOptions](interfaces/RmOptions.md)
+- [Scalar](interfaces/Scalar.md)
+- [ScalarStatementNode](interfaces/ScalarStatementNode.md)
+- [Scanner](interfaces/Scanner.md)
+- [SemanticToken](interfaces/SemanticToken.md)
+- [Server](interfaces/Server.md)
+- [ServerHost](interfaces/ServerHost.md)
+- [ServerSourceFile](interfaces/ServerSourceFile.md)
+- [ServerWorkspaceFolder](interfaces/ServerWorkspaceFolder.md)
+- [Service](interfaces/Service.md)
+- [ServiceDetails](interfaces/ServiceDetails.md)
+- [SourceFile](interfaces/SourceFile.md)
+- [SourceLocation](interfaces/SourceLocation.md)
+- [SourceLocationOptions](interfaces/SourceLocationOptions.md)
+- [StringLiteral](interfaces/StringLiteral.md)
+- [StringLiteralNode](interfaces/StringLiteralNode.md)
+- [SuppressDirective](interfaces/SuppressDirective.md)
+- [Sym](interfaces/Sym.md)
+- [SymbolLinks](interfaces/SymbolLinks.md)
+- [SyntheticLocationContext](interfaces/SyntheticLocationContext.md)
+- [TemplateDeclarationNode](interfaces/TemplateDeclarationNode.md)
+- [TemplateParameter](interfaces/TemplateParameter.md)
+- [TemplateParameterDeclarationNode](interfaces/TemplateParameterDeclarationNode.md)
+- [TemplatedTypeBase](interfaces/TemplatedTypeBase.md)
+- [TextRange](interfaces/TextRange.md)
+- [Tracer](interfaces/Tracer.md)
+- [TracerOptions](interfaces/TracerOptions.md)
+- [Tuple](interfaces/Tuple.md)
+- [TupleExpressionNode](interfaces/TupleExpressionNode.md)
+- [TypeInstantiationMap](interfaces/TypeInstantiationMap.md)
+- [TypeMapper](interfaces/TypeMapper.md)
+- [TypeNameOptions](interfaces/TypeNameOptions.md)
+- [TypeReferenceNode](interfaces/TypeReferenceNode.md)
+- [TypeSpecCompletionItem](interfaces/TypeSpecCompletionItem.md)
+- [TypeSpecLibrary](interfaces/TypeSpecLibrary.md)
+- [TypeSpecLibraryDef](interfaces/TypeSpecLibraryDef.md)
+- [TypeSpecManifest](interfaces/TypeSpecManifest.md)
+- [TypeSpecScriptNode](interfaces/TypeSpecScriptNode.md)
+- [Union](interfaces/Union.md)
+- [UnionExpressionNode](interfaces/UnionExpressionNode.md)
+- [UnionStatementNode](interfaces/UnionStatementNode.md)
+- [UnionVariant](interfaces/UnionVariant.md)
+- [UnionVariantNode](interfaces/UnionVariantNode.md)
+- [UnknownType](interfaces/UnknownType.md)
+- [UsageTracker](interfaces/UsageTracker.md)
+- [UsingStatementNode](interfaces/UsingStatementNode.md)
+- [ValueOfExpressionNode](interfaces/ValueOfExpressionNode.md)
+- [ValueType](interfaces/ValueType.md)
+- [VoidKeywordNode](interfaces/VoidKeywordNode.md)
+- [VoidType](interfaces/VoidType.md)
 
 ### Type Aliases
 
-- [CadlCompletionItem](Type.CadlCompletionItem.md)
-- [CadlLibrary](Type.CadlLibrary.md)
-- [CadlLibraryDef](Type.CadlLibraryDef.md)
-- [CadlManifest](Type.CadlManifest.md)
-- [CadlScriptNode](Type.CadlScriptNode.md)
-- [CadlValue](Type.CadlValue.md)
-- [Comment](Type.Comment.md)
-- [CreateTypeProps](Type.CreateTypeProps.md)
-- [Declaration](Type.Declaration.md)
-- [DecoratorArgumentValue](Type.DecoratorArgumentValue.md)
-- [DiagnosticFormat](Type.DiagnosticFormat.md)
-- [DiagnosticHandler](Type.DiagnosticHandler.md)
-- [DiagnosticMap](Type.DiagnosticMap.md)
-- [DiagnosticReport](Type.DiagnosticReport.md)
-- [DiagnosticReportWithoutTarget](Type.DiagnosticReportWithoutTarget.md)
-- [DiagnosticResult](Type.DiagnosticResult.md)
-- [DiagnosticSeverity](Type.DiagnosticSeverity.md)
-- [DiagnosticTarget](Type.DiagnosticTarget.md)
-- [Directive](Type.Directive.md)
-- [DirectiveArgument](Type.DirectiveArgument.md)
-- [DocContent](Type.DocContent.md)
-- [DocTag](Type.DocTag.md)
-- [DocToken](Type.DocToken.md)
-- [EmitOptionsFor](Type.EmitOptionsFor.md)
-- [EmitterFunc](Type.EmitterFunc.md)
-- [Expression](Type.Expression.md)
-- [InferredCadlValue](Type.InferredCadlValue.md)
-- [InferredTypeSpecValue](Type.InferredTypeSpecValue.md)
-- [IntrinsicScalarName](Type.IntrinsicScalarName.md)
-- [JSONSchemaType](Type.JSONSchemaType.md)
-- [LibraryMetadata](Type.LibraryMetadata.md)
-- [LinterRuleDiagnosticFormat](Type.LinterRuleDiagnosticFormat.md)
-- [LinterRuleDiagnosticReport](Type.LinterRuleDiagnosticReport.md)
-- [LinterRuleDiagnosticReportWithoutTarget](Type.LinterRuleDiagnosticReportWithoutTarget.md)
-- [LiteralNode](Type.LiteralNode.md)
-- [LiteralType](Type.LiteralType.md)
-- [LocationContext](Type.LocationContext.md)
-- [LogLevel](Type.LogLevel.md)
-- [MarshalledValue](Type.MarshalledValue.md)
-- [MemberContainerNode](Type.MemberContainerNode.md)
-- [MemberContainerType](Type.MemberContainerType.md)
-- [MemberNode](Type.MemberNode.md)
-- [MemberType](Type.MemberType.md)
-- [ModelIndexer](Type.ModelIndexer.md)
-- [Modifier](Type.Modifier.md)
-- [ModuleResolutionResult](Type.ModuleResolutionResult.md)
-- [NeverIndexer](Type.NeverIndexer.md)
-- [NewLine](Type.NewLine.md)
-- [Node](Type.Node.md)
-- [NodeCallback](Type.NodeCallback.md)
-- [OperationContainer](Type.OperationContainer.md)
-- [OperationSignature](Type.OperationSignature.md)
-- [ProjectionExpression](Type.ProjectionExpression.md)
-- [ProjectionStatementItem](Type.ProjectionStatementItem.md)
-- [ReferenceExpression](Type.ReferenceExpression.md)
-- [RuleRef](Type.RuleRef.md)
-- [ScopeNode](Type.ScopeNode.md)
-- [SemanticNodeListener](Type.SemanticNodeListener.md)
-- [SourceFileKind](Type.SourceFileKind.md)
-- [Statement](Type.Statement.md)
-- [StdTypeName](Type.StdTypeName.md)
-- [StdTypes](Type.StdTypes.md)
-- [TemplateableNode](Type.TemplateableNode.md)
-- [TemplatedType](Type.TemplatedType.md)
-- [TrackableType](Type.TrackableType.md)
-- [Type](Type.Type.md)
-- [TypeKind](Type.TypeKind.md)
-- [TypeListeners](Type.TypeListeners.md)
-- [TypeOfDiagnostics](Type.TypeOfDiagnostics.md)
-- [TypeOrReturnRecord](Type.TypeOrReturnRecord.md)
-- [TypeSpecDiagnosticTarget](Type.TypeSpecDiagnosticTarget.md)
-- [TypeSpecValue](Type.TypeSpecValue.md)
-- [WriteLine](Type.WriteLine.md)
+- [BytesKnownEncoding](type-aliases/BytesKnownEncoding.md)
+- [CadlCompletionItem](type-aliases/CadlCompletionItem.md)
+- [CadlLibrary](type-aliases/CadlLibrary.md)
+- [CadlLibraryDef](type-aliases/CadlLibraryDef.md)
+- [CadlManifest](type-aliases/CadlManifest.md)
+- [CadlScriptNode](type-aliases/CadlScriptNode.md)
+- [CadlValue](type-aliases/CadlValue.md)
+- [Comment](type-aliases/Comment.md)
+- [CreateTypeProps](type-aliases/CreateTypeProps.md)
+- [DateTimeKnownEncoding](type-aliases/DateTimeKnownEncoding.md)
+- [Declaration](type-aliases/Declaration.md)
+- [DecoratorArgumentValue](type-aliases/DecoratorArgumentValue.md)
+- [DiagnosticFormat](type-aliases/DiagnosticFormat.md)
+- [DiagnosticHandler](type-aliases/DiagnosticHandler.md)
+- [DiagnosticMap](type-aliases/DiagnosticMap.md)
+- [DiagnosticReport](type-aliases/DiagnosticReport.md)
+- [DiagnosticReportWithoutTarget](type-aliases/DiagnosticReportWithoutTarget.md)
+- [DiagnosticResult](type-aliases/DiagnosticResult.md)
+- [DiagnosticSeverity](type-aliases/DiagnosticSeverity.md)
+- [DiagnosticTarget](type-aliases/DiagnosticTarget.md)
+- [Directive](type-aliases/Directive.md)
+- [DirectiveArgument](type-aliases/DirectiveArgument.md)
+- [DocContent](type-aliases/DocContent.md)
+- [DocTag](type-aliases/DocTag.md)
+- [DocToken](type-aliases/DocToken.md)
+- [DurationKnownEncoding](type-aliases/DurationKnownEncoding.md)
+- [EmitOptionsFor](type-aliases/EmitOptionsFor.md)
+- [EmitterFunc](type-aliases/EmitterFunc.md)
+- [Expression](type-aliases/Expression.md)
+- [InferredCadlValue](type-aliases/InferredCadlValue.md)
+- [InferredTypeSpecValue](type-aliases/InferredTypeSpecValue.md)
+- [IntrinsicScalarName](type-aliases/IntrinsicScalarName.md)
+- [JSONSchemaType](type-aliases/JSONSchemaType.md)
+- [LibraryMetadata](type-aliases/LibraryMetadata.md)
+- [LinterRuleDiagnosticFormat](type-aliases/LinterRuleDiagnosticFormat.md)
+- [LinterRuleDiagnosticReport](type-aliases/LinterRuleDiagnosticReport.md)
+- [LinterRuleDiagnosticReportWithoutTarget](type-aliases/LinterRuleDiagnosticReportWithoutTarget.md)
+- [LiteralNode](type-aliases/LiteralNode.md)
+- [LiteralType](type-aliases/LiteralType.md)
+- [LocationContext](type-aliases/LocationContext.md)
+- [LogLevel](type-aliases/LogLevel.md)
+- [MarshalledValue](type-aliases/MarshalledValue.md)
+- [MemberContainerNode](type-aliases/MemberContainerNode.md)
+- [MemberContainerType](type-aliases/MemberContainerType.md)
+- [MemberNode](type-aliases/MemberNode.md)
+- [MemberType](type-aliases/MemberType.md)
+- [ModelIndexer](type-aliases/ModelIndexer.md)
+- [Modifier](type-aliases/Modifier.md)
+- [ModuleResolutionResult](type-aliases/ModuleResolutionResult.md)
+- [NeverIndexer](type-aliases/NeverIndexer.md)
+- [NewLine](type-aliases/NewLine.md)
+- [Node](type-aliases/Node.md)
+- [NodeCallback](type-aliases/NodeCallback.md)
+- [OperationContainer](type-aliases/OperationContainer.md)
+- [OperationSignature](type-aliases/OperationSignature.md)
+- [ProjectionExpression](type-aliases/ProjectionExpression.md)
+- [ProjectionStatementItem](type-aliases/ProjectionStatementItem.md)
+- [ReferenceExpression](type-aliases/ReferenceExpression.md)
+- [RuleRef](type-aliases/RuleRef.md)
+- [ScopeNode](type-aliases/ScopeNode.md)
+- [SemanticNodeListener](type-aliases/SemanticNodeListener.md)
+- [SourceFileKind](type-aliases/SourceFileKind.md)
+- [Statement](type-aliases/Statement.md)
+- [StdTypeName](type-aliases/StdTypeName.md)
+- [StdTypes](type-aliases/StdTypes.md)
+- [TemplateableNode](type-aliases/TemplateableNode.md)
+- [TemplatedType](type-aliases/TemplatedType.md)
+- [TrackableType](type-aliases/TrackableType.md)
+- [Type](type-aliases/Type.md)
+- [TypeKind](type-aliases/TypeKind.md)
+- [TypeListeners](type-aliases/TypeListeners.md)
+- [TypeOfDiagnostics](type-aliases/TypeOfDiagnostics.md)
+- [TypeOrReturnRecord](type-aliases/TypeOrReturnRecord.md)
+- [TypeSpecDiagnosticTarget](type-aliases/TypeSpecDiagnosticTarget.md)
+- [TypeSpecValue](type-aliases/TypeSpecValue.md)
+- [WriteLine](type-aliases/WriteLine.md)
 
 ### Variables
 
-- [CadlPrettierPlugin](Variable.CadlPrettierPlugin.md)
-- [Keywords](Variable.Keywords.md)
-- [MANIFEST](Variable.MANIFEST.md)
-- [NoTarget](Variable.NoTarget.md)
-- [NodeHost](Variable.NodeHost.md)
-- [TokenDisplay](Variable.TokenDisplay.md)
-- [TypeSpecPrettierPlugin](Variable.TypeSpecPrettierPlugin.md)
-- [altDirectorySeparator](Variable.altDirectorySeparator.md)
-- [cadlVersion](Variable.cadlVersion.md)
-- [directorySeparator](Variable.directorySeparator.md)
-- [typespecVersion](Variable.typespecVersion.md)
+- [CadlPrettierPlugin](variables/CadlPrettierPlugin.md)
+- [MANIFEST](variables/MANIFEST.md)
+- [NoTarget](variables/NoTarget.md)
+- [NodeHost](variables/NodeHost.md)
+- [TypeSpecPrettierPlugin](variables/TypeSpecPrettierPlugin.md)
+- [altDirectorySeparator](variables/altDirectorySeparator.md)
+- [cadlVersion](variables/cadlVersion.md)
+- [directorySeparator](variables/directorySeparator.md)
+- [namespace](variables/namespace.md)
+- [typespecVersion](variables/typespecVersion.md)
 
 ### Functions
 
-- [assertType](Function.assertType.md)
-- [cadlTypeToJson](Function.cadlTypeToJson.md)
-- [checkFormatCadl](Function.checkFormatCadl.md)
-- [checkFormatTypeSpec](Function.checkFormatTypeSpec.md)
-- [compile](Function.compile.md)
-- [compilerAssert](Function.compilerAssert.md)
-- [createCadlLibrary](Function.createCadlLibrary.md)
-- [createChecker](Function.createChecker.md)
-- [createDecoratorDefinition](Function.createDecoratorDefinition.md)
-- [createDiagnosticCollector](Function.createDiagnosticCollector.md)
-- [createDiagnosticCreator](Function.createDiagnosticCreator.md)
-- [createProjectedNameProgram](Function.createProjectedNameProgram.md)
-- [createRekeyableMap](Function.createRekeyableMap.md)
-- [createRule](Function.createRule.md)
-- [createScanner](Function.createScanner.md)
-- [createServer](Function.createServer.md)
-- [createSourceFile](Function.createSourceFile.md)
-- [createStateAccessors](Function.createStateAccessors.md)
-- [createTypeSpecLibrary](Function.createTypeSpecLibrary.md)
-- [emitFile](Function.emitFile.md)
-- [ensurePathIsNonModuleName](Function.ensurePathIsNonModuleName.md)
-- [ensureTrailingDirectorySeparator](Function.ensureTrailingDirectorySeparator.md)
-- [filterModelProperties](Function.filterModelProperties.md)
-- [finishTypeForProgram](Function.finishTypeForProgram.md)
-- [formatDiagnostic](Function.formatDiagnostic.md)
-- [formatIdentifier](Function.formatIdentifier.md)
-- [formatTypeSpec](Function.formatTypeSpec.md)
-- [getAnyExtensionFromPath](Function.getAnyExtensionFromPath.md)
-- [getBaseFileName](Function.getBaseFileName.md)
-- [getCompletionNodeAtPosition](Function.getCompletionNodeAtPosition.md)
-- [getDeprecationDetails](Function.getDeprecationDetails.md)
-- [getDirectoryPath](Function.getDirectoryPath.md)
-- [getDiscriminatedUnion](Function.getDiscriminatedUnion.md)
-- [getEffectiveModelType](Function.getEffectiveModelType.md)
-- [getFirstAncestor](Function.getFirstAncestor.md)
-- [getFullyQualifiedSymbolName](Function.getFullyQualifiedSymbolName.md)
-- [getIdentifierContext](Function.getIdentifierContext.md)
-- [getLocationContext](Function.getLocationContext.md)
-- [getNamespaceFullName](Function.getNamespaceFullName.md)
-- [getNodeAtPosition](Function.getNodeAtPosition.md)
-- [getNormalizedAbsolutePath](Function.getNormalizedAbsolutePath.md)
-- [getNormalizedAbsolutePathWithoutRoot](Function.getNormalizedAbsolutePathWithoutRoot.md)
-- [getNormalizedPathComponents](Function.getNormalizedPathComponents.md)
-- [getOverriddenProperty](Function.getOverriddenProperty.md)
-- [getParentTemplateNode](Function.getParentTemplateNode.md)
-- [getPathComponents](Function.getPathComponents.md)
-- [getPathFromPathComponents](Function.getPathFromPathComponents.md)
-- [getProperty](Function.getProperty.md)
-- [getRelativePathFromDirectory](Function.getRelativePathFromDirectory.md)
-- [getRootLength](Function.getRootLength.md)
-- [getSourceFileKindFromExt](Function.getSourceFileKindFromExt.md)
-- [getSourceLocation](Function.getSourceLocation.md)
-- [getTypeName](Function.getTypeName.md)
-- [hasParseError](Function.hasParseError.md)
-- [hasTrailingDirectorySeparator](Function.hasTrailingDirectorySeparator.md)
-- [ignoreDiagnostics](Function.ignoreDiagnostics.md)
-- [interpolatePath](Function.interpolatePath.md)
-- [isAnyDirectorySeparator](Function.isAnyDirectorySeparator.md)
-- [isCadlValueTypeOf](Function.isCadlValueTypeOf.md)
-- [isComment](Function.isComment.md)
-- [isDeclaredInNamespace](Function.isDeclaredInNamespace.md)
-- [isDeclaredType](Function.isDeclaredType.md)
-- [isDeprecated](Function.isDeprecated.md)
-- [isErrorType](Function.isErrorType.md)
-- [isGlobalNamespace](Function.isGlobalNamespace.md)
-- [isImportStatement](Function.isImportStatement.md)
-- [isIntrinsicType](Function.isIntrinsicType.md)
-- [isKeyword](Function.isKeyword.md)
-- [isModifier](Function.isModifier.md)
-- [isNeverType](Function.isNeverType.md)
-- [isNullType](Function.isNullType.md)
-- [isPathAbsolute](Function.isPathAbsolute.md)
-- [isProjectedProgram](Function.isProjectedProgram.md)
-- [isPunctuation](Function.isPunctuation.md)
-- [isStatementKeyword](Function.isStatementKeyword.md)
-- [isStdNamespace](Function.isStdNamespace.md)
-- [isTemplateDeclaration](Function.isTemplateDeclaration.md)
-- [isTemplateDeclarationOrInstance](Function.isTemplateDeclarationOrInstance.md)
-- [isTemplateInstance](Function.isTemplateInstance.md)
-- [isTrivia](Function.isTrivia.md)
-- [isTypeSpecValueTypeOf](Function.isTypeSpecValueTypeOf.md)
-- [isUnknownType](Function.isUnknownType.md)
-- [isUrl](Function.isUrl.md)
-- [isVoidType](Function.isVoidType.md)
-- [joinPaths](Function.joinPaths.md)
-- [listOperationsIn](Function.listOperationsIn.md)
-- [logDiagnostics](Function.logDiagnostics.md)
-- [logVerboseTestOutput](Function.logVerboseTestOutput.md)
-- [mapEventEmitterToNodeListener](Function.mapEventEmitterToNodeListener.md)
-- [markDeprecated](Function.markDeprecated.md)
-- [navigateProgram](Function.navigateProgram.md)
-- [navigateType](Function.navigateType.md)
-- [navigateTypesInNamespace](Function.navigateTypesInNamespace.md)
-- [normalizePath](Function.normalizePath.md)
-- [normalizeSlashes](Function.normalizeSlashes.md)
-- [paramMessage](Function.paramMessage.md)
-- [parse](Function.parse.md)
-- [parseStandaloneTypeReference](Function.parseStandaloneTypeReference.md)
-- [projectProgram](Function.projectProgram.md)
-- [reducePathComponents](Function.reducePathComponents.md)
-- [removeTrailingDirectorySeparator](Function.removeTrailingDirectorySeparator.md)
-- [reportDeprecated](Function.reportDeprecated.md)
-- [resolveCompilerOptions](Function.resolveCompilerOptions.md)
-- [resolveModule](Function.resolveModule.md)
-- [resolvePath](Function.resolvePath.md)
-- [resolveUsages](Function.resolveUsages.md)
-- [scopeNavigationToNamespace](Function.scopeNavigationToNamespace.md)
-- [setCadlNamespace](Function.setCadlNamespace.md)
-- [setTypeSpecNamespace](Function.setTypeSpecNamespace.md)
-- [skipTrivia](Function.skipTrivia.md)
-- [skipWhiteSpace](Function.skipWhiteSpace.md)
-- [typespecTypeToJson](Function.typespecTypeToJson.md)
-- [validateDecoratorNotOnType](Function.validateDecoratorNotOnType.md)
-- [validateDecoratorParamCount](Function.validateDecoratorParamCount.md)
-- [validateDecoratorParamType](Function.validateDecoratorParamType.md)
-- [validateDecoratorTarget](Function.validateDecoratorTarget.md)
-- [validateDecoratorTargetIntrinsic](Function.validateDecoratorTargetIntrinsic.md)
-- [validateDecoratorUniqueOnNode](Function.validateDecoratorUniqueOnNode.md)
-- [visitChildren](Function.visitChildren.md)
-- [walkPropertiesInherited](Function.walkPropertiesInherited.md)
-
-## References
-
-### $deprecated
-
-Re-exports [$deprecated](Namespace.decorators.Function.$deprecated.md)
-
-```ts
-$deprecated
-```
-
-***
-
-### $discriminator
-
-Re-exports [$discriminator](Namespace.decorators.Function.$discriminator.md)
-
-```ts
-$discriminator
-```
-
-***
-
-### $doc
-
-Re-exports [$doc](Namespace.decorators.Function.$doc.md)
-
-```ts
-$doc
-```
-
-***
-
-### $docFromComment
-
-Re-exports [$docFromComment](Namespace.decorators.Function.$docFromComment.md)
-
-```ts
-$docFromComment
-```
-
-***
-
-### $encode
-
-Re-exports [$encode](Namespace.decorators.Function.$encode.md)
-
-```ts
-$encode
-```
-
-***
-
-### $error
-
-Re-exports [$error](Namespace.decorators.Function.$error.md)
-
-```ts
-$error
-```
-
-***
-
-### $format
-
-Re-exports [$format](Namespace.decorators.Function.$format.md)
-
-```ts
-$format
-```
-
-***
-
-### $friendlyName
-
-Re-exports [$friendlyName](Namespace.decorators.Function.$friendlyName.md)
-
-```ts
-$friendlyName
-```
-
-***
-
-### $indexer
-
-Re-exports [$indexer](Namespace.decorators.Function.$indexer.md)
-
-```ts
-$indexer
-```
-
-***
-
-### $inspectType
-
-Re-exports [$inspectType](Namespace.decorators.Function.$inspectType.md)
-
-```ts
-$inspectType
-```
-
-***
-
-### $inspectTypeName
-
-Re-exports [$inspectTypeName](Namespace.decorators.Function.$inspectTypeName.md)
-
-```ts
-$inspectTypeName
-```
-
-***
-
-### $key
-
-Re-exports [$key](Namespace.decorators.Function.$key.md)
-
-```ts
-$key
-```
-
-***
-
-### $knownValues
-
-Re-exports [$knownValues](Namespace.decorators.Function.$knownValues.md)
-
-```ts
-$knownValues
-```
-
-***
-
-### $list
-
-Re-exports [$list](Namespace.decorators.Function.$list.md)
-
-```ts
-$list
-```
-
-***
-
-### $maxItems
-
-Re-exports [$maxItems](Namespace.decorators.Function.$maxItems.md)
-
-```ts
-$maxItems
-```
-
-***
-
-### $maxLength
-
-Re-exports [$maxLength](Namespace.decorators.Function.$maxLength.md)
-
-```ts
-$maxLength
-```
-
-***
-
-### $maxValue
-
-Re-exports [$maxValue](Namespace.decorators.Function.$maxValue.md)
-
-```ts
-$maxValue
-```
-
-***
-
-### $maxValueExclusive
-
-Re-exports [$maxValueExclusive](Namespace.decorators.Function.$maxValueExclusive.md)
-
-```ts
-$maxValueExclusive
-```
-
-***
-
-### $minItems
-
-Re-exports [$minItems](Namespace.decorators.Function.$minItems.md)
-
-```ts
-$minItems
-```
-
-***
-
-### $minLength
-
-Re-exports [$minLength](Namespace.decorators.Function.$minLength.md)
-
-```ts
-$minLength
-```
-
-***
-
-### $minValue
-
-Re-exports [$minValue](Namespace.decorators.Function.$minValue.md)
-
-```ts
-$minValue
-```
-
-***
-
-### $minValueExclusive
-
-Re-exports [$minValueExclusive](Namespace.decorators.Function.$minValueExclusive.md)
-
-```ts
-$minValueExclusive
-```
-
-***
-
-### $overload
-
-Re-exports [$overload](Namespace.decorators.Function.$overload.md)
-
-```ts
-$overload
-```
-
-***
-
-### $parameterVisibility
-
-Re-exports [$parameterVisibility](Namespace.decorators.Function.$parameterVisibility.md)
-
-```ts
-$parameterVisibility
-```
-
-***
-
-### $pattern
-
-Re-exports [$pattern](Namespace.decorators.Function.$pattern.md)
-
-```ts
-$pattern
-```
-
-***
-
-### $projectedName
-
-Re-exports [$projectedName](Namespace.decorators.Function.$projectedName.md)
-
-```ts
-$projectedName
-```
-
-***
-
-### $returnTypeVisibility
-
-Re-exports [$returnTypeVisibility](Namespace.decorators.Function.$returnTypeVisibility.md)
-
-```ts
-$returnTypeVisibility
-```
-
-***
-
-### $secret
-
-Re-exports [$secret](Namespace.decorators.Function.$secret.md)
-
-```ts
-$secret
-```
-
-***
-
-### $service
-
-Re-exports [$service](Namespace.decorators.Function.$service.md)
-
-```ts
-$service
-```
-
-***
-
-### $summary
-
-Re-exports [$summary](Namespace.decorators.Function.$summary.md)
-
-```ts
-$summary
-```
-
-***
-
-### $tag
-
-Re-exports [$tag](Namespace.decorators.Function.$tag.md)
-
-```ts
-$tag
-```
-
-***
-
-### $visibility
-
-Re-exports [$visibility](Namespace.decorators.Function.$visibility.md)
-
-```ts
-$visibility
-```
-
-***
-
-### $withDefaultKeyVisibility
-
-Re-exports [$withDefaultKeyVisibility](Namespace.decorators.Function.$withDefaultKeyVisibility.md)
-
-```ts
-$withDefaultKeyVisibility
-```
-
-***
-
-### $withOptionalProperties
-
-Re-exports [$withOptionalProperties](Namespace.decorators.Function.$withOptionalProperties.md)
-
-```ts
-$withOptionalProperties
-```
-
-***
-
-### $withUpdateableProperties
-
-Re-exports [$withUpdateableProperties](Namespace.decorators.Function.$withUpdateableProperties.md)
-
-```ts
-$withUpdateableProperties
-```
-
-***
-
-### $withVisibility
-
-Re-exports [$withVisibility](Namespace.decorators.Function.$withVisibility.md)
-
-```ts
-$withVisibility
-```
-
-***
-
-### $withoutDefaultValues
-
-Re-exports [$withoutDefaultValues](Namespace.decorators.Function.$withoutDefaultValues.md)
-
-```ts
-$withoutDefaultValues
-```
-
-***
-
-### $withoutOmittedProperties
-
-Re-exports [$withoutOmittedProperties](Namespace.decorators.Function.$withoutOmittedProperties.md)
-
-```ts
-$withoutOmittedProperties
-```
-
-***
-
-### BytesKnownEncoding
-
-Re-exports [BytesKnownEncoding](Namespace.decorators.Type.BytesKnownEncoding.md)
-
-```ts
-BytesKnownEncoding
-```
-
-***
-
-### DateTimeKnownEncoding
-
-Re-exports [DateTimeKnownEncoding](Namespace.decorators.Type.DateTimeKnownEncoding.md)
-
-```ts
-DateTimeKnownEncoding
-```
-
-***
-
-### Discriminator
-
-Re-exports [Discriminator](Namespace.decorators.Interface.Discriminator.md)
-
-```ts
-Discriminator
-```
-
-***
-
-### DocData
-
-Re-exports [DocData](Namespace.decorators.Interface.DocData.md)
-
-```ts
-DocData
-```
-
-***
-
-### DurationKnownEncoding
-
-Re-exports [DurationKnownEncoding](Namespace.decorators.Type.DurationKnownEncoding.md)
-
-```ts
-DurationKnownEncoding
-```
-
-***
-
-### EncodeData
-
-Re-exports [EncodeData](Namespace.decorators.Interface.EncodeData.md)
-
-```ts
-EncodeData
-```
-
-***
-
-### Service
-
-Re-exports [Service](Namespace.decorators.Interface.Service.md)
-
-```ts
-Service
-```
-
-***
-
-### ServiceDetails
-
-Re-exports [ServiceDetails](Namespace.decorators.Interface.ServiceDetails.md)
-
-```ts
-ServiceDetails
-```
-
-***
-
-### addService
-
-Re-exports [addService](Namespace.decorators.Function.addService.md)
-
-```ts
-addService
-```
-
-***
-
-### getAllTags
-
-Re-exports [getAllTags](Namespace.decorators.Function.getAllTags.md)
-
-```ts
-getAllTags
-```
-
-***
-
-### getDeprecated
-
-Re-exports [getDeprecated](Namespace.decorators.Function.getDeprecated.md)
-
-```ts
-getDeprecated
-```
-
-***
-
-### getDiscriminatedTypes
-
-Re-exports [getDiscriminatedTypes](Namespace.decorators.Function.getDiscriminatedTypes.md)
-
-```ts
-getDiscriminatedTypes
-```
-
-***
-
-### getDiscriminator
-
-Re-exports [getDiscriminator](Namespace.decorators.Function.getDiscriminator.md)
-
-```ts
-getDiscriminator
-```
-
-***
-
-### getDoc
-
-Re-exports [getDoc](Namespace.decorators.Function.getDoc.md)
-
-```ts
-getDoc
-```
-
-***
-
-### getDocData
-
-Re-exports [getDocData](Namespace.decorators.Function.getDocData.md)
-
-```ts
-getDocData
-```
-
-***
-
-### getEncode
-
-Re-exports [getEncode](Namespace.decorators.Function.getEncode.md)
-
-```ts
-getEncode
-```
-
-***
-
-### getFormat
-
-Re-exports [getFormat](Namespace.decorators.Function.getFormat.md)
-
-```ts
-getFormat
-```
-
-***
-
-### getFriendlyName
-
-Re-exports [getFriendlyName](Namespace.decorators.Function.getFriendlyName.md)
-
-```ts
-getFriendlyName
-```
-
-***
-
-### getIndexer
-
-Re-exports [getIndexer](Namespace.decorators.Function.getIndexer.md)
-
-```ts
-getIndexer
-```
-
-***
-
-### getKeyName
-
-Re-exports [getKeyName](Namespace.decorators.Function.getKeyName.md)
-
-```ts
-getKeyName
-```
-
-***
-
-### getKnownValues
-
-Re-exports [getKnownValues](Namespace.decorators.Function.getKnownValues.md)
-
-```ts
-getKnownValues
-```
-
-***
-
-### getListOperationType
-
-Re-exports [getListOperationType](Namespace.decorators.Function.getListOperationType.md)
-
-```ts
-getListOperationType
-```
-
-***
-
-### getMaxItems
-
-Re-exports [getMaxItems](Namespace.decorators.Function.getMaxItems.md)
-
-```ts
-getMaxItems
-```
-
-***
-
-### getMaxLength
-
-Re-exports [getMaxLength](Namespace.decorators.Function.getMaxLength.md)
-
-```ts
-getMaxLength
-```
-
-***
-
-### getMaxValue
-
-Re-exports [getMaxValue](Namespace.decorators.Function.getMaxValue.md)
-
-```ts
-getMaxValue
-```
-
-***
-
-### getMaxValueExclusive
-
-Re-exports [getMaxValueExclusive](Namespace.decorators.Function.getMaxValueExclusive.md)
-
-```ts
-getMaxValueExclusive
-```
-
-***
-
-### getMinItems
-
-Re-exports [getMinItems](Namespace.decorators.Function.getMinItems.md)
-
-```ts
-getMinItems
-```
-
-***
-
-### getMinLength
-
-Re-exports [getMinLength](Namespace.decorators.Function.getMinLength.md)
-
-```ts
-getMinLength
-```
-
-***
-
-### getMinValue
-
-Re-exports [getMinValue](Namespace.decorators.Function.getMinValue.md)
-
-```ts
-getMinValue
-```
-
-***
-
-### getMinValueExclusive
-
-Re-exports [getMinValueExclusive](Namespace.decorators.Function.getMinValueExclusive.md)
-
-```ts
-getMinValueExclusive
-```
-
-***
-
-### getOverloadedOperation
-
-Re-exports [getOverloadedOperation](Namespace.decorators.Function.getOverloadedOperation.md)
-
-```ts
-getOverloadedOperation
-```
-
-***
-
-### getOverloads
-
-Re-exports [getOverloads](Namespace.decorators.Function.getOverloads.md)
-
-```ts
-getOverloads
-```
-
-***
-
-### getParameterVisibility
-
-Re-exports [getParameterVisibility](Namespace.decorators.Function.getParameterVisibility.md)
-
-```ts
-getParameterVisibility
-```
-
-***
-
-### getPattern
-
-Re-exports [getPattern](Namespace.decorators.Function.getPattern.md)
-
-```ts
-getPattern
-```
-
-***
-
-### getProjectedName
-
-Re-exports [getProjectedName](Namespace.decorators.Function.getProjectedName.md)
-
-```ts
-getProjectedName
-```
-
-***
-
-### getProjectedNames
-
-Re-exports [getProjectedNames](Namespace.decorators.Function.getProjectedNames.md)
-
-```ts
-getProjectedNames
-```
-
-***
-
-### getPropertyType
-
-Re-exports [getPropertyType](Namespace.decorators.Function.getPropertyType.md)
-
-```ts
-getPropertyType
-```
-
-***
-
-### getReturnTypeVisibility
-
-Re-exports [getReturnTypeVisibility](Namespace.decorators.Function.getReturnTypeVisibility.md)
-
-```ts
-getReturnTypeVisibility
-```
-
-***
-
-### getService
-
-Re-exports [getService](Namespace.decorators.Function.getService.md)
-
-```ts
-getService
-```
-
-***
-
-### getSummary
-
-Re-exports [getSummary](Namespace.decorators.Function.getSummary.md)
-
-```ts
-getSummary
-```
-
-***
-
-### getTags
-
-Re-exports [getTags](Namespace.decorators.Function.getTags.md)
-
-```ts
-getTags
-```
-
-***
-
-### getVisibility
-
-Re-exports [getVisibility](Namespace.decorators.Function.getVisibility.md)
-
-```ts
-getVisibility
-```
-
-***
-
-### hasProjectedName
-
-Re-exports [hasProjectedName](Namespace.decorators.Function.hasProjectedName.md)
-
-```ts
-hasProjectedName
-```
-
-***
-
-### isArrayModelType
-
-Re-exports [isArrayModelType](Namespace.decorators.Function.isArrayModelType.md)
-
-```ts
-isArrayModelType
-```
-
-***
-
-### isErrorModel
-
-Re-exports [isErrorModel](Namespace.decorators.Function.isErrorModel.md)
-
-```ts
-isErrorModel
-```
-
-***
-
-### isKey
-
-Re-exports [isKey](Namespace.decorators.Function.isKey.md)
-
-```ts
-isKey
-```
-
-***
-
-### isListOperation
-
-Re-exports [isListOperation](Namespace.decorators.Function.isListOperation.md)
-
-```ts
-isListOperation
-```
-
-***
-
-### isNumericType
-
-Re-exports [isNumericType](Namespace.decorators.Function.isNumericType.md)
-
-```ts
-isNumericType
-```
-
-***
-
-### isRecordModelType
-
-Re-exports [isRecordModelType](Namespace.decorators.Function.isRecordModelType.md)
-
-```ts
-isRecordModelType
-```
-
-***
-
-### isSecret
-
-Re-exports [isSecret](Namespace.decorators.Function.isSecret.md)
-
-```ts
-isSecret
-```
-
-***
-
-### isService
-
-Re-exports [isService](Namespace.decorators.Function.isService.md)
-
-```ts
-isService
-```
-
-***
-
-### isStringType
-
-Re-exports [isStringType](Namespace.decorators.Function.isStringType.md)
-
-```ts
-isStringType
-```
-
-***
-
-### isVisible
-
-Re-exports [isVisible](Namespace.decorators.Function.isVisible.md)
-
-```ts
-isVisible
-```
-
-***
-
-### listServices
-
-Re-exports [listServices](Namespace.decorators.Function.listServices.md)
-
-```ts
-listServices
-```
-
-***
-
-### namespace
-
-Re-exports [namespace](Namespace.decorators.Variable.namespace.md)
-
-```ts
-namespace
-```
+- [$deprecated](functions/$deprecated.md)
+- [$discriminator](functions/$discriminator.md)
+- [$doc](functions/$doc.md)
+- [$encode](functions/$encode.md)
+- [$error](functions/$error.md)
+- [$errorsDoc](functions/$errorsDoc.md)
+- [$format](functions/$format.md)
+- [$friendlyName](functions/$friendlyName.md)
+- [$indexer](functions/$indexer.md)
+- [$inspectType](functions/$inspectType.md)
+- [$inspectTypeName](functions/$inspectTypeName.md)
+- [$key](functions/$key.md)
+- [$knownValues](functions/$knownValues.md)
+- [$list](functions/$list.md)
+- [$maxItems](functions/$maxItems.md)
+- [$maxLength](functions/$maxLength.md)
+- [$maxValue](functions/$maxValue.md)
+- [$maxValueExclusive](functions/$maxValueExclusive.md)
+- [$minItems](functions/$minItems.md)
+- [$minLength](functions/$minLength.md)
+- [$minValue](functions/$minValue.md)
+- [$minValueExclusive](functions/$minValueExclusive.md)
+- [$overload](functions/$overload.md)
+- [$parameterVisibility](functions/$parameterVisibility.md)
+- [$pattern](functions/$pattern.md)
+- [$projectedName](functions/$projectedName.md)
+- [$returnTypeVisibility](functions/$returnTypeVisibility.md)
+- [$returnsDoc](functions/$returnsDoc.md)
+- [$secret](functions/$secret.md)
+- [$service](functions/$service.md)
+- [$summary](functions/$summary.md)
+- [$tag](functions/$tag.md)
+- [$visibility](functions/$visibility.md)
+- [$withDefaultKeyVisibility](functions/$withDefaultKeyVisibility.md)
+- [$withOptionalProperties](functions/$withOptionalProperties.md)
+- [$withUpdateableProperties](functions/$withUpdateableProperties.md)
+- [$withVisibility](functions/$withVisibility.md)
+- [$withoutDefaultValues](functions/$withoutDefaultValues.md)
+- [$withoutOmittedProperties](functions/$withoutOmittedProperties.md)
+- [addService](functions/addService.md)
+- [assertType](functions/assertType.md)
+- [cadlTypeToJson](functions/cadlTypeToJson.md)
+- [checkFormatCadl](functions/checkFormatCadl.md)
+- [checkFormatTypeSpec](functions/checkFormatTypeSpec.md)
+- [compile](functions/compile.md)
+- [compilerAssert](functions/compilerAssert.md)
+- [createCadlLibrary](functions/createCadlLibrary.md)
+- [createChecker](functions/createChecker.md)
+- [createDecoratorDefinition](functions/createDecoratorDefinition.md)
+- [createDiagnosticCollector](functions/createDiagnosticCollector.md)
+- [createDiagnosticCreator](functions/createDiagnosticCreator.md)
+- [createProjectedNameProgram](functions/createProjectedNameProgram.md)
+- [createRekeyableMap](functions/createRekeyableMap.md)
+- [createRule](functions/createRule.md)
+- [createScanner](functions/createScanner.md)
+- [createServer](functions/createServer.md)
+- [createSourceFile](functions/createSourceFile.md)
+- [createStateAccessors](functions/createStateAccessors.md)
+- [createTypeSpecLibrary](functions/createTypeSpecLibrary.md)
+- [emitFile](functions/emitFile.md)
+- [ensureTrailingDirectorySeparator](functions/ensureTrailingDirectorySeparator.md)
+- [filterModelProperties](functions/filterModelProperties.md)
+- [finishTypeForProgram](functions/finishTypeForProgram.md)
+- [formatDiagnostic](functions/formatDiagnostic.md)
+- [formatIdentifier](functions/formatIdentifier.md)
+- [formatTypeSpec](functions/formatTypeSpec.md)
+- [getAllTags](functions/getAllTags.md)
+- [getAnyExtensionFromPath](functions/getAnyExtensionFromPath.md)
+- [getBaseFileName](functions/getBaseFileName.md)
+- [getDeprecated](functions/getDeprecated.md)
+- [getDeprecationDetails](functions/getDeprecationDetails.md)
+- [getDirectoryPath](functions/getDirectoryPath.md)
+- [getDiscriminatedTypes](functions/getDiscriminatedTypes.md)
+- [getDiscriminatedUnion](functions/getDiscriminatedUnion.md)
+- [getDiscriminator](functions/getDiscriminator.md)
+- [getDoc](functions/getDoc.md)
+- [getDocData](functions/getDocData.md)
+- [getDocDataInternal](functions/getDocDataInternal.md)
+- [getEffectiveModelType](functions/getEffectiveModelType.md)
+- [getEncode](functions/getEncode.md)
+- [getErrorsDoc](functions/getErrorsDoc.md)
+- [getErrorsDocData](functions/getErrorsDocData.md)
+- [getFirstAncestor](functions/getFirstAncestor.md)
+- [getFormat](functions/getFormat.md)
+- [getFriendlyName](functions/getFriendlyName.md)
+- [getFullyQualifiedSymbolName](functions/getFullyQualifiedSymbolName.md)
+- [getIdentifierContext](functions/getIdentifierContext.md)
+- [getIndexer](functions/getIndexer.md)
+- [getKeyName](functions/getKeyName.md)
+- [getKnownValues](functions/getKnownValues.md)
+- [getListOperationType](functions/getListOperationType.md)
+- [getLocationContext](functions/getLocationContext.md)
+- [getMaxItems](functions/getMaxItems.md)
+- [getMaxLength](functions/getMaxLength.md)
+- [getMaxValue](functions/getMaxValue.md)
+- [getMaxValueExclusive](functions/getMaxValueExclusive.md)
+- [getMinItems](functions/getMinItems.md)
+- [getMinLength](functions/getMinLength.md)
+- [getMinValue](functions/getMinValue.md)
+- [getMinValueExclusive](functions/getMinValueExclusive.md)
+- [getNamespaceFullName](functions/getNamespaceFullName.md)
+- [getNodeAtPosition](functions/getNodeAtPosition.md)
+- [getNormalizedAbsolutePath](functions/getNormalizedAbsolutePath.md)
+- [getNormalizedAbsolutePathWithoutRoot](functions/getNormalizedAbsolutePathWithoutRoot.md)
+- [getNormalizedPathComponents](functions/getNormalizedPathComponents.md)
+- [getOverloadedOperation](functions/getOverloadedOperation.md)
+- [getOverloads](functions/getOverloads.md)
+- [getOverriddenProperty](functions/getOverriddenProperty.md)
+- [getParameterVisibility](functions/getParameterVisibility.md)
+- [getParentTemplateNode](functions/getParentTemplateNode.md)
+- [getPathComponents](functions/getPathComponents.md)
+- [getPathFromPathComponents](functions/getPathFromPathComponents.md)
+- [getPattern](functions/getPattern.md)
+- [getProjectedName](functions/getProjectedName.md)
+- [getProjectedNames](functions/getProjectedNames.md)
+- [getProperty](functions/getProperty.md)
+- [getPropertyType](functions/getPropertyType.md)
+- [getRelativePathFromDirectory](functions/getRelativePathFromDirectory.md)
+- [getReturnTypeVisibility](functions/getReturnTypeVisibility.md)
+- [getReturnsDoc](functions/getReturnsDoc.md)
+- [getReturnsDocData](functions/getReturnsDocData.md)
+- [getRootLength](functions/getRootLength.md)
+- [getService](functions/getService.md)
+- [getSourceFileKindFromExt](functions/getSourceFileKindFromExt.md)
+- [getSourceLocation](functions/getSourceLocation.md)
+- [getSummary](functions/getSummary.md)
+- [getTags](functions/getTags.md)
+- [getTypeName](functions/getTypeName.md)
+- [getVisibility](functions/getVisibility.md)
+- [hasParseError](functions/hasParseError.md)
+- [hasProjectedName](functions/hasProjectedName.md)
+- [hasTrailingDirectorySeparator](functions/hasTrailingDirectorySeparator.md)
+- [ignoreDiagnostics](functions/ignoreDiagnostics.md)
+- [interpolatePath](functions/interpolatePath.md)
+- [isAnyDirectorySeparator](functions/isAnyDirectorySeparator.md)
+- [isArrayModelType](functions/isArrayModelType.md)
+- [isCadlValueTypeOf](functions/isCadlValueTypeOf.md)
+- [isComment](functions/isComment.md)
+- [isDeclaredInNamespace](functions/isDeclaredInNamespace.md)
+- [isDeclaredType](functions/isDeclaredType.md)
+- [isDeprecated](functions/isDeprecated.md)
+- [isErrorModel](functions/isErrorModel.md)
+- [isErrorType](functions/isErrorType.md)
+- [isGlobalNamespace](functions/isGlobalNamespace.md)
+- [isImportStatement](functions/isImportStatement.md)
+- [isIntrinsicType](functions/isIntrinsicType.md)
+- [isKey](functions/isKey.md)
+- [isKeyword](functions/isKeyword.md)
+- [isListOperation](functions/isListOperation.md)
+- [isModifier](functions/isModifier.md)
+- [isNeverType](functions/isNeverType.md)
+- [isNullType](functions/isNullType.md)
+- [isNumericType](functions/isNumericType.md)
+- [isPathAbsolute](functions/isPathAbsolute.md)
+- [isProjectedProgram](functions/isProjectedProgram.md)
+- [isPunctuation](functions/isPunctuation.md)
+- [isRecordModelType](functions/isRecordModelType.md)
+- [isSecret](functions/isSecret.md)
+- [isService](functions/isService.md)
+- [isStatementKeyword](functions/isStatementKeyword.md)
+- [isStdNamespace](functions/isStdNamespace.md)
+- [isStringType](functions/isStringType.md)
+- [isTemplateDeclaration](functions/isTemplateDeclaration.md)
+- [isTemplateDeclarationOrInstance](functions/isTemplateDeclarationOrInstance.md)
+- [isTemplateInstance](functions/isTemplateInstance.md)
+- [isTrivia](functions/isTrivia.md)
+- [isTypeSpecValueTypeOf](functions/isTypeSpecValueTypeOf.md)
+- [isUnknownType](functions/isUnknownType.md)
+- [isUrl](functions/isUrl.md)
+- [isVisible](functions/isVisible.md)
+- [isVoidType](functions/isVoidType.md)
+- [joinPaths](functions/joinPaths.md)
+- [listOperationsIn](functions/listOperationsIn.md)
+- [listServices](functions/listServices.md)
+- [logDiagnostics](functions/logDiagnostics.md)
+- [logVerboseTestOutput](functions/logVerboseTestOutput.md)
+- [mapEventEmitterToNodeListener](functions/mapEventEmitterToNodeListener.md)
+- [markDeprecated](functions/markDeprecated.md)
+- [navigateProgram](functions/navigateProgram.md)
+- [navigateType](functions/navigateType.md)
+- [navigateTypesInNamespace](functions/navigateTypesInNamespace.md)
+- [normalizePath](functions/normalizePath.md)
+- [normalizeSlashes](functions/normalizeSlashes.md)
+- [paramMessage](functions/paramMessage.md)
+- [parse](functions/parse.md)
+- [parseStandaloneTypeReference](functions/parseStandaloneTypeReference.md)
+- [projectProgram](functions/projectProgram.md)
+- [reducePathComponents](functions/reducePathComponents.md)
+- [removeTrailingDirectorySeparator](functions/removeTrailingDirectorySeparator.md)
+- [reportDeprecated](functions/reportDeprecated.md)
+- [resolveCompilerOptions](functions/resolveCompilerOptions.md)
+- [resolveModule](functions/resolveModule.md)
+- [resolvePath](functions/resolvePath.md)
+- [resolveUsages](functions/resolveUsages.md)
+- [scopeNavigationToNamespace](functions/scopeNavigationToNamespace.md)
+- [setCadlNamespace](functions/setCadlNamespace.md)
+- [setTypeSpecNamespace](functions/setTypeSpecNamespace.md)
+- [skipTrivia](functions/skipTrivia.md)
+- [skipWhiteSpace](functions/skipWhiteSpace.md)
+- [typespecTypeToJson](functions/typespecTypeToJson.md)
+- [validateDecoratorNotOnType](functions/validateDecoratorNotOnType.md)
+- [validateDecoratorParamCount](functions/validateDecoratorParamCount.md)
+- [validateDecoratorParamType](functions/validateDecoratorParamType.md)
+- [validateDecoratorTarget](functions/validateDecoratorTarget.md)
+- [validateDecoratorTargetIntrinsic](functions/validateDecoratorTargetIntrinsic.md)
+- [validateDecoratorUniqueOnNode](functions/validateDecoratorUniqueOnNode.md)
+- [visitChildren](functions/visitChildren.md)
+- [walkPropertiesInherited](functions/walkPropertiesInherited.md)

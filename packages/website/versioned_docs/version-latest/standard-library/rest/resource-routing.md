@@ -15,7 +15,7 @@ namespace Pets {
 }
 ```
 
-To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. Alternatively, you can name your operation `list`, `create`, `read`, `update`, `delete`, or `deleteAll` and the appropriate verb will be used automatically. Lets add an operation to our `Pets` resource:
+To define an operation on this resource, you need to provide the HTTP verb for the route using the `@get`, `@head` `@post`, `@put`, `@patch`, or `@delete` decorators. If an HTTP method decorator is not specified then the default is post if there is a body and get otherwise. Lets add an operation to our `Pets` resource:
 
 ```typespec
 @route("/pets")
