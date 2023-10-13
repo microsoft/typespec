@@ -16,13 +16,13 @@ TypeSpec comes with a built-in formatter. The formatter can be used in different
 Format all typespec files:
 
 ```bash
-tsp format **/*.tsp
+tsp format "**/*.tsp"
 ```
 
 Validate that the files are formatted but don't format them. Useful for enforcing in CI.
 
 ```bash
-tsp format --check **/*.tsp
+tsp format --check "**/*.tsp"
 ```
 
 ## Via the VSCode or VS extension
