@@ -158,6 +158,32 @@ message: string;
 ```
 
 
+### `@errorsDoc` {#@errorsDoc}
+
+Attach a documentation string to describe the error return types of an operation.
+If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+
+```typespec
+@errorsDoc(doc: valueof string)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| doc | `valueof scalar string` | Documentation string |
+
+#### Examples
+
+```typespec
+@errorsDoc("Returns doc")
+op get(): Pet | NotFound;
+```
+
+
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
@@ -628,6 +654,32 @@ model Certificate {
 @projectedName("json", "exp")
 expireAt: int32;
 }
+```
+
+
+### `@returnsDoc` {#@returnsDoc}
+
+Attach a documentation string to describe the successful return types of an operation.
+If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+
+```typespec
+@returnsDoc(doc: valueof string)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| doc | `valueof scalar string` | Documentation string |
+
+#### Examples
+
+```typespec
+@returnsDoc("Returns doc")
+op get(): Pet | NotFound;
 ```
 
 

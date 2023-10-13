@@ -3,22 +3,22 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Index
+## Exports
 
 ### Interfaces
 
-- [ResolvedOpenAPI3EmitterOptions](Interface.ResolvedOpenAPI3EmitterOptions.md)
+- [ResolvedOpenAPI3EmitterOptions](interfaces/ResolvedOpenAPI3EmitterOptions.md)
 
 ### Variables
 
-- [$lib](Variable.$lib.md)
-- [namespace](Variable.namespace.md)
+- [$lib](variables/$lib.md)
+- [namespace](variables/namespace.md)
 
 ### Functions
 
-- [$onEmit](Function.$onEmit.md)
-- [$oneOf](Function.$oneOf.md)
-- [$useRef](Function.$useRef.md)
-- [getOneOf](Function.getOneOf.md)
-- [getRef](Function.getRef.md)
-- [resolveOptions](Function.resolveOptions.md)
+- [$onEmit](functions/$onEmit.md)
+- [$oneOf](functions/$oneOf.md)
+- [$useRef](functions/$useRef.md)
+- [getOneOf](functions/getOneOf.md)
+- [getRef](functions/getRef.md)
+- [resolveOptions](functions/resolveOptions.md)

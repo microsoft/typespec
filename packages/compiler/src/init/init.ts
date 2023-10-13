@@ -112,6 +112,7 @@ export function makeScaffoldingConfig(config: Partial<ScaffoldingConfig>): Scaff
     folderName: config.folderName ?? "",
     parameters: config.parameters ?? {},
     config: config.config,
+    files: config.files,
     normalizeVersion: config.normalizeVersion ?? normalizeVersion,
     toLowerCase: config.toLowerCase ?? toLowerCase,
     normalizePackageName: config.normalizePackageName ?? normalizePackageName,

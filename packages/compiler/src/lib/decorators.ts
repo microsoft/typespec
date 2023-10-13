@@ -811,12 +811,17 @@ export function getVisibility(program: Program, target: Type): string[] | undefi
   return program.stateMap(visibilitySettingsKey).get(target);
 }
 
+function clearVisibilities(program: Program, target: Type) {
+  program.stateMap(visibilitySettingsKey).delete(target);
+}
+
 export function $withVisibility(
   context: DecoratorContext,
   target: Model,
   ...visibilities: string[]
 ) {
   filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, visibilities));
+  [...target.properties.values()].forEach((p) => clearVisibilities(context.program, p));
 }
 
 export function isVisible(
