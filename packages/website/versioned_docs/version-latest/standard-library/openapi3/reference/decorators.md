@@ -6,30 +6,30 @@ toc_max_heading_level: 3
 
 # Decorators
 
-## OpenAPI
+## TypeSpec.OpenAPI
 
-### `@oneOf` {#@OpenAPI.oneOf}
+### `@oneOf` {#@TypeSpec.OpenAPI.oneOf}
 
 Specify that `oneOf` should be used instead of `anyOf` for that union.
 
 ```typespec
-@OpenAPI.oneOf
+@TypeSpec.OpenAPI.oneOf
 ```
 
 #### Target
 
-`Union`
+`union Union | ModelProperty`
 
 #### Parameters
 
 None
 
-### `@useRef` {#@OpenAPI.useRef}
+### `@useRef` {#@TypeSpec.OpenAPI.useRef}
 
 Specify an external reference that should be used inside of emitting this type.
 
 ```typespec
-@OpenAPI.useRef(ref: valueof string)
+@TypeSpec.OpenAPI.useRef(ref: valueof string)
 ```
 
 #### Target

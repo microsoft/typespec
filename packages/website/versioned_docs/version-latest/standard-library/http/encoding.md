@@ -1,4 +1,6 @@
-# Encoding of types
+---
+title: Encoding of types
+---
 
 This document describe how the http library interpret TypeSpec built-in types and how to configure
 

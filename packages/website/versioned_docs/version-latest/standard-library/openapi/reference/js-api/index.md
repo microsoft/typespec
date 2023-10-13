@@ -3,39 +3,39 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Index
+## Exports
 
 ### Interfaces
 
-- [AdditionalInfo](Interface.AdditionalInfo.md)
-- [Contact](Interface.Contact.md)
-- [ExternalDocs](Interface.ExternalDocs.md)
-- [License](Interface.License.md)
+- [AdditionalInfo](interfaces/AdditionalInfo.md)
+- [Contact](interfaces/Contact.md)
+- [ExternalDocs](interfaces/ExternalDocs.md)
+- [License](interfaces/License.md)
 
 ### Type Aliases
 
-- [ExtensionKey](Type.ExtensionKey.md)
+- [ExtensionKey](type-aliases/ExtensionKey.md)
 
 ### Variables
 
-- [namespace](Variable.namespace.md)
+- [namespace](variables/namespace.md)
 
 ### Functions
 
-- [$defaultResponse](Function.$defaultResponse.md)
-- [$extension](Function.$extension.md)
-- [$externalDocs](Function.$externalDocs.md)
-- [$info](Function.$info.md)
-- [$operationId](Function.$operationId.md)
-- [checkDuplicateTypeName](Function.checkDuplicateTypeName.md)
-- [getExtensions](Function.getExtensions.md)
-- [getExternalDocs](Function.getExternalDocs.md)
-- [getInfo](Function.getInfo.md)
-- [getOpenAPITypeName](Function.getOpenAPITypeName.md)
-- [getOperationId](Function.getOperationId.md)
-- [getParameterKey](Function.getParameterKey.md)
-- [isDefaultResponse](Function.isDefaultResponse.md)
-- [isReadonlyProperty](Function.isReadonlyProperty.md)
-- [resolveOperationId](Function.resolveOperationId.md)
-- [setExtension](Function.setExtension.md)
-- [shouldInline](Function.shouldInline.md)
+- [$defaultResponse](functions/$defaultResponse.md)
+- [$extension](functions/$extension.md)
+- [$externalDocs](functions/$externalDocs.md)
+- [$info](functions/$info.md)
+- [$operationId](functions/$operationId.md)
+- [checkDuplicateTypeName](functions/checkDuplicateTypeName.md)
+- [getExtensions](functions/getExtensions.md)
+- [getExternalDocs](functions/getExternalDocs.md)
+- [getInfo](functions/getInfo.md)
+- [getOpenAPITypeName](functions/getOpenAPITypeName.md)
+- [getOperationId](functions/getOperationId.md)
+- [getParameterKey](functions/getParameterKey.md)
+- [isDefaultResponse](functions/isDefaultResponse.md)
+- [isReadonlyProperty](functions/isReadonlyProperty.md)
+- [resolveOperationId](functions/resolveOperationId.md)
+- [setExtension](functions/setExtension.md)
+- [shouldInline](functions/shouldInline.md)

@@ -3,32 +3,31 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Index
+## Exports
 
 ### Interfaces
 
-- [PackageDetails](Interface.PackageDetails.md)
+- [PackageDetails](interfaces/PackageDetails.md)
 
 ### Type Aliases
 
-- [Reservation](Type.Reservation.md)
+- [Reservation](type-aliases/Reservation.md)
 
 ### Variables
 
-- [$lib](Variable.$lib.md)
-- [PROTO\_FULL\_IDENT](Variable.PROTO_FULL_IDENT.md)
-- [namespace](Variable.namespace.md)
+- [$lib](variables/$lib.md)
+- [PROTO\_FULL\_IDENT](variables/PROTO_FULL_IDENT.md)
+- [namespace](variables/namespace.md)
 
 ### Functions
 
-- [$\_map](Function.$_map.md)
-- [$externRef](Function.$externRef.md)
-- [$field](Function.$field.md)
-- [$message](Function.$message.md)
-- [$onEmit](Function.$onEmit.md)
-- [$onValidate](Function.$onValidate.md)
-- [$package](Function.$package.md)
-- [$reserve](Function.$reserve.md)
-- [$service](Function.$service.md)
-- [$stream](Function.$stream.md)
-- [isMap](Function.isMap.md)
+- [$externRef](functions/$externRef.md)
+- [$field](functions/$field.md)
+- [$message](functions/$message.md)
+- [$onEmit](functions/$onEmit.md)
+- [$onValidate](functions/$onValidate.md)
+- [$package](functions/$package.md)
+- [$reserve](functions/$reserve.md)
+- [$service](functions/$service.md)
+- [$stream](functions/$stream.md)
+- [isMap](functions/isMap.md)
