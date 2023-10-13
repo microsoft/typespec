@@ -57,6 +57,10 @@ describe("openapi3: shared routes", () => {
       results.paths["/sharedroutes/resources"].post.operationId,
       "List_ResourceGroup_List_Subscription"
     );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.responses["200"].statusCode,
+      undefined
+    );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
       required: boolean;
@@ -112,6 +116,10 @@ describe("openapi3: shared routes", () => {
       results.paths["/sharedroutes/resources"].post.operationId,
       "listByResourceGroup_listBySubscription"
     );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.responses["200"].statusCode,
+      undefined
+    );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
       required: boolean;
@@ -152,6 +160,10 @@ describe("openapi3: shared routes", () => {
     deepStrictEqual(
       results.paths["/sharedroutes/resources"].post.operationId,
       "listByResourceGroup_listBySubscription"
+    );
+    deepStrictEqual(
+      results.paths["/sharedroutes/resources"].post.responses["200"].statusCode,
+      undefined
     );
     const params = results.paths["/sharedroutes/resources"].post.parameters as {
       name: string;
@@ -221,7 +233,6 @@ describe("openapi3: shared routes", () => {
             },
           },
         },
-        statusCode: "200",
         description: "The request has succeeded.",
       },
     });
@@ -389,7 +400,6 @@ describe("openapi3: shared routes", () => {
             },
           },
         },
-        statusCode: "200",
         description: "The request has succeeded.",
       },
     });

@@ -5,8 +5,8 @@
     "outDir": "dist-dev",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "skipLibCheck": true,
     "types": ["node", "mocha"]
   },

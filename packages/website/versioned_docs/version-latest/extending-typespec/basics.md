@@ -85,17 +85,23 @@ This will create `tsconfig.json`. But we need to make a couple changes to this. 
 
 ### 4. Create `lib.ts`
 
-Open `./src/lib.ts` and create your library definition that registers your library with the TypeSpec compiler and defines any diagnostics your library will emit. The following shows an example:
+Open `./src/lib.ts` and create your library definition that registers your library with the TypeSpec compiler and defines any diagnostics your library will emit. Make sure to export the library definition as `$lib`.
+
+:::warn
+If `$lib` is not accessible from your library package (`import {$lib} from "my-library";`) some functionality will be unavailable like validation of emitter options, linter rules, etc.
+:::
+
+The following shows an example:
 
 ```typescript
 import { createTypeSpecLibrary } from "@typespec/compiler";
 
-export const myLibrary = createTypeSpecLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "myLibrary",
   diagnostics: {},
-});
+} as const);
 
-// optional but convenient
+// Optional but convenient, those are meant to be used locally in your library.
 export const { reportDiagnostic, createDiagnostic, createStateSymbol } = myLibrary;
 ```
 
@@ -105,9 +111,9 @@ Diagnostics are used for linters and decorators which are covered in subsequent 
 
 Open `./src/index.ts` and import your library definition:
 
-<!-- prettier-ignore -->
 ```typescript
-import { myLibrary } from "./lib.js";
+// Re-export $lib to the compiler can get access to it and register your library correctly.
+export { $lib } from "./lib.js";
 ```
 
 ### 6. Build TypeScript

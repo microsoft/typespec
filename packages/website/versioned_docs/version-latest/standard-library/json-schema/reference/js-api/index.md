@@ -3,65 +3,65 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Index
+## Exports
 
 ### Namespaces
 
-- [$validatesRawJson](Namespace.$validatesRawJson.md)
+- [$validatesRawJson](namespaces/$validatesRawJson/index.md)
 
 ### Classes
 
-- [JsonSchemaEmitter](Class.JsonSchemaEmitter.md)
+- [JsonSchemaEmitter](classes/JsonSchemaEmitter.md)
 
 ### Interfaces
 
-- [ExtensionRecord](Interface.ExtensionRecord.md)
-- [JSONSchemaEmitterOptions](Interface.JSONSchemaEmitterOptions.md)
+- [ExtensionRecord](interfaces/ExtensionRecord.md)
+- [JSONSchemaEmitterOptions](interfaces/JSONSchemaEmitterOptions.md)
 
 ### Type Aliases
 
-- [JsonSchemaDeclaration](Type.JsonSchemaDeclaration.md)
+- [JsonSchemaDeclaration](type-aliases/JsonSchemaDeclaration.md)
 
 ### Variables
 
-- [$lib](Variable.$lib.md)
-- [EmitterOptionsSchema](Variable.EmitterOptionsSchema.md)
-- [namespace](Variable.namespace.md)
+- [$lib](variables/$lib.md)
+- [EmitterOptionsSchema](variables/EmitterOptionsSchema.md)
+- [namespace](variables/namespace.md)
 
 ### Functions
 
-- [$baseUri](Function.$baseUri.md)
-- [$contains](Function.$contains.md)
-- [$contentEncoding](Function.$contentEncoding.md)
-- [$contentMediaType](Function.$contentMediaType.md)
-- [$contentSchema](Function.$contentSchema.md)
-- [$extension](Function.$extension.md)
-- [$id](Function.$id.md)
-- [$jsonSchema](Function.$jsonSchema.md)
-- [$maxContains](Function.$maxContains.md)
-- [$maxProperties](Function.$maxProperties.md)
-- [$minContains](Function.$minContains.md)
-- [$minProperties](Function.$minProperties.md)
-- [$multipleOf](Function.$multipleOf.md)
-- [$onEmit](Function.$onEmit.md)
-- [$prefixItems](Function.$prefixItems.md)
-- [$uniqueItems](Function.$uniqueItems.md)
-- [$validatesRawJson](Function.$validatesRawJson.md)
-- [findBaseUri](Function.findBaseUri.md)
-- [getBaseUri](Function.getBaseUri.md)
-- [getContains](Function.getContains.md)
-- [getContentEncoding](Function.getContentEncoding.md)
-- [getContentMediaType](Function.getContentMediaType.md)
-- [getContentSchema](Function.getContentSchema.md)
-- [getExtensions](Function.getExtensions.md)
-- [getId](Function.getId.md)
-- [getJsonSchema](Function.getJsonSchema.md)
-- [getJsonSchemaTypes](Function.getJsonSchemaTypes.md)
-- [getMaxContains](Function.getMaxContains.md)
-- [getMaxProperties](Function.getMaxProperties.md)
-- [getMinContains](Function.getMinContains.md)
-- [getMinProperties](Function.getMinProperties.md)
-- [getMultipleOf](Function.getMultipleOf.md)
-- [getPrefixItems](Function.getPrefixItems.md)
-- [getUniqueItems](Function.getUniqueItems.md)
-- [isJsonSchemaDeclaration](Function.isJsonSchemaDeclaration.md)
+- [$baseUri](functions/$baseUri.md)
+- [$contains](functions/$contains.md)
+- [$contentEncoding](functions/$contentEncoding.md)
+- [$contentMediaType](functions/$contentMediaType.md)
+- [$contentSchema](functions/$contentSchema.md)
+- [$extension](functions/$extension.md)
+- [$id](functions/$id.md)
+- [$jsonSchema](functions/$jsonSchema.md)
+- [$maxContains](functions/$maxContains.md)
+- [$maxProperties](functions/$maxProperties.md)
+- [$minContains](functions/$minContains.md)
+- [$minProperties](functions/$minProperties.md)
+- [$multipleOf](functions/$multipleOf.md)
+- [$onEmit](functions/$onEmit.md)
+- [$prefixItems](functions/$prefixItems.md)
+- [$uniqueItems](functions/$uniqueItems.md)
+- [$validatesRawJson](functions/$validatesRawJson.md)
+- [findBaseUri](functions/findBaseUri.md)
+- [getBaseUri](functions/getBaseUri.md)
+- [getContains](functions/getContains.md)
+- [getContentEncoding](functions/getContentEncoding.md)
+- [getContentMediaType](functions/getContentMediaType.md)
+- [getContentSchema](functions/getContentSchema.md)
+- [getExtensions](functions/getExtensions.md)
+- [getId](functions/getId.md)
+- [getJsonSchema](functions/getJsonSchema.md)
+- [getJsonSchemaTypes](functions/getJsonSchemaTypes.md)
+- [getMaxContains](functions/getMaxContains.md)
+- [getMaxProperties](functions/getMaxProperties.md)
+- [getMinContains](functions/getMinContains.md)
+- [getMinProperties](functions/getMinProperties.md)
+- [getMultipleOf](functions/getMultipleOf.md)
+- [getPrefixItems](functions/getPrefixItems.md)
+- [getUniqueItems](functions/getUniqueItems.md)
+- [isJsonSchemaDeclaration](functions/isJsonSchemaDeclaration.md)
