@@ -31,9 +31,9 @@
 
 .illustration {
   width: 40vw;
-  height: 30vw;
   max-height: 100%;
   padding: 0;
+  overflow: hidden;
 }
 
 @media only screen and (min-width: 1024px) {
@@ -42,14 +42,12 @@
   }
   .illustration {
     width: 50vw;
-    height: 40vw;
   }
 }
 
 @media only screen and (min-width: 1200px) {
   .overview {
     max-width: 1464px;
-    height: 600px;
   }
 }
 

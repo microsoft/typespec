@@ -25,6 +25,7 @@ export const Links = {
     styleGuide: "/docs/introduction/style-guide",
   },
   editor: {
+    home: "/docs/introduction/installation#install-the-vs-and-vscode-extensions",
     code: "/docs/introduction/editor/code",
     visualStudio: "/docs/introduction/editor/visual-studio",
   },

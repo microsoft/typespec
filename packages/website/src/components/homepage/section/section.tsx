@@ -26,7 +26,7 @@ interface SectionProps {
   title: string;
   description: string;
   illustration: string | React.ReactNode;
-  items: SectionItem[];
+  items?: SectionItem[];
   layout?: "text-left" | "text-right";
 }
 
@@ -64,14 +64,16 @@ export const Section = ({
               {description}
             </div>
           </div>
-          <Card className={style["item-card"]}>
-            {items.map((x, i) => (
-              <React.Fragment key={i}>
-                {i !== 0 ? <Divider /> : ""}
-                <SectionItem {...x} />
-              </React.Fragment>
-            ))}
-          </Card>
+          {items ? (
+            <Card className={style["item-card"]}>
+              {items.map((x, i) => (
+                <React.Fragment key={i}>
+                  {i !== 0 ? <Divider /> : ""}
+                  <SectionItem {...x} />
+                </React.Fragment>
+              ))}
+            </Card>
+          ) : null}
         </div>
       </div>
       <Card className={style["illustration"]}>

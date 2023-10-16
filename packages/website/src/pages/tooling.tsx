@@ -19,7 +19,8 @@ const DataValidationContent = () => {
       <UseCaseOverview
         title="Syntax highlighting, autocomplete, formatter and more"
         subtitle="Typespec comes out of the box with many crucial tooling that will improve your productivity."
-        link={Links.tooling.formatter}
+        link={Links.editor.home}
+        illustration={<LightDarkImg src="illustrations/ide-hero" />}
       />
       <SectionedLayout>
         <Section
@@ -42,6 +43,40 @@ const DataValidationContent = () => {
             },
           ]}
         />
+        <Section
+          layout="text-right"
+          header="Warning"
+          title="Warning and errors"
+          description="Errors and warnings in your spec are reported as you type."
+          illustration="illustrations/warnings-and-errors.png"
+          items={[
+            {
+              title: "Extension installation",
+              description: "See documentation on how to install editor extensions.",
+              image: "text-edit",
+              link: Links.editor.home,
+            },
+          ]}
+        />
+        <Section
+          header="Intellisense"
+          title="Autocomplete and more"
+          description="IntelliSense shows you intelligent code completion, hover information, and signature help so that you can write code more quickly and correctly."
+          illustration="illustrations/ide.png"
+        />
+        <Section
+          layout="text-right"
+          header="Refactor"
+          title="Autocomplete and more"
+          description="One of the simplest refactoring is to rename a reference. You can rename a identifier and see all its reference across your TypeSpec project update."
+          illustration={
+            <video
+              src={useBaseUrl("/img/illustrations/refactor.mp4")}
+              autoPlay={true}
+              loop={true}
+            />
+          }
+        />
       </SectionedLayout>
     </div>
   );
@@ -49,6 +84,8 @@ const DataValidationContent = () => {
 
 import notFormattedTsp from "!!raw-loader!@site/static/tsp-samples/tooling/formatter/file.noformat.tsp";
 import formattedTsp from "!!raw-loader!@site/static/tsp-samples/tooling/formatter/formatted.tsp";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import { LightDarkImg } from "../components/light-dark-img/light-dark-img";
 import { Links } from "../constants";
 
 const FormatterIllustration = () => {
