@@ -91,7 +91,7 @@ const OpenAPISection = () => {
       header="Productivity"
       title="Streamline your OpenAPI workflow"
       description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
-      illustration="illustrations/openapi3.png"
+      illustration={<OpenAPI3HeroIllustration />}
       items={[
         {
           title: "TypeSpec for OpenAPI developers",
@@ -181,6 +181,7 @@ const ExtensibilitySection = () => {
 import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
+import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 
 const ExtensibilityIllustration = () => {

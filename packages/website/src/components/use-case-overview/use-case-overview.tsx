@@ -1,6 +1,6 @@
 import { Button, Title2 } from "@fluentui/react-components";
-import { Card } from "../card/card";
 import { DescriptionText } from "../description-text/secondary-text";
+import { IllustrationCard } from "../illustration-card/illustration-card";
 import style from "./use-case-overview.module.css";
 
 export interface UseCaseOverviewProps {
@@ -26,7 +26,7 @@ export const UseCaseOverview = (props: UseCaseOverviewProps) => {
           </Button>
         </div>
 
-        <Card className={style["illustration"]}>{props.illustration}</Card>
+        <IllustrationCard className={style["illustration"]}>{props.illustration}</IllustrationCard>
       </div>
     </div>
   );
