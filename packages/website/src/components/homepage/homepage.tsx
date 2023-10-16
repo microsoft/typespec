@@ -135,7 +135,7 @@ const EditorSection = () => {
       header="IDE"
       title="First party support for code editor"
       description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
-      illustration="illustrations/ide.png"
+      illustration={<LightDarkImg src="illustrations/ide-hero" />}
       items={[
         {
           title: "TypeSpec for Visual Studio Code",
@@ -181,6 +181,7 @@ const ExtensibilitySection = () => {
 import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
+import { LightDarkImg } from "../light-dark-img/light-dark-img";
 
 const ExtensibilityIllustration = () => {
   return (
