@@ -126,8 +126,8 @@ const config = {
                 to: "/data-validation",
               },
               {
-                label: "Editor support",
-                to: "/ide",
+                label: "Tooling support",
+                to: "/tooling",
               },
             ],
           },

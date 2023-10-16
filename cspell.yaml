@@ -37,6 +37,7 @@ words:
   - multis
   - munge
   - mylib
+  - noformat
   - nostdlib
   - oapi
   - oneof

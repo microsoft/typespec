@@ -20,7 +20,9 @@ export const Links = {
       decorators: "/docs/standard-library/json-schema/reference/decorators",
     },
   },
-
+  tooling: {
+    formatter: "/docs/introduction/formatter",
+  },
   editor: {
     code: "/docs/introduction/editor/code",
     visualStudio: "/docs/introduction/editor/visual-studio",

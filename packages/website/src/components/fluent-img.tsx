@@ -18,7 +18,8 @@ export type FluentImageName =
   | "firework"
   | "people-shield"
   | "shield-blue"
-  | "shield-settings";
+  | "shield-settings"
+  | "text-edit";
 
 /**
  * Component for rendering a Fluent image.
