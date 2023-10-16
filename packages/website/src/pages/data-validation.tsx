@@ -17,13 +17,13 @@ export default function Home() {
 const DataValidationContent = () => {
   return (
     <div>
-      <UseCaseOverview
-        title="Ensure data consitency"
-        subtitle="Benefit from the reusability and modularity of TypeSpec types to ensure data consistency across your APIs."
-        link={Links.libraryReferences.jsonSchema.index}
-        illustration={<DataValidationHeroIllustration />}
-      />
       <SectionedLayout>
+        <UseCaseOverview
+          title="Ensure data consitency"
+          subtitle="Benefit from the reusability and modularity of TypeSpec types to ensure data consistency across your APIs."
+          link={Links.libraryReferences.jsonSchema.index}
+          illustration={<DataValidationHeroIllustration />}
+        />
         <Section
           header="Standard library"
           title="Use built-in decorators"

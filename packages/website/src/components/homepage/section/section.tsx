@@ -66,10 +66,10 @@ export const Section = ({
           </div>
           <Card className={style["item-card"]}>
             {items.map((x, i) => (
-              <>
+              <div key={i}>
                 {i !== 0 ? <Divider /> : ""}
                 <SectionItem {...x} />
-              </>
+              </div>
             ))}
           </Card>
         </div>
