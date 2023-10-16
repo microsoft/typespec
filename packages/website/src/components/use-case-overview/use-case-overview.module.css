@@ -14,7 +14,7 @@
 }
 
 .content {
-  flex: 1;
+  flex: 1 1 50%;
   padding: 80px;
 }
 
@@ -30,31 +30,26 @@
 }
 
 .illustration {
-  width: 30vw;
-  height: 25vw;
+  width: 40vw;
+  height: 30vw;
+  max-height: 70vh;
   padding: 0;
-}
-
-@media only screen and (min-width: 1200px) {
-  .overview {
-    max-width: 1464px;
-    height: 600px;
-  }
-
-  .illustration {
-    width: 30vw;
-    height: 25vw;
-  }
 }
 
 @media only screen and (min-width: 1024px) {
   .overview {
     flex-direction: row;
   }
-
   .illustration {
-    width: 40vw;
-    height: 32vw;
+    width: 50vw;
+    height: 40vw;
+  }
+}
+
+@media only screen and (min-width: 1200px) {
+  .overview {
+    max-width: 1464px;
+    height: 600px;
   }
 }
 
