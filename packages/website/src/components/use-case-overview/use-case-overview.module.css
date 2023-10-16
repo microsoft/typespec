@@ -32,7 +32,7 @@
 .illustration {
   width: 40vw;
   height: 30vw;
-  max-height: 70vh;
+  max-height: 100%;
   padding: 0;
 }
 
