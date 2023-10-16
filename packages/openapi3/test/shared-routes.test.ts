@@ -353,13 +353,21 @@ describe("openapi3: shared routes", () => {
       `
       @service({title: "My Service"})
       namespace Foo {
-        @sharedRoute
-        @route("/process")
-        op processInt(@body body: int32, @query options: string): int32;
+
+        @error
+        model ErrorModel {
+          @header "x-ms-error-code": string;
+
+          description: string;
+        }
 
         @sharedRoute
         @route("/process")
-        op processString(@body body: string, @query options: string): string;
+        op processInt(@body body: int32, @query options: string): int32 | ErrorModel;
+
+        @sharedRoute
+        @route("/process")
+        op processString(@body body: string, @query options: string): string | ErrorModel;
       }
       `
     );
@@ -401,6 +409,24 @@ describe("openapi3: shared routes", () => {
           },
         },
         description: "The request has succeeded.",
+      },
+      default: {
+        description: "An unexpected error response.",
+        content: {
+          "application/json": {
+            schema: {
+              $ref: "#/components/schemas/ErrorModel",
+            },
+          },
+        },
+        headers: {
+          "x-ms-error-code": {
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        },
       },
     });
   });
