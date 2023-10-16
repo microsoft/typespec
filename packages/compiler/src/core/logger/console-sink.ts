@@ -71,7 +71,7 @@ function formatSourceLocation(options: FormatLogOptions, location: SourceLocatio
  *   9 | op doBeta(@path id: string): string;
  */
 function formatSourcePreview(options: FormatLogOptions, location: SourceLocation) {
-  if (!options.pretty) {
+  if (!options.pretty || location.isSynthetic) {
     return "";
   }
   const postion = getLineAndColumn(location);
