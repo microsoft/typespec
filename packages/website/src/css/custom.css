@@ -9,12 +9,43 @@
   --colorNeutralBackground1: #ffffff;
   --colorNeutralBackground2: #fafafa;
   --colorNeutralBackground3: #f5f5f5;
+  /* Status warning */
+  --colorStatusWarningBackground1: #fff9f5;
+  --colorStatusWarningBackground2: #fdcfb4;
+  --colorStatusWarningBackground3: #f7630c;
+  --colorStatusWarningForeground1: #bc4b09;
+  --colorStatusWarningForeground2: #8a3707;
+  --colorStatusWarningForeground3: #bc4b09;
+
+  /* Status danger */
+  --colorStatusDangerBackground1: #fdf3f4;
+  --colorStatusDangerBackground2: #eeacb2;
+  --colorStatusDangerBackground3: #c50f1f;
+  --colorStatusDangerForeground1: #b10e1c;
+  --colorStatusDangerForeground2: #6e0811;
+  --colorStatusDangerForeground3: #c50f1f;
 }
 
 [data-theme="dark"] {
   --colorNeutralBackground1: #292929;
   --colorNeutralBackground2: #1f1f1f;
   --colorNeutralBackground3: #141414;
+
+  /* Status warning */
+  --colorStatusWarningBackground1: #4a1e04;
+  --colorStatusWarningBackground2: #8a3707;
+  --colorStatusWarningBackground3: #f7630c;
+  --colorStatusWarningForeground1: #faa06b;
+  --colorStatusWarningForeground2: #fdcfb4;
+  --colorStatusWarningForeground3: #f98845;
+
+  /* Status danger */
+  --colorStatusDangerBackground1: #3b0509;
+  --colorStatusDangerBackground2: #6e0811;
+  --colorStatusDangerBackground3: #c50f1f;
+  --colorStatusDangerForeground1: #dc626d;
+  --colorStatusDangerForeground2: #eeacb2;
+  --colorStatusDangerForeground3: #dc626d;
 }
 
 /* You can override the default Infima variables here. */

@@ -55,9 +55,11 @@ const FormatterIllustration = () => {
   return (
     <div className={style["formatter-illustration"]}>
       <div className={style["formatter-illustration-unformatted"]}>
+        <div className={style["badge"]}>Unformatted</div>
         <CodeBlock language="tsp">{notFormattedTsp}</CodeBlock>
       </div>
       <div className={style["formatter-illustration-formatted"]}>
+        <div className={style["badge"]}>Formatted</div>
         <CodeBlock language="tsp">{formattedTsp}</CodeBlock>
       </div>
     </div>
