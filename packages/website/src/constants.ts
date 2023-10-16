@@ -22,6 +22,7 @@ export const Links = {
   },
   tooling: {
     formatter: "/docs/introduction/formatter",
+    styleGuide: "/docs/introduction/style-guide",
   },
   editor: {
     code: "/docs/introduction/editor/code",

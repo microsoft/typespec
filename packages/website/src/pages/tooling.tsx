@@ -34,6 +34,12 @@ const DataValidationContent = () => {
               image: "text-edit",
               link: Links.tooling.formatter,
             },
+            {
+              title: "Style guide",
+              description: "See our recommended styles when writing TypeSpec.",
+              image: "document-add",
+              link: Links.tooling.styleGuide,
+            },
           ]}
         />
       </SectionedLayout>
