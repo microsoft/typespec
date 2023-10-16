@@ -2,6 +2,7 @@
 **/dist-dev/
 **/test/output/
 **/bin/
+**/out/
 **/obj/
 **/.vs/
 **/.docusaurus/
