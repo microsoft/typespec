@@ -32,6 +32,7 @@
 .illustration {
   width: 30vw;
   height: 25vw;
+  padding: 0;
 }
 
 @media only screen and (min-width: 1200px) {

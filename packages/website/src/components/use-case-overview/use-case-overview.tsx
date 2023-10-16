@@ -7,6 +7,7 @@ export interface UseCaseOverviewProps {
   title: string;
   subtitle: string;
   link: string;
+  illustration?: React.ReactNode;
 }
 
 export const UseCaseOverview = (props: UseCaseOverviewProps) => {
@@ -25,7 +26,7 @@ export const UseCaseOverview = (props: UseCaseOverviewProps) => {
           </Button>
         </div>
 
-        <Card className={style["illustration"]}></Card>
+        <Card className={style["illustration"]}>{props.illustration}</Card>
       </div>
     </div>
   );

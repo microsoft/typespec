@@ -1,8 +1,11 @@
-import { CodeBlock } from "../components/code-block/code-block";
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
 import { FluentLayout } from "../components/fluent-layout";
 import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
+import { Links } from "../constants";
+import styles from "./data-validation.module.css";
 
 export default function Home() {
   return (
@@ -16,9 +19,10 @@ const DataValidationContent = () => {
   return (
     <div>
       <UseCaseOverview
-        title="Action-oriented use case description over two lines"
-        subtitle="Meet TypeSpec, a language for describing APIs. Compile to OpenAPI, JSON RPC, client and server code, docs, and more."
-        link=""
+        title="Ensure data consitency"
+        subtitle="Benefit from the reusability and modularity of TypeSpec types to ensure data consistency across your APIs."
+        link={Links.libraryReferences.jsonSchema.index}
+        illustration={<DataValidationHeroIllustration />}
       />
       <SectionedLayout>
         <Section
@@ -35,13 +39,103 @@ const DataValidationContent = () => {
             },
           ]}
         />
+        <Section
+          layout="text-right"
+          header="Output"
+          title="Produce Json Schema"
+          description="Benefit from the Json Schema ecosystem to validate your data while writing a much more concise and readable code."
+          illustration={<MultiFileIllustration />}
+          items={[
+            {
+              title: "Configure the json schema emitter",
+              description:
+                "Change how the json schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml.",
+              image: "shield-settings",
+              link: Links.libraryReferences.jsonSchema.index,
+            },
+          ]}
+        />
+
+        <Section
+          header="Customize"
+          title="Json Schema Decorators"
+          description="The json schema library provide decorators to customize the output with json schema specific concept."
+          illustration={<JsonSchemaExtensionsIllustration />}
+          items={[
+            {
+              title: "Json Schema Decorators Reference",
+              description: "Read the reference documentation for available options.",
+              image: "design",
+              link: Links.libraryReferences.jsonSchema.decorators,
+            },
+          ]}
+        />
       </SectionedLayout>
     </div>
   );
 };
 
+import commonLibSharedTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/common-lib/common.tsp";
+import commonLibMainTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/common-lib/main.tsp";
+const DataValidationHeroIllustration = () => {
+  return (
+    <div className={styles["hero"]}>
+      <div className={styles["hero-main"]}>
+        <CodeBlock language="tsp" title="main.tsp">
+          {commonLibMainTsp}
+        </CodeBlock>
+      </div>
+      <div className={styles["hero-shared"]}>
+        <CodeBlock language="tsp" title="common.tsp">
+          {commonLibSharedTsp}
+        </CodeBlock>
+      </div>
+    </div>
+  );
+};
+
+import multiFileTsp from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/main.tsp";
+import multiFileAddress from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/out/Address.yaml";
+import multiFileCar from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/out/Car.yaml";
+import multiFilePerson from "!!raw-loader!@site/static/tsp-samples/json-schema/multi-file/out/Person.yaml";
+import { CodeBlock } from "../components/code-block/code-block";
+
+const MultiFileIllustration = () => {
+  return (
+    <Tabs>
+      <TabItem value="main.tsp">
+        <CodeBlock language="tsp">{multiFileTsp}</CodeBlock>
+      </TabItem>
+      <TabItem value="Address.yaml">
+        <CodeBlock language="yaml">{multiFileAddress}</CodeBlock>
+      </TabItem>
+      <TabItem value="Car.yaml">
+        <CodeBlock language="yaml">{multiFileCar}</CodeBlock>
+      </TabItem>
+      <TabItem value="Person.yaml">
+        <CodeBlock language="yaml">{multiFilePerson}</CodeBlock>
+      </TabItem>
+    </Tabs>
+  );
+};
+
+import extensionsTsp from "!!raw-loader!@site/static/tsp-samples/json-schema/extensions/main.tsp";
+import extensionsYaml from "!!raw-loader!@site/static/tsp-samples/json-schema/extensions/out/output.yaml";
+
+const JsonSchemaExtensionsIllustration = () => {
+  return (
+    <Tabs>
+      <TabItem value="main.tsp">
+        <CodeBlock language="tsp">{extensionsTsp}</CodeBlock>
+      </TabItem>
+      <TabItem value="output.yaml">
+        <CodeBlock language="yaml">{extensionsYaml}</CodeBlock>
+      </TabItem>
+    </Tabs>
+  );
+};
+
 import validationDecoratorsTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/validation-decorators.tsp";
-import { Links } from "../constants";
 
 const ValidationDecoratorsIllustration = () => {
   return <CodeBlock language="tsp">{validationDecoratorsTsp}</CodeBlock>;
