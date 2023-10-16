@@ -5,7 +5,6 @@ import { Section } from "../components/homepage/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
 import { Links } from "../constants";
-import styles from "./data-validation.module.css";
 
 export default function Home() {
   return (
@@ -77,20 +76,16 @@ const DataValidationContent = () => {
 
 import commonLibSharedTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/common-lib/common.tsp";
 import commonLibMainTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/common-lib/main.tsp";
-const DataValidationHeroIllustration = () => {
+export const DataValidationHeroIllustration = () => {
   return (
-    <div className={styles["hero"]}>
-      <div className={styles["hero-main"]}>
-        <CodeBlock language="tsp" title="main.tsp">
-          {commonLibMainTsp}
-        </CodeBlock>
-      </div>
-      <div className={styles["hero-shared"]}>
-        <CodeBlock language="tsp" title="common.tsp">
-          {commonLibSharedTsp}
-        </CodeBlock>
-      </div>
-    </div>
+    <Tabs>
+      <TabItem value="main.tsp">
+        <CodeBlock language="tsp">{commonLibMainTsp}</CodeBlock>
+      </TabItem>
+      <TabItem value="common.tsp">
+        <CodeBlock language="tsp">{commonLibSharedTsp}</CodeBlock>
+      </TabItem>
+    </Tabs>
   );
 };
 
