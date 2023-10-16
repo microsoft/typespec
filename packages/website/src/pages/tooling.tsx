@@ -67,7 +67,7 @@ const DataValidationContent = () => {
         <Section
           layout="text-right"
           header="Refactor"
-          title="Autocomplete and more"
+          title="Bulk renaming"
           description="One of the simplest refactoring is to rename a reference. You can rename a identifier and see all its reference across your TypeSpec project update."
           illustration={
             <video
