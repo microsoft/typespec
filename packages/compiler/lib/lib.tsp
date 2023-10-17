@@ -121,6 +121,12 @@ scalar duration;
 scalar boolean;
 
 /**
+ * Represent a 32bit unix timestamp datetime.
+ */
+@encode("unixTimestamp", int32)
+scalar unixTimestamp32 extends utcDateTime;
+
+/**
  * Represent a model
  */
 // Deprecated June 2023 sprint
