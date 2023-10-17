@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix issue where true and false were not treated as assignable to boolean.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
