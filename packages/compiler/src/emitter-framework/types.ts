@@ -185,6 +185,13 @@ export interface LexicalTypeStackEntry {
   args: any[];
 }
 
+/**
+ * Represent an entry in the reference stack.
+ */
+export interface ReferenceStackEntry {
+  type: Type;
+}
+
 export interface EmitterState {
   lexicalTypeStack: LexicalTypeStackEntry[];
   context: ContextState;
