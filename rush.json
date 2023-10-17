@@ -106,7 +106,7 @@
       "packageName": "@typespec/lint",
       "projectFolder": "packages/lint",
       "reviewCategory": "production",
-      "versionPolicyName": "typespec"
+      "shouldPublish": false
     },
     {
       "packageName": "@typespec/migrate",
