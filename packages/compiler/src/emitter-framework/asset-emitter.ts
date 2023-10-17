@@ -223,17 +223,6 @@ export function createAssetEmitter<T, TOptions extends object>(
           waitingCircularRefs.set(entity.emitEntityKey, waiting);
         }
 
-        function getCircularStack(stack: ReferenceStackEntry[], entity: CircularEmit) {
-          for (let i = stack.length - 1; i >= 0; i--) {
-            if (stack[i].type === entity.emitEntityKey[1]) {
-              return stack.slice(i);
-            }
-          }
-          throw new Error(
-            `Couldn't resolve the circular reference stack for ${getTypeName(target)}`
-          );
-        }
-
         const circularStack = getCircularStack(referenceTypeStack, entity);
         waiting.push({
           state: {
@@ -855,4 +844,15 @@ const noReferenceContext = new Set<string>([
 
 function keyHasReferenceContext(key: keyof TypeEmitter<any, any>): boolean {
   return !noReferenceContext.has(key);
+}
+
+function getCircularStack(stack: ReferenceStackEntry[], entity: CircularEmit) {
+  for (let i = stack.length - 1; i >= 0; i--) {
+    if (stack[i].type === entity.emitEntityKey[1]) {
+      return stack.slice(i);
+    }
+  }
+  throw new Error(
+    `Couldn't resolve the circular reference stack for ${getTypeName(entity.emitEntityKey[1])}`
+  );
 }
