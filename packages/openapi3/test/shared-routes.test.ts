@@ -299,6 +299,59 @@ describe("openapi3: shared routes", () => {
     });
   });
 
+  it("model shared routes with different response bodies", async () => {
+    const results = await openApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+
+        model A {
+          val: int16;
+
+          @header
+          someHeader: string;
+        }
+
+        model B {
+          val: string;
+
+          @header
+          someHeader: string;
+        }
+
+        @sharedRoute
+        @route("/1")
+        op processInt(@body _: int32, @query options: string): A;
+
+        @sharedRoute
+        @route("/1")
+        op processString(@body _: string, @query options: string): B;
+      }
+      `
+    );
+    const responses = results.paths["/1"].post.responses;
+    deepStrictEqual(responses, {
+      "200": {
+        content: {
+          "application/json": {
+            schema: {
+              anyOf: [{ $ref: "#/components/schemas/A" }, { $ref: "#/components/schemas/B" }],
+            },
+          },
+        },
+        description: "The request has succeeded.",
+        headers: {
+          "some-header": {
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        },
+      },
+    });
+  });
+
   it("model shared routes with different implicit request bodies", async () => {
     const results = await openApiFor(
       `
@@ -306,10 +359,16 @@ describe("openapi3: shared routes", () => {
       namespace Foo {
         model A {
           name: string;
+
+          @header
+          someHeader: string;
         }
 
         model B {
           age: int32;
+
+          @header
+          someHeader: string;
         }
 
         @sharedRoute

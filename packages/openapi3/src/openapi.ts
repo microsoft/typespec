@@ -886,22 +886,31 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       if (data.headers && Object.keys(data.headers).length > 0) {
         obj.headers ??= {};
         // OpenAPI can't represent different headers per content type.
-        // So we merge headers here, and report any duplicates.
-        // It may be possible in principle to not error for identically declared
-        // headers.
+        // So we merge headers here, and report any duplicates unless they are identical
         for (const [key, value] of Object.entries(data.headers)) {
-          if (obj.headers[key]) {
-            reportDiagnostic(program, {
-              code: "duplicate-header",
-              format: { header: key },
-              target: target,
-            });
+          const headerVal = getResponseHeader(value);
+          const existing = obj.headers[key];
+          if (existing) {
+            if (!areHeadersEquivalent(existing, headerVal)) {
+              reportDiagnostic(program, {
+                code: "duplicate-header",
+                format: { header: key },
+                target: target,
+              });
+            }
             continue;
           }
-          obj.headers[key] = getResponseHeader(value);
+          obj.headers[key] = headerVal;
         }
       }
     }
+  }
+
+  // compare the JSON representation of the headers, ignoring order, and ensure they are equivalent
+  function areHeadersEquivalent(a: any, b: any): boolean {
+    const aJson = JSON.stringify(a, Object.keys(a).sort());
+    const bJson = JSON.stringify(b, Object.keys(b).sort());
+    return aJson === bJson;
   }
 
   function emitResponseContent(
