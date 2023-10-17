@@ -24,13 +24,6 @@ describe("compiler: init: templates", () => {
         name: "test-template",
         folderName: "test-template",
         description: "This is only a test.",
-        files: [
-          {
-            path: "./main.tsp",
-            destination: "main.tsp",
-            skipGeneration: false,
-          },
-        ],
         ...config,
       })
     );

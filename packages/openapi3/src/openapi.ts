@@ -797,7 +797,6 @@ function createOAPIEmitter(
     const openApiResponse: any = {
       description: undefined,
       content: {},
-      statusCode: statusCode,
     };
     const schemaMap = new Map<string, any[]>();
     for (const response of responses) {
