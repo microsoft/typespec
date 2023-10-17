@@ -484,7 +484,7 @@ describe("openapi3: return types", () => {
       const diagnostics = await checkFor(
         `@get op read():
           | { @body body: {}, @header foo: string }
-          | {@header contentType: "text/plain", @body body: string, @header foo: string };
+          | {@header contentType: "text/plain", @body body: string, @header foo: int16 };
         `
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/duplicate-header" }]);

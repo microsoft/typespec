@@ -121,6 +121,7 @@ import {
   OpenAPI3ServerVariable,
   OpenAPI3StatusCode,
 } from "./types.js";
+import { deepEquals } from "./util.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -891,7 +892,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
           const headerVal = getResponseHeader(value);
           const existing = obj.headers[key];
           if (existing) {
-            if (!areHeadersEquivalent(existing, headerVal)) {
+            if (!deepEquals(existing, headerVal)) {
               reportDiagnostic(program, {
                 code: "duplicate-header",
                 format: { header: key },
@@ -904,13 +905,6 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         }
       }
     }
-  }
-
-  // compare the JSON representation of the headers, ignoring order, and ensure they are equivalent
-  function areHeadersEquivalent(a: any, b: any): boolean {
-    const aJson = JSON.stringify(a, Object.keys(a).sort());
-    const bJson = JSON.stringify(b, Object.keys(b).sort());
-    return aJson === bJson;
   }
 
   function emitResponseContent(
