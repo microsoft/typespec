@@ -4,14 +4,19 @@ import {
   Enum,
   EnumMember,
   getNamespaceFullName,
+  Model,
   ModelProperty,
   Namespace,
   ObjectType,
   Operation,
   Program,
   ProjectionApplication,
+  Scalar,
   Type,
+  Union,
+  UnionVariant,
 } from "@typespec/compiler";
+import { Interface } from "readline";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { Version, VersionResolution } from "./types.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
@@ -46,7 +51,20 @@ function checkIsVersion(
   return version;
 }
 
-export function $added(context: DecoratorContext, t: Type, v: EnumMember) {
+export function $added(
+  context: DecoratorContext,
+  t:
+    | Model
+    | ModelProperty
+    | Operation
+    | Enum
+    | EnumMember
+    | Union
+    | UnionVariant
+    | Scalar
+    | Interface,
+  v: EnumMember
+) {
   const { program } = context;
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -55,15 +73,28 @@ export function $added(context: DecoratorContext, t: Type, v: EnumMember) {
   }
 
   // retrieve statemap to update or create a new one
-  const record = program.stateMap(addedOnKey).get(t) ?? new Array<Version>();
+  const record = program.stateMap(addedOnKey).get(t as Type) ?? new Array<Version>();
   record.push(version);
   // ensure that records are stored in ascending order
   (record as Version[]).sort((a, b) => a.index - b.index);
 
-  program.stateMap(addedOnKey).set(t, record);
+  program.stateMap(addedOnKey).set(t as Type, record);
 }
 
-export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
+export function $removed(
+  context: DecoratorContext,
+  t:
+    | Model
+    | ModelProperty
+    | Operation
+    | Enum
+    | EnumMember
+    | Union
+    | UnionVariant
+    | Scalar
+    | Interface,
+  v: EnumMember
+) {
   const { program } = context;
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -72,12 +103,12 @@ export function $removed(context: DecoratorContext, t: Type, v: EnumMember) {
   }
 
   // retrieve statemap to update or create a new one
-  const record = program.stateMap(removedOnKey).get(t) ?? new Array<Version>();
+  const record = program.stateMap(removedOnKey).get(t as Type) ?? new Array<Version>();
   record.push(version);
   // ensure that records are stored in ascending order
   (record as Version[]).sort((a, b) => a.index - b.index);
 
-  program.stateMap(removedOnKey).set(t, record);
+  program.stateMap(removedOnKey).set(t as Type, record);
 }
 
 /**
@@ -147,7 +178,21 @@ interface RenamedFrom {
   oldName: string;
 }
 
-export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, oldName: string) {
+export function $renamedFrom(
+  context: DecoratorContext,
+  t:
+    | Model
+    | ModelProperty
+    | Operation
+    | Enum
+    | EnumMember
+    | Union
+    | UnionVariant
+    | Scalar
+    | Interface,
+  v: EnumMember,
+  oldName: string
+) {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
@@ -157,17 +202,17 @@ export function $renamedFrom(context: DecoratorContext, t: Type, v: EnumMember, 
   if (oldName === "") {
     reportDiagnostic(program, {
       code: "invalid-renamed-from-value",
-      target: t,
+      target: t as Type,
     });
   }
 
   // retrieve statemap to update or create a new one
-  const record = getRenamedFrom(program, t) ?? [];
+  const record = getRenamedFrom(program, t as Type) ?? [];
   record.push({ version: version, oldName: oldName });
   // ensure that records are stored in ascending order
   record.sort((a, b) => a.version.index - b.version.index);
 
-  program.stateMap(renamedFromKey).set(t, record);
+  program.stateMap(renamedFromKey).set(t as Type, record);
 }
 
 export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: EnumMember) {
