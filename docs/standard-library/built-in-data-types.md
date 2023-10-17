@@ -394,6 +394,16 @@ scalar uint8
 
 
 
+### `unixTimestamp32` {#unixTimestamp32}
+
+Represent a 32bit unix timestamp datetime.
+
+```typespec
+scalar unixTimestamp32
+```
+
+
+
 ### `url` {#url}
 
 Represent a URL string as described by https://url.spec.whatwg.org/
