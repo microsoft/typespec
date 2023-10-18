@@ -38,8 +38,7 @@ export class TypeSpecBundledPackageUploader {
       Object.entries(manifest.imports).map(([key, value]) => {
         return [
           key,
-          new URL(normalizePath(join(manifest.name, manifest.version, value)), this.#container.url)
-            .href,
+          this.#container.url + "/" + normalizePath(join(manifest.name, manifest.version, value)),
         ];
       })
     );
@@ -93,7 +92,7 @@ export class TypeSpecBundledPackageUploader {
     const content = file.content;
     await blob.upload(content, content.length, {
       blobHTTPHeaders: {
-        blobContentType: "application/js; charset=utf-8",
+        blobContentType: "application/javascript; charset=utf-8",
       },
       conditions: {
         ifNoneMatch: "*",

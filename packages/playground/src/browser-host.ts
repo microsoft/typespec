@@ -1,12 +1,6 @@
-import {
-  CompilerHost,
-  createSourceFile,
-  getSourceFileKindFromExt,
-  resolvePath,
-} from "@typespec/compiler";
-import { importLibrary } from "./core.js";
-
-export interface BrowserHost extends CompilerHost {}
+import { createSourceFile, getSourceFileKindFromExt, resolvePath } from "@typespec/compiler";
+import { ImportConfig, importLibrary, importTypeSpecCompiler } from "./core.js";
+import { BrowserHost, PlaygroundTspLibrary } from "./types.js";
 
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   return resolvePath("/test", path, ...paths);
@@ -15,14 +9,20 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
 /**
  * Create the browser host from the list of libraries.
  * @param libsToLoad List of libraries to load. Those must be set in the webpage importmap.
+ * @param importConfig Import configuration.
  * @returns
  */
-export async function createBrowserHost(libsToLoad: string[]): Promise<BrowserHost> {
+export async function createBrowserHost(
+  libsToLoad: string[],
+  importConfig: ImportConfig
+): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();
   const jsImports = new Map<string, Promise<any>>();
 
+  const libraries: Record<string, PlaygroundTspLibrary> = {};
   for (const libName of libsToLoad) {
-    const { _TypeSpecLibrary_ } = (await importLibrary(libName)) as any;
+    const { _TypeSpecLibrary_, $lib } = (await importLibrary(libName, importConfig)) as any;
+    libraries[libName] = { name: libName, isEmitter: $lib?.emitter, definition: $lib };
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }
@@ -36,6 +36,8 @@ export async function createBrowserHost(libsToLoad: string[]): Promise<BrowserHo
     jsImports.set(path, value);
   }
   return {
+    compiler: await importTypeSpecCompiler(importConfig),
+    libraries,
     async readUrl(url: string) {
       const contents = virtualFs.get(url);
       if (contents === undefined) {

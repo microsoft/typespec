@@ -34,6 +34,13 @@ jobs:
         displayName: Release
 
       - task: AzureCLI@1
+        displayName: "Publish bundled packages to tsppackages"
+        inputs:
+          azureSubscription: "Azure SDK Playground"
+          scriptLocation: inlineScript
+          inlineScript: node ./packages/bundle-uploader/dist/src/main.js
+
+      - task: AzureCLI@1
         displayName: "Publish playground"
         inputs:
           azureSubscription: "Azure SDK Playground"
