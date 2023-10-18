@@ -30,8 +30,10 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p . && npm run copy-css",
+    "build:rollup": "rollup --config rollup.config.ts --configPlugin typescript",
+    "watch": "npm run copy-css && tsc -p . --watch",
+    "copy-css": "copyfiles -u 1 src/**/*.module.css dist/src",
     "preview": "npm run build && vite preview",
     "start": "vite",
     "e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
@@ -67,6 +69,11 @@
     "vscode-languageserver-textdocument": "~1.0.8",
     "vscode-languageserver": "~9.0.0"
   },
+  "optionalDependencies": {
+    "@vitejs/plugin-react": "~4.0.4",
+    "@typespec/bundler": "workspace:~0.1.0-alpha.2",
+    "vite": "^4.4.9"
+  },
   "devDependencies": {
     "@babel/core": "^7.22.20",
     "@playwright/test": "~1.32.2",
@@ -89,6 +96,14 @@
     "rimraf": "~5.0.1",
     "rollup-plugin-visualizer": "~5.9.2",
     "typescript": "~5.2.2",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "copyfiles": "~2.4.1",
+    "rollup-plugin-postcss": "~4.0.2",
+    "@rollup/plugin-node-resolve": "~15.2.1",
+    "@rollup/plugin-commonjs": "~25.0.4",
+    "@rollup/plugin-typescript": "~11.1.5",
+    "rollup-plugin-dts": "~6.1.0",
+    "rollup": "~3.29.2",
+    "@rollup/plugin-json": "~6.0.0"
   }
 }
