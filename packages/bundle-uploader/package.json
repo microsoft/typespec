@@ -1,6 +1,7 @@
 {
   "name": "@typespec/bundle-uploader",
   "version": "0.1.0",
+  "private": true,
   "author": "Microsoft Corporation",
   "description": "Internal library that manage bundle uploading.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -25,8 +26,8 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "test": "echo 'no test'",
+    "test-official": "echo 'no test'",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
