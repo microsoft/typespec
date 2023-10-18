@@ -72,7 +72,7 @@ class TypeSpecBundledPackageUploader {
   async #uploadManifest(manifest: BundleManifest) {
     try {
       const blob = this.#container.getBlockBlobClient(
-        normalizePath(join(manifest.name, manifest.name, "manifest.json"))
+        normalizePath(join(manifest.name, manifest.version, "manifest.json"))
       );
       const content = JSON.stringify(manifest);
       await blob.upload(content, content.length, {
