@@ -4,7 +4,7 @@ import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
-  const noLibraryBundling = env["VITE_NO_LIBRARY_BUNDLING"] === "true";
+  const useLocalLibraries = env["VITE_USE_LOCAL_LIBRARIES"] === "true";
 
   const config = definePlaygroundViteConfig({
     defaultEmitter: "@typespec/openapi3",
@@ -51,7 +51,7 @@ export default defineConfig(({ mode }) => {
       githubIssueUrl: `https://github.com/microsoft/typespec/issues/new`,
       documentationUrl: "https://microsoft.github.io/typespec",
     },
-    skipBundleLibraries: noLibraryBundling,
+    skipBundleLibraries: useLocalLibraries,
   });
 
   config.plugins!.push(
