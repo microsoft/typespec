@@ -7,20 +7,6 @@ import { parse } from "semver";
 import { pkgRoot } from "./constants.js";
 import { TypeSpecBundledPackageUploader } from "./upload-browser-package.js";
 
-async function main() {
-  await bundleAndUploadPackages([
-    "@typespec/compiler",
-    "@typespec/http",
-    "@typespec/rest",
-    "@typespec/openapi",
-    "@typespec/versioning",
-    "@typespec/openapi3",
-    "@typespec/json-schema",
-    "@typespec/protobuf",
-  ]);
-}
-await main();
-
 function logInfo(...args: any[]) {
   // eslint-disable-next-line no-console
   console.log(...args);
@@ -30,7 +16,7 @@ function logSuccess(message: string) {
   logInfo(pc.green(`✔ ${message}`));
 }
 
-async function bundleAndUploadPackages(packages: string[]) {
+export async function bundleAndUploadPackages(packages: string[]) {
   const currentVersion = await resolveCurrentVersion();
   logInfo("Current version:", currentVersion);
 

@@ -38,7 +38,7 @@ jobs:
         inputs:
           azureSubscription: "Azure SDK Playground"
           scriptLocation: inlineScript
-          inlineScript: node ./packages/bundle-uploader/dist/src/main.js
+          inlineScript: node ./eng/sripts/upload-bundler-packages.js
 
       - task: AzureCLI@1
         displayName: "Publish playground"
