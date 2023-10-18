@@ -44,7 +44,8 @@
   background-color: #e5e5e5;
 }
 
-.sash-content-dragging, .sash-content:hover {
+.sash-content-dragging,
+.sash-content:hover {
   background-color: #c3c3c3;
 }
 

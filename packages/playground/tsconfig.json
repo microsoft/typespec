@@ -14,7 +14,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
     "lib": ["DOM"],
-    "types": ["@emotion/react"],
+    "types": ["@emotion/react"]
   },
   "include": [
     "src/**/*.ts",
