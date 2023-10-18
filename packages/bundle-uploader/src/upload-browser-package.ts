@@ -1,51 +1,26 @@
-import { AzureCliCredential, TokenCredential } from "@azure/identity";
+import { TokenCredential } from "@azure/identity";
 import {
   AnonymousCredential,
   BlobServiceClient,
   ContainerClient,
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
-import { readFile } from "fs/promises";
-import { join, resolve } from "path/posix";
+import { BundleManifest, TypeSpecBundle, TypeSpecBundleFile } from "@typespec/bundler";
+import { join } from "path/posix";
+import { pkgsContainer, storageAccountName } from "./constants.js";
 
-const storageAccountName = "tsppackages";
-const pkgsContainer = "pkgs";
+export interface UploadBundleResult {
+  status: "uploaded" | "already-exists";
+  /** Resolve imports with absolute url. */
+  imports: Record<string, string>;
+}
 
-interface BundleManifest {
-  name: string;
+export interface PackageIndex {
   version: string;
   imports: Record<string, string>;
 }
 
-export async function uploadBundledPackage(dir: string) {
-  const manifest = await readManifest(dir);
-  const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
-  await uploader.createIfNotExists();
-  const uploaded = await uploader.upload(dir, manifest);
-
-  if (uploaded) {
-    // eslint-disable-next-line no-console
-    console.log(`Bundle for package ${manifest.name}@${manifest.version} uploaded.`);
-  } else {
-    // eslint-disable-next-line no-console
-    console.log(
-      `Bundle for package ${manifest.name} already exist for version ${manifest.version}.`
-    );
-  }
-}
-async function readManifest(dir: string) {
-  const path = resolve(dir, "manifest.json");
-  let content;
-  try {
-    content = await readFile(path);
-  } catch (e) {
-    throw new Error(`Couldn't find bundle manifest at ${path}`);
-  }
-
-  return JSON.parse(content.toString());
-}
-
-class TypeSpecBundledPackageUploader {
+export class TypeSpecBundledPackageUploader {
   #container: ContainerClient;
 
   constructor(credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential) {
@@ -58,15 +33,34 @@ class TypeSpecBundledPackageUploader {
     });
   }
 
-  async upload(rootDir: string, manifest: BundleManifest): Promise<boolean> {
+  async upload({ manifest, files }: TypeSpecBundle): Promise<UploadBundleResult> {
+    const imports = Object.fromEntries(
+      Object.entries(manifest.imports).map(([key, value]) => {
+        return [
+          key,
+          new URL(normalizePath(join(manifest.name, manifest.version, value)), this.#container.url)
+            .href,
+        ];
+      })
+    );
     const created = await this.#uploadManifest(manifest);
     if (!created) {
-      return false;
+      return { status: "already-exists", imports };
     }
-    for (const file of Object.values(manifest.imports)) {
-      await this.#uploadJsFile(manifest.name, manifest.version, rootDir, file);
+    for (const file of files) {
+      await this.#uploadJsFile(manifest.name, manifest.version, file);
     }
-    return true;
+    return { status: "uploaded", imports };
+  }
+
+  async uploadIndex(index: PackageIndex) {
+    const blob = this.#container.getBlockBlobClient(`indexes/${index.version}.json`);
+    const content = JSON.stringify(index);
+    await blob.upload(content, content.length, {
+      blobHTTPHeaders: {
+        blobContentType: "application/json; charset=utf-8",
+      },
+    });
   }
 
   async #uploadManifest(manifest: BundleManifest) {
@@ -92,13 +86,12 @@ class TypeSpecBundledPackageUploader {
     return true;
   }
 
-  async #uploadJsFile(pkgName: string, version: string, rootDir: string, relativePath: string) {
-    const filePath = resolve(rootDir, relativePath);
-
+  async #uploadJsFile(pkgName: string, version: string, file: TypeSpecBundleFile) {
     const blob = this.#container.getBlockBlobClient(
-      normalizePath(join(pkgName, version, relativePath))
+      normalizePath(join(pkgName, version, file.filename))
     );
-    await blob.uploadFile(filePath, {
+    const content = file.content;
+    await blob.upload(content, content.length, {
       blobHTTPHeaders: {
         blobContentType: "application/js; charset=utf-8",
       },

@@ -1,7 +1,6 @@
 import yargs from "yargs";
 import { generateThirdPartyNotice } from "./generate-third-party-notice.js";
 import { bumpVersionsForPR, bumpVersionsForPrerelease } from "./prerelease.js";
-import { uploadBundledPackage } from "./upload-browser-package.js";
 
 main().catch((e) => {
   // eslint-disable-next-line no-console
@@ -14,17 +13,6 @@ async function main() {
     .scriptName("typespec-build-tool")
     .help()
     .strict()
-    .command(
-      "upload-bundle  <dir>",
-      "Upload a bundled package with @typspec/bundler",
-      (cmd) =>
-        cmd.positional("dir", {
-          type: "string",
-          description: "Directory where the bundled output is located.",
-          demandOption: true,
-        }),
-      (args) => uploadBundledPackage(args.dir)
-    )
     .command(
       "generate-third-party-notices",
       "Generate the third party notice",

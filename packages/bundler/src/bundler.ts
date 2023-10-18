@@ -38,6 +38,11 @@ export interface TypeSpecBundle {
    * Bundle content
    */
   files: TypeSpecBundleFile[];
+
+  /**
+   * Resolved manifest.
+   */
+  manifest: BundleManifest;
 }
 
 export interface TypeSpecBundleFile {
@@ -202,6 +207,7 @@ async function generateTypeSpecBundle(
 
   return {
     definition,
+    manifest: createManifest(definition),
     files: output
       .filter((x): x is OutputChunk => "code" in x)
       .map((chunk) => {
@@ -257,7 +263,7 @@ function createBundleEntrypoint({
   ].join("\n");
 }
 
-function createManifest(definition: TypeSpecBundleDefinition) {
+function createManifest(definition: TypeSpecBundleDefinition): BundleManifest {
   return {
     name: definition.packageJson.name,
     version: definition.packageJson.version,
