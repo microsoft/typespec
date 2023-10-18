@@ -14,6 +14,8 @@ import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
 import { useAsyncMemo, useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
+import Pane from "./split-pane/pane.js";
+import { SplitPane } from "./split-pane/split-pane.js";
 import { CompilationState, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
@@ -208,45 +210,42 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     <div
       css={{
         display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
+        gridTemplateColumns: "1",
         gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"typespeceditor output"\n    "footer footer"',
+        gridTemplateAreas: '"typespeceditor"\n    "footer"',
         width: "100%",
         height: "100%",
         overflow: "hidden",
         fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
       }}
     >
-      <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
-        <EditorCommandBar
-          libraries={libraries}
-          selectedEmitter={selectedEmitter}
-          onSelectedEmitterChange={onSelectedEmitterChange}
-          compilerOptions={compilerOptions}
-          onCompilerOptionsChange={onCompilerOptionsChange}
-          samples={props.samples}
-          selectedSampleName={selectedSampleName}
-          onSelectedSampleNameChange={onSelectedSampleNameChange}
-          saveCode={saveCode}
-          newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-          documentationUrl={props.links?.documentationUrl}
-        />
-        <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
-      </div>
-      <div
-        css={{
-          gridArea: "output",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          borderLeft: "1px solid #c5c5c5",
-        }}
+      <SplitPane
+        initialSizes={["50%", "50%"]}
+        css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
       >
-        <OutputView
-          compilationState={compilationState}
-          viewers={props.emitterViewers?.[selectedEmitter]}
-        />
-      </div>
+        <Pane>
+          <EditorCommandBar
+            libraries={libraries}
+            selectedEmitter={selectedEmitter}
+            onSelectedEmitterChange={onSelectedEmitterChange}
+            compilerOptions={compilerOptions}
+            onCompilerOptionsChange={onCompilerOptionsChange}
+            samples={props.samples}
+            selectedSampleName={selectedSampleName}
+            onSelectedSampleNameChange={onSelectedSampleNameChange}
+            saveCode={saveCode}
+            newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+            documentationUrl={props.links?.documentationUrl}
+          />
+          <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
+        </Pane>
+        <Pane>
+          <OutputView
+            compilationState={compilationState}
+            viewers={props.emitterViewers?.[selectedEmitter]}
+          />
+        </Pane>
+      </SplitPane>
       <Footer />
     </div>
   );

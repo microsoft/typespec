@@ -67,7 +67,7 @@ Identifies when the target was added.
 
 ##### Target
 
-`(intrinsic) unknown`
+`union Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
 
 ##### Parameters
 
@@ -102,7 +102,7 @@ Identifies when a target was made optional.
 
 ##### Target
 
-`(intrinsic) unknown`
+`ModelProperty`
 
 ##### Parameters
 
@@ -131,7 +131,7 @@ Identifies when the target was removed.
 
 ##### Target
 
-`(intrinsic) unknown`
+`union Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
 
 ##### Parameters
 
@@ -166,7 +166,7 @@ Identifies when the target has been renamed.
 
 ##### Target
 
-`(intrinsic) unknown`
+`union Model | ModelProperty | Operation | Enum | EnumMember | Union | UnionVariant | Scalar | Interface`
 
 ##### Parameters
 
@@ -211,7 +211,7 @@ Identifies when the target type changed.
 
 ##### Target
 
-`(intrinsic) unknown`
+`ModelProperty`
 
 ##### Parameters
 
