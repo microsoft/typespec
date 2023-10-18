@@ -5253,10 +5253,6 @@ export function createChecker(program: Program): Checker {
       return source.kind === ReflectionNameToKind[target.name];
     }
 
-    if (source.kind === "Boolean" && target.kind === "Scalar" && target.name === "boolean") {
-      return true;
-    }
-
     if (target.kind === "Scalar") {
       return isRelatedToScalar(source, target);
     }

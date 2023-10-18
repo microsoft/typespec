@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Fix issue where true and false were not treated as assignable to boolean.",
+      "comment": "Fix issue where using `@overload` could result in incorrect `unassignable` type errors.",
       "type": "none"
     }
   ],
