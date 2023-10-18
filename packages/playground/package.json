@@ -30,8 +30,9 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "tsc -p . && npm run copy-css",
+    "watch": "npm run copy-css && tsc -p . --watch",
+    "copy-css": "copyfiles -u 1 src/**/*.module.css dist/src",
     "preview": "npm run build && vite preview",
     "start": "vite",
     "e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
@@ -89,6 +90,7 @@
     "rimraf": "~5.0.1",
     "rollup-plugin-visualizer": "~5.9.2",
     "typescript": "~5.2.2",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "copyfiles": "~2.4.1"
   }
 }
