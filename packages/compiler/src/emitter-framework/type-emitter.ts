@@ -666,6 +666,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  tupleLiteralValuesContext(tuple: Tuple): Context {
+    return {};
+  }
+
+  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
+    return {};
+  }
+
   tupleLiteralReferenceContext(tuple: Tuple): Context {
     return {};
   }
