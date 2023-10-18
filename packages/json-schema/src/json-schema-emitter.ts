@@ -220,7 +220,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
     return new ObjectBuilder({
       type: "array",
-      items: this.emitter.emitTupleLiteralValues(tuple),
+      prefixItems: this.emitter.emitTupleLiteralValues(tuple),
     });
   }
 

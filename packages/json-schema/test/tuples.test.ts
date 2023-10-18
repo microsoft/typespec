@@ -17,7 +17,7 @@ describe("jsonschema: tuples", () => {
         properties: {
           a: {
             type: "array",
-            items: [
+            prefixItems: [
               {
                 type: "string",
               },
