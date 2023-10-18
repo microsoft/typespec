@@ -2678,6 +2678,7 @@ export function createChecker(program: Program): Checker {
           }
           for (const prop of node.properties) {
             if (prop.kind === SyntaxKind.ModelSpreadProperty) {
+              checkForSelfReference(prop, node);
               resolveAndCopyMembers(prop.target);
             } else {
               const name = prop.id.sv;
@@ -2734,6 +2735,29 @@ export function createChecker(program: Program): Checker {
         if (ref && ref.members) {
           bindMembers(ref.declarations[0], ref);
           copyMembers(ref.members);
+        }
+      }
+
+      function checkForSelfReference(node: ModelSpreadPropertyNode, parent: ModelStatementNode) {
+        let targetName = "";
+        let parentName = "";
+        if (node.target.target.kind === SyntaxKind.Identifier) {
+          targetName = node.target.target.sv;
+        }
+        if (parent.kind === SyntaxKind.ModelStatement) {
+          parentName = parent.id.sv;
+        }
+        if (parentName === "" || targetName === "") {
+          return;
+        }
+        if (parentName === targetName) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "spread-model",
+              messageId: "selfSpread",
+              target: node,
+            })
+          );
         }
       }
 
