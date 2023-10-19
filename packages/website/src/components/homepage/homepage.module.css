@@ -10,7 +10,6 @@
   background-size: 100vw 94%;
 
   display: flex;
-  height: 1078px;
   padding: 120px 80px 52px 80px;
   flex-direction: column;
   gap: 56px;
@@ -109,11 +108,6 @@
   .hero-demo {
     display: none;
   }
-}
-
-.hero-demo-image {
-  width: 800px;
-  height: 534px;
 }
 
 .overview {

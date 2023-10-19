@@ -1,7 +1,7 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Button, Text, Title2 } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
-import { Card } from "../card/card";
+import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
 import { CodeBlock } from "../code-block/code-block";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import { Feature, FeatureGroup } from "./feature/feature";
@@ -46,7 +46,13 @@ const Hero = () => {
           </div>
         </div>
         <div className={style["hero-demo"]}>
-          <Card className={style["hero-demo-image"]}></Card>
+          <HeroTabs
+            tabs={[
+              { value: "OpenAPI", content: openapiHeroLottie },
+              { value: "Json Schema", content: openapiHeroLottie },
+              { value: "Protobuf", content: openapiHeroLottie },
+            ]}
+          ></HeroTabs>
         </div>
       </div>
     </>
@@ -182,6 +188,7 @@ import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibilit
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import { DescriptionText } from "../description-text/description-text";
+import { HeroTabs } from "../hero-tabs/hero-tabs";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 
 const ExtensibilityIllustration = () => {
