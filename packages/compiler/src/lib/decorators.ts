@@ -1162,15 +1162,15 @@ const overloadsOperationKey = createStateSymbol("overloadsOperation");
 export function $overload(context: DecoratorContext, target: Operation, overloadBase: Operation) {
   // Ensure that the overloaded method arguments are a subtype of the original operation.
   const [paramValid, paramDiagnostics] = context.program.checker.isTypeAssignableTo(
-    target.parameters,
-    overloadBase.parameters,
+    target.parameters.projectionBase ?? target.parameters,
+    overloadBase.parameters.projectionBase ?? overloadBase.parameters,
     target
   );
   if (!paramValid) context.program.reportDiagnostics(paramDiagnostics);
 
   const [returnTypeValid, returnTypeDiagnostics] = context.program.checker.isTypeAssignableTo(
-    target.returnType,
-    overloadBase.returnType,
+    target.returnType.projectionBase ?? target.returnType,
+    overloadBase.returnType.projectionBase ?? overloadBase.returnType,
     target
   );
   if (!returnTypeValid) context.program.reportDiagnostics(returnTypeDiagnostics);

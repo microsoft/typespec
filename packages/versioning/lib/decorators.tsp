@@ -71,7 +71,19 @@ namespace TypeSpec {
      * }
      * ```
      */
-    extern dec added(target: unknown, version: EnumMember);
+    extern dec added(
+      target:
+        | Model
+        | ModelProperty
+        | Operation
+        | Enum
+        | EnumMember
+        | Union
+        | UnionVariant
+        | Scalar
+        | Interface,
+      version: EnumMember
+    );
 
     /**
      * Identifies when the target was removed.
@@ -93,7 +105,19 @@ namespace TypeSpec {
      * }
      * ```
      */
-    extern dec removed(target: unknown, version: EnumMember);
+    extern dec removed(
+      target:
+        | Model
+        | ModelProperty
+        | Operation
+        | Enum
+        | EnumMember
+        | Union
+        | UnionVariant
+        | Scalar
+        | Interface,
+      version: EnumMember
+    );
 
     /**
      * Identifies when the target has been renamed.
@@ -106,7 +130,20 @@ namespace TypeSpec {
      * op newName(): void;
      * ```
      */
-    extern dec renamedFrom(target: unknown, version: EnumMember, oldName: valueof string);
+    extern dec renamedFrom(
+      target:
+        | Model
+        | ModelProperty
+        | Operation
+        | Enum
+        | EnumMember
+        | Union
+        | UnionVariant
+        | Scalar
+        | Interface,
+      version: EnumMember,
+      oldName: valueof string
+    );
 
     /**
      * Identifies when a target was made optional.
@@ -122,14 +159,14 @@ namespace TypeSpec {
      * }
      * ```
      */
-    extern dec madeOptional(target: unknown, version: EnumMember);
+    extern dec madeOptional(target: ModelProperty, version: EnumMember);
 
     /**
      * Identifies when the target type changed.
      * @param version The version that the target type changed in.
      * @param oldType The previous type of the target.
      */
-    extern dec typeChangedFrom(target: unknown, version: EnumMember, oldType: unknown);
+    extern dec typeChangedFrom(target: ModelProperty, version: EnumMember, oldType: unknown);
 
     /**
      * Identifies when the target type changed.
