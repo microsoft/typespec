@@ -30,7 +30,9 @@ export async function bundleAndUploadPackages({
   packages,
 }: BundleAndUploadPackagesOptions) {
   const rushJson = await loadRushJson(repoRoot);
-  const projects = rushJson.projects.filter((x) => packages.includes(x.packageName));
+  const projects = rushJson.projects
+    .filter((x) => x.shouldPublish || x.versionPolicyName !== undefined)
+    .filter((x) => packages.includes(x.packageName));
   const currentVersion = await resolveCurrentVersion(repoRoot);
   logInfo("Current version:", currentVersion);
 
