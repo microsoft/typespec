@@ -1,5 +1,5 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button, Text, Title1, Title2 } from "@fluentui/react-components";
+import { Button, Text, Title2 } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
 import { Card } from "../card/card";
 import { CodeBlock } from "../code-block/code-block";
@@ -30,17 +30,15 @@ const Hero = () => {
     <>
       <div className={style["hero-container"]}>
         <div className={style["hero-content"]}>
-          <Title1 align="center" block={true}>
-            Describe APIs at scale
-          </Title1>
-          <Text align="center" block={true} className={style["hero-subtitle"]}>
-            Describe APIs at scale Meet TypeSpec, a language for describing APIs. Describe your data
-            up front and generate schemas, API specifications, client / server code, docs, and more.
-            Supports OpenAPI 3.0, JSON Schema 202-12, Protobuf, and JSON RPC
-          </Text>
+          <h1 className={style["hero-title"]}>TypeSpec</h1>
+          <div className={style["hero-subtitle"]}>Describe APIs at scale</div>
+          <DescriptionText className={style["hero-description"]}>
+            Describe your data up front and generate schemas, API specifications, client / server
+            code, docs, and more.
+          </DescriptionText>
           <div className={style["hero-buttons"]}>
             <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
-              Docs
+              Getting Started
             </Button>
             <Button as="a" appearance="outline">
               Try it out
@@ -183,6 +181,7 @@ import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
+import { DescriptionText } from "../description-text/description-text";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 
 const ExtensibilityIllustration = () => {

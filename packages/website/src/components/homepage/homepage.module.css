@@ -33,6 +33,45 @@
     radial-gradient(32.53% 31.57% at 50% 66.82%, rgba(70, 54, 104, 0.2) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
+.hero-title {
+  text-align: center;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%; /* 24px */
+  letter-spacing: -0.24px;
+}
+
+.hero-subtitle {
+  text-align: center;
+  font-size: 96px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%; /* 96px */
+  letter-spacing: -3.84px;
+  color: transparent;
+
+  background: linear-gradient(
+    127deg,
+    #6dc2b1 -17.91%,
+    #9ac6e5 19.34%,
+    #3579d8 56.65%,
+    #b145bd 96.75%
+  );
+  background-clip: text;
+}
+
+@media only screen and (max-width: 728px) {
+  .hero-subtitle {
+    font-size: 48px;
+  }
+}
+@media only screen and (max-width: 1024px) {
+  .hero-subtitle {
+    font-size: 68px;
+  }
+}
+
 .hero-content {
   display: flex;
   flex-direction: column;
@@ -42,18 +81,18 @@
   align-self: stretch;
 }
 
+.hero-description {
+  font-size: 20px;
+  max-width: 550px;
+  text-align: center;
+}
+
 .hero-buttons {
   display: flex;
   justify-content: center;
   gap: 8px;
   align-self: stretch;
   flex-wrap: wrap;
-}
-
-.hero-subtitle {
-  font-size: 20px;
-  max-width: 420px;
-  text-align: center;
 }
 
 .hero-demo {

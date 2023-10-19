@@ -1,5 +1,5 @@
 import { Button, Title2 } from "@fluentui/react-components";
-import { DescriptionText } from "../description-text/secondary-text";
+import { DescriptionText } from "../description-text/description-text";
 import { IllustrationCard } from "../illustration-card/illustration-card";
 import style from "./use-case-overview.module.css";
 
