@@ -830,14 +830,6 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return builder.reduce();
   }
 
-  tupleLiteralValuesContext(tuple: Tuple): Context {
-    return {};
-  }
-
-  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
-    return {};
-  }
-
   reference(
     targetDeclaration: Declaration<string>,
     pathUp: Scope<string>[],
