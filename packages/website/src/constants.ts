@@ -1,4 +1,9 @@
 export const Links = {
+  useCases: {
+    openapi: "/openapi",
+    dataValidation: "/data-validation",
+    editor: "/ide",
+  },
   gettingStartedOpenAPI: "/docs/getting-started/typespec-for-openapi-dev",
   gettingStartedWithHttp: "/docs/getting-started/getting-started-http",
 
@@ -15,8 +20,12 @@ export const Links = {
       decorators: "/docs/standard-library/json-schema/reference/decorators",
     },
   },
-
+  tooling: {
+    formatter: "/docs/introduction/formatter",
+    styleGuide: "/docs/introduction/style-guide",
+  },
   editor: {
+    home: "/docs/introduction/installation#install-the-vs-and-vscode-extensions",
     code: "/docs/introduction/editor/code",
     visualStudio: "/docs/introduction/editor/visual-studio",
   },

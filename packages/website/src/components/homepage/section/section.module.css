@@ -1,6 +1,7 @@
 .section {
   display: flex;
   gap: 170px;
+  max-width: 100%;
   align-items: center;
   align-content: center;
   flex-direction: column;
@@ -8,7 +9,6 @@
 
 @media only screen and (min-width: 1200px) {
   .section {
-    max-width: 100%;
     padding: 0 40px;
   }
 
@@ -23,6 +23,8 @@
 
 .info-container {
   display: flex;
+  max-width: 100%;
+  padding: 20px;
   justify-content: center;
 }
 
