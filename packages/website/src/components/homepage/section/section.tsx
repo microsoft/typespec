@@ -7,10 +7,10 @@ import {
   mergeClasses,
   tokens,
 } from "@fluentui/react-components";
-import { FluentImageName, FluentImg } from "../../fluent-img";
-
+import React from "react";
 import { AssetImg } from "../../asset-img/asset-img";
 import { Card } from "../../card/card";
+import { FluentImageName, FluentImg } from "../../fluent-img";
 import { Link } from "../../link/link";
 import style from "./section.module.css";
 
@@ -26,7 +26,7 @@ interface SectionProps {
   title: string;
   description: string;
   illustration: string | React.ReactNode;
-  items: SectionItem[];
+  items?: SectionItem[];
   layout?: "text-left" | "text-right";
 }
 
@@ -64,14 +64,16 @@ export const Section = ({
               {description}
             </div>
           </div>
-          <Card className={style["item-card"]}>
-            {items.map((x, i) => (
-              <>
-                {i !== 0 ? <Divider /> : ""}
-                <SectionItem {...x} />
-              </>
-            ))}
-          </Card>
+          {items ? (
+            <Card className={style["item-card"]}>
+              {items.map((x, i) => (
+                <React.Fragment key={i}>
+                  {i !== 0 ? <Divider /> : ""}
+                  <SectionItem {...x} />
+                </React.Fragment>
+              ))}
+            </Card>
+          ) : null}
         </div>
       </div>
       <Card className={style["illustration"]}>

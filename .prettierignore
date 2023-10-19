@@ -2,6 +2,7 @@
 **/dist-dev/
 **/test/output/
 **/bin/
+**/out/
 **/obj/
 **/.vs/
 **/.docusaurus/
@@ -41,3 +42,7 @@ packages/website/versioned_docs/**/standard-library/built-in-data-types.md
 
 #.tsp init template
 eng/feeds/
+
+# Skip formatting tsp files
+
+*.noformat.tsp

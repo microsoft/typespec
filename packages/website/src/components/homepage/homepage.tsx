@@ -15,8 +15,7 @@ export const HomeContent = () => {
       <SectionedLayout>
         <Overview />
         <OpenAPISection />
-        <EcoSystemSection />
-        <FlexibilitySection />
+        <DataValidationSection />
         <EditorSection />
         <ExtensibilitySection />
       </SectionedLayout>
@@ -92,7 +91,7 @@ const OpenAPISection = () => {
       header="Productivity"
       title="Streamline your OpenAPI workflow"
       description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
-      illustration="illustrations/openapi3.png"
+      illustration={<OpenAPI3HeroIllustration />}
       items={[
         {
           title: "TypeSpec for OpenAPI developers",
@@ -111,13 +110,13 @@ const OpenAPISection = () => {
   );
 };
 
-const EcoSystemSection = () => {
+const DataValidationSection = () => {
   return (
     <Section
       header="Ecosystem"
-      title="Generate Json Schema for your models"
-      description="Use the json schema emitter to get the json schema for your types and use them to validate your data."
-      illustration="illustrations/openapi3.png"
+      title="Ensure data consitency"
+      description="Defined common models to use across your APIs, use the json schema emitter to get the json schema for your types and use them to validate your data."
+      illustration={<DataValidationHeroIllustration />}
       items={[
         {
           title: "Json schema emitter reference",
@@ -130,38 +129,13 @@ const EcoSystemSection = () => {
   );
 };
 
-const FlexibilitySection = () => {
-  return (
-    <Section
-      header="Ecosystem"
-      title="Action-oriented title todo"
-      description="With TypeSpec, align your team around a common type vocabulary. "
-      illustration="illustrations/openapi3.png"
-      items={[
-        {
-          title: "Title todo",
-          description: "Description todo",
-          image: "design",
-          link: "/data-validation",
-        },
-        {
-          title: "Title todo",
-          description: "Description todo",
-          image: "chat",
-          link: "todo",
-        },
-      ]}
-    />
-  );
-};
-
 const EditorSection = () => {
   return (
     <Section
       header="IDE"
       title="First party support for code editor"
       description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
-      illustration="illustrations/ide.png"
+      illustration={<LightDarkImg src="illustrations/ide-hero" />}
       items={[
         {
           title: "TypeSpec for Visual Studio Code",
@@ -206,6 +180,9 @@ const ExtensibilitySection = () => {
 
 import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
+import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
+import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
+import { LightDarkImg } from "../light-dark-img/light-dark-img";
 
 const ExtensibilityIllustration = () => {
   return (

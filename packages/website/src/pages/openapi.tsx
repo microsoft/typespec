@@ -3,6 +3,8 @@ import interoperateTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/inte
 import interoperateOpenapi from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/openapi.yaml";
 import interoperateSpectral from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/spectral.txt";
 import { Links } from "@site/src/constants";
+import TabItem from "@theme/TabItem";
+import Tabs from "@theme/Tabs";
 import { AssetImg } from "../components/asset-img/asset-img";
 import { CodeBlock } from "../components/code-block/code-block";
 import { FluentLayout } from "../components/fluent-layout";
@@ -29,6 +31,7 @@ const OpenApiContent = () => {
         title="Write TypeSpec, emit OpenAPI"
         subtitle="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
         link={Links.gettingStartedOpenAPI}
+        illustration={<OpenAPI3HeroIllustration />}
       />
       <SectionedLayout>
         <UseCaseFeatureGroup>
@@ -100,7 +103,24 @@ const OpenApiContent = () => {
   );
 };
 
-export const OpenAPI3InteroperateIllustration = () => {
+import heroMainTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/main.tsp";
+import heroOpenAPIYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/out/openapi.yaml";
+export const OpenAPI3HeroIllustration = () => {
+  return (
+    <Tabs>
+      <TabItem value="main.tsp">
+        <CodeBlock language="tsp">{heroMainTsp}</CodeBlock>
+      </TabItem>
+      <TabItem value="openapi.yaml">
+        <div className={style["hero-openapi"]}>
+          <CodeBlock language="tsp">{heroOpenAPIYaml}</CodeBlock>
+        </div>
+      </TabItem>
+    </Tabs>
+  );
+};
+
+const OpenAPI3InteroperateIllustration = () => {
   return (
     <div className={style["interoperate-illustration"]}>
       <div className={style["interoperate-tsp"]}>

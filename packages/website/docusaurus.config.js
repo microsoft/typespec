@@ -122,12 +122,12 @@ const config = {
                 to: "/openapi",
               },
               {
-                label: "JSON Schema",
-                to: "/json-schema",
-              },
-              {
                 label: "Data validation and type consistency",
                 to: "/data-validation",
+              },
+              {
+                label: "Tooling support",
+                to: "/tooling",
               },
             ],
           },
