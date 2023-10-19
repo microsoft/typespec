@@ -2,7 +2,8 @@ import { AzureCliCredential } from "@azure/identity";
 import { createTypeSpecBundle } from "@typespec/bundler";
 import { readFile } from "fs/promises";
 import JSON5 from "json5";
-import { join, resolve } from "path/posix";
+import { resolve } from "path";
+import { join as joinUnix } from "path/posix";
 import pc from "picocolors";
 import { parse } from "semver";
 import { TypeSpecBundledPackageUploader } from "./upload-browser-package.js";
@@ -47,7 +48,7 @@ export async function bundleAndUploadPackages({
       logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);
     }
     for (const [key, value] of Object.entries(result.imports)) {
-      importMap[join(project.packageName, key)] = value;
+      importMap[joinUnix(project.packageName, key)] = value;
     }
   }
   logInfo(`Import map for ${currentVersion}:`, importMap);
