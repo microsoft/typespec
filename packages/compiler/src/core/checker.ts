@@ -2741,7 +2741,12 @@ export function createChecker(program: Program): Checker {
       function checkForSelfReference(node: ModelSpreadPropertyNode, parent: ModelStatementNode) {
         let targetName = "";
         let parentName = "";
-        if (node.target.target.kind === SyntaxKind.Identifier) {
+
+        let targetRef = resolveTypeReferenceSym(node.target, undefined);
+        if (targetRef && targetRef.flags & SymbolFlags.Alias) {
+          targetRef = resolveAliasedSymbol(targetRef);
+          targetName = targetRef?.name ?? "";
+        } else if (node.target.target.kind === SyntaxKind.Identifier) {
           targetName = node.target.target.sv;
         }
         if (parent.kind === SyntaxKind.ModelStatement) {
