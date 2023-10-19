@@ -2678,7 +2678,6 @@ export function createChecker(program: Program): Checker {
           }
           for (const prop of node.properties) {
             if (prop.kind === SyntaxKind.ModelSpreadProperty) {
-              checkForSelfReference(prop, node);
               resolveAndCopyMembers(prop.target);
             } else {
               const name = prop.id.sv;
@@ -2735,34 +2734,6 @@ export function createChecker(program: Program): Checker {
         if (ref && ref.members) {
           bindMembers(ref.declarations[0], ref);
           copyMembers(ref.members);
-        }
-      }
-
-      function checkForSelfReference(node: ModelSpreadPropertyNode, parent: ModelStatementNode) {
-        let targetName = "";
-        let parentName = "";
-
-        let targetRef = resolveTypeReferenceSym(node.target, undefined);
-        if (targetRef && targetRef.flags & SymbolFlags.Alias) {
-          targetRef = resolveAliasedSymbol(targetRef);
-          targetName = targetRef?.name ?? "";
-        } else if (node.target.target.kind === SyntaxKind.Identifier) {
-          targetName = node.target.target.sv;
-        }
-        if (parent.kind === SyntaxKind.ModelStatement) {
-          parentName = parent.id.sv;
-        }
-        if (parentName === "" || targetName === "") {
-          return;
-        }
-        if (parentName === targetName) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "spread-model",
-              messageId: "selfSpread",
-              target: node,
-            })
-          );
         }
       }
 
@@ -3104,6 +3075,15 @@ export function createChecker(program: Program): Checker {
     if (targetType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
       return [];
+    }
+    if (parentModel === targetType) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "spread-model",
+          messageId: "selfSpread",
+          target: targetNode,
+        })
+      );
     }
 
     const props: ModelProperty[] = [];
