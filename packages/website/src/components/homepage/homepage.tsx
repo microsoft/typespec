@@ -11,33 +11,34 @@ import { Section } from "./section/section";
 export const HomeContent = () => {
   return (
     <>
-      <Intro />
+      <Hero />
+      <div className={style["hero-divider"]}></div>
       <SectionedLayout>
         <Overview />
         <OpenAPISection />
         <DataValidationSection />
         <EditorSection />
         <ExtensibilitySection />
+        <Closing />
       </SectionedLayout>
-      <Closing />
     </>
   );
 };
 
-const Intro = () => {
+const Hero = () => {
   return (
     <>
-      <div className={style["intro-container"]}>
-        <div className={style["intro-content"]}>
+      <div className={style["hero-container"]}>
+        <div className={style["hero-content"]}>
           <Title1 align="center" block={true}>
             Describe APIs at scale
           </Title1>
-          <Text align="center" block={true} className={style["intro-subtitle"]}>
+          <Text align="center" block={true} className={style["hero-subtitle"]}>
             Describe APIs at scale Meet TypeSpec, a language for describing APIs. Describe your data
             up front and generate schemas, API specifications, client / server code, docs, and more.
             Supports OpenAPI 3.0, JSON Schema 202-12, Protobuf, and JSON RPC
           </Text>
-          <div className={style["intro-buttons"]}>
+          <div className={style["hero-buttons"]}>
             <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
               Docs
             </Button>
@@ -46,8 +47,8 @@ const Intro = () => {
             </Button>
           </div>
         </div>
-        <div className={style["intro-demo"]}>
-          <Card className={style["intro-demo-image"]}></Card>
+        <div className={style["hero-demo"]}>
+          <Card className={style["hero-demo-image"]}></Card>
         </div>
       </div>
     </>
