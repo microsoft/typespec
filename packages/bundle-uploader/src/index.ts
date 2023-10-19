@@ -1,10 +1,10 @@
 import { AzureCliCredential } from "@azure/identity";
 import { createTypeSpecBundle } from "@typespec/bundler";
 import { readFile } from "fs/promises";
+import JSON5 from "json5";
 import { join, resolve } from "path/posix";
 import pc from "picocolors";
 import { parse } from "semver";
-import { pkgRoot } from "./constants.js";
 import { TypeSpecBundledPackageUploader } from "./upload-browser-package.js";
 
 function logInfo(...args: any[]) {
@@ -16,16 +16,29 @@ function logSuccess(message: string) {
   logInfo(pc.green(`✔ ${message}`));
 }
 
-export async function bundleAndUploadPackages(packages: string[]) {
-  const currentVersion = await resolveCurrentVersion();
+export interface BundleAndUploadPackagesOptions {
+  repoRoot: string;
+  /**
+   * List of packages to bundle and upload.
+   */
+  packages: string[];
+}
+
+export async function bundleAndUploadPackages({
+  repoRoot,
+  packages,
+}: BundleAndUploadPackagesOptions) {
+  const rushJson = await loadRushJson(repoRoot);
+  const projects = rushJson.projects.filter((x) => packages.includes(x.packageName));
+  const currentVersion = await resolveCurrentVersion(repoRoot);
   logInfo("Current version:", currentVersion);
 
   const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
   await uploader.createIfNotExists();
 
   const importMap: Record<string, string> = {};
-  for (const name of packages) {
-    const bundle = await createTypeSpecBundle(resolve(pkgRoot, "node_modules", name));
+  for (const project of projects) {
+    const bundle = await createTypeSpecBundle(resolve(repoRoot, project.projectFolder));
     const manifest = bundle.manifest;
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {
@@ -34,7 +47,7 @@ export async function bundleAndUploadPackages(packages: string[]) {
       logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);
     }
     for (const [key, value] of Object.entries(result.imports)) {
-      importMap[join(name, key)] = value;
+      importMap[join(project.packageName, key)] = value;
     }
   }
   logInfo(`Import map for ${currentVersion}:`, importMap);
@@ -45,11 +58,24 @@ export async function bundleAndUploadPackages(packages: string[]) {
   logSuccess(`Updated index for version ${currentVersion}.`);
 }
 
+interface RushJson {
+  projects: RushProject[];
+}
+
+interface RushProject {
+  packageName: string;
+  projectFolder: string;
+  versionPolicyName?: string;
+  shouldPublish?: boolean;
+}
+async function loadRushJson(repoRoot: string): Promise<RushJson> {
+  const content = await readFile(resolve(repoRoot, "rush.json"));
+  return JSON5.parse(content.toString());
+}
+
 /** Resolve the current major.minor.x version */
-async function resolveCurrentVersion() {
-  const content = await readFile(
-    resolve(pkgRoot, "node_modules", "@typespec/compiler", "package.json")
-  );
+async function resolveCurrentVersion(repoRoot: string) {
+  const content = await readFile(resolve(repoRoot, "packages", "compiler", "package.json"));
   const pkg = JSON.parse(content.toString());
   const version = parse(pkg.version);
   if (version === null) {

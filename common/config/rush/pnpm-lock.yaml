@@ -63,30 +63,9 @@ importers:
       '@typespec/bundler':
         specifier: workspace:~0.1.0-alpha.2
         version: link:../bundler
-      '@typespec/compiler':
-        specifier: workspace:~0.49.0
-        version: link:../compiler
-      '@typespec/http':
-        specifier: workspace:~0.49.0
-        version: link:../http
-      '@typespec/json-schema':
-        specifier: workspace:~0.49.0
-        version: link:../json-schema
-      '@typespec/openapi':
-        specifier: workspace:~0.49.0
-        version: link:../openapi
-      '@typespec/openapi3':
-        specifier: workspace:~0.49.0
-        version: link:../openapi3
-      '@typespec/protobuf':
-        specifier: workspace:~0.49.0
-        version: link:../protobuf
-      '@typespec/rest':
-        specifier: workspace:~0.49.0
-        version: link:../rest
-      '@typespec/versioning':
-        specifier: workspace:~0.49.0
-        version: link:../versioning
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
       picocolors:
         specifier: ~1.0.0
         version: 1.0.0
