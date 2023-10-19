@@ -2,7 +2,12 @@
   "changes": [
     {
       "packageName": "@typespec/playground",
-      "comment": "Ability to configure via `createBrowserHost` if library loading should use sytem `importmap` or the es-module-shim library with `importmap-shim`. This was added due to the lack of support for external source map in browsers.",
+      "comment": "Ability to configure via `createBrowserHost` if library loading should use system `importmap` or the es-module-shim library with `importmap-shim`. This was added due to the lack of support for external source map in browsers.",
+      "type": "none"
+    },
+    {
+      "packageName": "@typespec/playground",
+      "comment": "[vite plugin] Provide the ability to configure bundling local libraries with the playground or manage the `importmap` yourself with `skipBundleLibraries` option.",
       "type": "none"
     }
   ],

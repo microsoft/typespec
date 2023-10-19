@@ -4,6 +4,11 @@
       "packageName": "@typespec/bundler",
       "comment": "Add a new cli `typespec-bundler`",
       "type": "none"
+    },
+    {
+      "packageName": "@typespec/bundler",
+      "comment": "Expose a bundle manifest with the relative importmap, package name and version.",
+      "type": "none"
     }
   ],
   "packageName": "@typespec/bundler"
