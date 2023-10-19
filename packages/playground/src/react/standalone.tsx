@@ -2,7 +2,7 @@ import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import { FunctionComponent } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
-import { ImportConfig } from "../core.js";
+import { LibraryImportOptions } from "../core.js";
 import { registerMonacoDefaultWorkers } from "../monaco-worker.js";
 import { registerMonacoLanguage } from "../services.js";
 import { StateStorage, createUrlStateStorage } from "../state-storage.js";
@@ -10,7 +10,7 @@ import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   libraries: string[];
-  importConfig: ImportConfig;
+  importConfig: LibraryImportOptions;
 }
 
 export async function createReactPlayground(config: ReactPlaygroundConfig) {

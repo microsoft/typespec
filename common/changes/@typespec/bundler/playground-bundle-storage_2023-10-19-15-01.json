@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/bundler",
+      "comment": "Add a new cli `typespec-bundler`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/bundler"
+}

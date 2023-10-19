@@ -1,4 +1,7 @@
-export interface ImportConfig {
+/**
+ * Options for importing libraries.
+ */
+export interface LibraryImportOptions {
   /**
    * Should use es-module-shim importmap-shim instead of built-in import and importmap system.
    * @see https://github.com/guybedford/es-module-shims
@@ -16,7 +19,7 @@ export async function importTypeSpecCompiler(
  * @param name Import name.
  * @returns Promise with the loaded module.
  */
-export async function importLibrary(name: string, config: ImportConfig): Promise<unknown> {
+export async function importLibrary(name: string, config: LibraryImportOptions): Promise<unknown> {
   return config.useShim ? importShim(name) : import(/* @vite-ignore */ name);
 }
 
