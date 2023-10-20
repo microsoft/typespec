@@ -104,9 +104,9 @@ const Overview = () => {
 
 const OverviewIllustration = () => {
   return (
-    <Card noPadding blend>
+    <IllustrationCard blend>
       <AssetImg src="illustrations/overview.png" />
-    </Card>
+    </IllustrationCard>
   );
 };
 
@@ -187,8 +187,8 @@ import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibilit
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import { AssetImg } from "../asset-img/asset-img";
-import { Card } from "../card/card";
 import { HeroTabs } from "../hero-tabs/hero-tabs";
+import { IllustrationCard } from "../illustration-card/illustration-card";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 import { DescriptionText, PrimaryText } from "../text/text";
 

@@ -105,10 +105,10 @@ const OpenApiContent = () => {
 
 import heroMainTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/main.tsp";
 import heroOpenAPIYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/out/openapi.yaml";
-import { Card } from "../components/card/card";
+import { IllustrationCard } from "../components/illustration-card/illustration-card";
 export const OpenAPI3HeroIllustration = () => {
   return (
-    <Card noPadding>
+    <IllustrationCard>
       <Tabs>
         <TabItem value="main.tsp">
           <CodeBlock language="tsp">{heroMainTsp}</CodeBlock>
@@ -119,13 +119,13 @@ export const OpenAPI3HeroIllustration = () => {
           </div>
         </TabItem>
       </Tabs>
-    </Card>
+    </IllustrationCard>
   );
 };
 
 const OpenAPI3InteroperateIllustration = () => {
   return (
-    <Card noPadding>
+    <IllustrationCard>
       <div className={style["interoperate-illustration"]}>
         <div className={style["interoperate-tsp"]}>
           <CodeBlock language="tsp">{interoperateTsp}</CodeBlock>
@@ -138,13 +138,13 @@ const OpenAPI3InteroperateIllustration = () => {
         </div>
         <AssetImg className={style["interoperate-swagger-ui"]} src="illustrations/swagger-ui.png" />
       </div>
-    </Card>
+    </IllustrationCard>
   );
 };
 export const OpenAPI3AbstractCode = () => {
   return (
-    <Card noPadding>
+    <IllustrationCard>
       <CodeBlock language="tsp">{abstractionCode}</CodeBlock>
-    </Card>
+    </IllustrationCard>
   );
 };
