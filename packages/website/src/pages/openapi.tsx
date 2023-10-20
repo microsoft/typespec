@@ -8,7 +8,7 @@ import Tabs from "@theme/Tabs";
 import { AssetImg } from "../components/asset-img/asset-img";
 import { CodeBlock } from "../components/code-block/code-block";
 import { FluentLayout } from "../components/fluent-layout";
-import { Section } from "../components/homepage/section/section";
+import { Section } from "../components/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import {
   UseCaseFeature,

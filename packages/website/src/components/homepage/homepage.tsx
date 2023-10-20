@@ -3,9 +3,9 @@ import { Button } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
 import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
 import { CodeBlock } from "../code-block/code-block";
+import { Section } from "../section/section";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
 import style from "./homepage.module.css";
-import { Section } from "./section/section";
 
 export const HomeContent = () => {
   return (

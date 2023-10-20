@@ -1,10 +1,10 @@
 import { Divider, Title2, mergeClasses } from "@fluentui/react-components";
 import React from "react";
-import { AssetImg } from "../../asset-img/asset-img";
-import { Card } from "../../card/card";
-import { FluentImageName, FluentImg } from "../../fluent-img";
-import { Link } from "../../link/link";
-import { DescriptionText, NeutralText, PrimaryText, Text } from "../../text/text";
+import { AssetImg } from "../asset-img/asset-img";
+import { Card } from "../card/card";
+import { FluentImageName, FluentImg } from "../fluent-img";
+import { Link } from "../link/link";
+import { DescriptionText, NeutralText, PrimaryText, Text } from "../text/text";
 import style from "./section.module.css";
 
 interface SectionItem {
