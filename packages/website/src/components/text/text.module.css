@@ -1,0 +1,13 @@
+.description-text {
+  color: var(--colorNeutralForeground3);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 32px;
+}
+
+.primary-text {
+  color: var(--colorBrandForeground1);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 28px;
+}

@@ -6,9 +6,15 @@
 
 /* Fluent Colors for reference */
 :root {
+  /* Brand Foreground  */
+  --colorBrandForeground1: #0f6cbd;
+  --colorBrandForeground2: #115ea3;
+
+  /* Neutral background */
   --colorNeutralBackground1: #ffffff;
   --colorNeutralBackground2: #fafafa;
   --colorNeutralBackground3: #f5f5f5;
+
   /* Status warning */
   --colorStatusWarningBackground1: #fff9f5;
   --colorStatusWarningBackground2: #fdcfb4;
@@ -27,6 +33,11 @@
 }
 
 [data-theme="dark"] {
+  /* Brand Foreground  */
+  --colorBrandForeground1: #479ef5;
+  --colorBrandForeground2: #62abf5;
+
+  /* Neutral background */
   --colorNeutralBackground1: #292929;
   --colorNeutralBackground2: #1f1f1f;
   --colorNeutralBackground3: #141414;

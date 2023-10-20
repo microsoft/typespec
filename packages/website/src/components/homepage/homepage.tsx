@@ -1,5 +1,5 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button, Text, Title2 } from "@fluentui/react-components";
+import { Button, Title2 } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
 import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
 import { CodeBlock } from "../code-block/code-block";
@@ -64,12 +64,12 @@ const Overview = () => {
     <>
       <div className={style["overview"]}>
         <div className={style["overview-summary"]}>
-          <Title2 block={true}>API-First for developers</Title2>
-          <Text block={true} className={style["overview-description"]}>
-            Don't let the nitty-gritty details of an API protocol get in the way of prioritizing
-            your design. With TypeSpec, remove the handwritten files that slow you down, and
-            generate standards-compliant API schemas in seconds.
-          </Text>
+          <PrimaryText>Why TypeSpec</PrimaryText>
+          <div className={style["overview-subtitle"]}>API-First for developers</div>
+          <DescriptionText className={style["overview-description"]}>
+            With TypeSpec, remove the handwritten files that slow you down, and generate
+            standards-compliant API schemas in seconds.
+          </DescriptionText>
         </div>
         <FeatureGroup>
           <Feature title="Describe complex APIs, fast" image="editor">
@@ -187,9 +187,10 @@ import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
-import { DescriptionText } from "../description-text/description-text";
 import { HeroTabs } from "../hero-tabs/hero-tabs";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
+import { DescriptionText } from "../text/description-text";
+import { PrimaryText } from "../text/primary-text";
 
 const ExtensibilityIllustration = () => {
   return (

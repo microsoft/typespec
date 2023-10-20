@@ -47,7 +47,7 @@
   font-style: normal;
   font-weight: 600;
   line-height: 100%; /* 96px */
-  letter-spacing: -3.84px;
+  letter-spacing: -1px;
   color: transparent;
 
   background: linear-gradient(
@@ -80,9 +80,10 @@
   align-self: stretch;
 }
 
-.hero-description {
-  font-size: 20px;
-  max-width: 550px;
+.hero-description,
+.overview-description {
+  max-width: 600px;
+  padding: 20px;
   text-align: center;
 }
 
@@ -116,17 +117,19 @@
   gap: 128px;
 }
 
+.overview-subtitle {
+  text-align: center;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 48px;
+}
+
 .overview-summary {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 24px;
   align-self: stretch;
-}
-
-.overview-description {
-  max-width: 620px;
-  text-align: center;
 }
 
 .closing-content {

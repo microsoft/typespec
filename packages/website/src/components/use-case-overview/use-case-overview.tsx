@@ -1,6 +1,6 @@
 import { Button, Title2 } from "@fluentui/react-components";
-import { DescriptionText } from "../description-text/description-text";
 import { IllustrationCard } from "../illustration-card/illustration-card";
+import { DescriptionText } from "../text/description-text";
 import style from "./use-case-overview.module.css";
 
 export interface UseCaseOverviewProps {
