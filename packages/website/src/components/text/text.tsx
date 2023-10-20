@@ -7,7 +7,7 @@ export interface TextProps {
   className?: string;
 }
 
-const Text = ({ children, className, size }: TextProps) => {
+export const Text = ({ children, className, size }: TextProps) => {
   return (
     <div
       className={mergeClasses(style["text"], style[`text-size-${size ?? "standard"}`], className)}

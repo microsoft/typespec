@@ -79,11 +79,10 @@
   }
 }
 
-.item-card {
+.items-list {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .item {
@@ -91,15 +90,28 @@
   gap: 12px;
 }
 
-.item-image {
+.items-list-card .item-image {
   width: 52px;
   height: 52px;
   max-width: 52px;
 }
 
+.items-list-plain {
+  gap: 40px;
+}
+
+.items-list-card {
+  gap: 12px;
+}
+
+.items-list-plain .item-image {
+  width: 64px;
+  height: 64px;
+  max-width: 64px;
+}
 .item-content {
   display: flex;
   margin-top: 5px;
   flex-direction: column;
-  gap: 5px;
+  gap: 12px;
 }

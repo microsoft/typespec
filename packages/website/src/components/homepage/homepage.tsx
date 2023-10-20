@@ -4,7 +4,6 @@ import { Links } from "@site/src/constants";
 import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
 import { CodeBlock } from "../code-block/code-block";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
-import { Feature, FeatureGroup } from "./feature/feature";
 import style from "./homepage.module.css";
 import { Section } from "./section/section";
 
@@ -71,23 +70,40 @@ const Overview = () => {
             standards-compliant API schemas in seconds.
           </DescriptionText>
         </div>
-        <FeatureGroup>
-          <Feature title="Describe complex APIs, fast" image="editor">
-            Reduce the time it takes to describe complex API shapes by using a minimal language
-            that's easy for developers to use and love.
-          </Feature>
-          <Feature title="Codify your API guidelines" image="people-shield">
-            All the benefits of API review, built into your dev workflow. Codify your team's API
-            guidelines and catch errors at development time.
-          </Feature>
-          <Feature title="Generate assets in many formats" image="firework">
-            With a single line of code, generate a multitude of API assets in your preferred format
-            or protocol - even all at the same time.
-          </Feature>
-        </FeatureGroup>
+        <Section
+          layout="text-right"
+          illustration={<OverviewIllustration />}
+          itemStyle="plain"
+          items={[
+            {
+              title: "Lightweight language for defining APIs",
+              description:
+                "Inspired by TypeScript and C#, TypeSpec is a minimal language that helps developers describe API shapes in a familiar way.",
+              image: "book-pencil",
+              link: Links.gettingStartedOpenAPI,
+            },
+            {
+              title: "Easy integration with your toolchain",
+              description: "Description TBU",
+              image: "document-add",
+              link: "/docs/standard-library/openapi3/reference",
+            },
+            {
+              title: "Multi-protocol support",
+              description:
+                "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12, Protobuf, and JSON RPC.",
+              image: "tasks",
+              link: "/docs/standard-library/openapi3/reference",
+            },
+          ]}
+        />
       </div>
     </>
   );
+};
+
+const OverviewIllustration = () => {
+  return <div></div>;
 };
 
 const OpenAPISection = () => {
