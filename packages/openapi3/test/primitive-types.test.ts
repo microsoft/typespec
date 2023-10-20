@@ -215,11 +215,11 @@ describe("openapi3: primitives", () => {
     });
   });
 
-  it("supports title on custom scalars", async () => {
+  it("supports summary on custom scalars", async () => {
     const res = await oapiForModel(
       "Foo",
       `
-      @title("FooScalar") scalar Foo extends string;
+      @summary("FooScalar") scalar Foo extends string;
       `
     );
     strictEqual(res.schemas.Foo.title, "FooScalar");

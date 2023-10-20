@@ -376,18 +376,18 @@ describe("openapi3: union type", () => {
     });
   });
 
-  it("supports title on unions and union variants", async () => {
+  it("supports summary on unions and union variants", async () => {
     const res = await oapiForModel(
       "Foo",
       `
-      @title("FooUnion")
+      @summary("FooUnion")
       union Foo {
         int32;
 
         Bar;
       }
 
-      @title("BarUnion")
+      @summary("BarUnion")
       union Bar {
         string;
       }

@@ -13,18 +13,3 @@ extern dec oneOf(target: Union | ModelProperty);
  * @param ref External reference(e.g. "../../common.json#/components/schemas/Foo")
  */
 extern dec useRef(target: Model | ModelProperty, ref: valueof string);
-
-/**
- * Specify the `title` field of the schema emitted for this type.
- *
- * @param title The `title` to use in the schema
- */
-extern dec title(
-  target:
-    | Reflection.Enum
-    | Reflection.Model
-    | Reflection.ModelProperty
-    | Reflection.Scalar
-    | Reflection.Union,
-  title: valueof string
-);

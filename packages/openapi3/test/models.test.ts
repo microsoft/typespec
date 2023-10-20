@@ -816,13 +816,13 @@ describe("openapi3: models", () => {
     });
   });
 
-  it("supports title on models and model properties", async () => {
+  it("supports summary on models and model properties", async () => {
     const res = await oapiForModel(
       "Foo",
       `
-      @title("FooModel")
+      @summary("FooModel")
       model Foo {
-        @title("YProp")
+        @summary("YProp")
         y: int32;
       };
       `

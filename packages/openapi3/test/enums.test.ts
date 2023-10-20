@@ -21,11 +21,11 @@ describe("openapi3: enums", () => {
     });
   });
 
-  it("supports title on enums", async () => {
+  it("supports summary on enums", async () => {
     const res = await oapiForModel(
       "Foo",
       `
-      @title("FooEnum")
+      @summary("FooEnum")
       enum Foo {
         y: 0;
       };

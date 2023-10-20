@@ -149,11 +149,11 @@ describe("openapi3: Array", () => {
     });
   });
 
-  it("supports title", async () => {
+  it("supports summary", async () => {
     const res = await oapiForModel(
       "Foo",
       `
-      @title("FooArray")
+      @summary("FooArray")
       model Foo is string[];
       `
     );
