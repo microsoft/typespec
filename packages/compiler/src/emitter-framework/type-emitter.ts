@@ -668,6 +668,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  tupleLiteralValuesContext(tuple: Tuple): Context {
+    return {};
+  }
+
+  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
+    return {};
+  }
+
   tupleLiteralReferenceContext(tuple: Tuple): Context {
     return {};
   }
@@ -845,14 +853,6 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
       builder.push(code`${this.emitter.emitTypeReference(v)}${i < tuple.values.length ? "," : ""}`);
     }
     return builder.reduce();
-  }
-
-  tupleLiteralValuesContext(tuple: Tuple): Context {
-    return {};
-  }
-
-  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
-    return {};
   }
 
   reference(

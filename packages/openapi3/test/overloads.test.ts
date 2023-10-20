@@ -109,4 +109,19 @@ describe("openapi3: overloads", () => {
       }
     `);
   });
+
+  it("can overload a boolean property with true or false", async () => {
+    const _ = await openApiFor(`
+      @test
+      op someThing(param: boolean): string | int32;
+
+      @test
+      @overload(someThing)
+      op someStringThing(param: true): string;
+      
+      @test
+      @overload(someThing)
+      op someNumberThing(param: false): int32;
+    `);
+  });
 });

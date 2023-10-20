@@ -299,6 +299,59 @@ describe("openapi3: shared routes", () => {
     });
   });
 
+  it("model shared routes with different response bodies", async () => {
+    const results = await openApiFor(
+      `
+      @service({title: "My Service"})
+      namespace Foo {
+
+        model A {
+          val: int16;
+
+          @header
+          someHeader: string;
+        }
+
+        model B {
+          val: string;
+
+          @header
+          someHeader: string;
+        }
+
+        @sharedRoute
+        @route("/1")
+        op processInt(@body _: int32, @query options: string): A;
+
+        @sharedRoute
+        @route("/1")
+        op processString(@body _: string, @query options: string): B;
+      }
+      `
+    );
+    const responses = results.paths["/1"].post.responses;
+    deepStrictEqual(responses, {
+      "200": {
+        content: {
+          "application/json": {
+            schema: {
+              anyOf: [{ $ref: "#/components/schemas/A" }, { $ref: "#/components/schemas/B" }],
+            },
+          },
+        },
+        description: "The request has succeeded.",
+        headers: {
+          "some-header": {
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        },
+      },
+    });
+  });
+
   it("model shared routes with different implicit request bodies", async () => {
     const results = await openApiFor(
       `
@@ -306,10 +359,16 @@ describe("openapi3: shared routes", () => {
       namespace Foo {
         model A {
           name: string;
+
+          @header
+          someHeader: string;
         }
 
         model B {
           age: int32;
+
+          @header
+          someHeader: string;
         }
 
         @sharedRoute
@@ -353,13 +412,21 @@ describe("openapi3: shared routes", () => {
       `
       @service({title: "My Service"})
       namespace Foo {
-        @sharedRoute
-        @route("/process")
-        op processInt(@body body: int32, @query options: string): int32;
+
+        @error
+        model ErrorModel {
+          @header "x-ms-error-code": string;
+
+          description: string;
+        }
 
         @sharedRoute
         @route("/process")
-        op processString(@body body: string, @query options: string): string;
+        op processInt(@body body: int32, @query options: string): int32 | ErrorModel;
+
+        @sharedRoute
+        @route("/process")
+        op processString(@body body: string, @query options: string): string | ErrorModel;
       }
       `
     );
@@ -401,6 +468,24 @@ describe("openapi3: shared routes", () => {
           },
         },
         description: "The request has succeeded.",
+      },
+      default: {
+        description: "An unexpected error response.",
+        content: {
+          "application/json": {
+            schema: {
+              $ref: "#/components/schemas/ErrorModel",
+            },
+          },
+        },
+        headers: {
+          "x-ms-error-code": {
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        },
       },
     });
   });
