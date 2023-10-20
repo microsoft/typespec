@@ -9,7 +9,7 @@ export interface HeroProps {
 
 interface HeroTab {
   value: string;
-  content: string;
+  content: any;
 }
 export const HeroTabs = ({ tabs }: HeroProps) => {
   const [selected, setSelected] = useState<string>(tabs[0].value);
