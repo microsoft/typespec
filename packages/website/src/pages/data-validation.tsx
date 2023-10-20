@@ -123,14 +123,16 @@ import extensionsYaml from "!!raw-loader!@site/static/tsp-samples/json-schema/ex
 
 const JsonSchemaExtensionsIllustration = () => {
   return (
-    <Tabs>
-      <TabItem value="main.tsp">
-        <CodeBlock language="tsp">{extensionsTsp}</CodeBlock>
-      </TabItem>
-      <TabItem value="output.yaml">
-        <CodeBlock language="yaml">{extensionsYaml}</CodeBlock>
-      </TabItem>
-    </Tabs>
+    <IllustrationCard>
+      <Tabs>
+        <TabItem value="main.tsp">
+          <CodeBlock language="tsp">{extensionsTsp}</CodeBlock>
+        </TabItem>
+        <TabItem value="output.yaml">
+          <CodeBlock language="yaml">{extensionsYaml}</CodeBlock>
+        </TabItem>
+      </Tabs>
+    </IllustrationCard>
   );
 };
 
