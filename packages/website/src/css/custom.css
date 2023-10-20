@@ -10,6 +10,11 @@
   --colorBrandForeground1: #0f6cbd;
   --colorBrandForeground2: #115ea3;
 
+  /* Neutral Foreground  */
+  --colorNeutralForeground1: #242424;
+  --colorNeutralForeground2: #424242;
+  --colorNeutralForeground3: #616161;
+
   /* Neutral background */
   --colorNeutralBackground1: #ffffff;
   --colorNeutralBackground2: #fafafa;
@@ -36,6 +41,11 @@
   /* Brand Foreground  */
   --colorBrandForeground1: #479ef5;
   --colorBrandForeground2: #62abf5;
+
+  /* Neutral Foreground  */
+  --colorNeutralForeground1: #ffffff;
+  --colorNeutralForeground2: #d6d6d6;
+  --colorNeutralForeground3: #adadad;
 
   /* Neutral background */
   --colorNeutralBackground1: #292929;

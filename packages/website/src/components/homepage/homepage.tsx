@@ -37,7 +37,7 @@ const Hero = () => {
           </DescriptionText>
           <div className={style["hero-buttons"]}>
             <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
-              Getting Started
+              Get Started
             </Button>
             <Button as="a" appearance="outline">
               Try it out
@@ -78,7 +78,7 @@ const Overview = () => {
             {
               title: "Lightweight language for defining APIs",
               description:
-                "Inspired by TypeScript and C#, TypeSpec is a minimal language that helps developers describe API shapes in a familiar way.",
+                "Inspired by TypeScript, TypeSpec is a minimal language that helps developers describe API shapes in a familiar way.",
               image: "book-pencil",
               link: Links.gettingStartedOpenAPI,
             },
@@ -104,7 +104,7 @@ const Overview = () => {
 
 const OverviewIllustration = () => {
   return (
-    <Card noPadding>
+    <Card noPadding blend>
       <AssetImg src="illustrations/overview.png" />
     </Card>
   );

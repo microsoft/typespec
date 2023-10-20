@@ -78,14 +78,16 @@ import commonLibSharedTsp from "!!raw-loader!@site/static/tsp-samples/data-valid
 import commonLibMainTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/common-lib/main.tsp";
 export const DataValidationHeroIllustration = () => {
   return (
-    <Tabs>
-      <TabItem value="main.tsp">
-        <CodeBlock language="tsp">{commonLibMainTsp}</CodeBlock>
-      </TabItem>
-      <TabItem value="common.tsp">
-        <CodeBlock language="tsp">{commonLibSharedTsp}</CodeBlock>
-      </TabItem>
-    </Tabs>
+    <Card noPadding>
+      <Tabs>
+        <TabItem value="main.tsp">
+          <CodeBlock language="tsp">{commonLibMainTsp}</CodeBlock>
+        </TabItem>
+        <TabItem value="common.tsp">
+          <CodeBlock language="tsp">{commonLibSharedTsp}</CodeBlock>
+        </TabItem>
+      </Tabs>
+    </Card>
   );
 };
 
@@ -97,20 +99,22 @@ import { CodeBlock } from "../components/code-block/code-block";
 
 const MultiFileIllustration = () => {
   return (
-    <Tabs>
-      <TabItem value="main.tsp">
-        <CodeBlock language="tsp">{multiFileTsp}</CodeBlock>
-      </TabItem>
-      <TabItem value="Address.yaml">
-        <CodeBlock language="yaml">{multiFileAddress}</CodeBlock>
-      </TabItem>
-      <TabItem value="Car.yaml">
-        <CodeBlock language="yaml">{multiFileCar}</CodeBlock>
-      </TabItem>
-      <TabItem value="Person.yaml">
-        <CodeBlock language="yaml">{multiFilePerson}</CodeBlock>
-      </TabItem>
-    </Tabs>
+    <Card noPadding>
+      <Tabs>
+        <TabItem value="main.tsp">
+          <CodeBlock language="tsp">{multiFileTsp}</CodeBlock>
+        </TabItem>
+        <TabItem value="Address.yaml">
+          <CodeBlock language="yaml">{multiFileAddress}</CodeBlock>
+        </TabItem>
+        <TabItem value="Car.yaml">
+          <CodeBlock language="yaml">{multiFileCar}</CodeBlock>
+        </TabItem>
+        <TabItem value="Person.yaml">
+          <CodeBlock language="yaml">{multiFilePerson}</CodeBlock>
+        </TabItem>
+      </Tabs>
+    </Card>
   );
 };
 
@@ -131,7 +135,12 @@ const JsonSchemaExtensionsIllustration = () => {
 };
 
 import validationDecoratorsTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/validation-decorators.tsp";
+import { Card } from "../components/card/card";
 
 const ValidationDecoratorsIllustration = () => {
-  return <CodeBlock language="tsp">{validationDecoratorsTsp}</CodeBlock>;
+  return (
+    <Card noPadding>
+      <CodeBlock language="tsp">{validationDecoratorsTsp}</CodeBlock>
+    </Card>
+  );
 };

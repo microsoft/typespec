@@ -105,37 +105,46 @@ const OpenApiContent = () => {
 
 import heroMainTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/main.tsp";
 import heroOpenAPIYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/out/openapi.yaml";
+import { Card } from "../components/card/card";
 export const OpenAPI3HeroIllustration = () => {
   return (
-    <Tabs>
-      <TabItem value="main.tsp">
-        <CodeBlock language="tsp">{heroMainTsp}</CodeBlock>
-      </TabItem>
-      <TabItem value="openapi.yaml">
-        <div className={style["hero-openapi"]}>
-          <CodeBlock language="tsp">{heroOpenAPIYaml}</CodeBlock>
-        </div>
-      </TabItem>
-    </Tabs>
+    <Card noPadding>
+      <Tabs>
+        <TabItem value="main.tsp">
+          <CodeBlock language="tsp">{heroMainTsp}</CodeBlock>
+        </TabItem>
+        <TabItem value="openapi.yaml">
+          <div className={style["hero-openapi"]}>
+            <CodeBlock language="tsp">{heroOpenAPIYaml}</CodeBlock>
+          </div>
+        </TabItem>
+      </Tabs>
+    </Card>
   );
 };
 
 const OpenAPI3InteroperateIllustration = () => {
   return (
-    <div className={style["interoperate-illustration"]}>
-      <div className={style["interoperate-tsp"]}>
-        <CodeBlock language="tsp">{interoperateTsp}</CodeBlock>
+    <Card noPadding>
+      <div className={style["interoperate-illustration"]}>
+        <div className={style["interoperate-tsp"]}>
+          <CodeBlock language="tsp">{interoperateTsp}</CodeBlock>
+        </div>
+        <div className={style["interoperate-openapi"]}>
+          <CodeBlock language="yaml">{interoperateOpenapi}</CodeBlock>
+        </div>
+        <div className={style["interoperate-spectral"]}>
+          <CodeBlock language="shell-session">{interoperateSpectral}</CodeBlock>
+        </div>
+        <AssetImg className={style["interoperate-swagger-ui"]} src="illustrations/swagger-ui.png" />
       </div>
-      <div className={style["interoperate-openapi"]}>
-        <CodeBlock language="yaml">{interoperateOpenapi}</CodeBlock>
-      </div>
-      <div className={style["interoperate-spectral"]}>
-        <CodeBlock language="shell-session">{interoperateSpectral}</CodeBlock>
-      </div>
-      <AssetImg className={style["interoperate-swagger-ui"]} src="illustrations/swagger-ui.png" />
-    </div>
+    </Card>
   );
 };
 export const OpenAPI3AbstractCode = () => {
-  return <CodeBlock language="tsp">{abstractionCode}</CodeBlock>;
+  return (
+    <Card noPadding>
+      <CodeBlock language="tsp">{abstractionCode}</CodeBlock>
+    </Card>
+  );
 };
