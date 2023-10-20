@@ -1,11 +1,19 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Button } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
+import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
+import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
 import { CodeBlock } from "../code-block/code-block";
+import { FeatureList } from "../feature-list/feature-list";
+import { HeroTabs } from "../hero-tabs/hero-tabs";
+import { LearnMoreCard } from "../learn-more-card/learn-more-card";
+import { LightDarkImg } from "../light-dark-img/light-dark-img";
 import { Section } from "../section/section";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
+import { DescriptionText, PrimaryText } from "../text/text";
 import style from "./homepage.module.css";
+import { OverviewIllustration } from "./overview-illustration/overview-illustration";
 
 export const HomeContent = () => {
   return (
@@ -101,14 +109,6 @@ const Overview = () => {
   );
 };
 
-const OverviewIllustration = () => {
-  return (
-    <IllustrationCard blend>
-      <AssetImg src="illustrations/overview.png" />
-    </IllustrationCard>
-  );
-};
-
 const OpenAPISection = () => {
   return (
     <Section
@@ -179,15 +179,6 @@ const ExtensibilitySection = () => {
 
 import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
-import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
-import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
-import { AssetImg } from "../asset-img/asset-img";
-import { FeatureList } from "../feature-list/feature-list";
-import { HeroTabs } from "../hero-tabs/hero-tabs";
-import { IllustrationCard } from "../illustration-card/illustration-card";
-import { LearnMoreCard } from "../learn-more-card/learn-more-card";
-import { LightDarkImg } from "../light-dark-img/light-dark-img";
-import { DescriptionText, PrimaryText } from "../text/text";
 
 const ExtensibilityIllustration = () => {
   return (

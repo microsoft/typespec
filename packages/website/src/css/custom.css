@@ -19,6 +19,13 @@
   --colorNeutralBackground1: #ffffff;
   --colorNeutralBackground2: #fafafa;
   --colorNeutralBackground3: #f5f5f5;
+  --colorNeutralBackground4: #f0f0f0;
+
+  /* Stroke */
+  --colorNeutralStroke1: #d1d1d1;
+  --colorNeutralStroke2: #e0e0e0;
+  --colorNeutralStroke3: #f0f0f0;
+  --colorNeutralStrokeOnBrand: #ffffff;
 
   /* Status warning */
   --colorStatusWarningBackground1: #fff9f5;
@@ -51,6 +58,13 @@
   --colorNeutralBackground1: #292929;
   --colorNeutralBackground2: #1f1f1f;
   --colorNeutralBackground3: #141414;
+  --colorNeutralBackground4: #0a0a0a;
+
+  /* Stroke */
+  --colorNeutralStroke1: #666666;
+  --colorNeutralStroke2: #525252;
+  --colorNeutralStroke3: #3d3d3d;
+  --colorNeutralStrokeOnBrand: #292929;
 
   /* Status warning */
   --colorStatusWarningBackground1: #4a1e04;

@@ -1,7 +1,7 @@
 .hero-divider {
   height: 2px;
   align-self: stretch;
-  background: radial-gradient(circle, rgba(82, 82, 82, 1) 0%, rgba(82, 82, 82, 0) 80%);
+  background: radial-gradient(circle, var(--colorNeutralStroke2) 0%, rgba(82, 82, 82, 0) 80%);
 }
 
 .hero-container {

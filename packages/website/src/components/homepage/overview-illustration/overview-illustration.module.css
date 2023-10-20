@@ -1,0 +1,37 @@
+.card {
+  width: 723px;
+  height: 542px;
+  position: relative;
+}
+
+.terminal {
+  position: absolute;
+  top: 60px;
+  left: 50px;
+  width: 420px;
+  height: 320px;
+  background-color: var(--colorNeutralBackground4);
+}
+
+.terminal-code {
+  background-color: var(--colorNeutralBackground4);
+  margin: 0;
+  height: 100%;
+}
+
+.color-brand {
+  color: var(--colorBrandForeground1);
+}
+.color-secondary {
+  color: var(--colorNeutralForeground3);
+}
+
+.color-highlight {
+  text-decoration: underline;
+}
+
+.ide {
+  position: absolute;
+  top: 226px;
+  left: 183px;
+}
