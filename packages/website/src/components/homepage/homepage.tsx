@@ -32,7 +32,7 @@ const Hero = () => {
         <div className={style["hero-content"]}>
           <h1 className={style["hero-title"]}>TypeSpec</h1>
           <div className={style["hero-subtitle"]}>Describe APIs at scale</div>
-          <DescriptionText className={style["hero-description"]}>
+          <DescriptionText size="large" className={style["hero-description"]}>
             Describe your data up front and generate schemas, API specifications, client / server
             code, docs, and more.
           </DescriptionText>
@@ -66,7 +66,7 @@ const Overview = () => {
         <div className={style["overview-summary"]}>
           <PrimaryText>Why TypeSpec</PrimaryText>
           <div className={style["overview-subtitle"]}>API-First for developers</div>
-          <DescriptionText className={style["overview-description"]}>
+          <DescriptionText size="large" className={style["overview-description"]}>
             With TypeSpec, remove the handwritten files that slow you down, and generate
             standards-compliant API schemas in seconds.
           </DescriptionText>
@@ -189,8 +189,7 @@ import { DataValidationHeroIllustration } from "@site/src/pages/data-validation"
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import { HeroTabs } from "../hero-tabs/hero-tabs";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
-import { DescriptionText } from "../text/description-text";
-import { PrimaryText } from "../text/primary-text";
+import { DescriptionText, PrimaryText } from "../text/text";
 
 const ExtensibilityIllustration = () => {
   return (

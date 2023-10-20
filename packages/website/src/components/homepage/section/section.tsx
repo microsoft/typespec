@@ -4,8 +4,7 @@ import { AssetImg } from "../../asset-img/asset-img";
 import { Card } from "../../card/card";
 import { FluentImageName, FluentImg } from "../../fluent-img";
 import { Link } from "../../link/link";
-import { DescriptionText } from "../../text/description-text";
-import { PrimaryText } from "../../text/primary-text";
+import { DescriptionText, PrimaryText } from "../../text/text";
 import style from "./section.module.css";
 
 interface SectionItem {
@@ -46,7 +45,9 @@ export const Section = ({
               <PrimaryText>{header}</PrimaryText>
               <Title2 block={true}>{title}</Title2>
             </div>
-            <DescriptionText className={style["info-description"]}>{description}</DescriptionText>
+            <DescriptionText size="large" className={style["info-description"]}>
+              {description}
+            </DescriptionText>
           </div>
           {items ? (
             <Card className={style["item-card"]}>
