@@ -29,7 +29,7 @@ import {
   Declaration,
   EmitEntity,
   EmittedSourceFile,
-  ReferenceStackEntry,
+  ReferenceChainEntry,
   Scope,
   SourceFile,
   TypeSpecDeclaration,
@@ -714,10 +714,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   circularReference(
     target: EmitEntity<T>,
     scope: Scope<T> | undefined,
-    circularStack: ReferenceStackEntry[]
+    circularChain: ReferenceChainEntry[]
   ): EmitEntity<T> | T {
     if (target.kind !== "declaration") {
-      throw new Error("Found circular reference without a declaration");
+      throw new Error("Circular references to non-declarations are not supported by this emitter.");
     }
     compilerAssert(
       scope,

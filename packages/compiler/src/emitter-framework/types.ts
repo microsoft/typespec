@@ -186,9 +186,9 @@ export interface LexicalTypeStackEntry {
 }
 
 /**
- * Represent an entry in the reference stack.
+ * Represent an entry in the reference chain.
  */
-export interface ReferenceStackEntry {
+export interface ReferenceChainEntry {
   type: Type;
 }
 

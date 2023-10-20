@@ -25,7 +25,7 @@ import {
   NamespaceScope,
   NoEmit,
   RawCode,
-  ReferenceStackEntry,
+  ReferenceChainEntry,
   Scope,
   SourceFile,
   SourceFileScope,
@@ -99,7 +99,7 @@ export function createAssetEmitter<T, TOptions extends object>(
   // model, but in the type graph we will consider it to be lexically inside
   // whatever references the alias.
   let lexicalTypeStack: LexicalTypeStackEntry[] = [];
-  let referenceTypeStack: ReferenceStackEntry[] = [];
+  let referenceTypeChain: ReferenceChainEntry[] = [];
 
   // Internally, context is is split between lexicalContext and
   // referenceContext because when a reference is made, we carry over
@@ -223,13 +223,13 @@ export function createAssetEmitter<T, TOptions extends object>(
           waitingCircularRefs.set(entity.emitEntityKey, waiting);
         }
 
-        const circularStack = getCircularStack(referenceTypeStack, entity);
+        const circularChain = getCircularChain(referenceTypeChain, entity);
         waiting.push({
           state: {
             lexicalTypeStack,
             context,
           },
-          cb: (entity) => invokeReference(this, entity, true, circularStack),
+          cb: (entity) => invokeReference(this, entity, true, circularChain),
         });
 
         placeholder = new Placeholder();
@@ -242,13 +242,13 @@ export function createAssetEmitter<T, TOptions extends object>(
         assetEmitter: AssetEmitter<T, TOptions>,
         entity: EmitEntity<T>,
         circular: boolean,
-        circularStack?: ReferenceStackEntry[]
+        circularChain?: ReferenceChainEntry[]
       ): EmitEntity<T> {
         let ref;
         const scope = currentScope();
 
         if (circular) {
-          ref = typeEmitter.circularReference(entity, scope, circularStack!);
+          ref = typeEmitter.circularReference(entity, scope, circularChain!);
         } else {
           if (entity.kind !== "declaration") {
             return entity;
@@ -568,7 +568,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     }
 
     if (!isInternalMethod(method)) {
-      referenceTypeStack = [...referenceTypeStack, stackEntryInterner.intern({ type })];
+      referenceTypeChain = [...referenceTypeChain, stackEntryInterner.intern({ type })];
     }
 
     lexicalTypeStack = newTypeStack;
@@ -654,14 +654,14 @@ export function createAssetEmitter<T, TOptions extends object>(
   ) {
     const oldContext = context;
     const oldTypeStack = lexicalTypeStack;
-    const oldRefTypeStack = referenceTypeStack;
+    const oldRefTypeStack = referenceTypeChain;
 
     setContextForType(method, args);
     cb();
 
     context = oldContext;
     lexicalTypeStack = oldTypeStack;
-    referenceTypeStack = oldRefTypeStack;
+    referenceTypeChain = oldRefTypeStack;
   }
 
   /**
@@ -846,7 +846,7 @@ function keyHasReferenceContext(key: keyof TypeEmitter<any, any>): boolean {
   return !noReferenceContext.has(key);
 }
 
-function getCircularStack(stack: ReferenceStackEntry[], entity: CircularEmit) {
+function getCircularChain(stack: ReferenceChainEntry[], entity: CircularEmit) {
   for (let i = stack.length - 1; i >= 0; i--) {
     if (stack[i].type === entity.emitEntityKey[1]) {
       return stack.slice(i);

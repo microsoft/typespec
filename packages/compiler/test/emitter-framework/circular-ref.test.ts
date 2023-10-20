@@ -6,7 +6,7 @@ import {
   EmitEntity,
   EmitterOutput,
   ObjectBuilder,
-  ReferenceStackEntry,
+  ReferenceChainEntry,
   Scope,
   TypeEmitter,
   createAssetEmitter,
@@ -21,7 +21,7 @@ describe("compiler: emitter-framework: circular references", () => {
 
   interface CircularRefEntry {
     target: EmitEntity<any>;
-    stack: ReferenceStackEntry[];
+    circularChain: ReferenceChainEntry[];
   }
   async function findCircularReferences(code: string, options: FindOptions) {
     const invalidReferences: CircularRefEntry[] = [];
@@ -63,13 +63,13 @@ describe("compiler: emitter-framework: circular references", () => {
       circularReference(
         target: EmitEntity<any>,
         scope: Scope<any>,
-        circularStack: ReferenceStackEntry[]
+        circularChain: ReferenceChainEntry[]
       ) {
         if (target.kind !== "declaration") {
-          invalidReferences.push({ target, stack: circularStack });
+          invalidReferences.push({ target, circularChain });
           return target;
         }
-        return super.circularReference(target, scope, circularStack);
+        return super.circularReference(target, scope, circularChain);
       }
     };
 
@@ -121,7 +121,7 @@ describe("compiler: emitter-framework: circular references", () => {
     strictEqual(result.length, 1);
 
     deepStrictEqual(
-      result[0].stack.map((x) => getTypeName(x.type)),
+      result[0].circularChain.map((x) => getTypeName(x.type)),
       ["Foo", "Foo.foo", "Bar", "Bar.bar"]
     );
   });
