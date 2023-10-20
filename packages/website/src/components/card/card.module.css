@@ -3,3 +3,7 @@
   border-radius: 22px;
   padding: 20px;
 }
+
+.no-padding {
+  padding: 0px;
+}

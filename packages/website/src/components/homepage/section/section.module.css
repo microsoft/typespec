@@ -1,6 +1,6 @@
 .section {
   display: flex;
-  gap: 170px;
+  gap: 10px 60px;
   max-width: 100%;
   align-items: center;
   align-content: center;
@@ -10,6 +10,7 @@
 @media only screen and (min-width: 1200px) {
   .section {
     padding: 0 40px;
+    gap: 3vw;
   }
 
   .text-left {
@@ -18,6 +19,12 @@
 
   .text-right {
     flex-direction: row-reverse;
+  }
+}
+
+@media only screen and (min-width: 1500px) {
+  .section {
+    gap: 170px;
   }
 }
 
@@ -60,7 +67,7 @@
 }
 
 .illustration {
-  width: 80vw;
+  flex: 1 0 50%;
   padding: 0;
   overflow: hidden;
 }
@@ -71,12 +78,6 @@
 
 .illustration :global(.tabs-container) :global(.margin-top--md) {
   margin-top: 0 !important;
-}
-
-@media only screen and (min-width: 1200px) {
-  .illustration {
-    width: 50vw;
-  }
 }
 
 .items-list {

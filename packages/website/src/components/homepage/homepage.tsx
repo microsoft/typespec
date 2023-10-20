@@ -103,7 +103,11 @@ const Overview = () => {
 };
 
 const OverviewIllustration = () => {
-  return <div></div>;
+  return (
+    <Card noPadding>
+      <AssetImg src="illustrations/overview.png" />
+    </Card>
+  );
 };
 
 const OpenAPISection = () => {
@@ -203,6 +207,8 @@ import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
+import { AssetImg } from "../asset-img/asset-img";
+import { Card } from "../card/card";
 import { HeroTabs } from "../hero-tabs/hero-tabs";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 import { DescriptionText, PrimaryText } from "../text/text";

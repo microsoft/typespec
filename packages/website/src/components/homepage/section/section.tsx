@@ -12,7 +12,6 @@ interface SectionItem {
   description?: string;
   image?: FluentImageName;
   link: string;
-  itemStyle: "card" | "plain";
 }
 
 export interface SectionProps {
@@ -34,6 +33,18 @@ export const Section = ({
   illustration,
   itemStyle: itemsCard,
 }: SectionProps) => {
+  const heading =
+    header || title || description ? (
+      <div className={style["info-heading"]}>
+        <div className={style["info-title"]}>
+          <PrimaryText>{header}</PrimaryText>
+          <Title2 block={true}>{title}</Title2>
+        </div>
+        <DescriptionText size="large" className={style["info-description"]}>
+          {description}
+        </DescriptionText>
+      </div>
+    ) : undefined;
   return (
     <div
       className={mergeClasses(
@@ -43,15 +54,7 @@ export const Section = ({
     >
       <div className={style["info-container"]}>
         <div className={style["info"]}>
-          <div className={style["info-heading"]}>
-            <div className={style["info-title"]}>
-              <PrimaryText>{header}</PrimaryText>
-              <Title2 block={true}>{title}</Title2>
-            </div>
-            <DescriptionText size="large" className={style["info-description"]}>
-              {description}
-            </DescriptionText>
-          </div>
+          {heading}
           <SectionItems items={items} itemStyle={itemsCard} />
         </div>
       </div>
