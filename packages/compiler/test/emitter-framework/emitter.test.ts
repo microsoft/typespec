@@ -496,6 +496,68 @@ describe("emitter-framework: typescript emitter", () => {
   });
 });
 
+it.only("handles references to non-declarations", async () => {
+  let sourceFile: SourceFile<string>;
+  class TestEmitter extends CodeTypeEmitter {
+    programContext(program: Program): Context {
+      sourceFile = this.emitter.createSourceFile("hi.txt");
+      return {
+        scope: sourceFile.globalScope,
+      };
+    }
+
+    modelDeclaration(model: Model, name: string): EmitterOutput<string> {
+      const result = this.emitter.emitModelProperties(model);
+      if (model.name === "Bar") {
+        return this.emitter.result.declaration(model.name, code`model references ${result}`);
+      }
+      return this.emitter.result.rawCode(code`inlined model references ${result}`);
+    }
+
+    modelProperties(model: Model): EmitterOutput<string> {
+      const builder = new StringBuilder();
+      for (const prop of model.properties.values()) {
+        builder.push(code`${this.emitter.emitModelProperty(prop)}`);
+      }
+      return this.emitter.result.rawCode(builder);
+    }
+
+    modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
+      return this.emitter.result.rawCode(code`${this.emitter.emitTypeReference(property.type)}`);
+    }
+
+    reference(
+      targetDeclaration: Declaration<string>,
+      pathUp: Scope<string>[],
+      pathDown: Scope<string>[],
+      commonScope: Scope<string> | null
+    ): string | EmitEntity<string> {
+      console.log("Have ref", arguments);
+      return super.reference(targetDeclaration, pathUp, pathDown, commonScope);
+    }
+
+    sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
+      assert.strictEqual(sourceFile.globalScope.declarations.length, 1);
+      const contents = sourceFile.globalScope.declarations[0].value as string;
+      console.log(contents);
+      return {
+        contents,
+        path: sourceFile.path,
+      };
+    }
+  }
+
+  await emitTypeSpec(
+    TestEmitter,
+    `
+    model Bar { bProp: Foo; bProp2: Foo; };
+    model Foo { fProp: string };
+  `,
+    {},
+    false
+  );
+});
+
 it("handles circular references", async () => {
   let sourceFile: SourceFile<string>;
   class TestEmitter extends CodeTypeEmitter {
@@ -552,6 +614,68 @@ it("handles circular references", async () => {
       modelProperties: 2,
       modelPropertyLiteral: 2,
     }
+  );
+});
+
+it.only("handles circular references to non-declarations", async () => {
+  let sourceFile: SourceFile<string>;
+  class TestEmitter extends CodeTypeEmitter {
+    programContext(program: Program): Context {
+      sourceFile = this.emitter.createSourceFile("hi.txt");
+      return {
+        scope: sourceFile.globalScope,
+      };
+    }
+
+    modelDeclaration(model: Model, name: string): EmitterOutput<string> {
+      const result = this.emitter.emitModelProperties(model);
+      if (model.name === "Bar") {
+        return this.emitter.result.declaration(model.name, code`model references ${result}`);
+      }
+      return this.emitter.result.rawCode(code`inlined model references ${result}`);
+    }
+
+    modelProperties(model: Model): EmitterOutput<string> {
+      const builder = new StringBuilder();
+      for (const prop of model.properties.values()) {
+        builder.push(code`${this.emitter.emitModelProperty(prop)}`);
+      }
+      return this.emitter.result.rawCode(builder);
+    }
+
+    modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
+      return this.emitter.result.rawCode(code`${this.emitter.emitTypeReference(property.type)}`);
+    }
+
+    reference(
+      targetDeclaration: Declaration<string>,
+      pathUp: Scope<string>[],
+      pathDown: Scope<string>[],
+      commonScope: Scope<string> | null
+    ): string | EmitEntity<string> {
+      console.log("Have ref", arguments);
+      return super.reference(targetDeclaration, pathUp, pathDown, commonScope);
+    }
+
+    sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
+      assert.strictEqual(sourceFile.globalScope.declarations.length, 1);
+      const contents = sourceFile.globalScope.declarations[0].value as string;
+      console.log(contents);
+      return {
+        contents,
+        path: sourceFile.path,
+      };
+    }
+  }
+
+  await emitTypeSpec(
+    TestEmitter,
+    `
+    model Bar { bProp: Foo; };
+    model Foo { fProp: Foo; };
+  `,
+    {},
+    false
   );
 });
 

@@ -28,3 +28,12 @@ export function $oneOf(context: DecoratorContext, entity: Union | ModelProperty)
 export function getOneOf(program: Program, entity: Type): boolean {
   return program.stateMap(oneOfKey).get(entity);
 }
+
+const titleKey = createStateSymbol("title");
+export function $title(context: DecoratorContext, entity: Type, title: string) {
+  context.program.stateMap(titleKey).set(entity, title);
+}
+
+export function getTitle(program: Program, entity: Type): string | undefined {
+  return program.stateMap(titleKey).get(entity);
+}

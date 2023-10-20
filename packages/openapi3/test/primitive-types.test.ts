@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { OpenAPI3Schema } from "../src/types.js";
 import { oapiForModel } from "./test-host.js";
 
@@ -213,6 +213,16 @@ describe("openapi3: primitives", () => {
         format: "password",
       });
     });
+  });
+
+  it("supports title on custom scalars", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @title("FooScalar") scalar Foo extends string;
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooScalar");
   });
 
   describe("using @encode decorator", () => {

@@ -104,7 +104,7 @@ import {
 } from "@typespec/openapi";
 import { buildVersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
-import { getOneOf, getRef } from "./decorators.js";
+import { getOneOf, getRef, getTitle } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import {
   OpenAPI3Discriminator,
@@ -1470,6 +1470,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       schema.enum = values;
     }
 
+    const title = getTitle(program, e);
+    if (title) {
+      schema.title = title;
+    }
+
     return schema;
     function enumMemberType(member: EnumMember) {
       if (typeof member.value === "number") {
@@ -1537,6 +1542,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (schemaMembers.length === 1) {
       // we can just return the single schema member after applying nullable
       const schema = schemaMembers[0].schema;
+      applyIntrinsicDecorators(union, schema);
+      const title = getTitle(program, union);
+      if (title) {
+        schema.title = title;
+      }
       const type = schemaMembers[0].type;
 
       if (nullable) {
@@ -1707,6 +1717,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (Object.keys(properties).length > 0) {
       modelSchema.properties = properties;
     }
+    const title = getTitle(program, model);
+    if (title) {
+      modelSchema.title = title;
+    }
+
     // Attach any OpenAPI extensions
     attachExtensions(program, model, modelSchema);
     return modelSchema;
@@ -1831,6 +1846,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (isSecret(program, typespecType)) {
       newTarget.format = "password";
+    }
+
+    const title = getTitle(program, typespecType);
+    if (title) {
+      newTarget.title = title;
     }
 
     const values = getKnownValues(program, typespecType as any);

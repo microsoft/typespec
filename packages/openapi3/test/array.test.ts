@@ -1,4 +1,4 @@
-import { deepStrictEqual, ok } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { oapiForModel } from "./test-host.js";
 
 describe("openapi3: Array", () => {
@@ -147,6 +147,18 @@ describe("openapi3: Array", () => {
       items: { type: "number", format: "decimal128" },
       default: [123, 456.7],
     });
+  });
+
+  it("supports title", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @title("FooArray")
+      model Foo is string[];
+      `
+    );
+
+    strictEqual(res.schemas.Foo.title, "FooArray");
   });
 
   it("can specify tuple defaults using tuple syntax", async () => {
