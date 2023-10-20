@@ -2,7 +2,7 @@ export const Links = {
   useCases: {
     openapi: "/openapi",
     dataValidation: "/data-validation",
-    editor: "/ide",
+    tooling: "/tooling",
   },
   gettingStartedOpenAPI: "/docs/getting-started/typespec-for-openapi-dev",
   gettingStartedWithHttp: "/docs/getting-started/getting-started-http",

@@ -10,6 +10,7 @@ export type FluentImageName =
   | "book-pencil"
   | "chat"
   | "checkmark"
+  | "data-trending"
   | "design-layout"
   | "design"
   | "devices-multiple"

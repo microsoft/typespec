@@ -1,6 +1,7 @@
 .section {
   display: flex;
   gap: 10px 60px;
+  width: 100%;
   max-width: 100%;
   align-items: center;
   align-content: center;
@@ -111,7 +112,6 @@
 }
 .item-content {
   display: flex;
-  margin-top: 5px;
   flex-direction: column;
   gap: 12px;
 }

@@ -1,5 +1,5 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button, Title2 } from "@fluentui/react-components";
+import { Button } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
 import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
 import { CodeBlock } from "../code-block/code-block";
@@ -119,16 +119,9 @@ const OpenAPISection = () => {
       illustration={<OpenAPI3HeroIllustration />}
       items={[
         {
-          title: "TypeSpec for OpenAPI developers",
-          description: "Get started with using TypeSpec coming from OpenAPI.",
+          title: "Generate OpenAPI from TypeSpec",
           image: "design",
-          link: Links.gettingStartedOpenAPI,
-        },
-        {
-          title: "OpenAPI emitter reference",
-          description: "Reference documentation for the OpenAPI 3.0 emitter.",
-          image: "document-add",
-          link: "/docs/standard-library/openapi3/reference",
+          link: Links.useCases.openapi,
         },
       ]}
     />
@@ -145,9 +138,8 @@ const DataValidationSection = () => {
       items={[
         {
           title: "Json schema emitter reference",
-          description: "Generate the JSON Schema for your types.",
           image: "people-shield",
-          link: Links.libraryReferences.jsonSchema.index,
+          link: Links.useCases.dataValidation,
         },
       ]}
     />
@@ -157,18 +149,15 @@ const DataValidationSection = () => {
 const EditorSection = () => {
   return (
     <Section
-      header="IDE"
+      header="Tooling"
       title="First party support for code editor"
       description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
       illustration={<LightDarkImg src="illustrations/ide-hero" />}
       items={[
         {
-          title: "TypeSpec for Visual Studio Code",
-          link: Links.editor.code,
-        },
-        {
-          title: "TypeSpec for Visual Studio",
-          link: Links.editor.visualStudio,
+          image: "data-trending",
+          title: "Check out our available tooling",
+          link: Links.useCases.tooling,
         },
       ]}
     />
@@ -179,24 +168,14 @@ const ExtensibilitySection = () => {
   return (
     <Section
       header="Extensibility"
-      title="Custom decorators and emitters"
+      title="Generate assets in many formats"
       description="Typespec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
       illustration={<ExtensibilityIllustration />}
       items={[
         {
           title: "Getting started with writing a library",
-          description: "",
+          image: "data-trending",
           link: Links.extensibility.gettingStarted,
-        },
-        {
-          title: "Create a decorator",
-          description: "",
-          link: Links.extensibility.decorators,
-        },
-        {
-          title: "Create an emitter",
-          description: "",
-          link: Links.extensibility.decorators,
         },
       ]}
     />
@@ -230,10 +209,16 @@ const ExtensibilityIllustration = () => {
 const Closing = () => {
   return (
     <div className={style["closing"]}>
-      <div className={style["closing-content"]}>
-        <Title2 block={true}>Ready to get started?</Title2>
-        <Button as="a" appearance="secondary" href="/docs">
-          Docs
+      <div className={style["overview-subtitle"]}>Start your TypeSpec journey</div>
+      <DescriptionText>
+        Install the TypeSpec CLI or check out the playground to get started.
+      </DescriptionText>
+      <div className={style["closing-buttons"]}>
+        <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
+          Get Started
+        </Button>
+        <Button as="a" appearance="outline">
+          Try it out
         </Button>
       </div>
     </div>

@@ -127,18 +127,22 @@
 .overview-summary {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 24px;
   align-self: stretch;
 }
 
-.closing-content {
+.closing {
   display: flex;
   padding: 80px 60px;
   flex-direction: column;
-  align-items: center;
   gap: 16px;
-  margin: auto;
+  align-items: flex-start;
+  align-self: baseline;
+}
+
+.closing-buttons {
+  display: flex;
+  gap: 8px;
 }
 
 .codeblock-seperator {
