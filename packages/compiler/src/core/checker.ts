@@ -3076,6 +3076,15 @@ export function createChecker(program: Program): Checker {
       reportCheckerDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
       return [];
     }
+    if (parentModel === targetType) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "spread-model",
+          messageId: "selfSpread",
+          target: targetNode,
+        })
+      );
+    }
 
     const props: ModelProperty[] = [];
     // copy each property
