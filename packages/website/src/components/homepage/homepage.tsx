@@ -70,33 +70,32 @@ const Overview = () => {
             standards-compliant API schemas in seconds.
           </DescriptionText>
         </div>
-        <Section
-          layout="text-right"
-          illustration={<OverviewIllustration />}
-          itemStyle="plain"
-          items={[
-            {
-              title: "Lightweight language for defining APIs",
-              description:
-                "Inspired by TypeScript, TypeSpec is a minimal language that helps developers describe API shapes in a familiar way.",
-              image: "book-pencil",
-              link: Links.gettingStartedOpenAPI,
-            },
-            {
-              title: "Easy integration with your toolchain",
-              description: "Description TBU",
-              image: "document-add",
-              link: "/docs/standard-library/openapi3/reference",
-            },
-            {
-              title: "Multi-protocol support",
-              description:
-                "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12, Protobuf, and JSON RPC.",
-              image: "tasks",
-              link: "/docs/standard-library/openapi3/reference",
-            },
-          ]}
-        />
+        <Section layout="text-right" illustration={<OverviewIllustration />} itemStyle="plain">
+          <FeatureList
+            items={[
+              {
+                title: "Lightweight language for defining APIs",
+                description:
+                  "Inspired by TypeScript, TypeSpec is a minimal language that helps developers describe API shapes in a familiar way.",
+                image: "book-pencil",
+                link: Links.gettingStartedOpenAPI,
+              },
+              {
+                title: "Easy integration with your toolchain",
+                description: "Description TBU",
+                image: "document-add",
+                link: "/docs/standard-library/openapi3/reference",
+              },
+              {
+                title: "Multi-protocol support",
+                description:
+                  "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12, Protobuf, and JSON RPC.",
+                image: "tasks",
+                link: "/docs/standard-library/openapi3/reference",
+              },
+            ]}
+          />
+        </Section>
       </div>
     </>
   );
@@ -117,14 +116,13 @@ const OpenAPISection = () => {
       title="Streamline your OpenAPI workflow"
       description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
       illustration={<OpenAPI3HeroIllustration />}
-      items={[
-        {
-          title: "Generate OpenAPI from TypeSpec",
-          image: "design",
-          link: Links.useCases.openapi,
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Generate OpenAPI from TypeSpec"
+        image="design"
+        link={Links.useCases.openapi}
+      />
+    </Section>
   );
 };
 
@@ -135,14 +133,13 @@ const DataValidationSection = () => {
       title="Ensure data consistency"
       description="Defined common models to use across your APIs, use the json schema emitter to get the json schema for your types and use them to validate your data."
       illustration={<DataValidationHeroIllustration />}
-      items={[
-        {
-          title: "Json schema emitter reference",
-          image: "people-shield",
-          link: Links.useCases.dataValidation,
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Json schema emitter reference"
+        image="people-shield"
+        link={Links.useCases.dataValidation}
+      />
+    </Section>
   );
 };
 
@@ -153,14 +150,13 @@ const EditorSection = () => {
       title="First party support for code editor"
       description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
       illustration={<LightDarkImg src="illustrations/ide-hero" />}
-      items={[
-        {
-          image: "data-trending",
-          title: "Check out our available tooling",
-          link: Links.useCases.tooling,
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Check out our available tooling"
+        image="data-trending"
+        link={Links.useCases.tooling}
+      />
+    </Section>
   );
 };
 
@@ -171,14 +167,13 @@ const ExtensibilitySection = () => {
       title="Generate assets in many formats"
       description="Typespec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
       illustration={<ExtensibilityIllustration />}
-      items={[
-        {
-          title: "Getting started with writing a library",
-          image: "data-trending",
-          link: Links.extensibility.gettingStarted,
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Getting started with writing a library"
+        image="data-trending"
+        link={Links.extensibility.gettingStarted}
+      />
+    </Section>
   );
 };
 
@@ -187,8 +182,10 @@ import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibilit
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import { AssetImg } from "../asset-img/asset-img";
+import { FeatureList } from "../feature-list/feature-list";
 import { HeroTabs } from "../hero-tabs/hero-tabs";
 import { IllustrationCard } from "../illustration-card/illustration-card";
+import { LearnMoreCard } from "../learn-more-card/learn-more-card";
 import { LightDarkImg } from "../light-dark-img/light-dark-img";
 import { DescriptionText, PrimaryText } from "../text/text";
 

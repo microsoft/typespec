@@ -1,25 +1,15 @@
-import { Divider, Title2, mergeClasses } from "@fluentui/react-components";
-import React from "react";
+import { Title2, mergeClasses } from "@fluentui/react-components";
+import React, { ReactNode } from "react";
 import { AssetImg } from "../asset-img/asset-img";
-import { Card } from "../card/card";
-import { FluentImageName, FluentImg } from "../fluent-img";
-import { Link } from "../link/link";
-import { DescriptionText, NeutralText, PrimaryText, Text } from "../text/text";
+import { DescriptionText, PrimaryText } from "../text/text";
 import style from "./section.module.css";
-
-interface SectionItem {
-  title: string;
-  description?: string;
-  image?: FluentImageName;
-  link: string;
-}
 
 export interface SectionProps {
   header?: string;
   title?: string;
   description?: string;
   illustration: string | React.ReactNode;
-  items?: SectionItem[];
+  children?: ReactNode;
   itemStyle?: "card" | "plain";
   layout?: "text-left" | "text-right";
 }
@@ -28,7 +18,7 @@ export const Section = ({
   header,
   title,
   description,
-  items,
+  children,
   layout,
   illustration,
   itemStyle: itemsCard,
@@ -55,51 +45,11 @@ export const Section = ({
       <div className={style["info-container"]}>
         <div className={style["info"]}>
           {heading}
-          <SectionItems items={items} itemStyle={itemsCard} />
+          {children}
         </div>
       </div>
       <div className={style["illustration"]}>
         {typeof illustration === "string" ? <AssetImg src={illustration} /> : illustration}
-      </div>
-    </div>
-  );
-};
-
-export const SectionItems = ({ items, itemStyle }: Pick<SectionProps, "items" | "itemStyle">) => {
-  if (items === undefined) {
-    return null;
-  }
-  itemStyle = itemStyle ?? "card";
-
-  const content = items.map((x, i) => (
-    <React.Fragment key={i}>
-      {i !== 0 && itemStyle === "card" ? <Divider /> : ""}
-      <SectionItemEl {...x} itemStyle={itemStyle} />
-    </React.Fragment>
-  ));
-
-  const cls = mergeClasses(style["items-list"], style[`items-list-${itemStyle}`]);
-  return itemStyle === "card" ? (
-    <Card className={cls}>{content}</Card>
-  ) : (
-    <div className={cls}>{content}</div>
-  );
-};
-
-interface SectionItemElProps extends SectionItem {
-  itemStyle: "card" | "plain";
-}
-
-const SectionItemEl = ({ title, description, image, link, itemStyle }: SectionItemElProps) => {
-  return (
-    <div className={style["item"]}>
-      {image && <FluentImg className={style["item-image"]} name={image} />}
-      <div className={style["item-content"]}>
-        <NeutralText size={itemStyle === "card" ? "standard" : "large"}>{title}</NeutralText>
-        <DescriptionText>{description}</DescriptionText>
-        <Link href={link}>
-          <Text>Learn more →</Text>
-        </Link>
       </div>
     </div>
   );

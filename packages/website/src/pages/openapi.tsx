@@ -60,27 +60,14 @@ const OpenApiContent = () => {
           title="Interoperate with the OpenAPI ecosystem"
           description="Write TypeSpec, emit OpenAPI. Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
           illustration={<OpenAPI3InteroperateIllustration />}
-          items={[
-            {
-              title: "Api Gateway",
-              description: "Description todo",
-              image: "document-cloud",
-              link: "/json-rpc",
-            },
-            {
-              title: "Code Generators",
-              description: "Use the generated OpenAPI to generate code.",
-              image: "document-add",
-              link: Links.spectral,
-            },
-            {
-              title: "Linters",
-              description: "Integrate with spectral to lint your OpenAPI.",
-              image: "shield-blue",
-              link: Links.spectral,
-            },
-          ]}
-        />
+        >
+          <LearnMoreCard
+            title="Linters"
+            description="Integrate with spectral to lint your OpenAPI."
+            image="shield-blue"
+            link={Links.spectral}
+          />
+        </Section>
 
         <Section
           layout="text-right"
@@ -88,16 +75,14 @@ const OpenApiContent = () => {
           title="Abstract common patterns"
           description="Codify API patterns into reusable components, improving up quality and consistency across your API surface."
           illustration={<OpenAPI3AbstractCode />}
-          items={[
-            {
-              title: "Example: TypeSpec Azure Library",
-              description:
-                "Azure library for TypeSpec allows a multitude of teams to reuse approved patterns.",
-              image: "document-cloud",
-              link: "/json-rpc",
-            },
-          ]}
-        />
+        >
+          <LearnMoreCard
+            title="Example: TypeSpec Azure Library"
+            description="Azure library for TypeSpec allows a multitude of teams to reuse approved patterns."
+            image="document-cloud"
+            link={Links.typespecAzure}
+          />
+        </Section>
       </SectionedLayout>
     </div>
   );
@@ -106,6 +91,7 @@ const OpenApiContent = () => {
 import heroMainTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/main.tsp";
 import heroOpenAPIYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/out/openapi.yaml";
 import { IllustrationCard } from "../components/illustration-card/illustration-card";
+import { LearnMoreCard } from "../components/learn-more-card/learn-more-card";
 export const OpenAPI3HeroIllustration = () => {
   return (
     <IllustrationCard>

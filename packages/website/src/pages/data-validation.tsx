@@ -29,46 +29,42 @@ const DataValidationContent = () => {
           title="Use built-in decorators"
           description="TypeSpec standard library provides decorators for common validation patterns."
           illustration={<ValidationDecoratorsIllustration />}
-          items={[
-            {
-              title: "Standard library reference",
-              description: "Browse the standard library reference documentation for details.",
-              image: "people-shield",
-              link: Links.standardLibrary.decorators,
-            },
-          ]}
-        />
+        >
+          <LearnMoreCard
+            title="Standard library reference"
+            description="Browse the standard library reference documentation for details."
+            image="people-shield"
+            link={Links.standardLibrary.decorators}
+          />
+        </Section>
         <Section
           layout="text-right"
           header="Output"
           title="Produce Json Schema"
           description="Benefit from the Json Schema ecosystem to validate your data while writing a much more concise and readable code."
           illustration={<MultiFileIllustration />}
-          items={[
-            {
-              title: "Configure the json schema emitter",
-              description:
-                "Change how the json schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml.",
-              image: "shield-settings",
-              link: Links.libraryReferences.jsonSchema.index,
-            },
-          ]}
-        />
+        >
+          <LearnMoreCard
+            title="Configure the json schema emitter"
+            description="Change how the json schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml."
+            image="shield-settings"
+            link={Links.libraryReferences.jsonSchema.index}
+          />
+        </Section>
 
         <Section
           header="Customize"
           title="Json Schema Decorators"
           description="The json schema library provide decorators to customize the output with json schema specific concept."
           illustration={<JsonSchemaExtensionsIllustration />}
-          items={[
-            {
-              title: "Json Schema Decorators Reference",
-              description: "Read the reference documentation for available options.",
-              image: "design",
-              link: Links.libraryReferences.jsonSchema.decorators,
-            },
-          ]}
-        />
+        >
+          <LearnMoreCard
+            title="Json Schema Decorators Reference"
+            description="Read the reference documentation for available options."
+            image="design"
+            link={Links.libraryReferences.jsonSchema.decorators}
+          />
+        </Section>
       </SectionedLayout>
     </div>
   );
@@ -138,6 +134,7 @@ const JsonSchemaExtensionsIllustration = () => {
 
 import validationDecoratorsTsp from "!!raw-loader!@site/static/tsp-samples/data-validation/validation-decorators.tsp";
 import { IllustrationCard } from "../components/illustration-card/illustration-card";
+import { LearnMoreCard } from "../components/learn-more-card/learn-more-card";
 
 const ValidationDecoratorsIllustration = () => {
   return (
