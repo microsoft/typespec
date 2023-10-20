@@ -19,7 +19,7 @@ const DataValidationContent = () => {
     <div>
       <SectionedLayout>
         <UseCaseOverview
-          title="Ensure data consitency"
+          title="Ensure data consistency"
           subtitle="Benefit from the reusability and modularity of TypeSpec types to ensure data consistency across your APIs."
           link={Links.libraryReferences.jsonSchema.index}
           illustration={<DataValidationHeroIllustration />}

@@ -119,7 +119,7 @@ const DataValidationSection = () => {
   return (
     <Section
       header="Ecosystem"
-      title="Ensure data consitency"
+      title="Ensure data consistency"
       description="Defined common models to use across your APIs, use the json schema emitter to get the json schema for your types and use them to validate your data."
       illustration={<DataValidationHeroIllustration />}
       items={[

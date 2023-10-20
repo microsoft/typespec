@@ -24,7 +24,7 @@ const DataValidationContent = () => {
       />
       <SectionedLayout>
         <Section
-          header="Style consitency"
+          header="Style consistency"
           title="Built-in formatter"
           description="TypeSpec provide an opinionated formatter that enables you to enforce a consistent style in your codebase."
           illustration={<FormatterIllustration />}
