@@ -1,4 +1,4 @@
-import { ESLintUtils, TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import ts from "typescript";
 import { createRule } from "../utils.js";
 
@@ -9,7 +9,7 @@ const messages = {
 
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   create(context) {
-    const parserServices = ESLintUtils.getParserServices(context);
+    const parserServices = context.parserServices!;
     const checker = parserServices.program.getTypeChecker();
     return {
       CallExpression(node) {
