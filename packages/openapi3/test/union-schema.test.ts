@@ -1,5 +1,5 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
-import { deepStrictEqual, ok } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
@@ -374,5 +374,26 @@ describe("openapi3: union type", () => {
       message:
         "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
     });
+  });
+
+  it("supports summary on unions and union variants", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooUnion")
+      union Foo {
+        int32;
+
+        Bar;
+      }
+
+      @summary("BarUnion")
+      union Bar {
+        string;
+      }
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooUnion");
+    strictEqual(res.schemas.Bar.title, "BarUnion");
   });
 });
