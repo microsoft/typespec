@@ -652,17 +652,17 @@ export function createAssetEmitter<T, TOptions extends object>(
 
       knownContexts.set([entry, context], newContextState);
       context = newContextState;
+    }
 
-      if (!isInternalMethod(method)) {
-        referenceTypeChain = [
-          ...referenceTypeChain,
-          stackEntryInterner.intern({
-            method,
-            type,
-            context,
-          }),
-        ];
-      }
+    if (!isInternalMethod(method)) {
+      referenceTypeChain = [
+        ...referenceTypeChain,
+        stackEntryInterner.intern({
+          method,
+          type,
+          context,
+        }),
+      ];
     }
   }
 
