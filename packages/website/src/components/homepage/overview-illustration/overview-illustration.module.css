@@ -19,17 +19,6 @@
   height: 100%;
 }
 
-.color-brand {
-  color: var(--colorBrandForeground1);
-}
-.color-secondary {
-  color: var(--colorNeutralForeground3);
-}
-
-.color-highlight {
-  text-decoration: underline;
-}
-
 .ide {
   position: absolute;
   top: 226px;

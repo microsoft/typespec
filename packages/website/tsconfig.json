@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",
+    "target": "ES2022",
     "paths": {
       "@site/*": ["./*"]
     }

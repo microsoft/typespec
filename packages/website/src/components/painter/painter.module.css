@@ -1,0 +1,10 @@
+.color-brand {
+  color: var(--colorBrandForeground1);
+}
+.color-secondary {
+  color: var(--colorNeutralForeground3);
+}
+
+.mod-underline {
+  text-decoration: underline;
+}
