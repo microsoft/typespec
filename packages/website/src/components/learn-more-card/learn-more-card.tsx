@@ -1,5 +1,4 @@
 import { FluentImageName, FluentImg } from "../fluent-img";
-import { Link } from "../link/link";
 import { DescriptionText, NeutralText, Text } from "../text/text";
 import style from "./learn-more-card.module.css";
 
@@ -17,9 +16,7 @@ export const LearnMoreCard = ({ title, description, image, link }: LearnMoreCard
       <div className={style["item-content"]}>
         <NeutralText>{title}</NeutralText>
         <DescriptionText>{description}</DescriptionText>
-        <Link href={link}>
-          <Text>Learn more →</Text>
-        </Link>
+        <Text>Learn more →</Text>
       </div>
     </a>
   );

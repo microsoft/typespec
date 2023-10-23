@@ -1,20 +1,16 @@
 import abstractionCode from "!!raw-loader!@site/static/tsp-samples/openapi3/abstraction.tsp";
-import interoperateTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/main.tsp";
-import interoperateOpenapi from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/openapi.yaml";
-import interoperateSpectral from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/spectral.txt";
 import { Links } from "@site/src/constants";
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
-import { AssetImg } from "../components/asset-img/asset-img";
-import { CodeBlock } from "../components/code-block/code-block";
-import { FluentLayout } from "../components/fluent-layout";
-import { Section } from "../components/section/section";
-import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
+import { CodeBlock } from "../../components/code-block/code-block";
+import { FluentLayout } from "../../components/fluent-layout";
+import { Section } from "../../components/section/section";
+import { SectionedLayout } from "../../components/sectioned-layout/sectioned-layout";
 import {
   UseCaseFeature,
   UseCaseFeatureGroup,
-} from "../components/use-case-feature/use-case-feature";
-import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
+} from "../../components/use-case-feature/use-case-feature";
+import { UseCaseOverview } from "../../components/use-case-overview/use-case-overview";
 import style from "./openapi.module.css";
 export default function Home() {
   return (
@@ -90,8 +86,9 @@ const OpenApiContent = () => {
 
 import heroMainTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/main.tsp";
 import heroOpenAPIYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/out/openapi.yaml";
-import { IllustrationCard } from "../components/illustration-card/illustration-card";
-import { LearnMoreCard } from "../components/learn-more-card/learn-more-card";
+import { IllustrationCard } from "../../components/illustration-card/illustration-card";
+import { LearnMoreCard } from "../../components/learn-more-card/learn-more-card";
+import { OpenAPI3InteroperateIllustration } from "./interoperate-illustration";
 export const OpenAPI3HeroIllustration = () => {
   return (
     <IllustrationCard>
@@ -109,24 +106,6 @@ export const OpenAPI3HeroIllustration = () => {
   );
 };
 
-const OpenAPI3InteroperateIllustration = () => {
-  return (
-    <IllustrationCard>
-      <div className={style["interoperate-illustration"]}>
-        <div className={style["interoperate-tsp"]}>
-          <CodeBlock language="tsp">{interoperateTsp}</CodeBlock>
-        </div>
-        <div className={style["interoperate-openapi"]}>
-          <CodeBlock language="yaml">{interoperateOpenapi}</CodeBlock>
-        </div>
-        <div className={style["interoperate-spectral"]}>
-          <CodeBlock language="shell-session">{interoperateSpectral}</CodeBlock>
-        </div>
-        <AssetImg className={style["interoperate-swagger-ui"]} src="illustrations/swagger-ui.png" />
-      </div>
-    </IllustrationCard>
-  );
-};
 export const OpenAPI3AbstractCode = () => {
   return (
     <IllustrationCard>

@@ -1,15 +1,17 @@
 import { mergeClasses } from "@fluentui/react-components";
+import { MouseEventHandler } from "react";
 import style from "./window.module.css";
 
 export interface WindowProps {
   title?: string;
   className?: string;
+  onClick?: MouseEventHandler<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
-export const Window = ({ className, children, title }: WindowProps) => {
+export const Window = ({ className, children, title, ...others }: WindowProps) => {
   return (
-    <div className={mergeClasses(style["window"], className)}>
+    <div className={mergeClasses(style["window"], className)} {...others}>
       <WindowHeader title={title} />
       <div className={style["header-divider"]} />
       <div>{children}</div>

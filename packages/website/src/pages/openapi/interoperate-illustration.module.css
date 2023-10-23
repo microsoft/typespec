@@ -1,0 +1,18 @@
+.illustration-main {
+  display: grid;
+  grid-template-areas:
+    "tsp openapi"
+    "swagger-ui openapi"
+    "spectral spectral";
+  gap: 5px;
+}
+
+.tsp {
+  grid-area: tsp;
+}
+.openapi {
+  grid-area: openapi;
+}
+.spectral {
+  grid-area: spectral;
+}
