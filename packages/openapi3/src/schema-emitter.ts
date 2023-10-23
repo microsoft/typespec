@@ -52,6 +52,8 @@ import {
   EmitterOutput,
   ObjectBuilder,
   Placeholder,
+  ReferenceChainEntry,
+  resolveDeclarationReferenceScope,
   Scope,
   SourceFileScope,
   TypeEmitter,
@@ -108,7 +110,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const visibility = this.#getVisibilityContext();
-    console.log("MOdel", model.name, visibility);
     const schema: ObjectBuilder<any> = new ObjectBuilder({
       type: "object",
       required: this.#requiredModelProperties(model, visibility),
@@ -576,6 +577,29 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     return { $ref: `#/components/schemas/${targetDeclaration.name}` };
+  }
+
+  circularReference(
+    target: EmitEntity<Record<string, any>>,
+    scope: Scope<Record<string, any>> | undefined,
+    circularChain: ReferenceChainEntry[]
+  ): Record<string, any> | EmitEntity<Record<string, any>> {
+    if (target.kind !== "declaration") {
+      reportDiagnostic(this.emitter.getProgram(), {
+        code: "inline-cycle",
+        format: {
+          type: getTypeName(circularChain[0].type),
+        },
+        target: circularChain[0].type,
+      });
+      return {};
+    }
+    compilerAssert(
+      scope,
+      "Emit context must have a scope set in order to create references to declarations."
+    );
+    const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
+    return this.reference(target, pathUp, pathDown, commonScope);
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<OpenAPI3Schema> {
