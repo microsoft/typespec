@@ -104,6 +104,7 @@ import {
   OpenAPI3StatusCode,
   Refable,
 } from "./types.js";
+import { deepEquals } from "./util.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 
 const defaultFileType: FileType = "yaml";
@@ -366,11 +367,16 @@ function createOAPIEmitter(
   /**
    * Validates that common responses are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonResponses(ops: HttpOperation[]): HttpOperationResponse[] {
+  function validateCommonResponses(
+    statusCode: string,
+    ops: HttpOperation[]
+  ): HttpOperationResponse[] {
     const statusCodeResponses: HttpOperationResponse[] = [];
     for (const op of ops) {
       for (const response of op.responses) {
-        statusCodeResponses.push(response);
+        if (getOpenAPI3StatusCodes(response.statusCodes, response.type).includes(statusCode)) {
+          statusCodeResponses.push(response);
+        }
       }
     }
     const ref = statusCodeResponses[0];
@@ -559,7 +565,7 @@ function createOAPIEmitter(
     }
     shared.bodies = validateCommonBodies(operations);
     for (const [statusCode, ops] of responseMap) {
-      shared.responses.set(statusCode, validateCommonResponses(ops));
+      shared.responses.set(statusCode, validateCommonResponses(statusCode, ops));
     }
     results.push(shared);
     return results;
@@ -831,19 +837,21 @@ function createOAPIEmitter(
       if (data.headers && Object.keys(data.headers).length > 0) {
         obj.headers ??= {};
         // OpenAPI can't represent different headers per content type.
-        // So we merge headers here, and report any duplicates.
-        // It may be possible in principle to not error for identically declared
-        // headers.
+        // So we merge headers here, and report any duplicates unless they are identical
         for (const [key, value] of Object.entries(data.headers)) {
-          if (obj.headers[key]) {
-            reportDiagnostic(program, {
-              code: "duplicate-header",
-              format: { header: key },
-              target: target,
-            });
+          const headerVal = getResponseHeader(value);
+          const existing = obj.headers[key];
+          if (existing) {
+            if (!deepEquals(existing, headerVal)) {
+              reportDiagnostic(program, {
+                code: "duplicate-header",
+                format: { header: key },
+                target: target,
+              });
+            }
             continue;
           }
-          obj.headers[key] = getResponseHeader(value);
+          obj.headers[key] = headerVal;
         }
       }
     }

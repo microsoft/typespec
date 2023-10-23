@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Add resizable panes for the editor and output",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
