@@ -9,7 +9,7 @@ const messages = {
 
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   create(context) {
-    const parserServices = context.parserServices!;
+    const parserServices = context.getSourceCode().parserServices;
     const checker = parserServices.program.getTypeChecker();
     return {
       CallExpression(node) {
