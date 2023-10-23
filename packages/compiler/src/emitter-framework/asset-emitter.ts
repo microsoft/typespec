@@ -12,6 +12,7 @@ import {
 import { CustomKeyMap } from "./custom-key-map.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
+import { ReferenceCycle } from "./reference-cycle.js";
 import { TypeEmitter } from "./type-emitter.js";
 import {
   AssetEmitter,
@@ -25,13 +26,21 @@ import {
   NamespaceScope,
   NoEmit,
   RawCode,
-  ReferenceChainEntry,
   Scope,
   SourceFile,
   SourceFileScope,
   TypeEmitterMethod,
   TypeSpecDeclaration,
 } from "./types.js";
+
+/**
+ * Represent an entry in the reference chain.
+ */
+interface ReferenceChainEntry {
+  method: string;
+  type: Type;
+  context: ContextState;
+}
 
 export function createAssetEmitter<T, TOptions extends object>(
   program: Program,
@@ -223,13 +232,19 @@ export function createAssetEmitter<T, TOptions extends object>(
           waitingCircularRefs.set(entity.emitEntityKey, waiting);
         }
 
-        const circularChain = getCircularChain(referenceTypeChain, entity);
+        const typeChainSnapshot = referenceTypeChain;
         waiting.push({
           state: {
             lexicalTypeStack,
             context,
           },
-          cb: (entity) => invokeReference(this, entity, true, circularChain),
+          cb: (resolvedEntity) =>
+            invokeReference(
+              this,
+              resolvedEntity,
+              true,
+              resolveReferenceCycle(typeChainSnapshot, entity, typeToEmitEntity as any)
+            ),
         });
 
         placeholder = new Placeholder();
@@ -242,13 +257,13 @@ export function createAssetEmitter<T, TOptions extends object>(
         assetEmitter: AssetEmitter<T, TOptions>,
         entity: EmitEntity<T>,
         circular: boolean,
-        circularChain?: ReferenceChainEntry[]
+        cycle?: ReferenceCycle
       ): EmitEntity<T> {
         let ref;
         const scope = currentScope();
 
         if (circular) {
-          ref = typeEmitter.circularReference(entity, scope, circularChain!);
+          ref = typeEmitter.circularReference(entity, scope, cycle!);
         } else {
           if (entity.kind !== "declaration") {
             return entity;
@@ -567,10 +582,6 @@ export function createAssetEmitter<T, TOptions extends object>(
       ];
     }
 
-    if (!isInternalMethod(method)) {
-      referenceTypeChain = [...referenceTypeChain, stackEntryInterner.intern({ type })];
-    }
-
     lexicalTypeStack = newTypeStack;
 
     if (!programContext) {
@@ -641,6 +652,17 @@ export function createAssetEmitter<T, TOptions extends object>(
 
       knownContexts.set([entry, context], newContextState);
       context = newContextState;
+
+      if (!isInternalMethod(method)) {
+        referenceTypeChain = [
+          ...referenceTypeChain,
+          stackEntryInterner.intern({
+            method,
+            type,
+            context,
+          }),
+        ];
+      }
     }
   }
 
@@ -657,6 +679,7 @@ export function createAssetEmitter<T, TOptions extends object>(
     const oldRefTypeStack = referenceTypeChain;
 
     setContextForType(method, args);
+
     cb();
 
     context = oldContext;
@@ -846,10 +869,21 @@ function keyHasReferenceContext(key: keyof TypeEmitter<any, any>): boolean {
   return !noReferenceContext.has(key);
 }
 
-function getCircularChain(stack: ReferenceChainEntry[], entity: CircularEmit) {
+function resolveReferenceCycle(
+  stack: ReferenceChainEntry[],
+  entity: CircularEmit,
+  typeToEmitEntity: CustomKeyMap<[string, Type, ContextState], EmitEntity<unknown>>
+): ReferenceCycle {
   for (let i = stack.length - 1; i >= 0; i--) {
     if (stack[i].type === entity.emitEntityKey[1]) {
-      return stack.slice(i);
+      return new ReferenceCycle(
+        stack.slice(i).map((x) => {
+          return {
+            type: x.type,
+            entity: typeToEmitEntity.get([x.method, x.type, x.context])!,
+          };
+        })
+      );
     }
   }
   throw new Error(
