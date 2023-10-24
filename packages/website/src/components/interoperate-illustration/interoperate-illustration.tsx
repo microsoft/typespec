@@ -3,12 +3,9 @@ import interoperateOpenapi from "!!raw-loader!@site/static/tsp-samples/openapi3/
 import interoperateSpectral from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/spectral.txt";
 import { Painter } from "@site/src/components/painter/painter";
 import { Terminal } from "@site/src/components/terminal/terminal";
-import { AssetImg } from "../../components/asset-img/asset-img";
-import { CodeBlock } from "../../components/code-block/code-block";
-import {
-  WindowCarousel,
-  WindowCarouselItem,
-} from "../../components/window-carousel/window-carousel";
+import { AssetImg } from "../asset-img/asset-img";
+import { CodeBlock } from "../code-block/code-block";
+import { WindowCarousel, WindowCarouselItem } from "../window-carousel/window-carousel";
 import style from "./interoperate-illustration.module.css";
 
 export const OpenAPI3InteroperateIllustration = () => {

@@ -87,8 +87,8 @@ const OpenApiContent = () => {
 import heroMainTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/main.tsp";
 import heroOpenAPIYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/out/openapi.yaml";
 import { IllustrationCard } from "../../components/illustration-card/illustration-card";
+import { OpenAPI3InteroperateIllustration } from "../../components/interoperate-illustration/interoperate-illustration";
 import { LearnMoreCard } from "../../components/learn-more-card/learn-more-card";
-import { OpenAPI3InteroperateIllustration } from "./interoperate-illustration";
 export const OpenAPI3HeroIllustration = () => {
   return (
     <IllustrationCard>
