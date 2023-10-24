@@ -39,4 +39,7 @@ export const Links = {
   spectral: "https://stoplight.io/open-source/spectral",
   swaggerUI: "https://swagger.io/tools/swagger-ui/",
   typespecAzure: "https://azure.github.io/typespec-azure",
+
+  // Microsoft links
+  privacy: "https://go.microsoft.com/fwlink/?LinkId=521839",
 };

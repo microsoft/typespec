@@ -1,5 +1,5 @@
 import { mergeClasses } from "@fluentui/react-components";
-import { ReactNode } from "react";
+import { Fragment, ReactNode } from "react";
 import style from "./painter.module.css";
 
 export interface Painter {
@@ -29,7 +29,13 @@ function painterFactory(options: PainterOptions): Painter {
       style[`color-${options.color}`],
       ...modifiers.map((x) => (options[x] ? style[`mod-${x}`] : undefined))
     );
-    const content = <span className={cls}>{children}</span>;
+    const content = (
+      <span className={cls}>
+        {children.map((x, i) => (
+          <Fragment key={i}>{x}</Fragment>
+        ))}
+      </span>
+    );
     return options.line ? <div>{content}</div> : content;
   };
   const styles = {};
