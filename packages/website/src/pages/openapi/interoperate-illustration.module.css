@@ -5,6 +5,7 @@
     "swagger-ui openapi"
     "spectral spectral";
   gap: 5px;
+  background-color: var(--colorNeutralBackground1);
 }
 
 .tsp {

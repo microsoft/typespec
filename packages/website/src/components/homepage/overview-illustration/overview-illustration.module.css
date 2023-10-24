@@ -10,13 +10,6 @@
   left: 50px;
   width: 420px;
   height: 320px;
-  background-color: var(--colorNeutralBackground4);
-}
-
-.terminal-code {
-  background-color: var(--colorNeutralBackground4);
-  margin: 0;
-  height: 100%;
 }
 
 .ide {

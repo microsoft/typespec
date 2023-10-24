@@ -1,0 +1,9 @@
+.terminal {
+  background-color: var(--colorNeutralBackground4);
+}
+
+.terminal-code {
+  background-color: var(--colorNeutralBackground4);
+  margin: 0;
+  height: 100%;
+}

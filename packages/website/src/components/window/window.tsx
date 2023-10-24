@@ -5,15 +5,23 @@ import style from "./window.module.css";
 export interface WindowProps {
   title?: string;
   className?: string;
+  hideHeader?: boolean;
   onClick?: MouseEventHandler<HTMLDivElement>;
   children?: React.ReactNode;
 }
 
-export const Window = ({ className, children, title, ...others }: WindowProps) => {
-  return (
-    <div className={mergeClasses(style["window"], className)} {...others}>
+export const Window = ({ className, children, title, hideHeader, ...others }: WindowProps) => {
+  const header = hideHeader ? (
+    ""
+  ) : (
+    <>
       <WindowHeader title={title} />
       <div className={style["header-divider"]} />
+    </>
+  );
+  return (
+    <div className={mergeClasses(style["window"], className)} {...others}>
+      {header}
       <div>{children}</div>
     </div>
   );

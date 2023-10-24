@@ -69,7 +69,7 @@ export interface PainterProps {
   content: string;
 }
 
-const painterTagRegex = /\[([a-zA-Z]+)\](.*)\[\/([a-zA-Z]+)]/g;
+const painterTagRegex = /\[([a-zA-Z.]+)\](.*)\[\/([a-zA-Z.]+)]/g;
 export const Painter = ({ content }: PainterProps) => {
   const replaced = content.matchAll(painterTagRegex);
   const result = [];
