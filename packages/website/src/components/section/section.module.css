@@ -69,6 +69,7 @@
 
 .illustration {
   flex: 1 0 50%;
+  max-width: calc(100% - 40px);
   overflow: hidden;
 }
 
