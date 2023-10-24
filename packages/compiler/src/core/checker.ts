@@ -2327,25 +2327,27 @@ export function createChecker(program: Program): Checker {
    * instantiation) we late bind the container which creates the symbol that will hold its members.
    */
   function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym | undefined {
-    const aliasType = getTypeForNode(aliasSymbol.declarations[0] as AliasStatementNode, mapper);
-    if (isErrorType(aliasType)) {
-      return undefined;
-    }
-    switch (aliasType.kind) {
-      case "Model":
-      case "Interface":
-      case "Union":
-        if (isTemplateInstance(aliasType)) {
-          // this is an alias for some instantiation, so late-bind the instantiation
-          lateBindMemberContainer(aliasType);
-          return aliasType.symbol!;
-        }
-      // fallthrough
-      default:
-        // get the symbol from the node aliased type's node, or just return the base
-        // if it doesn't have a symbol (which will likely result in an error later on)
-        return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
-    }
+    const node = aliasSymbol.declarations[0];
+    return resolveTypeReferenceSymInternal((node as AliasStatementNode).value as any, mapper);
+    // const aliasType = getTypeForNode(node as AliasStatementNode, mapper);
+    // if (isErrorType(aliasType)) {
+    //   return undefined;
+    // }
+    // switch (aliasType.kind) {
+    //   case "Model":
+    //   case "Interface":
+    //   case "Union":
+    //     if (isTemplateInstance(aliasType)) {
+    //       // this is an alias for some instantiation, so late-bind the instantiation
+    //       lateBindMemberContainer(aliasType);
+    //       return aliasType.symbol!;
+    //     }
+    //   // fallthrough
+    //   default:
+    //     // get the symbol from the node aliased type's node, or just return the base
+    //     // if it doesn't have a symbol (which will likely result in an error later on)
+    //     return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
+    // }
   }
   function checkStringLiteral(str: StringLiteralNode): StringLiteral {
     return getLiteralType(str);
