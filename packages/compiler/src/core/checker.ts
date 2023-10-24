@@ -2344,13 +2344,16 @@ export function createChecker(program: Program): Checker {
     options: SymbolResolutionOptions
   ): Sym | undefined {
     const node = aliasSymbol.declarations[0];
-    if (!options.checkTemplateTypes) {
-      return resolveTypeReferenceSymInternal(
-        (node as AliasStatementNode).value as any,
-        mapper,
-        options
-      );
+    const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
+    const sym = resolveTypeReferenceSymInternal(targetNode as any, mapper, options);
+    if (sym === undefined) {
+      return undefined;
     }
+    const resolvedTargetNode = sym.declarations[0];
+    if (!options.checkTemplateTypes || !isTemplatedNode(resolvedTargetNode)) {
+      return sym;
+    }
+
     const aliasType = getTypeForNode(node as AliasStatementNode, mapper);
     if (isErrorType(aliasType)) {
       return undefined;
