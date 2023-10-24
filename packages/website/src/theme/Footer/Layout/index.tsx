@@ -28,6 +28,7 @@ export default function FooterLayout({ style: theme, links, copyright }) {
             ></a>
           </div>
         </div>
+        <div className={style["top-separator"]}></div>
         <div>{links}</div>
         <div>
           <ThemePicker />
@@ -73,12 +74,14 @@ const ThemePicker = () => {
   return (
     <div className={style["theme-picker"]}>
       <div
+        title="Light mode"
         className={clsx(style["theme-option"], { [style["selected"]]: colorMode === "light" })}
         onClick={() => setColorMode("light")}
       >
         <WeatherSunny20Regular />
       </div>
       <div
+        title="Dark mode"
         className={clsx(style["theme-option"], { [style["selected"]]: colorMode === "dark" })}
         onClick={() => setColorMode("dark")}
       >

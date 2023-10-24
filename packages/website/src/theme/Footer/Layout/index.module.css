@@ -12,7 +12,11 @@
 
 .top {
   display: flex;
-  justify-content: space-between;
+  gap: 60px;
+}
+
+.top-separator {
+  flex: 1 1 auto;
 }
 
 .main {
@@ -27,8 +31,6 @@
   line-height: 22px;
   font-weight: 600;
 }
-.main-description {
-}
 
 .separator {
   height: 60px;
@@ -38,9 +40,6 @@
   display: flex;
   align-items: end;
   justify-content: space-between;
-}
-
-.logo-and-copyright {
 }
 
 .logo {
