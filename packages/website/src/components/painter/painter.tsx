@@ -11,12 +11,12 @@ export interface Painter {
 }
 
 interface PainterOptions {
-  color?: "brand" | "secondary";
+  color?: "brand" | "secondary" | "warning";
   line?: boolean;
   underline?: boolean;
 }
 
-const colors = ["brand", "secondary"] as const;
+const colors = ["brand", "secondary", "warning"] as const;
 const modifiers = ["line", "underline"] as const;
 
 function createPainter(): Painter {
@@ -64,3 +64,33 @@ function painterFactory(options: PainterOptions): Painter {
  * ```
  */
 export const P = createPainter();
+
+export interface PainterProps {
+  content: string;
+}
+
+const painterTagRegex = /\[([a-zA-Z]+)\](.*)\[\/([a-zA-Z]+)]/g;
+export const Painter = ({ content }: PainterProps) => {
+  const replaced = content.matchAll(painterTagRegex);
+  const result = [];
+  let lastIndex = 0;
+  for (const item of replaced) {
+    const [fullMatch, openTag, matchContent, closeTag] = item;
+
+    result.push(content.substring(lastIndex, item.index));
+    lastIndex = item.index + fullMatch.length;
+
+    if (openTag === closeTag) {
+      const segments = openTag.split(".");
+      let p = P;
+      for (const segment of segments) {
+        p = p[segment];
+      }
+      result.push(p(matchContent));
+    } else {
+      result.push(fullMatch);
+    }
+  }
+  result.push(content.substring(lastIndex));
+  return result;
+};

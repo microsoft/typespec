@@ -1,6 +1,7 @@
 import interoperateTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/main.tsp";
 import interoperateOpenapi from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/openapi.yaml";
 import interoperateSpectral from "!!raw-loader!@site/static/tsp-samples/openapi3/interoperate/spectral.txt";
+import { Painter } from "@site/src/components/painter/painter";
 import { AssetImg } from "../../components/asset-img/asset-img";
 import { CodeBlock } from "../../components/code-block/code-block";
 import {
@@ -21,7 +22,9 @@ export const OpenAPI3InteroperateIllustration = () => {
             <CodeBlock language="yaml">{interoperateOpenapi}</CodeBlock>
           </div>
           <div className={style["spectral"]}>
-            <CodeBlock language="shell-session">{interoperateSpectral}</CodeBlock>
+            <CodeBlock language="shell-session">
+              <Painter content={interoperateSpectral} />
+            </CodeBlock>
           </div>
         </div>
       </WindowCarouselItem>
