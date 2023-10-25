@@ -2,7 +2,6 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import { Links } from "@site/src/constants";
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
-import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
 import { Button } from "../button/button";
 import { CodeBlock } from "../code-block/code-block";
 import { FeatureList } from "../feature-list/feature-list";
@@ -55,9 +54,14 @@ const Hero = () => {
         <div className={style["hero-demo"]}>
           <HeroTabs
             tabs={[
-              { value: "OpenAPI", content: openapiHeroLottie },
-              { value: "Json Schema", content: openapiHeroLottie },
-              { value: "Protobuf", content: openapiHeroLottie },
+              {
+                value: "OpenAPI",
+                content: (
+                  <DotLottiePlayer src={useBaseUrl(`/lottie/openapi-hero.lottie`)} autoplay loop />
+                ),
+              },
+              { value: "Json Schema", content: <></> },
+              { value: "Protobuf", content: <></> },
             ]}
           ></HeroTabs>
         </div>
@@ -179,6 +183,7 @@ const ExtensibilitySection = () => {
 
 import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
+import { DotLottiePlayer } from "@dotlottie/react-player";
 
 const ExtensibilityIllustration = () => {
   return (

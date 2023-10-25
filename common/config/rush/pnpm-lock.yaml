@@ -1439,6 +1439,9 @@ importers:
       '@docusaurus/theme-mermaid':
         specifier: ^2.4.3
         version: 2.4.3(@swc/core@1.3.91)(eslint@8.49.0)(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)
+      '@dotlottie/react-player':
+        specifier: ^1.6.3
+        version: 1.6.3(react@17.0.2)
       '@fluentui/react-components':
         specifier: ~9.32.1
         version: 9.32.1(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
@@ -1452,7 +1455,7 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       lottie-react:
-        specifier: ~2.4.0
+        specifier: ^2.4.0
         version: 2.4.0(react-dom@17.0.2)(react@17.0.2)
       prism-react-renderer:
         specifier: ^2.1.0
@@ -4436,6 +4439,14 @@ packages:
       - supports-color
       - uglify-js
       - webpack-cli
+    dev: false
+
+  /@dotlottie/react-player@1.6.3(react@17.0.2):
+    resolution: {integrity: sha512-wktLksV1LzV2qAAMocdBxn2e0J7XUraztLH2DnrlBYUgdy5Cz4FyV8+BPLftcyVD7r/4+0X448hEvK7tFQiLng==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 17.0.2
     dev: false
 
   /@emotion/babel-plugin@11.11.0:
