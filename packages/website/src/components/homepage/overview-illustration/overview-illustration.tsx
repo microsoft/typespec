@@ -1,5 +1,5 @@
-import { AssetImg } from "../../asset-img/asset-img";
 import { IllustrationCard } from "../../illustration-card/illustration-card";
+import { LightDarkImg } from "../../light-dark-img/light-dark-img";
 import { P } from "../../painter/painter";
 import { Terminal } from "../../terminal/terminal";
 import { Window } from "../../window/window";
@@ -17,7 +17,7 @@ export const OverviewIllustration = () => {
         {P.line(P.brand(">   "), P.brand.underline("REST API"))}
       </Terminal>
       <Window className={style["ide"]}>
-        <AssetImg src="illustrations/overview-ide.png" />
+        <LightDarkImg src="illustrations/overview-ide" />
       </Window>
     </IllustrationCard>
   );

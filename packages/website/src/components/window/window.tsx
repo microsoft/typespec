@@ -22,7 +22,7 @@ export const Window = ({ className, children, title, hideHeader, ...others }: Wi
   return (
     <div className={mergeClasses(style["window"], className)} {...others}>
       {header}
-      <div>{children}</div>
+      {children}
     </div>
   );
 };

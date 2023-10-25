@@ -5,7 +5,7 @@
 }
 
 .header {
-  background-color: var(--colorNeutralBackground4);
+  background-color: var(--window-color, var(--colorNeutralBackground4));
   display: flex;
   align-items: center;
   justify-content: space-between;
