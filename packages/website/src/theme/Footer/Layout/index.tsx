@@ -29,7 +29,7 @@ export default function FooterLayout({ style: theme, links, copyright }) {
           </div>
         </div>
         <div className={style["top-separator"]}></div>
-        <div>{links}</div>
+        <div className={style["links"]}>{links}</div>
         <div>
           <ThemePicker />
         </div>

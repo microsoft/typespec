@@ -2,6 +2,8 @@
   padding: 80px;
   color: var(--colorNeutralForeground2);
   background-color: var(--colorNeutralBackground3);
+  max-width: 100vw;
+  overflow: hidden;
 }
 
 @media only screen and (max-width: 728px) {
@@ -46,6 +48,12 @@
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+@media only screen and (max-width: 728px) {
+  .links {
+    display: none;
+  }
 }
 
 .general-links :global(a) {

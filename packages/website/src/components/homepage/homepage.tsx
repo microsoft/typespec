@@ -197,7 +197,7 @@ const ExtensibilityIllustration = () => {
 const Closing = () => {
   return (
     <div className={style["closing"]}>
-      <div className={style["overview-subtitle"]}>Start your TypeSpec journey</div>
+      <div className={style["closing-title"]}>Start your TypeSpec journey</div>
       <DescriptionText>
         Install the TypeSpec CLI or check out the playground to get started.
       </DescriptionText>

@@ -60,14 +60,15 @@
   background-clip: text;
 }
 
-@media only screen and (max-width: 728px) {
-  .hero-subtitle {
-    font-size: 48px;
-  }
-}
 @media only screen and (max-width: 1024px) {
   .hero-subtitle {
     font-size: 68px;
+  }
+}
+
+@media only screen and (max-width: 728px) {
+  .hero-subtitle {
+    font-size: 48px;
   }
 }
 
@@ -115,6 +116,15 @@
   display: flex;
   flex-direction: column;
   gap: 128px;
+  width: 100%;
+  max-width: 100%;
+  padding: 60px;
+}
+
+@media only screen and (max-width: 728px) {
+  .overview {
+    padding: 20px;
+  }
 }
 
 .overview-subtitle {
@@ -139,6 +149,20 @@
   gap: 16px;
   align-items: flex-start;
   align-self: baseline;
+}
+
+.closing-title {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 48px;
+}
+
+@media only screen and (max-width: 728px) {
+  .closing-title,
+  .overview-subtitle {
+    font-size: 32px;
+    line-height: 40px;
+  }
 }
 
 .closing-buttons {
