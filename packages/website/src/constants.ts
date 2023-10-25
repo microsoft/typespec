@@ -35,6 +35,9 @@ export const Links = {
     emitter: "/docs/extending-typespec/emitters",
   },
 
+  docs: "/docs",
+  playground: "/playground",
+
   // External
   spectral: "https://stoplight.io/open-source/spectral",
   swaggerUI: "https://swagger.io/tools/swagger-ui/",

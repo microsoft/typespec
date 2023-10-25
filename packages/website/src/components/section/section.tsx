@@ -1,7 +1,7 @@
-import { Title2, mergeClasses } from "@fluentui/react-components";
+import clsx from "clsx";
 import React, { ReactNode } from "react";
 import { AssetImg } from "../asset-img/asset-img";
-import { DescriptionText, PrimaryText } from "../text/text";
+import { DescriptionText, NeutralText, PrimaryText } from "../text/text";
 import style from "./section.module.css";
 
 export interface SectionProps {
@@ -28,7 +28,7 @@ export const Section = ({
       <div className={style["info-heading"]}>
         <div className={style["info-title"]}>
           <PrimaryText>{header}</PrimaryText>
-          <Title2 block={true}>{title}</Title2>
+          <NeutralText size="xlarge">{title}</NeutralText>
         </div>
         <DescriptionText size="large" className={style["info-description"]}>
           {description}
@@ -37,7 +37,7 @@ export const Section = ({
     ) : undefined;
   return (
     <div
-      className={mergeClasses(
+      className={clsx(
         style["section"],
         style[layout === "text-right" ? "text-right" : "text-left"]
       )}

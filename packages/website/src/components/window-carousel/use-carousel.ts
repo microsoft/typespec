@@ -1,4 +1,4 @@
-import { Children, JSX, ReactElement, ReactNode, isValidElement, useMemo } from "react";
+import { Children, ReactElement, ReactNode, isValidElement, useMemo } from "react";
 import { WindowCarouselItemProps } from "./window-carousel";
 
 export interface CarouselData {
@@ -27,10 +27,10 @@ export function useCarousel({ children }: UseCarouselOptions): CarouselData {
   return { items };
 }
 
-function sanitizeTabsChildren(children: JSX.Element[]) {
+function sanitizeTabsChildren(children: ReactNode) {
   return (Children.toArray(children)
     .filter((child) => child !== "\n")
-    .map((child) => {
+    .map((child: any) => {
       if (!child || (isValidElement(child) && isCarouselItem(child))) {
         return child;
       }

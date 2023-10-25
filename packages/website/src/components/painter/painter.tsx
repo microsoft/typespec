@@ -1,4 +1,4 @@
-import { mergeClasses } from "@fluentui/react-components";
+import clsx from "clsx";
 import { Fragment, ReactNode } from "react";
 import style from "./painter.module.css";
 
@@ -25,7 +25,7 @@ function createPainter(): Painter {
 
 function painterFactory(options: PainterOptions): Painter {
   const fn = (...children: ReactNode[]) => {
-    const cls = mergeClasses(
+    const cls = clsx(
       style[`color-${options.color}`],
       ...modifiers.map((x) => (options[x] ? style[`mod-${x}`] : undefined))
     );

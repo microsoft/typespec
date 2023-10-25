@@ -1,9 +1,9 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
 import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
 import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
 import openapiHeroLottie from "@site/static/lottie/openapi-hero.json";
+import { Button } from "../button/button";
 import { CodeBlock } from "../code-block/code-block";
 import { FeatureList } from "../feature-list/feature-list";
 import { HeroTabs } from "../hero-tabs/hero-tabs";
@@ -44,10 +44,10 @@ const Hero = () => {
             code, docs, and more.
           </DescriptionText>
           <div className={style["hero-buttons"]}>
-            <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
+            <Button as="a" appearance="primary" href={useBaseUrl(Links.docs)}>
               Get Started
             </Button>
-            <Button as="a" appearance="outline">
+            <Button as="a" appearance="outline" href={useBaseUrl(Links.playground)}>
               Try it out
             </Button>
           </div>
@@ -202,10 +202,10 @@ const Closing = () => {
         Install the TypeSpec CLI or check out the playground to get started.
       </DescriptionText>
       <div className={style["closing-buttons"]}>
-        <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
+        <Button as="a" appearance="primary" href={useBaseUrl(Links.docs)}>
           Get Started
         </Button>
-        <Button as="a" appearance="outline">
+        <Button as="a" appearance="outline" href={useBaseUrl(Links.playground)}>
           Try it out
         </Button>
       </div>

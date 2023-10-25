@@ -1482,6 +1482,9 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
+      '@types/react':
+        specifier: ~18.2.22
+        version: 18.2.22
       '@typespec/compiler':
         specifier: workspace:~0.49.0
         version: link:../compiler

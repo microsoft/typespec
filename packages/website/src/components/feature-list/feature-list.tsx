@@ -1,4 +1,4 @@
-import { mergeClasses } from "@fluentui/react-components";
+import clsx from "clsx";
 import { FluentImageName, FluentImg } from "../fluent-img";
 import { Link } from "../link/link";
 import { DescriptionText, NeutralText, Text } from "../text/text";
@@ -21,7 +21,7 @@ export const FeatureList = ({ items }: FeatureListProps) => {
   }
 
   const content = items.map((x, i) => <FeatureListItemEl key={i} {...x} />);
-  return <div className={mergeClasses(style["items-list"])}>{content}</div>;
+  return <div className={clsx(style["items-list"])}>{content}</div>;
 };
 
 interface FeatureListItemElProps extends FeatureListItem {}

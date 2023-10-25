@@ -77,6 +77,7 @@ words:
   - vsix
   - vswhere
   - westus
+  - xlarge
   - xplat
 ignorePaths:
   - "**/node_modules/**"

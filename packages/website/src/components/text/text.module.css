@@ -19,6 +19,12 @@
 .text-size-standard {
   font-size: 20px;
 }
+
 .text-size-large {
   font-size: 24px;
+}
+
+.text-size-xlarge {
+  font-size: 28px;
+  font-weight: 600;
 }

@@ -1,5 +1,5 @@
-import { Link, Subtitle1, Text } from "@fluentui/react-components";
 import { FluentImageName, FluentImg } from "../fluent-img";
+import { DescriptionText, NeutralText } from "../text/text";
 import style from "./use-case-feature.module.css";
 
 export interface UseCaseFeatureProps {
@@ -13,9 +13,9 @@ export const UseCaseFeature = ({ image, title, subtitle, link }: UseCaseFeatureP
     <div className={style["feature"]}>
       <FluentImg name={image} className={style["image"]} />
       <div className={style["content"]}>
-        <Subtitle1>{title}</Subtitle1>
-        <Text>{subtitle}</Text>
-        <Link href={link}>Learn more</Link>
+        <NeutralText size="large">{title}</NeutralText>
+        <DescriptionText>{subtitle}</DescriptionText>
+        <a href={link}>Learn more →</a>
       </div>
     </div>
   );

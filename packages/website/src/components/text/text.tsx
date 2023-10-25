@@ -1,18 +1,16 @@
-import { mergeClasses } from "@fluentui/react-components";
+import clsx from "clsx";
 import { FunctionComponent } from "react";
 import style from "./text.module.css";
 
 export interface TextProps {
   children: React.ReactNode;
-  size?: "standard" | "large";
+  size?: "standard" | "large" | "xlarge";
   className?: string;
 }
 
 export const Text = ({ children, className, size }: TextProps) => {
   return (
-    <div
-      className={mergeClasses(style["text"], style[`text-size-${size ?? "standard"}`], className)}
-    >
+    <div className={clsx(style["text"], style[`text-size-${size ?? "standard"}`], className)}>
       {children}
     </div>
   );
@@ -20,7 +18,7 @@ export const Text = ({ children, className, size }: TextProps) => {
 
 function makeTextComp(clsName: string): FunctionComponent<TextProps> {
   return ({ className, ...props }: TextProps) => {
-    return <Text {...props} className={mergeClasses(style[clsName], className)} />;
+    return <Text {...props} className={clsx(style[clsName], className)} />;
   };
 }
 

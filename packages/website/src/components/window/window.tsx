@@ -1,4 +1,4 @@
-import { mergeClasses } from "@fluentui/react-components";
+import clsx from "clsx";
 import { MouseEventHandler } from "react";
 import style from "./window.module.css";
 
@@ -20,7 +20,7 @@ export const Window = ({ className, children, title, hideHeader, ...others }: Wi
     </>
   );
   return (
-    <div className={mergeClasses(style["window"], className)} {...others}>
+    <div className={clsx(style["window"], className)} {...others}>
       {header}
       {children}
     </div>

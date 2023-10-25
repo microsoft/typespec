@@ -1,4 +1,4 @@
-import { mergeClasses } from "@fluentui/react-components";
+import clsx from "clsx";
 import style from "./card.module.css";
 
 export interface CardProps {
@@ -14,7 +14,7 @@ export interface CardProps {
 export const Card = ({ children, className, noPadding, blend }: CardProps) => {
   return (
     <div
-      className={mergeClasses(
+      className={clsx(
         style["card"],
         noPadding && style["no-padding"],
         blend && style["blend"],

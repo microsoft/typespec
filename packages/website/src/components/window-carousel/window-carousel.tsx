@@ -1,5 +1,6 @@
-import { Tab, TabList, mergeClasses } from "@fluentui/react-components";
+import { Tab, TabList } from "@fluentui/react-components";
 import { Window } from "@site/src/components/window/window";
+import clsx from "clsx";
 import { ReactNode, useCallback, useState } from "react";
 import { useCarousel } from "./use-carousel";
 import style from "./window-carousel.module.css";
@@ -64,10 +65,7 @@ const WindowCarouselItemRender = ({
     onSelected(value);
   }, [onSelected, value]);
   return (
-    <Window
-      className={mergeClasses(style["item"], selected && style["item-selected"])}
-      onClick={onClick}
-    >
+    <Window className={clsx(style["item"], selected && style["item-selected"])} onClick={onClick}>
       {children}
     </Window>
   );
