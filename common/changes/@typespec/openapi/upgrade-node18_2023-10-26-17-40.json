@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi",
+      "comment": "**BREAKING CHANGE** Minimum node version increased to 18",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi"
+}

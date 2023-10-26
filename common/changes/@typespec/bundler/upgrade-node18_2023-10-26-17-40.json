@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/bundler",
+      "comment": "**BREAKING CHANGE** Minimum node version increased to 18",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/bundler"
+}
