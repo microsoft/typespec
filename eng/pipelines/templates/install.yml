@@ -32,3 +32,6 @@ steps:
   - script: dotnet restore
     displayName: Restore .NET Dependencies
     workingDirectory: packages/typespec-vs
+
+  - script: npx playwright install --with-deps
+    displayName: Install playwright browsers
