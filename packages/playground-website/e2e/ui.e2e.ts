@@ -26,7 +26,7 @@ test.describe("playground UI tests", () => {
     await page.goto(host);
     const typespecEditorContainer = page.locator("_react=TypeSpecEditor");
     await typespecEditorContainer.click();
-    await typespecEditorContainer.type("op sharedCode(): string;");
+    await typespecEditorContainer.fill("op sharedCode(): string;");
     await Promise.all([
       // It is important to call waitForNavigation before click to set up waiting.
       page.waitForURL(
