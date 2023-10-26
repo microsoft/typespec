@@ -11,7 +11,7 @@ steps:
 
   # Only running UI test on linux
   - ${{ if ne(variables['Agent.OS'], 'Windows_NT') }}:
-      - template: ./templates/install-browsers.yml
+      - template: ../templates/install-browsers.yml
 
   - template: ../templates/build.yml
 
