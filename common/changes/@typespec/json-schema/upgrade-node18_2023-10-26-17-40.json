@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/json-schema",
-      "comment": "**BREAKING CHANGE** Minimum node version increased to 18",
+      "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18",
       "type": "none"
     }
   ],
