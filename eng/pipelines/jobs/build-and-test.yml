@@ -10,8 +10,8 @@ steps:
       nodeVersion: ${{ parameters.nodeVersion }}
 
   # Only running UI test on linux
-  - template: ./templates/install-browsers.yml
-    condition: ne(variables['Agent.OS'], 'Windows_NT')
+  - ${{ if ne(variables['Agent.OS'], 'Windows_NT') }}
+    - template: ./templates/install-browsers.yml
 
   - template: ../templates/build.yml
 
