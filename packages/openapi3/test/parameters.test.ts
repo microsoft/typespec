@@ -301,7 +301,7 @@ describe("openapi3: parameters", () => {
   });
 
   it("omit request body if type is void", async () => {
-    const res = await openApiFor(`op test( @body foo: void ): void;`);
+    const res = await openApiFor(`op test(@body foo: void ): void;`);
     strictEqual(res.paths["/"].post.requestBody, undefined);
   });
 
