@@ -736,6 +736,11 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
+  StringTemplateExpression,
+  StringTemplateHead,
+  StringTemplateMiddle,
+  StringTemplateTail,
+  StringTemplateSpan,
   ExternKeyword,
   VoidKeyword,
   NeverKeyword,
@@ -858,6 +863,10 @@ export type Node =
   | Statement
   | Expression
   | FunctionParameterNode
+  | StringTemplateSpanNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode
   | Modifier
   | DocNode
   | DocContent
@@ -1040,6 +1049,7 @@ export type Expression =
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
+  | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode;
@@ -1237,6 +1247,36 @@ export interface NumericLiteralNode extends BaseNode {
 export interface BooleanLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.BooleanLiteral;
   readonly value: boolean;
+}
+
+export interface StringTemplateExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.StringTemplateExpression;
+  readonly head: StringTemplateHeadNode;
+  readonly spans: readonly StringTemplateSpanNode[];
+}
+
+// Each of these corresponds to a substitution expression and a template literal, in that order.
+// The template literal must have kind TemplateMiddleLiteral or TemplateTailLiteral.
+export interface StringTemplateSpanNode extends BaseNode {
+  readonly kind: SyntaxKind.StringTemplateSpan;
+  readonly expression: Expression;
+  readonly literal: StringTemplateMiddleNode | StringTemplateTailNode;
+}
+
+export interface StringTemplateLiteralLikeNode extends BaseNode {
+  text: string;
+}
+
+export interface StringTemplateHeadNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateHead;
+}
+
+export interface StringTemplateMiddleNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateMiddle;
+}
+
+export interface StringTemplateTailNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateTail;
 }
 
 export interface ExternKeywordNode extends BaseNode {

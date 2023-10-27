@@ -30,6 +30,9 @@ export enum Token {
   Identifier,
   NumericLiteral,
   StringLiteral,
+  StringTemplateHead,
+  StringTemplateMiddle,
+  StringTemplateTail,
   // Add new tokens above if they don't fit any of the categories below
 
   ///////////////////////////////////////////////////////////////
@@ -165,6 +168,11 @@ export type DocToken =
   | Token.DocCodeFenceDelimiter
   | Token.EndOfFile;
 
+export type StringTemplateToken =
+  | Token.StringTemplateHead
+  | Token.StringTemplateMiddle
+  | Token.StringTemplateTail;
+
 /** @internal */
 export const TokenDisplay = getTokenDisplayTable([
   [Token.None, "none"],
@@ -175,6 +183,9 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ConflictMarker, "conflict marker"],
   [Token.NumericLiteral, "numeric literal"],
   [Token.StringLiteral, "string literal"],
+  [Token.StringTemplateHead, "string template head"],
+  [Token.StringTemplateMiddle, "string template middle"],
+  [Token.StringTemplateTail, "string template tail"],
   [Token.NewLine, "newline"],
   [Token.Whitespace, "whitespace"],
   [Token.DocCodeFenceDelimiter, "doc code fence delimiter"],
@@ -298,6 +309,8 @@ export interface Scanner {
   /** Advance one token inside DocComment. Use inside {@link scanRange} callback over DocComment range. */
   scanDoc(): DocToken;
 
+  scanStringTemplate(): StringTemplateToken;
+
   /** Reset the scanner to the given start and end positions, invoke the callback, and then restore scanner state. */
   scanRange<T>(range: TextRange, callback: () => T): T;
 
@@ -384,6 +397,7 @@ export function createScanner(
     scan,
     scanRange,
     scanDoc,
+    scanStringTemplate,
     eof,
     getTokenText,
     getTokenValue,
@@ -642,6 +656,12 @@ export function createScanner(
     return (token = Token.EndOfFile);
   }
 
+  function scanStringTemplate(): StringTemplateToken {
+    tokenPosition = position;
+    tokenFlags = TokenFlags.None;
+    return scanStringTemplateSpan();
+  }
+
   function scanRange<T>(range: TextRange, callback: () => T): T {
     const savedPosition = position;
     const savedEndPosition = endPosition;
@@ -820,7 +840,7 @@ export function createScanner(
     return unterminated(Token.DocCodeSpan);
   }
 
-  function scanString(): Token.StringLiteral {
+  function scanString(): Token.StringLiteral | Token.StringTemplateHead {
     position++; // consume '"'
 
     loop: for (; !eof(); position++) {
@@ -836,6 +856,12 @@ export function createScanner(
         case CharCode.DoubleQuote:
           position++;
           return (token = Token.StringLiteral);
+        case CharCode.$:
+          if (lookAhead(1) === CharCode.OpenBrace) {
+            position += 2;
+            return (token = Token.StringTemplateHead);
+          }
+          continue;
         case CharCode.CarriageReturn:
         case CharCode.LineFeed:
           break loop;
@@ -845,7 +871,36 @@ export function createScanner(
     return unterminated(Token.StringLiteral);
   }
 
-  function scanTripleQuotedString(): Token.StringLiteral {
+  function scanStringTemplateSpan(): Token.StringTemplateMiddle | Token.StringTemplateTail {
+    loop: for (; !eof(); position++) {
+      const ch = input.charCodeAt(position);
+      switch (ch) {
+        case CharCode.Backslash:
+          tokenFlags |= TokenFlags.Escaped;
+          position++;
+          if (eof()) {
+            break loop;
+          }
+          continue;
+        case CharCode.DoubleQuote:
+          position++;
+          return (token = Token.StringTemplateTail);
+        case CharCode.$:
+          if (lookAhead(1) === CharCode.OpenBrace) {
+            position += 2;
+            return (token = Token.StringTemplateMiddle);
+          }
+          continue;
+        case CharCode.CarriageReturn:
+        case CharCode.LineFeed:
+          break loop;
+      }
+    }
+
+    return unterminated(Token.StringTemplateTail);
+  }
+
+  function scanTripleQuotedString(): Token.StringLiteral | Token.StringTemplateHead {
     tokenFlags |= TokenFlags.TripleQuoted;
     position += 3; // consume '"""'
 

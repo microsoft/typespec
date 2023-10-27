@@ -90,6 +90,11 @@ import {
   SourceFile,
   Statement,
   StringLiteralNode,
+  StringTemplateExpressionNode,
+  StringTemplateHeadNode,
+  StringTemplateMiddleNode,
+  StringTemplateSpanNode,
+  StringTemplateTailNode,
   Sym,
   SyntaxKind,
   TemplateParameterDeclarationNode,
@@ -1340,6 +1345,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseReferenceExpression();
         case Token.StringLiteral:
           return parseStringLiteral();
+        case Token.StringTemplateHead:
+          return parseStringTemplateExpression();
         case Token.TrueKeyword:
         case Token.FalseKeyword:
           return parseBooleanLiteral();
@@ -1442,6 +1449,82 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return {
       kind: SyntaxKind.StringLiteral,
       value,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseStringTemplateExpression(): StringTemplateExpressionNode {
+    const pos = tokenPos();
+    const head = parseStringTemplateHead();
+    const spans = parseStringTemplateSpans();
+    return {
+      kind: SyntaxKind.StringTemplateExpression,
+      head,
+      spans,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseStringTemplateHead(): StringTemplateHeadNode {
+    const pos = tokenPos();
+    const text = tokenValue();
+    parseExpected(Token.StringTemplateHead);
+
+    return {
+      kind: SyntaxKind.StringTemplateHead,
+      text,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseStringTemplateSpans(): readonly StringTemplateSpanNode[] {
+    const list: StringTemplateSpanNode[] = [];
+    let node: StringTemplateSpanNode;
+    do {
+      node = parseTemplateTypeSpan();
+      list.push(node);
+    } while (node.literal.kind === SyntaxKind.StringTemplateMiddle);
+    return list;
+  }
+
+  function parseTemplateTypeSpan(): StringTemplateSpanNode {
+    const pos = tokenPos();
+    const expression = parseExpression();
+    const literal = parseLiteralOfTemplateSpan();
+    return {
+      kind: SyntaxKind.StringTemplateSpan,
+      literal,
+      expression,
+      ...finishNode(pos),
+    };
+  }
+  function parseLiteralOfTemplateSpan(): StringTemplateMiddleNode | StringTemplateTailNode {
+    const pos = tokenPos();
+    if (token() === Token.CloseBrace) {
+      nextStringTemplateToken();
+      return parseTemplateMiddleOrTemplateTail();
+    } else {
+      parseExpected(Token.StringTemplateTail);
+      return {
+        kind: SyntaxKind.StringTemplateTail,
+        text: "",
+        ...finishNode(pos),
+      };
+    }
+  }
+
+  function parseTemplateMiddleOrTemplateTail(): StringTemplateMiddleNode | StringTemplateTailNode {
+    const pos = tokenPos();
+    const text = tokenValue();
+    const kind =
+      token() === Token.StringTemplateMiddle
+        ? SyntaxKind.StringTemplateMiddle
+        : SyntaxKind.StringTemplateTail;
+
+    nextToken();
+    return {
+      kind,
+      text,
       ...finishNode(pos),
     };
   }
@@ -2575,6 +2658,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     scanner.scanDoc();
   }
 
+  function nextStringTemplateToken() {
+    scanner.scanStringTemplate();
+  }
+
   function createMissingIdentifier(): IdentifierNode {
     const pos = tokenPos();
     previousTokenEnd = pos;
@@ -3162,7 +3249,15 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.DocUnknownTag:
       return visitNode(cb, node.tagName) || visitEach(cb, node.content);
 
+    case SyntaxKind.StringTemplateExpression:
+      return visitNode(cb, node.head) || visitEach(cb, node.spans);
+    case SyntaxKind.StringTemplateSpan:
+      return visitNode(cb, node.expression) || visitNode(cb, node.literal);
+
     // no children for the rest of these.
+    case SyntaxKind.StringTemplateHead:
+    case SyntaxKind.StringTemplateMiddle:
+    case SyntaxKind.StringTemplateTail:
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:

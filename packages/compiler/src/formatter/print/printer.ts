@@ -357,6 +357,11 @@ export function printNode(
       return "";
     case SyntaxKind.EmptyStatement:
       return "";
+    case SyntaxKind.StringTemplateExpression:
+    case SyntaxKind.StringTemplateSpan:
+    case SyntaxKind.StringTemplateHead:
+    case SyntaxKind.StringTemplateMiddle:
+    case SyntaxKind.StringTemplateTail:
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.InvalidStatement:
