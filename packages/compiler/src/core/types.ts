@@ -4,6 +4,7 @@ import { AssetEmitter } from "../emitter-framework/types.js";
 import { YamlScript } from "../yaml/types.js";
 import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
+import type { TokenFlags } from "./scanner.js";
 
 // prettier-ignore
 export type MarshalledValue<Type>  = 
@@ -1265,6 +1266,9 @@ export interface StringTemplateSpanNode extends BaseNode {
 
 export interface StringTemplateLiteralLikeNode extends BaseNode {
   text: string;
+
+  /** @internal */
+  tokenFlags: TokenFlags;
 }
 
 export interface StringTemplateHeadNode extends StringTemplateLiteralLikeNode {

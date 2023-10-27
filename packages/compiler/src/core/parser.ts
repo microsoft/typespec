@@ -1456,7 +1456,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseStringTemplateExpression(): StringTemplateExpressionNode {
     const pos = tokenPos();
     const head = parseStringTemplateHead();
-    const spans = parseStringTemplateSpans();
+    const spans = parseStringTemplateSpans(head.tokenFlags);
     return {
       kind: SyntaxKind.StringTemplateExpression,
       head,
@@ -1468,29 +1468,31 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   function parseStringTemplateHead(): StringTemplateHeadNode {
     const pos = tokenPos();
     const text = tokenValue();
+    const flags = tokenFlags();
     parseExpected(Token.StringTemplateHead);
 
     return {
       kind: SyntaxKind.StringTemplateHead,
       text,
+      tokenFlags: flags,
       ...finishNode(pos),
     };
   }
 
-  function parseStringTemplateSpans(): readonly StringTemplateSpanNode[] {
+  function parseStringTemplateSpans(tokenFlags: TokenFlags): readonly StringTemplateSpanNode[] {
     const list: StringTemplateSpanNode[] = [];
     let node: StringTemplateSpanNode;
     do {
-      node = parseTemplateTypeSpan();
+      node = parseTemplateTypeSpan(tokenFlags);
       list.push(node);
     } while (node.literal.kind === SyntaxKind.StringTemplateMiddle);
     return list;
   }
 
-  function parseTemplateTypeSpan(): StringTemplateSpanNode {
+  function parseTemplateTypeSpan(tokenFlags: TokenFlags): StringTemplateSpanNode {
     const pos = tokenPos();
     const expression = parseExpression();
-    const literal = parseLiteralOfTemplateSpan();
+    const literal = parseLiteralOfTemplateSpan(tokenFlags);
     return {
       kind: SyntaxKind.StringTemplateSpan,
       literal,
@@ -1498,16 +1500,19 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ...finishNode(pos),
     };
   }
-  function parseLiteralOfTemplateSpan(): StringTemplateMiddleNode | StringTemplateTailNode {
+  function parseLiteralOfTemplateSpan(
+    headTokenFlags: TokenFlags
+  ): StringTemplateMiddleNode | StringTemplateTailNode {
     const pos = tokenPos();
     if (token() === Token.CloseBrace) {
-      nextStringTemplateToken();
+      nextStringTemplateToken(headTokenFlags);
       return parseTemplateMiddleOrTemplateTail();
     } else {
       parseExpected(Token.StringTemplateTail);
       return {
         kind: SyntaxKind.StringTemplateTail,
         text: "",
+        tokenFlags: tokenFlags(),
         ...finishNode(pos),
       };
     }
@@ -1525,6 +1530,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return {
       kind,
       text,
+      tokenFlags: tokenFlags(),
       ...finishNode(pos),
     };
   }
@@ -2658,8 +2664,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     scanner.scanDoc();
   }
 
-  function nextStringTemplateToken() {
-    scanner.scanStringTemplate();
+  function nextStringTemplateToken(tokenFlags: TokenFlags) {
+    scanner.reScanStringTemplate(tokenFlags);
   }
 
   function createMissingIdentifier(): IdentifierNode {
