@@ -52,8 +52,7 @@ import {
   EmitterOutput,
   ObjectBuilder,
   Placeholder,
-  ReferenceChainEntry,
-  resolveDeclarationReferenceScope,
+  ReferenceCycle,
   Scope,
   SourceFileScope,
   TypeEmitter,
@@ -582,24 +581,19 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   circularReference(
     target: EmitEntity<Record<string, any>>,
     scope: Scope<Record<string, any>> | undefined,
-    circularChain: ReferenceChainEntry[]
+    cycle: ReferenceCycle
   ): Record<string, any> | EmitEntity<Record<string, any>> {
-    if (target.kind !== "declaration") {
+    if (!cycle.containsDeclaration) {
       reportDiagnostic(this.emitter.getProgram(), {
         code: "inline-cycle",
         format: {
-          type: getTypeName(circularChain[0].type),
+          type: cycle.toString(),
         },
-        target: circularChain[0].type,
+        target: cycle.first.type,
       });
       return {};
     }
-    compilerAssert(
-      scope,
-      "Emit context must have a scope set in order to create references to declarations."
-    );
-    const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
-    return this.reference(target, pathUp, pathDown, commonScope);
+    return super.circularReference(target, scope, cycle);
   }
 
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<OpenAPI3Schema> {
