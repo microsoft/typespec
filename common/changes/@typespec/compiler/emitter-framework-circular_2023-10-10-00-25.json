@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add new hook for handling circular references",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

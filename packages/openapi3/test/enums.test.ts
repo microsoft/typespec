@@ -1,7 +1,8 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
-import { diagnoseOpenApiFor } from "./test-host.js";
+import { strictEqual } from "assert";
+import { diagnoseOpenApiFor, oapiForModel } from "./test-host.js";
 
-describe("openapi3: models", () => {
+describe("openapi3: enums", () => {
   it("throws diagnostics for empty enum definitions", async () => {
     const diagnostics = await diagnoseOpenApiFor(`enum PetType {}`);
 
@@ -18,5 +19,18 @@ describe("openapi3: models", () => {
       code: "@typespec/openapi3/enum-unique-type",
       message: "Enums are not supported unless all options are literals of the same type.",
     });
+  });
+
+  it("supports summary on enums", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooEnum")
+      enum Foo {
+        y: 0;
+      };
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooEnum");
   });
 });

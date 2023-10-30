@@ -43,7 +43,7 @@ jobs:
       - task: AzureCLI@1
         displayName: "Publish playground"
         inputs:
-          azureSubscription: "Azure SDK Playground"
+          azureSubscription: "Azure SDK Engineering System"
           scriptLocation: inlineScript
           inlineScript: |
             az storage blob upload-batch ^

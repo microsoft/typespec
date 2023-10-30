@@ -473,12 +473,6 @@ importers:
 
   ../../packages/internal-build-utils:
     dependencies:
-      '@azure/identity':
-        specifier: ~3.3.2
-        version: 3.3.2
-      '@azure/storage-blob':
-        specifier: ~12.16.0
-        version: 12.16.0
       cspell:
         specifier: ~6.31.1
         version: 6.31.1
@@ -749,9 +743,6 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
-      '@typespec/bundler':
-        specifier: workspace:~0.1.0-alpha.2
-        version: link:../bundler
       '@typespec/compiler':
         specifier: workspace:~0.49.0
         version: link:../compiler
@@ -764,9 +755,6 @@ importers:
       '@typespec/http':
         specifier: workspace:~0.49.0
         version: link:../http
-      '@typespec/internal-build-utils':
-        specifier: workspace:~0.49.0
-        version: link:../internal-build-utils
       '@typespec/library-linter':
         specifier: workspace:~0.49.0
         version: link:../library-linter
