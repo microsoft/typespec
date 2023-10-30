@@ -7,10 +7,13 @@ export interface FluentImgProps {
 }
 
 export type FluentImageName =
+  | "book-pencil"
   | "chat"
   | "checkmark"
+  | "data-trending"
   | "design-layout"
   | "design"
+  | "devices-multiple"
   | "document-add"
   | "document-cloud"
   | "editor"
@@ -19,6 +22,7 @@ export type FluentImageName =
   | "people-shield"
   | "shield-blue"
   | "shield-settings"
+  | "tasks"
   | "text-edit";
 
 /**

@@ -792,8 +792,8 @@ importers:
         specifier: ~9.32.1
         version: 9.32.1(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-icons':
-        specifier: ~2.0.217
-        version: 2.0.217(react@18.2.0)
+        specifier: ^2.0.221
+        version: 2.0.221(react@18.2.0)
       '@typespec/compiler':
         specifier: workspace:~0.49.0
         version: link:../compiler
@@ -1439,12 +1439,24 @@ importers:
       '@docusaurus/theme-mermaid':
         specifier: ^2.4.3
         version: 2.4.3(@swc/core@1.3.91)(eslint@8.49.0)(react-dom@17.0.2)(react@17.0.2)(typescript@5.2.2)
+      '@dotlottie/react-player':
+        specifier: ^1.6.3
+        version: 1.6.3(react@17.0.2)
       '@fluentui/react-components':
         specifier: ~9.32.1
         version: 9.32.1(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
+      '@fluentui/react-icons':
+        specifier: ^2.0.221
+        version: 2.0.221(react@17.0.2)
       '@mdx-js/react':
         specifier: ^1.6.22
         version: 1.6.22(react@17.0.2)
+      clsx:
+        specifier: ^2.0.0
+        version: 2.0.0
+      lottie-react:
+        specifier: ^2.4.0
+        version: 2.4.0(react-dom@17.0.2)(react@17.0.2)
       prism-react-renderer:
         specifier: ^2.1.0
         version: 2.1.0(react@17.0.2)
@@ -1473,6 +1485,9 @@ importers:
       '@types/node':
         specifier: ~18.11.9
         version: 18.11.9
+      '@types/react':
+        specifier: ~18.2.22
+        version: 18.2.22
       '@typespec/compiler':
         specifier: workspace:~0.49.0
         version: link:../compiler
@@ -4426,6 +4441,14 @@ packages:
       - webpack-cli
     dev: false
 
+  /@dotlottie/react-player@1.6.3(react@17.0.2):
+    resolution: {integrity: sha512-wktLksV1LzV2qAAMocdBxn2e0J7XUraztLH2DnrlBYUgdy5Cz4FyV8+BPLftcyVD7r/4+0X448hEvK7tFQiLng==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 17.0.2
+    dev: false
+
   /@emotion/babel-plugin@11.11.0:
     resolution: {integrity: sha512-m4HEDZleaaCH+XgDDsPF15Ht6wTLsgDTeR3WYj9Q/k76JtWhrJjcP4+/XlG8LGT/Rol9qUfOIztXeA84ATpqPQ==}
     dependencies:
@@ -4816,7 +4839,7 @@ packages:
     dependencies:
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
@@ -4842,7 +4865,7 @@ packages:
     dependencies:
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
@@ -4867,7 +4890,7 @@ packages:
     dependencies:
       '@fluentui/react-avatar': 9.5.32(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
       '@fluentui/react-button': 9.3.41(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-theme': 9.1.12
@@ -4892,7 +4915,7 @@ packages:
     dependencies:
       '@fluentui/react-avatar': 9.5.32(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-button': 9.3.41(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-theme': 9.1.12
@@ -4952,7 +4975,7 @@ packages:
     dependencies:
       '@fluentui/react-badge': 9.2.1(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-popover': 9.8.7(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
@@ -4980,7 +5003,7 @@ packages:
     dependencies:
       '@fluentui/react-badge': 9.2.1(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-popover': 9.8.7(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
@@ -5005,7 +5028,7 @@ packages:
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-theme': 9.1.12
@@ -5026,7 +5049,7 @@ packages:
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-theme': 9.1.12
@@ -5049,7 +5072,7 @@ packages:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
@@ -5073,7 +5096,7 @@ packages:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
@@ -5138,7 +5161,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
@@ -5164,7 +5187,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
@@ -5193,7 +5216,7 @@ packages:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-positioning': 9.9.13(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
@@ -5221,7 +5244,7 @@ packages:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-positioning': 9.9.13(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
@@ -5410,7 +5433,7 @@ packages:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
@@ -5438,7 +5461,7 @@ packages:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
@@ -5552,7 +5575,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-theme': 9.1.12
@@ -5576,7 +5599,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-theme': 9.1.12
@@ -5591,8 +5614,8 @@ packages:
       - scheduler
     dev: false
 
-  /@fluentui/react-icons@2.0.217(react@17.0.2):
-    resolution: {integrity: sha512-kTaocW+UuLTzEaTobzQTQZX5lamall7U8p4n9aibcGQYeNPtxhRvdNJK8SNkKoSGCukx46mB2hDfc0mKvky+wQ==}
+  /@fluentui/react-icons@2.0.221(react@17.0.2):
+    resolution: {integrity: sha512-Dj5ihpaE4y3gWs81SJGuu8Pz3rPR6ioHHbqz8eETkbhpAW8Q3dRITFcfdYQV/ZEsj33/uSiis8iLMdhY/xWMMw==}
     peerDependencies:
       react: '>=16.8.0 <19.0.0'
     dependencies:
@@ -5601,8 +5624,8 @@ packages:
       tslib: 2.6.1
     dev: false
 
-  /@fluentui/react-icons@2.0.217(react@18.2.0):
-    resolution: {integrity: sha512-kTaocW+UuLTzEaTobzQTQZX5lamall7U8p4n9aibcGQYeNPtxhRvdNJK8SNkKoSGCukx46mB2hDfc0mKvky+wQ==}
+  /@fluentui/react-icons@2.0.221(react@18.2.0):
+    resolution: {integrity: sha512-Dj5ihpaE4y3gWs81SJGuu8Pz3rPR6ioHHbqz8eETkbhpAW8Q3dRITFcfdYQV/ZEsj33/uSiis8iLMdhY/xWMMw==}
     peerDependencies:
       react: '>=16.8.0 <19.0.0'
     dependencies:
@@ -5659,7 +5682,7 @@ packages:
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-popover': 9.8.7(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
@@ -5685,7 +5708,7 @@ packages:
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-popover': 9.8.7(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
@@ -5869,7 +5892,7 @@ packages:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-positioning': 9.9.13(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
@@ -5898,7 +5921,7 @@ packages:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-positioning': 9.9.13(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
@@ -6237,7 +6260,7 @@ packages:
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
@@ -6260,7 +6283,7 @@ packages:
       react: '>=16.14.0 <19.0.0'
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-tabster': 9.12.11(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
@@ -6285,7 +6308,7 @@ packages:
       scheduler: ^0.19.0 || ^0.20.0
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
@@ -6311,7 +6334,7 @@ packages:
       scheduler: ^0.19.0 || ^0.20.0
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
@@ -6336,7 +6359,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-theme': 9.1.12
@@ -6360,7 +6383,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-theme': 9.1.12
@@ -6503,7 +6526,7 @@ packages:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-theme': 9.1.12
@@ -6528,7 +6551,7 @@ packages:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-theme': 9.1.12
@@ -6594,7 +6617,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
@@ -6620,7 +6643,7 @@ packages:
       react-dom: '>=16.14.0 <19.0.0'
     dependencies:
       '@fluentui/react-field': 9.1.29(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-label': 9.1.37(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
@@ -6650,7 +6673,7 @@ packages:
       '@fluentui/react-avatar': 9.5.32(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
       '@fluentui/react-checkbox': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-radio': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
@@ -6680,7 +6703,7 @@ packages:
       '@fluentui/react-avatar': 9.5.32(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-checkbox': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-radio': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
@@ -6890,7 +6913,7 @@ packages:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@17.0.2)
@@ -6916,7 +6939,7 @@ packages:
     dependencies:
       '@fluentui/keyboard-keys': 9.0.4
       '@fluentui/react-aria': 9.3.36(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-shared-contexts': 9.8.1(@types/react@18.2.22)(react@18.2.0)
@@ -7046,7 +7069,7 @@ packages:
       '@fluentui/react-button': 9.3.41(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-checkbox': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@17.0.2)
+      '@fluentui/react-icons': 2.0.221(react@17.0.2)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@17.0.2)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)
       '@fluentui/react-radio': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@17.0.2)(react@17.0.2)(scheduler@0.20.2)
@@ -7078,7 +7101,7 @@ packages:
       '@fluentui/react-button': 9.3.41(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-checkbox': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
       '@fluentui/react-context-selector': 9.1.34(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
-      '@fluentui/react-icons': 2.0.217(react@18.2.0)
+      '@fluentui/react-icons': 2.0.221(react@18.2.0)
       '@fluentui/react-jsx-runtime': 9.0.10(@types/react@18.2.22)(react@18.2.0)
       '@fluentui/react-portal': 9.3.16(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)
       '@fluentui/react-radio': 9.1.42(@types/react-dom@18.2.7)(@types/react@18.2.22)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
@@ -9844,6 +9867,11 @@ packages:
 
   /clsx@1.2.1:
     resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
+    engines: {node: '>=6'}
+    dev: false
+
+  /clsx@2.0.0:
+    resolution: {integrity: sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==}
     engines: {node: '>=6'}
     dev: false
 
@@ -13470,6 +13498,21 @@ packages:
     hasBin: true
     dependencies:
       js-tokens: 4.0.0
+
+  /lottie-react@2.4.0(react-dom@17.0.2)(react@17.0.2):
+    resolution: {integrity: sha512-pDJGj+AQlnlyHvOHFK7vLdsDcvbuqvwPZdMlJ360wrzGFurXeKPr8SiRCjLf3LrNYKANQtSsh5dz9UYQHuqx4w==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      lottie-web: 5.12.2
+      react: 17.0.2
+      react-dom: 17.0.2(react@17.0.2)
+    dev: false
+
+  /lottie-web@5.12.2:
+    resolution: {integrity: sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==}
+    dev: false
 
   /lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}

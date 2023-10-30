@@ -1,6 +1,6 @@
 import { CodeBlock } from "../components/code-block/code-block";
 import { FluentLayout } from "../components/fluent-layout";
-import { Section } from "../components/homepage/section/section";
+import { Section } from "../components/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
 import style from "./tooling.module.css";
@@ -24,40 +24,32 @@ const DataValidationContent = () => {
       />
       <SectionedLayout>
         <Section
-          header="Style consitency"
+          header="Style consistency"
           title="Built-in formatter"
           description="TypeSpec provide an opinionated formatter that enables you to enforce a consistent style in your codebase."
           illustration={<FormatterIllustration />}
-          items={[
-            {
-              title: "Formatter usage",
-              description: "See documentation on how to use the formatter.",
-              image: "text-edit",
-              link: Links.tooling.formatter,
-            },
-            {
-              title: "Style guide",
-              description: "See our recommended styles when writing TypeSpec.",
-              image: "document-add",
-              link: Links.tooling.styleGuide,
-            },
-          ]}
-        />
+        >
+          <LearnMoreCard
+            title="Formatter usage"
+            description="See documentation on how to use the formatter."
+            image="text-edit"
+            link={Links.tooling.formatter}
+          />
+        </Section>
         <Section
           layout="text-right"
           header="Warning"
           title="Warning and errors"
           description="Errors and warnings in your spec are reported as you type."
           illustration="illustrations/warnings-and-errors.png"
-          items={[
-            {
-              title: "Extension installation",
-              description: "See documentation on how to install editor extensions.",
-              image: "text-edit",
-              link: Links.editor.home,
-            },
-          ]}
-        />
+        >
+          <LearnMoreCard
+            title="Extension installation"
+            description="See documentation on how to install editor extensions."
+            image="text-edit"
+            link={Links.editor.home}
+          />
+        </Section>
         <Section
           header="Intellisense"
           title="Autocomplete and more"
@@ -85,6 +77,7 @@ const DataValidationContent = () => {
 import notFormattedTsp from "!!raw-loader!@site/static/tsp-samples/tooling/formatter/file.noformat.tsp";
 import formattedTsp from "!!raw-loader!@site/static/tsp-samples/tooling/formatter/formatted.tsp";
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import { LearnMoreCard } from "../components/learn-more-card/learn-more-card";
 import { LightDarkImg } from "../components/light-dark-img/light-dark-img";
 import { Links } from "../constants";
 

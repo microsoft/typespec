@@ -1,53 +1,69 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import { Button, Text, Title1, Title2 } from "@fluentui/react-components";
 import { Links } from "@site/src/constants";
-import { Card } from "../card/card";
+import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
+import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
+import { Button } from "../button/button";
 import { CodeBlock } from "../code-block/code-block";
+import { FeatureList } from "../feature-list/feature-list";
+import { HeroTabs } from "../hero-tabs/hero-tabs";
+import { LearnMoreCard } from "../learn-more-card/learn-more-card";
+import { LightDarkImg } from "../light-dark-img/light-dark-img";
+import { Section } from "../section/section";
 import { SectionedLayout } from "../sectioned-layout/sectioned-layout";
-import { Feature, FeatureGroup } from "./feature/feature";
+import { DescriptionText, PrimaryText } from "../text/text";
 import style from "./homepage.module.css";
-import { Section } from "./section/section";
+import { OverviewIllustration } from "./overview-illustration/overview-illustration";
 
 export const HomeContent = () => {
   return (
     <>
-      <Intro />
+      <Hero />
+      <div className={style["hero-divider"]}></div>
       <SectionedLayout>
         <Overview />
         <OpenAPISection />
         <DataValidationSection />
         <EditorSection />
         <ExtensibilitySection />
+        <Closing />
       </SectionedLayout>
-      <Closing />
     </>
   );
 };
 
-const Intro = () => {
+const Hero = () => {
   return (
     <>
-      <div className={style["intro-container"]}>
-        <div className={style["intro-content"]}>
-          <Title1 align="center" block={true}>
-            Describe APIs at scale
-          </Title1>
-          <Text align="center" block={true} className={style["intro-subtitle"]}>
-            Describe APIs at scale Meet TypeSpec, a language for describing APIs. Describe your data
-            up front and generate schemas, API specifications, client / server code, docs, and more.
-            Supports OpenAPI 3.0, JSON Schema 202-12, Protobuf, and JSON RPC
-          </Text>
-          <div className={style["intro-buttons"]}>
-            <Button as="a" appearance="primary" href={useBaseUrl("/docs")}>
-              Docs
+      <div className={style["hero-container"]}>
+        <div className={style["hero-content"]}>
+          <h1 className={style["hero-title"]}>TypeSpec</h1>
+          <div className={style["hero-subtitle"]}>Describe APIs at scale</div>
+          <DescriptionText size="large" className={style["hero-description"]}>
+            Describe your data up front and generate schemas, API specifications, client / server
+            code, docs, and more.
+          </DescriptionText>
+          <div className={style["hero-buttons"]}>
+            <Button as="a" appearance="primary" href={useBaseUrl(Links.docs)}>
+              Get Started
             </Button>
-            <Button as="a" appearance="outline">
+            <Button as="a" appearance="outline" href={useBaseUrl(Links.playground)}>
               Try it out
             </Button>
           </div>
         </div>
-        <div className={style["intro-demo"]}>
-          <Card className={style["intro-demo-image"]}></Card>
+        <div className={style["hero-demo"]}>
+          <HeroTabs
+            tabs={[
+              {
+                value: "OpenAPI",
+                content: (
+                  <DotLottiePlayer src={useBaseUrl(`/lottie/openapi-hero.lottie`)} autoplay loop />
+                ),
+              },
+              { value: "Json Schema", content: <></> },
+              { value: "Protobuf", content: <></> },
+            ]}
+          ></HeroTabs>
         </div>
       </div>
     </>
@@ -59,27 +75,39 @@ const Overview = () => {
     <>
       <div className={style["overview"]}>
         <div className={style["overview-summary"]}>
-          <Title2 block={true}>API-First for developers</Title2>
-          <Text block={true} className={style["overview-description"]}>
-            Don't let the nitty-gritty details of an API protocol get in the way of prioritizing
-            your design. With TypeSpec, remove the handwritten files that slow you down, and
-            generate standards-compliant API schemas in seconds.
-          </Text>
+          <PrimaryText>Why TypeSpec</PrimaryText>
+          <div className={style["overview-subtitle"]}>API-First for developers</div>
+          <DescriptionText size="large" className={style["overview-description"]}>
+            With TypeSpec, remove the handwritten files that slow you down, and generate
+            standards-compliant API schemas in seconds.
+          </DescriptionText>
         </div>
-        <FeatureGroup>
-          <Feature title="Describe complex APIs, fast" image="editor">
-            Reduce the time it takes to describe complex API shapes by using a minimal language
-            that's easy for developers to use and love.
-          </Feature>
-          <Feature title="Codify your API guidelines" image="people-shield">
-            All the benefits of API review, built into your dev workflow. Codify your team's API
-            guidelines and catch errors at development time.
-          </Feature>
-          <Feature title="Generate assets in many formats" image="firework">
-            With a single line of code, generate a multitude of API assets in your preferred format
-            or protocol - even all at the same time.
-          </Feature>
-        </FeatureGroup>
+        <Section layout="text-right" illustration={<OverviewIllustration />} itemStyle="plain">
+          <FeatureList
+            items={[
+              {
+                title: "Lightweight language for defining APIs",
+                description:
+                  "Inspired by TypeScript, TypeSpec is a minimal language that helps developers describe API shapes in a familiar way.",
+                image: "book-pencil",
+                link: Links.gettingStartedOpenAPI,
+              },
+              {
+                title: "Easy integration with your toolchain",
+                description: "Description TBU",
+                image: "document-add",
+                link: "/docs/standard-library/openapi3/reference",
+              },
+              {
+                title: "Multi-protocol support",
+                description:
+                  "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12, Protobuf, and JSON RPC.",
+                image: "tasks",
+                link: "/docs/standard-library/openapi3/reference",
+              },
+            ]}
+          />
+        </Section>
       </div>
     </>
   );
@@ -92,21 +120,13 @@ const OpenAPISection = () => {
       title="Streamline your OpenAPI workflow"
       description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
       illustration={<OpenAPI3HeroIllustration />}
-      items={[
-        {
-          title: "TypeSpec for OpenAPI developers",
-          description: "Get started with using TypeSpec coming from OpenAPI.",
-          image: "design",
-          link: Links.gettingStartedOpenAPI,
-        },
-        {
-          title: "OpenAPI emitter reference",
-          description: "Reference documentation for the OpenAPI 3.0 emitter.",
-          image: "document-add",
-          link: "/docs/standard-library/openapi3/reference",
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Generate OpenAPI from TypeSpec"
+        image="design"
+        link={Links.useCases.openapi}
+      />
+    </Section>
   );
 };
 
@@ -114,39 +134,33 @@ const DataValidationSection = () => {
   return (
     <Section
       header="Ecosystem"
-      title="Ensure data consitency"
+      title="Ensure data consistency"
       description="Defined common models to use across your APIs, use the json schema emitter to get the json schema for your types and use them to validate your data."
       illustration={<DataValidationHeroIllustration />}
-      items={[
-        {
-          title: "Json schema emitter reference",
-          description: "Generate the JSON Schema for your types.",
-          image: "people-shield",
-          link: Links.libraryReferences.jsonSchema.index,
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Json schema emitter reference"
+        image="people-shield"
+        link={Links.useCases.dataValidation}
+      />
+    </Section>
   );
 };
 
 const EditorSection = () => {
   return (
     <Section
-      header="IDE"
+      header="Tooling"
       title="First party support for code editor"
       description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
       illustration={<LightDarkImg src="illustrations/ide-hero" />}
-      items={[
-        {
-          title: "TypeSpec for Visual Studio Code",
-          link: Links.editor.code,
-        },
-        {
-          title: "TypeSpec for Visual Studio",
-          link: Links.editor.visualStudio,
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Check out our available tooling"
+        image="data-trending"
+        link={Links.useCases.tooling}
+      />
+    </Section>
   );
 };
 
@@ -154,35 +168,22 @@ const ExtensibilitySection = () => {
   return (
     <Section
       header="Extensibility"
-      title="Custom decorators and emitters"
+      title="Generate assets in many formats"
       description="Typespec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
       illustration={<ExtensibilityIllustration />}
-      items={[
-        {
-          title: "Getting started with writing a library",
-          description: "",
-          link: Links.extensibility.gettingStarted,
-        },
-        {
-          title: "Create a decorator",
-          description: "",
-          link: Links.extensibility.decorators,
-        },
-        {
-          title: "Create an emitter",
-          description: "",
-          link: Links.extensibility.decorators,
-        },
-      ]}
-    />
+    >
+      <LearnMoreCard
+        title="Getting started with writing a library"
+        image="data-trending"
+        link={Links.extensibility.gettingStarted}
+      />
+    </Section>
   );
 };
 
 import extensibilityTs from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.ts";
 import extensibilityTsp from "!!raw-loader!@site/static/tsp-samples/extensibility/custom-lib.tsp";
-import { DataValidationHeroIllustration } from "@site/src/pages/data-validation";
-import { OpenAPI3HeroIllustration } from "@site/src/pages/openapi";
-import { LightDarkImg } from "../light-dark-img/light-dark-img";
+import { DotLottiePlayer } from "@dotlottie/react-player";
 
 const ExtensibilityIllustration = () => {
   return (
@@ -201,10 +202,16 @@ const ExtensibilityIllustration = () => {
 const Closing = () => {
   return (
     <div className={style["closing"]}>
-      <div className={style["closing-content"]}>
-        <Title2 block={true}>Ready to get started?</Title2>
-        <Button as="a" appearance="secondary" href="/docs">
-          Docs
+      <div className={style["closing-title"]}>Start your TypeSpec journey</div>
+      <DescriptionText>
+        Install the TypeSpec CLI or check out the playground to get started.
+      </DescriptionText>
+      <div className={style["closing-buttons"]}>
+        <Button as="a" appearance="primary" href={useBaseUrl(Links.docs)}>
+          Get Started
+        </Button>
+        <Button as="a" appearance="outline" href={useBaseUrl(Links.playground)}>
+          Try it out
         </Button>
       </div>
     </div>

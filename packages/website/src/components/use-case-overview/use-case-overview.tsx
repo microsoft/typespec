@@ -1,6 +1,5 @@
-import { Button, Title2 } from "@fluentui/react-components";
-import { DescriptionText } from "../description-text/secondary-text";
-import { IllustrationCard } from "../illustration-card/illustration-card";
+import { Button } from "../button/button";
+import { DescriptionText, NeutralText } from "../text/text";
 import style from "./use-case-overview.module.css";
 
 export interface UseCaseOverviewProps {
@@ -15,18 +14,20 @@ export const UseCaseOverview = (props: UseCaseOverviewProps) => {
     <div className={style["container"]}>
       <div className={style["overview"]}>
         <div className={style["content"]}>
-          <Title2 block={true} className={style["title"]}>
+          <NeutralText size="xlarge" className={style["title"]}>
             {props.title}
-          </Title2>
+          </NeutralText>
           <div className={style["spacer"]} />
-          <DescriptionText className={style["subtitle"]}>{props.subtitle}</DescriptionText>
+          <DescriptionText size="large" className={style["subtitle"]}>
+            {props.subtitle}
+          </DescriptionText>
           <div className={style["spacer"]} />
           <Button as="a" appearance="primary" href={props.link}>
             Get started
           </Button>
         </div>
 
-        <IllustrationCard className={style["illustration"]}>{props.illustration}</IllustrationCard>
+        <div className={style["illustration"]}>{props.illustration}</div>
       </div>
     </div>
   );

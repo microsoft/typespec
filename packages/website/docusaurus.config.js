@@ -160,35 +160,22 @@ const config = {
       },
       footer: {
         style: "dark",
-        // links: [
-        //   {
-        //     title: "Docs",
-        //     items: [
-        //       {
-        //         label: "Introduction",
-        //         to: "/",
-        //       },
-        //       {
-        //         label: "Language basics",
-        //         to: "/language-basics/overview",
-        //       },
-        //     ],
-        //   },
-        //   {
-        //     title: "Community & Support",
-        //     items: [
-        //       {
-        //         label: "Stack Overflow",
-        //         href: "https://stackoverflow.microsoft.com/search?q=typespec",
-        //       },
-        //       {
-        //         label: "Microsoft Teams Channel",
-        //         href: "http://aka.ms/typespec/discussions",
-        //       },
-        //     ],
-        //   },
-        // ],
-        copyright: `Copyright © ${new Date().getFullYear()} Microsoft Corp.`,
+        links: [
+          {
+            title: "Docs",
+            items: [
+              {
+                label: "Introduction",
+                to: "/docs",
+              },
+              {
+                label: "Language basics",
+                to: "/docs/language-basics/overview",
+              },
+            ],
+          },
+        ],
+        copyright: `© ${new Date().getFullYear()} Microsoft`,
       },
       prism: {
         theme: themes.oneLight,
