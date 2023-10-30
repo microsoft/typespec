@@ -1,0 +1,4 @@
+# Template installing browsers
+steps:
+  - script: npx playwright install --with-deps
+    displayName: Install playwright browsers
