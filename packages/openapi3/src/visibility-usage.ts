@@ -155,8 +155,7 @@ function navigateReferencedTypes(
     case "UnionVariant":
       navigateReferencedTypes(type.type, callback, visited);
       break;
-    case "Enum":
-    case "Tuple":
+    default:
       callback(type);
       break;
   }
