@@ -62,7 +62,7 @@ function createLinter(): Linter {
       return;
     }
     if (!programRegistered.has(program)) {
-      program.onValidate(lintProgram);
+      program.onValidate(lintProgram, { type: "file" });
       programRegistered.add(program);
     }
   }

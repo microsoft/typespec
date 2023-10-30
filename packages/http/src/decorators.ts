@@ -1,3 +1,5 @@
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
+
 import {
   DecoratorContext,
   Diagnostic,
@@ -13,6 +15,7 @@ import {
   Union,
   createDiagnosticCollector,
   getDoc,
+  ignoreDiagnostics,
   isArrayModelType,
   reportDeprecated,
   setTypeSpecNamespace,
@@ -20,12 +23,15 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
+import { HttpStateKeys } from "./state.js";
+import { getStatusCodesFromType } from "./status-codes.js";
 import {
   AuthenticationOption,
   HeaderFieldOptions,
   HttpAuth,
+  HttpStatusCodeRange,
+  HttpStatusCodes,
   HttpVerb,
   PathParameterOptions,
   QueryParameterOptions,
@@ -35,7 +41,6 @@ import { extractParamsFromPath } from "./utils.js";
 
 export const namespace = "TypeSpec.Http";
 
-const headerFieldsKey = createStateSymbol("header");
 export function $header(
   context: DecoratorContext,
   entity: ModelProperty,
@@ -80,11 +85,11 @@ export function $header(
       target: context.decoratorTarget,
     });
   }
-  context.program.stateMap(headerFieldsKey).set(entity, options);
+  context.program.stateMap(HttpStateKeys.headerFieldsKey).set(entity, options);
 }
 
 export function getHeaderFieldOptions(program: Program, entity: Type): HeaderFieldOptions {
-  return program.stateMap(headerFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.headerFieldsKey).get(entity);
 }
 
 export function getHeaderFieldName(program: Program, entity: Type): string {
@@ -92,10 +97,9 @@ export function getHeaderFieldName(program: Program, entity: Type): string {
 }
 
 export function isHeader(program: Program, entity: Type) {
-  return program.stateMap(headerFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.headerFieldsKey).has(entity);
 }
 
-const queryFieldsKey = createStateSymbol("query");
 export function $query(
   context: DecoratorContext,
   entity: ModelProperty,
@@ -129,11 +133,11 @@ export function $query(
       target: context.decoratorTarget,
     });
   }
-  context.program.stateMap(queryFieldsKey).set(entity, options);
+  context.program.stateMap(HttpStateKeys.queryFieldsKey).set(entity, options);
 }
 
 export function getQueryParamOptions(program: Program, entity: Type): QueryParameterOptions {
-  return program.stateMap(queryFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.queryFieldsKey).get(entity);
 }
 
 export function getQueryParamName(program: Program, entity: Type): string {
@@ -141,20 +145,19 @@ export function getQueryParamName(program: Program, entity: Type): string {
 }
 
 export function isQueryParam(program: Program, entity: Type) {
-  return program.stateMap(queryFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.queryFieldsKey).has(entity);
 }
 
-const pathFieldsKey = createStateSymbol("path");
 export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
   const options: PathParameterOptions = {
     type: "path",
     name: paramName ?? entity.name,
   };
-  context.program.stateMap(pathFieldsKey).set(entity, options);
+  context.program.stateMap(HttpStateKeys.pathFieldsKey).set(entity, options);
 }
 
 export function getPathParamOptions(program: Program, entity: Type): PathParameterOptions {
-  return program.stateMap(pathFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.pathFieldsKey).get(entity);
 }
 
 export function getPathParamName(program: Program, entity: Type): string {
@@ -162,22 +165,29 @@ export function getPathParamName(program: Program, entity: Type): string {
 }
 
 export function isPathParam(program: Program, entity: Type) {
-  return program.stateMap(pathFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.pathFieldsKey).has(entity);
 }
 
-const bodyFieldsKey = createStateSymbol("body");
 export function $body(context: DecoratorContext, entity: ModelProperty) {
-  context.program.stateSet(bodyFieldsKey).add(entity);
+  context.program.stateSet(HttpStateKeys.bodyFieldsKey).add(entity);
 }
 
 export function isBody(program: Program, entity: Type): boolean {
-  return program.stateSet(bodyFieldsKey).has(entity);
+  return program.stateSet(HttpStateKeys.bodyFieldsKey).has(entity);
 }
 
-const statusCodeKey = createStateSymbol("statusCode");
 export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
-  context.program.stateSet(statusCodeKey).add(entity);
+  context.program.stateSet(HttpStateKeys.statusCodeKey).add(entity);
 
+  // eslint-disable-next-line deprecation/deprecation
+  setLegacyStatusCodeState(context, entity);
+}
+
+/**
+ * To not break we keep the legacy behavior of resolving the discrete status code in the decorator and saving them in the state.
+ * @deprecated To remove. Added in October 2023 sprint.
+ */
+function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProperty) {
   const codes: string[] = [];
   if (entity.type.kind === "String") {
     if (validStatusCode(context.program, entity.type.value, entity)) {
@@ -198,105 +208,106 @@ export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
         if (validStatusCode(context.program, String(option.value), option)) {
           codes.push(String(option.value));
         }
-      } else {
-        reportDiagnostic(context.program, {
-          code: "status-code-invalid",
-          target: entity,
-        });
       }
     }
-  } else if (entity.type.kind === "TemplateParameter") {
-    // Ignore template parameters
-  } else {
-    reportDiagnostic(context.program, {
+  }
+
+  // Check status code value: 3 digits with first digit in [1-5]
+  // Issue a diagnostic if not valid
+  function validStatusCode(program: Program, code: string, entity: Type): boolean {
+    const statusCodePattern = /[1-5][0-9][0-9]/;
+    if (code.match(statusCodePattern)) {
+      return true;
+    }
+    reportDiagnostic(program, {
       code: "status-code-invalid",
       target: entity,
+      messageId: "value",
     });
+    return false;
   }
-  setStatusCode(context.program, entity, codes);
+  context.program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
 }
 
+/**
+ * @deprecated DO NOT USE, for internal use only.
+ */
 export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
-  program.stateMap(statusCodeKey).set(entity, codes);
-}
-
-// Check status code value: 3 digits with first digit in [1-5]
-// Issue a diagnostic if not valid
-function validStatusCode(program: Program, code: string, entity: Type): boolean {
-  const statusCodePatten = /[1-5][0-9][0-9]/;
-  if (code.match(statusCodePatten)) {
-    return true;
-  }
-  reportDiagnostic(program, {
-    code: "status-code-invalid",
-    target: entity,
-    messageId: "value",
-  });
-  return false;
+  program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
 }
 
 export function isStatusCode(program: Program, entity: Type) {
-  return program.stateMap(statusCodeKey).has(entity);
+  return program.stateMap(HttpStateKeys.statusCodeKey).has(entity);
 }
 
-export function getStatusCodes(program: Program, entity: Type): string[] {
-  return program.stateMap(statusCodeKey).get(entity) ?? [];
+export function getStatusCodesWithDiagnostics(
+  program: Program,
+  type: ModelProperty
+): [HttpStatusCodes, readonly Diagnostic[]] {
+  return getStatusCodesFromType(program, type, type);
+}
+
+export function getStatusCodes(program: Program, entity: ModelProperty): HttpStatusCodes {
+  return ignoreDiagnostics(getStatusCodesWithDiagnostics(program, entity));
 }
 
 // Reference: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-export function getStatusCodeDescription(statusCode: string) {
-  switch (statusCode) {
-    case "200":
+export function getStatusCodeDescription(statusCode: number | "*" | HttpStatusCodeRange | string) {
+  if (typeof statusCode === "object") {
+    return rangeDescription(statusCode.start, statusCode.end);
+  }
+  const statusCodeNumber = typeof statusCode === "string" ? parseInt(statusCode, 10) : statusCode;
+  switch (statusCodeNumber) {
+    case 200:
       return "The request has succeeded.";
-    case "201":
+    case 201:
       return "The request has succeeded and a new resource has been created as a result.";
-    case "202":
+    case 202:
       return "The request has been accepted for processing, but processing has not yet completed.";
-    case "204":
+    case 204:
       return "There is no content to send for this request, but the headers may be useful. ";
-    case "301":
+    case 301:
       return "The URL of the requested resource has been changed permanently. The new URL is given in the response.";
-    case "304":
+    case 304:
       return "The client has made a conditional request and the resource has not been modified.";
-    case "400":
+    case 400:
       return "The server could not understand the request due to invalid syntax.";
-    case "401":
+    case 401:
       return "Access is unauthorized.";
-    case "403":
+    case 403:
       return "Access is forbidden";
-    case "404":
+    case 404:
       return "The server cannot find the requested resource.";
-    case "409":
+    case 409:
       return "The request conflicts with the current state of the server.";
-    case "412":
+    case 412:
       return "Precondition failed.";
-    case "503":
+    case 503:
       return "Service unavailable.";
   }
 
-  switch (statusCode.charAt(0)) {
-    case "1":
-      return "Informational";
-    case "2":
-      return "Successful";
-    case "3":
-      return "Redirection";
-    case "4":
-      return "Client Error";
-    case "5":
-      return "Server Error";
-  }
+  return rangeDescription(statusCodeNumber, statusCodeNumber);
+}
 
-  // Any valid HTTP status code is covered above.
+function rangeDescription(start: number, end: number) {
+  if (start >= 100 && end <= 199) {
+    return "Informational";
+  } else if (start >= 200 && end <= 299) {
+    return "Successful";
+  } else if (start >= 300 && end <= 399) {
+    return "Redirection";
+  } else if (start >= 400 && end <= 499) {
+    return "Client error";
+  } else if (start >= 500 && end <= 599) {
+    return "Server error";
+  }
   return undefined;
 }
 
-const operationVerbsKey = createStateSymbol("verbs");
-
 function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
   if (entity.kind === "Operation") {
-    if (!program.stateMap(operationVerbsKey).has(entity)) {
-      program.stateMap(operationVerbsKey).set(entity, verb);
+    if (!program.stateMap(HttpStateKeys.operationVerbsKey).has(entity)) {
+      program.stateMap(HttpStateKeys.operationVerbsKey).set(entity, verb);
     } else {
       reportDiagnostic(program, {
         code: "http-verb-duplicate",
@@ -314,7 +325,7 @@ function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void 
 }
 
 export function getOperationVerb(program: Program, entity: Type): HttpVerb | undefined {
-  return program.stateMap(operationVerbsKey).get(entity);
+  return program.stateMap(HttpStateKeys.operationVerbsKey).get(entity);
 }
 
 export function $get(context: DecoratorContext, entity: Operation) {
@@ -347,7 +358,6 @@ export interface HttpServer {
   parameters: Map<string, ModelProperty>;
 }
 
-const serversKey = createStateSymbol("servers");
 /**
  * Configure the server url for the service.
  * @param context Decorator context
@@ -376,10 +386,10 @@ export function $server(
     }
   }
 
-  let servers: HttpServer[] = context.program.stateMap(serversKey).get(target);
+  let servers: HttpServer[] = context.program.stateMap(HttpStateKeys.serversKey).get(target);
   if (servers === undefined) {
     servers = [];
-    context.program.stateMap(serversKey).set(target, servers);
+    context.program.stateMap(HttpStateKeys.serversKey).set(target, servers);
   }
   servers.push({
     url,
@@ -389,7 +399,7 @@ export function $server(
 }
 
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
-  return program.stateMap(serversKey).get(type);
+  return program.stateMap(HttpStateKeys.serversKey).get(type);
 }
 
 export function $plainData(context: DecoratorContext, entity: Model) {
@@ -397,11 +407,11 @@ export function $plainData(context: DecoratorContext, entity: Model) {
 
   const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
   const [headers, bodies, queries, paths, statusCodes] = [
-    program.stateMap(headerFieldsKey),
-    program.stateSet(bodyFieldsKey),
-    program.stateMap(queryFieldsKey),
-    program.stateMap(pathFieldsKey),
-    program.stateMap(statusCodeKey),
+    program.stateMap(HttpStateKeys.headerFieldsKey),
+    program.stateSet(HttpStateKeys.bodyFieldsKey),
+    program.stateMap(HttpStateKeys.queryFieldsKey),
+    program.stateMap(HttpStateKeys.pathFieldsKey),
+    program.stateMap(HttpStateKeys.statusCodeKey),
   ];
 
   for (const property of entity.properties.values()) {
@@ -422,7 +432,6 @@ export function $plainData(context: DecoratorContext, entity: Model) {
 
 setTypeSpecNamespace("Private", $plainData);
 
-const authenticationKey = createStateSymbol("authentication");
 export function $useAuth(
   context: DecoratorContext,
   serviceNamespace: Namespace,
@@ -440,7 +449,7 @@ export function setAuthentication(
   serviceNamespace: Namespace,
   auth: ServiceAuthentication
 ) {
-  program.stateMap(authenticationKey).set(serviceNamespace, auth);
+  program.stateMap(HttpStateKeys.authenticationKey).set(serviceNamespace, auth);
 }
 
 function extractServiceAuthentication(
@@ -551,12 +560,19 @@ function extractHttpAuthentication(
 }
 
 function extractOAuth2Auth(data: any): HttpAuth {
+  // Validation of OAuth2Flow models in this function is minimal because the
+  // type system already validates whether the model represents a flow
+  // configuration.  This code merely avoids runtime errors.
+  const flows =
+    Array.isArray(data.flows) && data.flows.every((x: any) => typeof x === "object")
+      ? data.flows
+      : [];
   return {
     ...data,
-    flows: data.flows.map((flow: any) => {
+    flows: flows.map((flow: any) => {
       return {
         ...flow,
-        scopes: flow.scopes.map((x: string) => ({ value: x })),
+        scopes: (flow.scopes || []).map((x: string) => ({ value: x })),
       };
     }),
   };
@@ -566,7 +582,7 @@ export function getAuthentication(
   program: Program,
   namespace: Namespace
 ): ServiceAuthentication | undefined {
-  return program.stateMap(authenticationKey).get(namespace);
+  return program.stateMap(HttpStateKeys.authenticationKey).get(namespace);
 }
 
 /**
@@ -615,10 +631,6 @@ export function $sharedRoute(context: DecoratorContext, entity: Operation) {
   setSharedRoute(context.program, entity);
 }
 
-const includeInapplicableMetadataInPayloadKey = createStateSymbol(
-  "includeInapplicableMetadataInPayload"
-);
-
 /**
  * Specifies if inapplicable metadata should be included in the payload for
  * the given entity. This is true by default unless changed by this
@@ -648,7 +660,7 @@ export function $includeInapplicableMetadataInPayload(
   ) {
     return;
   }
-  const state = context.program.stateMap(includeInapplicableMetadataInPayloadKey);
+  const state = context.program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayloadKey);
   state.set(entity, value);
 }
 
@@ -665,7 +677,7 @@ export function includeInapplicableMetadataInPayload(
 ): boolean {
   let e: ModelProperty | Namespace | Model | undefined;
   for (e = property; e; e = e.kind === "ModelProperty" ? e.model : e.namespace) {
-    const value = program.stateMap(includeInapplicableMetadataInPayloadKey).get(e);
+    const value = program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayloadKey).get(e);
     if (value !== undefined) {
       return value;
     }

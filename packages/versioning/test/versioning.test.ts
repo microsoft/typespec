@@ -11,7 +11,7 @@ import {
   Type,
   Union,
 } from "@typespec/compiler";
-import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
+import { BasicTestRunner, createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
@@ -330,6 +330,36 @@ describe("versioning: logic", () => {
       );
     });
 
+    it("emits diagnostic when renaming causes duplicates", async () => {
+      const code = `
+      @versioned(Versions)
+      @service({
+        title: "Widget Service",
+      })
+      namespace DemoService;
+
+      enum Versions {
+        "v1",
+        "v2",
+        "v3",
+      }
+      
+      model Test {
+        @key id: string;
+        weight: int32;
+        @renamedFrom(Versions.v3, "color") shade: string;
+        @added(Versions.v2)
+        color: string;
+      }
+      `;
+      const diagnostics = await runner.diagnose(code);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/renamed-duplicate-property",
+        message:
+          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v2.",
+      });
+    });
+
     it("can be added/removed multiple times", async () => {
       const {
         source,
@@ -381,7 +411,34 @@ describe("versioning: logic", () => {
       ok(v2.properties.get("b")!.optional === true);
     });
 
-    it("can change type", async () => {
+    it("can change type to versioned models", async () => {
+      const {
+        projections: [v1, v2, v3],
+      } = await versionedModel(
+        ["v1", "v2", "v3"],
+        `
+        @test
+        model Original {}
+
+        @test
+        @added(Versions.v2)
+        model Updated {}
+
+        @test
+        model Test {
+          @added(Versions.v2)
+          @typeChangedFrom(Versions.v3, Original)
+          prop: Updated;
+        }
+        `
+      );
+
+      ok(v1.properties.get("prop") === undefined);
+      ok((v2.properties.get("prop")!.type as Model).name === "Original");
+      ok((v3.properties.get("prop")!.type as Model).name === "Updated");
+    });
+
+    it("can change type over multiple versions", async () => {
       const {
         projections: [v1, v2, v3],
       } = await versionedModel(
@@ -443,6 +500,7 @@ describe("versioning: logic", () => {
         source
       );
     });
+
     it("can be added", async () => {
       const {
         projections: [v1, v2],
@@ -638,6 +696,32 @@ describe("versioning: logic", () => {
       assertHasVariants(v3, ["c"]);
       assertHasVariants(v4, ["c"]);
       assertHasVariants(v5, ["d"]);
+    });
+
+    it("emits diagnostic when renaming causes duplicates", async () => {
+      const code = `
+      @versioned(Versions)
+      @service({
+        title: "Widget Service",
+      })
+      namespace DemoService;
+
+      enum Versions {
+        "v1",
+        "v2",
+      }
+
+      union BadUnion {
+        color: string,
+        @renamedFrom(Versions.v2, "color") shade: string;
+      }      
+      `;
+      const diagnostics = await runner.diagnose(code);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/renamed-duplicate-property",
+        message:
+          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v1.",
+      });
     });
 
     it("can be added/removed multiple times", async () => {
@@ -1568,6 +1652,32 @@ describe("versioning: logic", () => {
       assertHasMembers(v3, ["c"]);
       assertHasMembers(v4, ["c"]);
       assertHasMembers(v5, ["d"]);
+    });
+
+    it("emits diagnostic when renaming causes duplicates", async () => {
+      const code = `
+      @versioned(Versions)
+      @service({
+        title: "Widget Service",
+      })
+      namespace DemoService;
+
+      enum Versions {
+        "v1",
+        "v2",
+      }
+      
+      enum BadEnum {
+        color,
+        @renamedFrom(Versions.v2, "color") shade;
+      }
+      `;
+      const diagnostics = await runner.diagnose(code);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/renamed-duplicate-property",
+        message:
+          "Property 'color' marked with '@renamedFrom' conflicts with existing property in version v1.",
+      });
     });
 
     it("can be added/removed multiple times", async () => {

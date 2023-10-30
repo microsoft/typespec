@@ -1,3 +1,5 @@
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
+
 import {
   createDiagnosticCollector,
   DecoratorContext,
@@ -9,8 +11,8 @@ import {
   Type,
   validateDecoratorTarget,
 } from "@typespec/compiler";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
+import { HttpStateKeys } from "./state.js";
 import {
   HttpOperation,
   HttpOperationParameters,
@@ -129,7 +131,6 @@ function getRouteSegments(
   return diagnostics.wrap(result);
 }
 
-const externalInterfaces = createStateSymbol("externalInterfaces");
 /**
  * @deprecated DO NOT USE. For internal use only as a workaround.
  * @param program Program
@@ -141,16 +142,14 @@ export function includeInterfaceRoutesInNamespace(
   target: Namespace,
   sourceInterface: string
 ) {
-  let array = program.stateMap(externalInterfaces).get(target);
+  let array = program.stateMap(HttpStateKeys.externalInterfaces).get(target);
   if (array === undefined) {
     array = [];
-    program.stateMap(externalInterfaces).set(target, array);
+    program.stateMap(HttpStateKeys.externalInterfaces).set(target, array);
   }
 
   array.push(sourceInterface);
 }
-
-const routeProducerKey = createStateSymbol("routeProducer");
 
 export function DefaultRouteProducer(
   program: Program,
@@ -197,14 +196,12 @@ export function setRouteProducer(
   operation: Operation,
   routeProducer: RouteProducer
 ): void {
-  program.stateMap(routeProducerKey).set(operation, routeProducer);
+  program.stateMap(HttpStateKeys.routeProducerKey).set(operation, routeProducer);
 }
 
 export function getRouteProducer(program: Program, operation: Operation): RouteProducer {
-  return program.stateMap(routeProducerKey).get(operation);
+  return program.stateMap(HttpStateKeys.routeProducerKey).get(operation);
 }
-
-const routesKey = createStateSymbol("routes");
 
 export function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   if (
@@ -213,7 +210,7 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
     return;
   }
 
-  const state = context.program.stateMap(routesKey);
+  const state = context.program.stateMap(HttpStateKeys.routesKey);
 
   if (state.has(entity) && entity.kind === "Namespace") {
     const existingPath: string | undefined = state.get(entity);
@@ -232,21 +229,19 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
   }
 }
 
-const sharedRoutesKey = createStateSymbol("sharedRoutes");
-
 export function setSharedRoute(program: Program, operation: Operation) {
-  program.stateMap(sharedRoutesKey).set(operation, true);
+  program.stateMap(HttpStateKeys.sharedRoutesKey).set(operation, true);
 }
 
 export function isSharedRoute(program: Program, operation: Operation): boolean {
-  return program.stateMap(sharedRoutesKey).get(operation) === true;
+  return program.stateMap(HttpStateKeys.sharedRoutesKey).get(operation) === true;
 }
 
 export function getRoutePath(
   program: Program,
   entity: Namespace | Interface | Operation
 ): RoutePath | undefined {
-  const path = program.stateMap(routesKey).get(entity);
+  const path = program.stateMap(HttpStateKeys.routesKey).get(entity);
   return path
     ? {
         path,
@@ -255,19 +250,17 @@ export function getRoutePath(
     : undefined;
 }
 
-const routeOptionsKey = createStateSymbol("routeOptions");
-
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
   options: RouteOptions
 ) {
-  program.stateMap(routeOptionsKey).set(namespace, options);
+  program.stateMap(HttpStateKeys.routeOptionsKey).set(namespace, options);
 }
 
 export function getRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace
 ): RouteOptions | undefined {
-  return program.stateMap(routeOptionsKey).get(namespace);
+  return program.stateMap(HttpStateKeys.routeOptionsKey).get(namespace);
 }

@@ -159,6 +159,7 @@ export type DocToken =
   | Token.At
   | Token.CloseBrace
   | Token.Identifier
+  | Token.Hyphen
   | Token.DocText
   | Token.DocCodeSpan
   | Token.DocCodeFenceDelimiter
@@ -617,6 +618,9 @@ export function createScanner(
         case CharCode.Bar:
           if (atConflictMarker()) return scanConflictMarker();
           return next(Token.DocText);
+
+        case CharCode.Minus:
+          return next(Token.Hyphen);
       }
 
       if (isAsciiIdentifierStart(ch)) {

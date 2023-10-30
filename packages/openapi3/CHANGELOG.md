@@ -1,6 +1,44 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Tue, 08 Aug 2023 22:32:10 GMT and should not be manually modified.
+This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+
+## 0.49.0
+Wed, 11 Oct 2023 23:31:35 GMT
+
+### Updates
+
+- Removes `@typespec/rest` as a `peerDependency`. Relates to #2391
+- Add support for constraints on unions
+- Add support for `@returns` and `@errors` doc comment tags.
+- Add support for http status code ranges
+- Fix: Correctly generate discriminated union mapping property with multiple visibilities involved
+- Fix: Crash when assigning a numeric default to a union
+- Fix: Using format `ssv` or `pipes` in `@header` produced an invalid OpenAPI3 schema. It will now change the type to string and ignore the format as well as logging a warning.
+- Fix: Use `null` as a default
+- Allow use of `@oneOf` on model properties
+- Fix `OpenAPI` namespace to be `TypeSpec.OpenAPI`.
+- Fix issue with CSV format representation.
+- Fix issue where openAPI3 for shared routes incorrectly output a statusCode field.
+- Update dependencies
+- Disable folding of serialized yaml if line is above 80 characters
+
+## 0.48.1
+Tue, 19 Sep 2023 19:28:32 GMT
+
+### Patches
+
+- Fix: Correctly generate discriminated union mapping property with multiple visibilities involved
+
+## 0.48.0
+Tue, 12 Sep 2023 21:47:11 GMT
+
+### Updates
+
+- Fixed issue where parameters on a PATCH request marked with visibility "create" did not appear.
+- Changed yaml parser from `js-yaml` to `yaml`
+- Fix: `exclusiveMinimum` and `exclusiveMaximum` properties are booleans in openapi3
+- Use `anyOf` instead of `oneOf` for shared route with different request/response bodies
+- Fix handling of `Record<T>` in `model is` and `model extends`
 
 ## 0.47.0
 Tue, 08 Aug 2023 22:32:10 GMT

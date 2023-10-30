@@ -1,5 +1,5 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
-import { deepStrictEqual, ok } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
@@ -298,6 +298,74 @@ describe("openapi3: union type", () => {
     ok(res.schemas.X.properties.prop.nullable);
   });
 
+  it("handles discriminated union mapping with multiple visibilities", async () => {
+    const res = await openApiFor(`
+      model A {
+        type: "ay";
+        a: string;
+        @visibility("create")
+        onACreate: string;
+      }
+
+      model B {
+        type: "bee";
+        b: string;
+        @visibility("create")
+        onBCreate: string;
+      }
+
+      @discriminator("type")
+      union AorB {
+        a: A,
+        b: B
+      }
+
+      model Data {
+        thing: AorB
+      }
+
+      @get
+      op getFoo(): Data;
+      @post
+      op postFoo(@body data: Data): Data;
+    `);
+
+    deepStrictEqual(res.components.schemas.AorB, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/A",
+          bee: "#/components/schemas/B",
+        },
+      },
+    });
+    deepStrictEqual(res.components.schemas.AorBCreate, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/ACreate",
+        },
+        {
+          $ref: "#/components/schemas/BCreate",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/ACreate",
+          bee: "#/components/schemas/BCreate",
+        },
+      },
+    });
+  });
+
   it("throws diagnostics for empty enum definitions", async () => {
     const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
 
@@ -306,5 +374,26 @@ describe("openapi3: union type", () => {
       message:
         "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
     });
+  });
+
+  it("supports summary on unions and union variants", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooUnion")
+      union Foo {
+        int32;
+
+        Bar;
+      }
+
+      @summary("BarUnion")
+      union Bar {
+        string;
+      }
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooUnion");
+    strictEqual(res.schemas.Bar.title, "BarUnion");
   });
 });

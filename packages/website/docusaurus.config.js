@@ -3,7 +3,7 @@
 
 // const lightCodeTheme = require("prism-react-renderer/themes/github");
 const lightCodeTheme = require("./themes/prism/atom-one-light.js");
-const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const { themes } = require("prism-react-renderer");
 const { resolve } = require("path");
 
 function getMajorMinorVersion(pkgJsonPath) {
@@ -85,6 +85,28 @@ const config = {
   ],
   staticDirectories: [resolve(__dirname, "./node_modules/@typespec/spec/dist")],
 
+  webpack: {
+    jsLoader: (isServer) => ({
+      loader: require.resolve("swc-loader"),
+      options: {
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+          },
+          target: "es2019",
+          transform: {
+            react: {
+              runtime: "automatic",
+            },
+          },
+        },
+        module: {
+          type: isServer ? "commonjs" : "es6",
+        },
+      },
+    }),
+  },
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
@@ -149,7 +171,7 @@ const config = {
       },
       prism: {
         theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
+        darkTheme: themes.dracula,
         additionalLanguages: [],
       },
       mermaid: {},

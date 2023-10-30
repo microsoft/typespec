@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: (title)
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /:
@@ -19,6 +19,8 @@ components:
   schemas:
     Foo:
       type: object
+      required:
+        - id
       properties:
         id:
           type: string
@@ -36,10 +38,12 @@ components:
           x-bool: true
           x-number: 123
           x-string: string
-      required:
-        - id
     MyConfig:
       type: object
+      required:
+        - name
+        - age
+        - other
       properties:
         name:
           type: string
@@ -51,16 +55,12 @@ components:
             - 12
         other:
           $ref: '#/components/schemas/NestedConfig'
-      required:
-        - name
-        - age
-        - other
     NestedConfig:
       type: object
+      required:
+        - id
       properties:
         id:
           type: string
           enum:
             - some
-      required:
-        - id

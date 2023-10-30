@@ -174,6 +174,7 @@ export type TypeEmitterMethod = keyof Omit<
   | "sourceFile"
   | "declarationName"
   | "reference"
+  | "circularReference"
   | "emitValue"
   | "writeOutput"
   | EndingWith<keyof TypeEmitter<any, any>, "Context">
@@ -182,6 +183,13 @@ export type TypeEmitterMethod = keyof Omit<
 export interface LexicalTypeStackEntry {
   method: TypeEmitterMethod;
   args: any[];
+}
+
+/**
+ * Represent an entry in the reference chain.
+ */
+export interface ReferenceChainEntry {
+  type: Type;
 }
 
 export interface EmitterState {

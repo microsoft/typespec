@@ -1,4 +1,6 @@
-# TypeSpec VSCode extension
+---
+title: TypeSpec VSCode extension
+---
 
 ## Installation
 

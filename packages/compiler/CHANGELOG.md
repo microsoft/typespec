@@ -1,6 +1,72 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Tue, 08 Aug 2023 22:32:10 GMT and should not be manually modified.
+This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+
+## 0.49.0
+Wed, 11 Oct 2023 23:31:35 GMT
+
+### Updates
+
+- Handle hyphen in @param doc comment
+- The `never` type is now assignable to all types
+- Allow nullable types for constraint decorators(min/max value, length, etc)
+- Add support for `@returns` and `@errors` doc comment tags. `@returns`(or `@returnsDoc` decorator) can be used to describe the success return types of an operation. `@errors`(or `@errorsDoc` decorator) can be used to describe the error return types of an operation.
+- Fix: Colorization of line comment was bleeding over to the next line(s).
+- Fix crash when using parenthesis on directives
+- Fix: Assigning negative and 0 to float64
+- `tsp format` now returns a non-zero exit code when it fails to format a file
+- Fix: Anonymous union variants were formatted with an extra leading `:`
+- Formatter: Unions and Enums members are now formatted following the same rules as model properties. An extra line will be added between members if the member is annotated with a decorator, directive or doc comment.
+- Fix: Correct formatting of comments between a directive or doc and its node
+- Fix: `tsp init` was not creating the `tspconfig.yaml` file for templates that specified it
+- Fix: `tsp init` will create a placeholder `tspconfig.yaml` file for templates that don't specify an explicit one.
+- Fix `tsp init` was ignoring the `files` specified in an init template
+- Fix: Language Server wasn't loading the `tspconfig.yaml` correctly resulting in some options being dropped like the linter configuration.
+- Fix: Allow `null` to be assigned as a default value
+- Fix: Using `TypeSpec.Xyz` namespace shouldn't require the `TypeSpec Prefix`
+- Skip emit of `deprecated` diagnostic for a type reference that is used in a deprecated declaration statement
+- Update dependencies
+- Remove `decorators` export, import decorators individually
+
+## 0.48.1
+Tue, 19 Sep 2023 19:28:32 GMT
+
+### Patches
+
+- Fix emitter framework issue causing reference context to be lost in certain cases.
+
+### Updates
+
+- Add typesVersions metadata for the emitter framework to package.json
+
+## 0.48.0
+Tue, 12 Sep 2023 21:47:11 GMT
+
+### Updates
+
+- **Breaking Change** A semicolon is now required after augment decorator  statements.
+- Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`. 
+- Fix issue where --config would search the folder hierarchy looking for `tspconfig.yaml`.
+- **Deprecation** `@deprecated` decorator has been marked as deprecated. Use `#deprecated` directive instead.
+- **IDE** Add coloring for doc comment
+- Changed yaml parser from `js-yaml` to `yaml`
+- Parsing and validation of the tspconfig.yaml will not report the error location.
+- **Fix** Stackoverflow when model property reference itself
+- **Fix** Compiler crash when using alias of namespace that has decorators
+- Fix: Compiler freeze when using invalid token between doc comment and type
+- **Added** validation making sure properties of model are compatible with a base model indexer (using `extends`)
+- Fix: Crash with when relating recursive types
+- Fix typo in 'format' error message
+- Expose `CompilerOptions` TypeScript type
+- Report library information when crash happen in $onValidate
+- Diagnostics reported on nodes with an `id` will see the diagnostic highlight the id instead of the whole node. For example it will show the error on the model name instead of highlighting the entire model.
+
+## 0.47.1
+Thu, 10 Aug 2023 20:18:00 GMT
+
+### Patches
+
+- **Fix**: `--config` flag was being ignored.
 
 ## 0.47.0
 Tue, 08 Aug 2023 22:32:10 GMT

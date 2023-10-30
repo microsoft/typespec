@@ -12,6 +12,7 @@ import {
 } from "@typespec/compiler/testing";
 import { readdirSync, statSync } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
+import { ProtobufEmitterOptions } from "../src/lib.js";
 
 const SCENARIOS_DIRECTORY = url.fileURLToPath(new url.URL("../../test/scenarios", import.meta.url));
 
@@ -45,7 +46,13 @@ describe("protobuf scenarios", function () {
     shouldRun &&
       it(scenarioName, async function () {
         const inputFiles = await readdirRecursive(path.join(scenario, "input"));
-        const emitResult = await doEmit(inputFiles);
+        const options = await readFile(path.join(scenario, "options.json"), "utf-8")
+          .then((s) => JSON.parse(s) as ProtobufEmitterOptions)
+          .catch((e) => {
+            return {} as ProtobufEmitterOptions;
+          });
+
+        const emitResult = await doEmit(inputFiles, options);
 
         const expectationDirectory = path.resolve(scenario, "output");
         const diagnosticsExpectationPath = path.resolve(scenario, "diagnostics.txt");
@@ -131,7 +138,10 @@ interface EmitResult {
   diagnostics: string[];
 }
 
-async function doEmit(files: Record<string, string>): Promise<EmitResult> {
+async function doEmit(
+  files: Record<string, string>,
+  options: ProtobufEmitterOptions
+): Promise<EmitResult> {
   const baseOutputPath = resolveVirtualPath("test-output/");
 
   const host = await createTestHost({
@@ -146,7 +156,7 @@ async function doEmit(files: Record<string, string>): Promise<EmitResult> {
     outputDir: baseOutputPath,
     noEmit: false,
     emitters: {
-      "@typespec/protobuf": {},
+      "@typespec/protobuf": options as Record<string, unknown>,
     },
   });
 

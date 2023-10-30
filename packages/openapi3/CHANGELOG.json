@@ -2,6 +2,101 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.49.0",
+      "tag": "@typespec/openapi3_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Removes `@typespec/rest` as a `peerDependency`. Relates to #2391"
+          },
+          {
+            "comment": "Add support for constraints on unions"
+          },
+          {
+            "comment": "Add support for `@returns` and `@errors` doc comment tags."
+          },
+          {
+            "comment": "Add support for http status code ranges"
+          },
+          {
+            "comment": "Fix: Correctly generate discriminated union mapping property with multiple visibilities involved"
+          },
+          {
+            "comment": "Fix: Crash when assigning a numeric default to a union"
+          },
+          {
+            "comment": "Fix: Using format `ssv` or `pipes` in `@header` produced an invalid OpenAPI3 schema. It will now change the type to string and ignore the format as well as logging a warning."
+          },
+          {
+            "comment": "Fix: Use `null` as a default"
+          },
+          {
+            "comment": "Allow use of `@oneOf` on model properties"
+          },
+          {
+            "comment": "Fix `OpenAPI` namespace to be `TypeSpec.OpenAPI`."
+          },
+          {
+            "comment": "Fix issue with CSV format representation."
+          },
+          {
+            "comment": "Fix issue where openAPI3 for shared routes incorrectly output a statusCode field."
+          },
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "Disable folding of serialized yaml if line is above 80 characters"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.1",
+      "tag": "@typespec/openapi3_v0.48.1",
+      "date": "Tue, 19 Sep 2023 19:28:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Correctly generate discriminated union mapping property with multiple visibilities involved"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/openapi3_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fixed issue where parameters on a PATCH request marked with visibility \"create\" did not appear."
+          },
+          {
+            "comment": "Changed yaml parser from `js-yaml` to `yaml`"
+          },
+          {
+            "comment": "Fix: `exclusiveMinimum` and `exclusiveMaximum` properties are booleans in openapi3"
+          },
+          {
+            "comment": "Use `anyOf` instead of `oneOf` for shared route with different request/response bodies"
+          },
+          {
+            "comment": "Fix handling of `Record<T>` in `model is` and `model extends`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/openapi3_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

@@ -1,26 +1,27 @@
 import { createDiagnosticCollector, getDirectoryPath, normalizePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, omitUndefined } from "../core/util.js";
+import { deepClone, doIO, omitUndefined } from "../core/util.js";
 import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
 import { EmitterOptions, TypeSpecConfig } from "./types.js";
 
-export interface ResolveCompilerOptionsOptions {
+export interface ResolveCompilerOptionsOptions extends ConfigToOptionsOptions {
   /** Absolute entrypoint path */
   entrypoint: string;
 
   /** Explicit config path. */
   configPath?: string;
+}
 
-  /** Current working directory. This will be used to interpolate `{cwd}` in the config.
-   * @default to `process.cwd()`
+export interface ConfigToOptionsOptions {
+  /**
+   * Current working directory. This will be used to interpolate `{cwd}` in the config.
    */
-  cwd?: string;
+  cwd: string;
 
   /**
    * Environment variables.
-   * @default process.env
    */
   env?: Record<string, string | undefined>;
 
@@ -42,16 +43,38 @@ export async function resolveCompilerOptions(
   host: CompilerHost,
   options: ResolveCompilerOptionsOptions
 ): Promise<[CompilerOptions, readonly Diagnostic[]]> {
-  const cwd = normalizePath(options.cwd ?? process.cwd());
   const diagnostics = createDiagnosticCollector();
 
-  const entrypointStat = await host.stat(options.entrypoint);
+  const entrypointStat = await doIO(
+    host.stat,
+    options.entrypoint,
+    (diag) => diagnostics.add(diag),
+    { allowFileNotFound: true }
+  );
   const configPath =
-    options.configPath ?? entrypointStat.isDirectory()
-      ? options.entrypoint
-      : getDirectoryPath(options.entrypoint);
-  const config = await loadTypeSpecConfigForPath(host, configPath);
+    options.configPath ??
+    (entrypointStat?.isDirectory() ? options.entrypoint : getDirectoryPath(options.entrypoint));
+  const config = await loadTypeSpecConfigForPath(
+    host,
+    configPath,
+    options.configPath !== undefined,
+    options.configPath === undefined
+  );
   config.diagnostics.forEach((x) => diagnostics.add(x));
+
+  const compilerOptions = diagnostics.pipe(resolveOptionsFromConfig(config, options));
+  return diagnostics.wrap(compilerOptions);
+}
+
+/**
+ * Resolve the compiler options from the given raw TypeSpec config
+ * @param config TypeSpec config.
+ * @param options Options for interpolation in the config.
+ * @returns
+ */
+export function resolveOptionsFromConfig(config: TypeSpecConfig, options: ConfigToOptionsOptions) {
+  const cwd = normalizePath(options.cwd);
+  const diagnostics = createDiagnosticCollector();
 
   const configWithOverrides: TypeSpecConfig = {
     ...config,
@@ -62,7 +85,7 @@ export async function resolveCompilerOptions(
     expandConfigVariables(configWithOverrides, {
       cwd,
       outputDir: options.overrides?.outputDir,
-      env: options.env ?? process.env,
+      env: options.env ?? {},
       args: options.args,
     })
   );

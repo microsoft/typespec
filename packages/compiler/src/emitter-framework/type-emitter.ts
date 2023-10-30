@@ -22,12 +22,14 @@ import {
 } from "../core/index.js";
 import { code, StringBuilder } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
+import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import {
   AssetEmitter,
   Context,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
+  ReferenceChainEntry,
   Scope,
   SourceFile,
   TypeSpecDeclaration,
@@ -666,6 +668,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  tupleLiteralValuesContext(tuple: Tuple): Context {
+    return {};
+  }
+
+  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
+    return {};
+  }
+
   tupleLiteralReferenceContext(tuple: Tuple): Context {
     return {};
   }
@@ -700,6 +710,29 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     commonScope: Scope<T> | null
   ): EmitEntity<T> | T {
     return this.emitter.result.none();
+  }
+
+  /**
+   * Handle circular references. When this method is called it means we are resolving a circular reference.
+   * By default if the target is a declaration it will call to {@link reference} otherwise it means we have an inline reference
+   * @param target Reference target.
+   * @param scope Current scope.
+   * @returns Resolved reference entity.
+   */
+  circularReference(
+    target: EmitEntity<T>,
+    scope: Scope<T> | undefined,
+    circularChain: ReferenceChainEntry[]
+  ): EmitEntity<T> | T {
+    if (target.kind !== "declaration") {
+      throw new Error("Circular references to non-declarations are not supported by this emitter.");
+    }
+    compilerAssert(
+      scope,
+      "Emit context must have a scope set in order to create references to declarations."
+    );
+    const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
+    return this.reference(target, pathUp, pathDown, commonScope);
   }
 
   declarationName(declarationType: TypeSpecDeclaration): string | undefined {
@@ -820,14 +853,6 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
       builder.push(code`${this.emitter.emitTypeReference(v)}${i < tuple.values.length ? "," : ""}`);
     }
     return builder.reduce();
-  }
-
-  tupleLiteralValuesContext(tuple: Tuple): Context {
-    return {};
-  }
-
-  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
-    return {};
   }
 
   reference(

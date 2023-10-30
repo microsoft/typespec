@@ -25,6 +25,7 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  Tuple,
   Type,
   typespecTypeToJson,
   Union,
@@ -44,7 +45,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
-import yaml from "js-yaml";
+import { stringify } from "yaml";
 import {
   findBaseUri,
   getContains,
@@ -216,6 +217,21 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
 
+  tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    return new ObjectBuilder({
+      type: "array",
+      prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+    });
+  }
+
+  tupleLiteralValues(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const values = new ArrayBuilder();
+    for (const value of tuple.values.values()) {
+      values.push(this.emitter.emitType(value));
+    }
+    return values;
+  }
+
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
     const withConstraints = new ObjectBuilder({
       $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -343,6 +359,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
           // without losing precision.
           schema = { type: "integer" };
         }
+        break;
+      case "decimal":
+      case "decimal128":
+        schema = { type: "string" };
         break;
       case "integer":
         schema = { type: "integer" };
@@ -592,7 +612,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (this.emitter.getOptions()["file-type"] === "json") {
       serializedContent = JSON.stringify(content, null, 4);
     } else {
-      serializedContent = yaml.dump(content);
+      serializedContent = stringify(content, {
+        aliasDuplicateObjects: false,
+        lineWidth: 0,
+      });
     }
 
     return {

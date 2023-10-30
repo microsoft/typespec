@@ -1,4 +1,6 @@
-# Reproducibility
+---
+title: Reproducibility
+---
 
 A key point to service definition is the ability to reliably reproduce the exact same output over time. In cases like:
 

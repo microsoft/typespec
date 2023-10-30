@@ -1,3 +1,4 @@
+import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,
   createTestHost,
@@ -322,16 +323,86 @@ describe("compiler: checker: deprecation", () => {
 
       expectDiagnosticEmpty(diagnostics);
     });
+
+    describe("skips type deprecation warning when referenced in a deprecated parent context", () => {
+      it("deprecated model used in deprecated types", async () => {
+        await expectDeprecations(
+          `
+            #deprecated "OldFoo is deprecated"
+            model OldFoo {
+              foo: string;
+            }
+
+            #deprecated "oldOp is deprecated"
+            op oldOp(): OldFoo;
+
+            #deprecated "OldBar is deprecated"
+            model OldBar is OldFoo {}
+
+            #deprecated "OldBlah is deprecated"
+            model OldBlah extends OldFoo {}
+
+            #deprecated "OldFooReference is deprecated"
+            model OldFooReference {
+              foo: OldFoo.foo;
+            }
+
+            #deprecated "OldFooProperty is deprecated"
+            model OldFooProperty {
+              foo: OldFoo;
+            }
+
+            #deprecated "OldBaz is deprecated"
+            interface OldBaz {
+              op oldBaz(): OldFoo;
+              op oldBazTwo(): string | OldFoo;
+              op oldBazThree(): OldFoo & { bar: string };
+            }
+          `,
+          []
+        );
+      });
+
+      it("deprecated operation used in deprecated types", async () => {
+        await expectDeprecations(
+          `
+            #deprecated "oldFoo is deprecated"
+            op oldFoo(): string;
+
+            #deprecated "oldBar is deprecated"
+            op oldBar is oldFoo;
+
+            #deprecated "OldBaz is deprecated"
+            interface OldBaz {
+              op oldBaz is oldBar;
+            }
+          `,
+          []
+        );
+      });
+    });
   });
 
   describe("@deprecated decorator", () => {
+    function omitDeprecatedDecoratorDeprecatedDiag(
+      diagnostics: readonly Diagnostic[]
+    ): readonly Diagnostic[] {
+      return diagnostics.filter(
+        (x) =>
+          !(
+            x.code === "deprecated" &&
+            x.message ===
+              "Deprecated: @deprecated decorator is deprecated. Use the `#deprecated` directive instead."
+          )
+      );
+    }
     it("doesn't emit warning until it is used", async () => {
       const diagnostics = await runner.diagnose(`
         @deprecated("Foo is deprecated use Bar")
         model Foo { }
         model Test  { }
       `);
-      expectDiagnosticEmpty(diagnostics);
+      expectDiagnosticEmpty(omitDeprecatedDecoratorDeprecatedDiag(diagnostics));
     });
 
     it("emit warning diagnostic when used via is", async () => {
@@ -341,7 +412,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test is Foo { }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
@@ -355,7 +426,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test extends Foo { }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
@@ -369,7 +440,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test { foo: Foo }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",
@@ -383,7 +454,7 @@ describe("compiler: checker: deprecation", () => {
 
         model Test { ...Foo }
       `);
-      expectDiagnostics(diagnostics, {
+      expectDiagnostics(omitDeprecatedDecoratorDeprecatedDiag(diagnostics), {
         code: "deprecated",
         message: "Deprecated: Foo is deprecated use Bar",
         severity: "warning",

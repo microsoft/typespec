@@ -1,4 +1,4 @@
-import { Program } from "@typespec/compiler";
+import { Program, TypeSpecLibrary } from "@typespec/compiler";
 import { ReactElement } from "react";
 
 export type CompilationCrashed = {
@@ -22,4 +22,10 @@ export interface FileOutputViewer {
 export interface ViewerProps {
   filename: string;
   content: string;
+}
+
+export interface PlaygroundTspLibrary {
+  name: string;
+  isEmitter: boolean;
+  definition?: TypeSpecLibrary<any>;
 }

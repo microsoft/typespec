@@ -50,6 +50,7 @@ import {
   findTypeSpecConfigPath,
   loadTypeSpecConfigFile,
 } from "../config/config-loader.js";
+import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
 import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import {
@@ -70,6 +71,7 @@ import {
 import { Program, compile as compileProgram } from "../core/program.js";
 import {
   Token,
+  TokenFlags,
   createScanner,
   isKeyword,
   isPunctuation,
@@ -177,6 +179,8 @@ export enum SemanticTokenKind {
   Number,
   Regexp,
   Operator,
+
+  DocCommentTag,
 }
 
 export interface SemanticToken {
@@ -385,12 +389,12 @@ export function createServer(host: ServerHost): Server {
   ): Promise<T | Program | undefined> {
     const path = await getPath(document);
     const mainFile = await getMainFileForDocument(path);
-    const config = await getConfig(mainFile, path);
+    const config = await getConfig(mainFile);
 
-    const options = {
+    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
+    const options: CompilerOptions = {
+      ...optionsFromConfig,
       ...serverOptions,
-      emit: config.emit,
-      options: config.options,
     };
 
     if (!upToDate(document)) {
@@ -447,8 +451,11 @@ export function createServer(host: ServerHost): Server {
     }
   }
 
-  async function getConfig(mainFile: string, path: string): Promise<TypeSpecConfig> {
-    const configPath = await findTypeSpecConfigPath(compilerHost, mainFile);
+  async function getConfig(mainFile: string): Promise<TypeSpecConfig> {
+    const entrypointStat = await host.compilerHost.stat(mainFile);
+
+    const lookupDir = entrypointStat.isDirectory() ? mainFile : getDirectoryPath(mainFile);
+    const configPath = await findTypeSpecConfigPath(compilerHost, lookupDir, true);
     if (!configPath) {
       return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
     }
@@ -577,7 +584,7 @@ export function createServer(host: ServerHost): Server {
     for (const each of program.diagnostics) {
       let document: TextDocument | undefined;
 
-      const location = getSourceLocation(each.target);
+      const location = getSourceLocation(each.target, { locateId: true });
       if (location?.file) {
         document = (location.file as ServerSourceFile).document;
       } else {
@@ -932,17 +939,37 @@ export function createServer(host: ServerHost): Server {
       const scanner = createScanner(file, () => {});
 
       while (scanner.scan() !== Token.EndOfFile) {
-        const kind = classifyToken(scanner.token);
-        if (kind === ignore) {
-          continue;
+        if (scanner.tokenFlags & TokenFlags.DocComment) {
+          classifyDocComment({ pos: scanner.tokenPosition, end: scanner.position });
+        } else {
+          const kind = classifyToken(scanner.token);
+          if (kind === ignore) {
+            continue;
+          }
+          tokens.set(scanner.tokenPosition, {
+            kind: kind === defer ? undefined! : kind,
+            pos: scanner.tokenPosition,
+            end: scanner.position,
+          });
         }
-        tokens.set(scanner.tokenPosition, {
-          kind: kind === defer ? undefined! : kind,
-          pos: scanner.tokenPosition,
-          end: scanner.position,
-        });
       }
       return tokens;
+
+      function classifyDocComment(range: TextRange) {
+        scanner.scanRange(range, () => {
+          while (scanner.scanDoc() !== Token.EndOfFile) {
+            const kind = classifyDocToken(scanner.token);
+            if (kind === ignore) {
+              continue;
+            }
+            tokens.set(scanner.tokenPosition, {
+              kind: kind === defer ? undefined! : kind,
+              pos: scanner.tokenPosition,
+              end: scanner.position,
+            });
+          }
+        });
+      }
     }
 
     function classifyToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
@@ -963,6 +990,23 @@ export function createServer(host: ServerHost): Server {
           if (isPunctuation(token)) {
             return SemanticTokenKind.Operator;
           }
+          return ignore;
+      }
+    }
+
+    /** Classify tokens when scanning doc comment. */
+    function classifyDocToken(token: Token): SemanticTokenKind | typeof defer | typeof ignore {
+      switch (token) {
+        case Token.NewLine:
+        case Token.Whitespace:
+          return ignore;
+        case Token.DocText:
+        case Token.Star:
+        case Token.Identifier:
+          return SemanticTokenKind.Comment;
+        case Token.At:
+          return defer;
+        default:
           return ignore;
       }
     }
@@ -1050,13 +1094,40 @@ export function createServer(host: ServerHost): Server {
         case SyntaxKind.ProjectionMemberExpression:
           classifyReference(node.id);
           break;
+        case SyntaxKind.DocParamTag:
+        case SyntaxKind.DocTemplateTag:
+          classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
+          classifyOverride(node.paramName, SemanticTokenKind.Variable);
+          break;
+        case SyntaxKind.DocReturnsTag:
+          classifyDocTag(node.tagName, SemanticTokenKind.DocCommentTag);
+          break;
+        case SyntaxKind.DocUnknownTag:
+          classifyDocTag(node.tagName, SemanticTokenKind.Macro);
+          break;
+        default:
+          break;
       }
       visitChildren(node, classifyNode);
+    }
+
+    function classifyDocTag(node: IdentifierNode, kind: SemanticTokenKind) {
+      classifyOverride(node, kind);
+      const token = tokens.get(node.pos - 1); // Get the `@` token
+      if (token) {
+        token.kind = kind;
+      }
     }
 
     function classify(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
       const token = tokens.get(node.pos);
       if (token && token.kind === undefined) {
+        token.kind = kind;
+      }
+    }
+    function classifyOverride(node: IdentifierNode | StringLiteralNode, kind: SemanticTokenKind) {
+      const token = tokens.get(node.pos);
+      if (token) {
         token.kind = kind;
       }
     }

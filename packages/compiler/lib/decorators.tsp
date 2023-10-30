@@ -30,6 +30,32 @@ extern dec summary(target: unknown, summary: valueof string);
 extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
+ * Attach a documentation string to describe the successful return types of an operation.
+ * If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+ * @param doc Documentation string
+ *
+ * @example
+ * ```typespec
+ * @returnsDoc("Returns doc")
+ * op get(): Pet | NotFound;
+ * ```
+ */
+extern dec returnsDoc(target: Operation, doc: valueof string);
+
+/**
+ * Attach a documentation string to describe the error return types of an operation.
+ * If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+ * @param doc Documentation string
+ *
+ * @example
+ * ```typespec
+ * @errorsDoc("Returns doc")
+ * op get(): Pet | NotFound;
+ * ```
+ */
+extern dec errorsDoc(target: Operation, doc: valueof string);
+
+/**
  * Mark this type as deprecated.
  *
  * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
@@ -46,6 +72,7 @@ extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
  * op Action<T>(): T;
  * ```
  */
+#deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
 extern dec deprecated(target: unknown, message: valueof string);
 
 /**
@@ -366,11 +393,13 @@ enum DateTimeKnownEncoding {
    * Encode to string.
    */
   rfc3339: "rfc3339",
+
   /**
    * RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt
    * Encode to string.
    */
   rfc7231: "rfc7231",
+
   /**
    * Encode to integer
    */
@@ -385,6 +414,7 @@ enum DurationKnownEncoding {
    * ISO8601 duration
    */
   ISO8601: "ISO8601",
+
   /**
    * Encode to integer or float
    */
@@ -399,6 +429,7 @@ enum BytesKnownEncoding {
    * Encode to Base64
    */
   base64: "base64",
+
   /**
    * Encode to Base64 Url
    */
@@ -549,3 +580,15 @@ extern dec inspectType(target: unknown, text: valueof string);
  * @param text Custom text to log
  */
 extern dec inspectTypeName(target: unknown, text: valueof string);
+
+/**
+ * Sets which visibilities apply to parameters for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec parameterVisibility(target: Operation, ...visibilities: valueof string[]);
+
+/**
+ * Sets which visibilities apply to the return type for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof string[]);

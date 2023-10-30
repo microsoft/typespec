@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { lstat, readdir, readFile, stat, writeFile } from "fs/promises";
 import { join } from "path";
+import { parse } from "semver";
 import stripJsonComments from "strip-json-comments";
 
 interface RushChangeFile {
@@ -133,8 +134,19 @@ function getDevVersion(version: string, changeCount: number) {
 }
 
 function getNextVersion(version: string) {
-  const [major, minor] = version.split(".").map((x) => parseInt(x, 10));
-  return `${major}.${minor + 1}.0`;
+  const parsed = parse(version);
+  if (parsed === null) {
+    throw new Error(`Invalid semver version ${version}`);
+  }
+  if (parsed.prerelease.length > 0) {
+    const [preName, preVersion] = parsed.prerelease;
+    if (typeof preVersion !== "number") {
+      throw new Error(`Invalid expected prerelease version ${preVersion} to be a number.`);
+    }
+    return `${parsed.major}.${parsed.minor}.${parsed.patch}-${preName}.${preVersion + 1}`;
+  } else {
+    return `${parsed.major}.${parsed.minor + 1}.0`;
+  }
 }
 
 async function addPrereleaseNumber(
@@ -216,4 +228,45 @@ async function isDirectory(path: string) {
     }
     throw e;
   }
+}
+
+export async function bumpVersionsForPR(
+  workspaceRoot: string,
+  prNumber: number,
+  buildNumber: string
+) {
+  const packages = await getPackages(workspaceRoot);
+  console.log("Packages", packages);
+
+  // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
+
+  const updatedManifests: Record<string, BumpManifest> = {};
+  for (const [packageName, packageInfo] of Object.entries(packages)) {
+    const packageJsonPath = join(packageInfo.path, "package.json");
+    const packageJsonContent = await readJsonFile<PackageJson>(packageJsonPath);
+    const newVersion = getPrVersion(packageInfo.version, prNumber, buildNumber);
+
+    console.log(`Setting version for ${packageName} to '${newVersion}'`);
+    updatedManifests[packageName] = {
+      packageJsonPath,
+      oldVersion: packageJsonContent.version,
+      nextVersion: getNextVersion(packageInfo.version),
+      newVersion,
+      manifest: {
+        ...packageJsonContent,
+        version: newVersion,
+      },
+    };
+  }
+
+  for (const { packageJsonPath, manifest } of Object.values(updatedManifests)) {
+    await writeFile(packageJsonPath, JSON.stringify(manifest, null, 2));
+  }
+}
+
+function getPrVersion(version: string, prNumber: number, buildNumber: string) {
+  const nextVersion = getNextVersion(version);
+  const devVersion = `${nextVersion}-pr-${prNumber}.${buildNumber}`;
+  console.log(`Bumping version ${version} to ${devVersion}`);
+  return devVersion;
 }

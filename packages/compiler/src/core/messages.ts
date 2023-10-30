@@ -367,6 +367,7 @@ const diagnostics = {
     messages: {
       default: "Cannot spread properties of non-model type.",
       neverIndex: "Cannot spread type because it cannot hold properties.",
+      selfSpread: "Cannot spread type within its own declaration.",
     },
   },
   "unsupported-default": {
@@ -481,7 +482,8 @@ const diagnostics = {
   "invalid-deprecation-argument": {
     severity: "error",
     messages: {
-      default: "Invalid deprecation argument",
+      default: paramMessage`#deprecation directive is expecting a string literal as the message but got a "${"kind"}"`,
+      missing: "#deprecation directive is expecting a message argument but none was provided.",
     },
   },
   "duplicate-deprecation": {
@@ -652,6 +654,16 @@ const diagnostics = {
   },
 
   /**
+   * Formatter
+   */
+  "format-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`File '${"file"}' failed to format. ${"details"}`,
+    },
+  },
+
+  /**
    * Decorator
    */
   "decorator-wrong-target": {
@@ -735,6 +747,7 @@ const diagnostics = {
       default: "Invalid encoding",
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
+      wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
     },
   },
 
@@ -809,6 +822,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
+    },
+  },
+  "circular-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' recursively references itself.`,
     },
   },
   "conflict-marker": {

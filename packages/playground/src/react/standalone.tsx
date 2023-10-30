@@ -5,7 +5,6 @@ import { createBrowserHost } from "../browser-host.js";
 import { registerMonacoDefaultWorkers } from "../monaco-worker.js";
 import { registerMonacoLanguage } from "../services.js";
 import { StateStorage, createUrlStateStorage } from "../state-storage.js";
-import { filterEmitters } from "../utils.js";
 import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js";
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
@@ -14,7 +13,6 @@ export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
 
 export async function createReactPlayground(config: ReactPlaygroundConfig) {
   const host = await createBrowserHost(config.libraries);
-  const emitters = await filterEmitters(config.libraries);
   await registerMonacoLanguage(host);
   registerMonacoDefaultWorkers();
 
@@ -23,10 +21,10 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
   const options: PlaygroundProps = {
     ...config,
     host,
-    emitters,
+    libraries: config.libraries,
     defaultContent: initialState.content,
     defaultEmitter: initialState.emitter ?? config.defaultEmitter,
-    defaultEmitterOptions: initialState.options,
+    defaultCompilerOptions: initialState.options,
     defaultSampleName: initialState.sampleName,
     onSave: (value) => {
       stateStorage.save(value);

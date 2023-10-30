@@ -73,6 +73,7 @@ const libDef = {
         dependentRemovedBefore: paramMessage`'${"sourceName"}' was removed on version '${"sourceRemovedOn"}' but contains type '${"targetName"}' removed in version '${"targetRemovedOn"}'.`,
         versionedDependencyAddedAfter: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' added in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
         versionedDependencyRemovedBefore: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' removed in version '${"targetAddedOn"}' but version used is ${"dependencyVersion"}.`,
+        doesNotExist: paramMessage`'${"sourceName"}' is referencing type '${"targetName"}' which does not exist in version '${"version"}'.`,
       },
     },
     "incompatible-versioned-namespace-use-dependency": {
@@ -86,6 +87,12 @@ const libDef = {
       severity: "error",
       messages: {
         default: paramMessage`Property '${"name"}' marked with @madeOptional but is required. Should be '${"name"}?'`,
+      },
+    },
+    "renamed-duplicate-property": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Property '${"name"}' marked with '@renamedFrom' conflicts with existing property in version ${"version"}.`,
       },
     },
   },

@@ -2,6 +2,45 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.49.0",
+      "tag": "@typespec/http_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for `@returns` and `@errors` doc comment tags."
+          },
+          {
+            "comment": "Add support for status code ranges for http responses. **Change to API** Http responses can now also return a `HttpStatusCodeRange` object for their status codes"
+          },
+          {
+            "comment": "Emit error when multiple properties on a response model have the `@statusCode` decorator."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/http_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Deprecated `getRequestVisibility`. Added methods `getDefaultVisibilityForVerb` and `resolveRequestVisibility`. Use either depending on the situation."
+          },
+          {
+            "comment": "Add validation step to check whether any operation references another operation with a route prefix defined on a parent container.  This helps avoid unexpected route changes when using operation references."
+          },
+          {
+            "comment": "Avoid runtime errors when `OAuth2Auth` is given invalid `OAuth2Flow` arguments"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/http_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

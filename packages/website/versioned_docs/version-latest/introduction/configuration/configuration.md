@@ -316,13 +316,13 @@ Configure which linter rules should be enabled in this repository. Referencing t
 ```yaml
 linter:
   extends: # Extend `recommended` ruleset from @typespec/best-practices library
-    - "@typespec/best-practices:recommended"
+    - "@typespec/best-practices/recommended"
 
   enable: # Explicitly enable some rules
-    "@typespec/best-practices:no-x": true
+    "@typespec/best-practices/no-x": true
 
   disable: # Disable some rules defined in one of the ruleset extended.
-    "@typespec/best-practices:no-y": "This rule cannot be applied in this project because X"
+    "@typespec/best-practices/no-y": "This rule cannot be applied in this project because X"
 ```
 
 ## Emitter control cli flags

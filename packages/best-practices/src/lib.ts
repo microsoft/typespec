@@ -8,7 +8,7 @@ export const $lib = createTypeSpecLibrary({
     rules: [casingRule],
     ruleSets: {
       recommended: {
-        enable: { [`@typespec/best-practices:${casingRule.name}`]: true },
+        enable: { [`@typespec/best-practices/${casingRule.name}`]: true },
       },
     },
   },

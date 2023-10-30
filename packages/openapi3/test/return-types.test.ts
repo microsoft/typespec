@@ -159,35 +159,6 @@ describe("openapi3: return types", () => {
     );
   });
 
-  it("defines separate responses for each status code property in return type", async () => {
-    const res = await openApiFor(
-      `
-      model CreatedOrUpdatedResponse {
-        @statusCode ok: "200";
-        @statusCode created: "201";
-      }
-      model DateHeader {
-        @header date: utcDateTime;
-      }
-      model Key {
-        key: string;
-      }
-      @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
-      `
-    );
-    ok(res.paths["/"].put.responses["200"]);
-    ok(res.paths["/"].put.responses["201"]);
-    // Note: 200 and 201 response should be equal except for description
-    deepStrictEqual(
-      res.paths["/"].put.responses["200"].headers,
-      res.paths["/"].put.responses["201"].headers
-    );
-    deepStrictEqual(
-      res.paths["/"].put.responses["200"].content,
-      res.paths["/"].put.responses["201"].content
-    );
-  });
-
   it("defines separate responses for each variant of a union return type", async () => {
     const res = await openApiFor(
       `
@@ -257,38 +228,6 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["200"].content["text/csv"]);
   });
 
-  it("issues diagnostics for invalid status codes", async () => {
-    const diagnostics = await checkFor(
-      `
-      model Foo {
-        foo: string;
-      }
-
-      model BadRequest {
-        code: "4XX";
-      }
-
-      @route("/test1")
-      @get
-      op test1(): { @statusCode code: string, @body body: Foo };
-      @route("/test2")
-      @get
-      op test2(): { @statusCode code: "Ok", @body body: Foo };
-      @route("/test3")
-      @get
-      op test3(): { @statusCode code: "200" | BadRequest, @body body: Foo };
-    `
-    );
-    expectDiagnostics(diagnostics, [
-      { code: "@typespec/http/status-code-invalid" },
-      { code: "@typespec/http/status-code-invalid" },
-      { code: "@typespec/http/status-code-invalid" },
-    ]);
-    ok(diagnostics[0].message.includes("must be a numeric or string literal"));
-    ok(diagnostics[1].message.includes("must be a three digit code between 100 and 599"));
-    ok(diagnostics[2].message.includes("must be a numeric or string literal"));
-  });
-
   it("defines responses with primitive types", async () => {
     const res = await openApiFor(`
       @get() op read(): string;
@@ -331,7 +270,6 @@ describe("openapi3: return types", () => {
       "application/json": {
         schema: {
           type: "object",
-          properties: {},
         },
       },
     });
@@ -350,7 +288,6 @@ describe("openapi3: return types", () => {
       "application/json": {
         schema: {
           type: "object",
-          properties: {},
         },
       },
     });
@@ -547,7 +484,7 @@ describe("openapi3: return types", () => {
       const diagnostics = await checkFor(
         `@get op read():
           | { @body body: {}, @header foo: string }
-          | {@header contentType: "text/plain", @body body: string, @header foo: string };
+          | {@header contentType: "text/plain", @body body: string, @header foo: int16 };
         `
       );
       expectDiagnostics(diagnostics, [{ code: "@typespec/openapi3/duplicate-header" }]);
@@ -626,7 +563,7 @@ describe("openapi3: return types", () => {
           content: {
             "application/json": {
               schema: {
-                oneOf: [
+                anyOf: [
                   {
                     $ref: "#/components/schemas/A",
                   },
@@ -655,7 +592,7 @@ describe("openapi3: return types", () => {
           content: {
             "application/json": {
               schema: {
-                oneOf: [
+                anyOf: [
                   {
                     $ref: "#/components/schemas/A",
                   },
@@ -694,7 +631,7 @@ describe("openapi3: return types", () => {
           content: {
             "application/json": {
               schema: {
-                oneOf: [
+                anyOf: [
                   {
                     $ref: "#/components/schemas/A",
                   },

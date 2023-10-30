@@ -3,6 +3,8 @@ import {
   Diagnostic,
   DiagnosticCollector,
   getDoc,
+  getErrorsDoc,
+  getReturnsDoc,
   isArrayModelType,
   isErrorModel,
   isNullType,
@@ -18,14 +20,15 @@ import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
-  getStatusCodes,
+  getStatusCodesWithDiagnostics,
   isBody,
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
-import { HttpOperationResponse } from "./types.js";
+import { HttpStateKeys } from "./state.js";
+import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
  * Get the responses for a given operation.
@@ -36,32 +39,62 @@ export function getResponsesForOperation(
 ): [HttpOperationResponse[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const responseType = operation.returnType;
-  const responses: Record<string | symbol, HttpOperationResponse> = {};
+  const responses = new ResponseIndex();
   if (responseType.kind === "Union") {
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
         continue;
       }
-      processResponseType(program, diagnostics, responses, option.type);
+      processResponseType(program, diagnostics, operation, responses, option.type);
     }
   } else {
-    processResponseType(program, diagnostics, responses, responseType);
+    processResponseType(program, diagnostics, operation, responses, responseType);
   }
 
-  return diagnostics.wrap(Object.values(responses));
+  return diagnostics.wrap(responses.values());
+}
+
+/**
+ * Class keeping an index of all the response by status code
+ */
+class ResponseIndex {
+  readonly #index = new Map<string, HttpOperationResponse>();
+
+  public get(statusCode: HttpStatusCodesEntry): HttpOperationResponse | undefined {
+    return this.#index.get(this.#indexKey(statusCode));
+  }
+
+  public set(statusCode: HttpStatusCodesEntry, response: HttpOperationResponse): void {
+    this.#index.set(this.#indexKey(statusCode), response);
+  }
+
+  public values(): HttpOperationResponse[] {
+    return [...this.#index.values()];
+  }
+
+  #indexKey(statusCode: HttpStatusCodesEntry) {
+    if (typeof statusCode === "number" || statusCode === "*") {
+      return String(statusCode);
+    } else {
+      return `${statusCode.start}-${statusCode.end}`;
+    }
+  }
 }
 
 function processResponseType(
   program: Program,
   diagnostics: DiagnosticCollector,
-  responses: Record<string, HttpOperationResponse>,
+  operation: Operation,
+  responses: ResponseIndex,
   responseType: Type
 ) {
   const metadata = gatherMetadata(program, diagnostics, responseType, Visibility.Read);
 
   // Get explicity defined status codes
-  const statusCodes: Array<string> = getResponseStatusCodes(program, responseType, metadata);
+  const statusCodes: HttpStatusCodes = diagnostics.pipe(
+    getResponseStatusCodes(program, responseType, metadata)
+  );
 
   // Get explicitly defined content types
   const contentTypes = getResponseContentTypes(program, diagnostics, metadata);
@@ -76,11 +109,11 @@ function processResponseType(
   if (statusCodes.length === 0) {
     if (bodyType === undefined || isVoidType(bodyType)) {
       bodyType = undefined;
-      statusCodes.push("204");
+      statusCodes.push(204);
     } else if (isErrorModel(program, responseType)) {
       statusCodes.push("*");
     } else {
-      statusCodes.push("200");
+      statusCodes.push(200);
     }
   }
 
@@ -93,10 +126,11 @@ function processResponseType(
   for (const statusCode of statusCodes) {
     // the first model for this statusCode/content type pair carries the
     // description for the endpoint. This could probably be improved.
-    const response: HttpOperationResponse = responses[statusCode] ?? {
-      statusCode,
+    const response: HttpOperationResponse = responses.get(statusCode) ?? {
+      statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
+      statusCodes: statusCode,
       type: responseType,
-      description: getResponseDescription(program, responseType, statusCode, bodyType),
+      description: getResponseDescription(program, operation, responseType, statusCode, bodyType),
       responses: [],
     };
 
@@ -112,7 +146,7 @@ function processResponseType(
     } else {
       response.responses.push({ headers });
     }
-    responses[statusCode] = response;
+    responses.set(statusCode, response);
   }
 }
 
@@ -125,22 +159,37 @@ function getResponseStatusCodes(
   program: Program,
   responseType: Type,
   metadata: Set<ModelProperty>
-): string[] {
-  const codes: string[] = [];
+): [HttpStatusCodes, readonly Diagnostic[]] {
+  const codes: HttpStatusCodes = [];
+  const diagnostics = createDiagnosticCollector();
 
+  let statusFound = false;
   for (const prop of metadata) {
     if (isStatusCode(program, prop)) {
-      codes.push(...getStatusCodes(program, prop));
+      if (statusFound) {
+        reportDiagnostic(program, {
+          code: "multiple-status-codes",
+          target: responseType,
+        });
+      }
+      statusFound = true;
+      codes.push(...diagnostics.pipe(getStatusCodesWithDiagnostics(program, prop)));
     }
   }
 
+  // This is only needed to retrieve the * status code set by @defaultResponse.
+  // https://github.com/microsoft/typespec/issues/2485
   if (responseType.kind === "Model") {
     for (let t: Model | undefined = responseType; t; t = t.baseModel) {
-      codes.push(...getStatusCodes(program, t));
+      codes.push(...getExplicitSetStatusCode(program, t));
     }
   }
 
-  return codes;
+  return diagnostics.wrap(codes);
+}
+
+function getExplicitSetStatusCode(program: Program, entity: Model | ModelProperty): "*"[] {
+  return program.stateMap(HttpStateKeys.statusCodeKey).get(entity) ?? [];
 }
 
 /**
@@ -223,8 +272,9 @@ function getResponseBody(
 
 function getResponseDescription(
   program: Program,
+  operation: Operation,
   responseType: Type,
-  statusCode: string,
+  statusCode: HttpStatusCodes[number],
   bodyType: Type | undefined
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body
@@ -239,6 +289,13 @@ function getResponseDescription(
     if (desc) {
       return desc;
     }
+  }
+
+  const desc = isErrorModel(program, responseType)
+    ? getErrorsDoc(program, operation)
+    : getReturnsDoc(program, operation);
+  if (desc) {
+    return desc;
   }
 
   return getStatusCodeDescription(statusCode);

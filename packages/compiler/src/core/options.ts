@@ -46,7 +46,6 @@ export interface CompilerOptions {
   nostdlib?: boolean;
   noEmit?: boolean;
   additionalImports?: string[];
-  watchForChanges?: boolean;
   warningAsError?: boolean;
 
   /**

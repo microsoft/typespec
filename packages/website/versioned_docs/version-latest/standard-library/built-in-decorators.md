@@ -158,6 +158,32 @@ message: string;
 ```
 
 
+### `@errorsDoc` {#@errorsDoc}
+
+Attach a documentation string to describe the error return types of an operation.
+If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+
+```typespec
+@errorsDoc(doc: valueof string)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| doc | `valueof scalar string` | Documentation string |
+
+#### Examples
+
+```typespec
+@errorsDoc("Returns doc")
+op get(): Pet | NotFound;
+```
+
+
 ### `@format` {#@format}
 
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
@@ -557,6 +583,25 @@ op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): vo
 ```
 
 
+### `@parameterVisibility` {#@parameterVisibility}
+
+Sets which visibilities apply to parameters for the given operation.
+
+```typespec
+@parameterVisibility(...visibilities: valueof string[])
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+
+
+
 ### `@pattern` {#@pattern}
 
 Specify the the pattern this string should respect using simple regular expression syntax.
@@ -610,6 +655,51 @@ model Certificate {
 expireAt: int32;
 }
 ```
+
+
+### `@returnsDoc` {#@returnsDoc}
+
+Attach a documentation string to describe the successful return types of an operation.
+If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+
+```typespec
+@returnsDoc(doc: valueof string)
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| doc | `valueof scalar string` | Documentation string |
+
+#### Examples
+
+```typespec
+@returnsDoc("Returns doc")
+op get(): Pet | NotFound;
+```
+
+
+### `@returnTypeVisibility` {#@returnTypeVisibility}
+
+Sets which visibilities apply to the return type for the given operation.
+
+```typespec
+@returnTypeVisibility(...visibilities: valueof string[])
+```
+
+#### Target
+
+`Operation`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+
 
 
 ### `@secret` {#@secret}

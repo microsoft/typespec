@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Grpc Library sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags:
   - name: LibraryService
 paths:
@@ -85,9 +85,7 @@ paths:
         - $ref: '#/components/parameters/DeleteBookRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may be useful. '
         default:
           description: An unexpected error response.
           content:
@@ -124,9 +122,7 @@ paths:
         - $ref: '#/components/parameters/DeleteShelfRequest'
       responses:
         '204':
-          description: >-
-            There is no content to send for this request, but the headers may be
-            useful. 
+          description: 'There is no content to send for this request, but the headers may be useful. '
         default:
           description: An unexpected error response.
           content:
@@ -165,12 +161,9 @@ paths:
       tags:
         - LibraryService
       operationId: LibraryService_listBooks
-      description: >-
-        Lists books in a shelf. The order is unspecified but deterministic.
-        Newly
-
+      description: |-
+        Lists books in a shelf. The order is unspecified but deterministic. Newly
         created books will not necessarily be added to the end of this list.
-
         Returns NOT_FOUND if the shelf does not exist.
       parameters:
         - $ref: '#/components/parameters/ListBooksRequest.name'
@@ -194,18 +187,12 @@ paths:
       tags:
         - LibraryService
       operationId: LibraryService_mergeShelves
-      description: >-
+      description: |-
         Merges two shelves by adding all books from the shelf named
-
         `other_shelf_name` to shelf `name`, and deletes
-
         `other_shelf_name`. Returns the updated shelf.
-
-        The book ids of the moved books may not be the same as the original
-        books.
-
+        The book ids of the moved books may not be the same as the original books.
         Returns NOT_FOUND if either shelf does not exist.
-
         This call is a no-op if the specified shelves are the same.
       parameters:
         - $ref: '#/components/parameters/MergeShelvesRequest.name'
@@ -293,13 +280,10 @@ components:
       name: page_token
       in: query
       required: false
-      description: >-
+      description: |-
         A token identifying a page of results the server should return.
-
         Typically, this is the value of
-
         [ListShelvesResponse.next_page_token][google.example.library.v1.ListShelvesResponse.next_page_token]
-
         returned from the previous call to `ListShelves` method.
       schema:
         type: string
@@ -314,6 +298,9 @@ components:
   schemas:
     Book:
       type: object
+      description: A single book in the library.
+      required:
+        - name
       properties:
         name:
           allOf:
@@ -331,25 +318,24 @@ components:
         read:
           type: boolean
           description: Value indicating whether the book has been read.
-      description: A single book in the library.
-      required:
-        - name
     CreateShelfRequest:
       type: object
+      description: Request message for LibraryService.CreateShelf.
+      required:
+        - body
       properties:
         body:
           allOf:
             - $ref: '#/components/schemas/Shelf'
           description: The shelf to create.
-      description: Request message for LibraryService.CreateShelf.
-      required:
-        - body
     Empty:
       type: object
-      properties: {}
       description: No body returned
     ListBooksResponse:
       type: object
+      description: Response message for LibraryService.ListBooks.
+      required:
+        - books
       properties:
         books:
           type: array
@@ -358,38 +344,28 @@ components:
           description: The list of books.
         next_page_token:
           type: string
-          description: >-
+          description: |-
             A token to retrieve next page of results.
-
             Pass this value in the
-
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
-
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
-
+            field in the subsequent call to `ListShelves` method to retrieve the next
             page of results.
-      description: Response message for LibraryService.ListBooks.
-      required:
-        - books
     ListResponseBase:
       type: object
       properties:
         next_page_token:
           type: string
-          description: >-
+          description: |-
             A token to retrieve next page of results.
-
             Pass this value in the
-
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
-
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
-
+            field in the subsequent call to `ListShelves` method to retrieve the next
             page of results.
     ListShelvesResponse:
       type: object
+      description: Response message for LibraryService.ListShelves.
+      required:
+        - shelves
       properties:
         shelves:
           type: array
@@ -398,22 +374,20 @@ components:
           description: The list of shelves.
         next_page_token:
           type: string
-          description: >-
+          description: |-
             A token to retrieve next page of results.
-
             Pass this value in the
-
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
-
-            field in the subsequent call to `ListShelves` method to retrieve the
-            next
-
+            field in the subsequent call to `ListShelves` method to retrieve the next
             page of results.
-      description: Response message for LibraryService.ListShelves.
-      required:
-        - shelves
     MoveBookRequest:
       type: object
+      description: |-
+        Describes what book to move (name) and what shelf we're moving it
+        to (other_shelf_name).
+      required:
+        - name
+        - other_shelf_name
       properties:
         name:
           allOf:
@@ -423,12 +397,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/shelf_name'
           description: The name of the destination shelf.
-      description: |-
-        Describes what book to move (name) and what shelf we're moving it
-        to (other_shelf_name).
-      required:
-        - name
-        - other_shelf_name
     ProtobufAny:
       type: object
       properties:
@@ -438,6 +406,7 @@ components:
           type: string
     RpcStatus:
       type: object
+      description: An unexpected error response.
       properties:
         code:
           type: integer
@@ -448,9 +417,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtobufAny'
-      description: An unexpected error response.
     Shelf:
       type: object
+      description: A Shelf contains a collection of books with a theme.
+      required:
+        - name
       properties:
         name:
           allOf:
@@ -462,11 +433,12 @@ components:
         theme:
           type: string
           description: The theme of the shelf
-      description: A Shelf contains a collection of books with a theme.
-      required:
-        - name
     UpdateBookRequest:
       type: object
+      description: Request message for LibraryService.UpdateBook.
+      required:
+        - name
+        - book
       properties:
         name:
           allOf:
@@ -476,10 +448,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/Book'
           description: The book to update with. The name must match or be empty.
-      description: Request message for LibraryService.UpdateBook.
-      required:
-        - name
-        - book
     book_name:
       type: string
       description: |-

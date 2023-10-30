@@ -2,6 +2,40 @@
   "name": "tmlanguage-generator",
   "entries": [
     {
+      "version": "0.4.5",
+      "tag": "tmlanguage-generator_v0.4.5",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Dependency @typespec/eslint-config-typespec version bump from workspace:~0.48.0 to workspace:~0.49.0."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.4",
+      "tag": "tmlanguage-generator_v0.4.4",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Dependency @typespec/eslint-config-typespec version bump from workspace:~0.47.0 to workspace:~0.48.0."
+          }
+        ],
+        "patch": [
+          {
+            "comment": "Upgrade dependency \"plist\" to latest"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.3",
       "tag": "tmlanguage-generator_v0.4.3",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

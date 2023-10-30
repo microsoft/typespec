@@ -2,6 +2,33 @@
   "name": "@typespec/internal-build-utils",
   "entries": [
     {
+      "version": "0.49.0",
+      "tag": "@typespec/internal-build-utils_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle bumping version of prerelease packages"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/internal-build-utils_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add new command to be able to bump version for a PR"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@typespec/internal-build-utils_v0.47.0",
       "date": "Tue, 08 Aug 2023 22:32:10 GMT",

@@ -135,7 +135,6 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
@@ -170,6 +169,28 @@ describe("openapi3: models", () => {
         optionalEnum: {
           allOf: [{ $ref: "#/components/schemas/MyEnum" }],
           default: "a-value",
+        },
+      },
+    });
+  });
+  it("specify default value on nullable property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optional?: string | null = null;
+      };
+      `
+    );
+
+    ok(res.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optional: {
+          type: "string",
+          nullable: true,
+          default: null,
         },
       },
     });
@@ -300,8 +321,13 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: { y: { type: "integer", format: "int32" } },
-      required: ["y"],
+      allOf: [
+        {
+          type: "object",
+          properties: { y: { type: "integer", format: "int32" } },
+          required: ["y"],
+        },
+      ],
     });
   });
 
@@ -379,13 +405,11 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
     deepStrictEqual(res.schemas.Foo, {
       type: "object",
-      properties: {},
     });
   });
 
@@ -404,13 +428,11 @@ describe("openapi3: models", () => {
     ok(res.schemas.Baz, "expected definition named Baz");
     deepStrictEqual(res.schemas.Baz, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Bar" }],
     });
 
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
@@ -663,6 +685,25 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("defines oneOf schema for property of a union with @oneOf decorator", async () => {
+    const openApi = await openApiFor(`
+        model Foo {
+          @oneOf
+          bar: string | int32;
+        }
+      `);
+    ok(openApi.components.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(openApi.components.schemas.Foo, {
+      type: "object",
+      properties: {
+        bar: {
+          oneOf: [{ type: "string" }, { type: "integer", format: "int32" }],
+        },
+      },
+      required: ["bar"],
+    });
+  });
+
   it("defines oneOf schema for unions with @oneOf decorator", async () => {
     const openApi = await openApiFor(`
       model Cat {
@@ -773,6 +814,21 @@ describe("openapi3: models", () => {
       properties: { y: { type: "integer", format: "int32" } },
       required: ["y"],
     });
+  });
+
+  it("supports summary on models and model properties", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooModel")
+      model Foo {
+        @summary("YProp")
+        y: int32;
+      };
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooModel");
+    strictEqual(res.schemas.Foo.properties.y.title, "YProp");
   });
 
   describe("referencing another property as type", () => {

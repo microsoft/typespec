@@ -1,4 +1,6 @@
-# Encoding of types
+---
+title: Encoding of types
+---
 
 This document describe how the http library interpret TypeSpec built-in types and how to configure
 
@@ -8,6 +10,10 @@ This document describe how the http library interpret TypeSpec built-in types an
 
 - `bytes` are serialized as `base64` when used inside a model serialized as JSON
 - In request or response body it represent a binary payload.
+
+:::note
+This behavior is only a specification and MUST be respected by the emitter. The http library DOES NOT automatically apply the `@encode("base64")` when used inside a JSON model.
+:::
 
 Use `@encode` to configure
 
@@ -30,6 +36,10 @@ op upload(@body data: bytes): void; // Accept application/octet-stream
 
 - Encoded as `rfc7231` when used in a header
 - Encoded as `rfc3339` otherwise.
+
+:::note
+This behavior is only a specification and MUST be respected by the emitter. The http library DOES NOT automatically apply the `@encode("rfc7231")` on `utcDatetime` and `offsetDateTime` when used in a header.
+:::
 
 Use `@encode` to configure.
 

@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Nullable sample
-  version: '0000-00-00'
+  version: 0000-00-00
 tags: []
 paths:
   /test:
@@ -34,14 +34,23 @@ components:
   schemas:
     AnotherModel:
       type: object
+      required:
+        - num
       properties:
         num:
           type: integer
           format: int32
-      required:
-        - num
     HasNullables:
       type: object
+      required:
+        - str
+        - when
+        - strOrNull
+        - modelOrNull
+        - literalsOrNull
+        - manyNullsOneString
+        - manyNullsSomeValues
+        - arr
       properties:
         str:
           type: string
@@ -76,12 +85,3 @@ components:
           items:
             type: string
           nullable: true
-      required:
-        - str
-        - when
-        - strOrNull
-        - modelOrNull
-        - literalsOrNull
-        - manyNullsOneString
-        - manyNullsSomeValues
-        - arr

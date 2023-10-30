@@ -4,16 +4,9 @@
  */
 {
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
-  "rushVersion": "5.100.1",
-  "pnpmVersion": "8.6.2",
+  "rushVersion": "5.108.0",
+  "pnpmVersion": "8.6.12",
   "ensureConsistentVersions": true,
-  /**
-   * Options that are only used when the PNPM package manager is selected
-   */
-  "pnpmOptions": {
-    "strictPeerDependencies": false,
-    "useWorkspaces": true
-  },
   "nodeSupportedVersionRange": ">=16.0.0",
   "suppressNodeLtsWarning": true,
   "projectFolderMinDepth": 1,
@@ -113,7 +106,7 @@
       "packageName": "@typespec/lint",
       "projectFolder": "packages/lint",
       "reviewCategory": "production",
-      "versionPolicyName": "typespec"
+      "shouldPublish": false
     },
     {
       "packageName": "@typespec/migrate",
@@ -173,7 +166,7 @@
       "packageName": "@typespec/playground",
       "projectFolder": "packages/playground",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "versionPolicyName": "playground"
     },
     {
       "packageName": "@typespec/playground-website",
@@ -191,7 +184,7 @@
       "packageName": "@typespec/bundler",
       "projectFolder": "packages/bundler",
       "reviewCategory": "production",
-      "shouldPublish": false
+      "versionPolicyName": "playground"
     },
     {
       "packageName": "@typespec/protobuf",
