@@ -2152,16 +2152,17 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     options?: Partial<SymbolResolutionOptions> | boolean
   ): Sym | undefined {
-    if (mapper === undefined && referenceSymCache.has(node)) {
-      return referenceSymCache.get(node);
-    }
-
     const resolvedOptions: SymbolResolutionOptions =
       typeof options === "boolean"
         ? { ...defaultSymbolResolutionOptions, resolveDecorators: options }
         : { ...defaultSymbolResolutionOptions, ...(options ?? {}) };
+    if (mapper === undefined && resolvedOptions.checkTemplateTypes && referenceSymCache.has(node)) {
+      return referenceSymCache.get(node);
+    }
     const sym = resolveTypeReferenceSymInternal(node, mapper, resolvedOptions);
-    referenceSymCache.set(node, sym);
+    if (resolvedOptions.checkTemplateTypes) {
+      referenceSymCache.set(node, sym);
+    }
     return sym;
   }
 
