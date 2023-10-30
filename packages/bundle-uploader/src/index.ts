@@ -100,14 +100,3 @@ async function loadRushJson(repoRoot: string): Promise<RushJson> {
   const content = await readFile(resolve(repoRoot, "rush.json"));
   return JSON5.parse(content.toString());
 }
-
-/** Resolve the current major.minor.x version */
-async function resolveCurrentVersion(repoRoot: string) {
-  const content = await readFile(resolve(repoRoot, "packages", "compiler", "package.json"));
-  const pkg = JSON.parse(content.toString());
-  const version = parse(pkg.version);
-  if (version === null) {
-    throw new Error(`Couldn't resolve version from compiler: "${pkg.version}"`);
-  }
-  return `${version.major}.${version.minor}.x`;
-}
