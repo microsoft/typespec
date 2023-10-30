@@ -40,6 +40,7 @@ import {
   isRecordModelType,
   isSecret,
   isTemplateDeclaration,
+  isVoidType,
   listServices,
   Model,
   ModelProperty,
@@ -121,6 +122,7 @@ import {
   OpenAPI3ServerVariable,
   OpenAPI3StatusCode,
 } from "./types.js";
+import { deepEquals } from "./util.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -416,11 +418,16 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   /**
    * Validates that common responses are consistent and returns the minimal set that describes the differences.
    */
-  function validateCommonResponses(ops: HttpOperation[]): HttpOperationResponse[] {
+  function validateCommonResponses(
+    statusCode: string,
+    ops: HttpOperation[]
+  ): HttpOperationResponse[] {
     const statusCodeResponses: HttpOperationResponse[] = [];
     for (const op of ops) {
       for (const response of op.responses) {
-        statusCodeResponses.push(response);
+        if (getOpenAPI3StatusCodes(response.statusCodes, response.type).includes(statusCode)) {
+          statusCodeResponses.push(response);
+        }
       }
     }
     const ref = statusCodeResponses[0];
@@ -609,7 +616,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     }
     shared.bodies = validateCommonBodies(operations);
     for (const [statusCode, ops] of responseMap) {
-      shared.responses.set(statusCode, validateCommonResponses(ops));
+      shared.responses.set(statusCode, validateCommonResponses(statusCode, ops));
     }
     results.push(shared);
     return results;
@@ -881,19 +888,21 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       if (data.headers && Object.keys(data.headers).length > 0) {
         obj.headers ??= {};
         // OpenAPI can't represent different headers per content type.
-        // So we merge headers here, and report any duplicates.
-        // It may be possible in principle to not error for identically declared
-        // headers.
+        // So we merge headers here, and report any duplicates unless they are identical
         for (const [key, value] of Object.entries(data.headers)) {
-          if (obj.headers[key]) {
-            reportDiagnostic(program, {
-              code: "duplicate-header",
-              format: { header: key },
-              target: target,
-            });
+          const headerVal = getResponseHeader(value);
+          const existing = obj.headers[key];
+          if (existing) {
+            if (!deepEquals(existing, headerVal)) {
+              reportDiagnostic(program, {
+                code: "duplicate-header",
+                format: { header: key },
+                target: target,
+              });
+            }
             continue;
           }
-          obj.headers[key] = getResponseHeader(value);
+          obj.headers[key] = headerVal;
         }
       }
     }
@@ -1121,7 +1130,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitRequestBody(body: HttpOperationRequestBody | undefined, visibility: Visibility) {
-    if (body === undefined) {
+    if (body === undefined || isVoidType(body.type)) {
       return;
     }
 
@@ -1462,6 +1471,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
       schema.enum = values;
     }
 
+    const title = getSummary(program, e);
+    if (title) {
+      schema.title = title;
+    }
+
     return schema;
     function enumMemberType(member: EnumMember) {
       if (typeof member.value === "number") {
@@ -1529,6 +1543,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (schemaMembers.length === 1) {
       // we can just return the single schema member after applying nullable
       const schema = schemaMembers[0].schema;
+      applyIntrinsicDecorators(union, schema);
+      const title = getSummary(program, union);
+      if (title) {
+        schema.title = title;
+      }
       const type = schemaMembers[0].type;
 
       if (nullable) {
@@ -1699,6 +1718,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     if (Object.keys(properties).length > 0) {
       modelSchema.properties = properties;
     }
+    const title = getSummary(program, model);
+    if (title) {
+      modelSchema.title = title;
+    }
+
     // Attach any OpenAPI extensions
     attachExtensions(program, model, modelSchema);
     return modelSchema;
@@ -1823,6 +1847,11 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
     if (isSecret(program, typespecType)) {
       newTarget.format = "password";
+    }
+
+    const title = getSummary(program, typespecType);
+    if (title) {
+      newTarget.title = title;
     }
 
     const values = getKnownValues(program, typespecType as any);

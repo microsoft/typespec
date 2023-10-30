@@ -43,7 +43,7 @@
     "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "bin": {
     "tsp": "cmd/tsp.js",

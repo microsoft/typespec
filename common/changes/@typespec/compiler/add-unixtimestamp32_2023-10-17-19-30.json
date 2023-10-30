@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add new `unixTimestamp32` scalar to standard library",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
