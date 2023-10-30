@@ -816,6 +816,21 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("supports summary on models and model properties", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooModel")
+      model Foo {
+        @summary("YProp")
+        y: int32;
+      };
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooModel");
+    strictEqual(res.schemas.Foo.properties.y.title, "YProp");
+  });
+
   describe("referencing another property as type", () => {
     it("use the type of the other property", async () => {
       const res = await oapiForModel(

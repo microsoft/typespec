@@ -15,17 +15,6 @@ jobs:
 
     strategy:
       matrix:
-        # Node 16
-        "Linux - Node 16.x":
-          pool: azsdk-pool-mms-ubuntu-2004-general
-          imageName: ubuntu-20.04
-          nodeVersion: "16.x"
-
-        "Windows - Node 16.x":
-          pool: azsdk-pool-mms-win-2022-general
-          imageName: windows-2022
-          nodeVersion: "16.x"
-
         # Node 18
         "Linux - Node 18.x":
           pool: azsdk-pool-mms-ubuntu-2004-general
