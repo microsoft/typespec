@@ -68,6 +68,7 @@ describe("compiler: checker: augment decorators", () => {
         },
       });
     });
+
     it("can be defined at the root of document", async () => {
       testHost.addTypeSpecFile(
         "test.tsp",
@@ -113,6 +114,36 @@ describe("compiler: checker: augment decorators", () => {
           
           @@blue(Foo);
         }
+        `
+      );
+
+      const { Foo } = await testHost.compile("test.tsp");
+      strictEqual(Foo, blueThing);
+    });
+
+    // Regression for https://github.com/microsoft/typespec/issues/2600
+    it("alias of instantiated template doesn't interfere with augment decorators", async () => {
+      // Here we could have add an issue where `Foo` would have been checked before the `@@blue` augment decorator could be run
+      // As we resolve the member symbols and meta types early,
+      // alias `FactoryString` would have checked the template instance `Factory<string>`
+      // which would then have checked `Foo` and then `@@blue` wouldn't have been run
+      testHost.addTypeSpecFile(
+        "test.tsp",
+        `
+        import "./test.js";
+  
+        @test model Foo {};
+
+        interface Factory<T> {
+          op Action(): Foo;
+        }
+
+        alias FactoryString = Factory<string>;
+        
+        op test is FactoryString.Action;
+
+        @@doc(Foo, "This doc");
+        @@blue(Foo);
         `
       );
 
