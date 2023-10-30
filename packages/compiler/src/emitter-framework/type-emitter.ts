@@ -23,13 +23,13 @@ import {
 import { code, StringBuilder } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
 import { resolveDeclarationReferenceScope } from "./ref-scope.js";
+import { ReferenceCycle } from "./reference-cycle.js";
 import {
   AssetEmitter,
   Context,
   Declaration,
   EmitEntity,
   EmittedSourceFile,
-  ReferenceChainEntry,
   Scope,
   SourceFile,
   TypeSpecDeclaration,
@@ -722,10 +722,15 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   circularReference(
     target: EmitEntity<T>,
     scope: Scope<T> | undefined,
-    circularChain: ReferenceChainEntry[]
+    cycle: ReferenceCycle
   ): EmitEntity<T> | T {
+    if (!cycle.containsDeclaration) {
+      throw new Error(
+        `Circular references to non-declarations are not supported by this emitter. Cycle:\n${cycle}`
+      );
+    }
     if (target.kind !== "declaration") {
-      throw new Error("Circular references to non-declarations are not supported by this emitter.");
+      return target;
     }
     compilerAssert(
       scope,
