@@ -30,6 +30,7 @@ import {
   isNeverType,
   isNullType,
   isSecret,
+  isVoidType,
   listServices,
   ModelProperty,
   Namespace,
@@ -1098,7 +1099,7 @@ function createOAPIEmitter(
   }
 
   function emitRequestBody(body: HttpOperationRequestBody | undefined, visibility: Visibility) {
-    if (body === undefined) {
+    if (body === undefined || isVoidType(body.type)) {
       return;
     }
 
@@ -1461,6 +1462,11 @@ function createOAPIEmitter(
 
     if (isSecret(program, typespecType)) {
       newTarget.format = "password";
+    }
+
+    const title = getSummary(program, typespecType);
+    if (title) {
+      newTarget.title = title;
     }
 
     const values = getKnownValues(program, typespecType as any);

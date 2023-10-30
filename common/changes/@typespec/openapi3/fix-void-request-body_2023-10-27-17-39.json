@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix: Stops emitting an error when using `@body _: void` in operation parameters and treat it as no body.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
