@@ -300,6 +300,11 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].get.parameters[0].name, "top");
   });
 
+  it("omit request body if type is void", async () => {
+    const res = await openApiFor(`op test(@body foo: void ): void;`);
+    strictEqual(res.paths["/"].post.requestBody, undefined);
+  });
+
   describe("content type parameter", () => {
     it("header named with 'Content-Type' gets resolved as content type for operation.", async () => {
       const res = await openApiFor(
