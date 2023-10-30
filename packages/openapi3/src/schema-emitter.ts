@@ -766,6 +766,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return this.#inlineType(type, schema);
     }
 
+    const title = getSummary(this.emitter.getProgram(), type);
+    if (title) {
+      schema.set("title", title);
+    }
+
     const usage = this.#visibilityUsage.getUsage(type);
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
     const visibility = this.#getVisibilityContext();
