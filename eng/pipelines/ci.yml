@@ -34,7 +34,7 @@ jobs:
         displayName: Release
 
       - task: AzureCLI@1
-        displayName: "Publish bundled packages to tsppackages"
+        displayName: "Publish bundled packages to package storage"
         inputs:
           azureSubscription: "Azure SDK Playground"
           scriptLocation: inlineScript
