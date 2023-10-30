@@ -23,16 +23,43 @@ export interface BundleAndUploadPackagesOptions {
    * List of packages to bundle and upload.
    */
   packages: string[];
+
+  /**
+   * Name of the index for those packages.
+   */
+  indexName: string;
+
+  /**
+   * Version for the index
+   */
+  indexVersion: string;
+}
+
+/** Return the version of the package in major.minor.x format */
+export async function getPackageVersion(repoRoot: string, pkgName: string) {
+  const rushJson = await loadRushJson(repoRoot);
+  const project = rushJson.projects.find((x) => x.packageName === pkgName);
+  if (project === undefined) {
+    throw new Error(`Cannot get version for package: "${pkgName}", it is not found in rush.json`);
+  }
+  const content = await readFile(resolve(repoRoot, project.projectFolder, "package.json"));
+  const pkg = JSON.parse(content.toString());
+  const version = parse(pkg.version);
+  if (version === null) {
+    throw new Error(`Couldn't resolve version from "${pkgName}": "${pkg.version}"`);
+  }
+  return `${version.major}.${version.minor}.x`;
 }
 
 export async function bundleAndUploadPackages({
   repoRoot,
   packages,
+  indexName,
+  indexVersion,
 }: BundleAndUploadPackagesOptions) {
   const rushJson = await loadRushJson(repoRoot);
   const projects = rushJson.projects.filter((x) => packages.includes(x.packageName));
-  const currentVersion = await resolveCurrentVersion(repoRoot);
-  logInfo("Current version:", currentVersion);
+  logInfo("Current index version:", indexVersion);
 
   const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
   await uploader.createIfNotExists();
@@ -51,12 +78,12 @@ export async function bundleAndUploadPackages({
       importMap[joinUnix(project.packageName, key)] = value;
     }
   }
-  logInfo(`Import map for ${currentVersion}:`, importMap);
-  await uploader.uploadIndex({
-    version: currentVersion,
+  logInfo(`Import map for ${indexVersion}:`, importMap);
+  await uploader.uploadIndex(indexName, {
+    version: indexVersion,
     imports: importMap,
   });
-  logSuccess(`Updated index for version ${currentVersion}.`);
+  logSuccess(`Updated index for version ${indexVersion}.`);
 }
 
 interface RushJson {

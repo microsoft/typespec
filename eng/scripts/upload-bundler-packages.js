@@ -1,8 +1,14 @@
 // @ts-check
-import { bundleAndUploadPackages } from "../../packages/bundle-uploader/dist/src/index.js";
+import {
+  bundleAndUploadPackages,
+  getPackageVersion,
+} from "../../packages/bundle-uploader/dist/src/index.js";
 import { repoRoot } from "./helpers.js";
+
 await bundleAndUploadPackages({
   repoRoot: repoRoot,
+  indexName: "typespec",
+  indexVersion: await getPackageVersion(repoRoot, "@typespec/compiler"),
   packages: [
     "@typespec/compiler",
     "@typespec/http",

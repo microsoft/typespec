@@ -52,8 +52,8 @@ export class TypeSpecBundledPackageUploader {
     return { status: "uploaded", imports };
   }
 
-  async uploadIndex(index: PackageIndex) {
-    const blob = this.#container.getBlockBlobClient(`indexes/${index.version}.json`);
+  async uploadIndex(name: string, index: PackageIndex) {
+    const blob = this.#container.getBlockBlobClient(`indexes/${name}/${index.version}.json`);
     const content = JSON.stringify(index);
     await blob.upload(content, content.length, {
       blobHTTPHeaders: {

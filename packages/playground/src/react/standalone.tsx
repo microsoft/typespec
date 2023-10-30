@@ -10,7 +10,7 @@ import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   libraries: string[];
-  importConfig: LibraryImportOptions;
+  importConfig?: LibraryImportOptions;
 }
 
 export async function createReactPlayground(config: ReactPlaygroundConfig) {
