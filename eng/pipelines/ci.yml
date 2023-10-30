@@ -36,7 +36,7 @@ jobs:
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
         inputs:
-          azureSubscription: "Azure SDK Playground"
+          azureSubscription: "Azure SDK Engineering System"
           scriptLocation: inlineScript
           inlineScript: node ./eng/scripts/upload-bundler-packages.js
 
