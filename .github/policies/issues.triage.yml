@@ -1,0 +1,48 @@
+id: issues.triage
+name: New Issue Assign labels
+description: Assign labels to new issues
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches: []
+    eventResponderTasks:
+      - description: Adds `needs-triage` label for new unassigned issues
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+          - and:
+              - not:
+                  and:
+                    - isAssignedToSomeone
+        then:
+          - addLabel:
+              label: needs-triage
+
+      - description: Adds `customer-reported` label for new issues reported by non contributors
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+          - and:
+              - not:
+                  activitySenderHasPermission:
+                    permission: Write
+              - not:
+                  activitySenderHasAssociation:
+                    association: Member
+              - not:
+                  activitySenderHasAssociation:
+                    association: Collaborator
+              - not:
+                  activitySenderHasPermission:
+                    permission: Admin
+        then:
+          - addLabel:
+              label: customer-reported
+
+onFailure:
+onSuccess:
