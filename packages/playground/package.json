@@ -71,7 +71,6 @@
   },
   "optionalDependencies": {
     "@vitejs/plugin-react": "~4.0.4",
-    "@typespec/bundler": "workspace:~0.1.0-alpha.2",
     "vite": "^4.4.9"
   },
   "devDependencies": {

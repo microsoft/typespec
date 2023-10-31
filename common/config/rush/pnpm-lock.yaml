@@ -843,9 +843,6 @@ importers:
         specifier: ~1.0.8
         version: 1.0.11
     optionalDependencies:
-      '@typespec/bundler':
-        specifier: workspace:~0.1.0-alpha.2
-        version: link:../bundler
       '@vitejs/plugin-react':
         specifier: ~4.0.4
         version: 4.0.4(vite@4.5.0)
@@ -892,6 +889,9 @@ importers:
       '@types/swagger-ui-react':
         specifier: ^4.18.0
         version: 4.18.2
+      '@typespec/bundler':
+        specifier: workspace:~0.1.0-alpha.2
+        version: link:../bundler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.49.0
         version: link:../eslint-config-typespec
