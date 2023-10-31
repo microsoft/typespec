@@ -174,6 +174,7 @@ export type TypeEmitterMethod = keyof Omit<
   | "sourceFile"
   | "declarationName"
   | "reference"
+  | "circularReference"
   | "emitValue"
   | "writeOutput"
   | EndingWith<keyof TypeEmitter<any, any>, "Context">

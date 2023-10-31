@@ -121,6 +121,14 @@ scalar duration;
 scalar boolean;
 
 /**
+ * Represent a 32-bit unix timestamp datetime with 1s of granularity.
+ * It measures time by the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+ *
+ */
+@encode("unixTimestamp", int32)
+scalar unixTimestamp32 extends utcDateTime;
+
+/**
  * Represent a model
  */
 // Deprecated June 2023 sprint

@@ -25,6 +25,7 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  Tuple,
   Type,
   typespecTypeToJson,
   Union,
@@ -214,6 +215,21 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "number":
         return { type: "number", const: member.value };
     }
+  }
+
+  tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    return new ObjectBuilder({
+      type: "array",
+      prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+    });
+  }
+
+  tupleLiteralValues(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const values = new ArrayBuilder();
+    for (const value of tuple.values.values()) {
+      values.push(this.emitter.emitType(value));
+    }
+    return values;
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
