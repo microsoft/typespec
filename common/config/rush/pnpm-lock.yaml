@@ -911,8 +911,8 @@ importers:
         specifier: ^7.22.20
         version: 7.22.20
       '@playwright/test':
-        specifier: ~1.32.2
-        version: 1.32.2
+        specifier: ^1.39.0
+        version: 1.39.0
       '@types/debounce':
         specifier: ~1.2.1
         version: 1.2.1
@@ -1026,8 +1026,8 @@ importers:
         specifier: ^7.22.20
         version: 7.22.20
       '@playwright/test':
-        specifier: ~1.32.2
-        version: 1.32.2
+        specifier: ^1.39.0
+        version: 1.39.0
       '@types/debounce':
         specifier: ~1.2.1
         version: 1.2.1
@@ -1577,8 +1577,8 @@ importers:
         specifier: ~10.4.0
         version: 10.4.0
       playwright:
-        specifier: ~1.32.2
-        version: 1.32.2
+        specifier: ^1.39.0
+        version: 1.39.0
       prism-themes:
         specifier: ~1.9.0
         version: 1.9.0
@@ -6250,15 +6250,12 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@playwright/test@1.32.2:
-    resolution: {integrity: sha512-nhaTSDpEdTTttdkDE8Z6K3icuG1DVRxrl98Qq0Lfc63SS9a2sjc9+x8ezysh7MzCKz6Y+nArml3/mmt+gqRmQQ==}
-    engines: {node: '>=14'}
+  /@playwright/test@1.39.0:
+    resolution: {integrity: sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ==}
+    engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      '@types/node': 18.11.9
-      playwright-core: 1.32.2
-    optionalDependencies:
-      fsevents: 2.3.2
+      playwright: 1.39.0
     dev: true
 
   /@pnpm/config.env-replace@1.1.0:
@@ -13978,19 +13975,20 @@ packages:
       find-up: 3.0.0
     dev: false
 
-  /playwright-core@1.32.2:
-    resolution: {integrity: sha512-zD7aonO+07kOTthsrCR3YCVnDcqSHIJpdFUtZEMOb6//1Rc7/6mZDRdw+nlzcQiQltOOsiqI3rrSyn/SlyjnJQ==}
-    engines: {node: '>=14'}
+  /playwright-core@1.39.0:
+    resolution: {integrity: sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw==}
+    engines: {node: '>=16'}
     hasBin: true
     dev: true
 
-  /playwright@1.32.2:
-    resolution: {integrity: sha512-jHVnXJke0PXpuPszKtk9y1zZSlzO5+2a+aockT/AND0oeXx46FiJEFrafthurglLygVZA+1gEbtUM1C7qtTV+Q==}
-    engines: {node: '>=14'}
+  /playwright@1.39.0:
+    resolution: {integrity: sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw==}
+    engines: {node: '>=16'}
     hasBin: true
-    requiresBuild: true
     dependencies:
-      playwright-core: 1.32.2
+      playwright-core: 1.39.0
+    optionalDependencies:
+      fsevents: 2.3.2
     dev: true
 
   /plist@3.1.0:
