@@ -19,11 +19,27 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./vite": "./dist/src/vite/index.js",
-    "./manifest": "./dist/src/manifest.js",
-    "./react": "./dist/src/react/index.js",
-    "./react/viewers": "./dist/src/react/viewers.js"
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./vite": {
+      "default": "./dist/vite/index.js",
+      "types": "./dist/src/vite/index.d.ts"
+    },
+    "./manifest": {
+      "default": "./dist/manifest.js",
+      "types": "./dist/src/manifest.d.ts"
+    },
+    "./react": {
+      "default": "./dist/react/index.js",
+      "types": "./dist/src/react/index.d.ts"
+    },
+    "./react/viewers": {
+      "default": "./dist/react/viewers.js",
+      "types": "./dist/src/react/viewers.d.ts"
+    },
+    "./style.css": "./dist/index.css"
   },
   "engines": {
     "node": ">=18.0.0"

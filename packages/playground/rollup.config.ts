@@ -16,17 +16,19 @@ const external = [
 ];
 export default defineConfig([
   {
-    input: ["src/index.ts", "src/react/index.ts", "src/react/viewers.tsx", "src/vite/index.ts"],
+    input: {
+      index: "src/index.ts",
+      "react/index": "src/react/index.ts",
+      "react/viewers": "src/react/viewers.tsx",
+      "vite/index": "src/vite/index.ts",
+    },
     treeshake: false,
     output: {
       dir: "dist",
       format: "esm",
       sourcemap: true,
-      generatedCode: {
-        constBindings: true,
-      },
-      preserveModules: true,
-      preserveModulesRoot: ".",
+      // preserveModules: true,
+      // preserveModulesRoot: ".",
       exports: "named",
     },
     plugins: [
@@ -35,8 +37,12 @@ export default defineConfig([
         tsconfig: "./tsconfig.json",
         declaration: true,
         declarationDir: "./dist",
+        sourceMap: true,
+        inlineSources: true,
       }),
-      (postcss as any)(),
+      (postcss as any)({
+        extract: true,
+      }),
     ],
     external,
   },
