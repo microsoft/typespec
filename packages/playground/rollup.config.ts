@@ -35,7 +35,7 @@ export default defineConfig([
     plugins: [
       (commonjs as any)(),
       (typescript as any)({
-        tsconfig: "./tsconfig.json",
+        tsconfig: "./tsconfig.build.json",
         declaration: true,
         declarationDir: "./dist",
         sourceMap: true,
