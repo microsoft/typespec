@@ -9,4 +9,7 @@ await renderReactPlayground({
   emitterViewers: {
     "@typespec/openapi3": [SwaggerUIViewer],
   },
+  importConfig: {
+    useShim: true,
+  },
 });

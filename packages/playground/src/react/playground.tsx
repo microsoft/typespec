@@ -3,15 +3,12 @@ import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
-import { BrowserHost } from "../browser-host.js";
-import { importTypeSpecCompiler } from "../core.js";
 import { getMarkerLocation } from "../services.js";
-import { PlaygroundSample } from "../types.js";
-import { resolveLibraries } from "../utils.js";
+import { BrowserHost, PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
-import { useAsyncMemo, useControllableValue } from "./hooks.js";
+import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import Pane from "./split-pane/pane.js";
 import { SplitPane } from "./split-pane/split-pane.js";
@@ -108,7 +105,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
     setContent(content);
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
 
     const state = await compile(host, content, selectedEmitter, compilerOptions);
     setCompilationState(state);
@@ -199,11 +196,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [saveCode]
   );
 
-  const libraries = useAsyncMemo(
-    async () => resolveLibraries(props.libraries),
-    [],
-    [props.libraries]
-  );
+  const libraries = useMemo(() => Object.values(host.libraries), [host.libraries]);
 
   return (
     <div
@@ -261,7 +254,7 @@ async function compile(
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
     const program = await typespecCompiler.compile(host, "main.tsp", {
       ...options,
       options: {
