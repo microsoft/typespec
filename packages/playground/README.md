@@ -45,7 +45,9 @@ In `src/main.tsx`:
 import PlaygroundManifest from "@typespec/playground/manifest";
 import { renderReactPlayground } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
-import "./style.css";
+
+// Import styles
+import "@typespec/playground/styles.css";
 
 await renderReactPlayground({
   ...PlaygroundManifest,
