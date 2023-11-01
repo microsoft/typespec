@@ -12,6 +12,7 @@ const external = [
   ...optionalDependencies,
   "swagger-ui-react/swagger-ui.css",
   "@emotion/react/jsx-runtime",
+  "@typespec/bundler/vite",
   "react-dom/client",
 ];
 export default defineConfig([
