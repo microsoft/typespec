@@ -214,7 +214,7 @@ const diagnostics = {
   "invalid-template-argument-name": {
     severity: "error",
     messages: {
-      default: "Template parameter arguments must be valid, bare identifiers.",
+      default: "Template parameter argument names must be valid, bare identifiers.",
     },
   },
   "invalid-template-default": {
@@ -278,7 +278,7 @@ const diagnostics = {
       default: "Invalid template arguments.",
       notTemplate: "Can't pass template arguments to non-templated type",
       tooMany: "Too many template arguments provided.",
-      unknownName: paramMessage`No template argument named '${"name"}' exists in the target template.`,
+      unknownName: paramMessage`No parameter named '${"name"}' exists in the target template.`,
       positionalAfterNamed:
         "Positional template arguments cannot follow named arguments in the same argument list.",
       missing: paramMessage`Template argument '${"name"}' is required and not specified.`,

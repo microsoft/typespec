@@ -2040,12 +2040,12 @@ export function createChecker(program: Program): Checker {
       case IdentifierKind.TemplateArgument:
         const templates = getTemplateDeclarationsForArgument(node as TemplateArgumentNode, mapper);
 
-        const firstMatchingArgumentDecl = templates
+        const firstMatchingParameter = templates
           .flatMap((t) => t.templateParameters)
           .find((p) => p.id.sv === id.sv);
 
-        if (firstMatchingArgumentDecl) {
-          sym = getMergedSymbol(firstMatchingArgumentDecl.symbol);
+        if (firstMatchingParameter) {
+          sym = getMergedSymbol(firstMatchingParameter.symbol);
         }
 
         break;

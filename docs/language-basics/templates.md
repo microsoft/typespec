@@ -5,7 +5,7 @@ title: Templates
 
 # Templates
 
-It is often useful to let the users of a model fill in certain details. Templates enable this pattern. Similar to generics found in other languages, model templates declare template arguments that users provide when referencing the type.
+It is often useful to let the users of a model fill in certain details. Templates enable this pattern. Similar to generics found in other languages, model templates declare template parameters that users provide when referencing the type.
 
 Templates can be used on:
 
@@ -27,7 +27,7 @@ model DogPage {
 
 ## Default values
 
-A template argument can be given a default value with `= <value>`.
+A template parameter can be given a default argument value with `= <value>`.
 
 ```typespec
 model Page<T = string> {
@@ -36,29 +36,29 @@ model Page<T = string> {
 }
 ```
 
-## Argument constraints
+## Parameter constraints
 
-Template arguments can provide a constraint using the `extends` keyword. See the [type relations](./type-relations.md) documentation for details on how validation works.
+Template parameters can specify a constraint using the `extends` keyword. See the [type relations](./type-relations.md) documentation for details on how validation works.
 
 ```typespec
 alias Foo<T extends string> = T;
 ```
 
-Now, instantiating Foo with a type that does not satisfy the constraint `string` will result in an error:
+Now, instantiating Foo with an argument that does not satisfy the constraint `string` will result in an error:
 
 ```typespec
 alias Bar = Foo<123>;
                 ^ Type '123' is not assignable to type 'TypeSpec.string'
 ```
 
-A template argument constraint can also be a model expression:
+A template parameter constraint can also be a model expression:
 
 ```typespec
 // Expect T to be a model with property name: string
 alias Foo<T extends {name: string}> = T;
 ```
 
-Template argument defaults also need to respect the constraint:
+Template parameter defaults also need to respect the constraint:
 
 ```typespec
 alias Foo<T extends string = "Abc">  = T
@@ -72,7 +72,7 @@ Furthermore, all optional arguments must come at the end of the template. A requ
 ```typespec
 // Invalid
 alias Foo<T extends string = "Abc", U> = ...;
-                                    ^ Required template parameters must not follow optional template parameters
+                                    ^ Required template arguments must not follow optional template arguments
 ```
 
 ## Named template arguments
@@ -105,6 +105,6 @@ alias Example3 = Test<
 >;
 ```
 
-Since template arguments may be specified by name, the names of template arguments are part of the public API of a template. **Changing the name of a template argument may break existing specifications that use the template.**
+Since template arguments may be specified by name, the names of template parameters are part of the public API of a template. **Changing the name of a template parameter may break existing specifications that use the template.**
 
-**Note**: Template arguments are evaluated in the order they are defined in the template _definition_, not the order in which they are written in the template _instance_. Most of the time, this should not matter, but may be important in some cases where evaluating a template argument may invoke decorators with side effects.
+**Note**: Template arguments are evaluated in the order the parameters are defined in the template _definition_, not the order in which they are written in the template _instance_. Most of the time, this should not matter, but may be important in some cases where evaluating a template argument may invoke decorators with side effects.
