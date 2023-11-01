@@ -580,6 +580,28 @@ describe("compiler: templates", () => {
       strictEqual(b.type.value, "bar");
     });
 
+    it("with named arguments and defaults bound to other parameters", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model A<T, U = T> { a: T, b: U }
+          @test model B {
+            foo: A<T = string>
+          };
+        `
+      );
+
+      const { B } = (await testHost.compile("main.tsp")) as { B: Model };
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      const b = foo.properties.get("b")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "string");
+      strictEqual(b.type.kind, "Scalar");
+      strictEqual(b.type.name, "string");
+    });
+
     it("with named and positional arguments", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
