@@ -186,7 +186,8 @@ scalar bytes
 
 ### `decimal` {#decimal}
 
-A decimal number with any length and precision.
+A decimal number with any length and precision. This represent any `decimal` value possible.
+It is commonly represented as `BigDecimal` in some languages.
 
 ```typespec
 scalar decimal
@@ -286,7 +287,8 @@ scalar int8
 
 ### `integer` {#integer}
 
-A whole number
+A whole number. This represent any `integer` value possible.
+It is commonly represented as `BigInteger` in some languages.
 
 ```typespec
 scalar integer
