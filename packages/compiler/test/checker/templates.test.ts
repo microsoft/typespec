@@ -807,6 +807,30 @@ describe("compiler: templates", () => {
       });
     });
 
+    it("cannot specify a typereference with args as a parameter name", async () => {
+      const { pos, end, source } = extractSquiggles(`
+      model A<T> { a: T }
+
+      @test model B {
+        foo: A<~~~T<string>~~~ = string>
+      }
+    `);
+
+      testHost.addTypeSpecFile("main.tsp", source);
+
+      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
+        { B: Model },
+        Diagnostic[],
+      ];
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-template-argument-name",
+        message: "Template parameter argument names must be valid, bare identifiers.",
+        pos,
+        end,
+      });
+    });
+
     it("template arguments are evaluated in the correct order", async () => {
       const members: [Type, Type][] = [];
 
