@@ -6,14 +6,14 @@ import postcss from "rollup-plugin-postcss";
 
 import packageJson from "./package.json" assert { type: "json" };
 const dependencies = Object.keys(packageJson.dependencies);
-const optionalDependencies = Object.keys(packageJson.optionalDependencies);
 const external = [
   ...dependencies,
-  ...optionalDependencies,
   "swagger-ui-react/swagger-ui.css",
   "@emotion/react/jsx-runtime",
   "@typespec/bundler/vite",
   "react-dom/client",
+  "vite",
+  "@vitejs/plugin-react",
 ];
 export default defineConfig([
   {
