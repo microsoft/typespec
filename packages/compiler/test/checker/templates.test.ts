@@ -807,7 +807,7 @@ describe("compiler: templates", () => {
       });
     });
 
-    it("decorators are applied in the correct order", async () => {
+    it("template arguments are evaluated in the correct order", async () => {
       const members: [Type, Type][] = [];
 
       testHost.addJsFile("effect.js", {
