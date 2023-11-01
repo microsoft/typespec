@@ -6,28 +6,28 @@ toc_max_heading_level: 3
 
 # Data types
 
-## OpenAPI
+## TypeSpec.OpenAPI
 
-### `AdditionalInfo` {#OpenAPI.AdditionalInfo}
+### `AdditionalInfo` {#TypeSpec.OpenAPI.AdditionalInfo}
 
 Additional information for the OpenAPI document.
 
 ```typespec
-model OpenAPI.AdditionalInfo
+model TypeSpec.OpenAPI.AdditionalInfo
 ```
 
-### `Contact` {#OpenAPI.Contact}
+### `Contact` {#TypeSpec.OpenAPI.Contact}
 
 Contact information for the exposed API.
 
 ```typespec
-model OpenAPI.Contact
+model TypeSpec.OpenAPI.Contact
 ```
 
-### `License` {#OpenAPI.License}
+### `License` {#TypeSpec.OpenAPI.License}
 
 License information for the exposed API.
 
 ```typespec
-model OpenAPI.License
+model TypeSpec.OpenAPI.License
 ```

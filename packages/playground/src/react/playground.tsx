@@ -4,16 +4,15 @@ import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import "swagger-ui-react/swagger-ui.css";
 import { CompletionItemTag } from "vscode-languageserver";
-import { BrowserHost } from "../browser-host.js";
-import { importTypeSpecCompiler } from "../core.js";
 import { getMarkerLocation } from "../services.js";
-import { PlaygroundSample } from "../types.js";
-import { resolveLibraries } from "../utils.js";
+import { BrowserHost, PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
-import { useAsyncMemo, useControllableValue } from "./hooks.js";
+import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
+import Pane from "./split-pane/pane.js";
+import { SplitPane } from "./split-pane/split-pane.js";
 import { CompilationState, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
@@ -107,7 +106,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
     setContent(content);
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
 
     const state = await compile(host, content, selectedEmitter, compilerOptions);
     setCompilationState(state);
@@ -198,55 +197,48 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [saveCode]
   );
 
-  const libraries = useAsyncMemo(
-    async () => resolveLibraries(props.libraries),
-    [],
-    [props.libraries]
-  );
+  const libraries = useMemo(() => Object.values(host.libraries), [host.libraries]);
 
   return (
     <div
       css={{
         display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
+        gridTemplateColumns: "1",
         gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"typespeceditor output"\n    "footer footer"',
+        gridTemplateAreas: '"typespeceditor"\n    "footer"',
         width: "100%",
         height: "100%",
         overflow: "hidden",
         fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
       }}
     >
-      <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
-        <EditorCommandBar
-          libraries={libraries}
-          selectedEmitter={selectedEmitter}
-          onSelectedEmitterChange={onSelectedEmitterChange}
-          compilerOptions={compilerOptions}
-          onCompilerOptionsChange={onCompilerOptionsChange}
-          samples={props.samples}
-          selectedSampleName={selectedSampleName}
-          onSelectedSampleNameChange={onSelectedSampleNameChange}
-          saveCode={saveCode}
-          newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-          documentationUrl={props.links?.documentationUrl}
-        />
-        <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
-      </div>
-      <div
-        css={{
-          gridArea: "output",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          borderLeft: "1px solid #c5c5c5",
-        }}
+      <SplitPane
+        initialSizes={["50%", "50%"]}
+        css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
       >
-        <OutputView
-          compilationState={compilationState}
-          viewers={props.emitterViewers?.[selectedEmitter]}
-        />
-      </div>
+        <Pane>
+          <EditorCommandBar
+            libraries={libraries}
+            selectedEmitter={selectedEmitter}
+            onSelectedEmitterChange={onSelectedEmitterChange}
+            compilerOptions={compilerOptions}
+            onCompilerOptionsChange={onCompilerOptionsChange}
+            samples={props.samples}
+            selectedSampleName={selectedSampleName}
+            onSelectedSampleNameChange={onSelectedSampleNameChange}
+            saveCode={saveCode}
+            newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+            documentationUrl={props.links?.documentationUrl}
+          />
+          <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
+        </Pane>
+        <Pane>
+          <OutputView
+            compilationState={compilationState}
+            viewers={props.emitterViewers?.[selectedEmitter]}
+          />
+        </Pane>
+      </SplitPane>
       <Footer />
     </div>
   );
@@ -263,7 +255,7 @@ async function compile(
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
     const program = await typespecCompiler.compile(host, "main.tsp", {
       ...options,
       options: {

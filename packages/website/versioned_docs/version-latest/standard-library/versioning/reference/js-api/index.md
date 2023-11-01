@@ -3,59 +3,59 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Index
+## Exports
 
 ### Enumerations
 
-- [Availability](Enumeration.Availability.md)
+- [Availability](enumerations/Availability.md)
 
 ### Classes
 
-- [VersionMap](Class.VersionMap.md)
+- [VersionMap](classes/VersionMap.md)
 
 ### Interfaces
 
-- [Version](Interface.Version.md)
-- [VersionResolution](Interface.VersionResolution.md)
+- [Version](interfaces/Version.md)
+- [VersionResolution](interfaces/VersionResolution.md)
 
 ### Variables
 
-- [namespace](Variable.namespace.md)
+- [namespace](variables/namespace.md)
 
 ### Functions
 
-- [$added](Function.$added.md)
-- [$madeOptional](Function.$madeOptional.md)
-- [$onValidate](Function.$onValidate.md)
-- [$removed](Function.$removed.md)
-- [$renamedFrom](Function.$renamedFrom.md)
-- [$returnTypeChangedFrom](Function.$returnTypeChangedFrom.md)
-- [$typeChangedFrom](Function.$typeChangedFrom.md)
-- [$useDependency](Function.$useDependency.md)
-- [$versioned](Function.$versioned.md)
-- [buildVersionProjections](Function.buildVersionProjections.md)
-- [existsAtVersion](Function.existsAtVersion.md)
-- [findVersionedNamespace](Function.findVersionedNamespace.md)
-- [getAddedOnVersions](Function.getAddedOnVersions.md)
-- [getAvailabilityMap](Function.getAvailabilityMap.md)
-- [getAvailabilityMapInTimeline](Function.getAvailabilityMapInTimeline.md)
-- [getMadeOptionalOn](Function.getMadeOptionalOn.md)
-- [getNameAtVersion](Function.getNameAtVersion.md)
-- [getRemovedOnVersions](Function.getRemovedOnVersions.md)
-- [getRenamedFromVersions](Function.getRenamedFromVersions.md)
-- [getReturnTypeBeforeVersion](Function.getReturnTypeBeforeVersion.md)
-- [getReturnTypeChangedFrom](Function.getReturnTypeChangedFrom.md)
-- [getTypeBeforeVersion](Function.getTypeBeforeVersion.md)
-- [getTypeChangedFrom](Function.getTypeChangedFrom.md)
-- [getUseDependencies](Function.getUseDependencies.md)
-- [getVersion](Function.getVersion.md)
-- [getVersionDependencies](Function.getVersionDependencies.md)
-- [getVersionForEnumMember](Function.getVersionForEnumMember.md)
-- [getVersions](Function.getVersions.md)
-- [getVersionsForEnum](Function.getVersionsForEnum.md)
-- [hasDifferentNameAtVersion](Function.hasDifferentNameAtVersion.md)
-- [hasDifferentReturnTypeAtVersion](Function.hasDifferentReturnTypeAtVersion.md)
-- [hasDifferentTypeAtVersion](Function.hasDifferentTypeAtVersion.md)
-- [indexTimeline](Function.indexTimeline.md)
-- [madeOptionalAfter](Function.madeOptionalAfter.md)
-- [resolveVersions](Function.resolveVersions.md)
+- [$added](functions/$added.md)
+- [$madeOptional](functions/$madeOptional.md)
+- [$onValidate](functions/$onValidate.md)
+- [$removed](functions/$removed.md)
+- [$renamedFrom](functions/$renamedFrom.md)
+- [$returnTypeChangedFrom](functions/$returnTypeChangedFrom.md)
+- [$typeChangedFrom](functions/$typeChangedFrom.md)
+- [$useDependency](functions/$useDependency.md)
+- [$versioned](functions/$versioned.md)
+- [buildVersionProjections](functions/buildVersionProjections.md)
+- [existsAtVersion](functions/existsAtVersion.md)
+- [findVersionedNamespace](functions/findVersionedNamespace.md)
+- [getAddedOnVersions](functions/getAddedOnVersions.md)
+- [getAvailabilityMap](functions/getAvailabilityMap.md)
+- [getAvailabilityMapInTimeline](functions/getAvailabilityMapInTimeline.md)
+- [getMadeOptionalOn](functions/getMadeOptionalOn.md)
+- [getNameAtVersion](functions/getNameAtVersion.md)
+- [getRemovedOnVersions](functions/getRemovedOnVersions.md)
+- [getRenamedFrom](functions/getRenamedFrom.md)
+- [getRenamedFromVersions](functions/getRenamedFromVersions.md)
+- [getReturnTypeBeforeVersion](functions/getReturnTypeBeforeVersion.md)
+- [getReturnTypeChangedFrom](functions/getReturnTypeChangedFrom.md)
+- [getTypeBeforeVersion](functions/getTypeBeforeVersion.md)
+- [getTypeChangedFrom](functions/getTypeChangedFrom.md)
+- [getUseDependencies](functions/getUseDependencies.md)
+- [getVersion](functions/getVersion.md)
+- [getVersionDependencies](functions/getVersionDependencies.md)
+- [getVersionForEnumMember](functions/getVersionForEnumMember.md)
+- [getVersions](functions/getVersions.md)
+- [getVersionsForEnum](functions/getVersionsForEnum.md)
+- [hasDifferentNameAtVersion](functions/hasDifferentNameAtVersion.md)
+- [hasDifferentReturnTypeAtVersion](functions/hasDifferentReturnTypeAtVersion.md)
+- [hasDifferentTypeAtVersion](functions/hasDifferentTypeAtVersion.md)
+- [madeOptionalAfter](functions/madeOptionalAfter.md)
+- [resolveVersions](functions/resolveVersions.md)

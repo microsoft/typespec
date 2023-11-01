@@ -23,6 +23,12 @@ cleaned/cloned.
 Note that `rush update` must be done before building in VS Code or
 using the command line.
 
+# Install playwright browsers for UI testing
+
+```bash
+npx playwright install
+```
+
 # Using command line
 
 ## Rebuild the whole repo

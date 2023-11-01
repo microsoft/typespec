@@ -1,4 +1,6 @@
-# Diagnostics
+---
+title: Diagnostics
+---
 
 TypeSpec compiler report errors and warnings in the spec using the diagnostic API.
 

@@ -438,6 +438,28 @@ describe("compiler: interfaces", () => {
         message: `Can't pass template arguments to non-templated type`,
       });
     });
+
+    // https://github.com/microsoft/typespec/pull/2617
+    it("can 'op is' a templated operation inside templated interface", async () => {
+      const { myBar } = (await runner.compile(`
+      interface Foo<A> {
+        bar<B>(input: A): B;
+      }
+
+      alias MyFoo = Foo<string>;
+      @test op myBar is MyFoo.bar<int32>;
+      `)) as {
+        myBar: Operation;
+      };
+
+      const input = myBar.parameters.properties.get("input")!.type;
+      strictEqual(input.kind, "Scalar" as const);
+      strictEqual(input.name, "string");
+
+      const returnType = myBar.returnType;
+      strictEqual(returnType.kind, "Scalar" as const);
+      strictEqual(returnType.name, "int32");
+    });
   });
 
   it("can decorate extended operations independently", async () => {

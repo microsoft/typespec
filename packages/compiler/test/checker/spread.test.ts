@@ -65,6 +65,35 @@ describe("compiler: spread", () => {
     });
   });
 
+  it("emit diagnostic if model spreads itself", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Foo {
+        ...Foo,
+        name: string,
+      }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread type within its own declaration.",
+    });
+  });
+
+  it("emit diagnostic if model spreads itself through alias", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Foo {
+        ...Bar,
+        name: string,
+      }
+      alias Bar = Foo;
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread type within its own declaration.",
+    });
+  });
+
   it("emit diagnostic if spreading scalar type", async () => {
     const diagnostics = await runner.diagnose(`
       model Foo {

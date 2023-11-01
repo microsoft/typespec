@@ -377,6 +377,7 @@ const diagnostics = {
     messages: {
       default: "Cannot spread properties of non-model type.",
       neverIndex: "Cannot spread type because it cannot hold properties.",
+      selfSpread: "Cannot spread type within its own declaration.",
     },
   },
   "unsupported-default": {

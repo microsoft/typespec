@@ -1,6 +1,7 @@
 import { CompilerOptions, LinterRuleSet, TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
-import { EmitterOptions, PlaygroundTspLibrary } from "../types.js";
+import { PlaygroundTspLibrary } from "../../types.js";
+import { EmitterOptions } from "../types.js";
 import { EmitterOptionsForm } from "./emitter-options-form.js";
 import { LinterForm } from "./linter-form.js";
 

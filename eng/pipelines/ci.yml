@@ -13,6 +13,10 @@ jobs:
     pool:
       name: azsdk-pool-mms-win-2022-general
       vmImage: windows-2022
+
+    variables:
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
     steps:
       - template: ./templates/install.yml
         parameters:
@@ -30,9 +34,16 @@ jobs:
         displayName: Release
 
       - task: AzureCLI@1
+        displayName: "Publish bundled packages to package storage"
+        inputs:
+          azureSubscription: "Azure SDK Engineering System"
+          scriptLocation: inlineScript
+          inlineScript: node ./eng/scripts/upload-bundler-packages.js
+
+      - task: AzureCLI@1
         displayName: "Publish playground"
         inputs:
-          azureSubscription: "Azure SDK Playground"
+          azureSubscription: "Azure SDK Engineering System"
           scriptLocation: inlineScript
           inlineScript: |
             az storage blob upload-batch ^
@@ -48,6 +59,10 @@ jobs:
     pool:
       name: azsdk-pool-mms-win-2022-general
       vmImage: windows-2022
+
+    variables:
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
     steps:
       - template: ./templates/install.yml
         parameters:

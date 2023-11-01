@@ -12,11 +12,10 @@ import {
 import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
 import { CompilerOptions } from "@typespec/compiler";
 import { FunctionComponent } from "react";
-import { PlaygroundSample } from "../types.js";
+import { PlaygroundSample, PlaygroundTspLibrary } from "../types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 import { CompilerSettings } from "./settings/compiler-settings.js";
-import { PlaygroundTspLibrary } from "./types.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;

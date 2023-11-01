@@ -1,11 +1,11 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.48.1",
+  "version": "0.49.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/microsoft/typespec.git"
@@ -21,29 +21,33 @@
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
   "exports": {
-    ".": {
-      "default": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
-    },
-    "./testing": {
-      "default": "./dist/src/testing/index.js",
-      "types": "./dist/src/testing/index.d.ts"
-    },
-    "./module-resolver": {
-      "default": "./dist/src/core/module-resolver.js",
-      "types": "./dist/src/core/module-resolver.d.ts"
-    },
-    "./emitter-framework": {
-      "default": "./dist/src/emitter-framework/index.js",
-      "types": "./dist/src/emitter-framework/index.d.ts"
-    }
+    ".": "./dist/src/index.js",
+    "./testing": "./dist/src/testing/index.js",
+    "./module-resolver": "./dist/src/core/module-resolver.js",
+    "./emitter-framework": "./dist/src/emitter-framework/index.js"
   },
   "browser": {
     "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
     "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/src/index.d.ts"
+      ],
+      "testing": [
+        "./dist/src/testing/index.d.ts"
+      ],
+      "module-resolver": [
+        "./dist/src/core/module-resolver.d.ts"
+      ],
+      "emitter-framework": [
+        "./dist/src/emitter-framework/index.d.ts"
+      ]
+    }
+  },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "bin": {
     "tsp": "cmd/tsp.js",
@@ -94,8 +98,8 @@
     "@types/prompts": "~2.4.4",
     "@types/semver": "^7.5.2",
     "@types/yargs": "~17.0.24",
-    "@typespec/eslint-config-typespec": "workspace:~0.48.0",
-    "@typespec/internal-build-utils": "workspace:~0.48.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
+    "@typespec/internal-build-utils": "workspace:~0.49.0",
     "eslint": "^8.49.0",
     "grammarkdown": "~3.3.2",
     "mocha": "~10.2.0",
@@ -105,7 +109,7 @@
     "prettier-plugin-organize-imports": "~3.2.3",
     "source-map-support": "~0.5.21",
     "rimraf": "~5.0.1",
-    "tmlanguage-generator": "workspace:~0.4.4",
+    "tmlanguage-generator": "workspace:~0.4.5",
     "typescript": "~5.2.2",
     "vscode-oniguruma": "~2.0.1",
     "vscode-textmate": "~9.0.0",
