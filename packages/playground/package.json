@@ -85,6 +85,10 @@
     "vscode-languageserver-textdocument": "~1.0.8",
     "vscode-languageserver": "~9.0.0"
   },
+  "optionalDependencies": {
+    "@vitejs/plugin-react": "~4.1.0",
+    "vite": "^4.4.9"
+  },
   "devDependencies": {
     "@babel/core": "^7.22.20",
     "@playwright/test": "^1.39.0",
