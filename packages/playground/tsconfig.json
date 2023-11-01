@@ -16,7 +16,6 @@
     "types": ["@emotion/react"]
   },
   "include": [
-    "package.json",
     "rollup.config.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
