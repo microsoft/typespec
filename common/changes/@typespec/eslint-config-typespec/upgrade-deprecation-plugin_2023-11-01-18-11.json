@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/eslint-config-typespec",
+      "comment": "Upgrade `deprecation` plugin to 2.0.0",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/eslint-config-typespec"
+}
