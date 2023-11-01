@@ -613,6 +613,96 @@ describe("compiler: templates", () => {
       }
     });
 
+    it("cannot specify name of nonexistent parameter", async () => {
+      const { pos, end, source } = extractSquiggles(`
+      model A<T> { a: T }
+
+      @test model B {
+        foo: A<string, ~~~U = "bar"~~~>
+      }
+    `);
+
+      testHost.addTypeSpecFile("main.tsp", source);
+
+      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
+        { B: Model },
+        Diagnostic[],
+      ];
+
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "string");
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-template-args",
+        message: "No parameter named 'U' exists in the target template.",
+        pos,
+        end,
+      });
+    });
+
+    it("cannot specify argument twice", async () => {
+      const { pos, end, source } = extractSquiggles(`
+      model A<T> { a: T }
+
+      @test model B {
+        foo: A<string, ~~~T = "bar"~~~>
+      }
+    `);
+
+      testHost.addTypeSpecFile("main.tsp", source);
+
+      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
+        { B: Model },
+        Diagnostic[],
+      ];
+
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "string");
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-template-args",
+        message: "Cannot specify template argument 'T' again.",
+        pos,
+        end,
+      });
+    });
+
+    it("cannot specify argument twice by name", async () => {
+      const { pos, end, source } = extractSquiggles(`
+      model A<T> { a: T }
+
+      @test model B {
+        foo: A<T = string, ~~~T = "bar"~~~>
+      }
+    `);
+
+      testHost.addTypeSpecFile("main.tsp", source);
+
+      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
+        { B: Model },
+        Diagnostic[],
+      ];
+
+      const foo = B.properties.get("foo")!.type;
+      strictEqual(foo.kind, "Model");
+      const a = foo.properties.get("a")!;
+      strictEqual(a.type.kind, "Scalar");
+      strictEqual(a.type.name, "string");
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-template-args",
+        message: "Cannot specify template argument 'T' again.",
+        pos,
+        end,
+      });
+    });
+
     it("cannot specify positional argument after named argument", async () => {
       const { pos, end, source } = extractSquiggles(`
       model A<T, U, V extends string = string> { a: T, b: U, c: V }

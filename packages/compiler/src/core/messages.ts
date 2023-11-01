@@ -282,7 +282,7 @@ const diagnostics = {
       positionalAfterNamed:
         "Positional template arguments cannot follow named arguments in the same argument list.",
       missing: paramMessage`Template argument '${"name"}' is required and not specified.`,
-      specifiedAgain: paramMessage`Cannot specify template argument ${"name"} again.`,
+      specifiedAgain: paramMessage`Cannot specify template argument '${"name"}' again.`,
     },
   },
   "intersect-non-model": {
