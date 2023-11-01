@@ -11,7 +11,8 @@ scalar bytes;
 scalar numeric;
 
 /**
- * A whole number
+ * A whole number. This represent any `integer` value possible.
+ * It is commonly represented as `BigInteger` in some languages.
  */
 scalar integer extends numeric;
 
@@ -76,7 +77,8 @@ scalar float64 extends float;
 scalar float32 extends float64;
 
 /**
- * A decimal number with any length and precision.
+ * A decimal number with any length and precision. This represent any `decimal` value possible.
+ * It is commonly represented as `BigDecimal` in some languages.
  */
 scalar decimal extends numeric;
 
