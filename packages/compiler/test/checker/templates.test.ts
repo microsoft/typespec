@@ -818,10 +818,7 @@ describe("compiler: templates", () => {
 
       testHost.addTypeSpecFile("main.tsp", source);
 
-      const [{ B }, diagnostics] = (await testHost.compileAndDiagnose("main.tsp")) as [
-        { B: Model },
-        Diagnostic[],
-      ];
+      const diagnostics = await testHost.diagnose("main.tsp");
 
       expectDiagnostics(diagnostics, {
         code: "invalid-template-argument-name",
