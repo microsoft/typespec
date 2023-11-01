@@ -40,6 +40,7 @@ import {
   isRecordModelType,
   isSecret,
   isTemplateDeclaration,
+  isVoidType,
   listServices,
   Model,
   ModelProperty,
@@ -1129,7 +1130,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   }
 
   function emitRequestBody(body: HttpOperationRequestBody | undefined, visibility: Visibility) {
-    if (body === undefined) {
+    if (body === undefined || isVoidType(body.type)) {
       return;
     }
 

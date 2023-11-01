@@ -157,6 +157,12 @@
       "versionPolicyName": "typespec"
     },
     {
+      "packageName": "@typespec/bundle-uploader",
+      "projectFolder": "packages/bundle-uploader",
+      "reviewCategory": "production",
+      "shouldPublish": false
+    },
+    {
       "packageName": "@typespec/spec",
       "projectFolder": "packages/spec",
       "reviewCategory": "production",

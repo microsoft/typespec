@@ -1,4 +1,4 @@
-id:
+id: issues.triage
 name: New Issue Assign labels
 description: Assign labels to new issues
 owner:
@@ -22,7 +22,7 @@ configuration:
           - addLabel:
               label: needs-triage
 
-      - description: Adds `needs-triage` label for new issues reported by non contributors
+      - description: Adds `customer-reported` label for new issues reported by non contributors
         if:
           - payloadType: Issues
           - isAction:

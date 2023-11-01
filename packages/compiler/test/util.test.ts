@@ -72,5 +72,25 @@ describe("compiler: util", () => {
         ]
       );
     });
+
+    it("rekeying to existing key override the target", () => {
+      const map = createRekeyableMap([
+        ["a", "pos 1"],
+        ["b", "pos 2"],
+        ["c", "pos 3"],
+        ["d", "pos 4"],
+      ]);
+
+      map.rekey("c", "b");
+
+      deepStrictEqual(
+        [...map.entries()],
+        [
+          ["a", "pos 1"],
+          ["b", "pos 3"],
+          ["d", "pos 4"],
+        ]
+      );
+    });
   });
 });

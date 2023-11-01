@@ -12,6 +12,7 @@
     { "path": "packages/migrate/tsconfig.json" },
     { "path": "packages/typespec-vscode/tsconfig.json" },
     { "path": "packages/internal-build-utils/tsconfig.json" },
+    { "path": "packages/bundle-uploader/tsconfig.json" },
     { "path": "packages/tmlanguage-generator/tsconfig.json" },
     { "path": "packages/html-program-viewer/tsconfig.json" },
     { "path": "packages/protobuf/tsconfig.json" },

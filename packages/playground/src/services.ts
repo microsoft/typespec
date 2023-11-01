@@ -9,8 +9,7 @@ import { editor } from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { BrowserHost } from "./browser-host.js";
-import { importTypeSpecCompiler } from "./core.js";
+import { BrowserHost } from "./types.js";
 
 function getIndentAction(
   value: "none" | "indent" | "indentOutdent" | "outdent"
@@ -60,7 +59,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     log: console.log,
   };
 
-  const { createServer } = await importTypeSpecCompiler();
+  const { createServer } = host.compiler;
   const serverLib = createServer(serverHost);
   const lsConfig = await serverLib.initialize({
     capabilities: {},
