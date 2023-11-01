@@ -310,8 +310,8 @@ importers:
         specifier: ^8.5.0
         version: 8.10.0(eslint@8.52.0)
       eslint-plugin-deprecation:
-        specifier: ^1.4.1
-        version: 1.6.0(eslint@8.52.0)(typescript@5.2.2)
+        specifier: ^2.0.0
+        version: 2.0.0(eslint@8.52.0)(typescript@5.2.2)
       eslint-plugin-mocha:
         specifier: ^10.0.5
         version: 10.2.0(eslint@8.52.0)
@@ -10393,9 +10393,8 @@ packages:
       chalk: 4.1.2
     dev: true
 
-  /eslint-plugin-deprecation@1.6.0(eslint@8.52.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-rld+Vrneh/NXRtDB0vQifOvgUy0HJYoejaxWlVnsk/LK7iij2tCWQIFcCKG4uzQb+Ef86bDke39w1lh4wnon4Q==}
-    deprecated: this package has been deprecated, please use v2.0.0
+  /eslint-plugin-deprecation@2.0.0(eslint@8.52.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-OAm9Ohzbj11/ZFyICyR5N6LbOIvQMp7ZU2zI7Ej0jIc8kiGUERXPNMfw2QqqHD1ZHtjMub3yPZILovYEYucgoQ==}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0
       typescript: ^4.2.4 || ^5.0.0
