@@ -12,7 +12,7 @@ scalar numeric;
 
 /**
  * A whole number. This represent any `integer` value possible.
- * It is commonly represented as `BigInteger` in other languages.
+ * It is commonly represented as `BigInteger` in some languages.
  */
 scalar integer extends numeric;
 
