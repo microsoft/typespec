@@ -113,7 +113,7 @@
     "typescript": "~5.2.2",
     "vscode-oniguruma": "~2.0.1",
     "vscode-textmate": "~9.0.0",
-    "sinon": "~16.0.0",
-    "@types/sinon": "~10.0.16"
+    "sinon": "~17.0.1",
+    "@types/sinon": "~10.0.20"
   }
 }
