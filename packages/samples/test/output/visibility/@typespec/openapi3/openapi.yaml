@@ -103,6 +103,8 @@ components:
         id:
           type: string
           readOnly: true
+        secret:
+          type: string
         name:
           type: string
         test:
@@ -112,7 +114,7 @@ components:
         relatives:
           type: array
           items:
-            $ref: '#/components/schemas/PersonRelative'
+            $ref: '#/components/schemas/PersonRelativeReadOrCreateOrUpdateOrDeleteOrQueryItem'
     Person:
       type: object
       required:
@@ -174,6 +176,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PersonRelativeCreateOrUpdateItem'
+    PersonReadOrCreateOrUpdateOrDeleteOrQueryItem:
+      type: object
+      required:
+        - id
+        - secret
+        - name
+        - test
+        - other
+        - relatives
+      properties:
+        id:
+          type: string
+          readOnly: true
+        secret:
+          type: string
+        name:
+          type: string
+        test:
+          type: string
+        other:
+          type: string
+        relatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonRelativeReadOrCreateOrUpdateOrDeleteOrQueryItem'
     PersonRelative:
       type: object
       required:
@@ -202,6 +229,16 @@ components:
       properties:
         person:
           $ref: '#/components/schemas/PersonCreateOrUpdateItem'
+        relationship:
+          type: string
+    PersonRelativeReadOrCreateOrUpdateOrDeleteOrQueryItem:
+      type: object
+      required:
+        - person
+        - relationship
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonReadOrCreateOrUpdateOrDeleteOrQueryItem'
         relationship:
           type: string
     PersonRelativeUpdateItem:
