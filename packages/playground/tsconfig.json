@@ -1,15 +1,14 @@
 {
   "extends": "../tsconfig.json",
-  "references": [
-    { "path": "../compiler/tsconfig.json" },
-    { "path": "../rest/tsconfig.json" },
-    { "path": "../openapi/tsconfig.json" },
-    { "path": "../openapi3/tsconfig.json" }
-  ],
   "compilerOptions": {
+    "incremental": false,
+    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": false,
+    "resolveJsonModule": true,
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
@@ -17,6 +16,7 @@
     "types": ["@emotion/react"]
   },
   "include": [
+    "rollup.config.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "test/**/*.ts",
