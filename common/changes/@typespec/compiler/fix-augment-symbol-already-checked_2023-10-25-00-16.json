@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Issue where referencing a template in an alias might cause augment decorators to not be applied on types referenced in the aliased type.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

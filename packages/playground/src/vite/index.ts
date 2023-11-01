@@ -1,4 +1,4 @@
-import { typespecBundlePlugin } from "@typespec/bundler";
+import { typespecBundlePlugin } from "@typespec/bundler/vite";
 import react from "@vitejs/plugin-react";
 import { Plugin, ResolvedConfig, UserConfig } from "vite";
 import { PlaygroundUserConfig } from "./types.js";
@@ -28,17 +28,19 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
       exclude: ["swagger-ui"],
     },
     plugins: [
-      (react as any)({
+      react({
         jsxImportSource: "@emotion/react",
         babel: {
           plugins: ["@emotion/babel-plugin"],
         },
       }),
       playgroundManifestPlugin(config),
-      typespecBundlePlugin({
-        folderName: "libs",
-        libraries: config.libraries,
-      }),
+      !config.skipBundleLibraries
+        ? typespecBundlePlugin({
+            folderName: "libs",
+            libraries: config.libraries,
+          })
+        : undefined,
     ],
     server: {
       fs: {
