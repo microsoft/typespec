@@ -78,7 +78,7 @@ scalar float32 extends float64;
 
 /**
  * A decimal number with any length and precision. This represent any `decimal` value possible.
- * It is commonly represented as `BigDecimal` in other languages.
+ * It is commonly represented as `BigDecimal` in some languages.
  */
 scalar decimal extends numeric;
 
