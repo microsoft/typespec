@@ -46,7 +46,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "rollup --config rollup.config.ts --configPlugin typescript",
+    "build": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
     "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
     "copy-css": "copyfiles -u 1 src/**/*.module.css dist/src",
     "preview": "npm run build && vite preview",
