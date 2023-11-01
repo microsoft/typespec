@@ -4,6 +4,7 @@
     "incremental": false,
     "composite": false,
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "sourceMap": false,
     "resolveJsonModule": true,
     "outDir": "dist",
