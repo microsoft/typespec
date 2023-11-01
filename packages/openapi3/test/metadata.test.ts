@@ -2,6 +2,30 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
+  it("will expose all properties on unreferenced models", async () => {
+    const res = await openApiFor(`
+      model M {
+        @visibility("read") r: string;
+        @visibility("create", "update") uc?: string;
+        @visibility("read", "create") rc?: string;
+        @visibility("read", "update", "create") ruc?: string;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          uc: { type: "string" },
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+        required: ["r"],
+      },
+    });
+  });
+
   it("will expose create visibility properties on PATCH model using @requestVisibility", async () => {
     const res = await openApiFor(`
       model M {
