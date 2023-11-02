@@ -315,6 +315,17 @@ export interface Scanner {
    */
   reScanStringTemplate(tokenFlags: TokenFlags): StringTemplateToken;
 
+  /**
+   * Finds the indent for the given triple quoted string.
+   * @param input Triple quoted string rawText.
+   */
+  findTripleQuotedStringIndent(input: string): string;
+
+  /**
+   * Unindent the triple quoted string rawText
+   */
+  unindentTripleQuotedString(input: string, indent: string): string;
+
   /** Reset the scanner to the given start and end positions, invoke the callback, and then restore scanner state. */
   scanRange<T>(range: TextRange, callback: () => T): T;
 
@@ -402,6 +413,8 @@ export function createScanner(
     scanRange,
     scanDoc,
     reScanStringTemplate,
+    findTripleQuotedStringIndent,
+    unindentTripleQuotedString,
     eof,
     getTokenText,
     getTokenValue,
@@ -952,7 +965,7 @@ export function createScanner(
     const end = tokenFlags & TokenFlags.Unterminated ? position : position - endOffset;
 
     if (tokenFlags & TokenFlags.TripleQuoted) {
-      return unindentAndUnescapeTripleQuotedString(start, end, token);
+      return unescapeTripleQuotedString(start, end, token);
     }
 
     if (tokenFlags & TokenFlags.Escaped) {
@@ -979,7 +992,7 @@ export function createScanner(
     return text;
   }
 
-  function unindentAndUnescapeTripleQuotedString(
+  function unescapeTripleQuotedString(
     start: number,
     end: number,
     token: Token.StringLiteral | StringTemplateToken
@@ -1001,14 +1014,6 @@ export function createScanner(
       }
     }
 
-    // remove whitespace before closing delimiter and record it as required
-    // indentation for all lines
-    const indentationEnd = end;
-    while (end > start && isWhiteSpaceSingleLine(input.charCodeAt(end - 1))) {
-      end--;
-    }
-    const indentationStart = end;
-
     if (token === Token.StringLiteral || token === Token.StringTemplateTail) {
       // remove required final line break
       if (isLineBreak(input.charCodeAt(end - 1))) {
@@ -1027,7 +1032,7 @@ export function createScanner(
     let pos = start;
     while (pos < end) {
       // skip indentation at start of line
-      start = skipMatchingIndentation(pos, end, indentationStart, indentationEnd);
+      start = pos;
       let ch;
 
       while (pos < end && !isLineBreak((ch = input.charCodeAt(pos)))) {
@@ -1065,6 +1070,57 @@ export function createScanner(
     return result;
   }
 
+  function findTripleQuotedStringIndent(input: string): string {
+    let end = input.length - 1;
+    // remove whitespace before closing delimiter and record it as required
+    // indentation for all lines
+    const indentationEnd = end;
+    while (end > 0 && isWhiteSpaceSingleLine(input.charCodeAt(end - 1))) {
+      end--;
+    }
+    const indentationStart = end;
+
+    // remove required final line break
+    if (isLineBreak(input.charCodeAt(end - 1))) {
+      if (isCrlf(end - 2, 0, end)) {
+        end--;
+      }
+      end--;
+    } else {
+      error({ code: "no-new-line-end-triple-quote" });
+    }
+
+    return input.substring(indentationStart, indentationEnd);
+  }
+
+  function unindentTripleQuotedString(input: string, indent: string): string {
+    let start = 0;
+    const end = input.length - 1;
+
+    // remove required matching indentation from each line and unescape in the
+    // process of doing so
+    let result = "";
+    let pos = start;
+    while (pos < end) {
+      // skip indentation at start of line
+      start = skipMatchingIndentation(pos, end, indent);
+
+      while (pos < end && !isLineBreak(input.charCodeAt(pos))) {
+        pos++;
+        continue;
+      }
+
+      if (pos < end) {
+        pos++;
+        result += input.substring(start, pos);
+        start = pos;
+      }
+    }
+
+    result += input.substring(start, pos);
+    return result;
+  }
+
   function isCrlf(pos: number, start: number, end: number) {
     return (
       pos >= start &&
@@ -1074,14 +1130,9 @@ export function createScanner(
     );
   }
 
-  function skipMatchingIndentation(
-    pos: number,
-    end: number,
-    indentationStart: number,
-    indentationEnd: number
-  ): number {
-    let indentationPos = indentationStart;
-    end = Math.min(end, pos + (indentationEnd - indentationStart));
+  function skipMatchingIndentation(pos: number, end: number, indent: string): number {
+    let indentationPos = 0;
+    end = Math.min(end, pos + indent.length);
 
     while (pos < end) {
       const ch = input.charCodeAt(pos);
@@ -1089,7 +1140,7 @@ export function createScanner(
         // allow subset of indentation if line has only whitespace
         break;
       }
-      if (ch !== input.charCodeAt(indentationPos)) {
+      if (ch !== indent.charCodeAt(indentationPos)) {
         error({ code: "triple-quote-indent" });
         break;
       }

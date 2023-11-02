@@ -1457,6 +1457,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const pos = tokenPos();
     const head = parseStringTemplateHead();
     const spans = parseStringTemplateSpans(head.tokenFlags);
+    const last = spans[spans.length - 1];
+    const indent = scanner.findTripleQuotedStringIndent(last.literal.rawText);
+    mutate(head).text = scanner.unindentTripleQuotedString(head.rawText, indent);
+    for (const span of spans) {
+      mutate(span.literal).text = scanner.unindentTripleQuotedString(span.literal.rawText, indent);
+    }
     return {
       kind: SyntaxKind.StringTemplateExpression,
       head,
@@ -1467,13 +1473,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseStringTemplateHead(): StringTemplateHeadNode {
     const pos = tokenPos();
-    const text = tokenValue();
+    const rawText = tokenValue();
     const flags = tokenFlags();
     parseExpected(Token.StringTemplateHead);
 
     return {
       kind: SyntaxKind.StringTemplateHead,
-      text,
+      rawText,
+      text: "",
       tokenFlags: flags,
       ...finishNode(pos),
     };
@@ -1511,6 +1518,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseExpected(Token.StringTemplateTail);
       return {
         kind: SyntaxKind.StringTemplateTail,
+        rawText: "",
         text: "",
         tokenFlags: tokenFlags(),
         ...finishNode(pos),
@@ -1520,7 +1528,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseTemplateMiddleOrTemplateTail(): StringTemplateMiddleNode | StringTemplateTailNode {
     const pos = tokenPos();
-    const text = tokenValue();
+    const rawText = tokenValue();
     const kind =
       token() === Token.StringTemplateMiddle
         ? SyntaxKind.StringTemplateMiddle
@@ -1529,7 +1537,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     nextToken();
     return {
       kind,
-      text,
+      rawText,
+      text: "",
       tokenFlags: tokenFlags(),
       ...finishNode(pos),
     };

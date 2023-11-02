@@ -1265,10 +1265,11 @@ export interface StringTemplateSpanNode extends BaseNode {
 }
 
 export interface StringTemplateLiteralLikeNode extends BaseNode {
-  text: string;
+  readonly rawText: string;
+  readonly text: string;
 
   /** @internal */
-  tokenFlags: TokenFlags;
+  readonly tokenFlags: TokenFlags;
 }
 
 export interface StringTemplateHeadNode extends StringTemplateLiteralLikeNode {
