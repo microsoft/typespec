@@ -12,7 +12,6 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
     typeDeclarationFormat: "table",
     hidePageTitle: true,
     hideBreadcrumbs: true,
-    titleTemplate: "{name}",
     hideInPageTOC: true,
     hidePageHeader: true,
     useCodeBlocks: true,
