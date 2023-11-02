@@ -2344,12 +2344,19 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     options: SymbolResolutionOptions
   ): Sym | undefined {
-    const node = aliasSymbol.declarations[0];
-    const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
-    const sym = resolveTypeReferenceSymInternal(targetNode as any, mapper, options);
-    if (sym === undefined) {
-      return undefined;
+    let current = aliasSymbol;
+    while (current.flags & SymbolFlags.Alias) {
+      const node = current.declarations[0];
+      const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
+      const sym = resolveTypeReferenceSymInternal(targetNode as any, mapper, options);
+      if (sym === undefined) {
+        return undefined;
+      }
+      current = sym;
     }
+    const sym = current;
+    const node = aliasSymbol.declarations[0];
+
     const resolvedTargetNode = sym.declarations[0];
     if (!options.checkTemplateTypes || !isTemplatedNode(resolvedTargetNode)) {
       return sym;
