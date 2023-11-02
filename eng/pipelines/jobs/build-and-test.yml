@@ -9,6 +9,10 @@ steps:
     parameters:
       nodeVersion: ${{ parameters.nodeVersion }}
 
+  # Only running UI test on linux
+  - ${{ if ne(variables['Agent.OS'], 'Windows_NT') }}:
+      - template: ../templates/install-browsers.yml
+
   - template: ../templates/build.yml
 
   - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose

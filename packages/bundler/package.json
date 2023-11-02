@@ -17,8 +17,14 @@
     "typespec"
   ],
   "type": "module",
+  "bin": {
+    "typespec-bundler": "./dist/src/cli.js"
+  },
   "main": "dist/src/index.js",
-  "tspMain": "dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./vite": "./dist/src/vite/index.js"
+  },
   "engines": {
     "node": ">=18.0.0"
   },
@@ -45,7 +51,9 @@
     "@rollup/plugin-node-resolve": "~15.2.1",
     "@rollup/plugin-multi-entry": "~6.0.0",
     "rollup": "~3.29.2",
-    "@rollup/plugin-alias": "~5.0.0"
+    "@rollup/plugin-alias": "~5.0.0",
+    "yargs": "~17.7.2",
+    "picocolors": "~1.0.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
@@ -58,6 +66,7 @@
     "c8": "~8.0.1",
     "rimraf": "~5.0.1",
     "typescript": "~5.2.2",
-    "vite": "^4.4.9"
+    "vite": "^4.4.9",
+    "@types/yargs": "~17.0.24"
   }
 }
