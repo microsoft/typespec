@@ -5,8 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  trim@0.0.1: 0.0.3
-  update-notifier@^5.1.0: ^6.0.2
   node-fetch@3.2.8: ^3.3.2
 
 importers:
@@ -6707,7 +6705,6 @@ packages:
 
   /@swagger-api/apidom-ns-json-schema-draft-4@0.82.0:
     resolution: {integrity: sha512-bZt15vKFbl5hw3KELDiBiyHkJdoeP5tahN7q86VV7hTJHJPmKXy5LHk5StvIOadcExcQFWcXX4D2xd9IuiYH/w==}
-    requiresBuild: true
     dependencies:
       '@babel/runtime-corejs3': 7.23.2
       '@swagger-api/apidom-ast': 0.82.0
@@ -8657,7 +8654,6 @@ packages:
 
   /character-entities-html4@2.1.0:
     resolution: {integrity: sha512-1v7fgQRj6hnSwFpq1Eu0ynr/CDEw0rXo2B61qXrLNdHZmPKgb7fqS1a2JwF0rISo9q77jDI8VMEHoApn8qDoZA==}
-    requiresBuild: true
     dev: false
 
   /character-entities-legacy@1.1.4:
@@ -8666,7 +8662,6 @@ packages:
 
   /character-entities-legacy@3.0.0:
     resolution: {integrity: sha512-RpPp0asT/6ufRm//AJVwpViZbGM/MkjQFxJccQRHmISF/22NBtsHqAWmL+/pmkPWoIUJdWyeVleTl1wydHATVQ==}
-    requiresBuild: true
     dev: false
 
   /character-entities@1.2.4:
@@ -8682,7 +8677,6 @@ packages:
 
   /character-reference-invalid@2.0.1:
     resolution: {integrity: sha512-iBZ4F4wRbyORVsu0jPV7gXkOsGYjGHPmAyv+HiHG8gi5PtC9KI2j1+v8/tlibRvjoWX027ypmG/n0HtO5t7unw==}
-    requiresBuild: true
     dev: false
 
   /charenc@0.0.2:
@@ -11793,7 +11787,6 @@ packages:
 
   /inline-style-parser@0.1.1:
     resolution: {integrity: sha512-7NXolsK4CAS5+xvdj5OMMbI962hU/wvwoxk+LWR9Ek9bVtyuuYScDN6eS0rUm6TxApFpw7CX1o4uJzcd4AyD3Q==}
-    requiresBuild: true
     dev: false
 
   /internmap@1.0.1:
@@ -11829,7 +11822,6 @@ packages:
 
   /is-alphabetical@2.0.1:
     resolution: {integrity: sha512-FWyyY60MeTNyeSRpkM2Iry0G9hpr7/9kD40mD/cGQEuilcZYS4okz8SN2Q6rLCJ8gbCt6fN+rC+6tMGS99LaxQ==}
-    requiresBuild: true
     dev: false
 
   /is-alphanumerical@1.0.4:
@@ -11841,7 +11833,6 @@ packages:
 
   /is-alphanumerical@2.0.1:
     resolution: {integrity: sha512-hmbYhX/9MUMF5uh7tOXyK/n0ZvWpad5caBA17GsC6vyuCqaWliRG5K1qS9inmUhEMaOBIW7/whAnSwveW/LtZw==}
-    requiresBuild: true
     dependencies:
       is-alphabetical: 2.0.1
       is-decimal: 2.0.1
@@ -11885,7 +11876,6 @@ packages:
 
   /is-decimal@2.0.1:
     resolution: {integrity: sha512-AAB9hiomQs5DXWcRB1rqsxGUstbRroFOPPVAomNk/3XHR5JyEZChOyTWe2oayKnsSsr/kcGqF+z6yuH6HHpN0A==}
-    requiresBuild: true
     dev: false
 
   /is-docker@2.2.1:
@@ -11924,7 +11914,6 @@ packages:
 
   /is-hexadecimal@2.0.1:
     resolution: {integrity: sha512-DgZQp241c8oO6cA1SbTEWiXeoxV42vlcJxgH+B3hi1AiqqKruZR3ZGF8In3fj4+/y/7rHvlOZLZtgJ/4ttYGZg==}
-    requiresBuild: true
     dev: false
 
   /is-inside-container@1.0.0:
