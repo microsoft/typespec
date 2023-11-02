@@ -60,6 +60,7 @@ const config = {
 
   markdown: {
     mermaid: true,
+    format: "detect",
   },
   themes: ["@docusaurus/theme-mermaid"],
   presets: [
