@@ -97,12 +97,18 @@ const Token = {
       begin: createToken("<", "punctuation.definition.typeparameters.begin.tsp"),
       end: createToken(">", "punctuation.definition.typeparameters.end.tsp"),
     },
+    templateExpression: {
+      begin: createToken("${", "punctuation.definition.template-expression.begin.tsp"),
+      end: createToken("}", "punctuation.definition.template-expression.end.tsp"),
+    },
   },
 
   literals: {
+    escape: (char: string) => createToken(`\\${char}`, "constant.character.escape.tsp"),
     numeric: (text: string) => createToken(text, "constant.numeric.tsp"),
-    string: (text: string) =>
-      createToken(text.startsWith('"') ? text : '"' + text + '"', "string.quoted.double.tsp"),
+    stringQuoted: (text: string) => createToken('"' + text + '"', "string.quoted.double.tsp"),
+    string: (text: string) => createToken(text, "string.quoted.double.tsp"),
+    stringTriple: (text: string) => createToken(text, "string.quoted.triple.tsp"),
   },
   comment: {
     block: (text: string) => createToken(text, "comment.block.tsp"),
@@ -115,6 +121,89 @@ testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
   describe(`compiler: server: ${description}`, () => {
+    describe("strings", () => {
+      describe("single line", () => {
+        it("tokenize template", async () => {
+          const tokens = await tokenize(`"Start \${123} end"`);
+          deepStrictEqual(tokens, [
+            Token.literals.string('"'),
+            Token.literals.string("Start "),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            Token.literals.string(" end"),
+            Token.literals.string('"'),
+          ]);
+        });
+
+        it("tokenize as a string if the template expression are escaped", async () => {
+          const tokens = await tokenize(`"Start \\\${123} end"`);
+          deepStrictEqual(tokens, [
+            Token.literals.string('"'),
+            Token.literals.string("Start "),
+            Token.literals.escape("$"),
+            Token.literals.string("{123} end"),
+            Token.literals.string('"'),
+          ]);
+        });
+
+        it("tokenize as a string if it is a simple string", async () => {
+          const tokens = await tokenize(`"Start end"`);
+          deepStrictEqual(tokens, [Token.literals.stringQuoted("Start end")]);
+        });
+      });
+
+      describe("multi line", () => {
+        it("tokenize template", async () => {
+          const tokens = await tokenize(`"""
+          Start \${123} 
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            Token.literals.stringTriple('"""'),
+            Token.literals.stringTriple("          Start "),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            Token.literals.stringTriple(" "),
+            Token.literals.stringTriple("          end"),
+            Token.literals.stringTriple("          "),
+            Token.literals.stringTriple('"""'),
+          ]);
+        });
+
+        it("tokenize as a string if the template expression are escaped", async () => {
+          const tokens = await tokenize(`"""
+          Start \\\${123} 
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            Token.literals.stringTriple('"""'),
+            Token.literals.stringTriple("          Start "),
+            Token.literals.escape("$"),
+            Token.literals.stringTriple("{123} "),
+            Token.literals.stringTriple("          end"),
+            Token.literals.stringTriple("          "),
+            Token.literals.stringTriple('"""'),
+          ]);
+        });
+
+        it("tokenize as a simple string", async () => {
+          const tokens = await tokenize(`"""
+          Start
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            Token.literals.stringTriple(`"""`),
+            Token.literals.stringTriple("          Start"),
+            Token.literals.stringTriple("          end"),
+            Token.literals.stringTriple("          "),
+            Token.literals.stringTriple(`"""`),
+          ]);
+        });
+      });
+    });
+
     describe("aliases", () => {
       it("simple alias", async () => {
         const tokens = await tokenize("alias Foo = string");
@@ -213,7 +302,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.tag("@"),
           Token.identifiers.tag("foo"),
           Token.punctuation.openParen,
-          Token.literals.string("param1"),
+          Token.literals.stringQuoted("param1"),
           Token.punctuation.comma,
           Token.literals.numeric("123"),
           Token.punctuation.closeParen,
@@ -226,7 +315,7 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.punctuation.openParen,
         Token.identifiers.type("MyModel"),
         Token.punctuation.comma,
-        Token.literals.string("param1"),
+        Token.literals.stringQuoted("param1"),
         Token.punctuation.comma,
         Token.literals.numeric("123"),
         Token.punctuation.closeParen,
@@ -532,7 +621,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.operators.assignment,
-          Token.literals.string("my-default"),
+          Token.literals.stringQuoted("my-default"),
           Token.punctuation.semicolon,
           Token.punctuation.closeBrace,
         ]);
@@ -714,7 +803,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.operators.assignment,
-          Token.literals.string("my-default"),
+          Token.literals.stringQuoted("my-default"),
 
           Token.punctuation.closeParen,
           Token.operators.typeAnnotation,
@@ -1131,7 +1220,7 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
       case SemanticTokenKind.Keyword:
         return Token.keywords.other(text);
       case SemanticTokenKind.String:
-        return Token.literals.string(text);
+        return Token.literals.stringQuoted(text);
       case SemanticTokenKind.Comment:
         return Token.comment.block(text);
       case SemanticTokenKind.Number:
