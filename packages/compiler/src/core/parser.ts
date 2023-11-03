@@ -1458,10 +1458,30 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const head = parseStringTemplateHead();
     const spans = parseStringTemplateSpans(head.tokenFlags);
     const last = spans[spans.length - 1];
-    const indent = scanner.findTripleQuotedStringIndent(last.literal.rawText);
-    mutate(head).text = scanner.unindentTripleQuotedString(head.rawText, indent);
-    for (const span of spans) {
-      mutate(span.literal).text = scanner.unindentTripleQuotedString(span.literal.rawText, indent);
+
+    if (head.tokenFlags & TokenFlags.TripleQuoted) {
+      const [indentationsStart, indentationEnd] = scanner.findTripleQuotedStringIndent(
+        last.literal.pos,
+        last.literal.end
+      );
+      mutate(head).text = scanner.unindentAndUnescapeTripleQuotedString(
+        head.pos,
+        head.end,
+        indentationsStart,
+        indentationEnd,
+        Token.StringTemplateHead,
+        head.tokenFlags
+      );
+      for (const span of spans) {
+        mutate(span.literal).text = scanner.unindentAndUnescapeTripleQuotedString(
+          span.literal.pos,
+          span.literal.end,
+          indentationsStart,
+          indentationEnd,
+          span === last ? Token.StringTemplateTail : Token.StringTemplateMiddle,
+          head.tokenFlags
+        );
+      }
     }
     return {
       kind: SyntaxKind.StringTemplateExpression,
@@ -1473,14 +1493,14 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseStringTemplateHead(): StringTemplateHeadNode {
     const pos = tokenPos();
-    const rawText = tokenValue();
     const flags = tokenFlags();
+    const text = flags & TokenFlags.TripleQuoted ? "" : tokenValue();
+
     parseExpected(Token.StringTemplateHead);
 
     return {
       kind: SyntaxKind.StringTemplateHead,
-      rawText,
-      text: "",
+      text,
       tokenFlags: flags,
       ...finishNode(pos),
     };
@@ -1511,6 +1531,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     headTokenFlags: TokenFlags
   ): StringTemplateMiddleNode | StringTemplateTailNode {
     const pos = tokenPos();
+    const flags = tokenFlags();
+    const text = flags & TokenFlags.TripleQuoted ? "" : tokenValue();
+
     if (token() === Token.CloseBrace) {
       nextStringTemplateToken(headTokenFlags);
       return parseTemplateMiddleOrTemplateTail();
@@ -1518,9 +1541,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseExpected(Token.StringTemplateTail);
       return {
         kind: SyntaxKind.StringTemplateTail,
-        rawText: "",
-        text: "",
-        tokenFlags: tokenFlags(),
+        text,
+        tokenFlags: flags,
         ...finishNode(pos),
       };
     }
@@ -1528,7 +1550,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseTemplateMiddleOrTemplateTail(): StringTemplateMiddleNode | StringTemplateTailNode {
     const pos = tokenPos();
-    const rawText = tokenValue();
+    const flags = tokenFlags();
+    const text = flags & TokenFlags.TripleQuoted ? "" : tokenValue();
     const kind =
       token() === Token.StringTemplateMiddle
         ? SyntaxKind.StringTemplateMiddle
@@ -1537,9 +1560,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     nextToken();
     return {
       kind,
-      rawText,
-      text: "",
-      tokenFlags: tokenFlags(),
+      text,
+      tokenFlags: flags,
       ...finishNode(pos),
     };
   }

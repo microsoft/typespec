@@ -317,14 +317,22 @@ export interface Scanner {
 
   /**
    * Finds the indent for the given triple quoted string.
-   * @param input Triple quoted string rawText.
+   * @param start
+   * @param end
    */
-  findTripleQuotedStringIndent(input: string): string;
+  findTripleQuotedStringIndent(start: number, end: number): [number, number];
 
   /**
-   * Unindent the triple quoted string rawText
+   * Unindent and unescape the triple quoted string rawText
    */
-  unindentTripleQuotedString(input: string, indent: string): string;
+  unindentAndUnescapeTripleQuotedString(
+    start: number,
+    end: number,
+    indentationStart: number,
+    indentationEnd: number,
+    token: Token.StringLiteral | StringTemplateToken,
+    tokenFlags: TokenFlags
+  ): string;
 
   /** Reset the scanner to the given start and end positions, invoke the callback, and then restore scanner state. */
   scanRange<T>(range: TextRange, callback: () => T): T;
@@ -414,7 +422,7 @@ export function createScanner(
     scanDoc,
     reScanStringTemplate,
     findTripleQuotedStringIndent,
-    unindentTripleQuotedString,
+    unindentAndUnescapeTripleQuotedString,
     eof,
     getTokenText,
     getTokenValue,
@@ -747,10 +755,14 @@ export function createScanner(
   function error<
     C extends keyof CompilerDiagnostics,
     M extends keyof CompilerDiagnostics[C] = "default",
-  >(report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target">) {
+  >(
+    report: Omit<DiagnosticReport<CompilerDiagnostics, C, M>, "target">,
+    pos?: number,
+    end?: number
+  ) {
     const diagnostic = createDiagnostic({
       ...report,
-      target: { file, pos: tokenPosition, end: position },
+      target: { file, pos: pos ?? tokenPosition, end: end ?? position },
     } as any);
     diagnosticHandler(diagnostic);
   }
@@ -889,7 +901,7 @@ export function createScanner(
       const ch = input.charCodeAt(position);
       switch (ch) {
         case CharCode.Backslash:
-          requestedTokenFlags |= TokenFlags.Escaped;
+          tokenFlags |= TokenFlags.Escaped;
           position++;
           if (eof()) {
             break loop;
@@ -959,14 +971,24 @@ export function createScanner(
     token: Token.StringLiteral | StringTemplateToken,
     tokenFlags: TokenFlags
   ): string {
+    if (tokenFlags & TokenFlags.TripleQuoted) {
+      const start = tokenPosition;
+      const end = position;
+      const [indentationStart, indentationEnd] = findTripleQuotedStringIndent(start, end);
+      return unindentAndUnescapeTripleQuotedString(
+        start,
+        end,
+        indentationStart,
+        indentationEnd,
+        token,
+        tokenFlags
+      );
+    }
+
     const startOffset = getStringLiteralOffsetStart(token, tokenFlags);
     const endOffset = getStringLiteralOffsetEnd(token, tokenFlags);
     const start = tokenPosition + startOffset;
     const end = tokenFlags & TokenFlags.Unterminated ? position : position - endOffset;
-
-    if (tokenFlags & TokenFlags.TripleQuoted) {
-      return unescapeTripleQuotedString(start, end, token);
-    }
 
     if (tokenFlags & TokenFlags.Escaped) {
       return unescapeString(start, end);
@@ -992,90 +1014,12 @@ export function createScanner(
     return text;
   }
 
-  function unescapeTripleQuotedString(
-    start: number,
-    end: number,
-    token: Token.StringLiteral | StringTemplateToken
-  ): string {
-    if (token === Token.StringLiteral || token === Token.StringTemplateHead) {
-      // ignore leading whitespace before required initial line break
-      while (start < end && isWhiteSpaceSingleLine(input.charCodeAt(start))) {
-        start++;
-      }
-
-      // remove required initial line break
-      if (isLineBreak(input.charCodeAt(start))) {
-        if (isCrlf(start, start, end)) {
-          start++;
-        }
-        start++;
-      } else {
-        error({ code: "no-new-line-start-triple-quote" });
-      }
-    }
-
-    if (token === Token.StringLiteral || token === Token.StringTemplateTail) {
-      // remove required final line break
-      if (isLineBreak(input.charCodeAt(end - 1))) {
-        if (isCrlf(end - 2, start, end)) {
-          end--;
-        }
-        end--;
-      } else {
-        error({ code: "no-new-line-end-triple-quote" });
-      }
-    }
-
-    // remove required matching indentation from each line and unescape in the
-    // process of doing so
-    let result = "";
-    let pos = start;
-    while (pos < end) {
-      // skip indentation at start of line
-      start = pos;
-      let ch;
-
-      while (pos < end && !isLineBreak((ch = input.charCodeAt(pos)))) {
-        if (ch !== CharCode.Backslash) {
-          pos++;
-          continue;
-        }
-        result += input.substring(start, pos);
-        if (pos === end - 1) {
-          error({ code: "invalid-escape-sequence" });
-          pos++;
-        } else {
-          result += unescapeOne(pos);
-          pos += 2;
-        }
-        start = pos;
-      }
-
-      if (pos < end) {
-        if (isCrlf(pos, start, end)) {
-          // CRLF in multi-line string is normalized to LF in string value.
-          // This keeps program behavior unchanged by line-ending conversion.
-          result += input.substring(start, pos);
-          result += "\n";
-          pos += 2;
-        } else {
-          pos++; // include non-CRLF newline
-          result += input.substring(start, pos);
-        }
-        start = pos;
-      }
-    }
-
-    result += input.substring(start, pos);
-    return result;
-  }
-
-  function findTripleQuotedStringIndent(input: string): string {
-    let end = input.length - 1;
+  function findTripleQuotedStringIndent(start: number, end: number): [number, number] {
+    end = end - 3; // Remove the """
     // remove whitespace before closing delimiter and record it as required
     // indentation for all lines
     const indentationEnd = end;
-    while (end > 0 && isWhiteSpaceSingleLine(input.charCodeAt(end - 1))) {
+    while (end > start && isWhiteSpaceSingleLine(input.charCodeAt(end - 1))) {
       end--;
     }
     const indentationStart = end;
@@ -1090,33 +1034,101 @@ export function createScanner(
       error({ code: "no-new-line-end-triple-quote" });
     }
 
-    return input.substring(indentationStart, indentationEnd);
+    return [indentationStart, indentationEnd];
   }
 
-  function unindentTripleQuotedString(input: string, indent: string): string {
-    let start = 0;
-    const end = input.length - 1;
+  function unindentAndUnescapeTripleQuotedString(
+    start: number,
+    end: number,
+    indentationStart: number,
+    indentationEnd: number,
+    token: Token.StringLiteral | StringTemplateToken,
+    tokenFlags: TokenFlags
+  ): string {
+    const startOffset = getStringLiteralOffsetStart(token, tokenFlags);
+    const endOffset = getStringLiteralOffsetEnd(token, tokenFlags);
+    start = start + startOffset;
+    end = tokenFlags & TokenFlags.Unterminated ? end : end - endOffset;
 
+    if (token === Token.StringLiteral || token === Token.StringTemplateHead) {
+      // ignore leading whitespace before required initial line break
+      while (start < end && isWhiteSpaceSingleLine(input.charCodeAt(start))) {
+        start++;
+      }
+      // remove required initial line break
+      if (isLineBreak(input.charCodeAt(start))) {
+        if (isCrlf(start, start, end)) {
+          start++;
+        }
+        start++;
+      } else {
+        error({ code: "no-new-line-start-triple-quote" });
+      }
+    }
+
+    if (token === Token.StringLiteral || token === Token.StringTemplateTail) {
+      while (end > start && isWhiteSpaceSingleLine(input.charCodeAt(end - 1))) {
+        end--;
+      }
+
+      // remove required final line break
+      if (isLineBreak(input.charCodeAt(end - 1))) {
+        if (isCrlf(end - 2, start, end)) {
+          end--;
+        }
+        end--;
+      } else {
+        error({ code: "no-new-line-end-triple-quote" });
+      }
+    }
+
+    let skipUnindentOnce = false;
+    // We are resuming from the middle of a line so we want to keep text as it is from there.
+    if (token === Token.StringTemplateMiddle || token === Token.StringTemplateTail) {
+      skipUnindentOnce = true;
+    }
     // remove required matching indentation from each line and unescape in the
     // process of doing so
     let result = "";
     let pos = start;
     while (pos < end) {
-      // skip indentation at start of line
-      start = skipMatchingIndentation(pos, end, indent);
-
-      while (pos < end && !isLineBreak(input.charCodeAt(pos))) {
-        pos++;
-        continue;
+      if (skipUnindentOnce) {
+        skipUnindentOnce = false;
+      } else {
+        // skip indentation at start of line
+        start = skipMatchingIndentation(pos, end, indentationStart, indentationEnd);
       }
+      let ch;
 
-      if (pos < end) {
-        pos++;
+      while (pos < end && !isLineBreak((ch = input.charCodeAt(pos)))) {
+        if (ch !== CharCode.Backslash) {
+          pos++;
+          continue;
+        }
         result += input.substring(start, pos);
+        if (pos === end - 1) {
+          error({ code: "invalid-escape-sequence" }, pos, pos);
+          pos++;
+        } else {
+          result += unescapeOne(pos);
+          pos += 2;
+        }
+        start = pos;
+      }
+      if (pos < end) {
+        if (isCrlf(pos, start, end)) {
+          // CRLF in multi-line string is normalized to LF in string value.
+          // This keeps program behavior unchanged by line-ending conversion.
+          result += input.substring(start, pos);
+          result += "\n";
+          pos += 2;
+        } else {
+          pos++; // include non-CRLF newline
+          result += input.substring(start, pos);
+        }
         start = pos;
       }
     }
-
     result += input.substring(start, pos);
     return result;
   }
@@ -1130,9 +1142,14 @@ export function createScanner(
     );
   }
 
-  function skipMatchingIndentation(pos: number, end: number, indent: string): number {
-    let indentationPos = 0;
-    end = Math.min(end, pos + indent.length);
+  function skipMatchingIndentation(
+    pos: number,
+    end: number,
+    indentationStart: number,
+    indentationEnd: number
+  ): number {
+    let indentationPos = indentationStart;
+    end = Math.min(end, pos + (indentationEnd - indentationStart));
 
     while (pos < end) {
       const ch = input.charCodeAt(pos);
@@ -1140,7 +1157,7 @@ export function createScanner(
         // allow subset of indentation if line has only whitespace
         break;
       }
-      if (ch !== indent.charCodeAt(indentationPos)) {
+      if (ch !== input.charCodeAt(indentationPos)) {
         error({ code: "triple-quote-indent" });
         break;
       }
@@ -1163,7 +1180,7 @@ export function createScanner(
       }
 
       if (pos === end - 1) {
-        error({ code: "invalid-escape-sequence" });
+        error({ code: "invalid-escape-sequence" }, pos, pos);
         break;
       }
 
@@ -1190,10 +1207,12 @@ export function createScanner(
         return '"';
       case CharCode.Backslash:
         return "\\";
+      case CharCode.$:
+        return "$";
       case CharCode.Backtick:
         return "`";
       default:
-        error({ code: "invalid-escape-sequence" });
+        error({ code: "invalid-escape-sequence" }, pos, pos + 2);
         return String.fromCharCode(ch);
     }
   }

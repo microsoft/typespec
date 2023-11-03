@@ -1265,7 +1265,7 @@ export interface StringTemplateSpanNode extends BaseNode {
 }
 
 export interface StringTemplateLiteralLikeNode extends BaseNode {
-  readonly rawText: string;
+  // TODO-TIM? should it be value to be inline with other literals?
   readonly text: string;
 
   /** @internal */
