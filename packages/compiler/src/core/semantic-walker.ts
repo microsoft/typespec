@@ -11,6 +11,7 @@ import {
   Operation,
   Scalar,
   SemanticNodeListener,
+  StringTemplate,
   TemplateParameter,
   Tuple,
   Type,
@@ -320,6 +321,15 @@ function navigateTupleType(type: Tuple, context: NavigationContext) {
     navigateTypeInternal(value, context);
   }
 }
+function navigateStringTemplate(type: StringTemplate, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("stringTemplate", type) === ListenerFlow.NoRecursion) return;
+  for (const value of type.spans) {
+    navigateTypeInternal(value, context);
+  }
+}
 
 function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
@@ -357,6 +367,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateUnionTypeVariant(type, context);
     case "Tuple":
       return navigateTupleType(type, context);
+    case "StringTemplate":
+      return navigateStringTemplate(type, context);
     case "TemplateParameter":
       return navigateTemplateParameter(type, context);
     case "Decorator":

@@ -1464,7 +1464,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         last.literal.pos,
         last.literal.end
       );
-      mutate(head).text = scanner.unindentAndUnescapeTripleQuotedString(
+      mutate(head).value = scanner.unindentAndUnescapeTripleQuotedString(
         head.pos,
         head.end,
         indentationsStart,
@@ -1473,7 +1473,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         head.tokenFlags
       );
       for (const span of spans) {
-        mutate(span.literal).text = scanner.unindentAndUnescapeTripleQuotedString(
+        mutate(span.literal).value = scanner.unindentAndUnescapeTripleQuotedString(
           span.literal.pos,
           span.literal.end,
           indentationsStart,
@@ -1500,7 +1500,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
     return {
       kind: SyntaxKind.StringTemplateHead,
-      text,
+      value: text,
       tokenFlags: flags,
       ...finishNode(pos),
     };
@@ -1541,7 +1541,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       parseExpected(Token.StringTemplateTail);
       return {
         kind: SyntaxKind.StringTemplateTail,
-        text,
+        value: text,
         tokenFlags: flags,
         ...finishNode(pos),
       };
@@ -1560,7 +1560,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     nextToken();
     return {
       kind,
-      text,
+      value: text,
       tokenFlags: flags,
       ...finishNode(pos),
     };

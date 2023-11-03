@@ -99,6 +99,7 @@ export type Type =
   | StringLiteral
   | NumericLiteral
   | BooleanLiteral
+  | StringTemplate
   | Tuple
   | Union
   | UnionVariant
@@ -477,6 +478,12 @@ export interface BooleanLiteral extends BaseType {
   kind: "Boolean";
   node?: BooleanLiteralNode;
   value: boolean;
+}
+
+export interface StringTemplate extends BaseType {
+  kind: "StringTemplate";
+  node: StringTemplateExpressionNode;
+  spans: Type[];
 }
 
 export interface Tuple extends BaseType {
@@ -1232,7 +1239,13 @@ export interface ModelSpreadPropertyNode extends BaseNode {
   readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 
-export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
+export type LiteralNode =
+  | StringLiteralNode
+  | NumericLiteralNode
+  | BooleanLiteralNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode;
 
 export interface StringLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.StringLiteral;
@@ -1265,8 +1278,7 @@ export interface StringTemplateSpanNode extends BaseNode {
 }
 
 export interface StringTemplateLiteralLikeNode extends BaseNode {
-  // TODO-TIM? should it be value to be inline with other literals?
-  readonly text: string;
+  readonly value: string;
 
   /** @internal */
   readonly tokenFlags: TokenFlags;

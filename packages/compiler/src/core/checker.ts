@@ -102,6 +102,11 @@ import {
   StdTypes,
   StringLiteral,
   StringLiteralNode,
+  StringTemplate,
+  StringTemplateExpressionNode,
+  StringTemplateHeadNode,
+  StringTemplateMiddleNode,
+  StringTemplateTailNode,
   Sym,
   SymbolFlags,
   SymbolLinks,
@@ -641,6 +646,8 @@ export function createChecker(program: Program): Checker {
         return checkTupleExpression(node, mapper);
       case SyntaxKind.StringLiteral:
         return checkStringLiteral(node);
+      case SyntaxKind.StringTemplateExpression:
+        return checkStringTemplateExpresion(node, mapper);
       case SyntaxKind.ArrayExpression:
         return checkArrayExpression(node, mapper);
       case SyntaxKind.UnionExpression:
@@ -2382,6 +2389,25 @@ export function createChecker(program: Program): Checker {
         return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
     }
   }
+
+  function checkStringTemplateExpresion(
+    node: StringTemplateExpressionNode,
+    mapper: TypeMapper | undefined
+  ): StringTemplate {
+    const spans: Type[] = [getLiteralType(node.head)];
+    for (const span of node.spans) {
+      spans.push(getTypeForNode(span.expression, mapper));
+      spans.push(getLiteralType(node.head));
+    }
+    const type = createType({
+      kind: "StringTemplate",
+      node,
+      spans,
+    });
+
+    return type;
+  }
+
   function checkStringLiteral(str: StringLiteralNode): StringLiteral {
     return getLiteralType(str);
   }
@@ -4058,7 +4084,13 @@ export function createChecker(program: Program): Checker {
     return finishTypeForProgramAndChecker(program, typePrototype, typeDef);
   }
 
-  function getLiteralType(node: StringLiteralNode): StringLiteral;
+  function getLiteralType(
+    node:
+      | StringLiteralNode
+      | StringTemplateHeadNode
+      | StringTemplateMiddleNode
+      | StringTemplateTailNode
+  ): StringLiteral;
   function getLiteralType(node: NumericLiteralNode): NumericLiteral;
   function getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   function getLiteralType(node: LiteralNode): LiteralType;
@@ -4870,16 +4902,23 @@ export function createChecker(program: Program): Checker {
     } as const);
   }
 
-  function createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
+  function createLiteralType(
+    value: string,
+    node?:
+      | StringLiteralNode
+      | StringTemplateHeadNode
+      | StringTemplateMiddleNode
+      | StringTemplateTailNode
+  ): StringLiteral;
   function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
   function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
-    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+    node?: LiteralNode
   ): StringLiteral | NumericLiteral | BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
-    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+    node?: LiteralNode
   ): StringLiteral | NumericLiteral | BooleanLiteral {
     if (program.literalTypes.has(value)) {
       return program.literalTypes.get(value)!;
