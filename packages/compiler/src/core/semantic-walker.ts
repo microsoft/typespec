@@ -12,6 +12,7 @@ import {
   Scalar,
   SemanticNodeListener,
   StringTemplate,
+  StringTemplateSpan,
   TemplateParameter,
   Tuple,
   Type,
@@ -330,6 +331,13 @@ function navigateStringTemplate(type: StringTemplate, context: NavigationContext
     navigateTypeInternal(value, context);
   }
 }
+function navigateStringTemplateSpan(type: StringTemplateSpan, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("stringTemplateSpan", type as any) === ListenerFlow.NoRecursion) return;
+  navigateTypeInternal(type.type, context);
+}
 
 function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
@@ -369,6 +377,8 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
       return navigateTupleType(type, context);
     case "StringTemplate":
       return navigateStringTemplate(type, context);
+    case "StringTemplateSpan":
+      return navigateStringTemplateSpan(type, context);
     case "TemplateParameter":
       return navigateTemplateParameter(type, context);
     case "Decorator":

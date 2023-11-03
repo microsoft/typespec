@@ -100,6 +100,7 @@ export type Type =
   | NumericLiteral
   | BooleanLiteral
   | StringTemplate
+  | StringTemplateSpan
   | Tuple
   | Union
   | UnionVariant
@@ -483,7 +484,21 @@ export interface BooleanLiteral extends BaseType {
 export interface StringTemplate extends BaseType {
   kind: "StringTemplate";
   node: StringTemplateExpressionNode;
-  spans: Type[];
+  spans: StringTemplateSpan[];
+}
+
+export type StringTemplateSpan = StringTemplateSpanLiteral | StringTemplateSpanValue;
+
+export interface StringTemplateSpanLiteral extends BaseType {
+  kind: "StringTemplateSpan";
+  isInterpolated: false;
+  type: StringLiteral;
+}
+
+export interface StringTemplateSpanValue extends BaseType {
+  kind: "StringTemplateSpan";
+  isInterpolated: true;
+  type: Type;
 }
 
 export interface Tuple extends BaseType {

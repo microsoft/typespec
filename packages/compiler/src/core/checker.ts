@@ -106,6 +106,9 @@ import {
   StringTemplateExpressionNode,
   StringTemplateHeadNode,
   StringTemplateMiddleNode,
+  StringTemplateSpan,
+  StringTemplateSpanLiteral,
+  StringTemplateSpanValue,
   StringTemplateTailNode,
   Sym,
   SymbolFlags,
@@ -2394,10 +2397,10 @@ export function createChecker(program: Program): Checker {
     node: StringTemplateExpressionNode,
     mapper: TypeMapper | undefined
   ): StringTemplate {
-    const spans: Type[] = [getLiteralType(node.head)];
+    const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
     for (const span of node.spans) {
-      spans.push(getTypeForNode(span.expression, mapper));
-      spans.push(getLiteralType(node.head));
+      spans.push(createTemplateSpanValue(span.expression, mapper));
+      spans.push(createTemplateSpanLiteral(span.literal));
     }
     const type = createType({
       kind: "StringTemplate",
@@ -2406,6 +2409,29 @@ export function createChecker(program: Program): Checker {
     });
 
     return type;
+  }
+
+  function createTemplateSpanLiteral(
+    node: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode
+  ): StringTemplateSpanLiteral {
+    return createType({
+      kind: "StringTemplateSpan",
+      node: node,
+      isInterpolated: false,
+      type: getLiteralType(node),
+    });
+  }
+
+  function createTemplateSpanValue(
+    node: Node,
+    mapper: TypeMapper | undefined
+  ): StringTemplateSpanValue {
+    return createType({
+      kind: "StringTemplateSpan",
+      node: node,
+      isInterpolated: true,
+      type: getTypeForNode(node, mapper),
+    });
   }
 
   function checkStringLiteral(str: StringLiteralNode): StringLiteral {
