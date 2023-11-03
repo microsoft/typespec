@@ -120,30 +120,43 @@ testColorization("semantic colorization", tokenizeSemantic);
 testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
+  function joinTokensInSemantic<T extends Token>(tokens: T[], separator: "" | "\n" = ""): T[] {
+    if (tokenize === tokenizeSemantic) {
+      return [createToken(tokens.map((x) => x.text).join(separator), tokens[0].scope)] as any;
+    }
+    return tokens;
+  }
+
   describe(`compiler: server: ${description}`, () => {
     describe("strings", () => {
+      function templateTripleOrDouble(text: string): Token {
+        return tokenize === tokenizeSemantic
+          ? Token.literals.string(text)
+          : Token.literals.stringTriple(text);
+      }
+
       describe("single line", () => {
         it("tokenize template", async () => {
           const tokens = await tokenize(`"Start \${123} end"`);
           deepStrictEqual(tokens, [
-            Token.literals.string('"'),
-            Token.literals.string("Start "),
+            ...joinTokensInSemantic([Token.literals.string('"'), Token.literals.string("Start ")]),
             Token.punctuation.templateExpression.begin,
             Token.literals.numeric("123"),
             Token.punctuation.templateExpression.end,
-            Token.literals.string(" end"),
-            Token.literals.string('"'),
+            ...joinTokensInSemantic([Token.literals.string(" end"), Token.literals.string('"')]),
           ]);
         });
-
+        [];
         it("tokenize as a string if the template expression are escaped", async () => {
           const tokens = await tokenize(`"Start \\\${123} end"`);
           deepStrictEqual(tokens, [
-            Token.literals.string('"'),
-            Token.literals.string("Start "),
-            Token.literals.escape("$"),
-            Token.literals.string("{123} end"),
-            Token.literals.string('"'),
+            ...joinTokensInSemantic([
+              Token.literals.string('"'),
+              Token.literals.string("Start "),
+              Token.literals.escape("$"),
+              Token.literals.string("{123} end"),
+              Token.literals.string('"'),
+            ]),
           ]);
         });
 
@@ -160,15 +173,24 @@ function testColorization(description: string, tokenize: Tokenize) {
           end
           """`);
           deepStrictEqual(tokens, [
-            Token.literals.stringTriple('"""'),
-            Token.literals.stringTriple("          Start "),
+            ...joinTokensInSemantic(
+              [Token.literals.stringTriple('"""'), Token.literals.stringTriple("          Start ")],
+              "\n"
+            ),
             Token.punctuation.templateExpression.begin,
             Token.literals.numeric("123"),
             Token.punctuation.templateExpression.end,
-            Token.literals.stringTriple(" "),
-            Token.literals.stringTriple("          end"),
-            Token.literals.stringTriple("          "),
-            Token.literals.stringTriple('"""'),
+            ...joinTokensInSemantic(
+              [
+                templateTripleOrDouble(" "),
+                templateTripleOrDouble("          end"),
+                ...joinTokensInSemantic([
+                  templateTripleOrDouble("          "),
+                  templateTripleOrDouble('"""'),
+                ]),
+              ],
+              "\n"
+            ),
           ]);
         });
 
@@ -178,13 +200,22 @@ function testColorization(description: string, tokenize: Tokenize) {
           end
           """`);
           deepStrictEqual(tokens, [
-            Token.literals.stringTriple('"""'),
-            Token.literals.stringTriple("          Start "),
-            Token.literals.escape("$"),
-            Token.literals.stringTriple("{123} "),
-            Token.literals.stringTriple("          end"),
-            Token.literals.stringTriple("          "),
-            Token.literals.stringTriple('"""'),
+            ...joinTokensInSemantic(
+              [
+                Token.literals.stringTriple('"""'),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          Start "),
+                  Token.literals.escape("$"),
+                  Token.literals.stringTriple("{123} "),
+                ]),
+                Token.literals.stringTriple("          end"),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          "),
+                  Token.literals.stringTriple('"""'),
+                ]),
+              ],
+              "\n"
+            ),
           ]);
         });
 
@@ -194,11 +225,18 @@ function testColorization(description: string, tokenize: Tokenize) {
           end
           """`);
           deepStrictEqual(tokens, [
-            Token.literals.stringTriple(`"""`),
-            Token.literals.stringTriple("          Start"),
-            Token.literals.stringTriple("          end"),
-            Token.literals.stringTriple("          "),
-            Token.literals.stringTriple(`"""`),
+            ...joinTokensInSemantic(
+              [
+                Token.literals.stringTriple(`"""`),
+                Token.literals.stringTriple("          Start"),
+                Token.literals.stringTriple("          end"),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          "),
+                  Token.literals.stringTriple(`"""`),
+                ]),
+              ],
+              "\n"
+            ),
           ]);
         });
       });
@@ -1188,11 +1226,24 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
   const semanticTokens = await host.server.getSemanticTokens({ textDocument: document });
   const tokens = [];
 
+  let templateStack = 0;
   for (const semanticToken of semanticTokens) {
     const text = file.text.substring(semanticToken.pos, semanticToken.end);
-    const token = convertSemanticToken(semanticToken, text);
-    if (token) {
-      tokens.push(token);
+    if (text === "${" && semanticToken.kind === SemanticTokenKind.Operator) {
+      templateStack++;
+      tokens.push(Token.punctuation.templateExpression.begin);
+    } else if (
+      templateStack > 0 &&
+      text === "}" &&
+      semanticToken.kind === SemanticTokenKind.Operator
+    ) {
+      templateStack--;
+      tokens.push(Token.punctuation.templateExpression.end);
+    } else {
+      const token = convertSemanticToken(semanticToken, text);
+      if (token) {
+        tokens.push(token);
+      }
     }
   }
 
@@ -1220,7 +1271,9 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
       case SemanticTokenKind.Keyword:
         return Token.keywords.other(text);
       case SemanticTokenKind.String:
-        return Token.literals.stringQuoted(text);
+        return text.startsWith(`"""`)
+          ? Token.literals.stringTriple(text)
+          : Token.literals.string(text);
       case SemanticTokenKind.Comment:
         return Token.comment.block(text);
       case SemanticTokenKind.Number:
@@ -1358,7 +1411,9 @@ function getPunctuationMap(): ReadonlyMap<string, Token> {
       if ("text" in value) {
         map.set(value.text, value);
       } else {
-        visit(value);
+        if (value !== Token.punctuation.templateExpression) {
+          visit(value);
+        }
       }
     }
   }
