@@ -2423,7 +2423,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function createTemplateSpanValue(
-    node: Node,
+    node: Expression,
     mapper: TypeMapper | undefined
   ): StringTemplateSpanValue {
     return createType({

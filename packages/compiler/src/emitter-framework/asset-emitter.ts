@@ -728,6 +728,8 @@ export function createAssetEmitter<T, TOptions extends object>(
         return "namespace";
       case "ModelProperty":
         return "modelPropertyLiteral";
+      case "StringTemplate":
+        return "stringTemplate";
       case "Boolean":
         return "booleanLiteral";
       case "String":
@@ -855,6 +857,7 @@ function keyHasContext(key: keyof TypeEmitter<any, any>) {
 const noReferenceContext = new Set<string>([
   ...noContext,
   "booleanLiteral",
+  "stringTemplate",
   "stringLiteral",
   "numericLiteral",
   "scalarDeclaration",

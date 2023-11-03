@@ -491,12 +491,14 @@ export type StringTemplateSpan = StringTemplateSpanLiteral | StringTemplateSpanV
 
 export interface StringTemplateSpanLiteral extends BaseType {
   kind: "StringTemplateSpan";
+  node: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
   isInterpolated: false;
   type: StringLiteral;
 }
 
 export interface StringTemplateSpanValue extends BaseType {
   kind: "StringTemplateSpan";
+  node: Expression;
   isInterpolated: true;
   type: Type;
 }

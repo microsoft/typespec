@@ -25,6 +25,8 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  StringTemplate,
+  stringTemplateToString,
   Tuple,
   Type,
   typespecTypeToJson,
@@ -178,6 +180,17 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   stringLiteral(string: StringLiteral): EmitterOutput<object> {
     return { type: "string", const: string.value };
+  }
+
+  stringTemplate(string: StringTemplate): EmitterOutput<object> {
+    const [value, diagnostics] = stringTemplateToString(string);
+    if (diagnostics.length > 0) {
+      this.emitter
+        .getProgram()
+        .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
+      return { type: "string" };
+    }
+    return { type: "string", const: value };
   }
 
   numericLiteral(number: NumericLiteral): EmitterOutput<object> {

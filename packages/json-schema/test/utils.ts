@@ -1,3 +1,4 @@
+import { Diagnostic } from "@typespec/compiler";
 import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
 import { createTestHost } from "@typespec/compiler/testing";
 import { parse } from "yaml";
@@ -25,6 +26,15 @@ export async function emitSchema(
   options: JSONSchemaEmitterOptions = {},
   testOptions: { emitNamespace?: boolean; emitTypes?: string[] } = { emitNamespace: true }
 ) {
+  const [schemas, _] = await emitSchemaWithDiagnostics(code, options, testOptions);
+  return schemas;
+}
+
+export async function emitSchemaWithDiagnostics(
+  code: string,
+  options: JSONSchemaEmitterOptions = {},
+  testOptions: { emitNamespace?: boolean; emitTypes?: string[] } = { emitNamespace: true }
+): Promise<[Record<string, any>, readonly Diagnostic[]]> {
   if (!options["file-type"]) {
     options["file-type"] = "json";
   }
@@ -58,5 +68,5 @@ export async function emitSchema(
     }
   }
 
-  return schemas;
+  return [schemas, host.program.diagnostics];
 }
