@@ -1034,33 +1034,27 @@ export function createServer(host: ServerHost): Server {
         token: Token.StringTemplateHead | Token.StringTemplateMiddle | Token.StringTemplateTail,
         range: TextRange
       ) {
-        switch (token) {
-          case Token.StringTemplateHead:
-          case Token.StringTemplateMiddle:
-            const exprBeginPunctuation = range.end - 2;
-            tokens.set(range.pos, {
-              kind: SemanticTokenKind.String,
-              pos: range.pos,
-              end: exprBeginPunctuation,
-            });
-            tokens.set(exprBeginPunctuation, {
-              kind: SemanticTokenKind.Operator,
-              pos: exprBeginPunctuation,
-              end: range.end,
-            });
-            break;
-          case Token.StringTemplateTail:
-            const exprEndPunctuation = range.pos + 1;
-            tokens.set(range.pos, {
-              kind: SemanticTokenKind.Operator,
-              pos: range.pos,
-              end: exprEndPunctuation,
-            });
-            tokens.set(exprEndPunctuation, {
-              kind: SemanticTokenKind.String,
-              pos: exprEndPunctuation,
-              end: range.end,
-            });
+        const stringStart = token === Token.StringTemplateHead ? range.pos : range.pos + 1;
+        const stringEnd = token === Token.StringTemplateTail ? range.end : range.end - 2;
+
+        if (stringStart !== range.pos) {
+          tokens.set(range.pos, {
+            kind: SemanticTokenKind.Operator,
+            pos: range.pos,
+            end: stringStart,
+          });
+        }
+        tokens.set(stringStart, {
+          kind: SemanticTokenKind.String,
+          pos: stringStart,
+          end: stringEnd,
+        });
+        if (stringEnd !== range.end) {
+          tokens.set(stringEnd, {
+            kind: SemanticTokenKind.Operator,
+            pos: stringEnd,
+            end: range.end,
+          });
         }
       }
     }

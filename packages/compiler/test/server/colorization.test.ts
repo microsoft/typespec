@@ -146,7 +146,22 @@ function testColorization(description: string, tokenize: Tokenize) {
             ...joinTokensInSemantic([Token.literals.string(" end"), Token.literals.string('"')]),
           ]);
         });
-        [];
+
+        it("tokenize template with multiple interpolation", async () => {
+          const tokens = await tokenize(`"Start \${123} middle \${456} end"`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic([Token.literals.string('"'), Token.literals.string("Start ")]),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            Token.literals.string(" middle "),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("456"),
+            Token.punctuation.templateExpression.end,
+            ...joinTokensInSemantic([Token.literals.string(" end"), Token.literals.string('"')]),
+          ]);
+        });
+
         it("tokenize as a string if the template expression are escaped", async () => {
           const tokens = await tokenize(`"Start \\\${123} end"`);
           deepStrictEqual(tokens, [
