@@ -41,7 +41,7 @@ const DataValidationContent = () => {
           header="Warning"
           title="Warning and errors"
           description="Errors and warnings in your spec are reported as you type."
-          illustration="illustrations/warnings-and-errors.png"
+          illustration={<LightDarkImg src="illustrations/warnings-and-errors" />}
         >
           <LearnMoreCard
             title="Extension installation"
@@ -54,7 +54,7 @@ const DataValidationContent = () => {
           header="Intellisense"
           title="Autocomplete and more"
           description="IntelliSense shows you intelligent code completion, hover information, and signature help so that you can write code more quickly and correctly."
-          illustration="illustrations/ide.png"
+          illustration={<LightDarkImg src="illustrations/autocomplete" />}
         />
         <Section
           layout="text-right"
@@ -86,11 +86,15 @@ const FormatterIllustration = () => {
     <div className={style["formatter-illustration"]}>
       <div className={style["formatter-illustration-unformatted"]}>
         <div className={style["badge"]}>Unformatted</div>
-        <CodeBlock language="tsp">{notFormattedTsp}</CodeBlock>
+        <CodeBlock language="tsp" className={style["formatter-illustration-codeblock"]}>
+          {notFormattedTsp}
+        </CodeBlock>
       </div>
       <div className={style["formatter-illustration-formatted"]}>
         <div className={style["badge"]}>Formatted</div>
-        <CodeBlock language="tsp">{formattedTsp}</CodeBlock>
+        <CodeBlock language="tsp" className={style["formatter-illustration-codeblock"]}>
+          {formattedTsp}
+        </CodeBlock>
       </div>
     </div>
   );
