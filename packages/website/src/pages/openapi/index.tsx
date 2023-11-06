@@ -6,10 +6,6 @@ import { CodeBlock } from "../../components/code-block/code-block";
 import { FluentLayout } from "../../components/fluent-layout";
 import { Section } from "../../components/section/section";
 import { SectionedLayout } from "../../components/sectioned-layout/sectioned-layout";
-import {
-  UseCaseFeature,
-  UseCaseFeatureGroup,
-} from "../../components/use-case-feature/use-case-feature";
 import { UseCaseOverview } from "../../components/use-case-overview/use-case-overview";
 import style from "./openapi.module.css";
 export default function Home() {
@@ -30,27 +26,6 @@ const OpenApiContent = () => {
         illustration={<OpenAPI3HeroIllustration />}
       />
       <SectionedLayout>
-        <UseCaseFeatureGroup>
-          <UseCaseFeature
-            image="design"
-            title="Use HTTP/REST libraries"
-            subtitle="Drastically reduce the verbosity of your spec."
-            link={Links.gettingStartedWithHttp}
-          />
-          <UseCaseFeature
-            image="design"
-            title="Max 50 characters"
-            subtitle="Describe a specific feature and how it benefits users. One to three lines."
-            link=""
-          />
-          <UseCaseFeature
-            image="design"
-            title="Abstract common patterns"
-            subtitle="Codify API patterns into reusable components, improving up quality and consistency across your API surface"
-            link={Links.spectral}
-          />
-        </UseCaseFeatureGroup>
-
         <Section
           header="Ecosystem"
           title="Interoperate with the OpenAPI ecosystem"

@@ -54,7 +54,7 @@ const DataValidationContent = () => {
           header="Intellisense"
           title="Autocomplete and more"
           description="IntelliSense shows you intelligent code completion, hover information, and signature help so that you can write code more quickly and correctly."
-          illustration="illustrations/ide.png"
+          illustration={<LightDarkImg src="illustrations/autocomplete" />}
         />
         <Section
           layout="text-right"
