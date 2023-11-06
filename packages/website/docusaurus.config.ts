@@ -60,6 +60,12 @@ const config: Config = {
     mermaid: true,
     format: "detect",
   },
+  scripts: [
+    {
+      src: "https://typespec.blob.core.windows.net/pkgs/indexes/typespec/0.49.x.json",
+      type: "importmap-shim",
+    },
+  ],
   themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [
