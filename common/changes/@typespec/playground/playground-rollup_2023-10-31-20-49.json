@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "**BREAKING CHANGE** Styles must be imported seperately with `import \"@typespec/playground/styles.css\";`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}

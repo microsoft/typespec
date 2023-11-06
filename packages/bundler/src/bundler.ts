@@ -8,11 +8,18 @@ import {
   joinPaths,
   NodeHost,
   normalizePath,
+  resolvePath,
 } from "@typespec/compiler";
 import { mkdir, readFile, realpath, writeFile } from "fs/promises";
 import { basename, join, resolve } from "path";
 import { OutputChunk, rollup, RollupBuild, RollupOptions, watch } from "rollup";
 import { relativeTo } from "./utils.js";
+
+export interface BundleManifest {
+  name: string;
+  version: string;
+  imports: Record<string, string>;
+}
 
 export interface TypeSpecBundleDefinition {
   path: string;
@@ -36,6 +43,11 @@ export interface TypeSpecBundle {
    * Bundle content
    */
   files: TypeSpecBundleFile[];
+
+  /**
+   * Resolved manifest.
+   */
+  manifest: BundleManifest;
 }
 
 export interface TypeSpecBundleFile {
@@ -46,6 +58,7 @@ export interface TypeSpecBundleFile {
 
 interface PackageJson {
   name: string;
+  version: string;
   main: string;
   tspMain?: string;
   peerDependencies: string[];
@@ -105,6 +118,8 @@ export async function bundleTypeSpecLibrary(libraryPath: string, outputDir: stri
   for (const file of bundle.files) {
     await writeFile(joinPaths(outputDir, file.filename), file.content);
   }
+  const manifest = createManifest(bundle.definition);
+  await writeFile(joinPaths(outputDir, "manifest.json"), JSON.stringify(manifest, null, 2));
 }
 
 async function resolveTypeSpecBundleDefinition(
@@ -200,6 +215,7 @@ async function generateTypeSpecBundle(
 
   return {
     definition,
+    manifest: createManifest(definition),
     files: output
       .filter((x): x is OutputChunk => "code" in x)
       .map((chunk) => {
@@ -257,4 +273,22 @@ function createBundleEntrypoint({
     "  typespecSourceFiles: TypeSpecSources,",
     "};",
   ].join("\n");
+}
+
+function createManifest(definition: TypeSpecBundleDefinition): BundleManifest {
+  return {
+    name: definition.packageJson.name,
+    version: definition.packageJson.version,
+    imports: createImportMap(definition),
+  };
+}
+
+function createImportMap(definition: TypeSpecBundleDefinition): Record<string, string> {
+  const imports: Record<string, string> = {};
+  imports["."] = `./index.js`;
+  for (const name of Object.keys(definition.exports)) {
+    imports[name] = "./" + resolvePath(name) + ".js";
+  }
+
+  return imports;
 }

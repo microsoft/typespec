@@ -1,23 +1,26 @@
 import { editor } from "monaco-editor";
 import { FunctionComponent } from "react";
-import { Editor, useMonacoModel } from "./editor.js";
+import { Editor, EditorProps, useMonacoModel } from "./editor.js";
 
-export interface TypeSpecEditorProps {
-  model: editor.IModel;
-  actions?: editor.IActionDescriptor[];
+export interface TypeSpecEditorProps extends Omit<EditorProps, "options"> {
+  options?: editor.IStandaloneEditorConstructionOptions;
 }
 
-export const TypeSpecEditor: FunctionComponent<TypeSpecEditorProps> = (props) => {
-  const options: editor.IStandaloneEditorConstructionOptions = {
+export const TypeSpecEditor: FunctionComponent<TypeSpecEditorProps> = ({
+  actions,
+  options,
+  ...other
+}) => {
+  const resolvedOptions: editor.IStandaloneEditorConstructionOptions = {
     "semanticHighlighting.enabled": true,
     automaticLayout: true,
     tabSize: 2,
     minimap: {
       enabled: false,
     },
+    ...options,
   };
-  // Add shortcuts
-  return <Editor model={props.model} actions={props.actions} options={options}></Editor>;
+  return <Editor actions={actions} options={resolvedOptions} {...other}></Editor>;
 };
 
 export const OutputEditor: FunctionComponent<{ filename: string; value: string }> = ({

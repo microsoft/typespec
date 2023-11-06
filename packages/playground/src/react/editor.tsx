@@ -5,6 +5,11 @@ export interface EditorProps {
   model: editor.IModel;
   actions?: editor.IActionDescriptor[];
   options: editor.IStandaloneEditorConstructionOptions;
+  onMount?: (data: OnMountData) => void;
+}
+
+export interface OnMountData {
+  editor: editor.IStandaloneCodeEditor;
 }
 
 export interface EditorCommand {
@@ -12,7 +17,7 @@ export interface EditorCommand {
   handle: () => void;
 }
 
-export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions }) => {
+export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions, onMount }) => {
   const editorContainerRef = useRef(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
@@ -22,6 +27,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
       automaticLayout: true,
       ...options,
     });
+    onMount?.({ editor: editorRef.current });
   }, []);
 
   useEffect(() => {

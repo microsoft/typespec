@@ -1,12 +1,11 @@
-// @ts-check
+import { SidebarsConfig } from "@docusaurus/plugin-content-docs";
+import { SidebarItemConfig } from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
 
-/**
- *
- * @param {string} libName
- * @param {any[]} [extra]
- * @returns {any}
- */
-function createLibraryReferenceStructure(libName, labelName, extra) {
+function createLibraryReferenceStructure(
+  libName: string,
+  labelName: string,
+  extra: SidebarItemConfig[]
+): SidebarItemConfig {
   return {
     type: "category",
     label: labelName,
@@ -24,8 +23,7 @@ function createLibraryReferenceStructure(libName, labelName, extra) {
   };
 }
 
-/** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
-const sidebars = {
+const sidebars: SidebarsConfig = {
   docsSidebar: [
     {
       type: "category",
@@ -153,4 +151,4 @@ const sidebars = {
   ],
 };
 
-module.exports = sidebars;
+export default sidebars;

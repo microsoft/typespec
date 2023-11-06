@@ -585,6 +585,10 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
       return false;
     }
     this.#keys.delete(existingKey);
+    const newKeyItem = this.#keys.get(newKey);
+    if (newKeyItem) {
+      this.#values.delete(newKeyItem);
+    }
     keyItem.key = newKey;
     this.#keys.set(newKey, keyItem);
     return true;

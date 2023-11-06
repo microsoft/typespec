@@ -22,7 +22,7 @@ const config = defineConfig({
     exclude: ["swagger-ui"],
   },
   plugins: [
-    (react as any)({
+    react({
       jsxImportSource: "@emotion/react",
       babel: {
         plugins: ["@emotion/babel-plugin"],
