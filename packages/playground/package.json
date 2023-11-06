@@ -20,24 +20,24 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./vite": {
-      "default": "./dist/vite/index.js",
-      "types": "./dist/src/vite/index.d.ts"
+      "types": "./dist/src/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
     },
     "./manifest": {
-      "default": "./dist/manifest.js",
-      "types": "./dist/src/manifest.d.ts"
+      "types": "./dist/src/manifest.d.ts",
+      "default": "./dist/manifest.js"
     },
     "./react": {
-      "default": "./dist/react/index.js",
-      "types": "./dist/src/react/index.d.ts"
+      "types": "./dist/src/react/index.d.ts",
+      "default": "./dist/react/index.js"
     },
     "./react/viewers": {
-      "default": "./dist/react/viewers.js",
-      "types": "./dist/src/react/viewers.d.ts"
+      "types": "./dist/src/react/viewers.d.ts",
+      "default": "./dist/react/viewers.js"
     },
     "./style.css": "./dist/index.css"
   },
