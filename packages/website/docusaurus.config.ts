@@ -1,12 +1,12 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-// const lightCodeTheme = require("prism-react-renderer/themes/github");
-const lightCodeTheme = require("./themes/prism/atom-one-light.js");
-const { themes } = require("prism-react-renderer");
+import type { VersionOptions } from "@docusaurus/plugin-content-docs";
+import type { Config } from "@docusaurus/types";
+import { themes } from "prism-react-renderer";
 const { resolve } = require("path");
 
-function getMajorMinorVersion(pkgJsonPath) {
+function getMajorMinorVersion(pkgJsonPath): string {
   const version = require(pkgJsonPath).version;
   const [major, minor] = version.split(".");
   return `${major}.${minor}.x`;
@@ -16,9 +16,8 @@ function getLatestVersion() {
   return `Latest (${getMajorMinorVersion("../compiler/package.json")})`;
 }
 
-/** @returns {Record<string, import('@docusaurus/plugin-content-docs').VersionOptions>} */
-function getVersionLabels() {
-  const labels = {
+function getVersionLabels(): Record<string, VersionOptions> {
+  const labels: Record<string, VersionOptions> = {
     current: {
       label: `Next 🚧`,
     },
@@ -34,8 +33,7 @@ function getVersionLabels() {
   return labels;
 }
 
-/** @type {import('@docusaurus/types').Config} */
-const config = {
+const config: Config = {
   title: "TypeSpec",
   tagline: "API first with TypeSpec for Azure services",
   url: "https://microsoft.github.io",
@@ -60,13 +58,14 @@ const config = {
 
   markdown: {
     mermaid: true,
+    format: "detect",
   },
   themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [
       "classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
           routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
@@ -80,7 +79,7 @@ const config = {
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
-      }),
+      },
     ],
   ],
   staticDirectories: [resolve(__dirname, "./node_modules/@typespec/spec/dist")],
@@ -109,7 +108,7 @@ const config = {
   },
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
+    {
       navbar: {
         title: "TypeSpec",
         items: [
@@ -170,7 +169,7 @@ const config = {
         copyright: `Copyright © ${new Date().getFullYear()} Microsoft Corp.`,
       },
       prism: {
-        theme: lightCodeTheme,
+        theme: themes.oneLight,
         darkTheme: themes.dracula,
         additionalLanguages: [],
       },
@@ -181,7 +180,7 @@ const config = {
         apiKey: "bae16ae67ddbe24e700ac20d192ad20f",
         indexName: "typespec",
       },
-    }),
+    },
 };
 
-module.exports = config;
+export default config;
