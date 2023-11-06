@@ -553,6 +553,20 @@ describe("compiler: parser", () => {
         strictEqual(span1.expression.value, 23);
       });
 
+      it("parse a single line template with a multi line model expression inside", () => {
+        const astNode = parseSuccessWithLog(
+          `alias T = "Start \${{ foo: "one",\nbar: "two" }} end";`
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.ModelExpression);
+        strictEqual(span0.expression.properties.length, 2);
+      });
+
       it("can escape some ${}", () => {
         const astNode = parseSuccessWithLog(`alias T = "Start \${"one"} middle \\\${23} end";`);
         const node = getStringTemplateNode(astNode);
