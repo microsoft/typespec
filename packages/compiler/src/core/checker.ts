@@ -1858,14 +1858,14 @@ export function createChecker(program: Program): Checker {
   function resolveIdentifierInTable(
     node: IdentifierNode,
     table: SymbolTable | undefined,
-    resolveDecorator = false
+    options: SymbolResolutionOptions
   ): Sym | undefined {
     if (!table) {
       return undefined;
     }
     table = augmentedSymbolTables.get(table) ?? table;
     let sym;
-    if (resolveDecorator) {
+    if (options.resolveDecorators) {
       sym = table.get("@" + node.sv);
     } else {
       sym = table.get(node.sv);
@@ -1921,7 +1921,11 @@ export function createChecker(program: Program): Checker {
         }
 
         lateBindMembers(containerType, container);
-        sym = resolveIdentifierInTable(id, container.exports ?? container.members);
+        sym = resolveIdentifierInTable(
+          id,
+          container.exports ?? container.members,
+          defaultSymbolResolutionOptions
+        );
         break;
       case IdentifierKind.Other:
         return undefined;
@@ -1976,7 +1980,7 @@ export function createChecker(program: Program): Checker {
       let base = resolveTypeReferenceSym(identifier.parent.base, undefined, false);
       if (base) {
         if (base.flags & SymbolFlags.Alias) {
-          base = getAliasedSymbol(base, undefined);
+          base = getAliasedSymbol(base, undefined, defaultSymbolResolutionOptions);
         }
         if (base) {
           if (isTemplatedNode(base.declarations[0])) {
@@ -2075,7 +2079,7 @@ export function createChecker(program: Program): Checker {
   function resolveIdentifierInScope(
     node: IdentifierNode,
     mapper: TypeMapper | undefined,
-    resolveDecorator = false
+    options: SymbolResolutionOptions
   ): Sym | undefined {
     compilerAssert(
       node.parent?.kind !== SyntaxKind.MemberExpression || node.parent.id !== node,
@@ -2094,12 +2098,12 @@ export function createChecker(program: Program): Checker {
     while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
       if (scope.symbol && "exports" in scope.symbol) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
-        binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
+        binding = resolveIdentifierInTable(node, mergedSymbol.exports, options);
         if (binding) return binding;
       }
 
       if ("locals" in scope) {
-        binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+        binding = resolveIdentifierInTable(node, scope.locals, options);
         if (binding) return binding;
       }
 
@@ -2110,7 +2114,7 @@ export function createChecker(program: Program): Checker {
       // check any blockless namespace decls
       for (const ns of scope.inScopeNamespaces) {
         const mergedSymbol = getMergedSymbol(ns.symbol);
-        binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
+        binding = resolveIdentifierInTable(node, mergedSymbol.exports, options);
 
         if (binding) return binding;
       }
@@ -2119,11 +2123,11 @@ export function createChecker(program: Program): Checker {
       const globalBinding = resolveIdentifierInTable(
         node,
         globalNamespaceNode.symbol.exports,
-        resolveDecorator
+        options
       );
 
       // check using types
-      const usingBinding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
+      const usingBinding = resolveIdentifierInTable(node, scope.locals, options);
 
       if (globalBinding && usingBinding) {
         reportAmbiguousIdentifier(node, [globalBinding, usingBinding]);
@@ -2146,20 +2150,26 @@ export function createChecker(program: Program): Checker {
   function resolveTypeReferenceSym(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
-    resolveDecorator = false
+    options?: Partial<SymbolResolutionOptions> | boolean
   ): Sym | undefined {
-    if (mapper === undefined && referenceSymCache.has(node)) {
+    const resolvedOptions: SymbolResolutionOptions =
+      typeof options === "boolean"
+        ? { ...defaultSymbolResolutionOptions, resolveDecorators: options }
+        : { ...defaultSymbolResolutionOptions, ...(options ?? {}) };
+    if (mapper === undefined && resolvedOptions.checkTemplateTypes && referenceSymCache.has(node)) {
       return referenceSymCache.get(node);
     }
-    const sym = resolveTypeReferenceSymInternal(node, mapper, resolveDecorator);
-    referenceSymCache.set(node, sym);
+    const sym = resolveTypeReferenceSymInternal(node, mapper, resolvedOptions);
+    if (resolvedOptions.checkTemplateTypes) {
+      referenceSymCache.set(node, sym);
+    }
     return sym;
   }
 
   function resolveTypeReferenceSymInternal(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
-    resolveDecorator = false
+    options: SymbolResolutionOptions
   ): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
@@ -2168,7 +2178,7 @@ export function createChecker(program: Program): Checker {
     }
 
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReferenceSym(node.target, mapper, resolveDecorator);
+      return resolveTypeReferenceSym(node.target, mapper, options);
     }
 
     if (node.kind === SyntaxKind.MemberExpression) {
@@ -2179,21 +2189,21 @@ export function createChecker(program: Program): Checker {
 
       // when resolving a type reference based on an alias, unwrap the alias.
       if (base.flags & SymbolFlags.Alias) {
-        base = getAliasedSymbol(base, mapper);
+        base = getAliasedSymbol(base, mapper, options);
         if (!base) {
           return undefined;
         }
       }
 
       if (node.selector === ".") {
-        return resolveMemberInContainer(node, base, mapper, resolveDecorator);
+        return resolveMemberInContainer(node, base, mapper, options);
       } else {
         return resolveMetaProperty(node, base);
       }
     }
 
     if (node.kind === SyntaxKind.Identifier) {
-      const sym = resolveIdentifierInScope(node, mapper, resolveDecorator);
+      const sym = resolveIdentifierInScope(node, mapper, options);
       if (!sym) return undefined;
 
       return sym.flags & SymbolFlags.Using ? sym.symbolSource : sym;
@@ -2206,10 +2216,10 @@ export function createChecker(program: Program): Checker {
     node: MemberExpressionNode,
     base: Sym,
     mapper: TypeMapper | undefined,
-    resolveDecorator: boolean
+    options: SymbolResolutionOptions
   ) {
     if (base.flags & SymbolFlags.Namespace) {
-      const symbol = resolveIdentifierInTable(node.id, base.exports, resolveDecorator);
+      const symbol = resolveIdentifierInTable(node.id, base.exports, options);
       if (!symbol) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -2247,7 +2257,7 @@ export function createChecker(program: Program): Checker {
 
       return undefined;
     } else if (base.flags & SymbolFlags.MemberContainer) {
-      if (isTemplatedNode(base.declarations[0])) {
+      if (options.checkTemplateTypes && isTemplatedNode(base.declarations[0])) {
         const type =
           base.flags & SymbolFlags.LateBound
             ? base.type!
@@ -2256,7 +2266,7 @@ export function createChecker(program: Program): Checker {
           lateBindMembers(type, base);
         }
       }
-      const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
+      const sym = resolveIdentifierInTable(node.id, base.members!, options);
       if (!sym) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -2287,7 +2297,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
-    const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
+    const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers, {
+      resolveDecorators: false,
+      checkTemplateTypes: false,
+    });
     if (!resolved) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -2326,8 +2339,30 @@ export function createChecker(program: Program): Checker {
    * (i.e. they contain symbols we don't know until we've instantiated the type and the type is an
    * instantiation) we late bind the container which creates the symbol that will hold its members.
    */
-  function getAliasedSymbol(aliasSymbol: Sym, mapper: TypeMapper | undefined): Sym | undefined {
-    const aliasType = getTypeForNode(aliasSymbol.declarations[0] as AliasStatementNode, mapper);
+  function getAliasedSymbol(
+    aliasSymbol: Sym,
+    mapper: TypeMapper | undefined,
+    options: SymbolResolutionOptions
+  ): Sym | undefined {
+    let current = aliasSymbol;
+    while (current.flags & SymbolFlags.Alias) {
+      const node = current.declarations[0];
+      const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
+      const sym = resolveTypeReferenceSymInternal(targetNode as any, mapper, options);
+      if (sym === undefined) {
+        return undefined;
+      }
+      current = sym;
+    }
+    const sym = current;
+    const node = aliasSymbol.declarations[0];
+
+    const resolvedTargetNode = sym.declarations[0];
+    if (!options.checkTemplateTypes || !isTemplatedNode(resolvedTargetNode)) {
+      return sym;
+    }
+
+    const aliasType = getTypeForNode(node as AliasStatementNode, mapper);
     if (isErrorType(aliasType)) {
       return undefined;
     }
@@ -2827,7 +2862,9 @@ export function createChecker(program: Program): Checker {
             table.set("parameters", node.signature.parameters.symbol);
             table.set("returnType", node.signature.returnType.symbol);
           } else {
-            const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined);
+            const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined, {
+              checkTemplateTypes: false,
+            });
             if (sig) {
               visit(sig.declarations[0], sig);
               const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
@@ -6076,3 +6113,22 @@ enum Related {
   true = 1,
   maybe = 2,
 }
+
+interface SymbolResolutionOptions {
+  /**
+   * Should resolving the symbol lookup for decorators as well.
+   * @default false
+   */
+  resolveDecorators: boolean;
+
+  /**
+   * Should the symbol resolution instantiate templates and do a late bind of symbols.
+   * @default true
+   */
+  checkTemplateTypes: boolean;
+}
+
+const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
+  resolveDecorators: false,
+  checkTemplateTypes: true,
+};

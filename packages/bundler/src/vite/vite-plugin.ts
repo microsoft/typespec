@@ -6,7 +6,7 @@ import {
   TypeSpecBundleDefinition,
   createTypeSpecBundle,
   watchTypeSpecBundle,
-} from "./bundler.js";
+} from "../bundler.js";
 
 export interface TypeSpecBundlePluginOptions {
   folderName: string;

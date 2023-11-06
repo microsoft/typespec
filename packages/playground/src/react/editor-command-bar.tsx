@@ -1,5 +1,4 @@
 import {
-  Button,
   Dialog,
   DialogBody,
   DialogSurface,
@@ -9,18 +8,23 @@ import {
   ToolbarButton,
   Tooltip,
 } from "@fluentui/react-components";
-import { Bug16Regular, Save16Regular, Settings24Regular } from "@fluentui/react-icons";
+import {
+  Broom16Filled,
+  Bug16Regular,
+  Save16Regular,
+  Settings24Regular,
+} from "@fluentui/react-icons";
 import { CompilerOptions } from "@typespec/compiler";
 import { FunctionComponent } from "react";
-import { PlaygroundSample } from "../types.js";
+import { PlaygroundSample, PlaygroundTspLibrary } from "../types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 import { CompilerSettings } from "./settings/compiler-settings.js";
-import { PlaygroundTspLibrary } from "./types.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
+  formatCode: () => Promise<void> | void;
   newIssue?: () => Promise<void> | void;
   libraries: PlaygroundTspLibrary[];
   selectedEmitter: string;
@@ -35,6 +39,7 @@ export interface EditorCommandBarProps {
 export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
+  formatCode,
   newIssue,
   libraries,
   selectedEmitter,
@@ -59,12 +64,10 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
     <div css={{ borderBottom: "1px solid #f5f5f5" }}>
       <Toolbar>
         <Tooltip content="Save" relationship="description" withArrow>
-          <ToolbarButton
-            appearance="primary"
-            aria-label="Save"
-            icon={<Save16Regular />}
-            onClick={saveCode as any}
-          />
+          <ToolbarButton aria-label="Save" icon={<Save16Regular />} onClick={saveCode as any} />
+        </Tooltip>
+        <Tooltip content="Format" relationship="description" withArrow>
+          <ToolbarButton aria-label="Format" icon={<Broom16Filled />} onClick={formatCode as any} />
         </Tooltip>
         {samples && (
           <SamplesDropdown
@@ -80,7 +83,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
         />
         <Dialog>
           <DialogTrigger>
-            <Button icon={<Settings24Regular />} />
+            <ToolbarButton icon={<Settings24Regular />} />
           </DialogTrigger>
           <DialogSurface>
             <DialogBody>

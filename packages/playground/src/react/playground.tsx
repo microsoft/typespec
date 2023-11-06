@@ -1,18 +1,14 @@
 import { CompilerOptions } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import "swagger-ui-react/swagger-ui.css";
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
-import { BrowserHost } from "../browser-host.js";
-import { importTypeSpecCompiler } from "../core.js";
 import { getMarkerLocation } from "../services.js";
-import { PlaygroundSample } from "../types.js";
-import { resolveLibraries } from "../utils.js";
+import { BrowserHost, PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
-import { useMonacoModel } from "./editor.js";
+import { OnMountData, useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
-import { useAsyncMemo, useControllableValue } from "./hooks.js";
+import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import Pane from "./split-pane/pane.js";
 import { SplitPane } from "./split-pane/split-pane.js";
@@ -84,6 +80,8 @@ export interface PlaygroundLinks {
 
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
+  const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
+
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,
     props.defaultEmitter,
@@ -109,7 +107,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
     setContent(content);
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
 
     const state = await compile(host, content, selectedEmitter, compilerOptions);
     setCompilationState(state);
@@ -185,6 +183,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     isSampleUntouched,
   ]);
 
+  const formatCode = useCallback(() => {
+    void editorRef.current?.getAction("editor.action.formatDocument")?.run();
+  }, [typespecModel]);
+
   const newIssue = useCallback(async () => {
     saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
@@ -200,11 +202,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [saveCode]
   );
 
-  const libraries = useAsyncMemo(
-    async () => resolveLibraries(props.libraries),
-    [],
-    [props.libraries]
-  );
+  const onTypeSpecEditorMount = useCallback(({ editor }: OnMountData) => {
+    editorRef.current = editor;
+  }, []);
+
+  const libraries = useMemo(() => Object.values(host.libraries), [host.libraries]);
 
   return (
     <div
@@ -234,10 +236,15 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
             selectedSampleName={selectedSampleName}
             onSelectedSampleNameChange={onSelectedSampleNameChange}
             saveCode={saveCode}
+            formatCode={formatCode}
             newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
             documentationUrl={props.links?.documentationUrl}
           />
-          <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
+          <TypeSpecEditor
+            model={typespecModel}
+            actions={typespecEditorActions}
+            onMount={onTypeSpecEditorMount}
+          />
         </Pane>
         <Pane>
           <OutputView
@@ -262,7 +269,7 @@ async function compile(
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
     const program = await typespecCompiler.compile(host, "main.tsp", {
       ...options,
       options: {

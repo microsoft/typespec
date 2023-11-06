@@ -5,7 +5,7 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec Language Specification Source Code",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/microsoft/typespec/issues"

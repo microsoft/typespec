@@ -1,3 +1,4 @@
+import "swagger-ui-react/swagger-ui.css";
 import { SwaggerUI } from "./swagger-ui.js";
 import { FileOutputViewer, ViewerProps } from "./types.js";
 
