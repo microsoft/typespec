@@ -60,6 +60,8 @@ import {
   ScalarStatementNode,
   Statement,
   StringLiteralNode,
+  StringTemplateExpressionNode,
+  StringTemplateSpanNode,
   SyntaxKind,
   TemplateParameterDeclarationNode,
   TextRange,
@@ -358,6 +360,11 @@ export function printNode(
     case SyntaxKind.EmptyStatement:
       return "";
     case SyntaxKind.StringTemplateExpression:
+      return printStringTemplateExpression(
+        path as AstPath<StringTemplateExpressionNode>,
+        options,
+        print
+      );
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -1675,6 +1682,23 @@ export function printReturnExpression(
   print: PrettierChildPrint
 ) {
   return ["return ", path.call(print, "value")];
+}
+
+export function printStringTemplateExpression(
+  path: AstPath<StringTemplateExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+  const headText = getRawText(node.head, options);
+  const content = [
+    getRawText(node.head, options),
+    path.map((span: AstPath<StringTemplateSpanNode>) => {
+      const expression = span.call(print, "expression");
+      return [expression, getRawText(span.node.literal, options)];
+    }, "spans"),
+  ];
+  return content;
 }
 
 function printItemList<T extends Node>(
