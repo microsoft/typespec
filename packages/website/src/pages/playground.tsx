@@ -107,6 +107,7 @@ function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveDa
   };
 }
 
+const fooComp = await foo();
 export default function PlaygroundPage() {
-  return <Layout></Layout>;
+  return <Layout>{fooComp}</Layout>;
 }
