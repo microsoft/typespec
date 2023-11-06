@@ -21,12 +21,12 @@
   "tspMain": "lib/rest.tsp",
   "exports": {
     ".": {
-      "default": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     },
     "./testing": {
-      "default": "./dist/src/testing/index.js",
-      "types": "./dist/src/testing/index.d.ts"
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
     }
   },
   "engines": {
