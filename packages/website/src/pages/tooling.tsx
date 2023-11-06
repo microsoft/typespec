@@ -86,11 +86,15 @@ const FormatterIllustration = () => {
     <div className={style["formatter-illustration"]}>
       <div className={style["formatter-illustration-unformatted"]}>
         <div className={style["badge"]}>Unformatted</div>
-        <CodeBlock language="tsp">{notFormattedTsp}</CodeBlock>
+        <CodeBlock language="tsp" className={style["formatter-illustration-codeblock"]}>
+          {notFormattedTsp}
+        </CodeBlock>
       </div>
       <div className={style["formatter-illustration-formatted"]}>
         <div className={style["badge"]}>Formatted</div>
-        <CodeBlock language="tsp">{formattedTsp}</CodeBlock>
+        <CodeBlock language="tsp" className={style["formatter-illustration-codeblock"]}>
+          {formattedTsp}
+        </CodeBlock>
       </div>
     </div>
   );
