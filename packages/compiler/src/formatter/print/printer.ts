@@ -1690,7 +1690,6 @@ export function printStringTemplateExpression(
   print: PrettierChildPrint
 ) {
   const node = path.node;
-  const headText = getRawText(node.head, options);
   const content = [
     getRawText(node.head, options),
     path.map((span: AstPath<StringTemplateSpanNode>) => {
