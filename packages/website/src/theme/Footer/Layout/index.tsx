@@ -1,5 +1,6 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import { WeatherMoon20Regular, WeatherSunny20Regular } from "@fluentui/react-icons";
+import { Link } from "@site/src/components/link/link";
 import { Links } from "@site/src/constants";
 import clsx from "clsx";
 import style from "./index.module.css";
@@ -44,9 +45,9 @@ export default function FooterLayout({ style: theme, links, copyright }) {
           <div>{copyright}</div>
         </div>
         <div className={style["general-links"]}>
-          <a href={Links.privacy} title="Microsoft Privacy Policy">
+          <Link href={Links.privacy} title="Microsoft Privacy Policy">
             Privacy
-          </a>
+          </Link>
         </div>
       </div>
     </footer>

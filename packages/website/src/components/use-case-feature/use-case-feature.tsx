@@ -1,3 +1,4 @@
+import Link from "@docusaurus/Link";
 import { FluentImageName, FluentImg } from "../fluent-img";
 import { DescriptionText, NeutralText } from "../text/text";
 import style from "./use-case-feature.module.css";
@@ -15,7 +16,7 @@ export const UseCaseFeature = ({ image, title, subtitle, link }: UseCaseFeatureP
       <div className={style["content"]}>
         <NeutralText size="large">{title}</NeutralText>
         <DescriptionText>{subtitle}</DescriptionText>
-        <a href={link}>Learn more →</a>
+        <Link href={link}>Learn more →</Link>
       </div>
     </div>
   );
