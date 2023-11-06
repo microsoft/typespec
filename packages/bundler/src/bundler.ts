@@ -25,7 +25,12 @@ export interface TypeSpecBundleDefinition {
   path: string;
   main: string;
   packageJson: PackageJson;
-  exports: Record<string, string>;
+  exports: Record<string, string | ExportData>;
+}
+
+export interface ExportData {
+  default: string;
+  types?: string;
 }
 
 export interface TypeSpecBundle {
@@ -163,7 +168,10 @@ async function createRollupConfig(definition: TypeSpecBundleDefinition): Promise
 
   const extraEntry = Object.fromEntries(
     Object.entries(definition.exports).map(([key, value]) => {
-      return [key.replace("./", ""), normalizePath(resolve(libraryPath, value))];
+      return [
+        key.replace("./", ""),
+        normalizePath(resolve(libraryPath, getExportEntryPoint(value))),
+      ];
     })
   );
   return {
@@ -211,15 +219,19 @@ async function generateTypeSpecBundle(
     files: output
       .filter((x): x is OutputChunk => "code" in x)
       .map((chunk) => {
+        const entry = definition.exports[basename(chunk.fileName)];
         return {
           filename: chunk.fileName,
           content: chunk.code,
-          export: definition.exports[basename(chunk.fileName)],
+          export: entry ? getExportEntryPoint(entry) : undefined,
         };
       }),
   };
 }
 
+function getExportEntryPoint(value: string | ExportData) {
+  return typeof value === "string" ? value : value.default;
+}
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
   return JSON.parse(file.toString());
