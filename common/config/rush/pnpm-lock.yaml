@@ -236,7 +236,7 @@ importers:
         specifier: ^7.5.2
         version: 7.5.4
       '@types/sinon':
-        specifier: ~10.0.16
+        specifier: ~10.0.20
         version: 10.0.20
       '@types/yargs':
         specifier: ~17.0.24
@@ -272,8 +272,8 @@ importers:
         specifier: ~5.0.1
         version: 5.0.5
       sinon:
-        specifier: ~16.0.0
-        version: 16.0.0
+        specifier: ~17.0.1
+        version: 17.0.1
       source-map-support:
         specifier: ~0.5.21
         version: 0.5.21
@@ -308,8 +308,8 @@ importers:
         specifier: ^8.5.0
         version: 8.10.0(eslint@8.52.0)
       eslint-plugin-deprecation:
-        specifier: ^1.4.1
-        version: 1.6.0(eslint@8.52.0)(typescript@5.2.2)
+        specifier: ^2.0.0
+        version: 2.0.0(eslint@8.52.0)(typescript@5.2.2)
       eslint-plugin-mocha:
         specifier: ^10.0.5
         version: 10.2.0(eslint@8.52.0)
@@ -6446,6 +6446,12 @@ packages:
       '@sinonjs/commons': 3.0.0
     dev: true
 
+  /@sinonjs/fake-timers@11.2.2:
+    resolution: {integrity: sha512-G2piCSxQ7oWOxwGSAyFHfPIsyeJGXYtc6mFbnFA+kRXkiEnTl8c/8jul2S329iFBnDI9HGoeWWAZvuvOkZccgw==}
+    dependencies:
+      '@sinonjs/commons': 3.0.0
+    dev: true
+
   /@sinonjs/samsam@8.0.0:
     resolution: {integrity: sha512-Bp8KUVlLp8ibJZrnvq2foVhP0IVX2CIprMJPK0vqGqgrDa0OHVKeZyBykqskkrdxV6yKBPmGasO8LVjAKR3Gew==}
     dependencies:
@@ -10293,9 +10299,8 @@ packages:
       chalk: 4.1.2
     dev: true
 
-  /eslint-plugin-deprecation@1.6.0(eslint@8.52.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-rld+Vrneh/NXRtDB0vQifOvgUy0HJYoejaxWlVnsk/LK7iij2tCWQIFcCKG4uzQb+Ef86bDke39w1lh4wnon4Q==}
-    deprecated: this package has been deprecated, please use v2.0.0
+  /eslint-plugin-deprecation@2.0.0(eslint@8.52.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-OAm9Ohzbj11/ZFyICyR5N6LbOIvQMp7ZU2zI7Ej0jIc8kiGUERXPNMfw2QqqHD1ZHtjMub3yPZILovYEYucgoQ==}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0
       typescript: ^4.2.4 || ^5.0.0
@@ -16132,12 +16137,11 @@ packages:
       simple-concat: 1.0.1
     optional: true
 
-  /sinon@16.0.0:
-    resolution: {integrity: sha512-B8AaZZm9CT5pqe4l4uWJztfD/mOTa7dL8Qo0W4+s+t74xECOgSZDDQCBjNgIK3+n4kyxQrSTv2V5ul8K25qkiQ==}
-    deprecated: 16.1.1
+  /sinon@17.0.1:
+    resolution: {integrity: sha512-wmwE19Lie0MLT+ZYNpDymasPHUKTaZHUH/pKEubRXIzySv9Atnlw+BUMGCzWgV7b7wO+Hw6f1TEOr0IUnmU8/g==}
     dependencies:
       '@sinonjs/commons': 3.0.0
-      '@sinonjs/fake-timers': 10.3.0
+      '@sinonjs/fake-timers': 11.2.2
       '@sinonjs/samsam': 8.0.0
       diff: 5.1.0
       nise: 5.1.5
