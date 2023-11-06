@@ -21,7 +21,7 @@ import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
 export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
   const renderer = new DocusaurusRenderer();
   const files: Record<string, string> = {
-    "index.md": renderIndexFile(renderer, refDoc),
+    "index.mdx": renderIndexFile(renderer, refDoc),
   };
 
   const decoratorFile = renderDecoratorFile(renderer, refDoc);
