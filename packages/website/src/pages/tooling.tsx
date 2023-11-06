@@ -41,7 +41,7 @@ const DataValidationContent = () => {
           header="Warning"
           title="Warning and errors"
           description="Errors and warnings in your spec are reported as you type."
-          illustration="illustrations/warnings-and-errors.png"
+          illustration={<LightDarkImg src="illustrations/warnings-and-errors" />}
         >
           <LearnMoreCard
             title="Extension installation"
