@@ -143,7 +143,7 @@ const config: Config = {
           target: "es2022",
         },
         module: {
-          type: "es6",
+          type: isServer ? "commonjs" : "es6",
         },
       },
     }),

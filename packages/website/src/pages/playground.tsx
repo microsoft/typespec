@@ -1,7 +1,6 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
-import samples from "@typespec/playground-website/samples";
 import "@typespec/playground/style.css";
 import { useEffect, useState } from "react";
 
@@ -16,22 +15,6 @@ const libraries = [
   "@typespec/protobuf",
 ];
 const defaultEmitter = "@typespec/openapi3";
-
-console.log("Samples", samples);
-async function createPlaygroundComponent() {
-  // Need to import dynamically to avoid SSR issues due to monaco editor referencing navigator.
-  const { createReactPlayground } = await import("@typespec/playground/react");
-  const { SwaggerUIViewer } = await import("@typespec/playground/react/viewers");
-  return createReactPlayground({
-    libraries,
-    defaultEmitter,
-    samples,
-    emitterViewers: {
-      "@typespec/openapi3": [SwaggerUIViewer],
-    },
-    importConfig: { useShim: true },
-  });
-}
 
 export default function PlaygroundPage() {
   return (
@@ -64,3 +47,19 @@ const AsyncPlayground = () => {
 
   return mod;
 };
+
+async function createPlaygroundComponent() {
+  // Need to import dynamically to avoid SSR issues due to monaco editor referencing navigator.
+  const { createReactPlayground } = await import("@typespec/playground/react");
+  const { default: samples } = await import("@typespec/playground-website/samples");
+  const { SwaggerUIViewer } = await import("@typespec/playground/react/viewers");
+  return createReactPlayground({
+    libraries,
+    defaultEmitter,
+    samples,
+    emitterViewers: {
+      "@typespec/openapi3": [SwaggerUIViewer],
+    },
+    importConfig: { useShim: true },
+  });
+}
