@@ -12,9 +12,8 @@ function getMajorMinorVersion(pkgJsonPath): string {
   return `${major}.${minor}.x`;
 }
 
-function getLatestVersion() {
-  return `Latest (${getMajorMinorVersion("../compiler/package.json")})`;
-}
+const latestVersion = getMajorMinorVersion("../compiler/package.json");
+const latestPretty = `Latest (${latestVersion})`;
 
 function getVersionLabels(): Record<string, VersionOptions> {
   const labels: Record<string, VersionOptions> = {
@@ -27,7 +26,7 @@ function getVersionLabels(): Record<string, VersionOptions> {
   const isBumpingVersion = process.argv.includes("docs:version");
   if (!isBumpingVersion) {
     labels.latest = {
-      label: getLatestVersion(),
+      label: latestPretty,
     };
   }
   return labels;
@@ -62,12 +61,12 @@ const config: Config = {
   },
   scripts: [
     {
-      src: "https://ga.jspm.io/npm:es-module-shims@1.8.1/dist/es-module-shims.js",
+      src: "/es-module-shims.js",
       type: "module",
       async: true,
     },
     {
-      src: `https://typespec.blob.core.windows.net/pkgs/indexes/typespec/${getLatestVersion()}.json`,
+      src: `https://typespec.blob.core.windows.net/pkgs/indexes/typespec/${latestVersion}.json`,
       type: "importmap-shim",
     },
   ],
@@ -93,7 +92,10 @@ const config: Config = {
       },
     ],
   ],
-  staticDirectories: [resolve(__dirname, "./node_modules/@typespec/spec/dist")],
+  staticDirectories: [
+    resolve(__dirname, "./node_modules/@typespec/spec/dist"),
+    resolve(__dirname, "./node_modules/es-module-shims/dist"),
+  ],
 
   webpack: {
     jsLoader: (isServer) => ({
