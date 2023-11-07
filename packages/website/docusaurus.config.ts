@@ -114,7 +114,7 @@ const config: Config = {
           },
         },
         module: {
-          type: isServer ? "commonjs" : "es6",
+          type: "es6",
         },
       },
     }),
