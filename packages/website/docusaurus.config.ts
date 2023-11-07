@@ -2,7 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
-import type { Config } from "@docusaurus/types";
+import type { Config, Plugin } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 const { resolve } = require("path");
 
@@ -32,11 +32,12 @@ function getVersionLabels(): Record<string, VersionOptions> {
   return labels;
 }
 
+const baseUrl = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 const config: Config = {
   title: "TypeSpec",
   tagline: "API first with TypeSpec for Azure services",
   url: "https://microsoft.github.io",
-  baseUrl: process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/",
+  baseUrl,
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/azure.svg",
@@ -61,7 +62,7 @@ const config: Config = {
   },
   scripts: [
     {
-      src: "/es-module-shims.js",
+      src: baseUrl + "es-module-shims.js",
       type: "module",
       async: true,
     },
@@ -97,27 +98,44 @@ const config: Config = {
     resolve(__dirname, "./node_modules/es-module-shims/dist"),
   ],
 
+  plugins: [
+    (context, options): Plugin => {
+      return {
+        name: "custom-configure-webpack",
+        configureWebpack: (config, isServer, utils) => {
+          return {
+            ignoreWarnings: [
+              (warning, compilation) => {
+                return (
+                  warning.name === "ModuleDependencyWarning" &&
+                  warning.message.startsWith("Critical dependency") &&
+                  (warning.module as any)?.resource?.endsWith(
+                    "node_modules/vscode-languageserver-types/lib/umd/main.js"
+                  )
+                );
+              },
+            ],
+          };
+        },
+      };
+    },
+  ],
   webpack: {
-    // jsLoader: (isServer) => ({
-    //   loader: require.resolve("swc-loader"),
-    //   options: {
-    //     jsc: {
-    //       parser: {
-    //         syntax: "typescript",
-    //         tsx: true,
-    //       },
-    //       target: "es2019",
-    //       transform: {
-    //         react: {
-    //           runtime: "automatic",
-    //         },
-    //       },
-    //     },
-    //     module: {
-    //       type: "es6",
-    //     },
-    //   },
-    // }),
+    jsLoader: (isServer) => ({
+      loader: require.resolve("swc-loader"),
+      options: {
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+          },
+          target: "es2019",
+        },
+        module: {
+          type: "es6",
+        },
+      },
+    }),
   },
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
