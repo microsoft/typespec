@@ -71,7 +71,7 @@ export interface BasicAuth extends HttpAuthBase {
  */
 export interface BearerAuth extends HttpAuthBase {
   type: "http";
-  scheme: "bearer";
+  scheme: "Bearer";
 }
 
 type ApiKeyLocation = "header" | "query" | "cookie";
