@@ -18,7 +18,9 @@ import {
 import { Playground, PlaygroundProps, PlaygroundSaveData } from "@typespec/playground/react";
 import { FunctionComponent, useId, useMemo } from "react";
 
-async function foo() {
+import "@typespec/playground/style.css";
+
+async function createPlaygroundComponent() {
   const libraries = [
     "@typespec/compiler",
     "@typespec/http",
@@ -67,9 +69,9 @@ async function foo() {
     );
 
     return (
-      <FluentProvider theme={webLightTheme}>
+      <FluentProvider theme={webLightTheme} style={{ height: "100%", width: "100%" }}>
         <Toaster toasterId={toasterId} />
-        <div>
+        <div style={{ height: "calc(100vh - var(--ifm-navbar-height))", width: "100%" }}>
           <Playground {...options} />
         </div>
       </FluentProvider>
@@ -107,7 +109,7 @@ function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveDa
   };
 }
 
-const fooComp = await foo();
+const comp = await createPlaygroundComponent();
 export default function PlaygroundPage() {
-  return <Layout>{fooComp}</Layout>;
+  return <Layout>{comp}</Layout>;
 }

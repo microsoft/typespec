@@ -1536,6 +1536,9 @@ importers:
       '@typespec/playground':
         specifier: workspace:~0.1.0-alpha.2
         version: link:../playground
+      es-module-shims:
+        specifier: ~1.8.0
+        version: 1.8.1
       prism-react-renderer:
         specifier: ^2.1.0
         version: 2.1.0(react@18.2.0)

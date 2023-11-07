@@ -1,5 +1,6 @@
 import { CompilerOptions, LinterRuleSet, TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useEffect, useState } from "react";
+import { importLibrary } from "../../core.js";
 import { PlaygroundTspLibrary } from "../../types.js";
 import { EmitterOptions } from "../types.js";
 import { EmitterOptionsForm } from "./emitter-options-form.js";
@@ -65,8 +66,8 @@ function useTypeSpecLibrary(name: string): TypeSpecLibrary<any> | undefined {
 
   useEffect(() => {
     setLib(undefined);
-    import(/* @vite-ignore */ name)
-      .then((module) => {
+    importLibrary(name, {})
+      .then((module: any) => {
         if (module.$lib === undefined) {
           // eslint-disable-next-line no-console
           console.error(`Couldn't load library ${name} missing $lib export`);

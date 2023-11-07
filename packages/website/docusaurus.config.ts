@@ -62,6 +62,11 @@ const config: Config = {
   },
   scripts: [
     {
+      src: "https://ga.jspm.io/npm:es-module-shims@1.8.1/dist/es-module-shims.js",
+      type: "module",
+      async: true,
+    },
+    {
       src: "https://typespec.blob.core.windows.net/pkgs/indexes/typespec/0.49.x.json",
       type: "importmap-shim",
     },
