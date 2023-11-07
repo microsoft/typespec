@@ -58,12 +58,10 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
     );
 
     return (
-      <FluentProvider theme={webLightTheme}>
+      <>
         <Toaster toasterId={toasterId} />
-        <div css={{ height: "100vh" }}>
-          <Playground {...options} />
-        </div>
-      </FluentProvider>
+        <Playground {...options} />
+      </>
     );
   };
 
@@ -74,7 +72,11 @@ export async function renderReactPlayground(config: ReactPlaygroundConfig) {
   const app = await createReactPlayground(config);
 
   const root = createRoot(document.getElementById("root")!);
-  root.render(app);
+  root.render(
+    <FluentProvider theme={webLightTheme} style={{ height: "100vh" }}>
+      {app}
+    </FluentProvider>
+  );
 }
 
 export function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveData> {
