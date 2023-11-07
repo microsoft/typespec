@@ -9,6 +9,7 @@ import {
 } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
 import {
+  BrowserHost,
   StateStorage,
   createBrowserHost,
   createUrlStateStorage,
@@ -16,45 +17,64 @@ import {
   registerMonacoLanguage,
 } from "@typespec/playground";
 import { Playground, PlaygroundProps, PlaygroundSaveData } from "@typespec/playground/react";
-import { FunctionComponent, useId, useMemo } from "react";
+import { FunctionComponent, useEffect, useId, useMemo, useState } from "react";
 
 import "@typespec/playground/style.css";
 
-async function createPlaygroundComponent() {
-  const libraries = [
-    "@typespec/compiler",
-    "@typespec/http",
-    "@typespec/rest",
-    "@typespec/openapi",
-    "@typespec/versioning",
-    "@typespec/openapi3",
-    "@typespec/json-schema",
-    "@typespec/protobuf",
-  ];
-  const defaultEmitter = "@typespec/openapi3";
-  const host = await createBrowserHost(libraries, {
-    useShim: true,
-  });
-  await registerMonacoLanguage(host);
-  registerMonacoDefaultWorkers();
+const libraries = [
+  "@typespec/compiler",
+  "@typespec/http",
+  "@typespec/rest",
+  "@typespec/openapi",
+  "@typespec/versioning",
+  "@typespec/openapi3",
+  "@typespec/json-schema",
+  "@typespec/protobuf",
+];
+const defaultEmitter = "@typespec/openapi3";
 
-  const stateStorage = createStandalonePlaygroundStateStorage();
-  const initialState = stateStorage.load();
+interface PlaygroundContext {
+  host: BrowserHost;
+  initialState: Partial<PlaygroundSaveData>;
+  stateStorage: StateStorage<PlaygroundSaveData>;
+}
 
-  const App: FunctionComponent = () => {
-    const toasterId = useId();
-    const { dispatchToast } = useToastController(toasterId);
+function usePlaygroundContext(): PlaygroundContext | undefined {
+  const [context, setContext] = useState<PlaygroundContext | undefined>(undefined);
+  useEffect(async () => {
+    const host = await createBrowserHost(libraries, {
+      useShim: true,
+    });
+    await registerMonacoLanguage(host);
+    registerMonacoDefaultWorkers();
 
-    const options: PlaygroundProps = useMemo(
-      () => ({
-        host,
+    const stateStorage = createStandalonePlaygroundStateStorage();
+    const initialState = stateStorage.load();
+
+    setContext({
+      host,
+      initialState,
+    });
+  }, []);
+  return context;
+}
+
+const App: FunctionComponent = () => {
+  const context = usePlaygroundContext();
+  const toasterId = useId();
+  const { dispatchToast } = useToastController(toasterId);
+
+  const options: PlaygroundProps = useMemo(
+    () =>
+      context && {
+        host: context.host,
         libraries: libraries,
-        defaultContent: initialState.content,
-        defaultEmitter: initialState.emitter ?? defaultEmitter,
-        defaultCompilerOptions: initialState.options,
-        defaultSampleName: initialState.sampleName,
+        defaultContent: context.initialState.content,
+        defaultEmitter: context.initialState.emitter ?? defaultEmitter,
+        defaultCompilerOptions: context.initialState.options,
+        defaultSampleName: context.initialState.sampleName,
         onSave: (value) => {
-          stateStorage.save(value);
+          context.stateStorage.save(value);
           void navigator.clipboard.writeText(window.location.toString());
           dispatchToast(
             <Toast>
@@ -64,22 +84,19 @@ async function createPlaygroundComponent() {
             { intent: "success" }
           );
         },
-      }),
-      [dispatchToast]
-    );
+      },
+    [dispatchToast, context]
+  );
 
-    return (
-      <FluentProvider theme={webLightTheme} style={{ height: "100%", width: "100%" }}>
-        <Toaster toasterId={toasterId} />
-        <div style={{ height: "calc(100vh - var(--ifm-navbar-height))", width: "100%" }}>
-          <Playground {...options} />
-        </div>
-      </FluentProvider>
-    );
-  };
-
-  return <App />;
-}
+  return context ? (
+    <FluentProvider theme={webLightTheme} style={{ height: "100%", width: "100%" }}>
+      <Toaster toasterId={toasterId} />
+      <div style={{ height: "calc(100vh - var(--ifm-navbar-height))", width: "100%" }}>
+        <Playground {...options} />
+      </div>
+    </FluentProvider>
+  ) : null;
+};
 
 function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveData> {
   const stateStorage = createUrlStateStorage<PlaygroundSaveData>({
@@ -109,7 +126,10 @@ function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveDa
   };
 }
 
-const comp = await createPlaygroundComponent();
 export default function PlaygroundPage() {
-  return <Layout>{comp}</Layout>;
+  return (
+    <Layout>
+      <App />
+    </Layout>
+  );
 }
