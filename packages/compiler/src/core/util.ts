@@ -414,7 +414,7 @@ export class Queue<T> {
  */
 //prettier-ignore
 export type Mutable<T> =
-  T extends SymbolTable ? T & { set(key: string, value: Sym): void } :
+  T extends SymbolTable ? T & { set(key: string, value: Sym): void, include(source: SymbolTable): void } :
   T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
   T extends ReadonlySet<infer T> ? Set<T> :
   T extends readonly (infer V)[] ? V[] :

@@ -211,17 +211,17 @@ describe("compiler: references", () => {
         testHost.addTypeSpecFile(
           "main.tsp",
           `
-      @test model Foo {
-        a: string;
-        b: Foo.a;
-      }
-      `
+          @test model Foo {
+            a: string;
+            b: Foo.a;
+          }
+          `
         );
 
         const { Foo } = (await testHost.compile("./main.tsp")) as {
           Foo: Model;
         };
-        strictEqual(Foo.properties.get("b")!.type, Foo.properties.get("a"));
+        ok(Foo.properties.get("b")!.type === Foo.properties.get("a"));
       });
 
       it("can reference sibling property defined after", async () => {
@@ -567,7 +567,17 @@ describe("compiler: references", () => {
         `,
         ref: "Person.address::type.city",
       }));
-
+    describe("ModelProperty::type that is an intersection", () =>
+      itCanReference({
+        code: `
+          model A { @test("target") a: string }
+          model B { b: string }
+          model Person {
+            address: A & B;
+          }
+        `,
+        ref: "Person.address::type.a",
+      }));
     describe("ModelProperty::type that is a type reference", () =>
       itCanReference({
         code: `
@@ -622,8 +632,7 @@ describe("compiler: references", () => {
       ]);
     });
 
-    // Error should be removed when this is fixed https://github.com/microsoft/typespec/issues/2213
-    it("(TEMP) emits a diagnostic when referencing a non-resolved meta type property", async () => {
+    it("allows spreading meta type property", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
         `
@@ -635,20 +644,66 @@ describe("compiler: references", () => {
           a: A;
         }
 
-        model Spread {
+        @test model Spread {
           ... B.a::type;
         }
         `
       );
 
-      const diagnostics = await testHost.diagnose("./main.tsp");
+      const { Spread } = (await testHost.compile("./main.tsp")) as { Spread: Model };
+      strictEqual(Spread.properties.size, 1);
+      ok(Spread.properties.get("name"));
+    });
+    /*
+    it.only("works with augments", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test op Foo(a: string): { b: string };
+        @test op Bar is Foo;
 
-      expectDiagnostics(diagnostics, [
-        {
-          code: "invalid-ref",
-          message: `ModelProperty doesn't have meta property type`,
-        },
-      ]);
+
+        @@doc(Foo::parameters.a, "Foo's a");
+        `
+      );
+      const { Foo, Bar } = (await testHost.compile("./main.tsp")) as {
+        Foo: Operation;
+        Bar: Operation;
+      };
+
+      strictEqual(getDoc(testHost.program, Foo.parameters), "Foo's params");
+      strictEqual(getDoc(testHost.program, Foo.parameters.properties.get("a")!), "Foo's a");
+      strictEqual(getDoc(testHost.program, Foo.returnType), "Foo's return type");
+      strictEqual(getDoc(testHost.program, Bar.parameters), "Bar's params");
+      strictEqual(getDoc(testHost.program, Bar.parameters.properties.get("a")!), "Bar's a");
+      strictEqual(getDoc(testHost.program, Bar.returnType), "Bar's return type");
+    });
+    */
+
+    it("works with johan's case", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+
+        model Completion { 
+          choices: string[];
+        }
+        
+        op baseVersion("model": string, top_n: int32): Completion;
+        
+        @test op azureVersion(... baseVersion::parameters, dataSources: string[]): baseVersion::returnType & { rai: string[] };
+        
+        `
+      );
+
+      const { azureVersion } = (await testHost.compile("./main.tsp")) as {
+        azureVersion: Operation;
+      };
+      const existingNames = [...azureVersion.parameters.properties.values()].map((v) => v.name);
+      strictEqual(existingNames.length, 3);
+      ok(existingNames.includes("model"));
+      ok(existingNames.includes("top_n"));
+      ok(existingNames.includes("dataSources"));
     });
   });
 });

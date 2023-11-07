@@ -1,4 +1,9 @@
-import { $docFromComment, getIndexer } from "../lib/decorators.js";
+import {
+  $docFromComment,
+  getIndexer,
+  isArrayModelType,
+  isPrototypeGetter,
+} from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
@@ -58,6 +63,8 @@ import {
   MemberExpressionNode,
   MemberNode,
   MemberType,
+  MetaMemberKey,
+  MetaMembersTable,
   Model,
   ModelExpressionNode,
   ModelIndexer,
@@ -94,6 +101,7 @@ import {
   ProjectionStatementItem,
   ProjectionStatementNode,
   ProjectionUnaryExpressionNode,
+  RekeyableMap,
   ReturnExpressionNode,
   ReturnRecord,
   Scalar,
@@ -341,6 +349,9 @@ export function createChecker(program: Program): Checker {
   for (const file of program.sourceFiles.values()) {
     setUsingsForFile(file);
   }
+
+  const metaMembersTable: MetaMembersTable = createMetaMembersTable();
+
   let evalContext: EvalContext | undefined = undefined;
 
   const checker: Checker = {
@@ -396,6 +407,7 @@ export function createChecker(program: Program): Checker {
         return voidType;
       },
       declarations: [],
+      node: undefined as any,
     });
 
     // Until we have an `unit` type for `null`
@@ -403,7 +415,18 @@ export function createChecker(program: Program): Checker {
     mutate(nullSym).type = nullType;
     getSymbolLinks(nullSym).type = nullType;
   }
+  function createMetaMembersTable(): MetaMembersTable {
+    const table: MetaMembersTable = { type: {} };
+    if (!typespecNamespaceBinding) return table;
+    const tns = typespecNamespaceBinding.exports!.get("Prototypes")!.exports!.get("Types")!;
+    for (const [name, sym] of tns.exports!) {
+      if (sym.flags & SymbolFlags.Interface) {
+        table.type[name as MetaMemberKey] = sym;
+      }
+    }
 
+    return table;
+  }
   function getStdType<T extends keyof StdTypes>(name: T): StdTypes[T] {
     const type = stdTypes[name];
     if (type !== undefined) {
@@ -471,6 +494,17 @@ export function createChecker(program: Program): Checker {
     );
 
     for (const decNode of augmentDecorators) {
+      let isMeta = false;
+      const findMeta = (node: Node) => {
+        if (node.kind === SyntaxKind.MemberExpression && node.selector === "::") {
+          isMeta = true;
+        }
+
+        visitChildren(node, findMeta);
+      };
+
+      visitChildren(decNode, findMeta);
+
       const ref = resolveTypeReferenceSym(decNode.targetType, undefined);
       if (ref) {
         let args: readonly Expression[] = [];
@@ -499,12 +533,15 @@ export function createChecker(program: Program): Checker {
             })
           );
         } else {
-          let list = augmentDecoratorsForSym.get(ref);
-          if (list === undefined) {
-            list = [];
-            augmentDecoratorsForSym.set(ref, list);
+          if (isMeta) {
+          } else {
+            let list = augmentDecoratorsForSym.get(ref);
+            if (list === undefined) {
+              list = [];
+              augmentDecoratorsForSym.set(ref, list);
+            }
+            list.unshift(decNode);
           }
-          list.unshift(decNode);
         }
       }
     }
@@ -518,6 +555,7 @@ export function createChecker(program: Program): Checker {
         declarations: [],
         name: symbolSource.name,
         symbolSource: symbolSource,
+        node: undefined as any,
       };
       augmented.set(sym.name, sym);
     }
@@ -571,11 +609,13 @@ export function createChecker(program: Program): Checker {
     const symbolLinks = getSymbolLinks(sym);
     const memberContainer = getTypeForNode(sym.parent!.declarations[0], mapper);
     const type = symbolLinks.declaredType ?? symbolLinks.type;
+
     if (type) {
       return type;
     } else {
+      // operations are both members and declarations
       return checkMember(
-        sym.declarations[0] as MemberNode,
+        (sym.node ?? sym.declarations[0]) as MemberNode,
         mapper,
         memberContainer as MemberContainerType
       )!;
@@ -830,6 +870,28 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  /**
+   * Check and resolve a type for the given type reference node, returning its symbol
+   * and type.
+   * @param node Node.
+   * @param mapper Type mapper for template instantiation context.
+   * @param instantiateTemplate If templated type should be instantiated if they haven't yet.
+   * @returns Resolved type.
+   */
+  function getTypeReferenceTypeAndSymbol(
+    node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
+    mapper: TypeMapper | undefined,
+    instantiateTemplate = true
+  ): { sym: Sym | null; type: Type } {
+    const sym = resolveTypeReferenceSym(node, mapper);
+    if (!sym) {
+      return { sym: null, type: errorType };
+    }
+
+    const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate);
+    return { sym, type };
+  }
+
   function resolveTypeReference(
     node: TypeReferenceNode
   ): [Type | undefined, readonly Diagnostic[]] {
@@ -1016,18 +1078,24 @@ export function createChecker(program: Program): Checker {
       return errorType;
     }
 
-    const symbolLinks = getSymbolLinks(sym);
-    let baseType;
     const args = checkTypeReferenceArgs(node, mapper);
-    if (
-      sym.flags &
-      (SymbolFlags.Model |
-        SymbolFlags.Scalar |
-        SymbolFlags.Alias |
-        SymbolFlags.Interface |
-        SymbolFlags.Operation |
-        SymbolFlags.Union)
-    ) {
+
+    if (sym.flags & SymbolFlags.LateBound && instantiateTemplates && args.length === 0) {
+      compilerAssert(sym.type, "Late-bound symbol must have type");
+      return sym.type;
+    }
+
+    const symbolLinks = getSymbolLinks(sym);
+
+    if (symbolLinks.type) {
+      // checked type for enums and namespaces (at least)
+      // if present, should be safe to return.
+      return symbolLinks.type;
+    }
+
+    let baseType;
+
+    if (sym.flags & SymbolFlags.Declaration) {
       const decl = sym.declarations[0] as TemplateableNode;
       if (!isTemplatedNode(decl)) {
         if (args.length > 0) {
@@ -1039,16 +1107,17 @@ export function createChecker(program: Program): Checker {
             })
           );
         }
-
-        if (sym.flags & SymbolFlags.LateBound) {
-          compilerAssert(sym.type, "Expected late bound symbol to have type");
-          return sym.type;
+        if (sym.flags & SymbolFlags.TemplateParameter) {
+          baseType = checkTemplateParameterDeclaration(
+            decl as TemplateParameterDeclarationNode,
+            mapper
+          );
         } else if (symbolLinks.declaredType) {
           baseType = symbolLinks.declaredType;
         } else if (sym.flags & SymbolFlags.Member) {
           baseType = checkMemberSym(sym, mapper);
         } else {
-          baseType = checkDeclaredType(sym, decl, mapper);
+          baseType = getTypeForNode(decl, mapper);
         }
       } else {
         const declaredType = getOrCheckDeclaredType(sym, decl, mapper);
@@ -1082,24 +1151,17 @@ export function createChecker(program: Program): Checker {
       if (sym.flags & SymbolFlags.LateBound) {
         compilerAssert(sym.type, "Expected late bound symbol to have type");
         return sym.type;
-      } else if (sym.flags & SymbolFlags.TemplateParameter) {
-        baseType = checkTemplateParameterDeclaration(
-          sym.declarations[0] as TemplateParameterDeclarationNode,
-          mapper
-        );
       } else if (symbolLinks.type) {
         // Have a cached type for non-declarations
         baseType = symbolLinks.type;
       } else if (symbolLinks.declaredType) {
-        baseType = symbolLinks.declaredType;
+        baseType = symbolLinks.declaredType; // todo: should be dead code?
+      } else if (sym.flags & SymbolFlags.Member) {
+        baseType = checkMemberSym(sym, mapper);
       } else {
-        if (sym.flags & SymbolFlags.Member) {
-          baseType = checkMemberSym(sym, mapper);
-        } else {
-          // don't have a cached type for this symbol, so go grab it and cache it
-          baseType = getTypeForNode(sym.declarations[0], mapper);
-          symbolLinks.type = baseType;
-        }
+        // don't have a cached type for this symbol, so go grab it and cache it
+        baseType = getTypeForNode(sym.node, mapper);
+        symbolLinks.type = baseType;
       }
     }
 
@@ -1157,17 +1219,28 @@ export function createChecker(program: Program): Checker {
     node: TemplateableNode,
     mapper: TypeMapper | undefined
   ): Type {
-    return sym.flags & SymbolFlags.Model
-      ? checkModelStatement(node as ModelStatementNode, mapper)
-      : sym.flags & SymbolFlags.Scalar
-      ? checkScalar(node as ScalarStatementNode, mapper)
-      : sym.flags & SymbolFlags.Alias
-      ? checkAlias(node as AliasStatementNode, mapper)
-      : sym.flags & SymbolFlags.Interface
-      ? checkInterface(node as InterfaceStatementNode, mapper)
-      : sym.flags & SymbolFlags.Operation
-      ? checkOperation(node as OperationStatementNode, mapper)
-      : checkUnion(node as UnionStatementNode, mapper);
+    compilerAssert(sym.flags && SymbolFlags.Declaration, "Expected declaration symbol");
+    const type =
+      sym.flags & SymbolFlags.Model
+        ? checkModelStatement(node as ModelStatementNode, mapper)
+        : sym.flags & SymbolFlags.Scalar
+        ? checkScalar(node as ScalarStatementNode, mapper)
+        : sym.flags & SymbolFlags.Alias
+        ? checkAlias(node as AliasStatementNode, mapper)
+        : sym.flags & SymbolFlags.Interface
+        ? checkInterface(node as InterfaceStatementNode, mapper)
+        : sym.flags & SymbolFlags.Operation
+        ? checkOperation(node as OperationStatementNode, mapper)
+        : sym.flags & SymbolFlags.Union
+        ? checkUnion(node as UnionStatementNode, mapper)
+        : null;
+
+    if (type === null) {
+      debugger;
+      compilerAssert(false, "Unknown declaration symbol");
+    }
+
+    return type;
   }
 
   function getOrInstantiateTemplate(
@@ -1177,6 +1250,9 @@ export function createChecker(program: Program): Checker {
     parentMapper: TypeMapper | undefined,
     instantiateTempalates = true
   ): Type {
+    if (templateNode.id.sv === "bar") {
+      debugger;
+    }
     const symbolLinks =
       templateNode.kind === SyntaxKind.OperationStatement &&
       templateNode.parent!.kind === SyntaxKind.InterfaceStatement
@@ -1273,7 +1349,8 @@ export function createChecker(program: Program): Checker {
         unionType.variants.set(variant.name, variant);
       }
     }
-
+    lateBindMemberContainer(unionType);
+    lateBindMembers(unionType);
     return unionType;
   }
 
@@ -1910,7 +1987,6 @@ export function createChecker(program: Program): Checker {
           return undefined; // member of anonymous type cannot be referenced.
         }
 
-        lateBindMemberContainer(containerType);
         let container = node.parent.symbol;
         if (!container && "symbol" in containerType && containerType.symbol) {
           container = containerType.symbol;
@@ -1920,7 +1996,6 @@ export function createChecker(program: Program): Checker {
           return undefined;
         }
 
-        lateBindMembers(containerType, container);
         sym = resolveIdentifierInTable(id, container.exports ?? container.members);
         break;
       case IdentifierKind.Other:
@@ -1979,13 +2054,6 @@ export function createChecker(program: Program): Checker {
           base = getAliasedSymbol(base, undefined);
         }
         if (base) {
-          if (isTemplatedNode(base.declarations[0])) {
-            const type = base.type ?? getTypeForNode(base.declarations[0], undefined);
-            if (isTemplateInstance(type)) {
-              lateBindMemberContainer(type);
-              lateBindMembers(type, base);
-            }
-          }
           addCompletions(base.exports ?? base.members);
         }
       }
@@ -2092,13 +2160,13 @@ export function createChecker(program: Program): Checker {
     let binding: Sym | undefined;
 
     while (scope && scope.kind !== SyntaxKind.TypeSpecScript) {
-      if (scope.symbol && "exports" in scope.symbol) {
+      if (scope.symbol && "exports" in scope.symbol && scope.symbol.exports !== undefined) {
         const mergedSymbol = getMergedSymbol(scope.symbol);
         binding = resolveIdentifierInTable(node, mergedSymbol.exports, resolveDecorator);
         if (binding) return binding;
       }
 
-      if ("locals" in scope) {
+      if ("locals" in scope && scope.locals !== undefined) {
         binding = resolveIdentifierInTable(node, scope.locals, resolveDecorator);
         if (binding) return binding;
       }
@@ -2188,7 +2256,7 @@ export function createChecker(program: Program): Checker {
       if (node.selector === ".") {
         return resolveMemberInContainer(node, base, mapper, resolveDecorator);
       } else {
-        return resolveMetaProperty(node, base);
+        return resolveMetaProperty(node, base, mapper);
       }
     }
 
@@ -2247,15 +2315,9 @@ export function createChecker(program: Program): Checker {
 
       return undefined;
     } else if (base.flags & SymbolFlags.MemberContainer) {
-      if (isTemplatedNode(base.declarations[0])) {
-        const type =
-          base.flags & SymbolFlags.LateBound
-            ? base.type!
-            : getTypeForNode(base.declarations[0], mapper);
-        if (isTemplateInstance(type)) {
-          lateBindMembers(type, base);
-        }
-      }
+      // if we're resolving in a member container, there may be late-bound symbols,
+      // so we have to check here.
+      checkTypeReferenceSymbol(base, node, mapper);
       const sym = resolveIdentifierInTable(node.id, base.members!, resolveDecorator);
       if (!sym) {
         reportCheckerDiagnostic(
@@ -2286,9 +2348,52 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function resolveMetaProperty(node: MemberExpressionNode, base: Sym) {
-    const resolved = resolveIdentifierInTable(node.id, base.metatypeMembers);
+  function resolveMetaProperty(
+    node: MemberExpressionNode,
+    base: Sym,
+    mapper: TypeMapper | undefined
+  ) {
+    const baseType =
+      base.flags & SymbolFlags.LateBound
+        ? base.type!
+        : checkTypeReferenceSymbol(base, node, mapper);
+    const table = getSymbolTableForMetaMembers(baseType, mapper);
+    if (!table) {
+      reportInvalidRef();
+      return undefined;
+    }
+
+    const resolved = table.get(node.id.sv);
+
     if (!resolved) {
+      reportInvalidRef();
+      return undefined;
+    }
+
+    const operationType = getTypeForNode(resolved.declarations[0], mapper) as Operation;
+    if (isPrototypeGetter(program, operationType)) {
+      if (operationType.interface!.name === "ModelProperty" && operationType.name === "type") {
+        const referencedType = (baseType as ModelProperty).type;
+        return getMetaPropTargetSymbol(referencedType);
+      } else if (
+        operationType.interface!.name === "Operation" &&
+        operationType.name === "returnType"
+      ) {
+        const referencedType = (baseType as Operation).returnType;
+        return getMetaPropTargetSymbol(referencedType);
+      } else if (
+        operationType.interface!.name === "Operation" &&
+        operationType.name === "parameters"
+      ) {
+        const referencedType = (baseType as Operation).parameters;
+        return getMetaPropTargetSymbol(referencedType);
+      } else {
+        compilerAssert(false, "Getter not implemented for meta property " + operationType.name);
+      }
+    }
+    return resolved;
+
+    function reportInvalidRef() {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "invalid-ref",
@@ -2299,7 +2404,42 @@ export function createChecker(program: Program): Checker {
       );
     }
 
-    return resolved;
+    function getMetaPropTargetSymbol(referencedType: Type) {
+      if ("symbol" in referencedType && referencedType.symbol) {
+        return referencedType.symbol!;
+      }
+
+      return getMergedSymbol(referencedType.node!.symbol) ?? resolved;
+    }
+  }
+
+  function getSymbolTableForMetaMembers(baseType: Type, mapper: TypeMapper | undefined) {
+    const key = metaMemberKey(baseType);
+    const ifaceSym = metaMembersTable.type[key];
+    if (!ifaceSym) {
+      return undefined;
+    }
+
+    if (key === "Array") {
+      // Array needs instantiated.
+      const ifaceNode = ifaceSym.declarations[0] as InterfaceStatementNode;
+      const param: TemplateParameter = getTypeForNode(ifaceNode.templateParameters[0]) as any;
+      const ifaceType = getOrInstantiateTemplate(
+        ifaceNode,
+        [param],
+        [(baseType as Model).indexer!.value],
+        mapper
+      ) as Interface;
+      return getOrCreateAugmentedSymbolTable(ifaceType.symbol!.members!);
+    } else {
+      return getOrCreateAugmentedSymbolTable(ifaceSym.members!);
+    }
+  }
+
+  function metaMemberKey(baseType: Type): MetaMemberKey {
+    return baseType.kind === "Model" && isArrayModelType(program, baseType)
+      ? ("Array" as const)
+      : baseType.kind;
   }
 
   function getMemberKindName(node: Node) {
@@ -2361,12 +2501,6 @@ export function createChecker(program: Program): Checker {
 
   function checkProgram() {
     program.reportDuplicateSymbols(globalNamespaceNode.symbol.exports);
-    for (const file of program.sourceFiles.values()) {
-      bindAllMembers(file);
-    }
-    for (const file of program.sourceFiles.values()) {
-      bindMetaTypes(file);
-    }
     for (const file of program.sourceFiles.values()) {
       for (const ns of file.namespaces) {
         const exports = mergedSymbols.get(ns.symbol)?.exports ?? ns.symbol.exports;
@@ -2521,6 +2655,9 @@ export function createChecker(program: Program): Checker {
     if (indexer) {
       type.indexer = indexer;
     }
+
+    lateBindMemberContainer(type);
+    lateBindMembers(type);
     return type;
   }
 
@@ -2652,257 +2789,85 @@ export function createChecker(program: Program): Checker {
     properties.set(newProp.name, newProp);
   }
 
-  function bindAllMembers(node: Node) {
-    const bound = new Set<Sym>();
-    if (node.symbol) {
-      bindMembers(node, node.symbol);
-    }
-    visitChildren(node, (child) => {
-      bindAllMembers(child);
-    });
-
-    function bindMembers(node: Node, containerSym: Sym) {
-      if (bound.has(containerSym)) {
-        return;
-      }
-      bound.add(containerSym);
-      let containerMembers: Mutable<SymbolTable>;
-
-      switch (node.kind) {
-        case SyntaxKind.ModelStatement:
-          if (node.extends && node.extends.kind === SyntaxKind.TypeReference) {
-            resolveAndCopyMembers(node.extends);
-          }
-          if (node.is && node.is.kind === SyntaxKind.TypeReference) {
-            resolveAndCopyMembers(node.is);
-          }
-          for (const prop of node.properties) {
-            if (prop.kind === SyntaxKind.ModelSpreadProperty) {
-              resolveAndCopyMembers(prop.target);
-            } else {
-              const name = prop.id.sv;
-              bindMember(name, prop, SymbolFlags.ModelProperty);
-            }
-          }
-          break;
-        case SyntaxKind.ModelExpression:
-          for (const prop of node.properties) {
-            if (prop.kind === SyntaxKind.ModelSpreadProperty) {
-              resolveAndCopyMembers(prop.target);
-            } else {
-              const name = prop.id.sv;
-              bindMember(name, prop, SymbolFlags.ModelProperty);
-            }
-          }
-          break;
-        case SyntaxKind.EnumStatement:
-          for (const member of node.members.values()) {
-            if (member.kind === SyntaxKind.EnumSpreadMember) {
-              resolveAndCopyMembers(member.target);
-            } else {
-              const name = member.id.sv;
-              bindMember(name, member, SymbolFlags.EnumMember);
-            }
-          }
-          break;
-        case SyntaxKind.InterfaceStatement:
-          for (const member of node.operations.values()) {
-            bindMember(member.id.sv, member, SymbolFlags.InterfaceMember | SymbolFlags.Operation);
-          }
-          if (node.extends) {
-            for (const ext of node.extends) {
-              resolveAndCopyMembers(ext);
-            }
-          }
-          break;
-        case SyntaxKind.UnionStatement:
-          for (const variant of node.options.values()) {
-            if (!variant.id) {
-              continue;
-            }
-            const name = variant.id.sv;
-            bindMember(name, variant, SymbolFlags.UnionVariant);
-          }
-          break;
-      }
-
-      function resolveAndCopyMembers(node: TypeReferenceNode) {
-        let ref = resolveTypeReferenceSym(node, undefined);
-        if (ref && ref.flags & SymbolFlags.Alias) {
-          ref = resolveAliasedSymbol(ref);
-        }
-        if (ref && ref.members) {
-          bindMembers(ref.declarations[0], ref);
-          copyMembers(ref.members);
-        }
-      }
-
-      function resolveAliasedSymbol(ref: Sym): Sym | undefined {
-        const node = ref.declarations[0] as AliasStatementNode;
-        switch (node.value.kind) {
-          case SyntaxKind.MemberExpression:
-          case SyntaxKind.TypeReference:
-          case SyntaxKind.Identifier:
-            const resolvedSym = resolveTypeReferenceSym(node.value, undefined);
-            if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
-              return resolveAliasedSymbol(resolvedSym);
-            }
-            return resolvedSym;
-          default:
-            return undefined;
-        }
-      }
-
-      function copyMembers(table: SymbolTable) {
-        const members = augmentedSymbolTables.get(table) ?? table;
-        for (const member of members.values()) {
-          bindMember(member.name, member.declarations[0], member.flags);
-        }
-      }
-
-      function bindMember(name: string, node: Node, kind: SymbolFlags) {
-        const sym = createSymbol(node, name, kind, containerSym);
-        compilerAssert(containerSym.members, "containerSym.members is undefined");
-        containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members);
-        containerMembers.set(name, sym);
-      }
-    }
-  }
-
-  function copyMembersToContainer(targetContainerSym: Sym, table: SymbolTable) {
-    const members = augmentedSymbolTables.get(table) ?? table;
-    compilerAssert(targetContainerSym.members, "containerSym.members is undefined");
-    const containerMembers = getOrCreateAugmentedSymbolTable(targetContainerSym.members);
-
-    for (const member of members.values()) {
-      bindMemberToContainer(
-        targetContainerSym,
-        containerMembers,
-        member.name,
-        member.declarations[0],
-        member.flags
-      );
-    }
-  }
-
-  function bindMemberToContainer(
-    containerSym: Sym,
-    containerMembers: Mutable<SymbolTable>,
-    name: string,
-    node: Node,
-    kind: SymbolFlags
-  ) {
-    const sym = createSymbol(node, name, kind, containerSym);
-    compilerAssert(containerSym.members, "containerSym.members is undefined");
-    containerMembers.set(name, sym);
-  }
-
-  function bindMetaTypes(node: Node) {
-    const visited = new Set();
-    function visit(node: Node, symbol?: Sym) {
-      if (visited.has(node)) {
-        return;
-      }
-      visited.add(node);
-      switch (node.kind) {
-        case SyntaxKind.ModelProperty: {
-          const sym = getSymbolForMember(node);
-          if (sym) {
-            const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-
-            table.set(
-              "type",
-              node.value.kind === SyntaxKind.TypeReference
-                ? createSymbol(node.value, "", SymbolFlags.Alias)
-                : node.value.symbol
-            );
-          }
-          break;
-        }
-
-        case SyntaxKind.OperationStatement: {
-          const sym = symbol ?? node.symbol ?? getSymbolForMember(node);
-          const table = getOrCreateAugmentedSymbolTable(sym.metatypeMembers!);
-          if (node.signature.kind === SyntaxKind.OperationSignatureDeclaration) {
-            table.set("parameters", node.signature.parameters.symbol);
-            table.set("returnType", node.signature.returnType.symbol);
-          } else {
-            const sig = resolveTypeReferenceSym(node.signature.baseOperation, undefined);
-            if (sig) {
-              visit(sig.declarations[0], sig);
-              const sigTable = getOrCreateAugmentedSymbolTable(sig.metatypeMembers!);
-              const sigParameterSym = sigTable.get("parameters")!;
-              if (sigParameterSym !== undefined) {
-                const parametersSym = createSymbol(
-                  sigParameterSym.declarations[0],
-                  "parameters",
-                  SymbolFlags.Model & SymbolFlags.MemberContainer
-                );
-                copyMembersToContainer(parametersSym, sigParameterSym.members!);
-                table.set("parameters", parametersSym);
-                table.set("returnType", sigTable.get("returnType")!);
-              }
-            }
-          }
-
-          break;
-        }
-      }
-      visitChildren(node, (child) => {
-        bindMetaTypes(child);
-      });
-    }
-    visit(node);
-  }
-
   /**
    * Initializes a late bound symbol for the type. This is generally necessary when attempting to
    * access a symbol for a type that is created during the check phase.
+   *
+   * Some containers already have a symbol for the container (on the node), in which case, we just use
+   * that. But in some cases, a container doesn't have a useful symbol, for example if the type is the
+   * result of some calculation (i.e. intersection), or if the type is a template instantiation.
    */
-  function lateBindMemberContainer(type: Type) {
-    if ((type as any).symbol) return;
+  function lateBindMemberContainer(type: Model | Union | Interface | Enum) {
+    if ((type as any).symbol) return; // already late bound
+    const node = type.node;
+
+    if (node && node.symbol && !isTemplateInstance(type)) {
+      type.symbol = node.symbol;
+      return;
+    }
+
+    compilerAssert(
+      type.kind !== "Enum",
+      "Enum should always have a symbol because its not templated."
+    );
+
     switch (type.kind) {
       case "Model":
-        type.symbol = createSymbol(type.node, type.name, SymbolFlags.Model | SymbolFlags.LateBound);
+        type.symbol = createSymbol(
+          type.node,
+          type.name,
+          SymbolFlags.Model | SymbolFlags.Declaration | SymbolFlags.LateBound
+        );
         mutate(type.symbol).type = type;
         break;
       case "Interface":
         type.symbol = createSymbol(
           type.node,
           type.name,
-          SymbolFlags.Interface | SymbolFlags.LateBound
+          SymbolFlags.Interface | SymbolFlags.LateBound | SymbolFlags.Declaration
         );
         mutate(type.symbol).type = type;
         break;
       case "Union":
-        if (!type.name) return; // don't make a symbol for anonymous unions
-        type.symbol = createSymbol(type.node, type.name, SymbolFlags.Union | SymbolFlags.LateBound);
+        type.symbol = createSymbol(
+          type.node,
+          type.name ?? "(anonymous union)",
+          SymbolFlags.Union | SymbolFlags.LateBound | SymbolFlags.Declaration
+        );
         mutate(type.symbol).type = type;
         break;
     }
   }
-  function lateBindMembers(type: Type, containerSym: Sym) {
-    let containerMembers: Mutable<SymbolTable> | undefined;
+  function lateBindMembers(type: Interface | Model | Union | Enum) {
+    compilerAssert(type.symbol, "Type must have a symbol to late bind members");
+    const containerSym = type.symbol;
+    compilerAssert(containerSym.members, "Container symbol didn't have members at late-bind");
+    const containerMembers: Mutable<SymbolTable> = getOrCreateAugmentedSymbolTable(
+      containerSym.members
+    );
 
     switch (type.kind) {
       case "Model":
         for (const prop of walkPropertiesInherited(type)) {
-          lateBindMember(prop, SymbolFlags.ModelProperty);
+          lateBindMember(prop, SymbolFlags.Member | SymbolFlags.Declaration);
         }
         break;
       case "Enum":
         for (const member of type.members.values()) {
-          lateBindMember(member, SymbolFlags.EnumMember);
+          lateBindMember(member, SymbolFlags.Member | SymbolFlags.Declaration);
         }
         break;
       case "Interface":
         for (const member of type.operations.values()) {
-          lateBindMember(member, SymbolFlags.InterfaceMember | SymbolFlags.Operation);
+          lateBindMember(
+            member,
+            SymbolFlags.Member | SymbolFlags.Operation | SymbolFlags.Declaration
+          );
         }
         break;
       case "Union":
         for (const variant of type.variants.values()) {
-          lateBindMember(variant, SymbolFlags.UnionVariant);
+          lateBindMember(variant, SymbolFlags.Member | SymbolFlags.Declaration);
         }
         break;
     }
@@ -2923,7 +2888,6 @@ export function createChecker(program: Program): Checker {
       );
       mutate(sym).type = member;
       compilerAssert(containerSym.members, "containerSym.members is undefined");
-      containerMembers ??= getOrCreateAugmentedSymbolTable(containerSym.members);
       containerMembers.set(member.name, sym);
     }
   }
@@ -3135,6 +3099,9 @@ export function createChecker(program: Program): Checker {
     prop: ModelPropertyNode,
     mapper: TypeMapper | undefined
   ): ModelProperty {
+    if (prop.id.sv === "a") {
+      debugger;
+    }
     const symId = getSymbolId(getSymbolForMember(prop)!);
     const links = getSymbolLinksForMember(prop);
 
@@ -3604,12 +3571,10 @@ export function createChecker(program: Program): Checker {
         decorators: [],
       }));
 
-      const memberNames = new Set<string>();
-
       for (const member of node.members) {
         if (member.kind === SyntaxKind.EnumMember) {
           const memberType = checkEnumMember(member, mapper, enumType);
-          if (memberNames.has(memberType.name)) {
+          if (enumType.members.has(memberType.name)) {
             reportCheckerDiagnostic(
               createDiagnostic({
                 code: "enum-member-duplicate",
@@ -3619,16 +3584,9 @@ export function createChecker(program: Program): Checker {
             );
             continue;
           }
-          memberNames.add(memberType.name);
           enumType.members.set(memberType.name, memberType);
         } else {
-          const members = checkEnumSpreadMember(
-            node.symbol,
-            enumType,
-            member.target,
-            mapper,
-            memberNames
-          );
+          const members = checkEnumSpreadMember(node.symbol, enumType, member.target, mapper);
           for (const memberType of members) {
             linkIndirectMember(node, memberType, mapper);
             enumType.members.set(memberType.name, memberType);
@@ -3721,6 +3679,8 @@ export function createChecker(program: Program): Checker {
       interfaceType.namespace?.interfaces.set(interfaceType.name, interfaceType);
     }
 
+    lateBindMemberContainer(interfaceType);
+    lateBindMembers(interfaceType);
     return interfaceType;
   }
 
@@ -3787,6 +3747,8 @@ export function createChecker(program: Program): Checker {
       unionType.namespace?.unions.set(unionType.name!, unionType);
     }
 
+    lateBindMemberContainer(unionType);
+    lateBindMembers(unionType);
     return unionType;
   }
 
@@ -3870,7 +3832,11 @@ export function createChecker(program: Program): Checker {
 
   function getSymbolLinksForMember(node: MemberNode): SymbolLinks | undefined {
     const sym = getSymbolForMember(node);
-    return sym ? (sym.declarations[0] === node ? getSymbolLinks(sym) : undefined) : undefined;
+    return sym
+      ? (sym.node ?? sym.declarations[0]) === node
+        ? getSymbolLinks(sym)
+        : undefined
+      : undefined;
   }
 
   function checkEnumMember(
@@ -3879,24 +3845,22 @@ export function createChecker(program: Program): Checker {
     parentEnum?: Enum
   ): EnumMember {
     const name = node.id.sv;
-    const links = getSymbolLinksForMember(node);
-    if (links?.type) {
+    compilerAssert(node.symbol, "Enum member should have a symbol");
+    const links = getSymbolLinks(node.symbol);
+    if (links.type) {
       return links.type as EnumMember;
     }
     compilerAssert(parentEnum, "Enum member should already have been checked.");
     const value = node.value ? node.value.value : undefined;
 
-    const member: EnumMember = createType({
+    const member: EnumMember = (links.type = createType({
       kind: "EnumMember",
       enum: parentEnum,
       name,
       node,
       value,
       decorators: [],
-    });
-    if (links) {
-      links.type = member;
-    }
+    }));
 
     member.decorators = checkDecorators(member, node, mapper);
     return finishType(member);
@@ -3906,42 +3870,77 @@ export function createChecker(program: Program): Checker {
     parentEnumSym: Sym,
     parentEnum: Enum,
     targetNode: TypeReferenceNode,
-    mapper: TypeMapper | undefined,
-    existingMemberNames: Set<string>
+    mapper: TypeMapper | undefined
   ): EnumMember[] {
     const members: EnumMember[] = [];
-    const targetType = getTypeForNode(targetNode, mapper);
+    const { sym: sourceSym, type: sourceType } = getTypeReferenceTypeAndSymbol(targetNode, mapper);
 
-    if (!isErrorType(targetType)) {
-      if (targetType.kind !== "Enum") {
-        reportCheckerDiagnostic(createDiagnostic({ code: "spread-enum", target: targetNode }));
-        return members;
+    if (isErrorType(sourceType)) {
+      return members;
+    }
+
+    compilerAssert(sourceSym, "Enum spread source doesn't have symbol");
+    compilerAssert(sourceSym.members, "Enum spread source doesn't have members");
+
+    if (sourceType.kind !== "Enum") {
+      reportCheckerDiagnostic(createDiagnostic({ code: "spread-enum", target: targetNode }));
+      return members;
+    }
+
+    for (const [name, sym] of sourceSym.members) {
+      if (parentEnumSym.members!.has(name)) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "enum-member-duplicate",
+            format: { name },
+            target: targetNode,
+          })
+        );
+
+        continue;
       }
 
-      for (const member of targetType.members.values()) {
-        if (existingMemberNames.has(member.name)) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "enum-member-duplicate",
-              format: { name: member.name },
-              target: targetNode,
-            })
-          );
-        } else {
-          existingMemberNames.add(member.name);
-          const memberSym = getMemberSymbol(parentEnumSym, member.name);
-          const clonedMember = cloneTypeForSymbol(memberSym!, member, {
-            enum: parentEnum,
-            sourceMember: member,
-          });
-          if (clonedMember) {
-            members.push(clonedMember);
-          }
-        }
-      }
+      const sourceMember = sourceType.members.get(name);
+      compilerAssert(sourceMember, "Source member doesn't exist");
+      lateBindClone(sym, parentEnum, "members", parentEnumSym, () =>
+        initializeClone(sourceMember, {
+          enum: sourceType,
+          sourceMember,
+        })
+      );
     }
 
     return members;
+  }
+
+  /**
+   * Clone the provided type and store it into the provided member map, and
+   * create a late-bound symbol for the cloned type, and store it into the
+   * provided symbol table.
+   */
+  function lateBindClone<TMember extends Type, TContainer extends Type>(
+    sourceSymbol: Sym,
+    targetType: TContainer,
+    targetMembersName: keyof TContainer,
+    targetSymbol: Sym,
+    clone: () => TMember
+  ): TMember {
+    const name = sourceSymbol.name;
+    const memberSym = createSymbol(
+      sourceSymbol.node,
+      name,
+      sourceSymbol.flags | SymbolFlags.LateBound,
+      targetSymbol
+    );
+    compilerAssert(targetSymbol.members, "Target symbol doesn't have members");
+    const table = getOrCreateAugmentedSymbolTable(targetSymbol.members!);
+    table.set(name, memberSym);
+    const clonedMember = clone();
+    finishType(clonedMember);
+    mutate(memberSym).type = clonedMember;
+
+    (targetType[targetMembersName] as RekeyableMap<string, TMember>).set(name, clonedMember);
+    return clonedMember;
   }
 
   function checkDirectives(node: Node, type: Type): void {
@@ -4093,7 +4092,7 @@ export function createChecker(program: Program): Checker {
     const isTargetDeclaration = targetBinding.flags & SymbolFlags.Declaration;
     const isTargetImplementation = targetBinding.flags & SymbolFlags.Implementation;
     if (isTargetDeclaration && isTargetImplementation) {
-      // If the target already has both a declration and implementation set the symbol which will mark it as duplicate
+      // If the target already has both a declaration and implementation set the symbol which will mark it as duplicate
       target.set(key, sourceBinding);
     } else if (isTargetDeclaration && isSourceImplementation) {
       mergedSymbols.set(sourceBinding, targetBinding);

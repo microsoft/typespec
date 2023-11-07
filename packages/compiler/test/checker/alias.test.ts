@@ -75,7 +75,7 @@ describe("compiler: aliases", () => {
     testHost.addTypeSpecFile(
       "main.tsp",
       `
-      alias Foo<T> = int32 | T;
+      alias Foo<TEST> = int32 | TEST;
       
       @test model A {
         prop: Foo<"hi">

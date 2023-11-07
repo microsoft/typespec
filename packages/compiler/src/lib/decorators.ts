@@ -245,6 +245,16 @@ export function getIndexer(program: Program, target: Type): ModelIndexer | undef
   return program.stateMap(indexTypeKey).get(target);
 }
 
+const prototypeGetterKey = createStateSymbol("prototypes.getter");
+export function $getter(context: DecoratorContext, target: Type) {
+  context.program.stateMap(prototypeGetterKey).set(target, true);
+}
+$getter.namespace = "Prototypes";
+
+export function isPrototypeGetter(program: Program, target: Type): ModelIndexer | undefined {
+  return program.stateMap(prototypeGetterKey).get(target) ?? false;
+}
+
 export function isStringType(program: Program | ProjectedProgram, target: Type): target is Scalar {
   const coreType = program.checker.getStdType("string");
   const stringType = target.projector ? target.projector.projectType(coreType) : coreType;

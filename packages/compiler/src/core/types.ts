@@ -208,6 +208,20 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
+/**
+ * Valid keys when looking up meta members for a particular type.
+ * Array is a special case because it doesn't have a unique type, but does
+ * carry unique meta-members.
+ */
+export type MetaMemberKey = Type["kind"] | "Array";
+
+/**
+ * A table to ease lookup of meta member interfaces during identifier resolution.
+ * Only `type` exists today, but `value` will be added in the future.
+ */
+export interface MetaMembersTable {
+  type: Partial<Record<MetaMemberKey, Sym>>;
+}
 export type NeverIndexer = { key: NeverType; value: undefined };
 export type ModelIndexer = {
   key: Scalar;
@@ -357,6 +371,12 @@ export interface Enum extends BaseType, DecoratedType {
    * obtained via `...` are inserted where the spread appears in source.
    */
   members: RekeyableMap<string, EnumMember>;
+
+  /**
+   * Late-bound symbol of this enum type.
+   * @internal
+   */
+  symbol?: Sym;
 }
 
 export interface EnumMember extends BaseType, DecoratedType {
@@ -558,9 +578,14 @@ export interface Sym {
   readonly flags: SymbolFlags;
 
   /**
-   * Nodes which contribute to this declaration
+   * Nodes which contribute to this declaration, present if SymbolFlags.Declaration is set.
    */
   readonly declarations: readonly Node[];
+
+  /**
+   * Node which resulted in this symbol, present if SymbolFlags.Declaration is not set.
+   */
+  readonly node: Node;
 
   /**
    * The name of the symbol
@@ -619,7 +644,55 @@ export interface SymbolLinks {
   // a map of instantiations.
   declaredType?: Type;
   instantiations?: TypeInstantiationMap;
+
+  /**
+   * When a symbol contains unknown members, symbol lookup during
+   * name resolution should always return unknown if it can't definitely
+   * find a member.
+   */
+  hasUnknownMembers?: boolean;
+
+  /**
+   * True if we have completed the early binding of member symbols for this model during
+   * the name resolution phase.
+   */
+  membersBound?: boolean;
+
+  /**
+   * The symbol aliased by an alias symbol. When present, guaranteed to be a
+   * non-alias symbol. Will not be present when the name resolver could not
+   * determine a symbol for the alias, e.g. when it is a template.
+   */
+  aliasedSymbol?: Sym;
 }
+
+export interface NodeLinks {
+  /** the result of type checking this node */
+  resolvedType?: Type;
+
+  /** the result of resolving this node */
+  resolvedSymbol?: Sym;
+
+  /**
+   * The result of resolution of this node.
+   *
+   * When the the result is `Resolved`, `resolvedSymbol` contains the result.
+   **/
+  resolutionResult?: ResolutionResultFlags;
+}
+
+export enum ResolutionResultFlags {
+  None = 0,
+  Resolved = 1 << 1,
+  Unknown = 1 << 2,
+  Ambiguous = 1 << 3,
+  NotFound = 1 << 4,
+
+  ResolutionFailed = Unknown | Ambiguous | NotFound,
+  ResolutionFatal = Ambiguous | NotFound,
+}
+
+export type ResolutionResult = [sym: Sym | undefined, result: ResolutionResultFlags];
 
 /**
  * @hidden bug in typedoc
@@ -635,41 +708,42 @@ export interface SymbolTable extends ReadonlyMap<string, Sym> {
 export const enum SymbolFlags {
   None                  = 0,
   Model                 = 1 << 1,
-  ModelProperty         = 1 << 2,
-  Scalar                = 1 << 3,
-  Operation             = 1 << 4,
-  Enum                  = 1 << 5,
-  EnumMember            = 1 << 6,
-  Interface             = 1 << 7,
-  InterfaceMember       = 1 << 8,
-  Union                 = 1 << 9,
-  UnionVariant          = 1 << 10,
-  Alias                 = 1 << 11,
-  Namespace             = 1 << 12,
-  Projection            = 1 << 13,
-  Decorator             = 1 << 14,
-  TemplateParameter     = 1 << 15,
-  ProjectionParameter   = 1 << 16,
-  Function              = 1 << 17,
-  FunctionParameter     = 1 << 18,
-  Using                 = 1 << 19,
-  DuplicateUsing        = 1 << 20,
-  SourceFile            = 1 << 21,
-  Declaration           = 1 << 22,
-  Implementation        = 1 << 23,
+  Scalar                = 1 << 2,
+  Operation             = 1 << 3,
+  Enum                  = 1 << 4,
+  Interface             = 1 << 5,
+  Union                 = 1 << 6,
+  Alias                 = 1 << 7,
+  Namespace             = 1 << 8,
+  Projection            = 1 << 9,
+  Decorator             = 1 << 10,
+  TemplateParameter     = 1 << 11,
+  ProjectionParameter   = 1 << 12,
+  Function              = 1 << 13,
+  FunctionParameter     = 1 << 14,
+  Using                 = 1 << 15,
+  DuplicateUsing        = 1 << 16,
+  SourceFile            = 1 << 17,
+  Member                = 1 << 18,
+
+  /**
+   * A symbol which represents a declaration. Such symbols will have at least
+   * one entry in the `declarations[]` array referring to a node with an `id`.
+   * 
+   * Symbols which do not represent declarations 
+   */
+  Declaration           = 1 << 19,
+
+  Implementation        = 1 << 20,
   
   /**
    * A symbol which was late-bound, in which case, the type referred to
    * by this symbol is stored directly in the symbol.
    */
-  LateBound = 1 << 24,
+  LateBound = 1 << 21,
 
   ExportContainer = Namespace | SourceFile,
-  /**
-   * Symbols whose members will be late bound (and stored on the type)
-   */
   MemberContainer = Model | Enum | Union | Interface,
-  Member = ModelProperty | EnumMember | UnionVariant | InterfaceMember,
 }
 
 /**
@@ -831,6 +905,8 @@ export interface BaseNode extends TextRange {
    * you will likely only access symbol in cases where you know the node has a symbol.
    */
   readonly symbol: Sym;
+  /** Unique id used to look up NodeLinks */
+  _id?: number;
 }
 
 export interface TemplateDeclarationNode {
