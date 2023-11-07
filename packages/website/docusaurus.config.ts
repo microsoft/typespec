@@ -67,7 +67,7 @@ const config: Config = {
       async: true,
     },
     {
-      src: "https://typespec.blob.core.windows.net/pkgs/indexes/typespec/0.49.x.json",
+      src: `https://typespec.blob.core.windows.net/pkgs/indexes/typespec/${getLatestVersion()}.json`,
       type: "importmap-shim",
     },
   ],
