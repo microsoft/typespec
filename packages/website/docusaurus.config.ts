@@ -62,7 +62,7 @@ const config: Config = {
   },
   scripts: [
     {
-      src: baseUrl + "es-module-shims.js",
+      src: "es-module-shims.js",
       type: "module",
       async: true,
     },
