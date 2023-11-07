@@ -104,6 +104,10 @@ const config: Config = {
         name: "custom-configure-webpack",
         configureWebpack: (config, isServer, utils) => {
           return {
+            module: {
+              rules: [{ test: /\.tsp$/, use: "raw-loader" }],
+            },
+
             ignoreWarnings: [
               (warning, compilation) => {
                 const moduleName: string | undefined = (warning.module as any)?.resource;

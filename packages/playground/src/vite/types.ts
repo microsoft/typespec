@@ -7,7 +7,7 @@ export interface PlaygroundUserConfig extends Omit<PlaygroundConfig, "samples"> 
    * If the bundle library plugin should be loaded.
    */
   skipBundleLibraries?: boolean;
-  samples: Record<string, PlaygroundSampleConfig>;
+  samples?: Record<string, PlaygroundSampleConfig>;
 }
 
 export interface PlaygroundConfig {

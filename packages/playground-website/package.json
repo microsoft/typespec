@@ -18,7 +18,12 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/src/lib.js",
+  "exports": {
+    "./samples":{
+      "types":  "./samples/samples.d.ts",
+      "default":  "./samples/samples.js"
+    }
+  },
   "engines": {
     "node": ">=18.0.0"
   },
