@@ -98,26 +98,26 @@ const config: Config = {
   ],
 
   webpack: {
-    jsLoader: (isServer) => ({
-      loader: require.resolve("swc-loader"),
-      options: {
-        jsc: {
-          parser: {
-            syntax: "typescript",
-            tsx: true,
-          },
-          target: "es2019",
-          transform: {
-            react: {
-              runtime: "automatic",
-            },
-          },
-        },
-        module: {
-          type: "es6",
-        },
-      },
-    }),
+    // jsLoader: (isServer) => ({
+    //   loader: require.resolve("swc-loader"),
+    //   options: {
+    //     jsc: {
+    //       parser: {
+    //         syntax: "typescript",
+    //         tsx: true,
+    //       },
+    //       target: "es2019",
+    //       transform: {
+    //         react: {
+    //           runtime: "automatic",
+    //         },
+    //       },
+    //     },
+    //     module: {
+    //       type: "es6",
+    //     },
+    //   },
+    // }),
   },
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
