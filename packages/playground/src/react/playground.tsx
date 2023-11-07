@@ -253,7 +253,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           />
         </Pane>
       </SplitPane>
-      <Footer />
+      <Footer host={host} />
     </div>
   );
 };
