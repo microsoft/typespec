@@ -1,9 +1,8 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import Layout from "@theme/Layout";
-import { useEffect, useState } from "react";
-
 import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import Layout from "@theme/Layout";
 import "@typespec/playground/style.css";
+import { useEffect, useState } from "react";
 
 const libraries = [
   "@typespec/compiler",
@@ -18,8 +17,17 @@ const libraries = [
 const defaultEmitter = "@typespec/openapi3";
 
 async function createPlaygroundComponent() {
+  // Need to import dynamically to avoid SSR issues due to monaco editor referencing navigator.
   const { createReactPlayground } = await import("@typespec/playground/react");
-  return createReactPlayground({ libraries, defaultEmitter, importConfig: { useShim: true } });
+  const { SwaggerUIViewer } = await import("@typespec/playground/react/viewers");
+  return createReactPlayground({
+    libraries,
+    defaultEmitter,
+    emitterViewers: {
+      "@typespec/openapi3": [SwaggerUIViewer],
+    },
+    importConfig: { useShim: true },
+  });
 }
 
 export default function PlaygroundPage() {
