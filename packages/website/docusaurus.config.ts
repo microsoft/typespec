@@ -106,12 +106,14 @@ const config: Config = {
           return {
             ignoreWarnings: [
               (warning, compilation) => {
+                const moduleName: string | undefined = (warning.module as any)?.resource;
                 return (
                   warning.name === "ModuleDependencyWarning" &&
                   warning.message.startsWith("Critical dependency") &&
-                  (warning.module as any)?.resource?.endsWith(
+                  (moduleName?.endsWith(
                     "node_modules/vscode-languageserver-types/lib/umd/main.js"
-                  )
+                  ) ||
+                    moduleName?.endsWith("packages/compiler/dist/src/core/node-host.js"))
                 );
               },
             ],
