@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fixing @doc and /** */ disappears from multi-segment or nested namespaces. #2642",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
