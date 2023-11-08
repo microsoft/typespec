@@ -1,32 +1,46 @@
 import { css } from "@emotion/react";
+import { tokens } from "@fluentui/react-components";
 import { Diagnostic, Program } from "@typespec/compiler";
 import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { FileOutput } from "./file-output.js";
 import { OutputTabs, Tab } from "./output-tabs.js";
+import { PlaygroundEditorsOptions } from "./playground.js";
 import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "./types.js";
 import { OutputEditor } from "./typespec-editor.js";
 
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;
+  editorOptions?: PlaygroundEditorsOptions;
   viewers?: FileOutputViewer[];
 }
 
-export const OutputView: FunctionComponent<OutputViewProps> = ({ compilationState, viewers }) => {
+export const OutputView: FunctionComponent<OutputViewProps> = ({
+  compilationState,
+  viewers,
+  editorOptions,
+}) => {
   if (compilationState === undefined) {
     return <></>;
   }
   if ("internalCompilerError" in compilationState) {
     return <InternalCompilerError error={compilationState.internalCompilerError} />;
   }
-  return <OutputViewInternal compilationResult={compilationState} viewers={viewers} />;
+  return (
+    <OutputViewInternal
+      compilationResult={compilationState}
+      viewers={viewers}
+      editorOptions={editorOptions}
+    />
+  );
 };
 
 const OutputViewInternal: FunctionComponent<{
   compilationResult: CompileResult;
+  editorOptions?: PlaygroundEditorsOptions;
   viewers?: FileOutputViewer[];
-}> = ({ compilationResult, viewers }) => {
+}> = ({ compilationResult, viewers, editorOptions }) => {
   const { program, outputFiles } = compilationResult;
 
   const [viewSelection, setViewSelection] = useState<ViewSelection>({
@@ -87,24 +101,32 @@ const OutputViewInternal: FunctionComponent<{
         onSelect={handleTabSelection}
       />
       <div className="output-content" css={{ width: "100%", height: "100%", overflow: "hidden" }}>
-        <OutputContent viewSelection={viewSelection} program={program} viewers={viewers} />
+        <OutputContent
+          viewSelection={viewSelection}
+          editorOptions={editorOptions}
+          program={program}
+          viewers={viewers}
+        />
       </div>
     </>
   );
 };
 
-const rawFileViewer = {
-  key: "raw",
-  label: "File",
-  render: ({ filename, content }: ViewerProps) => (
-    <OutputEditor filename={filename} value={content} />
-  ),
-};
+function getRawFileViewer(editorOptions?: PlaygroundEditorsOptions) {
+  return {
+    key: "raw",
+    label: "File",
+    render: ({ filename, content }: ViewerProps) => (
+      <OutputEditor editorOptions={editorOptions} filename={filename} value={content} />
+    ),
+  };
+}
 
 interface OutputContentProps {
   viewSelection: ViewSelection;
   program: Program | undefined;
   internalCompilerError?: any;
+  editorOptions?: PlaygroundEditorsOptions;
   viewers?: FileOutputViewer[];
 }
 
@@ -112,8 +134,12 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
   viewSelection,
   program,
   viewers,
+  editorOptions,
 }) => {
-  const resolvedViewers = useMemo(() => [rawFileViewer, ...(viewers ?? [])], [viewers]);
+  const resolvedViewers = useMemo(
+    () => [getRawFileViewer(editorOptions), ...(viewers ?? [])],
+    [viewers]
+  );
   switch (viewSelection.type) {
     case "file":
       return (
@@ -154,8 +180,8 @@ const ErrorTabLabel: FunctionComponent<{
 };
 
 const ErrorTabCountStyles = css({
-  backgroundColor: "#cc2222",
-  color: "#f5f5f5",
+  backgroundColor: tokens.colorStatusDangerBackground3,
+  color: tokens.colorNeutralForegroundOnBrand,
   padding: "0 5px",
   borderRadius: "20px",
 });

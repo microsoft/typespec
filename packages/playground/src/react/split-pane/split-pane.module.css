@@ -41,12 +41,12 @@
 .sash-content {
   width: 100%;
   height: 100%;
-  background-color: #e5e5e5;
+  background-color: var(--colorNeutralStroke2);
 }
 
 .sash-content-dragging,
 .sash-content:hover {
-  background-color: #c3c3c3;
+  background-color: var(--colorNeutralStroke1Pressed);
 }
 
 .pane {
