@@ -1,4 +1,4 @@
-import { getBaseFileName, getDirectoryPath } from "@typespec/compiler";
+import { getBaseFileName, getDirectoryPath, resolvePath } from "@typespec/compiler";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { PlaygroundSample } from "../types.js";
 import { PlaygroundSampleConfig } from "./types.js";
@@ -33,5 +33,5 @@ export async function buildSamples_experimental(
     `declare const samples: Record<string, PlaygroundSample>;`,
     `export default samples;`,
   ].join("\n");
-  await writeFile(getBaseFileName(output) + ".d.ts", dts);
+  await writeFile(resolvePath(dir, getBaseFileName(output)) + ".d.ts", dts);
 }
