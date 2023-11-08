@@ -13,6 +13,7 @@
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "jsx": "react-jsx",
     "checkJs": true,
+    "allowJs": true,
     "jsxImportSource": "@emotion/react",
     "lib": ["DOM", "ES2022"],
     "types": ["@emotion/react"]
@@ -23,7 +24,7 @@
     "test/**/*.ts",
     "e2e/**/*.ts",
     "vite.config.ts",
-    "samples/samples.js",
+    "samples/**/*.js",
     "samples/**/*.d.ts"
   ]
 }

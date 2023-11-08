@@ -21,7 +21,7 @@
   "exports": {
     "./samples": {
       "types": "./samples/samples.d.ts",
-      "default": "./samples/samples.js"
+      "default": "./samples/index.js"
     }
   },
   "engines": {
