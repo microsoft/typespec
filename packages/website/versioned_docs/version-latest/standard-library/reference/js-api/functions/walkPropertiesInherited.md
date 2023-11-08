@@ -19,3 +19,7 @@ Properties that are overridden are not enumerated.
 | Parameter | Type |
 | :------ | :------ |
 | `model` | [`Model`](../interfaces/Model.md) |
+
+## Returns
+
+`Generator`<[`ModelProperty`](../interfaces/ModelProperty.md), `void`, `unknown`\>

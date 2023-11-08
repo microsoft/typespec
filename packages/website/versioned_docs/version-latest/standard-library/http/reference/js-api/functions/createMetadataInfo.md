@@ -13,3 +13,7 @@ createMetadataInfo(program, options?): MetadataInfo
 | :------ | :------ |
 | `program` | `Program` |
 | `options`? | [`MetadataInfoOptions`](../interfaces/MetadataInfoOptions.md) |
+
+## Returns
+
+[`MetadataInfo`](../interfaces/MetadataInfo.md)

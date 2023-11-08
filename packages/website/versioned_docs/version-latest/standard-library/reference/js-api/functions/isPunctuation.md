@@ -12,3 +12,7 @@ isPunctuation(token): boolean
 | Parameter | Type |
 | :------ | :------ |
 | `token` | [`Token`](../enumerations/Token.md) |
+
+## Returns
+
+`boolean`

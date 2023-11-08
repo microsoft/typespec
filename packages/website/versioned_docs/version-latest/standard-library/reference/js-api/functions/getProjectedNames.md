@@ -16,4 +16,6 @@ getProjectedNames(program, target): ReadonlyMap<string, string> | undefined
 
 ## Returns
 
+`ReadonlyMap`<`string`, `string`\> \| `undefined`
+
 Map of the projected names for the given entity.

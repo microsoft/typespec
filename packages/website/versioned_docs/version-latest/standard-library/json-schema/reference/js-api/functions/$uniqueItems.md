@@ -13,3 +13,7 @@ $uniqueItems(context, target): void
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `target` | `Model` \| `ModelProperty` |
+
+## Returns
+
+`void`

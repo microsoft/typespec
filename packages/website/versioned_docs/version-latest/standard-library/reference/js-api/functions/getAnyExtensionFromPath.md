@@ -22,3 +22,7 @@ getAnyExtensionFromPath("/path/to.ext/file") === ""
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`string`

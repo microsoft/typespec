@@ -18,4 +18,6 @@ Returns the mapping of versions to old type values, if applicable
 
 ## Returns
 
+`Map`<[`Version`](../interfaces/Version.md), `Type`\> \| `undefined`
+
 Map of versions to old types, if any

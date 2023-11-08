@@ -11,15 +11,15 @@ title: "[I] FunctionParameter"
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `instantiationParameters`? | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
 | `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` |
 | `kind` | `"FunctionParameter"` | - | [`BaseType`](BaseType.md).`kind` |
 | `name` | `string` | - | - |
 | `node` | [`FunctionParameterNode`](FunctionParameterNode.md) | - | [`BaseType`](BaseType.md).`node` |
 | `optional` | `boolean` | - | - |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
+| `projectionBase`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector`? | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
 | `rest` | `boolean` | - | - |
 | `type` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](ValueType.md) | - | - |
 
@@ -30,6 +30,10 @@ title: "[I] FunctionParameter"
 ```ts
 get projections(): ProjectionStatementNode[]
 ```
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 ## Methods
 
@@ -44,6 +48,10 @@ projectionsByName(name): ProjectionStatementNode[]
 | Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 #### Inherited from
 

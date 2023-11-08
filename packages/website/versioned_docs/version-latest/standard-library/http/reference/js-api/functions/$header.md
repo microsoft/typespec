@@ -17,3 +17,7 @@ $header(
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
 | `headerNameOrOptions`? | `StringLiteral` \| `Model` |
+
+## Returns
+
+`void`

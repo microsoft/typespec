@@ -16,6 +16,10 @@ getSourceLocation(target, options?): SourceLocation
 | `target` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) |
 | `options`? | [`SourceLocationOptions`](../interfaces/SourceLocationOptions.md) |
 
+### Returns
+
+[`SourceLocation`](../interfaces/SourceLocation.md)
+
 ## getSourceLocation(target, options)
 
 ```ts
@@ -29,6 +33,10 @@ getSourceLocation(target, options?): undefined
 | `target` | `undefined` \| *typeof* [`NoTarget`](../variables/NoTarget.md) |
 | `options`? | [`SourceLocationOptions`](../interfaces/SourceLocationOptions.md) |
 
+### Returns
+
+`undefined`
+
 ## getSourceLocation(target, options)
 
 ```ts
@@ -41,3 +49,7 @@ getSourceLocation(target, options?): SourceLocation | undefined
 | :------ | :------ |
 | `target` | `undefined` \| [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) |
 | `options`? | [`SourceLocationOptions`](../interfaces/SourceLocationOptions.md) |
+
+### Returns
+
+[`SourceLocation`](../interfaces/SourceLocation.md) \| `undefined`

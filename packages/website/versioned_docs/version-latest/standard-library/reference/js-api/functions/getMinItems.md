@@ -13,3 +13,7 @@ getMinItems(program, target): number | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`number` \| `undefined`

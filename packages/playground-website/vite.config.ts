@@ -17,34 +17,6 @@ export default defineConfig(({ mode }) => {
       "@typespec/json-schema",
       "@typespec/protobuf",
     ],
-    samples: {
-      "API versioning": {
-        filename: "samples/versioning.tsp",
-        preferredEmitter: "@typespec/openapi3",
-      },
-      "Discriminated unions": {
-        filename: "samples/unions.tsp",
-        preferredEmitter: "@typespec/openapi3",
-      },
-      "HTTP service": {
-        filename: "samples/http.tsp",
-        preferredEmitter: "@typespec/openapi3",
-        compilerOptions: { linterRuleSet: { extends: ["@typespec/http/all"] } },
-      },
-      "REST framework": {
-        filename: "samples/rest.tsp",
-        preferredEmitter: "@typespec/openapi3",
-        compilerOptions: { linterRuleSet: { extends: ["@typespec/http/all"] } },
-      },
-      "Protobuf Kiosk": {
-        filename: "samples/kiosk.tsp",
-        preferredEmitter: "@typespec/protobuf",
-      },
-      "Json Schema": {
-        filename: "samples/json-schema.tsp",
-        preferredEmitter: "@typespec/json-schema",
-      },
-    },
     enableSwaggerUI: true,
     links: {
       githubIssueUrl: `https://github.com/microsoft/typespec/issues/new`,

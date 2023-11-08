@@ -14,3 +14,7 @@ Check the given type is a finished template instance.
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`type is Object`

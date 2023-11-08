@@ -20,4 +20,6 @@ getTypeBeforeVersion(
 
 ## Returns
 
+`Type` \| `undefined`
+
 get old type if applicable.

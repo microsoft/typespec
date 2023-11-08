@@ -24,3 +24,7 @@ Otherwise, the name of the target property will be used.
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `entity` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `altName`? | `string` |
+
+## Returns
+
+`void`

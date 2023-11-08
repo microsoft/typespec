@@ -22,6 +22,10 @@ Gets a relative path that can be used to traverse between `from` and `to`.
 | `to` | `string` |
 | `ignoreCase` | `boolean` |
 
+### Returns
+
+`string`
+
 ## getRelativePathFromDirectory(fromDirectory, to, getCanonicalFileName)
 
 ```ts
@@ -40,3 +44,7 @@ Gets a relative path that can be used to traverse between `from` and `to`.
 | `fromDirectory` | `string` |
 | `to` | `string` |
 | `getCanonicalFileName` | `GetCanonicalFileName` |
+
+### Returns
+
+`string`

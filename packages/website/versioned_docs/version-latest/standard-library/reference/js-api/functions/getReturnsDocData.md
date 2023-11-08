@@ -18,4 +18,6 @@ Get the documentation information for the return success types of an operation. 
 
 ## Returns
 
+[`DocData`](../interfaces/DocData.md) \| `undefined`
+
 Doc data with source information.

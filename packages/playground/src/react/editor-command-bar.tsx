@@ -7,6 +7,7 @@ import {
   Toolbar,
   ToolbarButton,
   Tooltip,
+  tokens,
 } from "@fluentui/react-components";
 import {
   Broom16Filled,
@@ -61,7 +62,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   const bugButton = newIssue ? <FileBugButton onClick={newIssue} /> : undefined;
 
   return (
-    <div css={{ borderBottom: "1px solid #f5f5f5" }}>
+    <div css={{ borderBottom: `1px solid ${tokens.colorNeutralStroke1}` }}>
       <Toolbar>
         <Tooltip content="Save" relationship="description" withArrow>
           <ToolbarButton aria-label="Save" icon={<Save16Regular />} onClick={saveCode as any} />

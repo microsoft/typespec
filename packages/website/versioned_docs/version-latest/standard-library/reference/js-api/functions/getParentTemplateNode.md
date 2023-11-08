@@ -17,4 +17,6 @@ Lookup and find the node
 
 ## Returns
 
+[`Node`](../type-aliases/Node.md) & [`TemplateDeclarationNode`](../interfaces/TemplateDeclarationNode.md) \| `undefined`
+
 Template Parent node if applicable

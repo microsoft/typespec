@@ -12,3 +12,7 @@ hasParseError(node): number | true
 | Parameter | Type |
 | :------ | :------ |
 | `node` | [`Node`](../type-aliases/Node.md) |
+
+## Returns
+
+`number` \| `true`

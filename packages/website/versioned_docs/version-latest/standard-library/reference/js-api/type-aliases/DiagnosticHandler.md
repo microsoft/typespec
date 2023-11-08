@@ -12,3 +12,7 @@ type DiagnosticHandler: (diagnostic) => void;
 | Parameter | Type |
 | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](../interfaces/Diagnostic.md) |
+
+## Returns
+
+`void`

@@ -13,3 +13,7 @@ getQueryParamName(program, entity): string
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+`string`

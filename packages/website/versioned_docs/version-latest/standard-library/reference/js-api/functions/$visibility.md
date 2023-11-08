@@ -17,3 +17,7 @@ $visibility(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | ...`visibilities` | `string`[] |
+
+## Returns
+
+`void`

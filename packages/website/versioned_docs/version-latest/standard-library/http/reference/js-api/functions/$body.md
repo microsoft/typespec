@@ -13,3 +13,7 @@ $body(context, entity): void
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
+
+## Returns
+
+`void`

@@ -55,6 +55,12 @@ export interface PlaygroundProps {
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
   onSave?: (value: PlaygroundSaveData) => void;
+
+  editorOptions?: PlaygroundEditorsOptions;
+}
+
+export interface PlaygroundEditorsOptions {
+  theme?: string;
 }
 
 export interface PlaygroundSaveData {
@@ -207,7 +213,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   }, []);
 
   const libraries = useMemo(() => Object.values(host.libraries), [host.libraries]);
-
   return (
     <div
       css={{
@@ -243,17 +248,19 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           <TypeSpecEditor
             model={typespecModel}
             actions={typespecEditorActions}
+            options={props.editorOptions}
             onMount={onTypeSpecEditorMount}
           />
         </Pane>
         <Pane>
           <OutputView
             compilationState={compilationState}
+            editorOptions={props.editorOptions}
             viewers={props.emitterViewers?.[selectedEmitter]}
           />
         </Pane>
       </SplitPane>
-      <Footer />
+      <Footer host={host} />
     </div>
   );
 };

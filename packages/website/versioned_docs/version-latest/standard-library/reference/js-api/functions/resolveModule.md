@@ -21,3 +21,5 @@ Resolve a module
 | `options` | [`ResolveModuleOptions`](../interfaces/ResolveModuleOptions.md) |  |
 
 ## Returns
+
+`Promise`<[`ModuleResolutionResult`](../type-aliases/ModuleResolutionResult.md)\>

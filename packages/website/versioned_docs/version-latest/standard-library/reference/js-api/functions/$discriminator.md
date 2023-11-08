@@ -17,3 +17,7 @@ $discriminator(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `entity` | [`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md) |
 | `propertyName` | `string` |
+
+## Returns
+
+`void`

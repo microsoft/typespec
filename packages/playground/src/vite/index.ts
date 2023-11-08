@@ -68,7 +68,7 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
     },
     load(id: string) {
       if (id === `@typespec/playground/manifest`) {
-        const sampleImport = Object.values(samples)
+        const sampleImport = Object.values(samples ?? {})
           .map(
             (sampleValue, index) =>
               `import s${index} from "${viteConfig.root}/${sampleValue.filename}?raw"`
@@ -76,7 +76,7 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
           .join("\n");
         const sampleObj = [
           "{",
-          ...Object.entries(samples).map(
+          ...Object.entries(samples ?? {}).map(
             ([label, config], index) =>
               `${JSON.stringify(label)}: {
                 fileName: ${JSON.stringify(config.filename)},

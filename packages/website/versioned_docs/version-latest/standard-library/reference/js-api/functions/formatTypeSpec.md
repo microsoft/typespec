@@ -13,3 +13,7 @@ formatTypeSpec(code, prettierConfig?): Promise<string>
 | :------ | :------ |
 | `code` | `string` |
 | `prettierConfig`? | `Options` |
+
+## Returns
+
+`Promise`<`string`\>

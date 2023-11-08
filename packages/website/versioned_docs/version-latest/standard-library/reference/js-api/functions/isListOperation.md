@@ -16,6 +16,8 @@ isListOperation(program, target): boolean
 
 ## Returns
 
+`boolean`
+
 ## Deprecated
 
 Use `isListOperation` in `@typespec/rest` instead.

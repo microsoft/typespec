@@ -17,3 +17,7 @@ $id(
 | `context` | `DecoratorContext` |
 | `target` | `Model` \| `Scalar` \| `Enum` \| `Union` |
 | `value` | `string` |
+
+## Returns
+
+`void`

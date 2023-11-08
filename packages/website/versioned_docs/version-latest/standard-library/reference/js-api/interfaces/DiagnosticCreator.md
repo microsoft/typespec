@@ -37,6 +37,10 @@ createDiagnostic<C, M>(diag): Diagnostic
 | :------ | :------ |
 | `diag` | [`DiagnosticReport`](../type-aliases/DiagnosticReport.md)<`T`, `C`, `M`\> |
 
+#### Returns
+
+[`Diagnostic`](Diagnostic.md)
+
 ***
 
 ### reportDiagnostic()
@@ -58,3 +62,7 @@ reportDiagnostic<C, M>(program, diag): void
 | :------ | :------ |
 | `program` | [`Program`](Program.md) |
 | `diag` | [`DiagnosticReport`](../type-aliases/DiagnosticReport.md)<`T`, `C`, `M`\> |
+
+#### Returns
+
+`void`

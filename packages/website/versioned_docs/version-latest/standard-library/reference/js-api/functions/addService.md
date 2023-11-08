@@ -19,3 +19,7 @@ Mark the given namespace as a service.
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) | Namespace |
 | `details` | [`ServiceDetails`](../interfaces/ServiceDetails.md) | Service details |
+
+## Returns
+
+`void`

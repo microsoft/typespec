@@ -17,3 +17,7 @@ $maxLength(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `maxLength` | `number` |
+
+## Returns
+
+`void`

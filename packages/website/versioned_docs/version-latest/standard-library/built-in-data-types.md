@@ -186,7 +186,8 @@ scalar bytes
 
 ### `decimal` {#decimal}
 
-A decimal number with any length and precision.
+A decimal number with any length and precision. This represent any `decimal` value possible.
+It is commonly represented as `BigDecimal` in some languages.
 
 ```typespec
 scalar decimal
@@ -286,7 +287,8 @@ scalar int8
 
 ### `integer` {#integer}
 
-A whole number
+A whole number. This represent any `integer` value possible.
+It is commonly represented as `BigInteger` in some languages.
 
 ```typespec
 scalar integer
@@ -390,6 +392,17 @@ A 8-bit unsigned integer (`0` to `255`)
 
 ```typespec
 scalar uint8
+```
+
+
+
+### `unixTimestamp32` {#unixTimestamp32}
+
+Represent a 32-bit unix timestamp datetime with 1s of granularity.
+It measures time by the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+
+```typespec
+scalar unixTimestamp32
 ```
 
 

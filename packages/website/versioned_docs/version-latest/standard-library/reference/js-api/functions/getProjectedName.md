@@ -22,4 +22,6 @@ Get the projected name of the given entity for the given projection.
 
 ## Returns
 
+`string` \| `undefined`
+
 Projected name for the given projection

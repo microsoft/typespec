@@ -22,6 +22,8 @@ validateDecoratorTargetIntrinsic(
 
 ## Returns
 
+`boolean`
+
 ## Deprecated
 
 this function is deprecated use decorator definition in typespec instead or check assignability directly.

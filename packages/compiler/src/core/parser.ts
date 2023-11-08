@@ -413,7 +413,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
-          item = parseNamespaceStatement(pos, decorators);
+          item = parseNamespaceStatement(pos, decorators, docs);
           break;
         case Token.InterfaceKeyword:
           item = parseInterfaceStatement(pos, decorators);
@@ -455,7 +455,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       }
 
       mutate(item).directives = directives;
-      mutate(item).docs = docs;
+      if (tok !== Token.NamespaceKeyword) {
+        mutate(item).docs = docs;
+      }
 
       if (isBlocklessNamespace(item)) {
         if (seenBlocklessNs) {
@@ -506,7 +508,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           item = parseScalarStatement(pos, decorators);
           break;
         case Token.NamespaceKeyword:
-          const ns = parseNamespaceStatement(pos, decorators);
+          const ns = parseNamespaceStatement(pos, decorators, docs);
 
           if (!Array.isArray(ns.statements)) {
             error({ code: "blockless-namespace-first", messageId: "topLevel", target: ns });
@@ -554,7 +556,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           break;
       }
       mutate(item).directives = directives;
-      mutate(item).docs = docs;
+      if (tok !== Token.NamespaceKeyword) {
+        mutate(item).docs = docs;
+      }
       stmts.push(item);
     }
 
@@ -583,7 +587,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
   function parseNamespaceStatement(
     pos: number,
-    decorators: DecoratorExpressionNode[]
+    decorators: DecoratorExpressionNode[],
+    docs: DocNode[]
   ): NamespaceStatementNode {
     parseExpected(Token.NamespaceKeyword);
     let currentName = parseIdentifierOrMemberExpression();
@@ -605,6 +610,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     let outerNs: NamespaceStatementNode = {
       kind: SyntaxKind.NamespaceStatement,
       decorators,
+      docs: docs,
       id: nsSegments[0],
       locals: undefined!,
       statements,

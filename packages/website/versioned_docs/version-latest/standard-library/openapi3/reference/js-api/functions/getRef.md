@@ -13,3 +13,7 @@ getRef(program, entity): string | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+`string` \| `undefined`

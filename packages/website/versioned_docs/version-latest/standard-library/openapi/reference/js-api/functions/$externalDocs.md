@@ -24,6 +24,8 @@ Allows referencing an external resource for extended documentation.
 
 ## Returns
 
+`void`
+
 ## Optional
 
 description A short description of the target documentation.

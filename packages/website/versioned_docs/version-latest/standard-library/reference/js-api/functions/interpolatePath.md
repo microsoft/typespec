@@ -17,3 +17,5 @@ Interpolate a path template
 | `predefinedVariables` | `Record`<`string`, `undefined` \| `string`\> | Variables that can be used in the path template. |
 
 ## Returns
+
+`string`

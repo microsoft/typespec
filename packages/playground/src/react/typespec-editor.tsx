@@ -1,6 +1,7 @@
 import { editor } from "monaco-editor";
 import { FunctionComponent } from "react";
 import { Editor, EditorProps, useMonacoModel } from "./editor.js";
+import { PlaygroundEditorsOptions } from "./playground.js";
 
 export interface TypeSpecEditorProps extends Omit<EditorProps, "options"> {
   options?: editor.IStandaloneEditorConstructionOptions;
@@ -23,14 +24,16 @@ export const TypeSpecEditor: FunctionComponent<TypeSpecEditorProps> = ({
   return <Editor actions={actions} options={resolvedOptions} {...other}></Editor>;
 };
 
-export const OutputEditor: FunctionComponent<{ filename: string; value: string }> = ({
-  filename,
-  value,
-}) => {
+export const OutputEditor: FunctionComponent<{
+  filename: string;
+  value: string;
+  editorOptions?: PlaygroundEditorsOptions;
+}> = ({ filename, value, editorOptions }) => {
   if (filename === "") {
     return null;
   }
   const options: editor.IStandaloneEditorConstructionOptions = {
+    ...editorOptions,
     readOnly: true,
     automaticLayout: true,
     minimap: {

@@ -12,3 +12,7 @@ getSourceFileKindFromExt(path): SourceFileKind | undefined
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+[`SourceFileKind`](../type-aliases/SourceFileKind.md) \| `undefined`

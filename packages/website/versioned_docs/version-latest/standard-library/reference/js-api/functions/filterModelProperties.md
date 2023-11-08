@@ -21,3 +21,7 @@ a new anonymous model with only the filtered properties.
 | `program` | [`Program`](../interfaces/Program.md) \| [`ProjectedProgram`](../interfaces/ProjectedProgram.md) | - |
 | `model` | [`Model`](../interfaces/Model.md) | The input model to filter. |
 | `filter` | (`property`) => `boolean` | The filter to apply. Properties are kept when this returns true. |
+
+## Returns
+
+[`Model`](../interfaces/Model.md)

@@ -13,3 +13,7 @@ getJsonSchema(program, target): boolean
 | :------ | :------ |
 | `program` | `Program` |
 | `target` | `Type` |
+
+## Returns
+
+`boolean`

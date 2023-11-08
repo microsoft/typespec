@@ -18,4 +18,6 @@ Get the service information for the given namespace.
 
 ## Returns
 
+[`Service`](../interfaces/Service.md) \| `undefined`
+
 Service information or undefined if namespace is not a service namespace.

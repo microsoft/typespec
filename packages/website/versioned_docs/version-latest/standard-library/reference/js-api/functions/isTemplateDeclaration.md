@@ -14,3 +14,7 @@ Resolve if the type is a template type declaration(Non initialized template type
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`TemplatedType`](../type-aliases/TemplatedType.md) |
+
+## Returns
+
+`type is Object`

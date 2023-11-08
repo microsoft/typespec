@@ -22,6 +22,10 @@ Resolve the node in the syntax tree that that is at the given position.
 | `position` | `number` | Position |
 | `filter`? | (`node`) => `boolean` | Filter if wanting to return a parent containing node early. |
 
+### Returns
+
+[`Node`](../type-aliases/Node.md) \| `undefined`
+
 ## getNodeAtPosition(script, position, filter)
 
 ```ts
@@ -44,3 +48,7 @@ getNodeAtPosition<T>(
 | `script` | [`TypeSpecScriptNode`](../interfaces/TypeSpecScriptNode.md) |
 | `position` | `number` |
 | `filter` | (`node`) => `node is T` |
+
+### Returns
+
+`T` \| `undefined`

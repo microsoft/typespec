@@ -19,3 +19,7 @@ createRekeyableMap<K, V>(entries?): RekeyableMap<K, V>
 | Parameter | Type |
 | :------ | :------ |
 | `entries`? | [`K`, `V`][] |
+
+## Returns
+
+`RekeyableMap`<`K`, `V`\>

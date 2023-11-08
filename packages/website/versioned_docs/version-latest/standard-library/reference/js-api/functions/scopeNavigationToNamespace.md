@@ -28,4 +28,6 @@ Scope the current navigation to the given namespace.
 
 ## Returns
 
+`T`
+
 wrapped listeners that that can be used with `navigateType`

@@ -1,6 +1,13 @@
 # Change Log - @typespec/eslint-config-typespec
 
-This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+
+## 0.50.0
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Updates
+
+- Upgrade `deprecation` plugin to 2.0.0
 
 ## 0.49.0
 Wed, 11 Oct 2023 23:31:35 GMT

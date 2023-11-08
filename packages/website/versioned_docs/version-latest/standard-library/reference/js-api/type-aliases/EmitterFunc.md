@@ -12,3 +12,7 @@ type EmitterFunc: (context) => Promise<void> | void;
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`EmitContext`](../interfaces/EmitContext.md) |
+
+## Returns
+
+`Promise`<`void`\> \| `void`

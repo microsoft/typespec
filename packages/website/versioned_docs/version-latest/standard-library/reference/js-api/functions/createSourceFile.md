@@ -13,3 +13,7 @@ createSourceFile(text, path): SourceFile
 | :------ | :------ |
 | `text` | `string` |
 | `path` | `string` |
+
+## Returns
+
+[`SourceFile`](../interfaces/SourceFile.md)

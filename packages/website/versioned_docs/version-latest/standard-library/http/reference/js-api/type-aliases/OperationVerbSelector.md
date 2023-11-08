@@ -13,3 +13,7 @@ type OperationVerbSelector: (program, operation) => HttpVerb | undefined;
 | :------ | :------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
+
+## Returns
+
+[`HttpVerb`](HttpVerb.md) \| `undefined`

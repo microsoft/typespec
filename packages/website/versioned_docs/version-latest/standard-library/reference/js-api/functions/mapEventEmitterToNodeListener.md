@@ -17,4 +17,6 @@ Create a Semantic node listener from an event emitter.
 
 ## Returns
 
+[`SemanticNodeListener`](../type-aliases/SemanticNodeListener.md)
+
 Semantic node listener.

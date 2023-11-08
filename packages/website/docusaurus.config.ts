@@ -2,7 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
-import type { Config } from "@docusaurus/types";
+import type { Config, Plugin } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 const { resolve } = require("path");
 
@@ -12,9 +12,8 @@ function getMajorMinorVersion(pkgJsonPath): string {
   return `${major}.${minor}.x`;
 }
 
-function getLatestVersion() {
-  return `Latest (${getMajorMinorVersion("../compiler/package.json")})`;
-}
+const latestVersion = getMajorMinorVersion("../compiler/package.json");
+const latestPretty = `Latest (${latestVersion})`;
 
 function getVersionLabels(): Record<string, VersionOptions> {
   const labels: Record<string, VersionOptions> = {
@@ -27,17 +26,18 @@ function getVersionLabels(): Record<string, VersionOptions> {
   const isBumpingVersion = process.argv.includes("docs:version");
   if (!isBumpingVersion) {
     labels.latest = {
-      label: getLatestVersion(),
+      label: latestPretty,
     };
   }
   return labels;
 }
 
+const baseUrl = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 const config: Config = {
   title: "TypeSpec",
   tagline: "API first with TypeSpec for Azure services",
   url: "https://microsoft.github.io",
-  baseUrl: process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/",
+  baseUrl,
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/azure.svg",
@@ -60,6 +60,17 @@ const config: Config = {
     mermaid: true,
     format: "detect",
   },
+  scripts: [
+    {
+      src: "es-module-shims.js",
+      type: "module",
+      async: true,
+    },
+    {
+      src: `https://typespec.blob.core.windows.net/pkgs/indexes/typespec/${latestVersion}.json`,
+      type: "importmap-shim",
+    },
+  ],
   themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [
@@ -83,9 +94,37 @@ const config: Config = {
   ],
   staticDirectories: [
     resolve(__dirname, "static"),
-    resolve(__dirname, "./node_modules/@typespec/spec/dist"),
+    resolve(__dirname, "./node_modules/es-module-shims/dist"),
   ],
 
+  plugins: [
+    (context, options): Plugin => {
+      return {
+        name: "custom-configure-webpack",
+        configureWebpack: (config, isServer, utils) => {
+          return {
+            module: {
+              rules: [{ test: /\.tsp$/, use: "raw-loader" }],
+            },
+
+            ignoreWarnings: [
+              (warning, compilation) => {
+                const moduleName: string | undefined = (warning.module as any)?.resource;
+                return (
+                  warning.name === "ModuleDependencyWarning" &&
+                  warning.message.startsWith("Critical dependency") &&
+                  (moduleName?.endsWith(
+                    "node_modules/vscode-languageserver-types/lib/umd/main.js"
+                  ) ||
+                    moduleName?.endsWith("packages/compiler/dist/src/core/node-host.js"))
+                );
+              },
+            ],
+          };
+        },
+      };
+    },
+  ],
   webpack: {
     jsLoader: (isServer) => ({
       loader: require.resolve("swc-loader"),
@@ -95,12 +134,12 @@ const config: Config = {
             syntax: "typescript",
             tsx: true,
           },
-          target: "es2019",
           transform: {
             react: {
               runtime: "automatic",
             },
           },
+          target: "es2022",
         },
         module: {
           type: isServer ? "commonjs" : "es6",

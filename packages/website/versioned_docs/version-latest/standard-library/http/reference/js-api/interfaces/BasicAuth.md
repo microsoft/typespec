@@ -18,7 +18,7 @@ For example, to authorize as demo / p@55w0rd the client would send
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `description`? | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
 | `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
 | `scheme` | `"basic"` | - | - |
 | `type` | `"http"` | - | - |

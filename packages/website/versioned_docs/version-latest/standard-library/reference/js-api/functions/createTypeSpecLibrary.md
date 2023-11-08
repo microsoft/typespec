@@ -24,6 +24,8 @@ Create a new TypeSpec library definition.
 
 ## Returns
 
+[`TypeSpecLibrary`](../interfaces/TypeSpecLibrary.md)<`T`, `E`\>
+
 Library with utility functions.
 
 ## Tutorial

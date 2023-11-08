@@ -17,3 +17,7 @@ $versioned(
 | `context` | `DecoratorContext` |
 | `t` | `Namespace` |
 | `versions` | `Enum` |
+
+## Returns
+
+`void`
