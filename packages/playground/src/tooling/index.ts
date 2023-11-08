@@ -1,5 +1,5 @@
-import { getBaseFileName } from "@typespec/compiler";
-import { readFile, writeFile } from "fs/promises";
+import { getBaseFileName, getDirectoryPath } from "@typespec/compiler";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import { PlaygroundSample } from "../types.js";
 import { PlaygroundSampleConfig } from "./types.js";
 
@@ -24,6 +24,8 @@ export async function buildSamples_experimental(
   }
 
   const content = `export default ${JSON.stringify(resolvedSamples, null, 2)};`;
+  const dir = getDirectoryPath(output);
+  await mkdir(dir, { recursive: true });
   await writeFile(output, content);
 
   const dts = [
