@@ -19,9 +19,9 @@
   ],
   "type": "module",
   "exports": {
-    "./samples":{
-      "types":  "./samples/samples.d.ts",
-      "default":  "./samples/samples.js"
+    "./samples": {
+      "types": "./samples/samples.d.ts",
+      "default": "./samples/samples.js"
     }
   },
   "engines": {
