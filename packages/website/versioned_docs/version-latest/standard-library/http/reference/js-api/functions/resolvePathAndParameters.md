@@ -19,3 +19,7 @@ options): DiagnosticResult<object>
 | `operation` | `Operation` |
 | `overloadBase` | `undefined` \| [`HttpOperation`](../interfaces/HttpOperation.md) |
 | `options` | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) |
+
+## Returns
+
+`DiagnosticResult`<`object`\>

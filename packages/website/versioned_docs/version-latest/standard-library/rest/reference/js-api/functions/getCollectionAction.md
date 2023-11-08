@@ -16,6 +16,8 @@ getCollectionAction(program, operation): string | null | undefined
 
 ## Returns
 
+`string` \| `null` \| `undefined`
+
 ## Deprecated
 
 Use getCollectionActionDetails instead.

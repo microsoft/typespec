@@ -23,4 +23,6 @@ Otherwise, returns the default visibility based on the HTTP verb for the operati
 
 ## Returns
 
+[`Visibility`](../enumerations/Visibility.md)
+
 The applicable parameter visibility or visibilities for the request.

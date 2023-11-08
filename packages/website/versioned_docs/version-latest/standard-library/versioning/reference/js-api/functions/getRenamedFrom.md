@@ -16,4 +16,6 @@ getRenamedFrom(p, t): RenamedFrom[] | undefined
 
 ## Returns
 
+`RenamedFrom`[] \| `undefined`
+
 the array of RenamedFrom metadata if applicable.

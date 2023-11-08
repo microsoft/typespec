@@ -12,3 +12,7 @@ parseStandaloneTypeReference(code): [TypeReferenceNode, readonly Diagnostic[]]
 | Parameter | Type |
 | :------ | :------ |
 | `code` | `string` \| [`SourceFile`](../interfaces/SourceFile.md) |
+
+## Returns
+
+[[`TypeReferenceNode`](../interfaces/TypeReferenceNode.md), readonly [`Diagnostic`](../interfaces/Diagnostic.md)[]]

@@ -22,4 +22,6 @@ Validate the configuration against its JSON Schema.
 
 #### Returns
 
+[`Diagnostic`](Diagnostic.md)[]
+
 Diagnostics produced by schema validation of the configuration.

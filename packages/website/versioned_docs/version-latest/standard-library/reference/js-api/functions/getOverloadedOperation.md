@@ -18,4 +18,6 @@ If the given operation overloads another operation, return that operation.
 
 ## Returns
 
+[`Operation`](../interfaces/Operation.md) \| `undefined`
+
 The operation this operation overloads, if any.

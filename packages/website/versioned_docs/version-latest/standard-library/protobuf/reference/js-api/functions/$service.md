@@ -15,3 +15,7 @@ Decorate an interface as a service, indicating that it represents a Protobuf `se
 | :------ | :------ | :------ |
 | `ctx` | `DecoratorContext` | decorator context |
 | `target` | `Interface` | the decorated interface |
+
+## Returns
+
+`void`

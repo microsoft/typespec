@@ -17,3 +17,7 @@ $pattern(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `pattern` | `string` |
+
+## Returns
+
+`void`

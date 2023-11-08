@@ -14,3 +14,7 @@ getFullyQualifiedSymbolName(sym, options?): string
 | `sym` | `undefined` \| [`Sym`](../interfaces/Sym.md) |
 | `options`? | `object` |
 | `options.useGlobalPrefixAtTopLevel`? | `boolean` |
+
+## Returns
+
+`string`

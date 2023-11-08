@@ -17,3 +17,7 @@ $errorsDoc(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Operation`](../interfaces/Operation.md) |
 | `text` | `string` |
+
+## Returns
+
+`void`

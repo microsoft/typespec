@@ -19,4 +19,4 @@ type DiagnosticReport<T, C, M>: DiagnosticReportWithoutTarget<T, C, M> & object;
 | :------ | :------ |
 | `T` extends `object` | - |
 | `C` extends keyof `T` | - |
-| `M` extends keyof `T`[`C`] | `"default"` |
+| `M` extends keyof `T`\[`C`\] | `"default"` |

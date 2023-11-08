@@ -17,7 +17,11 @@ CallableMessage(dict): string
 
 | Parameter | Type |
 | :------ | :------ |
-| `dict` | `Record`<`T`[`number`], `string`\> |
+| `dict` | `Record`<`T`\[`number`\], `string`\> |
+
+## Returns
+
+`string`
 
 ## Properties
 

@@ -13,3 +13,7 @@ getAddedOnVersions(p, t): Version[] | undefined
 | :------ | :------ |
 | `p` | `Program` |
 | `t` | `Type` |
+
+## Returns
+
+[`Version`](../interfaces/Version.md)[] \| `undefined`

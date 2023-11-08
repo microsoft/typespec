@@ -18,4 +18,6 @@ Check if the namespace is defined as a service.
 
 ## Returns
 
+`boolean`
+
 Boolean

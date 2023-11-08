@@ -13,3 +13,7 @@ getIndexer(program, target): ModelIndexer | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+[`ModelIndexer`](../type-aliases/ModelIndexer.md) \| `undefined`

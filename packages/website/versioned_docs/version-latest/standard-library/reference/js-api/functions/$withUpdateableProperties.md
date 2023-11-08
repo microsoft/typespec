@@ -13,3 +13,7 @@ $withUpdateableProperties(context, target): void
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`void`

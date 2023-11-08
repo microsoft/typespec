@@ -39,6 +39,10 @@ Helper to call out to another decorator
 | `target` | `T` | - |
 | ...`args` | `A` | Args to pass to other decorator function |
 
+#### Returns
+
+`R`
+
 ***
 
 ### getArgumentTarget()
@@ -56,6 +60,8 @@ Function that can be used to retrieve the target for a parameter at the given in
 | `paramIndex` | `number` | Parameter index in the typespec |
 
 #### Returns
+
+`undefined` \| [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md)
 
 #### Example
 

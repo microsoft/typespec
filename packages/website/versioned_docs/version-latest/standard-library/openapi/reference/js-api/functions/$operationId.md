@@ -19,3 +19,7 @@ Set a specific operation ID.
 | `context` | `DecoratorContext` | Decorator Context |
 | `entity` | `Operation` | Decorator target |
 | `opId` | `string` | Operation ID. |
+
+## Returns
+
+`void`

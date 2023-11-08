@@ -4,5 +4,5 @@ title: "[T] TypeKind"
 
 ---
 ```ts
-type TypeKind: Type["kind"] | "Any";
+type TypeKind: Type\["kind"\] | "Any";
 ```

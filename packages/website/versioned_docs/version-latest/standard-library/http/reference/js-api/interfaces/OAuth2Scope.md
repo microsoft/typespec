@@ -7,5 +7,5 @@ title: "[I] OAuth2Scope"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `description?` | `string` | - |
+| `description`? | `string` | - |
 | `value` | `string` | - |

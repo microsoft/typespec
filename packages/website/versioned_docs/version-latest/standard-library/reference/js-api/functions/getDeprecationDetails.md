@@ -15,3 +15,7 @@ Returns complete deprecation details for the given type or node
 | :------ | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `typeOrNode` | [`Node`](../type-aliases/Node.md) \| [`Type`](../type-aliases/Type.md) | A Type or Node to check for deprecation |
+
+## Returns
+
+[`DeprecationDetails`](../interfaces/DeprecationDetails.md) \| `undefined`

@@ -23,6 +23,10 @@ eof(): boolean
 
 Determine if the scanner has reached the end of the input.
 
+#### Returns
+
+`boolean`
+
 ***
 
 ### getTokenText()
@@ -32,6 +36,10 @@ getTokenText(): string
 ```
 
 The exact spelling of the current token.
+
+#### Returns
+
+`string`
 
 ***
 
@@ -47,6 +55,10 @@ String literals are escaped and unquoted, identifiers are normalized,
 and all other tokens return their exact spelling sames as
 getTokenText().
 
+#### Returns
+
+`string`
+
 ***
 
 ### scan()
@@ -57,6 +69,10 @@ scan(): Token
 
 Advance one token.
 
+#### Returns
+
+[`Token`](../enumerations/Token.md)
+
 ***
 
 ### scanDoc()
@@ -66,6 +82,10 @@ scanDoc(): DocToken
 ```
 
 Advance one token inside DocComment. Use inside [scanRange](Scanner.md#scanrange) callback over DocComment range.
+
+#### Returns
+
+[`DocToken`](../type-aliases/DocToken.md)
 
 ***
 
@@ -89,3 +109,7 @@ Reset the scanner to the given start and end positions, invoke the callback, and
 | :------ | :------ |
 | `range` | [`TextRange`](TextRange.md) |
 | `callback` | () => `T` |
+
+#### Returns
+
+`T`

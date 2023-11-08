@@ -17,3 +17,7 @@ existsAtVersion(
 | `p` | `Program` |
 | `type` | `Type` |
 | `versionKey` | `ObjectType` |
+
+## Returns
+
+`boolean`

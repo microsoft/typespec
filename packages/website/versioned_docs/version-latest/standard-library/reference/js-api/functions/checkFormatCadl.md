@@ -16,6 +16,8 @@ checkFormatCadl(code, prettierConfig?): Promise<boolean>
 
 ## Returns
 
+`Promise`<`boolean`\>
+
 ## Deprecated
 
 use checkFormatTypeSpec

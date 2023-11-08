@@ -19,3 +19,7 @@ setResourceOperation(
 | `entity` | `Operation` |
 | `resourceType` | `Model` |
 | `operation` | [`ResourceOperations`](../type-aliases/ResourceOperations.md) |
+
+## Returns
+
+`void`

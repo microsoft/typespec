@@ -18,4 +18,6 @@ Get the documentation string for the return errors types of an operation.
 
 ## Returns
 
+`string` \| `undefined`
+
 Documentation value

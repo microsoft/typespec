@@ -22,6 +22,8 @@ cadlTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
 
 ## Returns
 
+[`T` \| `undefined`, [`Diagnostic`](../interfaces/Diagnostic.md)[]]
+
 ## Deprecated
 
 use typespecTypeToJson

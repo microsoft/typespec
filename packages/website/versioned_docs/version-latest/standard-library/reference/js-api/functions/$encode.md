@@ -19,3 +19,7 @@ $encode(
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `encoding` | `string` \| [`EnumMember`](../interfaces/EnumMember.md) |
 | `encodeAs`? | [`Scalar`](../interfaces/Scalar.md) |
+
+## Returns
+
+`void`

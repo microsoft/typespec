@@ -18,4 +18,6 @@ Check if the given model has been mark as a default response.
 
 ## Returns
 
+`boolean`
+
 boolean.

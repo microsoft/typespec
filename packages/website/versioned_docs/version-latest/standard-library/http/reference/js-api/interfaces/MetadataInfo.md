@@ -26,6 +26,10 @@ same set of properties when non-payload properties are excluded.
 | `type` | `Type` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 
+#### Returns
+
+`Type`
+
 ***
 
 ### isEmptied()
@@ -50,6 +54,10 @@ itself is also removed.
 | `type` | `undefined` \| `Type` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 
+#### Returns
+
+`boolean`
+
 ***
 
 ### isOptional()
@@ -67,6 +75,10 @@ response payload for the given visibility.
 | :------ | :------ |
 | `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
+
+#### Returns
+
+`boolean`
 
 ***
 
@@ -87,6 +99,10 @@ filtered out by the given visibility.
 | `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
 
+#### Returns
+
+`boolean`
+
 ***
 
 ### isTransformed()
@@ -105,3 +121,7 @@ metadata properties.
 | :------ | :------ |
 | `type` | `undefined` \| `Type` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
+
+#### Returns
+
+`boolean`

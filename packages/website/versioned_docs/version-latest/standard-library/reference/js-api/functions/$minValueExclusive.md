@@ -17,3 +17,7 @@ $minValueExclusive(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `minValueExclusive` | `number` |
+
+## Returns
+
+`void`

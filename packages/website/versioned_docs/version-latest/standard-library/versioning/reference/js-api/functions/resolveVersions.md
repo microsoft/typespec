@@ -15,3 +15,7 @@ Resolve the version to use for all namespace for each of the root namespace vers
 | :------ | :------ | :------ |
 | `program` | `Program` |  |
 | `rootNs` | `Namespace` | Root namespace. |
+
+## Returns
+
+[`VersionResolution`](../interfaces/VersionResolution.md)[]

@@ -13,3 +13,7 @@ getRouteOptionsForNamespace(program, namespace): RouteOptions | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
+
+## Returns
+
+[`RouteOptions`](../interfaces/RouteOptions.md) \| `undefined`

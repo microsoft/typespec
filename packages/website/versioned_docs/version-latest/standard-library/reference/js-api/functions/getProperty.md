@@ -13,3 +13,7 @@ getProperty(type, propertyName): ModelProperty | undefined
 | :------ | :------ |
 | `type` | [`Model`](../interfaces/Model.md) |
 | `propertyName` | `string` |
+
+## Returns
+
+[`ModelProperty`](../interfaces/ModelProperty.md) \| `undefined`

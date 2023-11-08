@@ -13,3 +13,7 @@ isSecret(program, target): boolean | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`boolean` \| `undefined`

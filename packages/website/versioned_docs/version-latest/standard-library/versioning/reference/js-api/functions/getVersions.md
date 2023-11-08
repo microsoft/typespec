@@ -13,3 +13,7 @@ getVersions(p, t): [Namespace, VersionMap] | []
 | :------ | :------ |
 | `p` | `Program` |
 | `t` | `Type` |
+
+## Returns
+
+[`Namespace`, [`VersionMap`](../classes/VersionMap.md)] \| []

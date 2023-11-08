@@ -8,7 +8,7 @@ title: "[I] ServerHost"
 | Property | Type | Description |
 | :------ | :------ | :------ |
 | `compilerHost` | [`CompilerHost`](CompilerHost.md) | - |
-| `throwInternalErrors?` | `boolean` | - |
+| `throwInternalErrors`? | `boolean` | - |
 
 ## Methods
 
@@ -24,6 +24,10 @@ getOpenDocumentByURL(url): undefined | TextDocument
 | :------ | :------ |
 | `url` | `string` |
 
+#### Returns
+
+`undefined` \| `TextDocument`
+
 ***
 
 ### log()
@@ -38,6 +42,10 @@ log(message): void
 | :------ | :------ |
 | `message` | `string` |
 
+#### Returns
+
+`void`
+
 ***
 
 ### sendDiagnostics()
@@ -51,3 +59,7 @@ sendDiagnostics(params): void
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `PublishDiagnosticsParams` |
+
+#### Returns
+
+`void`

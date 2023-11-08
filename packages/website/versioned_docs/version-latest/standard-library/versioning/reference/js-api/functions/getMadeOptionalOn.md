@@ -16,4 +16,6 @@ getMadeOptionalOn(p, t): Version | undefined
 
 ## Returns
 
+[`Version`](../interfaces/Version.md) \| `undefined`
+
 version when the given type was made optional if applicable.

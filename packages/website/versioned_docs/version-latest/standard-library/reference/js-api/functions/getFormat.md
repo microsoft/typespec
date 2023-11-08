@@ -13,3 +13,7 @@ getFormat(program, target): string | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`string` \| `undefined`

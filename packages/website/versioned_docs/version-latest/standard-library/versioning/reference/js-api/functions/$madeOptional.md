@@ -17,3 +17,7 @@ $madeOptional(
 | `context` | `DecoratorContext` |
 | `t` | `ModelProperty` |
 | `v` | `EnumMember` |
+
+## Returns
+
+`void`

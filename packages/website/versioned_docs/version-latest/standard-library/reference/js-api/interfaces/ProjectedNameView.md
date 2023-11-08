@@ -25,3 +25,7 @@ If there is a projected name it returns that one otherwise return the original n
 | Parameter | Type |
 | :------ | :------ |
 | `target` | `Object` |
+
+#### Returns
+
+`string`

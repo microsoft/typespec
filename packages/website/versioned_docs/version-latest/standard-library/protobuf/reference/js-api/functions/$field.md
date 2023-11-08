@@ -21,3 +21,5 @@ Decorate a model property with a field index. Field indices are required for all
 | `fieldIndex` | `number` |  |
 
 ## Returns
+
+`void`

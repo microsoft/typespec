@@ -12,3 +12,7 @@ getJsonSchemaTypes(program): (Namespace | Model)[]
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
+
+## Returns
+
+(`Namespace` \| `Model`)[]

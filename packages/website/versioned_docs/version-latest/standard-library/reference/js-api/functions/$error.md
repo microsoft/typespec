@@ -17,3 +17,7 @@ $error(context, entity): void
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `entity` | [`Model`](../interfaces/Model.md) |
+
+## Returns
+
+`void`

@@ -15,3 +15,7 @@ Reduce an array of path components to a more simplified path by navigating any
 | Parameter | Type |
 | :------ | :------ |
 | `components` | readonly `string`[] |
+
+## Returns
+
+`string`[]

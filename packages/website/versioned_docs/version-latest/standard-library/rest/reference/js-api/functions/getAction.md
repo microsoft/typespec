@@ -16,6 +16,8 @@ getAction(program, operation): string | null | undefined
 
 ## Returns
 
+`string` \| `null` \| `undefined`
+
 ## Deprecated
 
 Use getActionDetails instead.

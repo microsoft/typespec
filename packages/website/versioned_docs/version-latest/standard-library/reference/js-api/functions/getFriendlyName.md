@@ -13,3 +13,7 @@ getFriendlyName(program, target): string
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`string`
