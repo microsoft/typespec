@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { tokens } from "@fluentui/react-components";
 import { Diagnostic, Program } from "@typespec/compiler";
 import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
@@ -179,8 +180,8 @@ const ErrorTabLabel: FunctionComponent<{
 };
 
 const ErrorTabCountStyles = css({
-  backgroundColor: "#cc2222",
-  color: "#f5f5f5",
+  backgroundColor: tokens.colorStatusDangerBackground3,
+  color: tokens.colorNeutralForegroundOnBrand,
   padding: "0 5px",
   borderRadius: "20px",
 });
