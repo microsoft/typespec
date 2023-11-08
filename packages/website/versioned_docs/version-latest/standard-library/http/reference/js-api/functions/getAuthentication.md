@@ -13,3 +13,7 @@ getAuthentication(program, namespace): ServiceAuthentication | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
+
+## Returns
+
+[`ServiceAuthentication`](../interfaces/ServiceAuthentication.md) \| `undefined`

@@ -19,3 +19,7 @@ Declare a Protobuf package.
 | `ctx` | `DecoratorContext` | decorator context |
 | `target` | `Namespace` | target decorator namespace |
 | `details`? | `Model` | - |
+
+## Returns
+
+`void`

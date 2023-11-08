@@ -13,3 +13,7 @@ isBody(program, entity): boolean
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+`boolean`

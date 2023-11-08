@@ -13,3 +13,7 @@ getKnownValues(program, target): Enum | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+
+## Returns
+
+[`Enum`](../interfaces/Enum.md) \| `undefined`

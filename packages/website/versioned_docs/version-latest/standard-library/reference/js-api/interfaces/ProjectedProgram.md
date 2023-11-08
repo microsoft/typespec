@@ -18,7 +18,7 @@ title: "[I] ProjectedProgram"
 | `public` | `host` | [`CompilerHost`](CompilerHost.md) | - | [`Program`](Program.md).`host` |
 | `public` | `jsSourceFiles` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - | [`Program`](Program.md).`jsSourceFiles` |
 | `public` | `literalTypes` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - | [`Program`](Program.md).`literalTypes` |
-| `public` | `mainFile?` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program`](Program.md).`mainFile` |
+| `public` | `mainFile`? | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program`](Program.md).`mainFile` |
 | `readonly` | `projectRoot` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program`](Program.md).`projectRoot` |
 | `public` | `projector` | [`Projector`](Projector.md) | - | - |
 | `public` | `sourceFiles` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. | [`Program`](Program.md).`sourceFiles` |
@@ -33,6 +33,10 @@ title: "[I] ProjectedProgram"
 ```ts
 getGlobalNamespaceType(): Namespace
 ```
+
+#### Returns
+
+[`Namespace`](Namespace.md)
 
 #### Inherited from
 
@@ -51,6 +55,10 @@ getOption(key): undefined | string
 | Parameter | Type |
 | :------ | :------ |
 | `key` | `string` |
+
+#### Returns
+
+`undefined` \| `string`
 
 #### Inherited from
 
@@ -72,6 +80,10 @@ Return location context of the given source file.
 | :------ | :------ |
 | `sourceFile` | [`SourceFile`](SourceFile.md) |
 
+#### Returns
+
+[`LocationContext`](../type-aliases/LocationContext.md)
+
 #### Inherited from
 
 [`Program`](Program.md).[`getSourceFileLocationContext`](Program.md#getsourcefilelocationcontext)
@@ -83,6 +95,10 @@ Return location context of the given source file.
 ```ts
 hasError(): boolean
 ```
+
+#### Returns
+
+`boolean`
 
 #### Inherited from
 
@@ -101,6 +117,10 @@ loadTypeSpecScript(typespecScript): Promise<TypeSpecScriptNode>
 | Parameter | Type |
 | :------ | :------ |
 | `typespecScript` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+`Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 #### Inherited from
 
@@ -121,6 +141,10 @@ onValidate(cb, LibraryMetadata): void
 | `cb` | (`program`) => `void` \| `Promise`<`void`\> |
 | `LibraryMetadata` | [`LibraryMetadata`](../type-aliases/LibraryMetadata.md) |
 
+#### Returns
+
+`void`
+
 #### Inherited from
 
 [`Program`](Program.md).[`onValidate`](Program.md#onvalidate)
@@ -138,6 +162,10 @@ reportDiagnostic(diagnostic): void
 | Parameter | Type |
 | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 
@@ -157,6 +185,10 @@ reportDiagnostics(diagnostics): void
 | :------ | :------ |
 | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] |
 
+#### Returns
+
+`void`
+
 #### Inherited from
 
 [`Program`](Program.md).[`reportDiagnostics`](Program.md#reportdiagnostics)
@@ -174,6 +206,10 @@ reportDuplicateSymbols(symbols): void
 | Parameter | Type |
 | :------ | :------ |
 | `symbols` | `undefined` \| `SymbolTable` |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 
@@ -193,6 +229,10 @@ resolveTypeReference(reference): [undefined | Type, readonly Diagnostic[]]
 | :------ | :------ |
 | `reference` | `string` |
 
+#### Returns
+
+[`undefined` \| [`Type`](../type-aliases/Type.md), readonly [`Diagnostic`](Diagnostic.md)[]]
+
 #### Inherited from
 
 [`Program`](Program.md).[`resolveTypeReference`](Program.md#resolvetypereference)
@@ -210,6 +250,10 @@ stateMap(key): Map<Type, any>
 | Parameter | Type |
 | :------ | :------ |
 | `key` | `symbol` |
+
+#### Returns
+
+`Map`<[`Type`](../type-aliases/Type.md), `any`\>
 
 #### Inherited from
 
@@ -229,6 +273,10 @@ stateSet(key): Set<Type>
 | :------ | :------ |
 | `key` | `symbol` |
 
+#### Returns
+
+`Set`<[`Type`](../type-aliases/Type.md)\>
+
 #### Inherited from
 
 [`Program`](Program.md).[`stateSet`](Program.md#stateset)
@@ -247,6 +295,10 @@ trace(area, message): void
 | :------ | :------ |
 | `area` | `string` |
 | `message` | `string` |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 

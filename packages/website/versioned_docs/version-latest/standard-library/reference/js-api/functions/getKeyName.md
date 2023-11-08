@@ -13,3 +13,7 @@ getKeyName(program, property): string
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `property` | [`ModelProperty`](../interfaces/ModelProperty.md) |
+
+## Returns
+
+`string`

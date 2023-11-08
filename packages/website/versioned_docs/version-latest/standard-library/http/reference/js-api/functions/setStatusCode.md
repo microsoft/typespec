@@ -20,6 +20,8 @@ setStatusCode(
 
 ## Returns
 
+`void`
+
 ## Deprecated
 
 DO NOT USE, for internal use only.

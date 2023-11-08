@@ -17,6 +17,10 @@ title: "[C] EventEmitter"
 new EventEmitter<T>(): EventEmitter<T>
 ```
 
+#### Returns
+
+[`EventEmitter`](EventEmitter.md)<`T`\>
+
 ## Properties
 
 | Modifier | Property | Type | Description |
@@ -42,7 +46,11 @@ emit<K>(name, ...args): void
 | Parameter | Type |
 | :------ | :------ |
 | `name` | `K` |
-| ...`args` | `Parameters`<`T`[`K`]\> |
+| ...`args` | `Parameters`<`T`\[`K`\]\> |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -64,3 +72,7 @@ on<K>(name, listener): void
 | :------ | :------ |
 | `name` | `K` |
 | `listener` | (...`args`) => `any` |
+
+#### Returns
+
+`void`

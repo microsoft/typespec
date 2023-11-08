@@ -13,3 +13,7 @@ getResourceOperation(program, typespecOperation): ResourceOperation | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `typespecOperation` | `Operation` |
+
+## Returns
+
+[`ResourceOperation`](../interfaces/ResourceOperation.md) \| `undefined`

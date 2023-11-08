@@ -12,3 +12,7 @@ isNeverType(type): type is NeverType
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`type is NeverType`

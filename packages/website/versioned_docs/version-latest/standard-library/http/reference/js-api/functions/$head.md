@@ -13,3 +13,7 @@ $head(context, entity): void
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Operation` |
+
+## Returns
+
+`void`

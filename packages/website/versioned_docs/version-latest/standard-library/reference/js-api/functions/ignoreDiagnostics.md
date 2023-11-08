@@ -23,4 +23,6 @@ Ignore the diagnostics emitted by the diagnostic accessor pattern and just retur
 
 ## Returns
 
+`T`
+
 Actual result.

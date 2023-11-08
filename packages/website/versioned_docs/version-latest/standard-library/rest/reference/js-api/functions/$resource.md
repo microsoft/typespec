@@ -25,3 +25,7 @@ name of `widgets`.
 | `context` | `DecoratorContext` |
 | `entity` | `Model` |
 | `collectionName` | `string` |
+
+## Returns
+
+`void`

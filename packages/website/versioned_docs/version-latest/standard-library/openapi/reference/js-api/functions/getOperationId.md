@@ -16,6 +16,8 @@ getOperationId(program, entity): string | undefined
 
 ## Returns
 
+`string` \| `undefined`
+
 operationId set via the
 
 ## Operation Id

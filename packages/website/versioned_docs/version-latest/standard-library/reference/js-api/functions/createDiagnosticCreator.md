@@ -24,6 +24,8 @@ Create a new diagnostics creator.
 
 ## Returns
 
+[`DiagnosticCreator`](../interfaces/DiagnosticCreator.md)<`T`\>
+
 ## See
 
 DiagnosticCreator

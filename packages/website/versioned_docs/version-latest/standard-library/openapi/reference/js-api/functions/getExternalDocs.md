@@ -13,3 +13,7 @@ getExternalDocs(program, entity): ExternalDocs | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+[`ExternalDocs`](../interfaces/ExternalDocs.md) \| `undefined`

@@ -12,3 +12,7 @@ createChecker(program): Checker
 | Parameter | Type |
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
+
+## Returns
+
+[`Checker`](../interfaces/Checker.md)

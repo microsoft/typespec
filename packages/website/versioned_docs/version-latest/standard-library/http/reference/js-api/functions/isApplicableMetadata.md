@@ -28,3 +28,7 @@ given visibility.
 | `property` | `ModelProperty` | `undefined` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) | `undefined` |
 | `isMetadataCallback` | (`program`, `property`) => `boolean` | `isMetadata` |
+
+## Returns
+
+`boolean`

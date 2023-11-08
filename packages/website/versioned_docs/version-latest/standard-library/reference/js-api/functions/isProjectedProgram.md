@@ -12,3 +12,7 @@ isProjectedProgram(program): program is ProjectedProgram
 | Parameter | Type |
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) \| [`ProjectedProgram`](../interfaces/ProjectedProgram.md) |
+
+## Returns
+
+`program is ProjectedProgram`

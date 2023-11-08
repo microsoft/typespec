@@ -18,6 +18,10 @@ new VersionMap(namespace, enumType): VersionMap
 | `namespace` | `Namespace` |
 | `enumType` | `Enum` |
 
+#### Returns
+
+[`VersionMap`](VersionMap.md)
+
 ## Properties
 
 | Modifier | Property | Type | Description |
@@ -31,6 +35,10 @@ new VersionMap(namespace, enumType): VersionMap
 ```ts
 get size(): number
 ```
+
+#### Returns
+
+`number`
 
 ## Methods
 
@@ -46,6 +54,10 @@ getVersionForEnumMember(member): undefined | Version
 | :------ | :------ |
 | `member` | `EnumMember` |
 
+#### Returns
+
+`undefined` \| [`Version`](../interfaces/Version.md)
+
 ***
 
 ### getVersions()
@@ -53,3 +65,7 @@ getVersionForEnumMember(member): undefined | Version
 ```ts
 getVersions(): Version[]
 ```
+
+#### Returns
+
+[`Version`](../interfaces/Version.md)[]

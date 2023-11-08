@@ -13,3 +13,7 @@ isJsonSchemaDeclaration(program, target): boolean
 | :------ | :------ |
 | `program` | `Program` |
 | `target` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
+
+## Returns
+
+`boolean`

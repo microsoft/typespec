@@ -19,6 +19,8 @@ Resolve the OpenAPI operation ID for the given operation using the following log
 
 ## Returns
 
+`string`
+
 Operation ID in this format `<name>` or `<group>_<name>`
 
 ## Operation Id

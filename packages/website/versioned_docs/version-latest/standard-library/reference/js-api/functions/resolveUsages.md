@@ -18,4 +18,6 @@ Will recursively scan all namespace, interfaces and operations contained inside 
 
 ## Returns
 
+[`UsageTracker`](../interfaces/UsageTracker.md)
+
 Map of types to usage.

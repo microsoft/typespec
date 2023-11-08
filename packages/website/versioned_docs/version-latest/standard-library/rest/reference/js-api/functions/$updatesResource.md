@@ -17,3 +17,7 @@ $updatesResource(
 | `context` | `DecoratorContext` |
 | `entity` | `Operation` |
 | `resourceType` | `Model` |
+
+## Returns
+
+`void`

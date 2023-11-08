@@ -14,3 +14,7 @@ Determines whether a path has a trailing separator (`/` or `\\`).
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`boolean`

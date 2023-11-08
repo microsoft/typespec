@@ -43,3 +43,7 @@ getPathComponents("file://") === ["file://"]
 | :------ | :------ | :------ |
 | `path` | `string` | `undefined` |
 | `currentDirectory` | `string` | `""` |
+
+## Returns
+
+`string`[]

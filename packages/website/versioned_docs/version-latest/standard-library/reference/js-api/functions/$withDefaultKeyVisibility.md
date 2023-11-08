@@ -17,3 +17,7 @@ $withDefaultKeyVisibility(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `entity` | [`Model`](../interfaces/Model.md) |
 | `visibility` | `string` |
+
+## Returns
+
+`void`

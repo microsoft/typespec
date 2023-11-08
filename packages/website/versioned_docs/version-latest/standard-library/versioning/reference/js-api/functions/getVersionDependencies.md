@@ -13,3 +13,7 @@ getVersionDependencies(program, namespace): Map<Namespace, Map<Version, Version>
 | :------ | :------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
+
+## Returns
+
+`Map`<`Namespace`, `Map`<[`Version`](../interfaces/Version.md), [`Version`](../interfaces/Version.md)\> \| [`Version`](../interfaces/Version.md)\> \| `undefined`

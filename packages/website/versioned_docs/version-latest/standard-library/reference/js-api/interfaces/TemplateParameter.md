@@ -11,15 +11,15 @@ title: "[I] TemplateParameter"
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `constraint?` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](ValueType.md) | - | - |
-| `default?` | [`Type`](../type-aliases/Type.md) | - | - |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `constraint`? | [`Type`](../type-aliases/Type.md) \| [`ValueType`](ValueType.md) | - | - |
+| `default`? | [`Type`](../type-aliases/Type.md) | - | - |
+| `instantiationParameters`? | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
 | `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` |
 | `kind` | `"TemplateParameter"` | - | [`BaseType`](BaseType.md).`kind` |
 | `node` | [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md) | - | [`BaseType`](BaseType.md).`node` |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
+| `projectionBase`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector`? | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
 
 ## Accessors
 
@@ -28,6 +28,10 @@ title: "[I] TemplateParameter"
 ```ts
 get projections(): ProjectionStatementNode[]
 ```
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 ## Methods
 
@@ -42,6 +46,10 @@ projectionsByName(name): ProjectionStatementNode[]
 | Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 #### Inherited from
 

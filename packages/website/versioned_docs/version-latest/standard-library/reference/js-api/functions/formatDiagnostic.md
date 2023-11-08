@@ -12,3 +12,7 @@ formatDiagnostic(diagnostic): string
 | Parameter | Type |
 | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](../interfaces/Diagnostic.md) |
+
+## Returns
+
+`string`

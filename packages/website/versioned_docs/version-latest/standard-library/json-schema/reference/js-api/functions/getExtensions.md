@@ -13,3 +13,7 @@ getExtensions(program, target): ExtensionRecord[]
 | :------ | :------ |
 | `program` | `Program` |
 | `target` | `Type` |
+
+## Returns
+
+[`ExtensionRecord`](../interfaces/ExtensionRecord.md)[]

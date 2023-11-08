@@ -15,4 +15,4 @@ title: "[I] RouteOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `paramOptions?` | [`OperationParameterOptions`](OperationParameterOptions.md) | - |
+| `paramOptions`? | [`OperationParameterOptions`](OperationParameterOptions.md) | - |

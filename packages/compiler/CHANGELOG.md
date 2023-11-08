@@ -1,6 +1,24 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+
+## 0.50.0
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Updates
+
+- Add new `unixTimestamp32` scalar to standard library
+- Fixing @doc and /** */ disappears from multi-segment or nested namespaces. #2642
+- Fix issue where using `@overload` could result in incorrect `unassignable` type errors.
+- Add new hook for handling circular references
+- Fix: Issue where referencing a template in an alias might cause augment decorators to not be applied on types referenced in the aliased type.
+- [Internal] Fix: `RekeyableMap` kept track of old value if rekeying to an existing item
+- Fix: Properties filtered with `@withVisibility` will have their visibility removed. This prevent visibility from being applied twice and rendering invalid models
+- `TypeEmitter` now supports Tuples.
+- Issue error if a model spreads itself within its declaration.
+- Stop showing empty code frame when diagnostic has no location
+- `TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files
+- **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
 
 ## 0.49.0
 Wed, 11 Oct 2023 23:31:35 GMT

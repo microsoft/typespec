@@ -17,3 +17,7 @@ setRouteOptionsForNamespace(
 | `program` | `Program` |
 | `namespace` | `Namespace` |
 | `options` | [`RouteOptions`](../interfaces/RouteOptions.md) |
+
+## Returns
+
+`void`

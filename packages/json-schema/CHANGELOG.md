@@ -1,6 +1,15 @@
 # Change Log - @typespec/json-schema
 
-This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+
+## 0.50.0
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Updates
+
+- Add TupleLiteral support.
+- `TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files
+- **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
 
 ## 0.49.0
 Wed, 11 Oct 2023 23:31:35 GMT

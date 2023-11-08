@@ -23,3 +23,7 @@ Gets the key that is used to define a parameter in OpenAPI.
 | `newParam` | `unknown` |
 | `existingParams` | `Record`<`string`, `unknown`\> |
 | `options` | `TypeNameOptions` |
+
+## Returns
+
+`string`

@@ -17,3 +17,7 @@ $minValue(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `minValue` | `number` |
+
+## Returns
+
+`void`

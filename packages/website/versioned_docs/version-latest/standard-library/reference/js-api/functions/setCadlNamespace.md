@@ -16,6 +16,8 @@ setCadlNamespace(namespace, ...functions): void
 
 ## Returns
 
+`void`
+
 ## Deprecated
 
 use setTypeSpecNamespace

@@ -19,3 +19,7 @@ setExtension(
 | `entity` | `Type` |
 | `extensionName` | \`x-${string}\` |
 | `data` | `unknown` |
+
+## Returns
+
+`void`

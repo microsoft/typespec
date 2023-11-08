@@ -22,6 +22,8 @@ isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 
 ## Returns
 
+`target is InferredTypeSpecValue<K>`
+
 ## Deprecated
 
 use isTypeSpecValueTypeOf

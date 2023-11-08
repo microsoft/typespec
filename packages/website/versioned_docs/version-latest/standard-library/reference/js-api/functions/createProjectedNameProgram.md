@@ -18,4 +18,6 @@ Create an helper to manager project names.
 
 ## Returns
 
+[`ProjectedNameView`](../interfaces/ProjectedNameView.md)
+
 ProjectedNameView

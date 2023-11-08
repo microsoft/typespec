@@ -12,3 +12,7 @@ resolveOptions(context): ResolvedOpenAPI3EmitterOptions
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `EmitContext`<`OpenAPI3EmitterOptions`\> |
+
+## Returns
+
+[`ResolvedOpenAPI3EmitterOptions`](../interfaces/ResolvedOpenAPI3EmitterOptions.md)

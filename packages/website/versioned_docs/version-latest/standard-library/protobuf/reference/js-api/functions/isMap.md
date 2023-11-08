@@ -18,4 +18,6 @@ Determines whether a type represents a Protobuf map.
 
 ## Returns
 
+`boolean`
+
 true if the internal representation of a Protobuf map is bound to this type.

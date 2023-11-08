@@ -21,6 +21,10 @@ title: "[I] Checker"
 checkProgram(): void
 ```
 
+#### Returns
+
+`void`
+
 ***
 
 ### checkSourceFile()
@@ -34,6 +38,10 @@ checkSourceFile(file): void
 | Parameter | Type |
 | :------ | :------ |
 | `file` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -56,6 +64,10 @@ cloneType<T>(type, additionalProps?): T
 | `type` | `T` |
 | `additionalProps`? | `{ [P in string | number | symbol]?: T[P] }` |
 
+#### Returns
+
+`T`
+
 ***
 
 ### createAndFinishType()
@@ -76,6 +88,10 @@ createAndFinishType<T>(typeDef): T & TypePrototype
 | :------ | :------ |
 | `typeDef` | `T` |
 
+#### Returns
+
+`T` & `TypePrototype`
+
 ***
 
 ### createFunctionType()
@@ -89,6 +105,10 @@ createFunctionType(fn): FunctionType
 | Parameter | Type |
 | :------ | :------ |
 | `fn` | (...`args`) => [`Type`](../type-aliases/Type.md) |
+
+#### Returns
+
+[`FunctionType`](FunctionType.md)
 
 ***
 
@@ -107,6 +127,10 @@ createLiteralType(value, node?): StringLiteral
 | `value` | `string` |
 | `node`? | [`StringLiteralNode`](StringLiteralNode.md) |
 
+##### Returns
+
+[`StringLiteral`](StringLiteral.md)
+
 #### createLiteralType(value, node)
 
 ```ts
@@ -119,6 +143,10 @@ createLiteralType(value, node?): NumericLiteral
 | :------ | :------ |
 | `value` | `number` |
 | `node`? | [`NumericLiteralNode`](NumericLiteralNode.md) |
+
+##### Returns
+
+[`NumericLiteral`](NumericLiteral.md)
 
 #### createLiteralType(value, node)
 
@@ -133,18 +161,9 @@ createLiteralType(value, node?): BooleanLiteral
 | `value` | `boolean` |
 | `node`? | [`BooleanLiteralNode`](BooleanLiteralNode.md) |
 
-#### createLiteralType(value, node)
+##### Returns
 
-```ts
-createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
-```
-
-##### Parameters
-
-| Parameter | Type |
-| :------ | :------ |
-| `value` | `string` \| `number` \| `boolean` |
-| `node`? | [`StringLiteralNode`](StringLiteralNode.md) \| [`NumericLiteralNode`](NumericLiteralNode.md) \| [`BooleanLiteralNode`](BooleanLiteralNode.md) |
+[`BooleanLiteral`](BooleanLiteral.md)
 
 #### createLiteralType(value, node)
 
@@ -158,6 +177,27 @@ createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
 | :------ | :------ |
 | `value` | `string` \| `number` \| `boolean` |
 | `node`? | [`StringLiteralNode`](StringLiteralNode.md) \| [`NumericLiteralNode`](NumericLiteralNode.md) \| [`BooleanLiteralNode`](BooleanLiteralNode.md) |
+
+##### Returns
+
+[`StringLiteral`](StringLiteral.md) \| [`NumericLiteral`](NumericLiteral.md) \| [`BooleanLiteral`](BooleanLiteral.md)
+
+#### createLiteralType(value, node)
+
+```ts
+createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
+```
+
+##### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `value` | `string` \| `number` \| `boolean` |
+| `node`? | [`StringLiteralNode`](StringLiteralNode.md) \| [`NumericLiteralNode`](NumericLiteralNode.md) \| [`BooleanLiteralNode`](BooleanLiteralNode.md) |
+
+##### Returns
+
+[`StringLiteral`](StringLiteral.md) \| [`NumericLiteral`](NumericLiteral.md) \| [`BooleanLiteral`](BooleanLiteral.md)
 
 ***
 
@@ -179,6 +219,10 @@ createType<T>(typeDef): T & TypePrototype & object
 | :------ | :------ |
 | `typeDef` | `T` |
 
+#### Returns
+
+`T` & `TypePrototype` & `object`
+
 ***
 
 ### evalProjection()
@@ -197,6 +241,10 @@ evalProjection(
 | `node` | [`ProjectionNode`](ProjectionNode.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
 | `args` | [`Type`](../type-aliases/Type.md)[] |
+
+#### Returns
+
+[`Type`](../type-aliases/Type.md)
 
 ***
 
@@ -218,6 +266,10 @@ finishType<T>(typeDef): T
 | :------ | :------ |
 | `typeDef` | `T` |
 
+#### Returns
+
+`T`
+
 ***
 
 ### getGlobalNamespaceNode()
@@ -226,6 +278,10 @@ finishType<T>(typeDef): T
 getGlobalNamespaceNode(): NamespaceStatementNode
 ```
 
+#### Returns
+
+[`NamespaceStatementNode`](NamespaceStatementNode.md)
+
 ***
 
 ### getGlobalNamespaceType()
@@ -233,6 +289,10 @@ getGlobalNamespaceNode(): NamespaceStatementNode
 ```ts
 getGlobalNamespaceType(): Namespace
 ```
+
+#### Returns
+
+[`Namespace`](Namespace.md)
 
 ***
 
@@ -250,6 +310,10 @@ getLiteralType(node): StringLiteral
 | :------ | :------ |
 | `node` | [`StringLiteralNode`](StringLiteralNode.md) |
 
+##### Returns
+
+[`StringLiteral`](StringLiteral.md)
+
 #### getLiteralType(node)
 
 ```ts
@@ -261,6 +325,10 @@ getLiteralType(node): NumericLiteral
 | Parameter | Type |
 | :------ | :------ |
 | `node` | [`NumericLiteralNode`](NumericLiteralNode.md) |
+
+##### Returns
+
+[`NumericLiteral`](NumericLiteral.md)
 
 #### getLiteralType(node)
 
@@ -274,6 +342,10 @@ getLiteralType(node): BooleanLiteral
 | :------ | :------ |
 | `node` | [`BooleanLiteralNode`](BooleanLiteralNode.md) |
 
+##### Returns
+
+[`BooleanLiteral`](BooleanLiteral.md)
+
 #### getLiteralType(node)
 
 ```ts
@@ -285,6 +357,10 @@ getLiteralType(node): LiteralType
 | Parameter | Type |
 | :------ | :------ |
 | `node` | [`LiteralNode`](../type-aliases/LiteralNode.md) |
+
+##### Returns
+
+[`LiteralType`](../type-aliases/LiteralType.md)
 
 ***
 
@@ -299,6 +375,10 @@ getMergedSymbol(sym): undefined | Sym
 | Parameter | Type |
 | :------ | :------ |
 | `sym` | `undefined` \| [`Sym`](Sym.md) |
+
+#### Returns
+
+`undefined` \| [`Sym`](Sym.md)
 
 ***
 
@@ -317,6 +397,8 @@ getNamespaceString(type, options?): string
 
 #### Returns
 
+`string`
+
 #### Deprecated
 
 use `import { getNamespaceFullName } from "@typespec/compiler";`
@@ -326,7 +408,7 @@ use `import { getNamespaceFullName } from "@typespec/compiler";`
 ### getStdType()
 
 ```ts
-getStdType<T>(name): StdTypes[T]
+getStdType<T>(name): StdTypes\[T\]
 ```
 
 Std type
@@ -343,6 +425,10 @@ Std type
 | :------ | :------ | :------ |
 | `name` | `T` | Name |
 
+#### Returns
+
+[`StdTypes`](../type-aliases/StdTypes.md)\[`T`\]
+
 ***
 
 ### getTypeForNode()
@@ -356,6 +442,10 @@ getTypeForNode(node): Type
 | Parameter | Type |
 | :------ | :------ |
 | `node` | [`Node`](../type-aliases/Node.md) |
+
+#### Returns
+
+[`Type`](../type-aliases/Type.md)
 
 ***
 
@@ -373,6 +463,8 @@ getTypeName(type, options?): string
 | `options`? | [`TypeNameOptions`](TypeNameOptions.md) |
 
 #### Returns
+
+`string`
 
 #### Deprecated
 
@@ -397,6 +489,10 @@ Check if the given type is one of the built-in standard TypeSpec Types.
 | `type` | [`Scalar`](Scalar.md) | Type to check |
 | `stdType`? | [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) | If provided check is that standard type |
 
+##### Returns
+
+`type is Scalar & Object`
+
 #### isStdType(type, stdType)
 
 ```ts
@@ -409,6 +505,10 @@ isStdType(type, stdType?): type is Type & Object
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
 | `stdType`? | [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| `"Array"` \| `"Record"` |
+
+##### Returns
+
+`type is Type & Object`
 
 ***
 
@@ -433,6 +533,8 @@ Check if the source type can be assigned to the target type.
 
 #### Returns
 
+[`boolean`, readonly [`Diagnostic`](Diagnostic.md)[]]
+
 [related, list of diagnostics]
 
 ***
@@ -448,6 +550,10 @@ mergeSourceFile(file): void
 | Parameter | Type |
 | :------ | :------ |
 | `file` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) \| [`JsSourceFileNode`](JsSourceFileNode.md) |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -468,6 +574,10 @@ project(
 | `projection` | [`ProjectionNode`](ProjectionNode.md) |
 | `args`? | (`string` \| `number` \| `boolean` \| [`Type`](../type-aliases/Type.md))[] |
 
+#### Returns
+
+[`Type`](../type-aliases/Type.md)
+
 ***
 
 ### resolveCompletions()
@@ -482,6 +592,10 @@ resolveCompletions(node): Map<string, TypeSpecCompletionItem>
 | :------ | :------ |
 | `node` | [`IdentifierNode`](IdentifierNode.md) |
 
+#### Returns
+
+`Map`<`string`, [`TypeSpecCompletionItem`](TypeSpecCompletionItem.md)\>
+
 ***
 
 ### resolveIdentifier()
@@ -495,6 +609,10 @@ resolveIdentifier(node): undefined | Sym
 | Parameter | Type |
 | :------ | :------ |
 | `node` | [`IdentifierNode`](IdentifierNode.md) |
+
+#### Returns
+
+`undefined` \| [`Sym`](Sym.md)
 
 ***
 
@@ -514,6 +632,8 @@ Check and resolve a type for the given type reference node.
 
 #### Returns
 
+[`undefined` \| [`Type`](../type-aliases/Type.md), readonly [`Diagnostic`](Diagnostic.md)[]]
+
 Resolved type and diagnostics if there was an error.
 
 ***
@@ -529,3 +649,7 @@ setUsingsForFile(file): void
 | Parameter | Type |
 | :------ | :------ |
 | `file` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) |
+
+#### Returns
+
+`void`

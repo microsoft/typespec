@@ -14,3 +14,7 @@ Normalize path separators, converting `\` into `/`.
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`string`

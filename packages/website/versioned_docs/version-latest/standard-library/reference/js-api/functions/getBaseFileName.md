@@ -40,3 +40,7 @@ getBaseFileName("file://") === ""
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`string`

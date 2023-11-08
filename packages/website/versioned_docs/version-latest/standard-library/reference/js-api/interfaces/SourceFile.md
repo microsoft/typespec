@@ -31,6 +31,10 @@ code units) to line number and offset from line start.
 | :------ | :------ |
 | `position` | `number` |
 
+#### Returns
+
+[`LineAndCharacter`](LineAndCharacter.md)
+
 ***
 
 ### getLineStarts()
@@ -42,3 +46,7 @@ getLineStarts(): readonly number[]
 Array of positions in the text where each line begins. There is one entry
 per line, in order of lines, and each entry represents the offset in UTF-16
 code units from the start of the document to the beginning of the line.
+
+#### Returns
+
+readonly `number`[]

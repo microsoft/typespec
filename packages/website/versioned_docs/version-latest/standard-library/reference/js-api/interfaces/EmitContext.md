@@ -38,3 +38,7 @@ Get an asset emitter to write emitted output to disk using a TypeEmitter
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `TypeEmitterClass` | *typeof* `TypeEmitter` | The TypeEmitter to construct your emitted output |
+
+#### Returns
+
+`AssetEmitter`<`T`, `TOptions`\>

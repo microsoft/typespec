@@ -17,3 +17,7 @@ $baseUri(
 | `context` | `DecoratorContext` |
 | `target` | `Namespace` |
 | `baseUri` | `string` |
+
+## Returns
+
+`void`

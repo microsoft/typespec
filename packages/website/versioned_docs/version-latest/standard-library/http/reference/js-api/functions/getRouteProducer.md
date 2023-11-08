@@ -13,3 +13,7 @@ getRouteProducer(program, operation): RouteProducer
 | :------ | :------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
+
+## Returns
+
+[`RouteProducer`](../type-aliases/RouteProducer.md)

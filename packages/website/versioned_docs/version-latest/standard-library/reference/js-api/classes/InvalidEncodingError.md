@@ -21,6 +21,10 @@ new InvalidEncodingError(encoding): InvalidEncodingError
 | :------ | :------ |
 | `encoding` | `string` |
 
+#### Returns
+
+[`InvalidEncodingError`](InvalidEncodingError.md)
+
 #### Overrides
 
 Error.constructor
@@ -31,8 +35,8 @@ Error.constructor
 | :------ | :------ | :------ | :------ | :------ |
 | `public` | `message` | `string` | - | Error.message |
 | `public` | `name` | `string` | - | Error.name |
-| `public` | `stack?` | `string` | - | Error.stack |
-| `static` | `prepareStackTrace?` | (`err`, `stackTraces`) => `any` | - | Error.prepareStackTrace |
+| `public` | `stack`? | `string` | - | Error.stack |
+| `static` | `prepareStackTrace`? | (`err`, `stackTraces`) => `any` | - | Error.prepareStackTrace |
 | `static` | `stackTraceLimit` | `number` | - | Error.stackTraceLimit |
 
 ## Methods
@@ -51,6 +55,10 @@ Create .stack property on a target object
 | :------ | :------ |
 | `targetObject` | `object` |
 | `constructorOpt`? | `Function` |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 

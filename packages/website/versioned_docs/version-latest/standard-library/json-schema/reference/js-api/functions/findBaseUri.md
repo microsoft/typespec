@@ -13,3 +13,7 @@ findBaseUri(program, target): string | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `target` | `Namespace` \| [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
+
+## Returns
+
+`string` \| `undefined`

@@ -12,3 +12,7 @@ createServer(host): Server
 | Parameter | Type |
 | :------ | :------ |
 | `host` | [`ServerHost`](../interfaces/ServerHost.md) |
+
+## Returns
+
+[`Server`](../interfaces/Server.md)

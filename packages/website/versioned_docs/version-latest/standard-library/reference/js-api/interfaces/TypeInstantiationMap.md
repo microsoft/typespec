@@ -19,6 +19,10 @@ get(args): undefined | Type
 | :------ | :------ |
 | `args` | readonly [`Type`](../type-aliases/Type.md)[] |
 
+#### Returns
+
+`undefined` \| [`Type`](../type-aliases/Type.md)
+
 ***
 
 ### set()
@@ -33,3 +37,7 @@ set(args, type): void
 | :------ | :------ |
 | `args` | readonly [`Type`](../type-aliases/Type.md)[] |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+#### Returns
+
+`void`

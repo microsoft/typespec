@@ -12,3 +12,7 @@ getDiscriminatedTypes(program): [Model | Union, Discriminator][]
 | Parameter | Type |
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
+
+## Returns
+
+[[`Model`](../interfaces/Model.md) \| [`Union`](../interfaces/Union.md), [`Discriminator`](../interfaces/Discriminator.md)][]
