@@ -29,7 +29,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "tsc -p . && vite build 2>&1",
+    "build-samples": "node ./samples/build.js",
+    "build": "npm run build-samples && tsc -p . && vite build 2>&1",
     "preview": "npm run build && vite preview",
     "start": "vite",
     "watch": "vite",

@@ -1,7 +1,7 @@
 import PlaygroundManifest from "@typespec/playground/manifest";
 import { renderReactPlayground } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
-import samples from "../samples/index.js";
+import samples from "../samples/dist/samples.js";
 
 import "@typespec/playground/style.css";
 import "./style.css";

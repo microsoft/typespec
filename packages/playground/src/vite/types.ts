@@ -1,7 +1,7 @@
 import { PlaygroundLinks } from "../react/playground.js";
+import { PlaygroundSampleConfig } from "../tooling/types.js";
 import { PlaygroundSample } from "../types.js";
 
-type PlaygroundSampleConfig = Omit<PlaygroundSample, "content">;
 export interface PlaygroundUserConfig extends Omit<PlaygroundConfig, "samples"> {
   /**
    * If the bundle library plugin should be loaded.
