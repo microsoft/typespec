@@ -1524,6 +1524,9 @@ importers:
       '@docusaurus/preset-classic':
         specifier: ^3.0.0
         version: 3.0.0(@algolia/client-search@4.20.0)(@swc/core@1.3.95)(@types/react@18.2.34)(eslint@8.52.0)(react-dom@18.2.0)(react@18.2.0)(search-insights@2.9.0)(typescript@5.2.2)
+      '@docusaurus/theme-common':
+        specifier: ~3.0.0
+        version: 3.0.0(@docusaurus/types@3.0.0)(@swc/core@1.3.95)(eslint@8.52.0)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)
       '@docusaurus/theme-mermaid':
         specifier: ^3.0.0
         version: 3.0.0(@swc/core@1.3.95)(eslint@8.52.0)(react-dom@18.2.0)(react@18.2.0)(typescript@5.2.2)

@@ -5,28 +5,41 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "re
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { FileOutput } from "./file-output.js";
 import { OutputTabs, Tab } from "./output-tabs.js";
+import { PlaygroundEditorsOptions } from "./playground.js";
 import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "./types.js";
 import { OutputEditor } from "./typespec-editor.js";
 
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;
+  editorOptions?: PlaygroundEditorsOptions;
   viewers?: FileOutputViewer[];
 }
 
-export const OutputView: FunctionComponent<OutputViewProps> = ({ compilationState, viewers }) => {
+export const OutputView: FunctionComponent<OutputViewProps> = ({
+  compilationState,
+  viewers,
+  editorOptions,
+}) => {
   if (compilationState === undefined) {
     return <></>;
   }
   if ("internalCompilerError" in compilationState) {
     return <InternalCompilerError error={compilationState.internalCompilerError} />;
   }
-  return <OutputViewInternal compilationResult={compilationState} viewers={viewers} />;
+  return (
+    <OutputViewInternal
+      compilationResult={compilationState}
+      viewers={viewers}
+      editorOptions={editorOptions}
+    />
+  );
 };
 
 const OutputViewInternal: FunctionComponent<{
   compilationResult: CompileResult;
+  editorOptions?: PlaygroundEditorsOptions;
   viewers?: FileOutputViewer[];
-}> = ({ compilationResult, viewers }) => {
+}> = ({ compilationResult, viewers, editorOptions }) => {
   const { program, outputFiles } = compilationResult;
 
   const [viewSelection, setViewSelection] = useState<ViewSelection>({
@@ -87,24 +100,32 @@ const OutputViewInternal: FunctionComponent<{
         onSelect={handleTabSelection}
       />
       <div className="output-content" css={{ width: "100%", height: "100%", overflow: "hidden" }}>
-        <OutputContent viewSelection={viewSelection} program={program} viewers={viewers} />
+        <OutputContent
+          viewSelection={viewSelection}
+          editorOptions={editorOptions}
+          program={program}
+          viewers={viewers}
+        />
       </div>
     </>
   );
 };
 
-const rawFileViewer = {
-  key: "raw",
-  label: "File",
-  render: ({ filename, content }: ViewerProps) => (
-    <OutputEditor filename={filename} value={content} />
-  ),
-};
+function getRawFileViewer(editorOptions?: PlaygroundEditorsOptions) {
+  return {
+    key: "raw",
+    label: "File",
+    render: ({ filename, content }: ViewerProps) => (
+      <OutputEditor editorOptions={editorOptions} filename={filename} value={content} />
+    ),
+  };
+}
 
 interface OutputContentProps {
   viewSelection: ViewSelection;
   program: Program | undefined;
   internalCompilerError?: any;
+  editorOptions?: PlaygroundEditorsOptions;
   viewers?: FileOutputViewer[];
 }
 
@@ -112,8 +133,12 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
   viewSelection,
   program,
   viewers,
+  editorOptions,
 }) => {
-  const resolvedViewers = useMemo(() => [rawFileViewer, ...(viewers ?? [])], [viewers]);
+  const resolvedViewers = useMemo(
+    () => [getRawFileViewer(editorOptions), ...(viewers ?? [])],
+    [viewers]
+  );
   switch (viewSelection.type) {
     case "file":
       return (

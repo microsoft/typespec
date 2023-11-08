@@ -1,8 +1,11 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import { useColorMode } from "@docusaurus/theme-common";
+import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
+import { useEffect, useMemo, useState } from "react";
+
+import { PlaygroundSample } from "@typespec/playground";
 import "@typespec/playground/style.css";
-import { useEffect, useState } from "react";
 
 const libraries = [
   "@typespec/compiler",
@@ -21,45 +24,75 @@ export default function PlaygroundPage() {
     <BrowserOnly>
       {() => {
         return (
-          <Layout>
-            <FluentProvider
-              theme={webLightTheme}
-              style={{ height: "calc(100vh - var(--ifm-navbar-height))", width: "100%" }}
-            >
+          <FluentLayout>
+            <div style={{ height: "calc(100vh - var(--ifm-navbar-height))", width: "100%" }}>
               <AsyncPlayground />
-            </FluentProvider>
-          </Layout>
+            </div>
+          </FluentLayout>
         );
       }}
     </BrowserOnly>
   );
 }
 
+export const FluentLayout = ({ children }) => {
+  return (
+    <Layout>
+      <FluentWrapper>{children}</FluentWrapper>
+    </Layout>
+  );
+};
+
+const FluentWrapper = ({ children }) => {
+  const { colorMode } = useColorMode();
+
+  return (
+    <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
+      {children}
+    </FluentProvider>
+  );
+};
+
 const AsyncPlayground = () => {
-  const [mod, setMod] = useState<any | null>(null);
+  const { colorMode } = useColorMode();
+
+  const [mod, setMod] = useState<PlaygroundModules | null>(null);
   useEffect(() => {
-    createPlaygroundComponent()
+    resolvePlaygroundModules()
       .then((x) => setMod(x))
       .catch((e) => {
         throw e;
       });
   }, []);
 
-  return mod;
+  const editorOptions = useMemo(() => {
+    return { theme: colorMode === "dark" ? "vs-dark" : "vs-light" };
+  }, [colorMode]);
+
+  return (
+    mod && (
+      <mod.StandalonePlayground
+        libraries={libraries}
+        defaultEmitter={defaultEmitter}
+        samples={mod.samples}
+        emitterViewers={{ "@typespec/openapi3": [mod.SwaggerUIViewer] }}
+        importConfig={{ useShim: true }}
+        editorOptions={editorOptions}
+      />
+    )
+  );
 };
 
-async function createPlaygroundComponent() {
+interface PlaygroundModules {
+  StandalonePlayground: typeof import("@typespec/playground/react").StandalonePlayground;
+  samples: Record<string, PlaygroundSample>;
+  SwaggerUIViewer: typeof import("@typespec/playground/react/viewers").SwaggerUIViewer;
+}
+async function resolvePlaygroundModules(): Promise<PlaygroundModules> {
   // Need to import dynamically to avoid SSR issues due to monaco editor referencing navigator.
-  const { createReactPlayground } = await import("@typespec/playground/react");
+  const { StandalonePlayground } = await import("@typespec/playground/react");
   const { default: samples } = await import("@typespec/playground-website/samples");
   const { SwaggerUIViewer } = await import("@typespec/playground/react/viewers");
-  return createReactPlayground({
-    libraries,
-    defaultEmitter,
-    samples,
-    emitterViewers: {
-      "@typespec/openapi3": [SwaggerUIViewer],
-    },
-    importConfig: { useShim: true },
-  });
+
+  return { StandalonePlayground, samples, SwaggerUIViewer } as const;
 }
