@@ -661,20 +661,43 @@ export interface SymbolLinks {
   /**
    * The symbol aliased by an alias symbol. When present, guaranteed to be a
    * non-alias symbol. Will not be present when the name resolver could not
-   * determine a symbol for the alias, e.g. when it is a template.
+   * determine a symbol for the alias, e.g. when it is a computed type.
    */
   aliasedSymbol?: Sym;
+
+  /**
+   * The result of resolving the aliased reference. When resolved, aliasedSymbol
+   * will contain the resolved symbol. Otherwise, aliasedSymbol may be present
+   * if the alias is a type literal with a symbol, otherwise it will be
+   * undefined.
+   */
+  aliasResolutionResult?: ResolutionResultFlags;
+
+  /**
+   * The symbol for the constraint of a type parameter. Will not be present when
+   * the name resolver could not determine a symbol for the constraint, e.g.
+   * when it is a computed type.
+   */
+  constraintSymbol?: Sym;
+
+  /**
+   * The result of resolving the type parameter constraint. When resolved,
+   * constraintSymbol will contain the resolved symbol. Otherwise,
+   * constraintSymbol may be present if the constraint is a type literal with a
+   * symbol, otherwise it will be undefined.
+   */
+  constraintResolutionResult?: ResolutionResultFlags;
 }
 
 export interface NodeLinks {
   /** the result of type checking this node */
   resolvedType?: Type;
 
-  /** the result of resolving this node */
+  /** the result of resolving this reference node */
   resolvedSymbol?: Sym;
 
   /**
-   * The result of resolution of this node.
+   * The result of resolution of this reference node.
    *
    * When the the result is `Resolved`, `resolvedSymbol` contains the result.
    **/
@@ -689,7 +712,6 @@ export enum ResolutionResultFlags {
   NotFound = 1 << 4,
 
   ResolutionFailed = Unknown | Ambiguous | NotFound,
-  ResolutionFatal = Ambiguous | NotFound,
 }
 
 export type ResolutionResult = [sym: Sym | undefined, result: ResolutionResultFlags];

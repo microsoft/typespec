@@ -26,7 +26,7 @@ describe.only("compiler: nameResolver", () => {
     resolver = createResolver(program);
   });
 
-  describe("models", () => {
+  describe("model statements", () => {
     describe("binding", () => {
       it("binds is members", () => {
         const sym = getGlobalSymbol([
@@ -101,6 +101,65 @@ describe.only("compiler: nameResolver", () => {
         });
       });
 
+      it("binds spread members of templates", () => {
+        const sym = getGlobalSymbol([
+          `
+          model M1<T> {
+            x: "x";
+            ... T;
+          }
+  
+          model M2 {
+            ... M1<{}>,
+            y: "y";
+          }
+          `,
+        ]);
+
+        assertSymbol(sym, {
+          exports: {
+            M2: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member,
+                },
+                y: {
+                  flags: SymbolFlags.Member,
+                },
+              },
+            },
+          },
+        });
+      });
+
+      it("binds spread members of templates with constraints", () => {
+        const sym = getGlobalSymbol([
+          `
+          model M1<T extends {z: "z"}> {
+            x: "x";
+            ... T;
+          }
+  
+          model M2 {
+            ... M1<{}>,
+            y: "y";
+          }
+          `,
+        ]);
+        const memberFlags = { flags: SymbolFlags.Member };
+        assertSymbol(sym, {
+          exports: {
+            M2: {
+              members: {
+                x: memberFlags,
+                y: memberFlags,
+                z: memberFlags,
+              },
+            },
+          },
+        });
+      });
+
       it("sets containsUnknownMembers flag with spread/extends of instantiations", () => {
         const sym = getGlobalSymbol([
           `
@@ -136,6 +195,27 @@ describe.only("compiler: nameResolver", () => {
           model Template<T> {
             x: "x";
           }
+          `,
+        ]);
+
+        assertSymbol(sym, {
+          exports: {
+            Template: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member,
+                },
+              },
+            },
+          },
+        });
+      });
+
+      it.skip("binds meta properties", () => {
+        const sym = getGlobalSymbol([
+          `
+          model Foo { }
+          ::properties.get
           `,
         ]);
 
@@ -272,6 +352,151 @@ describe.only("compiler: nameResolver", () => {
     });
   });
 
+  describe.skip("model expressions", () => {});
+
+  describe("interfaces", () => {
+    describe("binding", () => {
+      it("binds interface members from extends", () => {
+        const sym = getGlobalSymbol([
+          `
+          interface Bar {
+            x(): void;
+          }
+  
+          interface Baz {
+            y(): void;
+          }
+          interface Foo extends Bar, Baz {}
+          `,
+        ]);
+
+        assertSymbol(sym, {
+          exports: {
+            Foo: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member | SymbolFlags.Operation,
+                },
+                y: {
+                  flags: SymbolFlags.Member | SymbolFlags.Operation,
+                },
+              },
+            },
+          },
+        });
+      });
+
+      it("binds interface members from extends templates", () => {
+        const sym = getGlobalSymbol([
+          `
+          interface Template<T> {
+            x(): void;
+          }
+
+          interface Foo extends Template<{}> {
+
+          }
+          `,
+        ]);
+
+        assertSymbol(sym, {
+          exports: {
+            Foo: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member | SymbolFlags.Operation,
+                },
+              },
+            },
+          },
+        });
+      });
+
+      it("binds interface members from multiple extends templates", () => {
+        const sym = getGlobalSymbol([
+          `
+          interface Template1<T> {
+            x(): void;
+          }
+
+          interface Template2<T> extends Template3<T> {
+            y(): void;
+          }
+
+          interface Template3<T> {
+            z(): void;
+          }
+
+          interface Foo extends Template1<{}>, Template2<{}> {
+
+          }
+          `,
+        ]);
+
+        assertSymbol(sym, {
+          exports: {
+            Foo: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member | SymbolFlags.Operation,
+                },
+                y: {
+                  flags: SymbolFlags.Member | SymbolFlags.Operation,
+                },
+                z: {
+                  flags: SymbolFlags.Member | SymbolFlags.Operation,
+                },
+              },
+            },
+          },
+        });
+      });
+    });
+    describe("resolution", () => {
+      it("resolves interface members", () => {
+        const { "Foo.x": x } = getResolutions(
+          [
+            `
+            interface Foo {
+              x(): void;
+            }
+            ┆
+            `,
+          ],
+          "Foo.x"
+        );
+        assertSymbol(x, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
+      });
+
+      it("resolves interface members from templates", () => {
+        const { "Foo.x": x, "Template.x": tx } = getResolutions(
+          [
+            `
+            interface Template<T> {
+              x(): void;
+            }
+            interface Foo extends Template<{}> {}
+            ┆
+            `,
+          ],
+          "Foo.x",
+          "Template.x"
+        );
+
+        assertSymbol(x, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
+        assertSymbol(tx, { name: "x", flags: SymbolFlags.Member | SymbolFlags.Operation });
+      });
+    });
+  });
+
+  describe.skip("operations", () => {});
+
+  describe.skip("enums", () => {});
+
+  describe.skip("unions", () => {});
+
+  describe.skip("scalars", () => {});
+
   describe("namespaces", () => {
     describe("binding", () => {
       it("merges across the same file", () => {
@@ -385,11 +610,52 @@ describe.only("compiler: nameResolver", () => {
           },
         });
       });
+      it("resolves aliases to their aliased symbol", () => {
+        const sym = getGlobalSymbol([
+          `
+            model M1 {
+              x: "x";
+            }
+
+            alias M2 = M1;
+            alias M3 = M2;
+            `,
+        ]);
+
+        const m1Sym = sym.exports?.get("M1");
+        assertSymbol(sym, {
+          exports: {
+            M1: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member,
+                },
+              },
+            },
+            M2: {
+              flags: SymbolFlags.Alias,
+              links: {
+                aliasedSymbol: m1Sym,
+              },
+            },
+            M3: {
+              flags: SymbolFlags.Alias,
+              links: {
+                aliasedSymbol: m1Sym,
+              },
+            },
+          },
+        });
+      });
     });
 
     describe("resolution", () => {
-      it.only("resolves aliases", () => {
-        const { "Foo.Bar.M": M, "Baz.AliasM": AliasM } = getResolutions(
+      it("resolves aliases", () => {
+        const {
+          "Foo.Bar.M": M,
+          "Baz.AliasM": AliasM,
+          "Baz.AliasAliasM": AliasAliasM,
+        } = getResolutions(
           [
             `namespace Foo {
                 namespace Bar {
@@ -398,15 +664,60 @@ describe.only("compiler: nameResolver", () => {
               }
               namespace Baz {
                 alias AliasM = Foo.Bar.M;
+                alias AliasAliasM = AliasM;
               }
               ┆
               `,
           ],
           "Foo.Bar.M",
-          "Baz.AliasM"
+          "Baz.AliasM",
+          "Baz.AliasAliasM"
         );
         assertSymbol(M, { name: "M", flags: SymbolFlags.Model });
         assertSymbol(AliasM, { name: "M", flags: SymbolFlags.Model });
+        assertSymbol(AliasAliasM, { name: "M", flags: SymbolFlags.Model });
+      });
+
+      it("resolves known members of aliased things with members", () => {
+        const {
+          "Foo.x": x,
+          "Bar.x": aliasX,
+          Baz: aliasAliasX,
+        } = getResolutions(
+          [
+            `
+            model Foo { x: "hi" }
+            alias Bar = Foo;
+            alias Baz = Bar.x;
+            ┆
+            `,
+          ],
+          "Foo.x",
+          "Bar.x",
+          "Baz"
+        );
+        const xDescriptor = { name: "x", flags: SymbolFlags.Member };
+        assertSymbol(x, xDescriptor);
+        assertSymbol(aliasX, xDescriptor);
+        assertSymbol(aliasAliasX, xDescriptor);
+      });
+
+      it("resolves unknown members of aliased things with members", () => {
+        const { Baz: yResult } = getResolutions(
+          [
+            `
+            model Template<T> { ... T };
+            model Foo { x: "hi", ... Template<{}> }
+            alias Bar = Foo;
+            alias Baz = Bar.y;
+            ┆
+            `,
+          ],
+          "Foo.x",
+          "Bar.x",
+          "Baz"
+        );
+        ok(yResult[1] & ResolutionResultFlags.Unknown, "Baz alias should be unknown");
       });
     });
   });

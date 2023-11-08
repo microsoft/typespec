@@ -60,12 +60,15 @@
 import { createSymbol, createSymbolTable } from "./binder.js";
 import {
   AliasStatementNode,
+  InterfaceStatementNode,
   ModelExpressionNode,
   ModelStatementNode,
   ResolutionResult,
+  TemplateParameterDeclarationNode,
   compilerAssert,
   visitChildren,
 } from "./index.js";
+import { inspectSymbol } from "./inspector.js";
 import { createDiagnostic } from "./messages.js";
 import { Program } from "./program.js";
 import {
@@ -193,27 +196,31 @@ export function createResolver(program: Program) {
 
     let result = resolveTypeReferenceWorker(node);
 
-    // Unwrap aliases
-    while (result[1] & ResolutionResultFlags.Resolved && result[0]!.flags & SymbolFlags.Alias) {
-      const aliasNode = result[0]!.declarations[0] as AliasStatementNode;
-      if (
-        aliasNode.templateParameters.length === 0 &&
-        aliasNode.value.kind === SyntaxKind.TypeReference &&
-        aliasNode.value.arguments.length === 0
-      ) {
-        const [aliasRefSym, aliasRefResult] = resolveTypeReference(aliasNode.value);
-        if (aliasRefResult & ResolutionResultFlags.Resolved) {
-          result = [aliasRefSym!, ResolutionResultFlags.Resolved];
-          continue;
-        }
+    const [resolvedSym, resolvedSymResult] = result;
+
+    if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
+      const aliasNode = resolvedSym.declarations[0];
+      result = resolveAlias(aliasNode as AliasStatementNode);
+    } else if (resolvedSym && resolvedSym.flags & SymbolFlags.TemplateParameter) {
+      const templateNode = resolvedSym.declarations[0] as TemplateParameterDeclarationNode;
+      if (templateNode.constraint) {
+        result = resolveTemplateParameter(templateNode);
       }
-      break;
     }
 
-    if (result[0]) {
-      links.resolvedSymbol = result[0];
+    // make sure we've bound and fully resolved the referenced
+    // node before returning it.
+    if (resolvedSym) {
+      if (resolvedSym.flags & SymbolFlags.Declaration) {
+        bindAndResolveNode(resolvedSym.declarations[0]);
+      }
+      // todo: non-declarations
     }
-    links.resolutionResult = result[1];
+
+    if (resolvedSym) {
+      links.resolvedSymbol = resolvedSym;
+    }
+    links.resolutionResult = resolvedSymResult;
     return result;
   }
 
@@ -221,9 +228,6 @@ export function createResolver(program: Program) {
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode
   ): ResolutionResult {
     if (node.kind === SyntaxKind.TypeReference) {
-      if (node.arguments.length > 0) {
-        return [undefined, ResolutionResultFlags.Unknown];
-      }
       return resolveTypeReference(node.target);
     } else if (node.kind === SyntaxKind.MemberExpression) {
       return resolveMemberExpression(node);
@@ -247,7 +251,7 @@ export function createResolver(program: Program) {
       return resolveExport(getMergedSymbol(baseSym), node.id);
     }
 
-    throw new Error("NYI rme");
+    throw new Error("NYI rme " + inspectSymbol(baseSym));
   }
 
   function resolveMember(baseSym: Sym, id: IdentifierNode): ResolutionResult {
@@ -260,6 +264,8 @@ export function createResolver(program: Program) {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
         return resolveModelMember(baseSym, baseNode, id);
+      case SyntaxKind.InterfaceStatement:
+        return resolveInterfaceMember(baseSym, id);
     }
     throw new Error("NYI");
   }
@@ -308,6 +314,19 @@ export function createResolver(program: Program) {
     ];
   }
 
+  function resolveInterfaceMember(ifaceSym: Sym, id: IdentifierNode): ResolutionResult {
+    const slinks = getSymbolLinks(ifaceSym);
+    const memberSym = tableLookup(ifaceSym.members!, id);
+    if (memberSym) {
+      return [memberSym, ResolutionResultFlags.Resolved];
+    }
+
+    return [
+      undefined,
+      slinks.hasUnknownMembers ? ResolutionResultFlags.Unknown : ResolutionResultFlags.NotFound,
+    ];
+  }
+
   function resolveExport(baseSym: Sym, id: IdentifierNode): ResolutionResult {
     const node = baseSym.declarations[0];
     compilerAssert(
@@ -321,6 +340,66 @@ export function createResolver(program: Program) {
     }
 
     return [exportSym, ResolutionResultFlags.Resolved];
+  }
+  function resolveAlias(node: AliasStatementNode): ResolutionResult {
+    const symbol = node.symbol;
+    const slinks = getSymbolLinks(symbol);
+
+    if (slinks.aliasResolutionResult) {
+      return [slinks.aliasedSymbol, slinks.aliasResolutionResult];
+    }
+
+    if (node.value.kind === SyntaxKind.TypeReference) {
+      const result = resolveTypeReference(node.value);
+
+      if (result[0] && result[0].flags & SymbolFlags.Alias) {
+        const aliasLinks = getSymbolLinks(result[0]);
+        slinks.aliasedSymbol = aliasLinks.aliasedSymbol ? aliasLinks.aliasedSymbol : result[0];
+      } else {
+        slinks.aliasedSymbol = result[0];
+      }
+      slinks.aliasResolutionResult = result[1];
+      return [slinks.aliasedSymbol, slinks.aliasResolutionResult];
+    } else if (node.value.symbol) {
+      // a type literal
+      slinks.aliasedSymbol = node.value.symbol;
+      slinks.aliasResolutionResult = ResolutionResultFlags.Resolved;
+      return [node.value.symbol, ResolutionResultFlags.Resolved];
+    } else {
+      // a computed type
+      slinks.aliasResolutionResult = ResolutionResultFlags.Unknown;
+      return [undefined, ResolutionResultFlags.Unknown];
+    }
+  }
+
+  function resolveTemplateParameter(node: TemplateParameterDeclarationNode): ResolutionResult {
+    const symbol = node.symbol;
+    const slinks = getSymbolLinks(symbol);
+
+    if (!node.constraint) {
+      return [node.symbol, ResolutionResultFlags.Resolved];
+    }
+
+    if (slinks.constraintResolutionResult) {
+      return [slinks.constraintSymbol, slinks.constraintResolutionResult];
+    }
+
+    if (node.constraint && node.constraint.kind === SyntaxKind.TypeReference) {
+      const result = resolveTypeReference(node.constraint);
+      slinks.constraintSymbol = result[0];
+      slinks.constraintResolutionResult = result[1];
+      return result;
+    } else if (node.constraint.symbol) {
+      // a type literal
+      slinks.constraintSymbol = node.constraint.symbol;
+      slinks.constraintResolutionResult = ResolutionResultFlags.Resolved;
+      return [node.constraint.symbol, ResolutionResultFlags.Resolved];
+    } else {
+      // a computed type
+      slinks.constraintSymbol = node.symbol;
+      slinks.constraintResolutionResult = ResolutionResultFlags.Resolved;
+      return [node.symbol, ResolutionResultFlags.Resolved];
+    }
   }
 
   function tableLookup(table: SymbolTable, node: IdentifierNode, resolveDecorator = false) {
@@ -351,10 +430,16 @@ export function createResolver(program: Program) {
       case SyntaxKind.ModelExpression:
         bindModelMembers(node);
         return;
+      case SyntaxKind.InterfaceStatement:
+        bindInterfaceMembers(node);
+        return;
     }
   }
 
   function bindModelMembers(node: ModelStatementNode | ModelExpressionNode) {
+    if ((node as any).id?.sv === "Foo") {
+      debugger;
+    }
     const modelSym = node.symbol!;
     const modelSymLinks = getSymbolLinks(modelSym);
 
@@ -370,13 +455,9 @@ export function createResolver(program: Program) {
     if (isRef && isRef.kind === SyntaxKind.TypeReference) {
       const [isSym, isResult] = resolveTypeReference(isRef);
 
-      if (isResult & ResolutionResultFlags.Unknown) {
-        modelSymLinks.hasUnknownMembers = true;
-      } else if (isResult & ResolutionResultFlags.Resolved && isSym!.flags & SymbolFlags.Model) {
-        const isSymLinks = getSymbolLinks(isSym!);
-        if (isSymLinks.hasUnknownMembers) {
-          modelSymLinks.hasUnknownMembers = true;
-        }
+      setUnknownMembers(modelSymLinks, isSym, isResult);
+
+      if (isResult & ResolutionResultFlags.Resolved && isSym!.flags & SymbolFlags.Model) {
         const sourceTable = getAugmentedSymbolTable(isSym!.members!);
         targetTable.include(sourceTable);
       }
@@ -385,36 +466,23 @@ export function createResolver(program: Program) {
     // here we just need to check if we're extending something with unknown symbols
     const extendsRef = node.kind === SyntaxKind.ModelStatement ? node.extends : undefined;
     if (extendsRef && extendsRef.kind === SyntaxKind.TypeReference) {
-      const [extendsSym, extendsResult] = resolveTypeReference(extendsRef);
-      if (extendsResult & ResolutionResultFlags.Resolved) {
-        if (getSymbolLinks(extendsSym!).hasUnknownMembers) {
-          modelSymLinks.hasUnknownMembers = true;
-        }
-      } else if (extendsResult & ResolutionResultFlags.Unknown) {
-        modelSymLinks.hasUnknownMembers = true;
-      }
+      const [sym, result] = resolveTypeReference(extendsRef);
+      setUnknownMembers(modelSymLinks, sym, result);
     }
 
     for (const propertyNode of node.properties) {
       if (propertyNode.kind === SyntaxKind.ModelSpreadProperty) {
         const [sourceSym, sourceResult] = resolveTypeReference(propertyNode.target);
+
+        setUnknownMembers(modelSymLinks, sourceSym, sourceResult);
+
         if (~sourceResult & ResolutionResultFlags.Resolved) {
-          if (sourceResult & ResolutionResultFlags.Unknown) {
-            modelSymLinks.hasUnknownMembers = true;
-          }
           continue;
         }
-
         compilerAssert(sourceSym, "Spread symbol must be defined if resolution succeeded");
 
-        if (!(sourceSym.flags & SymbolFlags.Model)) {
+        if (~sourceSym.flags & SymbolFlags.Model) {
           // will be a checker error
-          continue;
-        }
-
-        const sourceSymLinks = getSymbolLinks(sourceSym!);
-        if (sourceSymLinks.hasUnknownMembers) {
-          modelSymLinks.hasUnknownMembers = true;
           continue;
         }
 
@@ -422,6 +490,54 @@ export function createResolver(program: Program) {
         targetTable.include(sourceTable);
       }
     }
+  }
+
+  function setUnknownMembers(targetSymLinks: SymbolLinks, ...[sym, result]: ResolutionResult) {
+    if (result & ResolutionResultFlags.Unknown) {
+      targetSymLinks.hasUnknownMembers = true;
+    } else if (result & ResolutionResultFlags.Resolved) {
+      const isSymLinks = getSymbolLinks(sym!);
+      if (isSymLinks.hasUnknownMembers) {
+        targetSymLinks.hasUnknownMembers = true;
+      }
+    }
+  }
+
+  function bindInterfaceMembers(node: InterfaceStatementNode) {
+    const ifaceSym = node.symbol!;
+    const ifaceSymLinks = getSymbolLinks(ifaceSym);
+
+    if (ifaceSymLinks.membersBound) {
+      return;
+    }
+
+    ifaceSymLinks.membersBound = true;
+
+    for (const extendsRef of node.extends) {
+      const [extendsSym, extendsResult] = resolveTypeReference(extendsRef);
+      setUnknownMembers(ifaceSym, extendsSym, extendsResult);
+
+      if (~extendsResult & ResolutionResultFlags.Resolved) {
+        continue;
+      }
+
+      compilerAssert(extendsSym, "Extends symbol must be defined if resolution succeeded");
+
+      if (~extendsSym.flags & SymbolFlags.Interface) {
+        // will be a checker error
+        continue;
+      }
+
+      const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
+      const targetTable = getAugmentedSymbolTable(ifaceSym.members!);
+      targetTable.include(sourceTable);
+    }
+  }
+
+  function bindTemplateParameter(node: TemplateParameterDeclarationNode) {
+    const sym = node.symbol;
+    const links = getSymbolLinks(sym);
+    links.hasUnknownMembers = true;
   }
 
   function resolveIdentifier(node: IdentifierNode): ResolutionResult {
@@ -437,7 +553,9 @@ export function createResolver(program: Program) {
 
       if ("locals" in scope && scope.locals !== undefined) {
         binding = tableLookup(scope.locals, node);
-        if (binding) return [binding, ResolutionResultFlags.Resolved];
+        if (binding) {
+          return [binding, ResolutionResultFlags.Resolved];
+        }
       }
 
       scope = scope.parent;
@@ -464,7 +582,7 @@ export function createResolver(program: Program) {
         return [globalBinding, ResolutionResultFlags.Resolved];
       } else if (usingBinding) {
         if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
-          return [undefined, ResolutionResultFlags.ResolutionFailed];
+          return [undefined, ResolutionResultFlags.Ambiguous];
         }
         return [usingBinding, ResolutionResultFlags.Resolved];
       }
@@ -659,7 +777,14 @@ export function createResolver(program: Program) {
         break;
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
+      case SyntaxKind.InterfaceStatement:
         bindMemberContainer(node);
+        break;
+      case SyntaxKind.AliasStatement:
+        resolveAlias(node);
+        break;
+      case SyntaxKind.TemplateParameterDeclaration:
+        bindTemplateParameter(node);
     }
 
     visitChildren(node, bindAndResolveNode);
