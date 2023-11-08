@@ -1537,7 +1537,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(@types/react@18.2.34)(react@18.2.0)
       '@typespec/playground':
-        specifier: workspace:~0.1.0-alpha.2
+        specifier: workspace:~0.1.0-alpha.3
         version: link:../playground
       es-module-shims:
         specifier: ~1.8.0

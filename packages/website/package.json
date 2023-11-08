@@ -31,7 +31,7 @@
     "prism-react-renderer": "^2.1.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
-    "@typespec/playground": "workspace:~0.1.0-alpha.2",
+    "@typespec/playground": "workspace:~0.1.0-alpha.3",
     "@fluentui/react-components": "~9.32.1",
     "es-module-shims": "~1.8.0",
     "@docusaurus/theme-common": "~3.0.0"
