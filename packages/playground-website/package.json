@@ -20,8 +20,8 @@
   "type": "module",
   "exports": {
     "./samples": {
-      "types": "./samples/samples.d.ts",
-      "default": "./samples/index.js"
+      "types": "./samples/dist/samples.d.ts",
+      "default": "./samples/dist/samples.js"
     }
   },
   "engines": {
