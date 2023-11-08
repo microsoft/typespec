@@ -21,3 +21,7 @@ getOperationParameters(
 | `overloadBase`? | [`HttpOperation`](../interfaces/HttpOperation.md) | `undefined` |
 | `knownPathParamNames`? | `string`[] | `[]` |
 | `options`? | [`OperationParameterOptions`](../interfaces/OperationParameterOptions.md) | `{}` |
+
+## Returns
+
+[[`HttpOperationParameters`](../interfaces/HttpOperationParameters.md), readonly `Diagnostic`[]]

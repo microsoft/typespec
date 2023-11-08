@@ -26,6 +26,8 @@ Configure the server url for the service.
 
 ## Returns
 
+`void`
+
 ## Optional
 
 Parameters to interpolate in the server url.

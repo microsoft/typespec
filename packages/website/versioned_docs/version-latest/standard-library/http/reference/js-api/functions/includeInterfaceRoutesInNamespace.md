@@ -20,6 +20,8 @@ includeInterfaceRoutesInNamespace(
 
 ## Returns
 
+`void`
+
 ## Deprecated
 
 DO NOT USE. For internal use only as a workaround.

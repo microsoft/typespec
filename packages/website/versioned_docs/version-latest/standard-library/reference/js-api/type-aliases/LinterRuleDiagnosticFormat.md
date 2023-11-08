@@ -4,7 +4,7 @@ title: "[T] LinterRuleDiagnosticFormat"
 
 ---
 ```ts
-type LinterRuleDiagnosticFormat<T, M>: T[M] extends CallableMessage<infer A> ? object : Record<string, unknown>;
+type LinterRuleDiagnosticFormat<T, M>: T\[M\] extends CallableMessage<infer A> ? object : Record<string, unknown>;
 ```
 
 ## Type parameters

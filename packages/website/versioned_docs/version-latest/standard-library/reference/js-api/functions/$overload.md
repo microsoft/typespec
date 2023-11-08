@@ -19,3 +19,7 @@ $overload(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | DecoratorContext |
 | `target` | [`Operation`](../interfaces/Operation.md) | The specializing operation declaration |
 | `overloadBase` | [`Operation`](../interfaces/Operation.md) | The operation to be overloaded. |
+
+## Returns
+
+`void`

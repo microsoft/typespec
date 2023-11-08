@@ -13,3 +13,7 @@ getTypeName(type, options?): string
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](../interfaces/ValueType.md) |
 | `options`? | [`TypeNameOptions`](../interfaces/TypeNameOptions.md) |
+
+## Returns
+
+`string`

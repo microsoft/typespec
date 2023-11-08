@@ -21,3 +21,7 @@ options): DiagnosticResult<RouteProducerResult>
 | `parentSegments` | `string`[] |
 | `overloadBase` | `undefined` \| [`HttpOperation`](../interfaces/HttpOperation.md) |
 | `options` | [`RouteOptions`](../interfaces/RouteOptions.md) |
+
+## Returns
+
+`DiagnosticResult`<[`RouteProducerResult`](../interfaces/RouteProducerResult.md)\>

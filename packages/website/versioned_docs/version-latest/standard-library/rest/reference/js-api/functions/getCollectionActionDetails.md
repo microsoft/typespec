@@ -15,3 +15,7 @@ Gets the ActionDetails for the specified operation if it has previously been mar
 | :------ | :------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
+
+## Returns
+
+[`ActionDetails`](../interfaces/ActionDetails.md) \| `undefined`

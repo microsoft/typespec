@@ -13,3 +13,7 @@ $withoutDefaultValues(context, target): void
 | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) |
+
+## Returns
+
+`void`

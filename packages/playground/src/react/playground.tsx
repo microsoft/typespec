@@ -1,12 +1,12 @@
 import { CompilerOptions } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
 import { getMarkerLocation } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
-import { useMonacoModel } from "./editor.js";
+import { OnMountData, useMonacoModel } from "./editor.js";
 import { Footer } from "./footer.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
@@ -80,6 +80,8 @@ export interface PlaygroundLinks {
 
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
+  const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
+
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,
     props.defaultEmitter,
@@ -181,6 +183,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     isSampleUntouched,
   ]);
 
+  const formatCode = useCallback(() => {
+    void editorRef.current?.getAction("editor.action.formatDocument")?.run();
+  }, [typespecModel]);
+
   const newIssue = useCallback(async () => {
     saveCode();
     const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
@@ -195,6 +201,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     ],
     [saveCode]
   );
+
+  const onTypeSpecEditorMount = useCallback(({ editor }: OnMountData) => {
+    editorRef.current = editor;
+  }, []);
 
   const libraries = useMemo(() => Object.values(host.libraries), [host.libraries]);
 
@@ -226,10 +236,15 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
             selectedSampleName={selectedSampleName}
             onSelectedSampleNameChange={onSelectedSampleNameChange}
             saveCode={saveCode}
+            formatCode={formatCode}
             newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
             documentationUrl={props.links?.documentationUrl}
           />
-          <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
+          <TypeSpecEditor
+            model={typespecModel}
+            actions={typespecEditorActions}
+            onMount={onTypeSpecEditorMount}
+          />
         </Pane>
         <Pane>
           <OutputView

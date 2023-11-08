@@ -51,7 +51,7 @@ _Details: [Decorators](./decorators.md)_
 
 ## Scalars
 
-_Details: [Scalars](./models.md)_
+_Details: [Scalars](./scalars.md)_
 
 | Feature            | Example                                     |
 | ------------------ | ------------------------------------------- |

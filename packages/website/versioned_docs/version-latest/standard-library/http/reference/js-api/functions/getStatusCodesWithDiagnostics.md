@@ -13,3 +13,7 @@ getStatusCodesWithDiagnostics(program, type): [HttpStatusCodes, readonly Diagnos
 | :------ | :------ |
 | `program` | `Program` |
 | `type` | `ModelProperty` |
+
+## Returns
+
+[[`HttpStatusCodes`](../type-aliases/HttpStatusCodes.md), readonly `Diagnostic`[]]

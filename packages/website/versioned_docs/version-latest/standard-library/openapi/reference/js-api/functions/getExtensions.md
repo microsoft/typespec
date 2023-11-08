@@ -13,3 +13,7 @@ getExtensions(program, entity): ReadonlyMap<ExtensionKey, any>
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+`ReadonlyMap`<[`ExtensionKey`](../type-aliases/ExtensionKey.md), `any`\>

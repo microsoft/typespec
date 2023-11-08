@@ -40,6 +40,10 @@ create(context): SemanticNodeListener
 | :------ | :------ |
 | `context` | [`LinterRuleContext`](LinterRuleContext.md)<`DM`\> |
 
+#### Returns
+
+[`SemanticNodeListener`](../type-aliases/SemanticNodeListener.md)
+
 #### Inherited from
 
 [`LinterRuleDefinition`](LinterRuleDefinition.md).[`create`](LinterRuleDefinition.md#create)

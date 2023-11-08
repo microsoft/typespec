@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -20,24 +20,24 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": {
-      "default": "./dist/index.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./vite": {
-      "default": "./dist/vite/index.js",
-      "types": "./dist/src/vite/index.d.ts"
+      "types": "./dist/src/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
     },
     "./manifest": {
-      "default": "./dist/manifest.js",
-      "types": "./dist/src/manifest.d.ts"
+      "types": "./dist/src/manifest.d.ts",
+      "default": "./dist/manifest.js"
     },
     "./react": {
-      "default": "./dist/react/index.js",
-      "types": "./dist/src/react/index.d.ts"
+      "types": "./dist/src/react/index.d.ts",
+      "default": "./dist/react/index.js"
     },
     "./react/viewers": {
-      "default": "./dist/react/viewers.js",
-      "types": "./dist/src/react/viewers.d.ts"
+      "types": "./dist/src/react/viewers.d.ts",
+      "default": "./dist/react/viewers.js"
     },
     "./style.css": "./dist/index.css"
   },
@@ -67,15 +67,15 @@
     "@emotion/react": "^11.11.1",
     "@fluentui/react-components": "~9.32.1",
     "@fluentui/react-icons": "~2.0.217",
-    "@typespec/bundler": "workspace:~0.1.0-alpha.2",
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/html-program-viewer": "workspace:~0.49.0",
-    "@typespec/http": "workspace:~0.49.0",
-    "@typespec/openapi": "workspace:~0.49.0",
-    "@typespec/openapi3": "workspace:~0.49.0",
-    "@typespec/protobuf": "workspace:~0.49.0",
-    "@typespec/rest": "workspace:~0.49.0",
-    "@typespec/versioning": "workspace:~0.49.0",
+    "@typespec/bundler": "workspace:~0.1.0-alpha.3",
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/html-program-viewer": "workspace:~0.50.0",
+    "@typespec/http": "workspace:~0.50.0",
+    "@typespec/openapi": "workspace:~0.50.0",
+    "@typespec/openapi3": "workspace:~0.50.0",
+    "@typespec/protobuf": "workspace:~0.50.0",
+    "@typespec/rest": "workspace:~0.50.0",
+    "@typespec/versioning": "workspace:~0.50.0",
     "debounce": "~1.2.1",
     "lzutf8": "0.6.3",
     "monaco-editor": "~0.43.0",
@@ -95,8 +95,8 @@
     "@types/react": "~18.2.22",
     "@types/swagger-ui-react": "^4.18.0",
     "@types/swagger-ui": "~3.52.0",
-    "@typespec/bundler": "workspace:~0.1.0-alpha.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
+    "@typespec/bundler": "workspace:~0.1.0-alpha.3",
+    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
     "@vitejs/plugin-react": "~4.1.0",
     "c8": "~8.0.1",
     "cross-env": "~7.0.3",

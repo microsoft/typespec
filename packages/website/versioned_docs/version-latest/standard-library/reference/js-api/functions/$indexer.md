@@ -19,3 +19,7 @@ $indexer(
 | `target` | [`Type`](../type-aliases/Type.md) |
 | `key` | [`Scalar`](../interfaces/Scalar.md) |
 | `value` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`void`

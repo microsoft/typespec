@@ -17,3 +17,7 @@ $query(
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
 | `queryNameOrOptions`? | `StringLiteral` \| `Model` |
+
+## Returns
+
+`void`

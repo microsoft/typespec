@@ -13,3 +13,7 @@ getEncode(program, target): EncodeData | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
+
+## Returns
+
+[`EncodeData`](../interfaces/EncodeData.md) \| `undefined`

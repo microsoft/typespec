@@ -15,3 +15,7 @@ Resolve the compiler options for the given entrypoint by resolving the tspconfig
 | :------ | :------ | :------ |
 | `host` | [`CompilerHost`](../interfaces/CompilerHost.md) | Compiler host |
 | `options` | [`ResolveCompilerOptionsOptions`](../interfaces/ResolveCompilerOptionsOptions.md) | - |
+
+## Returns
+
+`Promise`<[[`CompilerOptions`](../interfaces/CompilerOptions.md), readonly [`Diagnostic`](../interfaces/Diagnostic.md)[]]\>

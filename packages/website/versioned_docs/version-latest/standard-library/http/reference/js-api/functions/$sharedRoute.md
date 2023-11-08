@@ -20,3 +20,7 @@ route path as long as those operations are also marked with `@sharedRoute`.
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Operation` |
+
+## Returns
+
+`void`

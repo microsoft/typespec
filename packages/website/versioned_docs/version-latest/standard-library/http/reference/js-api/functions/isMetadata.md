@@ -16,3 +16,7 @@ metadata if it is marked `@header`, `@query`, `@path`, or `@statusCode`.
 | :------ | :------ |
 | `program` | `Program` |
 | `property` | `ModelProperty` |
+
+## Returns
+
+`boolean`

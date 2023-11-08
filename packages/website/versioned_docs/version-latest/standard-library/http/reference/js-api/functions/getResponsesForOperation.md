@@ -15,3 +15,7 @@ Get the responses for a given operation.
 | :------ | :------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
+
+## Returns
+
+[[`HttpOperationResponse`](../interfaces/HttpOperationResponse.md)[], readonly `Diagnostic`[]]

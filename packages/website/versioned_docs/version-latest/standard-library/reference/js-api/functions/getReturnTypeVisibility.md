@@ -18,6 +18,8 @@ Returns the visibilities of the return type of the given operation, if provided 
 
 ## Returns
 
+`string`[] \| `undefined`
+
 ## See
 
 [$returnTypeVisibility]($returnTypeVisibility.md)

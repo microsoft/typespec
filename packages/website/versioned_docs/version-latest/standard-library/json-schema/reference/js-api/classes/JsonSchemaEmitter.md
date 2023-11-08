@@ -24,6 +24,10 @@ call `createAssetEmitter` on the emitter context object.
 | :------ | :------ | :------ |
 | `emitter` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | The asset emitter |
 
+#### Returns
+
+[`JsonSchemaEmitter`](JsonSchemaEmitter.md)
+
 #### Inherited from
 
 TypeEmitter<Record<string, any\>, JSONSchemaEmitterOptions\>.constructor
@@ -52,6 +56,10 @@ private #applyConstraints(type, schema): void
 | `type` |    \| `Model`   \| `ModelProperty`   \| `Scalar`   \| `Enum`   \| `Union` |
 | `schema` | `ObjectBuilder`<`unknown`\> |
 
+#### Returns
+
+`void`
+
 ***
 
 ### #checkForDuplicateId()
@@ -65,6 +73,10 @@ private #checkForDuplicateId(id): string
 | Parameter | Type |
 | :------ | :------ |
 | `id` | `string` |
+
+#### Returns
+
+`string`
 
 ***
 
@@ -85,6 +97,10 @@ schema): Declaration<Record<string, any>>
 | `name` | `string` |
 | `schema` | `ObjectBuilder`<`unknown`\> |
 
+#### Returns
+
+`Declaration`<`Record`<`string`, `any`\>\>
+
 ***
 
 ### #fileExtension()
@@ -93,6 +109,10 @@ schema): Declaration<Record<string, any>>
 private #fileExtension(): "json" | "yaml"
 ```
 
+#### Returns
+
+`"json"` \| `"yaml"`
+
 ***
 
 ### #getCurrentSourceFile()
@@ -100,6 +120,10 @@ private #fileExtension(): "json" | "yaml"
 ```ts
 private #getCurrentSourceFile(): SourceFile<object>
 ```
+
+#### Returns
+
+`SourceFile`<`object`\>
 
 ***
 
@@ -116,6 +140,10 @@ private #getDeclId(type, name): string
 | `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
 | `name` | `string` |
 
+#### Returns
+
+`string`
+
 ***
 
 ### #isStdType()
@@ -129,6 +157,10 @@ private #isStdType(type): boolean
 | Parameter | Type |
 | :------ | :------ |
 | `type` | `Type` |
+
+#### Returns
+
+`boolean`
 
 ***
 
@@ -145,6 +177,8 @@ private #newFileScope(type): object
 | `type` | [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md) |
 
 #### Returns
+
+`object`
 
 > | Member | Type | Description |
 > | :------ | :------ | :------ |
@@ -165,6 +199,10 @@ private #requiredModelProperties(model): undefined | string[]
 | :------ | :------ |
 | `model` | `Model` |
 
+#### Returns
+
+`undefined` \| `string`[]
+
 ***
 
 ### #scalarBuiltinBaseType()
@@ -178,6 +216,10 @@ private #scalarBuiltinBaseType(scalar): null | Scalar
 | Parameter | Type |
 | :------ | :------ |
 | `scalar` | `Scalar` |
+
+#### Returns
+
+`null` \| `Scalar`
 
 ***
 
@@ -198,6 +240,10 @@ elementType): EmitterOutput<object>
 | `name` | `string` |
 | `elementType` | `Type` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.arrayDeclaration
@@ -215,6 +261,10 @@ arrayDeclarationContext(array): Context
 | Parameter | Type |
 | :------ | :------ |
 | `array` | `Model` |
+
+#### Returns
+
+`Context`
 
 #### Overrides
 
@@ -239,6 +289,10 @@ arrayDeclarationReferenceContext(
 | `name` | `string` |
 | `elementType` | `Type` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.arrayDeclarationReferenceContext
@@ -257,6 +311,10 @@ arrayLiteral(array, elementType): EmitterOutput<object>
 | :------ | :------ |
 | `array` | `Model` |
 | `elementType` | `Type` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -277,6 +335,10 @@ arrayLiteralContext(array, elementType): Context
 | `array` | `Model` |
 | `elementType` | `Type` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.arrayLiteralContext
@@ -296,6 +358,10 @@ arrayLiteralReferenceContext(array, elementType): Context
 | `array` | `Model` |
 | `elementType` | `Type` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.arrayLiteralReferenceContext
@@ -313,6 +379,10 @@ booleanLiteral(boolean): EmitterOutput<object>
 | Parameter | Type |
 | :------ | :------ |
 | `boolean` | `BooleanLiteral` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -332,9 +402,45 @@ booleanLiteralContext(boolean): Context
 | :------ | :------ |
 | `boolean` | `BooleanLiteral` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.booleanLiteralContext
+
+***
+
+### circularReference()
+
+```ts
+circularReference(
+   target, 
+   scope, 
+cycle): Record<string, any> | EmitEntity<Record<string, any>>
+```
+
+Handle circular references. When this method is called it means we are resolving a circular reference.
+By default if the target is a declaration it will call to [reference](JsonSchemaEmitter.md#reference) otherwise it means we have an inline reference
+
+#### Parameters
+
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `target` | `EmitEntity`<`Record`<`string`, `any`\>\> | Reference target. |
+| `scope` | `undefined` \| `Scope`<`Record`<`string`, `any`\>\> | Current scope. |
+| `cycle` | `ReferenceCycle` | - |
+
+#### Returns
+
+`Record`<`string`, `any`\> \| `EmitEntity`<`Record`<`string`, `any`\>\>
+
+Resolved reference entity.
+
+#### Inherited from
+
+TypeEmitter.circularReference
 
 ***
 
@@ -349,6 +455,10 @@ declarationName(declarationType): undefined | string
 | Parameter | Type |
 | :------ | :------ |
 | `declarationType` | `TypeSpecDeclaration` |
+
+#### Returns
+
+`undefined` \| `string`
 
 #### Inherited from
 
@@ -369,6 +479,10 @@ enumDeclaration(en, name): EmitterOutput<object>
 | `en` | `Enum` |
 | `name` | `string` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.enumDeclaration
@@ -386,6 +500,10 @@ enumDeclarationContext(en): Context
 | Parameter | Type |
 | :------ | :------ |
 | `en` | `Enum` |
+
+#### Returns
+
+`Context`
 
 #### Overrides
 
@@ -405,6 +523,10 @@ enumMember(member): EmitterOutput<Record<string, any>>
 | :------ | :------ |
 | `member` | `EnumMember` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Inherited from
 
 TypeEmitter.enumMember
@@ -422,6 +544,10 @@ enumMemberContext(member): object
 | Parameter | Type |
 | :------ | :------ |
 | `member` | `EnumMember` |
+
+#### Returns
+
+`object`
 
 #### Inherited from
 
@@ -441,6 +567,10 @@ enumMemberReference(member): EmitterOutput<Record<string, any>>
 | :------ | :------ |
 | `member` | `EnumMember` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Overrides
 
 TypeEmitter.enumMemberReference
@@ -459,6 +589,10 @@ enumMembers(en): EmitterOutput<Record<string, any>>
 | :------ | :------ |
 | `en` | `Enum` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Inherited from
 
 TypeEmitter.enumMembers
@@ -476,6 +610,10 @@ enumMembersContext(en): Context
 | Parameter | Type |
 | :------ | :------ |
 | `en` | `Enum` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -496,6 +634,10 @@ interfaceDeclaration(iface, name): EmitterOutput<Record<string, any>>
 | `iface` | `Interface` |
 | `name` | `string` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Inherited from
 
 TypeEmitter.interfaceDeclaration
@@ -515,6 +657,10 @@ interfaceDeclarationContext(iface, name): Context
 | `iface` | `Interface` |
 | `name` | `string` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.interfaceDeclarationContext
@@ -532,6 +678,10 @@ interfaceDeclarationOperations(iface): EmitterOutput<Record<string, any>>
 | Parameter | Type |
 | :------ | :------ |
 | `iface` | `Interface` |
+
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
 
 #### Inherited from
 
@@ -551,6 +701,10 @@ interfaceDeclarationOperationsContext(iface): Context
 | :------ | :------ |
 | `iface` | `Interface` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.interfaceDeclarationOperationsContext
@@ -568,6 +722,10 @@ interfaceDeclarationOperationsReferenceContext(iface): Context
 | Parameter | Type |
 | :------ | :------ |
 | `iface` | `Interface` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -588,6 +746,10 @@ interfaceDeclarationReferenceContext(iface, name): Context
 | `iface` | `Interface` |
 | `name` | `string` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.interfaceDeclarationReferenceContext
@@ -606,6 +768,10 @@ interfaceOperationDeclaration(operation, name): EmitterOutput<Record<string, any
 | :------ | :------ |
 | `operation` | `Operation` |
 | `name` | `string` |
+
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
 
 #### Inherited from
 
@@ -626,6 +792,10 @@ interfaceOperationDeclarationContext(operation, name): Context
 | `operation` | `Operation` |
 | `name` | `string` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.interfaceOperationDeclarationContext
@@ -644,6 +814,10 @@ interfaceOperationDeclarationReferenceContext(operation, name): Context
 | :------ | :------ |
 | `operation` | `Operation` |
 | `name` | `string` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -664,6 +838,10 @@ intrinsic(intrinsic, name): EmitterOutput<object>
 | `intrinsic` | `IntrinsicType` |
 | `name` | `string` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.intrinsic
@@ -682,6 +860,10 @@ intrinsicContext(intrinsic, name): Context
 | :------ | :------ |
 | `intrinsic` | `IntrinsicType` |
 | `name` | `string` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -702,6 +884,10 @@ modelDeclaration(model, name): EmitterOutput<object>
 | `model` | `Model` |
 | `name` | `string` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.modelDeclaration
@@ -720,6 +906,10 @@ modelDeclarationContext(model, name): Context
 | :------ | :------ |
 | `model` | `Model` |
 | `name` | `string` |
+
+#### Returns
+
+`Context`
 
 #### Overrides
 
@@ -742,6 +932,10 @@ Set reference context for a model declaration.
 | `model` | `Model` |  |
 | `name` | `string` | - |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelDeclarationReferenceContext
@@ -761,6 +955,10 @@ modelInstantiation(model, name): EmitterOutput<Record<string, any>>
 | `model` | `Model` |
 | `name` | `undefined` \| `string` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Overrides
 
 TypeEmitter.modelInstantiation
@@ -779,6 +977,10 @@ modelInstantiationContext(model, name): Context
 | :------ | :------ |
 | `model` | `Model` |
 | `name` | `undefined` \| `string` |
+
+#### Returns
+
+`Context`
 
 #### Overrides
 
@@ -801,6 +1003,10 @@ Set reference context for a model declaration.
 | `model` | `Model` |  |
 | `name` | `undefined` \| `string` | - |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelInstantiationReferenceContext
@@ -818,6 +1024,10 @@ modelLiteral(model): EmitterOutput<object>
 | Parameter | Type |
 | :------ | :------ |
 | `model` | `Model` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -839,6 +1049,10 @@ Set lexical context for a model literal.
 | :------ | :------ | :------ |
 | `model` | `Model` |  |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelLiteralContext
@@ -859,6 +1073,10 @@ Set reference context for a model literal.
 | :------ | :------ | :------ |
 | `model` | `Model` |  |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelLiteralReferenceContext
@@ -876,6 +1094,10 @@ modelProperties(model): EmitterOutput<object>
 | Parameter | Type |
 | :------ | :------ |
 | `model` | `Model` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -895,6 +1117,10 @@ modelPropertiesContext(model): Context
 | :------ | :------ |
 | `model` | `Model` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelPropertiesContext
@@ -913,6 +1139,10 @@ modelPropertiesReferenceContext(model): Context
 | :------ | :------ |
 | `model` | `Model` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelPropertiesReferenceContext
@@ -930,6 +1160,10 @@ modelPropertyLiteral(property): EmitterOutput<object>
 | Parameter | Type |
 | :------ | :------ |
 | `property` | `ModelProperty` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -951,6 +1185,10 @@ Set lexical context for a property of a model.
 | :------ | :------ | :------ |
 | `property` | `ModelProperty` |  |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelPropertyLiteralContext
@@ -971,6 +1209,10 @@ Set reference context for a property of a model.
 | :------ | :------ | :------ |
 | `property` | `ModelProperty` |  |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.modelPropertyLiteralReferenceContext
@@ -988,6 +1230,10 @@ modelPropertyReference(property): EmitterOutput<object>
 | Parameter | Type |
 | :------ | :------ |
 | `property` | `ModelProperty` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -1011,6 +1257,8 @@ Emit a namespace
 
 #### Returns
 
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 Emitter output
 
 #### Inherited from
@@ -1033,6 +1281,10 @@ Set lexical context for a namespace
 | :------ | :------ | :------ |
 | `namespace` | `Namespace` |  |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.namespaceContext
@@ -1053,6 +1305,10 @@ Set reference context for a namespace.
 | :------ | :------ | :------ |
 | `namespace` | `Namespace` |  |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.namespaceReferenceContext
@@ -1071,6 +1327,10 @@ numericLiteral(number): EmitterOutput<object>
 | :------ | :------ |
 | `number` | `NumericLiteral` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.numericLiteral
@@ -1088,6 +1348,10 @@ numericLiteralContext(number): Context
 | Parameter | Type |
 | :------ | :------ |
 | `number` | `NumericLiteral` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1108,6 +1372,10 @@ operationDeclaration(operation, name): EmitterOutput<Record<string, any>>
 | `operation` | `Operation` |
 | `name` | `string` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Inherited from
 
 TypeEmitter.operationDeclaration
@@ -1126,6 +1394,10 @@ operationDeclarationContext(operation, name): Context
 | :------ | :------ |
 | `operation` | `Operation` |
 | `name` | `string` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1146,6 +1418,10 @@ operationDeclarationReferenceContext(operation, name): Context
 | `operation` | `Operation` |
 | `name` | `string` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.operationDeclarationReferenceContext
@@ -1164,6 +1440,10 @@ operationParameters(operation, parameters): EmitterOutput<Record<string, any>>
 | :------ | :------ |
 | `operation` | `Operation` |
 | `parameters` | `Model` |
+
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
 
 #### Inherited from
 
@@ -1184,6 +1464,10 @@ operationParametersContext(operation, parameters): Context
 | `operation` | `Operation` |
 | `parameters` | `Model` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.operationParametersContext
@@ -1202,6 +1486,10 @@ operationParametersReferenceContext(operation, parameters): Context
 | :------ | :------ |
 | `operation` | `Operation` |
 | `parameters` | `Model` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1222,6 +1510,10 @@ operationReturnType(operation, returnType): EmitterOutput<Record<string, any>>
 | `operation` | `Operation` |
 | `returnType` | `Type` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Inherited from
 
 TypeEmitter.operationReturnType
@@ -1240,6 +1532,10 @@ operationReturnTypeContext(operation, returnType): Context
 | :------ | :------ |
 | `operation` | `Operation` |
 | `returnType` | `Type` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1260,6 +1556,10 @@ operationReturnTypeReferenceContext(operation, returnType): Context
 | `operation` | `Operation` |
 | `returnType` | `Type` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.operationReturnTypeReferenceContext
@@ -1277,6 +1577,10 @@ programContext(program): Context
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
+
+#### Returns
+
+`Context`
 
 #### Overrides
 
@@ -1303,6 +1607,10 @@ commonScope): object | EmitEntity<Record<string, unknown>>
 | `pathDown` | `Scope`<`Record`<`string`, `unknown`\>\>[] |
 | `commonScope` | `null` \| `Scope`<`Record`<`string`, `unknown`\>\> |
 
+#### Returns
+
+`object` \| `EmitEntity`<`Record`<`string`, `unknown`\>\>
+
 #### Overrides
 
 TypeEmitter.reference
@@ -1322,6 +1630,10 @@ scalarDeclaration(scalar, name): EmitterOutput<object>
 | `scalar` | `Scalar` |
 | `name` | `string` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.scalarDeclaration
@@ -1339,6 +1651,10 @@ scalarDeclarationContext(scalar): Context
 | Parameter | Type |
 | :------ | :------ |
 | `scalar` | `Scalar` |
+
+#### Returns
+
+`Context`
 
 #### Overrides
 
@@ -1359,6 +1675,10 @@ scalarInstantiation(scalar, name): EmitterOutput<Record<string, any>>
 | `scalar` | `Scalar` |
 | `name` | `undefined` \| `string` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Inherited from
 
 TypeEmitter.scalarInstantiation
@@ -1378,6 +1698,10 @@ scalarInstantiationContext(scalar, name): Context
 | `scalar` | `Scalar` |
 | `name` | `undefined` \| `string` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.scalarInstantiationContext
@@ -1395,6 +1719,10 @@ sourceFile(sourceFile): EmittedSourceFile
 | Parameter | Type |
 | :------ | :------ |
 | `sourceFile` | `SourceFile`<`object`\> |
+
+#### Returns
+
+`EmittedSourceFile`
 
 #### Overrides
 
@@ -1414,6 +1742,10 @@ stringLiteral(string): EmitterOutput<object>
 | :------ | :------ |
 | `string` | `StringLiteral` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.stringLiteral
@@ -1431,6 +1763,10 @@ stringLiteralContext(string): Context
 | Parameter | Type |
 | :------ | :------ |
 | `string` | `StringLiteral` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1450,7 +1786,11 @@ tupleLiteral(tuple): EmitterOutput<Record<string, any>>
 | :------ | :------ |
 | `tuple` | `Tuple` |
 
-#### Inherited from
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
+#### Overrides
 
 TypeEmitter.tupleLiteral
 
@@ -1467,6 +1807,10 @@ tupleLiteralContext(tuple): Context
 | Parameter | Type |
 | :------ | :------ |
 | `tuple` | `Tuple` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1486,6 +1830,10 @@ tupleLiteralReferenceContext(tuple): Context
 | :------ | :------ |
 | `tuple` | `Tuple` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.tupleLiteralReferenceContext
@@ -1504,9 +1852,57 @@ tupleLiteralValues(tuple): EmitterOutput<Record<string, any>>
 | :------ | :------ |
 | `tuple` | `Tuple` |
 
-#### Inherited from
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
+#### Overrides
 
 TypeEmitter.tupleLiteralValues
+
+***
+
+### tupleLiteralValuesContext()
+
+```ts
+tupleLiteralValuesContext(tuple): Context
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `tuple` | `Tuple` |
+
+#### Returns
+
+`Context`
+
+#### Inherited from
+
+TypeEmitter.tupleLiteralValuesContext
+
+***
+
+### tupleLiteralValuesReferenceContext()
+
+```ts
+tupleLiteralValuesReferenceContext(tuple): Context
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `tuple` | `Tuple` |
+
+#### Returns
+
+`Context`
+
+#### Inherited from
+
+TypeEmitter.tupleLiteralValuesReferenceContext
 
 ***
 
@@ -1522,6 +1918,10 @@ unionDeclaration(union, name): EmitterOutput<object>
 | :------ | :------ |
 | `union` | `Union` |
 | `name` | `string` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -1541,6 +1941,10 @@ unionDeclarationContext(union): Context
 | :------ | :------ |
 | `union` | `Union` |
 
+#### Returns
+
+`Context`
+
 #### Overrides
 
 TypeEmitter.unionDeclarationContext
@@ -1558,6 +1962,10 @@ unionDeclarationReferenceContext(union): Context
 | Parameter | Type |
 | :------ | :------ |
 | `union` | `Union` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1578,6 +1986,10 @@ unionInstantiation(union, name): EmitterOutput<Record<string, any>>
 | `union` | `Union` |
 | `name` | `string` |
 
+#### Returns
+
+`EmitterOutput`<`Record`<`string`, `any`\>\>
+
 #### Inherited from
 
 TypeEmitter.unionInstantiation
@@ -1596,6 +2008,10 @@ unionInstantiationContext(union, name): Context
 | :------ | :------ |
 | `union` | `Union` |
 | `name` | `string` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1616,6 +2032,10 @@ unionInstantiationReferenceContext(union, name): Context
 | `union` | `Union` |
 | `name` | `string` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.unionInstantiationReferenceContext
@@ -1633,6 +2053,10 @@ unionLiteral(union): EmitterOutput<object>
 | Parameter | Type |
 | :------ | :------ |
 | `union` | `Union` |
+
+#### Returns
+
+`EmitterOutput`<`object`\>
 
 #### Overrides
 
@@ -1652,6 +2076,10 @@ unionLiteralContext(union): Context
 | :------ | :------ |
 | `union` | `Union` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.unionLiteralContext
@@ -1669,6 +2097,10 @@ unionLiteralReferenceContext(union): Context
 | Parameter | Type |
 | :------ | :------ |
 | `union` | `Union` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1688,6 +2120,10 @@ unionVariant(variant): EmitterOutput<object>
 | :------ | :------ |
 | `variant` | `UnionVariant` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.unionVariant
@@ -1705,6 +2141,10 @@ unionVariantContext(union): Context
 | Parameter | Type |
 | :------ | :------ |
 | `union` | `Union` |
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1724,6 +2164,10 @@ unionVariantReferenceContext(union): Context
 | :------ | :------ |
 | `union` | `Union` |
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.unionVariantReferenceContext
@@ -1742,6 +2186,10 @@ unionVariants(union): EmitterOutput<object>
 | :------ | :------ |
 | `union` | `Union` |
 
+#### Returns
+
+`EmitterOutput`<`object`\>
+
 #### Overrides
 
 TypeEmitter.unionVariants
@@ -1754,6 +2202,10 @@ TypeEmitter.unionVariants
 unionVariantsContext(): Context
 ```
 
+#### Returns
+
+`Context`
+
 #### Inherited from
 
 TypeEmitter.unionVariantsContext
@@ -1765,6 +2217,10 @@ TypeEmitter.unionVariantsContext
 ```ts
 unionVariantsReferenceContext(): Context
 ```
+
+#### Returns
+
+`Context`
 
 #### Inherited from
 
@@ -1783,6 +2239,10 @@ writeOutput(sourceFiles): Promise<void>
 | Parameter | Type |
 | :------ | :------ |
 | `sourceFiles` | `SourceFile`<`Record`<`string`, `any`\>\>[] |
+
+#### Returns
+
+`Promise`<`void`\>
 
 #### Overrides
 

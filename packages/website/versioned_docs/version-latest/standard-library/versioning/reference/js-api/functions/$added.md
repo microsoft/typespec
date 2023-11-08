@@ -15,5 +15,9 @@ $added(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `t` | `Type` |
+| `t` |    \| `Model`   \| `ModelProperty`   \| `Scalar`   \| `Enum`   \| `EnumMember`   \| `Operation`   \| `Union`   \| `UnionVariant`   \| `Interface` |
 | `v` | `EnumMember` |
+
+## Returns
+
+`void`

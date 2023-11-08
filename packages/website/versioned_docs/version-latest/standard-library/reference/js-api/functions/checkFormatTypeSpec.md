@@ -18,4 +18,6 @@ Check the given is correctly formatted.
 
 ## Returns
 
+`Promise`<`boolean`\>
+
 true if code is formatted correctly.

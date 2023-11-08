@@ -7,5 +7,5 @@ title: "[I] TypeSpecCompletionItem"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `label?` | `string` | Optional label if different from the text to complete. |
+| `label`? | `string` | Optional label if different from the text to complete. |
 | `sym` | [`Sym`](Sym.md) | - |

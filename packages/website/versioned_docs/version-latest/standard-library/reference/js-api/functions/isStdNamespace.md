@@ -12,3 +12,7 @@ isStdNamespace(namespace): boolean
 | Parameter | Type |
 | :------ | :------ |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) |
+
+## Returns
+
+`boolean`

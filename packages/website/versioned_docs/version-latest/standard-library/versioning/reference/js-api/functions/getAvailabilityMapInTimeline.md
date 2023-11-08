@@ -17,3 +17,7 @@ getAvailabilityMapInTimeline(
 | `program` | `Program` |
 | `type` | `Type` |
 | `timeline` | `VersioningTimeline` |
+
+## Returns
+
+`Map`<`TimelineMoment`, [`Availability`](../enumerations/Availability.md)\> \| `undefined`

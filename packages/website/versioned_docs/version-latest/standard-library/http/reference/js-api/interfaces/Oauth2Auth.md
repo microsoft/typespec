@@ -22,7 +22,7 @@ For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `description`? | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
 | `flows` | `TFlows` | - | - |
 | `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
 | `type` | `"oauth2"` | - | - |

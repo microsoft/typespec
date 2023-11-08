@@ -17,3 +17,7 @@ validateRouteUnique(
 | `program` | `Program` |
 | `diagnostics` | `DiagnosticCollector` |
 | `operations` | [`HttpOperation`](../interfaces/HttpOperation.md)[] |
+
+## Returns
+
+`void`

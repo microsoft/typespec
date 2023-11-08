@@ -17,3 +17,7 @@ $copyResourceKeyParameters(
 | `context` | `DecoratorContext` |
 | `entity` | `Model` |
 | `filter`? | `string` |
+
+## Returns
+
+`void`

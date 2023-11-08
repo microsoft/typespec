@@ -14,3 +14,7 @@ Determines whether a charCode corresponds to `/` or ``.
 | Parameter | Type |
 | :------ | :------ |
 | `charCode` | `number` |
+
+## Returns
+
+`boolean`

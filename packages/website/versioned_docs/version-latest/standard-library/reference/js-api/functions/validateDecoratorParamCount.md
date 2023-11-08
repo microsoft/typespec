@@ -19,3 +19,7 @@ validateDecoratorParamCount(
 | `min` | `number` |
 | `max` | `undefined` \| `number` |
 | `parameters` | `unknown`[] |
+
+## Returns
+
+`boolean`

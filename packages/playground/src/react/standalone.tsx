@@ -1,5 +1,13 @@
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
-import { FunctionComponent } from "react";
+import {
+  FluentProvider,
+  Toast,
+  ToastBody,
+  ToastTitle,
+  Toaster,
+  useToastController,
+  webLightTheme,
+} from "@fluentui/react-components";
+import { FunctionComponent, useId, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
 import { LibraryImportOptions } from "../core.js";
@@ -20,23 +28,38 @@ export async function createReactPlayground(config: ReactPlaygroundConfig) {
 
   const stateStorage = createStandalonePlaygroundStateStorage();
   const initialState = stateStorage.load();
-  const options: PlaygroundProps = {
-    ...config,
-    host,
-    libraries: config.libraries,
-    defaultContent: initialState.content,
-    defaultEmitter: initialState.emitter ?? config.defaultEmitter,
-    defaultCompilerOptions: initialState.options,
-    defaultSampleName: initialState.sampleName,
-    onSave: (value) => {
-      stateStorage.save(value);
-      void navigator.clipboard.writeText(window.location.toString());
-    },
-  };
 
   const App: FunctionComponent = () => {
+    const toasterId = useId();
+    const { dispatchToast } = useToastController(toasterId);
+
+    const options: PlaygroundProps = useMemo(
+      () => ({
+        ...config,
+        host,
+        libraries: config.libraries,
+        defaultContent: initialState.content,
+        defaultEmitter: initialState.emitter ?? config.defaultEmitter,
+        defaultCompilerOptions: initialState.options,
+        defaultSampleName: initialState.sampleName,
+        onSave: (value) => {
+          stateStorage.save(value);
+          void navigator.clipboard.writeText(window.location.toString());
+          dispatchToast(
+            <Toast>
+              <ToastTitle>Saved!</ToastTitle>
+              <ToastBody>Playground link has been copied to the clipboard.</ToastBody>
+            </Toast>,
+            { intent: "success" }
+          );
+        },
+      }),
+      [dispatchToast]
+    );
+
     return (
       <FluentProvider theme={webLightTheme}>
+        <Toaster toasterId={toasterId} />
         <div css={{ height: "100vh" }}>
           <Playground {...options} />
         </div>

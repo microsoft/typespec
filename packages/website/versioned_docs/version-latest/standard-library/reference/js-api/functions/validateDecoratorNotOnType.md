@@ -25,4 +25,6 @@ Useful to check for decorator usage that conflicts with another decorator.
 
 ## Returns
 
+`boolean`
+
 Whether the decorator application is valid

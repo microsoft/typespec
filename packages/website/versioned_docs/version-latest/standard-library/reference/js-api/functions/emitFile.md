@@ -15,3 +15,7 @@ Helper to emit a file.
 | :------ | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) | TypeSpec Program |
 | `options` | [`EmitFileOptions`](../interfaces/EmitFileOptions.md) | File Emitter options |
+
+## Returns
+
+`Promise`<`void`\>

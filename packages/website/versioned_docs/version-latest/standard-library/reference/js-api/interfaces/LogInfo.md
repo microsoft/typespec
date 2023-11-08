@@ -7,7 +7,7 @@ title: "[I] LogInfo"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `code?` | `string` | - |
+| `code`? | `string` | - |
 | `level` | [`LogLevel`](../type-aliases/LogLevel.md) | - |
 | `message` | `string` | - |
-| `target?` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) | - |
+| `target`? | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) | - |

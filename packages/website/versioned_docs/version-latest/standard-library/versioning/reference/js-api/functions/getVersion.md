@@ -15,3 +15,7 @@ Get the version map of the namespace.
 | :------ | :------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
+
+## Returns
+
+[`VersionMap`](../classes/VersionMap.md) \| `undefined`

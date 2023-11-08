@@ -16,4 +16,6 @@ getActionSeparator(program, entity): string | undefined
 
 ## Returns
 
+`string` \| `undefined`
+
 the action separator string

@@ -24,4 +24,6 @@ Check if the given target is of any of the typespec types.
 
 ## Returns
 
+`target is InferredTypeSpecValue<K>`
+
 boolean if the target is of one of the allowed types.

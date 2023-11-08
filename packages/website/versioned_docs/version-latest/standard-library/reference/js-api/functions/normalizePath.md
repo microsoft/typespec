@@ -12,3 +12,7 @@ normalizePath(path): string
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`string`

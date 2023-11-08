@@ -13,3 +13,7 @@ findVersionedNamespace(program, namespace): Namespace | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `namespace` | `Namespace` |
+
+## Returns
+
+`Namespace` \| `undefined`

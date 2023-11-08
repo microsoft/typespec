@@ -22,6 +22,8 @@ Mark a type as deprecated
 
 ## Returns
 
+`void`
+
 ## Example
 
 ``` @deprecated("Foo is deprecated, use Bar instead.")

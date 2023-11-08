@@ -13,3 +13,7 @@ getPathParamOptions(program, entity): PathParameterOptions
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+[`PathParameterOptions`](../interfaces/PathParameterOptions.md)

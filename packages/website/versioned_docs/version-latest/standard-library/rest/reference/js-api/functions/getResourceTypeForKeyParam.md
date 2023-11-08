@@ -13,3 +13,7 @@ getResourceTypeForKeyParam(program, param): Model | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `param` | `ModelProperty` |
+
+## Returns
+
+`Model` \| `undefined`

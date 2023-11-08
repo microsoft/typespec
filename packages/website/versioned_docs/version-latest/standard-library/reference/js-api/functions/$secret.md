@@ -15,3 +15,7 @@ Mark a string as a secret value that should be treated carefully to avoid exposu
 | :------ | :------ | :------ |
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | Decorator context |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) | Decorator target, either a string model or a property with type string. |
+
+## Returns
+
+`void`

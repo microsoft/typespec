@@ -13,3 +13,7 @@ getVersionForEnumMember(program, member): Version | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `member` | `EnumMember` |
+
+## Returns
+
+[`Version`](../interfaces/Version.md) \| `undefined`

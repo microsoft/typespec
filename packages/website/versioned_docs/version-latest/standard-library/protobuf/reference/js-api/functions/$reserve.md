@@ -17,3 +17,7 @@ $reserve(
 | `ctx` | `DecoratorContext` |
 | `target` | `Model` |
 | ...`reservations` | readonly (`string` \| `number` \| `Type`)[] |
+
+## Returns
+
+`void`

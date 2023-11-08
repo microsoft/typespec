@@ -21,3 +21,5 @@ Get all the Http Operation in the given container.
 | `options`? | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) | Resolution options |
 
 ## Returns
+
+[[`HttpOperation`](../interfaces/HttpOperation.md)[], readonly `Diagnostic`[]]

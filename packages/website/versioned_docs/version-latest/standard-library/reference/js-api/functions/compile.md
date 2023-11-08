@@ -19,3 +19,7 @@ oldProgram?): Promise<Program>
 | `mainFile` | `string` |
 | `options` | [`CompilerOptions`](../interfaces/CompilerOptions.md) |
 | `oldProgram`? | [`Program`](../interfaces/Program.md) |
+
+## Returns
+
+`Promise`<[`Program`](../interfaces/Program.md)\>
