@@ -17,3 +17,7 @@ $contentSchema(
 | `context` | `DecoratorContext` |
 | `target` | `StringLiteral` \| `ModelProperty` |
 | `value` | `Type` |
+
+## Returns
+
+`void`

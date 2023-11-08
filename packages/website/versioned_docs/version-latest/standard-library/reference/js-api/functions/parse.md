@@ -13,3 +13,7 @@ parse(code, options): TypeSpecScriptNode
 | :------ | :------ |
 | `code` | `string` \| [`SourceFile`](../interfaces/SourceFile.md) |
 | `options` | [`ParseOptions`](../interfaces/ParseOptions.md) |
+
+## Returns
+
+[`TypeSpecScriptNode`](../interfaces/TypeSpecScriptNode.md)

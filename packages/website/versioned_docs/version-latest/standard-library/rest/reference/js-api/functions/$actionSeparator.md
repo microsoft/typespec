@@ -22,3 +22,7 @@ $actionSeparator(
 | `context` | `DecoratorContext` |
 | `entity` | `Model` \| `ModelProperty` \| `Operation` |
 | `separator` | `"/"` \| `":"` \| `"/:"` |
+
+## Returns
+
+`void`

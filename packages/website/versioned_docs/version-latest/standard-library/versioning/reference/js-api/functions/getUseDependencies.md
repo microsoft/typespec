@@ -17,3 +17,7 @@ getUseDependencies(
 | `program` | `Program` | `undefined` |
 | `target` | `Enum` \| `Namespace` | `undefined` |
 | `searchEnum` | `boolean` | `true` |
+
+## Returns
+
+`Map`<`Namespace`, `Map`<[`Version`](../interfaces/Version.md), [`Version`](../interfaces/Version.md)\> \| [`Version`](../interfaces/Version.md)\> \| `undefined`

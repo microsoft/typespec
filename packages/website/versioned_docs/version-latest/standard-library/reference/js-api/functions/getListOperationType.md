@@ -16,6 +16,8 @@ getListOperationType(program, target): Model | undefined
 
 ## Returns
 
+[`Model`](../interfaces/Model.md) \| `undefined`
+
 ## Deprecated
 
 This function is unused and will be removed in a future release.

@@ -12,3 +12,7 @@ isErrorType(type): type is ErrorType
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`type is ErrorType`

@@ -12,3 +12,7 @@ $onValidate(program): void
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
+
+## Returns
+
+`void`

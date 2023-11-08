@@ -13,3 +13,7 @@ getServers(program, type): HttpServer[] | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `type` | `Namespace` |
+
+## Returns
+
+[`HttpServer`](../interfaces/HttpServer.md)[] \| `undefined`

@@ -17,3 +17,7 @@ $maxItems(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Model`](../interfaces/Model.md) \| [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `maxItems` | `number` |
+
+## Returns
+
+`void`

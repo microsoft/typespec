@@ -13,3 +13,7 @@ buildVersionProjections(program, rootNs): VersionProjections[]
 | :------ | :------ |
 | `program` | `Program` |
 | `rootNs` | `Namespace` |
+
+## Returns
+
+`VersionProjections`[]

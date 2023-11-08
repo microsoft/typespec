@@ -1,6 +1,17 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+
+## 0.50.0
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Updates
+
+- Fix: Stops emitting an error when using `@body _: void` in operation parameters and treat it as no body.
+- Fix issue where using shared routes would, in some cases, result in a "duplicate-header" error.
+- `TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files
+- Support `@summary` on data types which emits the JSON Schema `title` property.
+- **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
 
 ## 0.49.0
 Wed, 11 Oct 2023 23:31:35 GMT

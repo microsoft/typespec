@@ -19,3 +19,7 @@ finishTypeForProgram<T>(program, typeDef): T
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `typeDef` | `T` |
+
+## Returns
+
+`T`

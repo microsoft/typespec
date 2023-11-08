@@ -19,3 +19,7 @@ $extension(
 | `entity` | `Type` |
 | `extensionName` | `string` |
 | `value` | `TypeSpecValue` |
+
+## Returns
+
+`void`

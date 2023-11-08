@@ -36,3 +36,7 @@ create(context): SemanticNodeListener
 | Parameter | Type |
 | :------ | :------ |
 | `context` | [`LinterRuleContext`](LinterRuleContext.md)<`DM`\> |
+
+#### Returns
+
+[`SemanticNodeListener`](../type-aliases/SemanticNodeListener.md)

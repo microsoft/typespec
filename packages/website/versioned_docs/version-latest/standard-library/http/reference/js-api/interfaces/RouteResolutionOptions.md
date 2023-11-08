@@ -11,5 +11,5 @@ title: "[I] RouteResolutionOptions"
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `listOptions?` | `ListOperationOptions` | - | - |
-| `paramOptions?` | [`OperationParameterOptions`](OperationParameterOptions.md) | - | [`RouteOptions`](RouteOptions.md).`paramOptions` |
+| `listOptions`? | `ListOperationOptions` | - | - |
+| `paramOptions`? | [`OperationParameterOptions`](OperationParameterOptions.md) | - | [`RouteOptions`](RouteOptions.md).`paramOptions` |

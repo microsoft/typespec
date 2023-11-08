@@ -20,3 +20,7 @@ designate a read-only property.
 | :------ | :------ |
 | `program` | `Program` |
 | `property` | `ModelProperty` |
+
+## Returns
+
+`boolean`

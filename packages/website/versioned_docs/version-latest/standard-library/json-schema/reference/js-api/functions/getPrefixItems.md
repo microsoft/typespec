@@ -13,3 +13,7 @@ getPrefixItems(program, target): Tuple | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `target` | `Type` |
+
+## Returns
+
+`Tuple` \| `undefined`

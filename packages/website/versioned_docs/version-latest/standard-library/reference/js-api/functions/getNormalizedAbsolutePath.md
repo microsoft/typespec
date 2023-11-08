@@ -13,3 +13,7 @@ getNormalizedAbsolutePath(fileName, currentDirectory): string
 | :------ | :------ |
 | `fileName` | `string` |
 | `currentDirectory` | `undefined` \| `string` |
+
+## Returns
+
+`string`

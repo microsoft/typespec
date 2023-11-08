@@ -18,6 +18,8 @@ Returns the visibilities of the parameters of the given operation, if provided w
 
 ## Returns
 
+`string`[] \| `undefined`
+
 ## See
 
 [$parameterVisibility]($parameterVisibility.md)

@@ -18,4 +18,6 @@ Get the documentation string for the given type.
 
 ## Returns
 
+`string` \| `undefined`
+
 Documentation value

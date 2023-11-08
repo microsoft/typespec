@@ -17,3 +17,7 @@ $path(
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` |
 | `paramName`? | `string` |
+
+## Returns
+
+`void`

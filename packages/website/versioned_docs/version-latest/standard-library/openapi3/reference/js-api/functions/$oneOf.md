@@ -13,3 +13,7 @@ $oneOf(context, entity): void
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `ModelProperty` \| `Union` |
+
+## Returns
+
+`void`

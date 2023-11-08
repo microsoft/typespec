@@ -17,3 +17,7 @@ $stream(
 | `ctx` | `DecoratorContext` |
 | `target` | `Operation` |
 | `mode` | `EnumMember` |
+
+## Returns
+
+`void`

@@ -15,3 +15,7 @@ Returns all the services defined.
 | :------ | :------ |
 | `program` | `Program` |
 | `options`? | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) |
+
+## Returns
+
+[[`HttpService`](../interfaces/HttpService.md)[], readonly `Diagnostic`[]]

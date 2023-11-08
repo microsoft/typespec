@@ -15,3 +15,7 @@ Returns `true` if the given operation is marked as a list operation.
 | :------ | :------ | :------ |
 | `program` | `Program` | the TypeSpec program |
 | `target` | `Operation` | the target operation |
+
+## Returns
+
+`boolean`

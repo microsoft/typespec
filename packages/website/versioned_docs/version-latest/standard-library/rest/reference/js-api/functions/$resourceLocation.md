@@ -17,3 +17,7 @@ $resourceLocation(
 | `context` | `DecoratorContext` |
 | `entity` | `Model` |
 | `resourceType` | `Model` |
+
+## Returns
+
+`void`

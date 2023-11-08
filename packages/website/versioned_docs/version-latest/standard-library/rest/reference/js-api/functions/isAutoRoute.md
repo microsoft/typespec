@@ -13,3 +13,7 @@ isAutoRoute(program, entity): boolean
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Interface` \| `Operation` |
+
+## Returns
+
+`boolean`

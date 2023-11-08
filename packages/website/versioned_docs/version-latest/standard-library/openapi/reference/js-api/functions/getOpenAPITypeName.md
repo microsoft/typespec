@@ -28,3 +28,7 @@ namespace using the provided `TypeNameOptions`.
 | `type` | `Type` |
 | `options` | `TypeNameOptions` |
 | `existing`? | `Record`<`string`, `any`\> |
+
+## Returns
+
+`string`

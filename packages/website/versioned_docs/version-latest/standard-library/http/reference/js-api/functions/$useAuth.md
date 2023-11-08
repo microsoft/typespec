@@ -17,3 +17,7 @@ $useAuth(
 | `context` | `DecoratorContext` |
 | `serviceNamespace` | `Namespace` |
 | `authConfig` | `Model` \| `Tuple` \| `Union` |
+
+## Returns
+
+`void`

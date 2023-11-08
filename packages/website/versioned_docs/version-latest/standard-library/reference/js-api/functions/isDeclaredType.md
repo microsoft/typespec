@@ -16,3 +16,7 @@ Check if the type is a declared type. This include:
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`boolean`

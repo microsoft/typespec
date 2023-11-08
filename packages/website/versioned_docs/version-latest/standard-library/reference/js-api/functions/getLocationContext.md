@@ -13,3 +13,7 @@ getLocationContext(program, type): LocationContext
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `type` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) |
+
+## Returns
+
+[`LocationContext`](../type-aliases/LocationContext.md)

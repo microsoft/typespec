@@ -13,3 +13,7 @@ isSharedRoute(program, operation): boolean
 | :------ | :------ |
 | `program` | `Program` |
 | `operation` | `Operation` |
+
+## Returns
+
+`boolean`
