@@ -213,7 +213,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   }, []);
 
   const libraries = useMemo(() => Object.values(host.libraries), [host.libraries]);
-  console.log("Editor options", props.editorOptions);
   return (
     <div
       css={{
