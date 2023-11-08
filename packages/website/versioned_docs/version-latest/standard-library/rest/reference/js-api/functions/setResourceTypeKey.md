@@ -17,3 +17,7 @@ setResourceTypeKey(
 | `program` | `Program` |
 | `resourceType` | `Model` |
 | `keyProperty` | `ModelProperty` |
+
+## Returns
+
+`void`

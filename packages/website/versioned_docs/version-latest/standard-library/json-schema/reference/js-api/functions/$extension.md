@@ -19,3 +19,7 @@ $extension(
 | `target` | `Type` |
 | `key` | `string` |
 | `value` | `Type` |
+
+## Returns
+
+`void`

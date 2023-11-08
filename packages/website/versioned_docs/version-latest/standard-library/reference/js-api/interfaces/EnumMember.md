@@ -13,16 +13,16 @@ title: "[I] EnumMember"
 | :------ | :------ | :------ | :------ |
 | `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` |
 | `enum` | [`Enum`](Enum.md) | - | - |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `instantiationParameters`? | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
 | `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` |
 | `kind` | `"EnumMember"` | - | [`BaseType`](BaseType.md).`kind` |
 | `name` | `string` | - | - |
 | `node` | [`EnumMemberNode`](EnumMemberNode.md) | - | [`BaseType`](BaseType.md).`node` |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
-| `sourceMember?` | [`EnumMember`](EnumMember.md) | when spread operators make new enum members,<br />this tracks the enum member we copied from. | - |
-| `value?` | `string` \| `number` | - | - |
+| `projectionBase`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector`? | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
+| `sourceMember`? | [`EnumMember`](EnumMember.md) | when spread operators make new enum members,<br />this tracks the enum member we copied from. | - |
+| `value`? | `string` \| `number` | - | - |
 
 ## Accessors
 
@@ -31,6 +31,10 @@ title: "[I] EnumMember"
 ```ts
 get projections(): ProjectionStatementNode[]
 ```
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 ## Methods
 
@@ -45,6 +49,10 @@ projectionsByName(name): ProjectionStatementNode[]
 | Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
+
+#### Returns
+
+[`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
 #### Inherited from
 

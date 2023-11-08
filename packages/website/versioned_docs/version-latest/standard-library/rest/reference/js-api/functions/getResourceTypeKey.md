@@ -13,3 +13,7 @@ getResourceTypeKey(program, resourceType): ResourceKey | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `resourceType` | `Model` |
+
+## Returns
+
+[`ResourceKey`](../interfaces/ResourceKey.md) \| `undefined`

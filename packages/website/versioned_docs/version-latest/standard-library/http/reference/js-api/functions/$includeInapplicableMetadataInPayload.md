@@ -24,6 +24,8 @@ decorator.
 
 ## Returns
 
+`void`
+
 ## See
 
 isApplicableMetadata

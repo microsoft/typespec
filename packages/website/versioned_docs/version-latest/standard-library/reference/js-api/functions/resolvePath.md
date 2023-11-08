@@ -22,3 +22,7 @@ resolvePath("/path", "dir", "..", "to", "file.ext") === "path/to/file.ext"
 | :------ | :------ |
 | `path` | `string` |
 | ...`paths` | (`undefined` \| `string`)[] |
+
+## Returns
+
+`string`

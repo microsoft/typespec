@@ -17,3 +17,7 @@ $resourceTypeForKeyParam(
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `resourceType` | `Type` |
+
+## Returns
+
+`void`

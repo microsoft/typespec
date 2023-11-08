@@ -9,5 +9,5 @@ title: "[I] DecoratorApplication"
 | :------ | :------ | :------ |
 | `args` | [`DecoratorArgument`](DecoratorArgument.md)[] | - |
 | `decorator` | [`DecoratorFunction`](DecoratorFunction.md) | - |
-| `definition?` | [`Decorator`](Decorator.md) | - |
-| `node?` | [`DecoratorExpressionNode`](DecoratorExpressionNode.md) \| [`AugmentDecoratorStatementNode`](AugmentDecoratorStatementNode.md) | - |
+| `definition`? | [`Decorator`](Decorator.md) | - |
+| `node`? | [`DecoratorExpressionNode`](DecoratorExpressionNode.md) \| [`AugmentDecoratorStatementNode`](AugmentDecoratorStatementNode.md) | - |

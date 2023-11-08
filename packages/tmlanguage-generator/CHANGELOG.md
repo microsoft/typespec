@@ -1,6 +1,17 @@
 # Change Log - tmlanguage-generator
 
-This log was last generated on Wed, 11 Oct 2023 23:31:35 GMT and should not be manually modified.
+This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+
+## 0.5.0
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Minor changes
+
+- **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
+
+### Patches
+
+- `TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files
 
 ## 0.4.5
 Wed, 11 Oct 2023 23:31:35 GMT

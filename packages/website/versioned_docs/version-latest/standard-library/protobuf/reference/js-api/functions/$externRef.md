@@ -19,3 +19,7 @@ $externRef(
 | `target` | `Model` |
 | `path` | `StringLiteral` |
 | `name` | `StringLiteral` |
+
+## Returns
+
+`void`

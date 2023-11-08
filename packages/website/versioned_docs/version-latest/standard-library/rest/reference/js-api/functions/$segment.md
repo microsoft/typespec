@@ -24,3 +24,7 @@ path parameter's name field.
 | `context` | `DecoratorContext` |
 | `entity` | `Model` \| `ModelProperty` \| `Operation` |
 | `name` | `string` |
+
+## Returns
+
+`void`

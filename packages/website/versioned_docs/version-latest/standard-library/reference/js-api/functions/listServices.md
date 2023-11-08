@@ -17,4 +17,6 @@ List all the services defined in the typespec program
 
 ## Returns
 
+[`Service`](../interfaces/Service.md)[]
+
 List of service.

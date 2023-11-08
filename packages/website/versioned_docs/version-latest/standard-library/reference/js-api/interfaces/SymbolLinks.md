@@ -7,6 +7,6 @@ title: "[I] SymbolLinks"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `declaredType?` | [`Type`](../type-aliases/Type.md) | - |
-| `instantiations?` | [`TypeInstantiationMap`](TypeInstantiationMap.md) | - |
-| `type?` | [`Type`](../type-aliases/Type.md) | - |
+| `declaredType`? | [`Type`](../type-aliases/Type.md) | - |
+| `instantiations`? | [`TypeInstantiationMap`](TypeInstantiationMap.md) | - |
+| `type`? | [`Type`](../type-aliases/Type.md) | - |

@@ -12,3 +12,7 @@ isUnknownType(type): type is UnknownType
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`type is UnknownType`

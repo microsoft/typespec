@@ -20,6 +20,8 @@ createStateAccessors(
 
 ## Returns
 
+`object`
+
 > | Member | Type | Description |
 > | :------ | :------ | :------ |
 > | `stateMap` | <`T`\>(`key`) => `StateMapView`<`T`\> | - |

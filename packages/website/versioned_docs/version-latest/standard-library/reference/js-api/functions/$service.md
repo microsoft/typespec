@@ -17,3 +17,7 @@ $service(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`Namespace`](../interfaces/Namespace.md) |
 | `options`? | [`Model`](../interfaces/Model.md) |
+
+## Returns
+
+`void`

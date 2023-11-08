@@ -13,3 +13,7 @@ createScanner(source, diagnosticHandler): Scanner
 | :------ | :------ |
 | `source` | `string` \| [`SourceFile`](../interfaces/SourceFile.md) |
 | `diagnosticHandler` | [`DiagnosticHandler`](../type-aliases/DiagnosticHandler.md) |
+
+## Returns
+
+[`Scanner`](../interfaces/Scanner.md)

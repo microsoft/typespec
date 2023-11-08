@@ -19,3 +19,7 @@ $typeChangedFrom(
 | `prop` | `ModelProperty` |
 | `v` | `EnumMember` |
 | `oldType` | `any` |
+
+## Returns
+
+`void`

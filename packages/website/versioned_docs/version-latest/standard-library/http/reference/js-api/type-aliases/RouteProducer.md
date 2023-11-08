@@ -16,3 +16,7 @@ type RouteProducer: (program, operation, parentSegments, overloadBase, options) 
 | `parentSegments` | `string`[] |
 | `overloadBase` | [`HttpOperation`](../interfaces/HttpOperation.md) \| `undefined` |
 | `options` | [`RouteOptions`](../interfaces/RouteOptions.md) |
+
+## Returns
+
+`DiagnosticResult`<[`RouteProducerResult`](../interfaces/RouteProducerResult.md)\>

@@ -13,3 +13,7 @@ getFirstAncestor(node, test): Node | undefined
 | :------ | :------ |
 | `node` | [`Node`](../type-aliases/Node.md) |
 | `test` | [`NodeCallback`](../type-aliases/NodeCallback.md)<`boolean`\> |
+
+## Returns
+
+[`Node`](../type-aliases/Node.md) \| `undefined`

@@ -12,3 +12,7 @@ $onEmit(context): Promise<void>
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `EmitContext`<[`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> |
+
+## Returns
+
+`Promise`<`void`\>

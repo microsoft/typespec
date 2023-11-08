@@ -23,3 +23,7 @@ isUsedAs(type, usage): boolean
 | :------ | :------ |
 | `type` | [`TrackableType`](../type-aliases/TrackableType.md) |
 | `usage` | [`UsageFlags`](../enumerations/UsageFlags.md) |
+
+#### Returns
+
+`boolean`

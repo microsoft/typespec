@@ -13,3 +13,7 @@ getQueryParamOptions(program, entity): QueryParameterOptions
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+[`QueryParameterOptions`](../interfaces/QueryParameterOptions.md)

@@ -20,4 +20,6 @@ getReturnTypeBeforeVersion(
 
 ## Returns
 
+`any`
+
 get old type if applicable.

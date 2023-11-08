@@ -15,3 +15,7 @@ Return the deprecated message or undefined if not deprecated
 | :------ | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) | Program |
 | `type` | [`Type`](../type-aliases/Type.md) | Type |
+
+## Returns
+
+`string` \| `undefined`

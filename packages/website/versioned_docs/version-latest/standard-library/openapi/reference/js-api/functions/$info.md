@@ -17,3 +17,7 @@ $info(
 | `context` | `DecoratorContext` |
 | `entity` | `Namespace` |
 | `model` | `Model` |
+
+## Returns
+
+`void`

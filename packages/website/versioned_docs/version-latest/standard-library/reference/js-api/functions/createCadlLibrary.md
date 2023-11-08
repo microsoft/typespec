@@ -22,6 +22,8 @@ createCadlLibrary<T, E>(lib): TypeSpecLibrary<T, E>
 
 ## Returns
 
+[`TypeSpecLibrary`](../interfaces/TypeSpecLibrary.md)<`T`, `E`\>
+
 ## Deprecated
 
 use createTypeSpecLibrary

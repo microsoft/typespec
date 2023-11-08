@@ -17,3 +17,7 @@ setRoute(
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `details` | [`RoutePath`](../interfaces/RoutePath.md) |
+
+## Returns
+
+`void`

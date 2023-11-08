@@ -27,6 +27,10 @@ Add a diagnostic to the collection
 | :------ | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) | Diagnostic to add. |
 
+#### Returns
+
+`void`
+
 ***
 
 ### pipe()
@@ -48,6 +52,10 @@ Unwrap the Diagnostic result, add all the diagnostics and return the data.
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `result` | [`DiagnosticResult`](../type-aliases/DiagnosticResult.md)<`T`\> | Accessor diagnostic result |
+
+#### Returns
+
+`T`
 
 ***
 
@@ -72,6 +80,8 @@ Wrap the given value in a tuple including the diagnostics following the TypeSpec
 | `value` | `T` | Accessor value to return |
 
 #### Returns
+
+[`DiagnosticResult`](../type-aliases/DiagnosticResult.md)<`T`\>
 
 #### Example
 

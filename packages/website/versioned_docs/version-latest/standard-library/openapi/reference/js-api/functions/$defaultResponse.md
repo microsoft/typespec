@@ -13,3 +13,7 @@ $defaultResponse(context, entity): void
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Model` |
+
+## Returns
+
+`void`

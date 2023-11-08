@@ -12,3 +12,7 @@ isPathAbsolute(path): boolean
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`boolean`

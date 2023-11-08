@@ -13,3 +13,7 @@ getContentEncoding(program, target): string
 | :------ | :------ |
 | `program` | `Program` |
 | `target` | `Type` |
+
+## Returns
+
+`string`

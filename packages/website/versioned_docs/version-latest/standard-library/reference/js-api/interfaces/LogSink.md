@@ -16,3 +16,7 @@ log(log): void
 | Parameter | Type |
 | :------ | :------ |
 | `log` | [`ProcessedLog`](ProcessedLog.md) |
+
+#### Returns
+
+`void`

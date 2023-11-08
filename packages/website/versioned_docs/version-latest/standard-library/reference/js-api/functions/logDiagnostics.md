@@ -13,3 +13,7 @@ logDiagnostics(diagnostics, logger): void
 | :------ | :------ |
 | `diagnostics` | readonly [`Diagnostic`](../interfaces/Diagnostic.md)[] |
 | `logger` | [`LogSink`](../interfaces/LogSink.md) |
+
+## Returns
+
+`void`

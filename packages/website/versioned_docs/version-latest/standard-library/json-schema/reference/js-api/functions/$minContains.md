@@ -17,3 +17,7 @@ $minContains(
 | `context` | `DecoratorContext` |
 | `target` | `Model` \| `ModelProperty` |
 | `value` | `number` |
+
+## Returns
+
+`void`

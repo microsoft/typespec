@@ -13,3 +13,7 @@ getOperationVerb(program, entity): HttpVerb | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+[`HttpVerb`](../type-aliases/HttpVerb.md) \| `undefined`

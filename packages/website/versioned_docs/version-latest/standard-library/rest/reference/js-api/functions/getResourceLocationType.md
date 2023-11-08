@@ -13,3 +13,7 @@ getResourceLocationType(program, entity): Model | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Scalar` |
+
+## Returns
+
+`Model` \| `undefined`

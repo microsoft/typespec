@@ -26,3 +26,7 @@ properties recursively.
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) | `undefined` | - |
 | `isMetadataCallback` | (`program`, `property`) => `boolean` | `isMetadata` | - |
 | `rootMapOut`? | `Map`<`ModelProperty`, `ModelProperty`\> | `undefined` | If provided, the map will be populated to link<br />nested metadata properties to their root properties. |
+
+## Returns
+
+`Set`<`ModelProperty`\>

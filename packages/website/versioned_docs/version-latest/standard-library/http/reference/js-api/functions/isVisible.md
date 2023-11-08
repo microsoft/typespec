@@ -19,3 +19,7 @@ Determines if the given property is visible with the given visibility.
 | `program` | `Program` |
 | `property` | `ModelProperty` |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) |
+
+## Returns
+
+`boolean`

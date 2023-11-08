@@ -16,4 +16,6 @@ getRenamedFromVersions(p, t): Version[] | undefined
 
 ## Returns
 
+[`Version`](../interfaces/Version.md)[] \| `undefined`
+
 the list of versions for which this decorator has been applied

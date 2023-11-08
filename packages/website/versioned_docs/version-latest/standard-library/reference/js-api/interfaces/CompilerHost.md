@@ -8,7 +8,7 @@ title: "[I] CompilerHost"
 | Property | Type | Description |
 | :------ | :------ | :------ |
 | `logSink` | [`LogSink`](LogSink.md) | - |
-| `parseCache?` | `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | Optional cache to reuse the results of parsing and binding across programs. |
+| `parseCache`? | `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | Optional cache to reuse the results of parsing and binding across programs. |
 
 ## Methods
 
@@ -24,6 +24,10 @@ fileURLToPath(url): string
 | :------ | :------ |
 | `url` | `string` |
 
+#### Returns
+
+`string`
+
 ***
 
 ### getExecutionRoot()
@@ -31,6 +35,10 @@ fileURLToPath(url): string
 ```ts
 getExecutionRoot(): string
 ```
+
+#### Returns
+
+`string`
 
 ***
 
@@ -46,6 +54,10 @@ getJsImport(path): Promise<Record<string, any>>
 | :------ | :------ |
 | `path` | `string` |
 
+#### Returns
+
+`Promise`<`Record`<`string`, `any`\>\>
+
 ***
 
 ### getLibDirs()
@@ -53,6 +65,10 @@ getJsImport(path): Promise<Record<string, any>>
 ```ts
 getLibDirs(): string[]
 ```
+
+#### Returns
+
+`string`[]
 
 ***
 
@@ -67,6 +83,10 @@ getSourceFileKind(path): undefined | SourceFileKind
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+#### Returns
+
+`undefined` \| [`SourceFileKind`](../type-aliases/SourceFileKind.md)
 
 ***
 
@@ -84,6 +104,10 @@ create directory recursively.
 | :------ | :------ | :------ |
 | `path` | `string` | Path to the directory. |
 
+#### Returns
+
+`Promise`<`undefined` \| `string`\>
+
 ***
 
 ### pathToFileURL()
@@ -97,6 +121,10 @@ pathToFileURL(path): string
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+#### Returns
+
+`string`
 
 ***
 
@@ -116,6 +144,8 @@ Read directory.
 
 #### Returns
 
+`Promise`<`string`[]\>
+
 list of file/directory in the given directory. Returns the name not the full path.
 
 ***
@@ -134,6 +164,10 @@ read a utf-8 or utf-8 with bom encoded file
 | :------ | :------ |
 | `path` | `string` |
 
+#### Returns
+
+`Promise`<[`SourceFile`](SourceFile.md)\>
+
 ***
 
 ### readUrl()
@@ -150,6 +184,10 @@ read a file at the given url.
 | :------ | :------ |
 | `url` | `string` |
 
+#### Returns
+
+`Promise`<[`SourceFile`](SourceFile.md)\>
+
 ***
 
 ### realpath()
@@ -163,6 +201,10 @@ realpath(path): Promise<string>
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+#### Returns
+
+`Promise`<`string`\>
 
 ***
 
@@ -181,6 +223,10 @@ Deletes a directory or file.
 | `path` | `string` | Path to the directory or file. |
 | `options`? | [`RmOptions`](RmOptions.md) | - |
 
+#### Returns
+
+`Promise`<`void`\>
+
 ***
 
 ### stat()
@@ -194,6 +240,10 @@ stat(path): Promise<object>
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+#### Returns
+
+`Promise`<`object`\>
 
 ***
 
@@ -211,3 +261,7 @@ Write the file.
 | :------ | :------ | :------ |
 | `path` | `string` | Path to the file. |
 | `content` | `string` | Content of the file. |
+
+#### Returns
+
+`Promise`<`void`\>

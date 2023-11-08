@@ -17,3 +17,7 @@ madeOptionalAfter(
 | `program` | `Program` |
 | `type` | `Type` |
 | `versionKey` | `ObjectType` |
+
+## Returns
+
+`boolean`
