@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Configure the program viewer to respect the color theme",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
