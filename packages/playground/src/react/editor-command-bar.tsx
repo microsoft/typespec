@@ -16,8 +16,8 @@ import {
   Settings24Regular,
 } from "@fluentui/react-icons";
 import { CompilerOptions } from "@typespec/compiler";
-import { FunctionComponent } from "react";
-import { PlaygroundSample, PlaygroundTspLibrary } from "../types.js";
+import { FunctionComponent, useMemo } from "react";
+import { BrowserHost, PlaygroundSample } from "../types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
 import { CompilerSettings } from "./settings/compiler-settings.js";
@@ -27,7 +27,7 @@ export interface EditorCommandBarProps {
   saveCode: () => Promise<void> | void;
   formatCode: () => Promise<void> | void;
   newIssue?: () => Promise<void> | void;
-  libraries: PlaygroundTspLibrary[];
+  host: BrowserHost;
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
   compilerOptions: CompilerOptions;
@@ -42,7 +42,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   saveCode,
   formatCode,
   newIssue,
-  libraries,
+  host,
   selectedEmitter,
   onSelectedEmitterChange,
   compilerOptions: emitterOptions,
@@ -61,6 +61,14 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
 
   const bugButton = newIssue ? <FileBugButton onClick={newIssue} /> : undefined;
 
+  const emitters = useMemo(
+    () =>
+      Object.values(host.libraries)
+        .filter((x) => x.isEmitter)
+        .map((x) => x.name),
+    [host.libraries]
+  );
+
   return (
     <div css={{ borderBottom: `1px solid ${tokens.colorNeutralStroke1}` }}>
       <Toolbar>
@@ -78,7 +86,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           />
         )}
         <EmitterDropdown
-          emitters={libraries.filter((x) => x.isEmitter).map((x) => x.name)}
+          emitters={emitters}
           onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}
         />
@@ -89,7 +97,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           <DialogSurface>
             <DialogBody>
               <CompilerSettings
-                libraries={libraries}
+                host={host}
                 selectedEmitter={selectedEmitter}
                 options={emitterOptions}
                 onOptionsChanged={onCompilerOptionsChange}

@@ -66,7 +66,7 @@ const AsyncPlayground = () => {
   }, []);
 
   const editorOptions = useMemo(() => {
-    return { theme: colorMode === "dark" ? "vs-dark" : "vs-light" };
+    return { theme: colorMode === "dark" ? "typespec-dark" : "typespec" };
   }, [colorMode]);
 
   return (

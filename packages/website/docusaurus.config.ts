@@ -3,8 +3,9 @@
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
 import type { Config, Plugin } from "@docusaurus/types";
+import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
+import { resolve } from "path";
 import { themes } from "prism-react-renderer";
-const { resolve } = require("path");
 
 function getMajorMinorVersion(pkgJsonPath): string {
   const version = require(pkgJsonPath).version;
@@ -104,9 +105,18 @@ const config: Config = {
         configureWebpack: (config, isServer, utils) => {
           return {
             module: {
-              rules: [{ test: /\.tsp$/, use: "raw-loader" }],
+              rules: [
+                {
+                  test: /\.ttf$/,
+                  use: ["file-loader"],
+                },
+              ],
             },
-
+            plugins: [
+              new MonacoWebpackPlugin({
+                languages: ["json"],
+              }),
+            ],
             ignoreWarnings: [
               (warning, compilation) => {
                 const moduleName: string | undefined = (warning.module as any)?.resource;

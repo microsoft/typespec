@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "`registerMonacoDefaultWorkers` renamed to `registerMonacoDefaultWorkersForVite` and must now be called if using vite.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
