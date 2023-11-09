@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert, { strictEqual } from "assert";
 import { emitSchema } from "./utils.js";
 
 describe("jsonschema: scalar constraints", () => {
@@ -133,5 +133,17 @@ describe("jsonschema: scalar constraints", () => {
     `);
       assertStringConstraints(schemas["Test.json"].properties.prop);
     });
+  });
+
+  it("combine with constraint of base scalar", async () => {
+    const schemas = await emitSchema(`
+        @minValue(1)
+        scalar base extends int32;
+
+        @maxValue(2)
+        scalar test extends base;
+      `);
+    strictEqual(schemas["test.json"].minimum, 1);
+    strictEqual(schemas["test.json"].maximum, 2);
   });
 });
