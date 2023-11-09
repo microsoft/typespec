@@ -212,7 +212,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editorRef.current = editor;
   }, []);
 
-  const libraries = useMemo(() => Object.values(host.libraries), [host.libraries]);
   return (
     <div
       css={{
@@ -232,7 +231,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       >
         <Pane>
           <EditorCommandBar
-            libraries={libraries}
+            host={host}
             selectedEmitter={selectedEmitter}
             onSelectedEmitterChange={onSelectedEmitterChange}
             compilerOptions={compilerOptions}
