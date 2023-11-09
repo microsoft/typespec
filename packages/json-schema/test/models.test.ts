@@ -1,4 +1,4 @@
-import assert from "assert";
+import assert, { deepStrictEqual } from "assert";
 import { emitSchema } from "./utils.js";
 
 describe("emitting models", () => {
@@ -252,6 +252,43 @@ describe("emitting models", () => {
     );
     assert.deepStrictEqual(schemas["RecordRecordInt32.json"].additionalProperties, {
       $ref: "RecordInt32.json",
+    });
+  });
+
+  describe("default values", () => {
+    it("specify default value on enum property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optionalEnum?: MyEnum = MyEnum.a;
+        };
+        
+        enum MyEnum {
+          a: "a-value",
+          b,
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optionalEnum, {
+        $ref: "MyEnum.json",
+        default: "a-value",
+      });
+    });
+
+    it("specify default value on string property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optional?: string = "abc";
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optional, {
+        type: "string",
+        default: "abc",
+      });
     });
   });
 });

@@ -1,5 +1,6 @@
 import {
   BooleanLiteral,
+  compilerAssert,
   emitFile,
   Enum,
   EnumMember,
@@ -19,6 +20,8 @@ import {
   getRelativePathFromDirectory,
   getSummary,
   IntrinsicType,
+  isArrayModelType,
+  isNullType,
   Model,
   ModelProperty,
   NumericLiteral,
@@ -64,7 +67,7 @@ import {
   isJsonSchemaDeclaration,
   JsonSchemaDeclaration,
 } from "./index.js";
-import { JSONSchemaEmitterOptions } from "./lib.js";
+import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #seenIds = new Set();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
@@ -160,16 +163,66 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<object> {
-    const result = this.emitter.emitTypeReference(property.type);
+    const propertyType = this.emitter.emitTypeReference(property.type);
 
-    if (result.kind !== "code") {
+    if (propertyType.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
 
-    const withConstraints = new ObjectBuilder(result.value);
-    this.#applyConstraints(property, withConstraints);
+    const result = new ObjectBuilder(propertyType.value);
 
-    return withConstraints;
+    if (property.default) {
+      result.default = this.#getDefaultValue(property.type, property.default);
+    }
+
+    this.#applyConstraints(property, result);
+
+    return result;
+  }
+
+  #getDefaultValue(type: Type, defaultType: Type): any {
+    const program = this.emitter.getProgram();
+
+    switch (defaultType.kind) {
+      case "String":
+        return defaultType.value;
+      case "Number":
+        return defaultType.value;
+      case "Boolean":
+        return defaultType.value;
+      case "Tuple":
+        compilerAssert(
+          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+          "setting tuple default to non-tuple value"
+        );
+
+        if (type.kind === "Tuple") {
+          return defaultType.values.map((defaultTupleValue, index) =>
+            this.#getDefaultValue(type.values[index], defaultTupleValue)
+          );
+        } else {
+          return defaultType.values.map((defaultTuplevalue) =>
+            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue)
+          );
+        }
+
+      case "Intrinsic":
+        return isNullType(defaultType)
+          ? null
+          : reportDiagnostic(program, {
+              code: "invalid-default",
+              format: { type: defaultType.kind },
+              target: defaultType,
+            });
+      case "EnumMember":
+        return defaultType.value ?? defaultType.name;
+      default:
+        reportDiagnostic(program, {
+          code: "invalid-default",
+          format: { type: defaultType.kind },
+          target: defaultType,
+        });
+    }
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
