@@ -11,7 +11,6 @@ import { FunctionComponent, useCallback, useEffect, useId, useMemo, useState } f
 import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
 import { LibraryImportOptions } from "../core.js";
-import { registerMonacoDefaultWorkers } from "../monaco-worker.js";
 import { registerMonacoLanguage } from "../services.js";
 import { StateStorage, createUrlStateStorage } from "../state-storage.js";
 import { BrowserHost } from "../types.js";
@@ -35,7 +34,6 @@ function useStandalonePlaygroundContext(
     const load = async () => {
       const host = await createBrowserHost(config.libraries, config.importConfig);
       await registerMonacoLanguage(host);
-      registerMonacoDefaultWorkers();
 
       const stateStorage = createStandalonePlaygroundStateStorage();
       const initialState = stateStorage.load();
