@@ -1,13 +1,12 @@
-import { CompilerOptions, LinterRuleSet, TypeSpecLibrary } from "@typespec/compiler";
-import { FunctionComponent, useCallback, useEffect, useState } from "react";
-import { importLibrary } from "../../core.js";
-import { PlaygroundTspLibrary } from "../../types.js";
+import { CompilerOptions, LinterRuleSet } from "@typespec/compiler";
+import { FunctionComponent, useCallback } from "react";
+import { BrowserHost } from "../../types.js";
 import { EmitterOptions } from "../types.js";
 import { EmitterOptionsForm } from "./emitter-options-form.js";
 import { LinterForm } from "./linter-form.js";
 
 export type CompilerSettingsProps = {
-  libraries: PlaygroundTspLibrary[];
+  host: BrowserHost;
   selectedEmitter: string;
   options: CompilerOptions;
   onOptionsChanged: (options: CompilerOptions) => void;
@@ -15,7 +14,7 @@ export type CompilerSettingsProps = {
 
 export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
   selectedEmitter,
-  libraries,
+  host,
   options,
   onOptionsChanged,
 }) => {
@@ -28,7 +27,7 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
     },
     [options]
   );
-  const library = useTypeSpecLibrary(selectedEmitter);
+  const library = host.libraries[selectedEmitter];
   const linterRuleSet = options.linterRuleSet ?? {};
   const linterRuleSetChanged = useCallback(
     (linterRuleSet: LinterRuleSet) => {
@@ -53,31 +52,10 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
       )}
       <h3>Linter</h3>
       <LinterForm
-        libraries={libraries}
+        libraries={host.libraries}
         linterRuleSet={linterRuleSet}
         onLinterRuleSetChanged={linterRuleSetChanged}
       />
     </div>
   );
 };
-
-function useTypeSpecLibrary(name: string): TypeSpecLibrary<any> | undefined {
-  const [lib, setLib] = useState<TypeSpecLibrary<any>>();
-
-  useEffect(() => {
-    setLib(undefined);
-    importLibrary(name, {})
-      .then((module: any) => {
-        if (module.$lib === undefined) {
-          // eslint-disable-next-line no-console
-          console.error(`Couldn't load library ${name} missing $lib export`);
-        }
-        setLib(module.$lib);
-      })
-      .catch((e) => {
-        // eslint-disable-next-line no-console
-        console.error("Failed to load library", name);
-      });
-  }, [name]);
-  return lib;
-}

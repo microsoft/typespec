@@ -9,12 +9,12 @@ import {
   SwitchOnChangeData,
   useId,
 } from "@fluentui/react-components";
-import { TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useMemo } from "react";
+import { PlaygroundTspLibrary } from "../../types.js";
 import { EmitterOptions } from "../types.js";
 
 export interface EmitterOptionsFormProps {
-  library: TypeSpecLibrary<any>;
+  library: PlaygroundTspLibrary;
   options: EmitterOptions;
   optionsChanged: (options: EmitterOptions) => void;
 }
@@ -23,7 +23,7 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
   options,
   optionsChanged,
 }) => {
-  const emitterOptionsSchema = library.emitter?.options?.properties;
+  const emitterOptionsSchema = library.definition?.emitter?.options?.properties;
   if (emitterOptionsSchema === undefined) {
     return <>"No options"</>;
   }

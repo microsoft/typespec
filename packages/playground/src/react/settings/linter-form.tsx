@@ -4,7 +4,7 @@ import { FunctionComponent, useCallback } from "react";
 import { PlaygroundTspLibrary } from "../../types.js";
 
 export interface LinterFormProps {
-  libraries: PlaygroundTspLibrary[];
+  libraries: Record<string, PlaygroundTspLibrary>;
   linterRuleSet: LinterRuleSet;
   onLinterRuleSetChanged: (options: LinterRuleSet) => void;
 }
@@ -14,7 +14,7 @@ export const LinterForm: FunctionComponent<LinterFormProps> = ({
   linterRuleSet,
   onLinterRuleSetChanged,
 }) => {
-  const rulesets = libraries.flatMap((lib) => {
+  const rulesets = Object.values(libraries).flatMap((lib) => {
     return Object.keys(lib.definition?.linter?.ruleSets ?? {}).map(
       (x) => `${lib.name}/${x}`
     ) as RuleRef[];
