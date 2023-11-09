@@ -313,6 +313,17 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     throw new Error("$ref to $defs not yet supported.");
   }
 
+  scalarInstantiation(
+    scalar: Scalar,
+    name: string | undefined
+  ): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.#getSchemaForScalar(scalar);
+    }
+
+    return this.scalarDeclaration(scalar, name);
+  }
+
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
     const baseBuiltIn = this.#scalarBuiltinBaseType(scalar);
 
