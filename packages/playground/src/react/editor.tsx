@@ -31,7 +31,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
   }, []);
 
   useEffect(() => {
-    editor.setTheme(options.theme ?? "vs");
+    editor.setTheme(options.theme ?? "typespec");
   }, [options.theme]);
 
   useEffect(() => {
