@@ -68,8 +68,8 @@ const config: Config = {
       async: true,
     },
     {
-      src: `https://typespec.blob.core.windows.net/pkgs/indexes/typespec/${latestVersion}.json`,
-      type: "importmap-shim",
+      src: `playground-version-loader.js`,
+      "data-latest-version": latestVersion,
     },
   ],
   themes: ["@docusaurus/theme-mermaid"],
@@ -95,6 +95,7 @@ const config: Config = {
     ],
   ],
   staticDirectories: [
+    "static",
     resolve(__dirname, "./node_modules/@typespec/spec/dist"),
     resolve(__dirname, "./node_modules/es-module-shims/dist"),
   ],
