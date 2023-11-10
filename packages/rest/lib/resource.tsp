@@ -133,7 +133,7 @@ interface ResourceCreateOrUpdate<TResource extends {}, TError> {
  */
 @friendlyName("{name}Create", TResource)
 model ResourceCreateModel<TResource extends {}>
-  is UpdateableProperties<DefaultKeyVisibility<TResource, "read">>;
+  is CreateableProperties<DefaultKeyVisibility<TResource, "read">>;
 
 /**
  * Resource create operation template.
