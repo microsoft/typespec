@@ -9,3 +9,5 @@ const im = document.createElement("script");
 im.type = "importmap-shim";
 im.src = importMapUrl;
 document.currentScript.after(im);
+
+window.TSP_LATEST_RELEASE = latestVersion;
