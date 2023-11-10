@@ -102,6 +102,40 @@ describe("versioning: validate incompatible references", () => {
     });
   });
 
+  describe("operation", () => {
+    it("emit diagnostic when unversioned op has a versioned model as a parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        op test(param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        model Template<T> {
+          op test(param: T): void;
+        }
+
+        op test is Template<Foo>;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+      });
+    });
+  });
+
   describe("operation return type", () => {
     it("emit diagnostic when unversioned op is returning versioned model", async () => {
       const diagnostics = await runner.diagnose(`
