@@ -13,4 +13,5 @@ document.currentScript.after(im);
 window.TSP_VERSION_DATA = {
   latest: latestVersion,
   requested: requestedVersion,
+  resolved: requestedVersion ?? latestVersion,
 };

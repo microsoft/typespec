@@ -107,6 +107,7 @@ const columns = [
 interface VersionData {
   latest: string;
   requested: string;
+  resolved: string;
 }
 const versionData: VersionData = (window as any).TSP_VERSION_DATA;
 const versions = ["0.49.x", "0.50.x"];
@@ -115,7 +116,7 @@ const VersionsPopup: FunctionComponent<PlaygroundFooterProps> = ({ host }) => {
     <div style={{ maxWidth: "400px" }}>
       <div>
         <Title3>Select release</Title3>
-        <Select value={versionData.requested} onChange={changeVersion}>
+        <Select value={versionData.resolved} onChange={changeVersion}>
           {versions.map((x) => (
             <option key={x} value={x}>
               {x} {x === versionData.latest ? "(latest)" : ""}
