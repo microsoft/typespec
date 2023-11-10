@@ -13,9 +13,10 @@ import {
 import { CompletionItemTag } from "vscode-languageserver";
 import { getMarkerLocation } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
+import { PlaygroundContextProvider } from "./context/playground-context.js";
+import { DefaultFooter } from "./default-footer.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { OnMountData, useMonacoModel } from "./editor.js";
-import { DefaultFooter } from "./footer.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import Pane from "./split-pane/pane.js";
@@ -229,52 +230,54 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     return props.footer ? props.footer({ host }) : <DefaultFooter host={host} />;
   }, [host]);
   return (
-    <div
-      css={{
-        display: "flex",
-        flexDirection: "column",
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-        fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
-      }}
-    >
-      <SplitPane
-        initialSizes={["50%", "50%"]}
-        css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
+    <PlaygroundContextProvider value={{ host }}>
+      <div
+        css={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
+        }}
       >
-        <Pane>
-          <EditorCommandBar
-            host={host}
-            selectedEmitter={selectedEmitter}
-            onSelectedEmitterChange={onSelectedEmitterChange}
-            compilerOptions={compilerOptions}
-            onCompilerOptionsChange={onCompilerOptionsChange}
-            samples={props.samples}
-            selectedSampleName={selectedSampleName}
-            onSelectedSampleNameChange={onSelectedSampleNameChange}
-            saveCode={saveCode}
-            formatCode={formatCode}
-            newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-            documentationUrl={props.links?.documentationUrl}
-          />
-          <TypeSpecEditor
-            model={typespecModel}
-            actions={typespecEditorActions}
-            options={props.editorOptions}
-            onMount={onTypeSpecEditorMount}
-          />
-        </Pane>
-        <Pane>
-          <OutputView
-            compilationState={compilationState}
-            editorOptions={props.editorOptions}
-            viewers={props.emitterViewers?.[selectedEmitter]}
-          />
-        </Pane>
-      </SplitPane>
-      {footer}
-    </div>
+        <SplitPane
+          initialSizes={["50%", "50%"]}
+          css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
+        >
+          <Pane>
+            <EditorCommandBar
+              host={host}
+              selectedEmitter={selectedEmitter}
+              onSelectedEmitterChange={onSelectedEmitterChange}
+              compilerOptions={compilerOptions}
+              onCompilerOptionsChange={onCompilerOptionsChange}
+              samples={props.samples}
+              selectedSampleName={selectedSampleName}
+              onSelectedSampleNameChange={onSelectedSampleNameChange}
+              saveCode={saveCode}
+              formatCode={formatCode}
+              newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+              documentationUrl={props.links?.documentationUrl}
+            />
+            <TypeSpecEditor
+              model={typespecModel}
+              actions={typespecEditorActions}
+              options={props.editorOptions}
+              onMount={onTypeSpecEditorMount}
+            />
+          </Pane>
+          <Pane>
+            <OutputView
+              compilationState={compilationState}
+              editorOptions={props.editorOptions}
+              viewers={props.emitterViewers?.[selectedEmitter]}
+            />
+          </Pane>
+        </SplitPane>
+        {footer}
+      </div>
+    </PlaygroundContextProvider>
   );
 };
 

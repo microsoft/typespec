@@ -1,27 +1,17 @@
 import { useColorMode } from "@docusaurus/theme-common";
-import {
-  FluentProvider,
-  Popover,
-  PopoverSurface,
-  PopoverTrigger,
-  Select,
-  SelectOnChangeData,
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHeaderCell,
-  TableRow,
-  Title3,
-  webDarkTheme,
-  webLightTheme,
-} from "@fluentui/react-components";
+import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
 import type { BrowserHost } from "@typespec/playground";
 import samples from "@typespec/playground-website/samples";
-import { Footer, FooterItem, StandalonePlayground } from "@typespec/playground/react";
+import {
+  Footer,
+  FooterVersionItem,
+  StandalonePlayground,
+  VersionSelectorProps,
+  VersionSelectorVersion,
+} from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
-import { ChangeEvent, FunctionComponent, useMemo } from "react";
+import { FunctionComponent, useMemo } from "react";
 
 import "@typespec/playground/style.css";
 import { VersionData } from "./import-map";
@@ -84,78 +74,27 @@ interface PlaygroundFooterProps {
   host: BrowserHost;
   versionData: VersionData;
 }
+const versions = ["0.50.x", "0.49.x"];
 
 const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ host, versionData }) => {
+  const versionSelectorProps: VersionSelectorProps = useMemo(() => {
+    return {
+      versions: versions.map((x) => ({ name: x, label: x })),
+      selected: versionData.resolved,
+      latest: versionData.latest,
+      onChange: changeVersion,
+    };
+  }, []);
   return (
     <Footer>
-      <FooterItem>
-        <Popover>
-          <PopoverTrigger disableButtonEnhancement>
-            <div>
-              <span>TypeSpec Version </span>
-              <span>{host.compiler.MANIFEST.version}</span>
-            </div>
-          </PopoverTrigger>
-
-          <PopoverSurface>
-            <VersionsPopup host={host} versionData={versionData} />
-          </PopoverSurface>
-        </Popover>
-      </FooterItem>
+      <FooterVersionItem versionSelector={versionSelectorProps} />
     </Footer>
   );
 };
 
-const columns = [
-  { columnKey: "name", label: "Library" },
-  { columnKey: "version", label: "Version" },
-];
-
-const versions = ["0.49.x", "0.50.x"];
-interface VersionsPopupProps {
-  host: BrowserHost;
-  versionData: VersionData;
-}
-const VersionsPopup: FunctionComponent<VersionsPopupProps> = ({ host, versionData }) => {
-  return (
-    <div style={{ maxWidth: "400px" }}>
-      <div>
-        <Title3>Select release</Title3>
-        <Select value={versionData.resolved} onChange={changeVersion}>
-          {versions.map((x) => (
-            <option key={x} value={x}>
-              {x} {x === versionData.latest ? "(latest)" : ""}
-            </option>
-          ))}
-        </Select>
-      </div>
-      <div>
-        <Title3>Loaded libraries</Title3>
-        <Table size="small">
-          <TableHeader>
-            <TableRow>
-              {columns.map((column) => (
-                <TableHeaderCell key={column.columnKey}>{column.label}</TableHeaderCell>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Object.values(host.libraries).map((item) => (
-              <TableRow key={item.name}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.packageJson.version}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    </div>
-  );
-};
-
-function changeVersion(ev: ChangeEvent<HTMLSelectElement>, data: SelectOnChangeData): void {
+function changeVersion(version: VersionSelectorVersion): void {
   const query = new URLSearchParams(window.location.search);
-  query.set("version", data.value);
+  query.set("version", version.name);
   const newUrl = window.location.pathname + "?" + query.toString();
   window.location.replace(newUrl);
 }

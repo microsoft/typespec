@@ -1,6 +1,7 @@
 import { FunctionComponent } from "react";
 import { BrowserHost } from "../types.js";
-import { Footer, FooterItem } from "./footer/footer.js";
+import { FooterVersionItem } from "./footer/footer-version-item.js";
+import { Footer, FooterItem } from "./footer/index.js";
 
 export interface FooterProps {
   host: BrowserHost;
@@ -18,10 +19,7 @@ export const DefaultFooter: FunctionComponent<FooterProps> = ({ host }) => {
   return (
     <Footer>
       {prItem}
-      <FooterItem>
-        <span>TypeSpec Version </span>
-        <span>{MANIFEST.version}</span>
-      </FooterItem>
+      <FooterVersionItem />
       <FooterItem link={`https://github.com/microsoft/typespec/commit/${MANIFEST.commit}`}>
         <span>Commit </span>
         <span>{MANIFEST.commit.slice(0, 6)}</span>
