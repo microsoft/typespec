@@ -1,7 +1,7 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
-import samples from "@typespec/playground-website/samples";
+import { TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
   Footer,
   FooterVersionItem,
@@ -14,18 +14,6 @@ import { FunctionComponent, useMemo } from "react";
 
 import "@typespec/playground/style.css";
 import { VersionData } from "./import-map";
-
-const libraries = [
-  "@typespec/compiler",
-  "@typespec/http",
-  "@typespec/rest",
-  "@typespec/openapi",
-  "@typespec/versioning",
-  "@typespec/openapi3",
-  "@typespec/json-schema",
-  "@typespec/protobuf",
-];
-const defaultEmitter = "@typespec/openapi3";
 
 export const FluentLayout = ({ children }) => {
   return (
@@ -58,9 +46,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
 
   return (
     <StandalonePlayground
-      libraries={libraries}
-      defaultEmitter={defaultEmitter}
-      samples={samples}
+      {...TypeSpecPlaygroundConfig}
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
       importConfig={{ useShim: true }}
       editorOptions={editorOptions}

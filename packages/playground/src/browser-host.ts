@@ -13,7 +13,7 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
  * @returns
  */
 export async function createBrowserHost(
-  libsToLoad: string[],
+  libsToLoad: readonly string[],
   importOptions: LibraryImportOptions = {}
 ): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();

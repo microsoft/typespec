@@ -31,7 +31,7 @@ export interface PlaygroundProps {
   defaultContent?: string;
 
   /** List of available libraries */
-  libraries: string[];
+  readonly libraries: readonly string[];
 
   /** Emitter to use */
   emitter?: string;
