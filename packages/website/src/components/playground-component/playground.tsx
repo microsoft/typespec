@@ -1,5 +1,6 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
+import versions from "@site/playground-versions.json" assert { type: "json" };
 import Layout from "@theme/Layout";
 import { TypeSpecPlaygroundConfig } from "@typespec/playground-website";
 import {
@@ -11,9 +12,9 @@ import {
 } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import { FunctionComponent, useMemo } from "react";
+import { VersionData } from "./import-map";
 
 import "@typespec/playground/style.css";
-import { VersionData } from "./import-map";
 
 export const FluentLayout = ({ children }) => {
   return (
@@ -58,7 +59,6 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
 interface PlaygroundFooterProps {
   versionData: VersionData;
 }
-const versions = ["0.50.x", "0.49.x"];
 
 const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ versionData }) => {
   const versionSelectorProps: VersionSelectorProps = useMemo(() => {
