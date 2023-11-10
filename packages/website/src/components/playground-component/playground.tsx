@@ -24,13 +24,7 @@ import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import { ChangeEvent, FunctionComponent, useMemo } from "react";
 
 import "@typespec/playground/style.css";
-
-interface VersionData {
-  latest: string;
-  requested: string;
-  resolved: string;
-}
-const versionData: VersionData = await (window as any).TSP_VERSION_DATA;
+import { VersionData } from "./import-map";
 
 const libraries = [
   "@typespec/compiler",
@@ -62,7 +56,11 @@ const FluentWrapper = ({ children }) => {
   );
 };
 
-export const WebsitePlayground = () => {
+export interface WebsitePlaygroundProps {
+  versionData: VersionData;
+}
+
+export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
   const { colorMode } = useColorMode();
 
   const editorOptions = useMemo(() => {
@@ -77,16 +75,17 @@ export const WebsitePlayground = () => {
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
       importConfig={{ useShim: true }}
       editorOptions={editorOptions}
-      footer={({ host }) => <PlaygroundFooter host={host} />}
+      footer={({ host }) => <PlaygroundFooter host={host} versionData={versionData} />}
     />
   );
 };
 
 interface PlaygroundFooterProps {
   host: BrowserHost;
+  versionData: VersionData;
 }
 
-const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ host }) => {
+const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ host, versionData }) => {
   return (
     <Footer>
       <FooterItem>
@@ -99,7 +98,7 @@ const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ host }) =>
           </PopoverTrigger>
 
           <PopoverSurface>
-            <VersionsPopup host={host} />
+            <VersionsPopup host={host} versionData={versionData} />
           </PopoverSurface>
         </Popover>
       </FooterItem>
@@ -113,7 +112,11 @@ const columns = [
 ];
 
 const versions = ["0.49.x", "0.50.x"];
-const VersionsPopup: FunctionComponent<PlaygroundFooterProps> = ({ host }) => {
+interface VersionsPopupProps {
+  host: BrowserHost;
+  versionData: VersionData;
+}
+const VersionsPopup: FunctionComponent<VersionsPopupProps> = ({ host, versionData }) => {
   return (
     <div style={{ maxWidth: "400px" }}>
       <div>
