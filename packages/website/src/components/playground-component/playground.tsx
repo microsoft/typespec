@@ -1,7 +1,6 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
-import type { BrowserHost } from "@typespec/playground";
 import samples from "@typespec/playground-website/samples";
 import {
   Footer,
@@ -65,18 +64,17 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
       emitterViewers={{ "@typespec/openapi3": [SwaggerUIViewer] }}
       importConfig={{ useShim: true }}
       editorOptions={editorOptions}
-      footer={({ host }) => <PlaygroundFooter host={host} versionData={versionData} />}
+      footer={<PlaygroundFooter versionData={versionData} />}
     />
   );
 };
 
 interface PlaygroundFooterProps {
-  host: BrowserHost;
   versionData: VersionData;
 }
 const versions = ["0.50.x", "0.49.x"];
 
-const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ host, versionData }) => {
+const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ versionData }) => {
   const versionSelectorProps: VersionSelectorProps = useMemo(() => {
     return {
       versions: versions.map((x) => ({ name: x, label: x })),

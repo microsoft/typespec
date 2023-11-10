@@ -70,7 +70,7 @@ export interface PlaygroundProps {
   /**
    * Change the footer of the playground.
    */
-  footer?: (data: { host: BrowserHost }) => ReactNode;
+  footer?: ReactNode;
 }
 
 export interface PlaygroundEditorsOptions {
@@ -226,9 +226,6 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editorRef.current = editor;
   }, []);
 
-  const footer = useMemo(() => {
-    return props.footer ? props.footer({ host }) : <DefaultFooter host={host} />;
-  }, [host]);
   return (
     <PlaygroundContextProvider value={{ host }}>
       <div
@@ -275,7 +272,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
             />
           </Pane>
         </SplitPane>
-        {footer}
+        {props.footer ?? <DefaultFooter host={host} />}
       </div>
     </PlaygroundContextProvider>
   );

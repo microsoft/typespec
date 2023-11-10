@@ -1,3 +1,4 @@
+export { usePlaygroundContext } from "./context/index.js";
 export {
   Footer,
   FooterItem,
