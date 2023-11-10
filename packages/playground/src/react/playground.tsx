@@ -231,10 +231,8 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   return (
     <div
       css={{
-        display: "grid",
-        gridTemplateColumns: "1",
-        gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"typespeceditor"\n    "footer"',
+        display: "flex",
+        flexDirection: "column",
         width: "100%",
         height: "100%",
         overflow: "hidden",
