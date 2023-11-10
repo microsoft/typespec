@@ -1,13 +1,21 @@
 import { CompilerOptions } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FunctionComponent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CompletionItemTag } from "vscode-languageserver";
 import { getMarkerLocation } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { OnMountData, useMonacoModel } from "./editor.js";
-import { Footer } from "./footer.js";
+import { DefaultFooter } from "./footer.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import Pane from "./split-pane/pane.js";
@@ -57,6 +65,11 @@ export interface PlaygroundProps {
   onSave?: (value: PlaygroundSaveData) => void;
 
   editorOptions?: PlaygroundEditorsOptions;
+
+  /**
+   * Change the footer of the playground.
+   */
+  footer?: (data: { host: BrowserHost }) => ReactNode;
 }
 
 export interface PlaygroundEditorsOptions {
@@ -212,6 +225,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editorRef.current = editor;
   }, []);
 
+  const footer = useMemo(() => {
+    return props.footer ? props.footer({ host }) : <DefaultFooter host={host} />;
+  }, [host]);
   return (
     <div
       css={{
@@ -259,7 +275,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           />
         </Pane>
       </SplitPane>
-      <Footer host={host} />
+      {footer}
     </div>
   );
 };

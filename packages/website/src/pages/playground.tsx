@@ -2,9 +2,10 @@ import BrowserOnly from "@docusaurus/BrowserOnly";
 import { useColorMode } from "@docusaurus/theme-common";
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
-import { useEffect, useMemo, useState } from "react";
+import type { BrowserHost, PlaygroundSample } from "@typespec/playground";
+import { FunctionComponent, useEffect, useMemo, useState } from "react";
 
-import { PlaygroundSample } from "@typespec/playground";
+import { Footer, FooterItem } from "@typespec/playground/react";
 import "@typespec/playground/style.css";
 
 const libraries = [
@@ -78,6 +79,7 @@ const AsyncPlayground = () => {
         emitterViewers={{ "@typespec/openapi3": [mod.SwaggerUIViewer] }}
         importConfig={{ useShim: true }}
         editorOptions={editorOptions}
+        footer={({ host }) => <PlaygroundFooter host={host} />}
       />
     )
   );
@@ -96,3 +98,18 @@ async function resolvePlaygroundModules(): Promise<PlaygroundModules> {
 
   return { StandalonePlayground, samples, SwaggerUIViewer } as const;
 }
+
+interface PlaygroundFooterProps {
+  host: BrowserHost;
+}
+
+const PlaygroundFooter: FunctionComponent<PlaygroundFooterProps> = ({ host }) => {
+  return (
+    <Footer>
+      <FooterItem>
+        <span>TypeSpec Version </span>
+        <span>{host.compiler.MANIFEST.version}</span>
+      </FooterItem>
+    </Footer>
+  );
+};
