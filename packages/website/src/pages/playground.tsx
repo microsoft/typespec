@@ -1,10 +1,8 @@
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import { useColorMode } from "@docusaurus/theme-common";
-import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
-import Layout from "@theme/Layout";
 import { useEffect, useState } from "react";
 
 import "@typespec/playground/style.css";
+import { FluentLayout } from "../components/fluent-layout/fluent-layout";
 
 export default function PlaygroundPage() {
   return (
@@ -21,24 +19,6 @@ export default function PlaygroundPage() {
     </BrowserOnly>
   );
 }
-
-export const FluentLayout = ({ children }) => {
-  return (
-    <Layout>
-      <FluentWrapper>{children}</FluentWrapper>
-    </Layout>
-  );
-};
-
-const FluentWrapper = ({ children }) => {
-  const { colorMode } = useColorMode();
-
-  return (
-    <FluentProvider theme={colorMode === "dark" ? webDarkTheme : webLightTheme}>
-      {children}
-    </FluentProvider>
-  );
-};
 
 const AsyncPlayground = () => {
   const [mod, setMod] = useState<
