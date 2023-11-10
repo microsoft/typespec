@@ -67,11 +67,30 @@ const config: Config = {
       type: "module",
       async: true,
     },
+  ],
+  headTags: [
     {
-      src: `playground-version-loader.js`,
-      "data-latest-version": latestVersion,
+      tagName: "script",
+      attributes: {
+        // cspell:ignore esms
+        type: "esms-options",
+      },
+      innerHTML: JSON.stringify({
+        shimMode: true,
+      }),
+    },
+    {
+      tagName: "script",
+      attributes: {
+        // cspell:ignore esms
+        type: "playground-options",
+      },
+      innerHTML: JSON.stringify({
+        latestVersion: latestVersion,
+      }),
     },
   ],
+
   themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import "@typespec/playground/style.css";
 import { FluentLayout } from "../components/fluent-layout/fluent-layout";
+import { loadImportMap } from "../components/playground-component/import-map";
 
 export default function PlaygroundPage() {
   return (
@@ -25,8 +26,8 @@ const AsyncPlayground = () => {
     typeof import("../components/playground-component/playground") | null
   >(null);
   useEffect(() => {
-    import("../components/playground-component/playground")
-      .then((x) => setMod(x))
+    Promise.all([loadImportMap(), import("../components/playground-component/playground")])
+      .then((x) => setMod(x[1]))
       .catch((e) => {
         throw e;
       });

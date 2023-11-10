@@ -21,8 +21,16 @@ import type { BrowserHost } from "@typespec/playground";
 import samples from "@typespec/playground-website/samples";
 import { Footer, FooterItem, StandalonePlayground } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
-import "@typespec/playground/style.css";
 import { ChangeEvent, FunctionComponent, useMemo } from "react";
+
+import "@typespec/playground/style.css";
+
+interface VersionData {
+  latest: string;
+  requested: string;
+  resolved: string;
+}
+const versionData: VersionData = await (window as any).TSP_VERSION_DATA;
 
 const libraries = [
   "@typespec/compiler",
@@ -104,12 +112,6 @@ const columns = [
   { columnKey: "version", label: "Version" },
 ];
 
-interface VersionData {
-  latest: string;
-  requested: string;
-  resolved: string;
-}
-const versionData: VersionData = (window as any).TSP_VERSION_DATA;
 const versions = ["0.49.x", "0.50.x"];
 const VersionsPopup: FunctionComponent<PlaygroundFooterProps> = ({ host }) => {
   return (
