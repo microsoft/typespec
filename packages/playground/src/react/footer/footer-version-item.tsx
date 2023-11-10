@@ -12,7 +12,7 @@ import {
   TableRow,
   Title3,
 } from "@fluentui/react-components";
-import { ChangeEvent, FunctionComponent, useCallback } from "react";
+import { ChangeEvent, FunctionComponent, memo, useCallback } from "react";
 import { usePlaygroundContext } from "../context/playground-context.js";
 import { FooterItem } from "./footer-item.js";
 
@@ -39,15 +39,18 @@ export interface FooterVersionItemProps {
   versionSelector?: VersionSelectorProps;
 }
 
-export const FooterVersionItem = ({ versionSelector }: FooterVersionItemProps) => {
+export const FooterVersionItem = memo(({ versionSelector }: FooterVersionItemProps) => {
   const { host } = usePlaygroundContext();
+  const latest = versionSelector?.latest;
+  const selected = versionSelector?.selected ?? host.compiler.MANIFEST.version;
   return (
     <FooterItem>
       <Popover>
         <PopoverTrigger disableButtonEnhancement>
           <div>
-            <span>TypeSpec Version </span>
-            <span>{host.compiler.MANIFEST.version}</span>
+            <span>Version </span>
+            <span>{selected}</span>
+            <span>{latest && latest === selected ? " (latest)" : " (old)"}</span>
           </div>
         </PopoverTrigger>
 
@@ -57,13 +60,13 @@ export const FooterVersionItem = ({ versionSelector }: FooterVersionItemProps) =
       </Popover>
     </FooterItem>
   );
-};
+});
 
 interface VersionsPopupProps {
   versionSelector?: VersionSelectorProps;
 }
 
-const VersionsPopup: FunctionComponent<VersionsPopupProps> = ({ versionSelector }) => {
+const VersionsPopup: FunctionComponent<VersionsPopupProps> = memo(({ versionSelector }) => {
   const { host } = usePlaygroundContext();
 
   return (
@@ -91,14 +94,14 @@ const VersionsPopup: FunctionComponent<VersionsPopupProps> = ({ versionSelector 
       </div>
     </div>
   );
-};
+});
 
 const columns = [
   { columnKey: "name", label: "Library" },
   { columnKey: "version", label: "Version" },
 ];
 
-const VersionSelector = ({ versions, selected, latest, onChange }: VersionSelectorProps) => {
+const VersionSelector = memo(({ versions, selected, latest, onChange }: VersionSelectorProps) => {
   const changeVersion = useCallback(
     (ev: ChangeEvent<HTMLSelectElement>, data: SelectOnChangeData) => {
       onChange(versions.find((x) => x.name === data.value)!);
@@ -117,4 +120,4 @@ const VersionSelector = ({ versions, selected, latest, onChange }: VersionSelect
       </Select>
     </div>
   );
-};
+});
