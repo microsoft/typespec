@@ -145,18 +145,21 @@ const columns = [
   { columnKey: "version", label: "Version" },
 ];
 
-const selectedVersion = "0.49.x";
+interface VersionData {
+  latest: string;
+  requested: string;
+}
+const versionData: VersionData = (window as any).TSP_VERSION_DATA;
 const versions = ["0.49.x", "0.50.x"];
-const latestRelease = (window as any).TSP_LATEST_RELEASE;
 const VersionsPopup: FunctionComponent<PlaygroundFooterProps> = ({ host }) => {
   return (
     <div style={{ maxWidth: "400px" }}>
       <div>
         <Title3>Select release</Title3>
-        <Select value={selectedVersion} onChange={changeVersion}>
+        <Select value={versionData.requested} onChange={changeVersion}>
           {versions.map((x) => (
             <option key={x} value={x}>
-              {x} {x === latestRelease ? "(latest)" : ""}
+              {x} {x === versionData.latest ? "(latest)" : ""}
             </option>
           ))}
         </Select>
@@ -188,5 +191,6 @@ const VersionsPopup: FunctionComponent<PlaygroundFooterProps> = ({ host }) => {
 function changeVersion(ev: ChangeEvent<HTMLSelectElement>, data: SelectOnChangeData): void {
   const query = new URLSearchParams(window.location.search);
   query.set("version", data.value);
-  window.location.href = window.location.pathname + "?" + query.toString();
+  const newUrl = window.location.pathname + "?" + query.toString();
+  window.location.replace(newUrl);
 }

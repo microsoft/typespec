@@ -10,4 +10,7 @@ im.type = "importmap-shim";
 im.src = importMapUrl;
 document.currentScript.after(im);
 
-window.TSP_LATEST_RELEASE = latestVersion;
+window.TSP_VERSION_DATA = {
+  latest: latestVersion,
+  requested: requestedVersion,
+};
