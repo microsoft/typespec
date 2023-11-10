@@ -114,7 +114,6 @@ const config: Config = {
     ],
   ],
   staticDirectories: [
-    "static",
     resolve(__dirname, "./node_modules/@typespec/spec/dist"),
     resolve(__dirname, "./node_modules/es-module-shims/dist"),
   ],
