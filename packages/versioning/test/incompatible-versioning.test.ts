@@ -122,9 +122,7 @@ describe("versioning: validate incompatible references", () => {
         @added(Versions.v2)
         model Foo {}
 
-        model Template<T> {
-          op test(param: T): void;
-        }
+        op Template<T>(param: T): void;
 
         op test is Template<Foo>;
       `);
@@ -132,6 +130,38 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+      });
+    });
+
+    it("emit diagnostic when when op was added before parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        @added(Versions.v1)
+        op test(param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
+      });
+    });
+
+    it("emit diagnostic when op based on a template was added before parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model Foo {}
+
+        op Template<T>(param: T): void;
+
+        @added(Versions.v1)
+        op test is Template<Foo>;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
       });
     });
   });
@@ -162,7 +192,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
+          "'TestService.test' was added in version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
     });
 
@@ -177,7 +207,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
+          "'TestService.test' was removed in version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
     });
 
@@ -240,7 +270,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar.foo' was added on version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
+          "'TestService.Bar.foo' was added in version 'v2' but referencing type 'TestService.Foo' added in version 'v3'.",
       });
     });
 
@@ -257,7 +287,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar.foo' was removed on version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
+          "'TestService.Bar.foo' was removed in version 'v3' but referencing type 'TestService.Foo' removed in version 'v2'.",
       });
     });
 
@@ -362,7 +392,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was added on version 'v3' but contains type 'TestService.Bar.foo' added in version 'v2'.",
+          "'TestService.Bar' was added in version 'v3' but contains type 'TestService.Bar.foo' added in version 'v2'.",
       });
     });
 
@@ -377,7 +407,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.Bar.foo' removed in version 'v3'.",
+          "'TestService.Bar' was removed in version 'v2' but contains type 'TestService.Bar.foo' removed in version 'v3'.",
       });
     });
 
@@ -438,7 +468,7 @@ describe("versioning: validate incompatible references", () => {
           "'TestService.Bar.foo' is referencing versioned type 'TestService.Versioned' but is not versioned itself.",
       });
     });
-    it("emit diagnostic when using versioned union variant in non versioned operation return type", async () => {
+    it("emit diagnostic when using versioned union variant in nin versioned operation return type", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Versioned {}
@@ -451,7 +481,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when using versioned array element in non versioned operation return type", async () => {
+    it("emit diagnostic when using versioned array element in nin versioned operation return type", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Versioned {}
@@ -464,7 +494,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when using versioned tuple element in non versioned operation return type", async () => {
+    it("emit diagnostic when using versioned tuple element in nin versioned operation return type", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Versioned {}
@@ -500,7 +530,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was added on version 'v3' but contains type 'TestService.foo' added in version 'v2'.",
+          "'TestService.Bar' was added in version 'v3' but contains type 'TestService.foo' added in version 'v2'.",
       });
     });
 
@@ -515,7 +545,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.Bar' was removed on version 'v2' but contains type 'TestService.foo' removed in version 'v3'.",
+          "'TestService.Bar' was removed in version 'v2' but contains type 'TestService.foo' removed in version 'v3'.",
       });
     });
 
@@ -578,7 +608,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.WidgetService' was added on version 'v1' but referencing type 'TestService.Widget' added in version 'v2'.",
+          "'TestService.WidgetService' was added in version 'v1' but referencing type 'TestService.Widget' added in version 'v2'.",
       });
     });
 
@@ -635,7 +665,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' was added on version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
+          "'TestService.test' was added in version 'v1' but referencing type 'VersionedLib.Foo' added in version 'v3'.",
       });
     });
 
