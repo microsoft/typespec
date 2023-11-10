@@ -132,8 +132,8 @@ interface ResourceCreateOrUpdate<TResource extends {}, TError> {
  * @template TResource The resource model to create.
  */
 @friendlyName("{name}Create", TResource)
-model ResourceCreateModel<TResource extends {}>
-  is CreateableProperties<DefaultKeyVisibility<TResource, "read">>;
+@withVisibility("create")
+model ResourceCreateModel<TResource extends {}> is DefaultKeyVisibility<TResource, "read">;
 
 /**
  * Resource create operation template.

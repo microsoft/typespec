@@ -858,16 +858,6 @@ export function $withUpdateableProperties(context: DecoratorContext, target: Typ
   filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["update"]));
 }
 
-// -- @withCreateableProperties decorator ----------------------
-
-export function $withCreateableProperties(context: DecoratorContext, target: Type) {
-  if (!validateDecoratorTarget(context, target, "@withCreateableProperties", "Model")) {
-    return;
-  }
-
-  filterModelPropertiesInPlace(target, (p) => isVisible(context.program, p, ["create"]));
-}
-
 // -- @withoutOmittedProperties decorator ----------------------
 
 export function $withoutOmittedProperties(

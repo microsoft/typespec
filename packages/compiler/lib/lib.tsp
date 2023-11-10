@@ -177,16 +177,6 @@ model UpdateableProperties<T> {
 }
 
 /**
- * Represents a collection of createable properties.
- * @template T An object whose spread properties are all createable.
- */
-@doc("The template for adding createable properties.")
-@withCreateableProperties
-model CreateableProperties<T> {
-  ...T;
-}
-
-/**
  * Represents a collection of omitted properties.
  * @template T An object whose properties are spread.
  * @template TKeys The property keys to omit.
