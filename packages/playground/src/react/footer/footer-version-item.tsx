@@ -15,6 +15,7 @@ import {
 import { ChangeEvent, FunctionComponent, memo, useCallback } from "react";
 import { usePlaygroundContext } from "../context/playground-context.js";
 import { FooterItem } from "./footer-item.js";
+import style from "./footer-version-item.module.css";
 
 export interface VersionSelectorVersion {
   name: string;
@@ -44,10 +45,10 @@ export const FooterVersionItem = memo(({ versionSelector }: FooterVersionItemPro
   const latest = versionSelector?.latest;
   const selected = versionSelector?.selected ?? host.compiler.MANIFEST.version;
   return (
-    <FooterItem>
+    <FooterItem className={style["version-item"]}>
       <Popover>
         <PopoverTrigger disableButtonEnhancement>
-          <div>
+          <div className={style["button"]}>
             <span>Version </span>
             <span>{selected}</span>
             <span>{latest ? (latest === selected ? " (latest)" : " (old)") : ""}</span>
