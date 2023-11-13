@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/html-program-viewer",
+      "comment": "Add ability to change colors of the program viewer using css variables. A `ColorProvider` component is also provided for convenience.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/html-program-viewer"
+}
