@@ -189,7 +189,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
       // ???: why do we let emitters decide what the default type of an enum is
-      enumTypes.add(member.value ? typeof member.value : "string");
+      enumTypes.add(typeof member.value === "number" ? "number" : "string");
       enumValues.add(member.value ?? member.name);
     }
 
@@ -462,7 +462,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     applyConstraint(getMinValue, "minimum");
     applyConstraint(getMinValueExclusive, "exclusiveMinimum");
     applyConstraint(getMaxValue, "maximum");
-    applyConstraint(getMaxValueExclusive, "exclusiveMinimum");
+    applyConstraint(getMaxValueExclusive, "exclusiveMaximum");
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");
