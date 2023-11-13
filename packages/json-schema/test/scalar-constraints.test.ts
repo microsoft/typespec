@@ -53,6 +53,36 @@ describe("jsonschema: scalar constraints", () => {
       });
     });
 
+    describe("@minValueExclusive/@maxValueExclusive", () => {
+      for (const numType of scalarNumberTypes) {
+        it(numType, async () => {
+          const schemas = await emitSchema(
+            `
+            @minValueExclusive(1)
+            @maxValueExclusive(2)
+            scalar Test extends ${numType};
+          `
+          );
+
+          strictEqual(schemas["Test.json"].exclusiveMinimum, 1);
+          strictEqual(schemas["Test.json"].exclusiveMaximum, 2);
+        });
+
+        it("can be applied on a union", async () => {
+          const schemas = await emitSchema(
+            `
+            @minValueExclusive(1)
+            @maxValueExclusive(2)
+            union Test {int32, string, null};
+          `
+          );
+
+          strictEqual(schemas["Test.json"].exclusiveMinimum, 1);
+          strictEqual(schemas["Test.json"].exclusiveMaximum, 2);
+        });
+      }
+    });
+
     describe("on property", () => {
       for (const numType of [...scalarNumberTypes, "int32 | string | null"]) {
         it(`handles ${numType} properties`, async () => {
