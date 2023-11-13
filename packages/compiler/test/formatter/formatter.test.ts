@@ -2695,7 +2695,7 @@ op test(): string;
   });
 
   describe("string templates", () => {
-    describe("sginle line", () => {
+    describe("single line", () => {
       it("format simple single line string template", async () => {
         await assertFormat({
           code: `alias T = "foo \${     "def" } baz";`,

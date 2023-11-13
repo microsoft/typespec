@@ -154,14 +154,28 @@ BinaryDigit : one of
 StringLiteral :
     `"` StringCharacters? `"`
     `"""` TripleQuotedStringCharacters? `"""`
+    StringTemplateHead
+
+StringTemplateHead ::
+    `"` StringCharacters? `${`
+    `"""` TripleQuotedStringCharacters? `${`
+      
+StringTemplateMiddle ::
+      `}` TemplateCharacters? `${`
+
+
+StringTemplateTail ::
+      `}` TemplateCharacters? `"`
+      `}` TemplateCharacters? `"""`
 
 StringCharacters :
     StringCharacter StringCharacters?
 
 StringCharacter :
+    `$` [lookahead != `{`]
     SourceCharacter but not one of `"` or `\` or LineTerminator
     `\` EscapeCharacter
-    
+
 ///
 // BUG: This does not specify the extra rules about `"""`s going
 // on their own lines and having consistent indentation.
