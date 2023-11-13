@@ -98,6 +98,7 @@ const sidebars: SidebarsConfig = {
           "standard-library/http/authentication",
           "standard-library/http/operations",
           "standard-library/http/content-types",
+          "standard-library/http/multipart",
           "standard-library/http/encoding",
         ]),
         createLibraryReferenceStructure("json-schema", "JSON Schema", []),
