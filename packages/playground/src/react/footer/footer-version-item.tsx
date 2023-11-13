@@ -50,7 +50,7 @@ export const FooterVersionItem = memo(({ versionSelector }: FooterVersionItemPro
           <div>
             <span>Version </span>
             <span>{selected}</span>
-            <span>{latest && latest === selected ? " (latest)" : " (old)"}</span>
+            <span>{latest ? (latest === selected ? " (latest)" : " (old)") : ""}</span>
           </div>
         </PopoverTrigger>
 

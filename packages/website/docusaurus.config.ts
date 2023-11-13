@@ -82,7 +82,6 @@ const config: Config = {
     {
       tagName: "script",
       attributes: {
-        // cspell:ignore esms
         type: "playground-options",
       },
       innerHTML: JSON.stringify({
