@@ -451,7 +451,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     applyConstraint(getMinValue, "minimum");
     applyConstraint(getMinValueExclusive, "exclusiveMinimum");
     applyConstraint(getMaxValue, "maximum");
-    applyConstraint(getMaxValueExclusive, "exclusiveMinimum");
+    applyConstraint(getMaxValueExclusive, "exclusiveMaximum");
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");
