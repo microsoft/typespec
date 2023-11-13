@@ -198,6 +198,43 @@ describe("openapi3: metadata", () => {
     });
   });
 
+  it("emits the appropriate properties for ResourceCreateModel", async () => {
+    const res = await openApiFor(`
+    using TypeSpec.Rest.Resource;
+
+    model M {
+      @visibility("read") r?: string;
+      @visibility("create") c?: string;
+      @visibility("update") u?: string;
+      all: string;
+    }
+
+    model MCreate is ResourceCreateModel<M>;
+
+    @route("/") @post op create(...MCreate): M; 
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      MCreate: {
+        type: "object",
+        description: "Resource create operation model.",
+        properties: {
+          c: { type: "string" },
+          all: { type: "string" },
+        },
+        required: ["all"],
+      },
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          all: { type: "string" },
+        },
+        required: ["all"],
+      },
+    });
+  });
+
   it("bubbles up visibility changes to referencers", async () => {
     const res = await openApiFor(
       `
