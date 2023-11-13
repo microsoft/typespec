@@ -65,8 +65,8 @@ function ajvErrorToDiagnostic(
       target === NoTarget
         ? target
         : "kind" in target
-        ? getLocationInYamlScript(target, getErrorPath(error), "key")
-        : { file: target, pos: 0, end: 0 },
+          ? getLocationInYamlScript(target, getErrorPath(error), "key")
+          : { file: target, pos: 0, end: 0 },
   };
 }
 
