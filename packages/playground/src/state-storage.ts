@@ -78,14 +78,16 @@ export function createUrlStateStorage<const T extends object>(
   }
 
   function save(data: T) {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(location.search);
     for (const [key, item] of Object.entries<UrlStorageItem>(schema)) {
       const value = (data as any)[key];
 
       if (value) {
         const serialized = serialize(item, value);
         const compressed = compress(item, serialized);
-        params.append(item.queryParam, compressed);
+        params.set(item.queryParam, compressed);
+      } else {
+        params.delete(item.queryParam);
       }
     }
     history.pushState(null, "", window.location.pathname + "?" + params.toString());
