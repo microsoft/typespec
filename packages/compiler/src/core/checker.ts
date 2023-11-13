@@ -3,7 +3,12 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
+import {
+  TypeNameOptions,
+  getNamespaceFullName,
+  getTypeName,
+  stringTemplateToString,
+} from "./helpers/index.js";
 import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
@@ -3295,6 +3300,10 @@ export function createChecker(program: Program): Checker {
     if (type === nullType) {
       return true;
     }
+    if (type.kind === "StringTemplate") {
+      const [_, diagnostics] = stringTemplateToString(type);
+      return diagnostics.length === 0;
+    }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
   }
@@ -3476,6 +3485,8 @@ export function createChecker(program: Program): Checker {
     if (valueOf) {
       if (value.kind === "Boolean" || value.kind === "String" || value.kind === "Number") {
         return literalTypeToValue(value);
+      } else if (value.kind === "StringTemplate") {
+        return stringTemplateToString(value)[0];
       }
     }
     return value;
@@ -5332,6 +5343,7 @@ export function createChecker(program: Program): Checker {
       case "Number":
         return isNumericLiteralRelatedTo(source, target);
       case "String":
+      case "StringTemplate":
         return areScalarsRelated(target, getStdType("string"));
       case "Boolean":
         return areScalarsRelated(target, getStdType("boolean"));
@@ -6105,6 +6117,8 @@ function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] 
   return args.map((arg) => {
     if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
       return literalTypeToValue(arg);
+    } else if (arg.kind === "StringTemplate") {
+      return stringTemplateToString(arg)[0];
     }
     return arg as any;
   });
