@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import { tokens } from "@fluentui/react-components";
 import { Diagnostic, Program } from "@typespec/compiler";
-import { TypeSpecProgramViewer } from "@typespec/html-program-viewer";
+import { ColorPalette, ColorProvider, TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { ErrorTab, InternalCompilerError } from "./error-tab.js";
 import { FileOutput } from "./file-output.js";
@@ -159,7 +159,7 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
             overflow: "scroll",
           }}
         >
-          {program && <TypeSpecProgramViewer program={program} />}
+          {program && <TypeGraphViewer program={program} />}
         </div>
       );
   }
@@ -185,3 +185,25 @@ const ErrorTabCountStyles = css({
   padding: "0 5px",
   borderRadius: "20px",
 });
+
+interface TypeGraphViewerProps {
+  program: Program;
+}
+const TypeGraphViewer = ({ program }: TypeGraphViewerProps) => {
+  return (
+    <ColorProvider colors={TypeGraphColors}>
+      <TypeSpecProgramViewer program={program} />
+    </ColorProvider>
+  );
+};
+
+const TypeGraphColors: ColorPalette = {
+  background: tokens.colorNeutralBackground1,
+  typeKind: tokens.colorPaletteBerryForeground2,
+  typeName: tokens.colorNeutralForeground2,
+  dataKey: tokens.colorNeutralForeground2,
+  ref: tokens.colorBrandForeground1,
+  literal: tokens.colorPaletteLightGreenForeground2,
+  indentationGuide: tokens.colorNeutralForeground4,
+  property: tokens.colorPaletteMarigoldForeground2,
+};
