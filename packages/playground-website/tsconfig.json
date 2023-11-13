@@ -12,9 +12,19 @@
     "skipLibCheck": true,
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "jsx": "react-jsx",
+    "checkJs": true,
+    "allowJs": true,
     "jsxImportSource": "@emotion/react",
     "lib": ["DOM", "ES2022"],
     "types": ["@emotion/react"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "e2e/**/*.ts", "vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "e2e/**/*.ts",
+    "vite.config.ts",
+    "samples/**/*.js",
+    "samples/**/*.d.ts"
+  ]
 }

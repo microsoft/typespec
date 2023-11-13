@@ -27,7 +27,7 @@
     "editor.detectIndentation": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[json][[jsonc][yaml][typespec][markdown]": {
+  "[json][[jsonc][yaml][typespec][markdown][css]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "editor.insertSpaces": true,

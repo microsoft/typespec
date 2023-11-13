@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { tokens } from "@fluentui/react-components";
 import type { Diagnostic } from "@typespec/compiler";
 import { FunctionComponent } from "react";
 import { DiagnosticList } from "./diagnostic-list.js";
@@ -28,7 +29,7 @@ export const InternalCompilerError: FunctionComponent<InternalCompilerErrorProps
     <div css={{ CenterStyles }}>
       <div
         css={{
-          border: "1px solid #cc2222",
+          border: `1px solid ${tokens.colorStatusDangerBorder1}`,
           padding: "10px",
           margin: "20px",
         }}

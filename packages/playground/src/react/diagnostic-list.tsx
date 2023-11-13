@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { tokens } from "@fluentui/react-components";
 import type { Diagnostic } from "@typespec/compiler";
 import { FunctionComponent } from "react";
 
@@ -31,11 +32,11 @@ export const DiagnosticItem: FunctionComponent<DiagnosticItemProps> = ({ diagnos
       >
         {diagnostic.severity}
       </div>
-      <div css={{ padding: "0 5px", color: "#333333" }}>{diagnostic.code}</div>
+      <div css={{ padding: "0 5px", color: tokens.colorNeutralForeground2 }}>{diagnostic.code}</div>
       <div css={{ padding: "0 5px" }}>{diagnostic.message}</div>
     </div>
   );
 };
 
-const errorColor = css({ color: "#cc2222" });
-const warningColor = css({ color: "orange" });
+const errorColor = css({ color: tokens.colorStatusDangerForeground1 });
+const warningColor = css({ color: tokens.colorStatusWarningForeground1 });

@@ -313,6 +313,15 @@ export async function registerMonacoLanguage(host: BrowserHost) {
       { token: "function", foreground: "#795E26" },
     ],
   });
+  monaco.editor.defineTheme("typespec-dark", {
+    base: "vs-dark",
+    inherit: true,
+    colors: {},
+    rules: [
+      { token: "macro", foreground: "#E06C75" },
+      { token: "function", foreground: "#E06C75" },
+    ],
+  });
   monaco.editor.setTheme("typespec");
 
   monaco.languages.registerDocumentSemanticTokensProvider("typespec", {

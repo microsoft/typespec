@@ -1,4 +1,4 @@
-export function registerMonacoDefaultWorkers() {
+export function registerMonacoDefaultWorkersForVite() {
   self.MonacoEnvironment = {
     getWorker: function (workerId, label) {
       const getWorkerModule = (moduleUrl: string, label: string) => {

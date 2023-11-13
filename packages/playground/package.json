@@ -27,6 +27,10 @@
       "types": "./dist/src/vite/index.d.ts",
       "default": "./dist/vite/index.js"
     },
+    "./tooling": {
+      "types": "./dist/src/tooling/index.d.ts",
+      "default": "./dist/tooling/index.js"
+    },
     "./manifest": {
       "types": "./dist/src/manifest.d.ts",
       "default": "./dist/manifest.js"

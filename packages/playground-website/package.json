@@ -18,13 +18,19 @@
     "typespec"
   ],
   "type": "module",
-  "main": "dist/src/lib.js",
+  "exports": {
+    "./samples": {
+      "types": "./samples/dist/samples.d.ts",
+      "default": "./samples/dist/samples.js"
+    }
+  },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "tsc -p . && vite build 2>&1",
+    "clean": "rimraf ./dist ./dist-dev ./temp ./samples/dist",
+    "build-samples": "node ./samples/build.js",
+    "build": "npm run build-samples && tsc -p . && vite build 2>&1",
     "preview": "npm run build && vite preview",
     "start": "vite",
     "watch": "vite",
