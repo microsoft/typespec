@@ -23,6 +23,7 @@ import {
   MarkdownDoc,
   codeblock,
   inlinecode,
+  link,
   renderMarkdowDoc,
   section,
   table,
@@ -300,7 +301,9 @@ export class MarkdownRenderer {
     return table([
       ["Name", "Description"],
       ...rules.map((rule) => {
-        return [inlinecode(rule.name), rule.rule.description];
+        const name = inlinecode(rule.name);
+        const nameCell = rule.rule.url ? link(name, rule.rule.url) : name;
+        return [nameCell, rule.rule.description];
       }),
     ]);
   }
