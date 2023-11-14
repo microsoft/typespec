@@ -222,7 +222,7 @@ const config: Config = {
       },
       prism: {
         theme: themes.oneLight,
-        darkTheme: themes.dracula,
+        darkTheme: themes.oneDark,
         additionalLanguages: [],
       },
       mermaid: {},
