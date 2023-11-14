@@ -8,6 +8,30 @@ TypeSpec HTTP protocol binding
 npm install @typespec/http
 ```
 
+## Linter
+
+### Usage
+
+Add the following in `tspconfig.yaml`:
+
+```yaml
+linter:
+  extends:
+    - "@typespec/http/all"
+```
+
+### RuleSets
+
+Available ruleSets:
+
+- [`@typespec/http/all`](#@typespec/http/all)
+
+### Rules
+
+| Name                                          | Description                                                                               |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `@typespec/http/op-reference-container-route` | Check for referenced (`op is`) operations which have a @route on one of their containers. |
+
 ## Decorators
 
 ### TypeSpec.Http

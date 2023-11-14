@@ -43,6 +43,10 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
   if (emitter) {
     files["emitter.md"] = emitter;
   }
+  const linter = renderLinter(renderer, refDoc);
+  if (linter) {
+    files["linter.md"] = linter;
+  }
 
   return files;
 }
@@ -227,6 +231,24 @@ function renderEmitter(
     "toc_max_heading_level: 3",
     "---",
     renderer.emitterUsage(refDoc),
+  ];
+
+  return renderMarkdowDoc(content);
+}
+function renderLinter(
+  renderer: DocusaurusRenderer,
+  refDoc: TypeSpecLibraryRefDoc
+): string | undefined {
+  if (refDoc.linter === undefined) {
+    return undefined;
+  }
+  const content: MarkdownDoc = [
+    "---",
+    `title: "Linter usage"`,
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 3",
+    "---",
+    renderer.linterUsage(refDoc),
   ];
 
   return renderMarkdowDoc(content);

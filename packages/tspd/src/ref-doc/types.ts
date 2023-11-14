@@ -3,6 +3,8 @@ import {
   Enum,
   FunctionParameter,
   Interface,
+  LinterRuleDefinition,
+  LinterRuleSet,
   Model,
   Operation,
   Scalar,
@@ -23,6 +25,9 @@ export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
   description?: string;
 
   emitter?: EmitterRefDoc;
+
+  /** Documentation about the linter rules and ruleset provided in this library. */
+  linter?: LinterRefDoc;
 };
 
 export type TypeSpecRefDocBase = {
@@ -31,6 +36,19 @@ export type TypeSpecRefDocBase = {
 
 export type EmitterRefDoc = {
   options: EmitterOptionRefDoc[];
+};
+
+export type LinterRefDoc = {
+  /** List of rulesets provided. */
+  ruleSets?: LinterRuleSetRefDoc[];
+  rules: LinterRuleRefDoc[];
+};
+
+export type LinterRuleSetRefDoc = ReferencableElement & {
+  ruleSet: LinterRuleSet;
+};
+export type LinterRuleRefDoc = ReferencableElement & {
+  rule: LinterRuleDefinition<any, any>;
 };
 
 export type EmitterOptionRefDoc = {
@@ -50,13 +68,16 @@ export type NamespaceRefDoc = {
   scalars: ScalarRefDoc[];
 };
 
-export type NamedTypeRefDoc = {
+export type ReferencableElement = {
   /**
    * Fully qualified id
    */
   id: string;
 
   name: string;
+};
+
+export type NamedTypeRefDoc = ReferencableElement & {
   signature: string;
   doc: string;
   examples: ExampleRefDoc[];
