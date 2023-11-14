@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/html-program-viewer",
+      "comment": "Upgrade formatter to prettier 3.1",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/html-program-viewer"
+}
