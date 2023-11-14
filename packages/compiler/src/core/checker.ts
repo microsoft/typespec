@@ -1175,14 +1175,14 @@ export function createChecker(program: Program): Checker {
     return sym.flags & SymbolFlags.Model
       ? checkModelStatement(node as ModelStatementNode, mapper)
       : sym.flags & SymbolFlags.Scalar
-      ? checkScalar(node as ScalarStatementNode, mapper)
-      : sym.flags & SymbolFlags.Alias
-      ? checkAlias(node as AliasStatementNode, mapper)
-      : sym.flags & SymbolFlags.Interface
-      ? checkInterface(node as InterfaceStatementNode, mapper)
-      : sym.flags & SymbolFlags.Operation
-      ? checkOperation(node as OperationStatementNode, mapper)
-      : checkUnion(node as UnionStatementNode, mapper);
+        ? checkScalar(node as ScalarStatementNode, mapper)
+        : sym.flags & SymbolFlags.Alias
+          ? checkAlias(node as AliasStatementNode, mapper)
+          : sym.flags & SymbolFlags.Interface
+            ? checkInterface(node as InterfaceStatementNode, mapper)
+            : sym.flags & SymbolFlags.Operation
+              ? checkOperation(node as OperationStatementNode, mapper)
+              : checkUnion(node as UnionStatementNode, mapper);
   }
 
   function getOrInstantiateTemplate(
