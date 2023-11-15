@@ -312,7 +312,7 @@ describe("emitting models", () => {
       const res = await emitSchema(
         `
         model Foo {
-          optional?: int32 = true;
+          optional?: boolean = true;
         }
         `
       );
