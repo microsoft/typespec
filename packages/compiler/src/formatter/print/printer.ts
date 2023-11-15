@@ -494,8 +494,8 @@ function printDoc(
   const printed = isIndentableBlockComment(rawComment)
     ? printIndentableBlockCommentContent(rawComment)
     : rawComment.includes("\n")
-    ? rawComment
-    : ` ${rawComment.trim()} `;
+      ? rawComment
+      : ` ${rawComment.trim()} `;
   return ["/**", printed, "*/"];
 }
 
