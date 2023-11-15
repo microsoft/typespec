@@ -1,15 +1,18 @@
 import { resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
+import { stringify } from "yaml";
 import {
   DecoratorRefDoc,
   EmitterOptionRefDoc,
   EnumRefDoc,
   ExampleRefDoc,
   InterfaceRefDoc,
+  LinterRuleRefDoc,
   ModelRefDoc,
   NamedTypeRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  ReferencableElement,
   ScalarRefDoc,
   TemplateParameterRefDoc,
   TypeSpecRefDoc,
@@ -20,6 +23,7 @@ import {
   MarkdownDoc,
   codeblock,
   inlinecode,
+  link,
   renderMarkdowDoc,
   section,
   table,
@@ -56,6 +60,10 @@ export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) 
     content.push(renderer.emitterUsage(refDoc));
   }
 
+  if (refDoc.linter) {
+    content.push(renderer.linterUsage(refDoc));
+  }
+
   if (refDoc.namespaces.some((x) => x.decorators.length > 0)) {
     content.push(section("Decorators", renderer.decoratorsSection(refDoc, { includeToc: true })));
   }
@@ -85,7 +93,7 @@ export class MarkdownRenderer {
     return inlinecode(item.name);
   }
 
-  anchorId(item: NamedTypeRefDoc): string {
+  anchorId(item: ReferencableElement): string {
     return `${item.name.toLowerCase().replace(/ /g, "-")}`;
   }
 
@@ -233,7 +241,7 @@ export class MarkdownRenderer {
     });
   }
 
-  toc(items: NamedTypeRefDoc[], filename?: string) {
+  toc(items: ReferencableElement[], filename?: string) {
     return items.map(
       (item) => ` - [${inlinecode(item.name)}](${filename ?? ""}#${this.anchorId(item)})`
     );
@@ -269,5 +277,38 @@ export class MarkdownRenderer {
       content.push(option.doc);
     }
     return section("Emitter options", content);
+  }
+
+  linterUsage(refDoc: TypeSpecRefDoc) {
+    if (refDoc.linter === undefined) {
+      return [];
+    }
+    const setupExample = stringify({
+      linter: refDoc.linter.ruleSets
+        ? { extends: [refDoc.linter.ruleSets[0].name] }
+        : { rules: {} },
+    });
+    return section("Linter", [
+      section("Usage", ["Add the following in `tspconfig.yaml`:", codeblock(setupExample, "yaml")]),
+      refDoc.linter.ruleSets
+        ? section("RuleSets", ["Available ruleSets:", this.toc(refDoc.linter.ruleSets)])
+        : [],
+      section("Rules", this.linterRuleToc(refDoc.linter.rules)),
+    ]);
+  }
+
+  linterRuleToc(rules: LinterRuleRefDoc[]) {
+    return table([
+      ["Name", "Description"],
+      ...rules.map((rule) => {
+        const name = inlinecode(rule.name);
+        const nameCell = rule.rule.url ? link(name, this.linterRuleLink(rule.rule.url)) : name;
+        return [nameCell, rule.rule.description];
+      }),
+    ]);
+  }
+
+  linterRuleLink(url: string) {
+    return url;
   }
 }
