@@ -2022,10 +2022,17 @@ export interface LinterDefinition {
 }
 
 export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
+  /** Rule name (without the library name) */
   name: N;
+  /** Rule default severity. */
   severity: "warning";
+  /** Short description of the rule */
   description: string;
+  /** Specifies the URL at which the full documentation can be accessed. */
+  url?: string;
+  /** Messages that can be reported with the diagnostic. */
   messages: DM;
+  /** Creator */
   create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }
 

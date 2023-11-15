@@ -16,6 +16,9 @@ import {
   isTemplateDeclaration,
   joinPaths,
   JSONSchemaType,
+  LinterDefinition,
+  LinterRuleDefinition,
+  LinterRuleSet,
   Model,
   Namespace,
   navigateProgram,
@@ -43,6 +46,9 @@ import {
   ExampleRefDoc,
   FunctionParameterRefDoc,
   InterfaceRefDoc,
+  LinterRefDoc,
+  LinterRuleRefDoc,
+  LinterRuleSetRefDoc,
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
@@ -61,6 +67,7 @@ export async function extractLibraryRefDocs(
   const refDoc: TypeSpecLibraryRefDoc = {
     name: pkgJson.name,
     description: pkgJson.description,
+    packageJson: pkgJson,
     namespaces: [],
   };
   if (pkgJson.tspMain) {
@@ -81,6 +88,9 @@ export async function extractLibraryRefDocs(
       refDoc.emitter = {
         options: extractEmitterOptionsRefDoc(lib.emitter.options),
       };
+    }
+    if (lib?.linter) {
+      refDoc.linter = extractLinterRefDoc(lib.name, lib.linter);
     }
   }
 
@@ -554,4 +564,36 @@ function extractEmitterOptionsRefDoc(
       doc: value.description ?? "",
     };
   });
+}
+
+function extractLinterRefDoc(libName: string, linter: LinterDefinition): LinterRefDoc {
+  return {
+    ruleSets: linter.ruleSets && extractLinterRuleSetsRefDoc(libName, linter.ruleSets),
+    rules: linter.rules.map((rule) => extractLinterRuleRefDoc(libName, rule)),
+  };
+}
+
+function extractLinterRuleSetsRefDoc(
+  libName: string,
+  ruleSets: Record<string, LinterRuleSet>
+): LinterRuleSetRefDoc[] {
+  return Object.entries(ruleSets).map(([name, ruleSet]) => {
+    const fullName = `${libName}/${name}`;
+    return {
+      id: fullName,
+      name: fullName,
+      ruleSet,
+    };
+  });
+}
+function extractLinterRuleRefDoc(
+  libName: string,
+  rule: LinterRuleDefinition<any, any>
+): LinterRuleRefDoc {
+  const fullName = `${libName}/${rule.name}`;
+  return {
+    id: fullName,
+    name: fullName,
+    rule,
+  };
 }
