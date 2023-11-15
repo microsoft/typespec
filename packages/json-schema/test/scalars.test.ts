@@ -41,11 +41,12 @@ describe("emitting scalars", () => {
         test: Test<string>;
       }
     `);
-
-    assert.deepStrictEqual(schemas["Teststring.json"], {
-      $id: "Teststring.json",
+    assert.deepStrictEqual(schemas["TestString.json"], {
+      $id: "TestString.json",
       $schema: "https://json-schema.org/draft/2020-12/schema",
       type: "integer",
+      maximum: 255,
+      minimum: 0,
     });
   });
 });

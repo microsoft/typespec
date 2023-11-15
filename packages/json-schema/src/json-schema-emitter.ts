@@ -324,6 +324,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     return this.scalarDeclaration(scalar, name);
   }
 
+  scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
+    if (this.emitter.getOptions().bundleId) {
+      return {};
+    } else if (name === undefined) {
+      return {};
+    } else {
+      return this.#newFileScope(scalar);
+    }
+  }
+
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
     const isStd = this.#isStdType(scalar);
     const schema = this.#getSchemaForScalar(scalar);
