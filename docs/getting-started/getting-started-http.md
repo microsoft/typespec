@@ -9,9 +9,9 @@ TypeSpec also has an official OpenAPI emitter called `@typespec/openapi3` that c
 
 References:
 
-- [Http library](../standard-library/http/reference)
-- [Rest library](../standard-library/rest/reference)
-- [OpenAPI 3 emitter](../standard-library/openapi3/reference)
+- [Http library](../libraries/http/reference)
+- [Rest library](../libraries/rest/reference)
+- [OpenAPI 3 emitter](../libraries/openapi3/reference)
 
 ## Setup
 
