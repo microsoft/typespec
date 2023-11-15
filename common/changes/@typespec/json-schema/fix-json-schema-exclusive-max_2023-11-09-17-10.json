@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "JsonSchema: Fix `@maxValueExclusive` setting `minimumExclusive` instead of `maximumExclusive`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}
