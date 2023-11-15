@@ -63,7 +63,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Getting Started",
+      label: "Guides",
       items: [
         "getting-started/getting-started",
         "getting-started/getting-started-http",
@@ -72,7 +72,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Language Basics",
+      label: "🔤 Language Basics",
       items: [
         "language-basics/overview",
         "language-basics/built-in-types",
@@ -95,7 +95,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "TypeSpec Standard Library",
+      label: "📘 Standard Library",
       items: [
         "standard-library/built-in-decorators",
         "standard-library/built-in-data-types",
@@ -105,6 +105,12 @@ const sidebars: SidebarsConfig = {
         },
         "standard-library/projected-names",
         "standard-library/discriminated-types",
+      ],
+    },
+    {
+      type: "category",
+      label: "📚 Libraries",
+      items: [
         createLibraryReferenceStructure("http", "Http", true, [
           "libraries/http/cheat-sheet",
           "libraries/http/authentication",
@@ -132,7 +138,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Writing TypeSpec Libraries",
+      label: "🛠️ Writing TypeSpec Libraries",
       items: [
         "extending-typespec/basics",
         "extending-typespec/diagnostics",
@@ -146,7 +152,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Release Notes",
+      label: "🚀 Release Notes",
       collapsed: true,
       link: {
         type: "generated-index",
