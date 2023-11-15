@@ -72,7 +72,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "🔤 Language Basics",
+      label: " Language Basics",
       items: [
         "language-basics/overview",
         "language-basics/built-in-types",
