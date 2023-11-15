@@ -290,5 +290,37 @@ describe("emitting models", () => {
         default: "abc",
       });
     });
+
+    it("specify default value on numeric property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optional?: int32 = 123;
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optional, {
+        type: "number",
+        minimum: -2147483648,
+        maximum: 2147483647,
+        default: 123,
+      });
+    });
+
+    it("specify default value on boolean property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optional?: int32 = true;
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optional, {
+        type: "boolean",
+        default: true,
+      });
+    });
   });
 });
