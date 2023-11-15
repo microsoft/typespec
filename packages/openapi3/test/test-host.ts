@@ -53,7 +53,7 @@ export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterO
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": options as any },
   });
-  return diagnostics.filter((x) => x.code !== "@typespec/http/no-routes");
+  return diagnostics.filter((x) => x.code !== "@typespec/http/no-service-found");
 }
 
 export async function openApiFor(
@@ -74,7 +74,7 @@ export async function openApiFor(
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
+  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-service-found"));
 
   if (!versions) {
     return JSON.parse(host.fs.get(resolveVirtualPath("openapi.json"))!);

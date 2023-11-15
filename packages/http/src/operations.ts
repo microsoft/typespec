@@ -119,8 +119,12 @@ export function getAllRoutes(
 
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   if (routes.length === 0) {
+    // FIXME: Fix this.
     reportDiagnostic(program, {
-      code: "no-routes",
+      code: "no-service-found",
+      format: {
+        namespace: "Blah",
+      },
       target: program.getGlobalNamespaceType(),
     });
   }

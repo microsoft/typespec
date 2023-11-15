@@ -59,7 +59,9 @@ describe("openapi3: decorators", () => {
         model Foo {}
       `);
 
-      expectDiagnosticEmpty(diagnostics.filter((d) => d.code !== "@typespec/http/no-routes"));
+      expectDiagnosticEmpty(
+        diagnostics.filter((d) => d.code !== "@typespec/http/no-service-found")
+      );
 
       strictEqual(getRef(runner.program, Foo), "../common.json#/definitions/Foo");
     });

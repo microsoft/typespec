@@ -88,11 +88,10 @@ export const $lib = createTypeSpecLibrary({
         default: "`Content-Type` header ignored because there is no body.",
       },
     },
-    "no-routes": {
+    "no-service-found": {
       severity: "warning",
       messages: {
-        default:
-          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @service.",
+        default: paramMessage`No namespace with '@service' was found.`,
       },
     },
     "invalid-type-for-auth": {
