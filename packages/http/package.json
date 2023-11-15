@@ -4,7 +4,7 @@
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
-  "docusaurusWebsite": "https://microsoft.github.io/typespec/standard-library/http/",
+  "docusaurusWebsite": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
