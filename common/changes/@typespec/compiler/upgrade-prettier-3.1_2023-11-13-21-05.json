@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Upgrade formatter to prettier 3.1",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

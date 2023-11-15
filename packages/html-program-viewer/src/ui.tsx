@@ -18,6 +18,7 @@ import {
 import React, { FunctionComponent, ReactElement, useContext } from "react";
 import ReactDOMServer from "react-dom/server";
 import { KeyValueSection, Literal } from "./common.js";
+import { Colors } from "./constants.js";
 import { inspect } from "./inspect.js";
 import { TypeUIBase, TypeUIBaseProperty } from "./type-ui-base.js";
 import { getIdForType, isNamedUnion } from "./utils.js";
@@ -39,7 +40,7 @@ export interface TypeSpecProgramViewerProps {
 
 const ProgramViewerStyles = css({
   fontFamily: "monospace",
-  backgroundColor: "#f3f3f3",
+  backgroundColor: Colors.background,
   li: {
     margin: 0,
     listStyle: "none",
@@ -347,7 +348,7 @@ const NamedTypeRef: FunctionComponent<{ type: NamedType }> = ({ type }) => {
   return (
     <a
       css={{
-        color: "#268bd2",
+        color: Colors.ref,
         textDecoration: "none",
 
         "&:hover": {
@@ -422,7 +423,7 @@ const TypeData: FunctionComponent<{ type: Type }> = ({ type }) => {
     <KeyValueSection>
       {entries.map(([k, v], i) => (
         <div css={{ display: "flex" }} key={i}>
-          <div css={{ color: "#333", marginRight: "5px" }}>{k.toString()}:</div>{" "}
+          <div css={{ color: Colors.indentationGuide, marginRight: "5px" }}>{k.toString()}:</div>{" "}
           <div>{inspect(v)}</div>
         </div>
       ))}
