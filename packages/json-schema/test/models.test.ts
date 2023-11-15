@@ -301,7 +301,7 @@ describe("emitting models", () => {
       );
 
       deepStrictEqual(res["Foo.json"].properties.optional, {
-        type: "number",
+        type: "integer",
         minimum: -2147483648,
         maximum: 2147483647,
         default: 123,
