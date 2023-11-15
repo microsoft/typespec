@@ -19,7 +19,7 @@ import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
  * Render doc to a markdown using docusaurus addons.
  */
 export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
-  const renderer = new DocusaurusRenderer();
+  const renderer = new DocusaurusRenderer(refDoc);
   const files: Record<string, string> = {
     "index.mdx": renderIndexFile(renderer, refDoc),
   };
@@ -255,6 +255,11 @@ function renderLinter(
 }
 
 export class DocusaurusRenderer extends MarkdownRenderer {
+  #refDoc: TypeSpecLibraryRefDoc;
+  constructor(refDoc: TypeSpecLibraryRefDoc) {
+    super();
+    this.#refDoc = refDoc;
+  }
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;
@@ -280,5 +285,15 @@ export class DocusaurusRenderer extends MarkdownRenderer {
         },
       ])
     );
+  }
+
+  linterRuleLink(url: string) {
+    const homepage = (this.#refDoc.packageJson as any).docusaurusWebsite;
+    if (homepage && url.includes(homepage)) {
+      const fromRoot = url.replace(homepage, "");
+      return `${fromRoot}.md`;
+    } else {
+      return url;
+    }
   }
 }

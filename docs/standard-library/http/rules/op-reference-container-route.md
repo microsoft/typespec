@@ -1,6 +1,10 @@
 ---
-title: "@typespec/http/op-reference-container-route"
+title: "op-reference-container-route"
 ---
+
+```text title="Id"
+@typespec/http/op-reference-container-route
+```
 
 Check for referenced (`op is`) operations which have a `@route` on one of their containers.
 

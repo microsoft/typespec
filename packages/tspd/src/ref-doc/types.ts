@@ -6,6 +6,7 @@ import {
   LinterRuleDefinition,
   LinterRuleSet,
   Model,
+  NodePackage,
   Operation,
   Scalar,
   Union,
@@ -18,6 +19,11 @@ export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
    * Library name
    */
   name: string;
+
+  /**
+   * Library package.json
+   */
+  packageJson: NodePackage;
 
   /**
    * Library description

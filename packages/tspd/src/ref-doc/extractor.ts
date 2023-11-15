@@ -67,6 +67,7 @@ export async function extractLibraryRefDocs(
   const refDoc: TypeSpecLibraryRefDoc = {
     name: pkgJson.name,
     description: pkgJson.description,
+    packageJson: pkgJson,
     namespaces: [],
   };
   if (pkgJson.tspMain) {
