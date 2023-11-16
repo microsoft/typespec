@@ -128,7 +128,6 @@ components:
   schemas:
     Error:
       type: object
-      description: Error
       required:
         - code
         - message
@@ -138,6 +137,7 @@ components:
           format: int32
         message:
           type: string
+      description: Error
     Pet:
       type: object
       required:

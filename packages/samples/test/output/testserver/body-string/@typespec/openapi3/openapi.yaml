@@ -318,7 +318,6 @@ components:
         - blue-color
     Error:
       type: object
-      description: Error
       required:
         - status
         - message
@@ -328,3 +327,4 @@ components:
           format: int32
         message:
           type: string
+      description: Error

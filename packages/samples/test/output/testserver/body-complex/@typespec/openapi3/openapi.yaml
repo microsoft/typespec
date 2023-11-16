@@ -581,12 +581,12 @@ components:
           format: duration
     Error:
       type: object
-      description: Error
       required:
         - message
       properties:
         message:
           type: string
+      description: Error
     FloatWrapper:
       type: object
       required:

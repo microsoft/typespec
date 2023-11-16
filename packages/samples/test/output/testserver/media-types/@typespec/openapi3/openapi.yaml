@@ -56,23 +56,14 @@ paths:
               $ref: '#/components/schemas/SourcePath'
 components:
   schemas:
-    Input:
-      type: object
-      required:
-        - input
-      properties:
-        input:
-          allOf:
-            - $ref: '#/components/schemas/SourcePath'
-          description: Input parameter.
     SourcePath:
       type: object
-      description: Uri or local path to source data.
       required:
         - source
       properties:
         source:
           type: string
-          description: File source path.
           minLength: 0
           maxLength: 2048
+          description: File source path.
+      description: Uri or local path to source data.

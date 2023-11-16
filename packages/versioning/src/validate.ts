@@ -93,10 +93,11 @@ export function $onValidate(program: Program) {
         addDependency(namespace, op.returnType);
 
         if (op.interface) {
-          // Validate model -> property have correct versioning
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
-
+        for (const prop of op.parameters.properties.values()) {
+          validateReference(program, op, prop.type);
+        }
         validateReference(program, op, op.returnType);
       },
       interface: (iface) => {
