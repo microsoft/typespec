@@ -998,4 +998,47 @@ describe("openapi3: metadata", () => {
       type: "string",
     });
   });
+
+  it("model referenced via a patch operation and an unreachable types does create 2 schemas", async () => {
+    const res = await openApiFor(`
+      model Bar {
+        id: string;
+      }
+      
+      @patch op test(bar: Bar): void;
+
+      model Foo {
+        bar: Bar;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      Bar: {
+        type: "object",
+        required: ["id"],
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      BarUpdate: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      Foo: {
+        type: "object",
+        required: ["bar"],
+        properties: {
+          bar: {
+            $ref: "#/components/schemas/Bar",
+          },
+        },
+      },
+    });
+  });
 });
