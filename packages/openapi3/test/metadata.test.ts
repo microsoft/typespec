@@ -981,4 +981,21 @@ describe("openapi3: metadata", () => {
 
     deepStrictEqual(requestSchema, { format: "binary", type: "string" });
   });
+
+  it("don't create multiple scalars with different visibility if they are the same", async () => {
+    const res = await openApiFor(`
+      scalar uuid extends string;
+
+      model Bar {
+        id: uuid;
+      }
+      
+      @patch op test(...Bar): Bar;
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Bar", "BarUpdate", "uuid"]);
+    deepStrictEqual(res.components.schemas.uuid, {
+      type: "string",
+    });
+  });
 });
