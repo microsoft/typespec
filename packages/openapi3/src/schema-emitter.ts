@@ -324,7 +324,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         delete schema.anyOf;
       }
 
-      return { ...schema, ...additionalProps };
+      const merged = new ObjectBuilder(schema);
+      for (const [key, value] of Object.entries(additionalProps)) {
+        merged.set(key, value);
+      }
+      return merged;
     }
   }
 
