@@ -156,15 +156,26 @@ StringLiteral :
     `"""` TripleQuotedStringCharacters? `"""`
     StringTemplateHead
 
-StringTemplateHead ::
+StringTemplate : 
+  TemplateHead Expression TemplateSpans
+
+TemplateSpans : 
+  TemplateTail
+  TemplateMiddleList TemplateTail
+
+TemplateMiddleList : 
+  StringTemplateMiddle Expression 
+  StringTemplateMiddle Expression TemplateMiddleList
+
+StringTemplateHead :
     `"` StringCharacters? `${`
     `"""` TripleQuotedStringCharacters? `${`
       
-StringTemplateMiddle ::
+StringTemplateMiddle :
       `}` TemplateCharacters? `${`
 
 
-StringTemplateTail ::
+StringTemplateTail :
       `}` TemplateCharacters? `"`
       `}` TemplateCharacters? `"""`
 
