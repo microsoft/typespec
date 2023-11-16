@@ -17,3 +17,7 @@ $useDependency(
 | `context` | `DecoratorContext` |
 | `target` | `EnumMember` \| `Namespace` |
 | ...`versionRecords` | `EnumMember`[] |
+
+## Returns
+
+`void`

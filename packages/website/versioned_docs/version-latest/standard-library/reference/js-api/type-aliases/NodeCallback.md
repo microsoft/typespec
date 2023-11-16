@@ -18,3 +18,7 @@ type NodeCallback<T>: (c) => T;
 | Parameter | Type |
 | :------ | :------ |
 | `c` | [`Node`](Node.md) |
+
+## Returns
+
+`T`

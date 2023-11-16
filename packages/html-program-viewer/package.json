@@ -1,6 +1,6 @@
 {
   "name": "@typespec/html-program-viewer",
-  "version": "0.49.0",
+  "version": "0.50.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting an html view of the program.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -20,12 +20,12 @@
   "main": "dist/src/index.js",
   "exports": {
     ".": {
-      "default": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     },
     "./testing": {
-      "default": "./dist/src/testing/index.js",
-      "types": "./dist/src/testing/index.d.ts"
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
     }
   },
   "tspMain": "dist/src/index.js",
@@ -47,10 +47,10 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.49.0"
+    "@typespec/compiler": "workspace:~0.50.0"
   },
   "dependencies": {
-    "prettier": "~3.0.3",
+    "prettier": "~3.1.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
     "react-is": "~18.1.0",
@@ -61,8 +61,8 @@
     "@types/node": "~18.11.9",
     "@types/react": "~18.2.22",
     "@types/react-dom": "~18.2.7",
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
     "@babel/core": "^7.22.20",
     "eslint": "^8.49.0",
     "mocha": "~10.2.0",

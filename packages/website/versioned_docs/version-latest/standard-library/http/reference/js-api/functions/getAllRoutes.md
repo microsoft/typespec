@@ -16,6 +16,8 @@ getAllRoutes(program, options?): [HttpOperation[], readonly Diagnostic[]]
 
 ## Returns
 
+[[`HttpOperation`](../interfaces/HttpOperation.md)[], readonly `Diagnostic`[]]
+
 ## Deprecated
 
 use `getAllHttpServices` instead

@@ -17,3 +17,7 @@ $contentMediaType(
 | `context` | `DecoratorContext` |
 | `target` | `StringLiteral` \| `ModelProperty` |
 | `value` | `string` |
+
+## Returns
+
+`void`

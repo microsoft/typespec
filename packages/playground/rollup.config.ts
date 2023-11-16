@@ -18,6 +18,7 @@ const external = [
   "react-dom/client",
   "vite",
   "@vitejs/plugin-react",
+  "fs/promises",
 ];
 export default defineConfig([
   {
@@ -25,6 +26,7 @@ export default defineConfig([
       index: "src/index.ts",
       "react/index": "src/react/index.ts",
       "react/viewers": "src/react/viewers.tsx",
+      "tooling/index": "src/tooling/index.ts",
       "vite/index": "src/vite/index.ts",
     },
     treeshake: false,

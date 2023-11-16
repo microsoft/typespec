@@ -29,3 +29,7 @@ validate(
 | `context` | [`DecoratorContext`](DecoratorContext.md) |
 | `target` | [`InferredTypeSpecValue`](../type-aliases/InferredTypeSpecValue.md)<`T`\> |
 | `parameters` | `InferParameters`<`P`, `S`\> |
+
+#### Returns
+
+`boolean`

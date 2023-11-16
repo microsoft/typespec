@@ -17,3 +17,7 @@ validateDecoratorUniqueOnNode(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `type` | [`Type`](../type-aliases/Type.md) |
 | `decorator` | [`DecoratorFunction`](../interfaces/DecoratorFunction.md) |
+
+## Returns
+
+`boolean`

@@ -23,3 +23,7 @@ getMappedType(type): Type
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`TemplateParameter`](TemplateParameter.md) |
+
+#### Returns
+
+[`Type`](../type-aliases/Type.md)

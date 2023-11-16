@@ -13,3 +13,7 @@ getSummary(program, type): string | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`string` \| `undefined`

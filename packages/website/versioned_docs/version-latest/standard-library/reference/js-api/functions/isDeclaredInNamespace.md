@@ -22,3 +22,5 @@ Check if the given type is declared in the specified namespace or, optionally, i
 | `options.recursive`? | `boolean` | - |
 
 ## Returns
+
+`boolean`

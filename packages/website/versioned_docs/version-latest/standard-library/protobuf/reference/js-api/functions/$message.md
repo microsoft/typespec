@@ -13,3 +13,7 @@ $message(ctx, target): void
 | :------ | :------ |
 | `ctx` | `DecoratorContext` |
 | `target` | `Model` |
+
+## Returns
+
+`void`

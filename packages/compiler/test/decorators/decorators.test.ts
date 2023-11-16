@@ -1,5 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Model, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
+import { Model, Namespace, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -19,6 +19,75 @@ describe("compiler: built-in decorators", () => {
 
   beforeEach(async () => {
     runner = await createTestRunner();
+  });
+
+  describe("dev comment /** */", () => {
+    it("applies /** */ on blockless namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo;
+
+        model A {}
+        `
+      );
+
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+    });
+
+    it("applies /** */ on enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo {
+           model A {}
+        }
+        `
+      );
+
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+    });
+
+    it("applies /** */ on nested enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        // const { Foo, Foo_Bar } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo {
+          /** doc for namespace Bar */       
+          namespace Bar {
+            model A {};
+          }
+        }
+        `
+      );
+
+      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+    });
+
+    it("applies /** */ on nested blockless + enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo;
+
+        /** doc for namespace Bar */       
+        namespace Bar {
+          model A {}
+        }
+        `
+      );
+
+      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+    });
   });
 
   describe("@doc", () => {
@@ -59,7 +128,7 @@ describe("compiler: built-in decorators", () => {
         `
         @test
         @doc("doc for namespace")
-        namespace TestDoc {
+        namespace Foo.TestDoc {
         }
         `
       );

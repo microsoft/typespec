@@ -1,3 +1,4 @@
+import { tokens } from "@fluentui/react-components";
 import { FunctionComponent, ReactElement } from "react";
 
 export interface Tab {
@@ -14,13 +15,13 @@ export interface OutputTabsProps {
 export const OutputTabs: FunctionComponent<OutputTabsProps> = ({ tabs, selected, onSelect }) => {
   const [leftTabs, rightTabs] = chunk(tabs, (x) => x.align === "left");
   return (
-    <div css={{ display: "flex", borderBottom: "1px solid #c5c5c5" }}>
+    <div css={{ display: "flex", borderBottom: `1px solid ${tokens.colorNeutralStroke1}` }}>
       {leftTabs.map((tab) => {
         return (
           <OutputTab key={tab.id} tab={tab} selected={selected === tab.id} onSelect={onSelect} />
         );
       })}
-      <span css={{ flex: 1, borderRight: "1px solid #ccc" }}></span>
+      <span css={{ flex: 1, borderRight: `1px solid ${tokens.colorNeutralStroke1}` }}></span>
       {rightTabs.map((tab) => {
         return (
           <OutputTab key={tab.id} tab={tab} selected={selected === tab.id} onSelect={onSelect} />
@@ -36,24 +37,24 @@ export interface OutputTabProps {
 }
 export const OutputTab: FunctionComponent<OutputTabProps> = ({ tab, selected, onSelect }) => {
   return (
-    <a
+    <div
+      tabIndex={0}
       css={[
         {
           height: "26px",
           padding: "0 5px",
-          borderRight: "1px solid #ccc",
+          borderRight: `1px solid ${tokens.colorNeutralStroke1}`,
           borderTop: "none",
           borderBottom: "none",
-          color: "#000",
           textDecoration: "none",
           cursor: "pointer",
         },
-        selected ? { fontWeight: "bold", backgroundColor: "#eee" } : {},
+        selected ? { fontWeight: "bold", backgroundColor: tokens.colorNeutralBackground5 } : {},
       ]}
       onClick={() => onSelect(tab.id)}
     >
       {tab.name}
-    </a>
+    </div>
   );
 };
 

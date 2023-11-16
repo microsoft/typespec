@@ -27,3 +27,7 @@ it will be used as a prefix to the route URI of the operation.
 | `entity` | `Type` |
 | `path` | `string` |
 | `parameters`? | `Model` |
+
+## Returns
+
+`void`

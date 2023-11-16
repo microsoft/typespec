@@ -17,3 +17,7 @@ $prefixItems(
 | `context` | `DecoratorContext` |
 | `target` | `Model` \| `ModelProperty` |
 | `value` | `Tuple` |
+
+## Returns
+
+`void`

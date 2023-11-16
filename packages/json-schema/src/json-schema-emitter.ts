@@ -1,5 +1,6 @@
 import {
   BooleanLiteral,
+  compilerAssert,
   emitFile,
   Enum,
   EnumMember,
@@ -19,6 +20,8 @@ import {
   getRelativePathFromDirectory,
   getSummary,
   IntrinsicType,
+  isArrayModelType,
+  isNullType,
   Model,
   ModelProperty,
   NumericLiteral,
@@ -64,7 +67,7 @@ import {
   isJsonSchemaDeclaration,
   JsonSchemaDeclaration,
 } from "./index.js";
-import { JSONSchemaEmitterOptions } from "./lib.js";
+import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
   #seenIds = new Set();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
@@ -160,16 +163,66 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<object> {
-    const result = this.emitter.emitTypeReference(property.type);
+    const propertyType = this.emitter.emitTypeReference(property.type);
 
-    if (result.kind !== "code") {
+    if (propertyType.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
 
-    const withConstraints = new ObjectBuilder(result.value);
-    this.#applyConstraints(property, withConstraints);
+    const result = new ObjectBuilder(propertyType.value);
 
-    return withConstraints;
+    if (property.default) {
+      result.default = this.#getDefaultValue(property.type, property.default);
+    }
+
+    this.#applyConstraints(property, result);
+
+    return result;
+  }
+
+  #getDefaultValue(type: Type, defaultType: Type): any {
+    const program = this.emitter.getProgram();
+
+    switch (defaultType.kind) {
+      case "String":
+        return defaultType.value;
+      case "Number":
+        return defaultType.value;
+      case "Boolean":
+        return defaultType.value;
+      case "Tuple":
+        compilerAssert(
+          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+          "setting tuple default to non-tuple value"
+        );
+
+        if (type.kind === "Tuple") {
+          return defaultType.values.map((defaultTupleValue, index) =>
+            this.#getDefaultValue(type.values[index], defaultTupleValue)
+          );
+        } else {
+          return defaultType.values.map((defaultTuplevalue) =>
+            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue)
+          );
+        }
+
+      case "Intrinsic":
+        return isNullType(defaultType)
+          ? null
+          : reportDiagnostic(program, {
+              code: "invalid-default",
+              format: { type: defaultType.kind },
+              target: defaultType,
+            });
+      case "EnumMember":
+        return defaultType.value ?? defaultType.name;
+      default:
+        reportDiagnostic(program, {
+          code: "invalid-default",
+          format: { type: defaultType.kind },
+          target: defaultType,
+        });
+    }
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
@@ -189,7 +242,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
       // ???: why do we let emitters decide what the default type of an enum is
-      enumTypes.add(member.value ? typeof member.value : "string");
+      enumTypes.add(typeof member.value === "number" ? "number" : "string");
       enumValues.add(member.value ?? member.name);
     }
 
@@ -313,115 +366,131 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     throw new Error("$ref to $defs not yet supported.");
   }
 
-  scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
-    const baseBuiltIn = this.#scalarBuiltinBaseType(scalar);
+  scalarInstantiation(
+    scalar: Scalar,
+    name: string | undefined
+  ): EmitterOutput<Record<string, any>> {
+    if (!name) {
+      return this.#getSchemaForScalar(scalar);
+    }
 
-    if (baseBuiltIn === null) {
+    return this.scalarDeclaration(scalar, name);
+  }
+
+  scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
+    if (this.emitter.getOptions().bundleId) {
+      return {};
+    } else if (name === undefined) {
+      return {};
+    } else {
+      return this.#newFileScope(scalar);
+    }
+  }
+
+  scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<object> {
+    const isStd = this.#isStdType(scalar);
+    const schema = this.#getSchemaForScalar(scalar);
+    // Don't create a declaration for std types
+    if (isStd) {
+      return schema;
+    }
+
+    const builderSchema = new ObjectBuilder({
+      ...schema,
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $id: this.#getDeclId(scalar, name),
+    });
+    return this.#createDeclaration(scalar, name, builderSchema);
+  }
+
+  #getSchemaForScalar(scalar: Scalar) {
+    let result: any = {};
+    const isStd = this.#isStdType(scalar);
+    if (isStd) {
+      result = this.#getSchemaForStdScalars(scalar);
+    } else if (scalar.baseScalar) {
+      result = this.#getSchemaForScalar(scalar.baseScalar);
+    } else {
       throw new Error(`Can't emit custom scalar type ${scalar.name}`);
     }
 
-    let schema: Record<string, any>;
+    const objectBuilder = new ObjectBuilder(result);
+    this.#applyConstraints(scalar, objectBuilder);
+    if (isStd) {
+      // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
+      delete objectBuilder.description;
+    }
+    return objectBuilder;
+  }
+
+  #getSchemaForStdScalars(baseBuiltIn: Scalar) {
     switch (baseBuiltIn.name) {
       case "uint8":
-        schema = { type: "integer", minimum: 0, maximum: 255 };
-        break;
+        return { type: "integer", minimum: 0, maximum: 255 };
       case "uint16":
-        schema = { type: "integer", minimum: 0, maximum: 65535 };
-        break;
+        return { type: "integer", minimum: 0, maximum: 65535 };
       case "uint32":
-        schema = { type: "integer", minimum: 0, maximum: 4294967295 };
-        break;
+        return { type: "integer", minimum: 0, maximum: 4294967295 };
       case "int8":
-        schema = { type: "integer", minimum: -128, maximum: 127 };
-        break;
+        return { type: "integer", minimum: -128, maximum: 127 };
       case "int16":
-        schema = { type: "integer", minimum: -32768, maximum: 32767 };
-        break;
+        return { type: "integer", minimum: -32768, maximum: 32767 };
       case "int32":
-        schema = { type: "integer", minimum: -2147483648, maximum: 2147483647 };
-        break;
+        return { type: "integer", minimum: -2147483648, maximum: 2147483647 };
       case "int64":
         const int64Strategy = this.emitter.getOptions()["int64-strategy"] ?? "string";
         if (int64Strategy === "string") {
-          schema = { type: "string" };
+          return { type: "string" };
         } else {
           // can't use minimum and maximum because we can't actually encode these values as literals
           // without losing precision.
-          schema = { type: "integer" };
+          return { type: "integer" };
         }
-        break;
+
       case "uint64":
         const uint64Strategy = this.emitter.getOptions()["int64-strategy"] ?? "string";
         if (uint64Strategy === "string") {
-          schema = { type: "string" };
+          return { type: "string" };
         } else {
           // can't use minimum and maximum because we can't actually encode these values as literals
           // without losing precision.
-          schema = { type: "integer" };
+          return { type: "integer" };
         }
-        break;
       case "decimal":
       case "decimal128":
-        schema = { type: "string" };
-        break;
+        return { type: "string" };
       case "integer":
-        schema = { type: "integer" };
-        break;
+        return { type: "integer" };
       case "safeint":
-        schema = { type: "integer" };
-        break;
+        return { type: "integer" };
       case "float":
-        schema = { type: "number" };
-        break;
+        return { type: "number" };
       case "float32":
-        schema = { type: "number" };
-        break;
+        return { type: "number" };
       case "float64":
-        schema = { type: "number" };
-        break;
+        return { type: "number" };
       case "numeric":
-        schema = { type: "number" };
-        break;
+        return { type: "number" };
       case "string":
-        schema = { type: "string" };
-        break;
+        return { type: "string" };
       case "boolean":
-        schema = { type: "boolean" };
-        break;
+        return { type: "boolean" };
       case "plainDate":
-        schema = { type: "string", format: "date" };
-        break;
+        return { type: "string", format: "date" };
       case "plainTime":
-        schema = { type: "string", format: "time" };
-        break;
+        return { type: "string", format: "time" };
       case "offsetDateTime":
       case "utcDateTime":
-        schema = { type: "string", format: "date-time" };
-        break;
+        return { type: "string", format: "date-time" };
       case "duration":
-        schema = { type: "string", format: "duration" };
-        break;
+        return { type: "string", format: "duration" };
       case "url":
-        schema = { type: "string", format: "uri" };
-        break;
+        return { type: "string", format: "uri" };
       case "bytes":
-        schema = { type: "string", contentEncoding: "base64" };
-        break;
+        return { type: "string", contentEncoding: "base64" };
       default:
         throw new Error("Unknown scalar type " + baseBuiltIn.name);
     }
-
-    const builderSchema = new ObjectBuilder(schema);
-
-    // avoid creating declarations for built-in TypeSpec types
-    if (baseBuiltIn === scalar) {
-      return builderSchema;
-    }
-
-    builderSchema.$schema = "https://json-schema.org/draft/2020-12/schema";
-    builderSchema.$id = this.#getDeclId(scalar, name);
-    this.#applyConstraints(scalar, builderSchema);
-    return this.#createDeclaration(scalar, name, builderSchema);
   }
 
   #applyConstraints(
@@ -451,7 +520,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     applyConstraint(getMinValue, "minimum");
     applyConstraint(getMinValueExclusive, "exclusiveMinimum");
     applyConstraint(getMaxValue, "maximum");
-    applyConstraint(getMaxValueExclusive, "exclusiveMinimum");
+    applyConstraint(getMaxValueExclusive, "exclusiveMaximum");
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");
@@ -505,19 +574,6 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         schema.set(extension.key, this.emitter.emitTypeReference(extension.value));
       }
     }
-  }
-
-  #scalarBuiltinBaseType(scalar: Scalar): Scalar | null {
-    let current = scalar;
-    while (current.baseScalar && !this.#isStdType(current)) {
-      current = current.baseScalar;
-    }
-
-    if (this.#isStdType(current)) {
-      return current;
-    }
-
-    return null;
   }
 
   #createDeclaration(type: JsonSchemaDeclaration, name: string, schema: ObjectBuilder<unknown>) {

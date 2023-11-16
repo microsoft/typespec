@@ -13,3 +13,7 @@ getInfo(program, entity): AdditionalInfo | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Namespace` |
+
+## Returns
+
+[`AdditionalInfo`](../interfaces/AdditionalInfo.md) \| `undefined`

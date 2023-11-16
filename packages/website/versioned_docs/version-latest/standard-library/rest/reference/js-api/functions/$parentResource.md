@@ -25,3 +25,7 @@ the target type to show up in operations of the `Resource*<T>` interfaces define
 | `context` | `DecoratorContext` |
 | `entity` | `Type` |
 | `parentType` | `Model` |
+
+## Returns
+
+`void`

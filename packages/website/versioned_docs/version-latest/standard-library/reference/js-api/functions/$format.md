@@ -29,3 +29,7 @@ https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#dataTy
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `format` | `string` |
+
+## Returns
+
+`void`

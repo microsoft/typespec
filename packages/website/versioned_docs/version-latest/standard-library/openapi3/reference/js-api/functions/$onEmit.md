@@ -12,3 +12,7 @@ $onEmit(context): Promise<void>
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `EmitContext`<`OpenAPI3EmitterOptions`\> |
+
+## Returns
+
+`Promise`<`void`\>

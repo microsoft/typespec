@@ -11,6 +11,8 @@ Create a new instance of the
 
 ## Returns
 
+[`DiagnosticCollector`](../interfaces/DiagnosticCollector.md)
+
 ## See
 
 DiagnosticCollector.

@@ -13,3 +13,7 @@ getHeaderFieldOptions(program, entity): HeaderFieldOptions
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Type` |
+
+## Returns
+
+[`HeaderFieldOptions`](../interfaces/HeaderFieldOptions.md)

@@ -19,3 +19,7 @@ Return the Http Operation details for a given TypeSpec operation.
 | `program` | `Program` | - |
 | `operation` | `Operation` | Operation |
 | `options`? | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) | Optional option on how to resolve the http details. |
+
+## Returns
+
+[[`HttpOperation`](../interfaces/HttpOperation.md), readonly `Diagnostic`[]]

@@ -37,7 +37,7 @@ Cookie: X-API-KEY=abcdef12345
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `description`? | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
 | `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
 | `in` | `TLocation` | - | - |
 | `name` | `TName` | - | - |

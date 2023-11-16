@@ -13,3 +13,7 @@ getVersionsForEnum(program, en): [Namespace, VersionMap] | []
 | :------ | :------ |
 | `program` | `Program` |
 | `en` | `Enum` |
+
+## Returns
+
+[`Namespace`, [`VersionMap`](../classes/VersionMap.md)] \| []

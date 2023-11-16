@@ -42,12 +42,15 @@ export default config;
 In `src/main.tsx`:
 
 ```tsx
+import { registerMonacoDefaultWorkersForVite } from "@typespec/playground";
 import PlaygroundManifest from "@typespec/playground/manifest";
 import { renderReactPlayground } from "@typespec/playground/react";
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 
 // Import styles
 import "@typespec/playground/styles.css";
+
+registerMonacoDefaultWorkersForVite();
 
 await renderReactPlayground({
   ...PlaygroundManifest,

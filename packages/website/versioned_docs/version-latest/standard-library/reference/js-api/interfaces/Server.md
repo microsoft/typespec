@@ -24,6 +24,10 @@ buildSemanticTokens(params): Promise<SemanticTokens>
 | :------ | :------ |
 | `params` | `SemanticTokensParams` |
 
+#### Returns
+
+`Promise`<`SemanticTokens`\>
+
 ***
 
 ### checkChange()
@@ -37,6 +41,10 @@ checkChange(change): Promise<void>
 | Parameter | Type |
 | :------ | :------ |
 | `change` | `TextDocumentChangeEvent`<`TextDocument`\> |
+
+#### Returns
+
+`Promise`<`void`\>
 
 ***
 
@@ -52,6 +60,10 @@ compile(document): Promise<undefined | Program>
 | :------ | :------ |
 | `document` | `TextDocument` \| `TextDocumentIdentifier` |
 
+#### Returns
+
+`Promise`<`undefined` \| [`Program`](Program.md)\>
+
 ***
 
 ### complete()
@@ -65,6 +77,10 @@ complete(params): Promise<CompletionList>
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `CompletionParams` |
+
+#### Returns
+
+`Promise`<`CompletionList`\>
 
 ***
 
@@ -80,6 +96,10 @@ documentClosed(change): void
 | :------ | :------ |
 | `change` | `TextDocumentChangeEvent`<`TextDocument`\> |
 
+#### Returns
+
+`void`
+
 ***
 
 ### findDocumentHighlight()
@@ -93,6 +113,10 @@ findDocumentHighlight(params): Promise<DocumentHighlight[]>
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `DocumentHighlightParams` |
+
+#### Returns
+
+`Promise`<`DocumentHighlight`[]\>
 
 ***
 
@@ -108,6 +132,10 @@ findReferences(params): Promise<Location[]>
 | :------ | :------ |
 | `params` | `ReferenceParams` |
 
+#### Returns
+
+`Promise`<`Location`[]\>
+
 ***
 
 ### formatDocument()
@@ -121,6 +149,10 @@ formatDocument(params): Promise<TextEdit[]>
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `DocumentFormattingParams` |
+
+#### Returns
+
+`Promise`<`TextEdit`[]\>
 
 ***
 
@@ -136,6 +168,10 @@ getDocumentSymbols(params): Promise<DocumentSymbol[]>
 | :------ | :------ |
 | `params` | `DocumentSymbolParams` |
 
+#### Returns
+
+`Promise`<`DocumentSymbol`[]\>
+
 ***
 
 ### getFoldingRanges()
@@ -149,6 +185,10 @@ getFoldingRanges(getFoldingRanges): Promise<FoldingRange[]>
 | Parameter | Type |
 | :------ | :------ |
 | `getFoldingRanges` | `FoldingRangeParams` |
+
+#### Returns
+
+`Promise`<`FoldingRange`[]\>
 
 ***
 
@@ -164,6 +204,10 @@ getHover(params): Promise<Hover>
 | :------ | :------ |
 | `params` | `HoverParams` |
 
+#### Returns
+
+`Promise`<`Hover`\>
+
 ***
 
 ### getSemanticTokens()
@@ -177,6 +221,10 @@ getSemanticTokens(params): Promise<SemanticToken[]>
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `SemanticTokensParams` |
+
+#### Returns
+
+`Promise`<[`SemanticToken`](SemanticToken.md)[]\>
 
 ***
 
@@ -192,6 +240,10 @@ getSignatureHelp(params): Promise<undefined | SignatureHelp>
 | :------ | :------ |
 | `params` | `SignatureHelpParams` |
 
+#### Returns
+
+`Promise`<`undefined` \| `SignatureHelp`\>
+
 ***
 
 ### gotoDefinition()
@@ -205,6 +257,10 @@ gotoDefinition(params): Promise<Location[]>
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `DefinitionParams` |
+
+#### Returns
+
+`Promise`<`Location`[]\>
 
 ***
 
@@ -220,6 +276,10 @@ initialize(params): Promise<InitializeResult<any>>
 | :------ | :------ |
 | `params` | `InitializeParams` |
 
+#### Returns
+
+`Promise`<`InitializeResult`<`any`\>\>
+
 ***
 
 ### initialized()
@@ -233,6 +293,10 @@ initialized(params): void
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `InitializedParams` |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -249,6 +313,10 @@ log(message, details?): void
 | `message` | `string` |
 | `details`? | `any` |
 
+#### Returns
+
+`void`
+
 ***
 
 ### prepareRename()
@@ -262,6 +330,10 @@ prepareRename(params): Promise<undefined | Range>
 | Parameter | Type |
 | :------ | :------ |
 | `params` | `PrepareRenameParams` |
+
+#### Returns
+
+`Promise`<`undefined` \| `Range`\>
 
 ***
 
@@ -277,6 +349,10 @@ rename(params): Promise<WorkspaceEdit>
 | :------ | :------ |
 | `params` | `RenameParams` |
 
+#### Returns
+
+`Promise`<`WorkspaceEdit`\>
+
 ***
 
 ### watchedFilesChanged()
@@ -291,6 +367,10 @@ watchedFilesChanged(params): void
 | :------ | :------ |
 | `params` | `DidChangeWatchedFilesParams` |
 
+#### Returns
+
+`void`
+
 ***
 
 ### workspaceFoldersChanged()
@@ -304,3 +384,7 @@ workspaceFoldersChanged(e): Promise<void>
 | Parameter | Type |
 | :------ | :------ |
 | `e` | `WorkspaceFoldersChangeEvent` |
+
+#### Returns
+
+`Promise`<`void`\>

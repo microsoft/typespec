@@ -17,3 +17,7 @@ getHttpService(
 | `program` | `Program` |
 | `serviceNamespace` | `Namespace` |
 | `options`? | [`RouteResolutionOptions`](../interfaces/RouteResolutionOptions.md) |
+
+## Returns
+
+[[`HttpService`](../interfaces/HttpService.md), readonly `Diagnostic`[]]

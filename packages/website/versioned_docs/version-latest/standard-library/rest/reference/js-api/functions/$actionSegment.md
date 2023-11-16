@@ -17,3 +17,7 @@ $actionSegment(
 | `context` | `DecoratorContext` |
 | `entity` | `Operation` |
 | `name` | `string` |
+
+## Returns
+
+`void`

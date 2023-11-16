@@ -17,3 +17,7 @@ $useRef(
 | `context` | `DecoratorContext` |
 | `entity` | `Model` \| `ModelProperty` |
 | `refUrl` | `string` |
+
+## Returns
+
+`void`

@@ -12,3 +12,7 @@ getIdentifierContext(id): IdentifierContext
 | Parameter | Type |
 | :------ | :------ |
 | `id` | [`IdentifierNode`](../interfaces/IdentifierNode.md) |
+
+## Returns
+
+[`IdentifierContext`](../interfaces/IdentifierContext.md)

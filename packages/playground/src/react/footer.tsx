@@ -1,8 +1,12 @@
 import { css } from "@emotion/react";
-import { MANIFEST } from "@typespec/compiler";
 import { FunctionComponent, PropsWithChildren } from "react";
+import { BrowserHost } from "../types.js";
 
-export const Footer: FunctionComponent = () => {
+export interface FooterProps {
+  host: BrowserHost;
+}
+export const Footer: FunctionComponent<FooterProps> = ({ host }) => {
+  const { MANIFEST } = host.compiler;
   const prItem = MANIFEST.pr ? (
     <FooterItem link={`https://github.com/microsoft/typespec/pull/${MANIFEST.pr}`}>
       <span>PR </span>

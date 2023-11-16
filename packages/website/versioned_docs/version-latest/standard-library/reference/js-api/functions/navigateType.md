@@ -19,3 +19,7 @@ Navigate the given type and all the types that are used in it.
 | `type` | [`Type`](../type-aliases/Type.md) | Type to navigate. |
 | `listeners` | [`SemanticNodeListener`](../type-aliases/SemanticNodeListener.md) | Listener for the types found. |
 | `options` | [`NavigationOptions`](../interfaces/NavigationOptions.md) | Navigation options |
+
+## Returns
+
+`void`

@@ -18,8 +18,12 @@ DecoratorFunction(
 | `target` | `any` |
 | ...`customArgs` | `any`[] |
 
+## Returns
+
+`void`
+
 ## Properties
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `namespace?` | `string` | - |
+| `namespace`? | `string` | - |

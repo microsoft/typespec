@@ -20,6 +20,10 @@ Helper class to track duplicate instance
 new DuplicateTracker<K, V>(): DuplicateTracker<K, V>
 ```
 
+#### Returns
+
+[`DuplicateTracker`](DuplicateTracker.md)<`K`, `V`\>
+
 ## Properties
 
 | Modifier | Property | Type | Description |
@@ -35,6 +39,10 @@ entries(): Iterable<[K, V[]]>
 ```
 
 Return iterator of all the duplicate entries.
+
+#### Returns
+
+`Iterable`<[`K`, `V`[]]\>
 
 ***
 
@@ -52,3 +60,7 @@ Track usage of K.
 | :------ | :------ | :------ |
 | `k` | `K` | key that is being checked for duplicate. |
 | `v` | `V` | value that map to the key |
+
+#### Returns
+
+`void`

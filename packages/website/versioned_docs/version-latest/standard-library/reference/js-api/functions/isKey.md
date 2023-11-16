@@ -13,3 +13,7 @@ isKey(program, property): boolean
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `property` | [`ModelProperty`](../interfaces/ModelProperty.md) |
+
+## Returns
+
+`boolean`

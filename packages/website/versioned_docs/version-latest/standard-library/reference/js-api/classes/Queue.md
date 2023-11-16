@@ -23,6 +23,10 @@ new Queue<T>(elements?): Queue<T>
 | :------ | :------ |
 | `elements`? | `T`[] |
 
+#### Returns
+
+[`Queue`](Queue.md)<`T`\>
+
 ## Properties
 
 | Modifier | Property | Type | Description |
@@ -38,6 +42,10 @@ new Queue<T>(elements?): Queue<T>
 dequeue(): T
 ```
 
+#### Returns
+
+`T`
+
 ***
 
 ### enqueue()
@@ -52,6 +60,10 @@ enqueue(...items): void
 | :------ | :------ |
 | ...`items` | `T`[] |
 
+#### Returns
+
+`void`
+
 ***
 
 ### isEmpty()
@@ -59,3 +71,7 @@ enqueue(...items): void
 ```ts
 isEmpty(): boolean
 ```
+
+#### Returns
+
+`boolean`

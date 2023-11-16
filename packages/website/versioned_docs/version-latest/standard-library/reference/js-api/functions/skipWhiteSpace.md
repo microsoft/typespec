@@ -17,3 +17,7 @@ skipWhiteSpace(
 | `input` | `string` | `undefined` |
 | `position` | `number` | `undefined` |
 | `endPosition` | `number` | `input.length` |
+
+## Returns
+
+`number`

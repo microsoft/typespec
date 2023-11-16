@@ -20,6 +20,8 @@ $list(
 
 ## Returns
 
+`void`
+
 ## Deprecated
 
 Use the `listsResource` decorator in `@typespec/rest` instead.

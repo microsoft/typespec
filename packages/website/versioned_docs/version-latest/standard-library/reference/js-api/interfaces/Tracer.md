@@ -17,6 +17,10 @@ sub(subarea): Tracer
 | :------ | :------ |
 | `subarea` | `string` |
 
+#### Returns
+
+[`Tracer`](Tracer.md)
+
 ***
 
 ### trace()
@@ -37,3 +41,7 @@ Trace
 | `area` | `string` |  |
 | `message` | `string` |  |
 | `target`? | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | - |
+
+#### Returns
+
+`void`

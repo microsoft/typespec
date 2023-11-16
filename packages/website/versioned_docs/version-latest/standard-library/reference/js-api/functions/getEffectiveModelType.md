@@ -28,3 +28,7 @@ best name for the remaining properties is `SomeName`.
 | `program` | [`Program`](../interfaces/Program.md) | - |
 | `model` | [`Model`](../interfaces/Model.md) | The input model |
 | `filter`? | (`property`) => `boolean` | An optional filter to apply to the input model's<br />properties. |
+
+## Returns
+
+[`Model`](../interfaces/Model.md)

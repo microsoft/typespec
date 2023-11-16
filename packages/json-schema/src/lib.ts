@@ -1,4 +1,4 @@
-import { createTypeSpecLibrary, JSONSchemaType } from "@typespec/compiler";
+import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
 export type Int64Strategy = "string" | "number";
@@ -82,7 +82,14 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
 
 export const libDef = {
   name: "@typespec/json-schema",
-  diagnostics: {},
+  diagnostics: {
+    "invalid-default": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Invalid type '${"type"}' for a default value`,
+      },
+    },
+  },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
   },

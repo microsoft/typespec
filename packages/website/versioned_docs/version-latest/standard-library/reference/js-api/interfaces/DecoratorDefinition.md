@@ -17,5 +17,5 @@ title: "[I] DecoratorDefinition"
 | :------ | :------ | :------ | :------ |
 | `readonly` | `args` | `P` | List of positional arguments in the function. |
 | `readonly` | `name` | `string` | Name of the decorator. |
-| `readonly` | `spreadArgs?` | `S` | **Optional**<br /><br />Type of the spread args at the end of the function if applicable. |
+| `readonly` | `spreadArgs`? | `S` | **Optional**<br /><br />Type of the spread args at the end of the function if applicable. |
 | `readonly` | `target` | `T` \| readonly `T`[] | Decorator target. |

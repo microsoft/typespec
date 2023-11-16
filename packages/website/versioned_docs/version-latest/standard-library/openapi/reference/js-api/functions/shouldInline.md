@@ -23,3 +23,7 @@ decorator, or chosen by default in simple cases.
 | :------ | :------ |
 | `program` | `Program` |
 | `type` | `Type` |
+
+## Returns
+
+`boolean`

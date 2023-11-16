@@ -17,3 +17,7 @@ $returnTypeVisibility(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `entity` | [`Operation`](../interfaces/Operation.md) |
 | ...`visibilities` | `string`[] |
+
+## Returns
+
+`void`

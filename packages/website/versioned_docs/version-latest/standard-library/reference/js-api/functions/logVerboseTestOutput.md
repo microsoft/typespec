@@ -20,3 +20,7 @@ when verbose output is disabled.
 | Parameter | Type |
 | :------ | :------ |
 | `messageOrCallback` | `string` \| (`log`) => `void` |
+
+## Returns
+
+`void`

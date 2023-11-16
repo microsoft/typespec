@@ -13,3 +13,7 @@ getContains(program, target): any
 | :------ | :------ |
 | `program` | `Program` |
 | `target` | `Type` |
+
+## Returns
+
+`any`

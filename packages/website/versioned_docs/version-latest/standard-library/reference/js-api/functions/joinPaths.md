@@ -30,3 +30,7 @@ joinPaths("file:///path", "file:///to", "file.ext") === "file:///to/file.ext"
 | :------ | :------ |
 | `path` | `string` |
 | ...`paths` | (`undefined` \| `string`)[] |
+
+## Returns
+
+`string`

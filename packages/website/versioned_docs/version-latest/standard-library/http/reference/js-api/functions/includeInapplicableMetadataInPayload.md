@@ -19,6 +19,8 @@ inapplicable metadata.
 
 ## Returns
 
+`boolean`
+
 ## See
 
  - isApplicableMetadata

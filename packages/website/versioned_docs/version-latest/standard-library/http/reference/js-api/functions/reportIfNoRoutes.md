@@ -13,3 +13,7 @@ reportIfNoRoutes(program, routes): void
 | :------ | :------ |
 | `program` | `Program` |
 | `routes` | [`HttpOperation`](../interfaces/HttpOperation.md)[] |
+
+## Returns
+
+`void`

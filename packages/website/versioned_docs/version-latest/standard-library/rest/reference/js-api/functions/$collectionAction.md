@@ -19,3 +19,7 @@ $collectionAction(
 | `entity` | `Operation` |
 | `resourceType` | `Model` |
 | `name`? | `string` |
+
+## Returns
+
+`void`

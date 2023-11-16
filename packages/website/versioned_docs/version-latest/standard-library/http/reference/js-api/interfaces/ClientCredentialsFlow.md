@@ -9,7 +9,7 @@ Client credentials flow
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `refreshUrl?` | `string` | - |
+| `refreshUrl`? | `string` | - |
 | `scopes` | [`OAuth2Scope`](OAuth2Scope.md)[] | - |
 | `tokenUrl` | `string` | - |
 | `type` | `"clientCredentials"` | - |
