@@ -72,6 +72,10 @@ namespace Hello {
   @post op create(@body person: WritablePerson): ReadablePerson;
   @put op update(@body person: WriteableOptionalPerson): ReadablePerson;
 
+  @route("/hello/optional")
+  @get
+  op getOptional(): OptionalPerson;
+
   @TypeSpec.Rest.listsResource(Person)
   op list(): ListResult<Person>;
 

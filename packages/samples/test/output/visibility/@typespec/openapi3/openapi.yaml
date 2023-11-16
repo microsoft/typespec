@@ -70,6 +70,17 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PersonUpdate'
+  /hello/hello/optional:
+    get:
+      operationId: Hello_getOptional
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptionalPerson'
   /hello/{id}:
     get:
       operationId: Hello_read
@@ -103,8 +114,6 @@ components:
         id:
           type: string
           readOnly: true
-        secret:
-          type: string
         name:
           type: string
         test:
