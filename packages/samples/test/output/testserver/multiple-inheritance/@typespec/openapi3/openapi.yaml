@@ -215,49 +215,41 @@ components:
       type: object
       required:
         - likesMilk
-      allOf:
-        - $ref: '#/components/schemas/Feline'
       properties:
         likesMilk:
           type: boolean
-    ErrorResponse:
-      type: object
-      description: Unexpected error
-      required:
-        - body
-      properties:
-        body:
-          type: string
+      allOf:
+        - $ref: '#/components/schemas/Feline'
     Feline:
       type: object
       required:
         - meows
         - hisses
-      allOf:
-        - $ref: '#/components/schemas/Pet'
       properties:
         meows:
           type: boolean
         hisses:
           type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Pet'
     Horse:
       type: object
       required:
         - isAShowHorse
-      allOf:
-        - $ref: '#/components/schemas/Pet'
       properties:
         isAShowHorse:
           type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Pet'
     Kitten:
       type: object
       required:
         - eatsMiceYet
-      allOf:
-        - $ref: '#/components/schemas/Cat'
       properties:
         eatsMiceYet:
           type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Cat'
     Pet:
       type: object
       required:
