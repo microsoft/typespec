@@ -119,24 +119,19 @@ export function getAllRoutes(
 
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   if (routes.length === 0) {
-    const namespaceCounts = new Map<Namespace, number>();
     navigateProgram(program, {
       namespace: (namespace) => {
-        namespaceCounts.set(namespace, namespace.operations.size);
+        if (namespace.operations.size > 0) {
+          reportDiagnostic(program, {
+            code: "no-service-found",
+            format: {
+              namespace: namespace.name,
+            },
+            target: namespace,
+          });
+        }
       },
     });
-    // if there is any namespace with namespaceCounts > 0, then report the diagnostic
-    for (const [namespace, count] of namespaceCounts) {
-      if (count > 0) {
-        reportDiagnostic(program, {
-          code: "no-service-found",
-          format: {
-            namespace: namespace.name,
-          },
-          target: namespace,
-        });
-      }
-    }
   }
 }
 
