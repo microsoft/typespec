@@ -311,6 +311,16 @@ components:
           type: boolean
           description: Value indicating whether the book has been read.
       description: A single book in the library.
+    CreateShelfRequest:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          allOf:
+            - $ref: '#/components/schemas/Shelf'
+          description: The shelf to create.
+      description: Request message for LibraryService.CreateShelf.
     Empty:
       type: object
       description: No body returned

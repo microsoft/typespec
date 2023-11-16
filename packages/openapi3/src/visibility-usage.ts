@@ -121,9 +121,17 @@ function addUsagesInOperation(
   const httpOperation = ignoreDiagnostics(getHttpOperation(program, operation));
 
   const visibility = resolveRequestVisibility(program, operation, httpOperation.verb);
-  navigateReferencedTypes(operation.parameters, (type) =>
-    trackUsage(metadataInfo, usages, type, visibility)
-  );
+  if (httpOperation.parameters.body) {
+    navigateReferencedTypes(httpOperation.parameters.body.type, (type) =>
+      trackUsage(metadataInfo, usages, type, visibility)
+    );
+  }
+  for (const param of httpOperation.parameters.parameters) {
+    navigateReferencedTypes(param.param, (type) =>
+      trackUsage(metadataInfo, usages, type, visibility)
+    );
+  }
+
   navigateReferencedTypes(operation.returnType, (type) =>
     trackUsage(metadataInfo, usages, type, Visibility.Read)
   );

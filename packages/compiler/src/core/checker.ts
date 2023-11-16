@@ -5831,6 +5831,9 @@ export function* walkPropertiesInherited(model: Model) {
   const returned = new Set<string>();
 
   for (let current: Model | undefined = model; current; current = current.baseModel) {
+    if (current.properties === undefined) {
+      console.log("model", current);
+    }
     for (const property of current.properties.values()) {
       if (returned.has(property.name)) {
         // skip properties that have been overridden
