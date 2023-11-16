@@ -151,7 +151,7 @@ function addUsagesInOperation(
     );
   }
 
-  navigateReferencedTypes(operation.returnType, visibility, (type, vis) =>
+  navigateReferencedTypes(operation.returnType, Visibility.Read, (type, vis) =>
     trackUsage(metadataInfo, usages, type, vis)
   );
 }
