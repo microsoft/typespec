@@ -571,6 +571,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
+  enumDeclarationReferenceContext(en: Enum, name: string): Context {
+    return {};
+  }
+
   enumMembers(en: Enum): EmitterOutput<T> {
     for (const member of en.members.values()) {
       this.emitter.emitType(member);

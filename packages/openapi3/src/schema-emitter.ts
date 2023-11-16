@@ -106,6 +106,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#reduceVisibilityContext(scalar);
   }
 
+  enumDeclarationReferenceContext(en: Enum, name: string): Context {
+    return this.#reduceVisibilityContext(en);
+  }
+
   #reduceVisibilityContext(type: Type): Context {
     const visibility = this.#getVisibilityContext();
     if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(type, visibility)) {

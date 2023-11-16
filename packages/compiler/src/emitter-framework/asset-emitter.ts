@@ -867,7 +867,6 @@ const noReferenceContext = new Set<string>([
   "stringLiteral",
   "numericLiteral",
   "scalarInstantiation",
-  "enumDeclaration",
   "enumMember",
   "enumMembers",
   "intrinsic",
