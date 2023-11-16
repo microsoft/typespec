@@ -349,7 +349,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
-    return this.#createDeclaration(en, name, new ObjectBuilder(this.#enumSchema(en)));
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+    return this.#createDeclaration(en, baseName, new ObjectBuilder(this.#enumSchema(en)));
   }
 
   #enumSchema(en: Enum): OpenAPI3Schema {
