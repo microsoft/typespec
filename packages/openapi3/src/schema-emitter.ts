@@ -155,7 +155,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
-
     return this.#createDeclaration(model, baseName, this.#applyConstraints(model, schema));
   }
 
@@ -196,6 +195,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   modelInstantiation(model: Model, name: string | undefined): EmitterOutput<Record<string, any>> {
+    name = name ?? getOpenAPITypeName(this.emitter.getProgram(), model, this.#typeNameOptions());
     if (!name) {
       return this.modelLiteral(model);
     }
@@ -610,8 +610,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<OpenAPI3Schema> {
     const isStd = this.#isStdType(scalar);
     const schema = this.#getSchemaForScalar(scalar);
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
+
     // Don't create a declaration for std types
-    return isStd ? schema : this.#createDeclaration(scalar, name, new ObjectBuilder(schema));
+    return isStd ? schema : this.#createDeclaration(scalar, baseName, new ObjectBuilder(schema));
   }
 
   scalarInstantiation(
