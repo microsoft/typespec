@@ -1,58 +1,58 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
+import { emitOpenApiWithDiagnostics, openApiFor } from "./test-host.js";
 
-describe("json-schema: string templates", () => {
+describe("openapi3: string templates", () => {
   describe("handle interpolating literals", () => {
     it("string", async () => {
-      const schemas = await emitSchema(`
-      model Test {
-        a: "Start \${"abc"} end",
-      }
-    `);
+      const schemas = await openApiFor(`
+        model Test {
+          a: "Start \${"abc"} end",
+        }
+      `);
 
-      deepStrictEqual(schemas["Test.json"].properties.a, {
+      deepStrictEqual(schemas.components?.schemas?.Test.properties.a, {
         type: "string",
-        const: "Start abc end",
+        enum: ["Start abc end"],
       });
     });
 
     it("number", async () => {
-      const schemas = await emitSchema(`
+      const schemas = await openApiFor(`
       model Test {
         a: "Start \${123} end",
       }
     `);
 
-      deepStrictEqual(schemas["Test.json"].properties.a, {
+      deepStrictEqual(schemas.components?.schemas?.Test.properties.a, {
         type: "string",
-        const: "Start 123 end",
+        enum: ["Start 123 end"],
       });
     });
 
     it("boolean", async () => {
-      const schemas = await emitSchema(`
+      const schemas = await openApiFor(`
       model Test {
         a: "Start \${true} end",
       }
     `);
 
-      deepStrictEqual(schemas["Test.json"].properties.a, {
+      deepStrictEqual(schemas.components?.schemas?.Test.properties.a, {
         type: "string",
-        const: "Start true end",
+        enum: ["Start true end"],
       });
     });
   });
 
   it("emit diagnostics if interpolation value are not literals", async () => {
-    const [schemas, diagnostics] = await emitSchemaWithDiagnostics(`
+    const [schemas, diagnostics] = await emitOpenApiWithDiagnostics(`
       model Test {
         a: "Start \${Bar} end",
       }
       model Bar {}
     `);
 
-    deepStrictEqual(schemas["Test.json"].properties.a, {
+    deepStrictEqual(schemas.components?.schemas?.Test.properties?.a, {
       type: "string",
     });
 

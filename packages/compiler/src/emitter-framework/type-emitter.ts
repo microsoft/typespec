@@ -465,7 +465,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
-  stringTemplate(string: StringTemplate): EmitterOutput<T> {
+  stringTemplate(stringTemplate: StringTemplate): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
