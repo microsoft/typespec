@@ -19,7 +19,7 @@ async function openapiWithOptions(
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });
 
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-service-found"));
+  expectDiagnosticEmpty(diagnostics);
 
   const content = runner.fs.get(outPath)!;
   return JSON.parse(content);

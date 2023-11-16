@@ -26,7 +26,7 @@ describe("openapi3: no-service-found diagnostic", () => {
     );
     expectDiagnostics(diagnostics, [
       {
-        code: "no-service-found",
+        code: "@typespec/http/no-service-found",
       },
     ]);
   });
@@ -37,6 +37,21 @@ describe("openapi3: no-service-found diagnostic", () => {
     @service
     namespace Test {
       model Foo {};
+    }
+    `
+    );
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("does not emit a warning if a service namespace has routes", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+    @service
+    namespace Test {
+      model Foo {};
+
+      @route("/foo")
+      op get(): Foo;
     }
     `
     );

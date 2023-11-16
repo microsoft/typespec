@@ -91,7 +91,7 @@ export const $lib = createTypeSpecLibrary({
     "no-service-found": {
       severity: "warning",
       messages: {
-        default: paramMessage`No namespace with '@service' was found.`,
+        default: paramMessage`No namespace with '@service' was found, but Namespace '${"namespace"}' contains routes. Did you mean to annotate this with '@service'?`,
       },
     },
     "invalid-type-for-auth": {
