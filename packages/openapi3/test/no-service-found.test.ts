@@ -53,6 +53,10 @@ describe("openapi3: no-service-found diagnostic", () => {
       @route("/foo")
       op get(): Foo;
     }
+
+    namespace Library {
+      op ping(): void;
+    }
     `
     );
     expectDiagnosticEmpty(diagnostics);
