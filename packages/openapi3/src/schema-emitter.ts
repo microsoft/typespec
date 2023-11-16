@@ -110,6 +110,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#reduceVisibilityContext(en);
   }
 
+  unionDeclarationReferenceContext(union: Union): Context {
+    return this.#reduceVisibilityContext(union);
+  }
+
   #reduceVisibilityContext(type: Type): Context {
     const visibility = this.#getVisibilityContext();
     if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(type, visibility)) {
