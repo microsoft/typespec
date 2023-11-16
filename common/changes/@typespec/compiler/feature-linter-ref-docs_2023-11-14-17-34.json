@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Linter rules can provide a url to the full documentation",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

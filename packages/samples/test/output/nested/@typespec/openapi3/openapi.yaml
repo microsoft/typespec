@@ -21,14 +21,14 @@ paths:
           application/json:
             schema:
               type: object
-              required:
-                - thing
-                - thing2
               properties:
                 thing:
                   $ref: '#/components/schemas/SubA.Thing'
                 thing2:
                   $ref: '#/components/schemas/SubA.Thing'
+              required:
+                - thing
+                - thing2
   /sub/a/subsub:
     post:
       operationId: SubSubA_doSomething

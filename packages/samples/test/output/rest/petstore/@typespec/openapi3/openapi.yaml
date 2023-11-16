@@ -598,7 +598,6 @@ components:
           type: string
     CheckupCollectionWithNextLink:
       type: object
-      description: Paged response of Checkup items
       required:
         - value
       properties:
@@ -611,14 +610,15 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
+      description: Paged response of Checkup items
     CheckupUpdate:
       type: object
-      description: Resource create or update operation model.
       properties:
         vetName:
           type: string
         notes:
           type: string
+      description: Resource create or update operation model.
     Insurance:
       type: object
       required:
@@ -636,7 +636,6 @@ components:
           format: int32
     InsuranceUpdate:
       type: object
-      description: Resource create or update operation model.
       properties:
         provider:
           type: string
@@ -646,6 +645,7 @@ components:
         deductible:
           type: integer
           format: int32
+      description: Resource create or update operation model.
     Owner:
       type: object
       required:
@@ -663,7 +663,6 @@ components:
           format: int32
     OwnerCollectionWithNextLink:
       type: object
-      description: Paged response of Owner items
       required:
         - value
       properties:
@@ -676,9 +675,9 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
+      description: Paged response of Owner items
     OwnerCreate:
       type: object
-      description: Resource create operation model.
       required:
         - name
         - age
@@ -688,15 +687,16 @@ components:
         age:
           type: integer
           format: int32
+      description: Resource create operation model.
     OwnerUpdate:
       type: object
-      description: Resource create or update operation model.
       properties:
         name:
           type: string
         age:
           type: integer
           format: int32
+      description: Resource create or update operation model.
     Pet:
       type: object
       required:
@@ -722,7 +722,6 @@ components:
           format: int64
     PetCollectionWithNextLink:
       type: object
-      description: Paged response of Pet items
       required:
         - value
       properties:
@@ -735,9 +734,9 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
+      description: Paged response of Pet items
     PetCreate:
       type: object
-      description: Resource create operation model.
       required:
         - name
         - age
@@ -755,6 +754,7 @@ components:
         ownerId:
           type: integer
           format: int64
+      description: Resource create operation model.
     PetStoreError:
       type: object
       required:
@@ -768,7 +768,6 @@ components:
           type: string
     PetUpdate:
       type: object
-      description: Resource create or update operation model.
       properties:
         name:
           type: string
@@ -782,6 +781,7 @@ components:
         ownerId:
           type: integer
           format: int64
+      description: Resource create or update operation model.
     Toy:
       type: object
       required:
@@ -799,7 +799,6 @@ components:
           type: string
     ToyCollectionWithNextLink:
       type: object
-      description: Paged response of Toy items
       required:
         - value
       properties:
@@ -812,3 +811,4 @@ components:
           type: string
           format: uri
           description: The link to the next page of items
+      description: Paged response of Toy items
