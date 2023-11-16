@@ -3,8 +3,10 @@ import {
   Namespace,
   Operation,
   Program,
+  TwoLevelMap,
   Type,
   ignoreDiagnostics,
+  navigateTypesInNamespace,
 } from "@typespec/compiler";
 import {
   MetadataInfo,
@@ -15,6 +17,7 @@ import {
 
 export interface VisibilityUsageTracker {
   getUsage(type: Type): Set<Visibility> | undefined;
+  isUnreachable(type: Type): boolean;
 }
 
 export type OperationContainer = Namespace | Interface | Operation;
@@ -22,17 +25,29 @@ export type OperationContainer = Namespace | Interface | Operation;
 export function resolveVisibilityUsage(
   program: Program,
   metadataInfo: MetadataInfo,
-  types: OperationContainer | OperationContainer[]
+  root: Namespace,
+  omitUnreachableTypes: boolean
 ): VisibilityUsageTracker {
   const usages = new Map<Type, Set<Visibility>>();
-  if (Array.isArray(types)) {
-    for (const item of types) {
-      addUsagesInContainer(program, metadataInfo, item, usages);
-    }
-  } else {
-    addUsagesInContainer(program, metadataInfo, types, usages);
-  }
+  addUsagesInContainer(program, metadataInfo, root, usages);
 
+  const reachableTypes = new Set<Type>(usages.keys());
+
+  if (!omitUnreachableTypes) {
+    const trackType = (type: Type) => {
+      if (!usages.has(type)) {
+        navigateReferencedTypes(type, Visibility.Read, (type, vis) =>
+          trackUsageExact(usages, type, vis)
+        );
+      }
+    };
+    navigateTypesInNamespace(root, {
+      model: trackType,
+      scalar: trackType,
+      enum: trackType,
+      union: trackType,
+    });
+  }
   return {
     getUsage: (type: Type) => {
       const used = usages.get(type);
@@ -40,6 +55,9 @@ export function resolveVisibilityUsage(
         return undefined;
       }
       return usages.get(type);
+    },
+    isUnreachable: (type: Type) => {
+      return !reachableTypes.has(type);
     },
   };
 }
@@ -77,6 +95,7 @@ function trackUsage(
     trackUsageExact(usages, effective, usage);
   }
 }
+
 function trackUsageExact(usages: Map<Type, Set<Visibility>>, type: Type, usage: Visibility) {
   const existingFlag = usages.get(type) ?? new Set();
   existingFlag.add(usage);
@@ -122,59 +141,67 @@ function addUsagesInOperation(
 
   const visibility = resolveRequestVisibility(program, operation, httpOperation.verb);
   if (httpOperation.parameters.body) {
-    navigateReferencedTypes(httpOperation.parameters.body.type, (type) =>
-      trackUsage(metadataInfo, usages, type, visibility)
+    navigateReferencedTypes(httpOperation.parameters.body.type, visibility, (type, vis) =>
+      trackUsage(metadataInfo, usages, type, vis)
     );
   }
   for (const param of httpOperation.parameters.parameters) {
-    navigateReferencedTypes(param.param, (type) =>
-      trackUsage(metadataInfo, usages, type, visibility)
+    navigateReferencedTypes(param.param, visibility, (type, vis) =>
+      trackUsage(metadataInfo, usages, type, vis)
     );
   }
 
-  navigateReferencedTypes(operation.returnType, (type) =>
-    trackUsage(metadataInfo, usages, type, Visibility.Read)
+  navigateReferencedTypes(operation.returnType, visibility, (type, vis) =>
+    trackUsage(metadataInfo, usages, type, vis)
   );
 }
 
 function navigateReferencedTypes(
   type: Type,
-  callback: (type: Type) => void,
-  visited: Set<Type> = new Set()
+  usage: Visibility,
+  callback: (type: Type, visibility: Visibility) => void,
+  visited: TwoLevelMap<Type, Visibility, true> = new TwoLevelMap<Type, Visibility, true>()
 ) {
-  if (visited.has(type)) {
+  if (visited.get(type)?.get(usage)) {
     return;
   }
-  visited.add(type);
+  visited.getOrAdd(type, usage, () => true);
   switch (type.kind) {
     case "Model":
-      callback(type);
-      navigateIterable(type.properties, callback, visited);
-      navigateIterable(type.derivedModels, callback, visited);
-      type.indexer?.value && navigateReferencedTypes(type.indexer.value, callback, visited);
+      callback(type, usage);
+      navigateIterable(type.properties, usage, callback, visited);
+      navigateIterable(type.derivedModels, usage, callback, visited);
+      if (type.indexer) {
+        if (type.indexer.key.name === "integer") {
+          navigateReferencedTypes(type.indexer.value, usage | Visibility.Item, callback, visited);
+        } else {
+          navigateReferencedTypes(type.indexer.value, usage, callback, visited);
+        }
+      }
       break;
     case "ModelProperty":
-      navigateReferencedTypes(type.type, callback, visited);
+      navigateReferencedTypes(type.type, usage, callback, visited);
       break;
     case "Union":
-      callback(type);
-      navigateIterable(type.variants, callback, visited);
+      callback(type, usage);
+      navigateIterable(type.variants, usage, callback, visited);
       break;
     case "UnionVariant":
-      navigateReferencedTypes(type.type, callback, visited);
+      navigateReferencedTypes(type.type, usage, callback, visited);
       break;
     default:
-      callback(type);
+      callback(type, usage);
       break;
   }
 }
 
 function navigateIterable<T extends Type>(
   map: Map<string | symbol, T> | T[],
-  callback: (type: Type) => void,
-  visited: Set<Type> = new Set()
+  usage: Visibility,
+  callback: (type: Type, visibility: Visibility) => void,
+  visited: TwoLevelMap<Type, Visibility, true>
 ) {
   for (const type of map.values()) {
-    navigateReferencedTypes(type, callback, visited);
+    navigateReferencedTypes(type, usage, callback, visited);
   }
 }

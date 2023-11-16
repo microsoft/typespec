@@ -31,7 +31,7 @@ components:
       in: header
       required: true
       schema:
-        $ref: '#/components/schemas/VersionsQuery'
+        $ref: '#/components/schemas/Versions'
   schemas:
     Cat:
       type: object
@@ -100,12 +100,7 @@ components:
         mapping:
           dog: '#/components/schemas/Dog'
           cat: '#/components/schemas/Cat'
-    VersionsCreate:
-      type: string
-      enum:
-        - v1
-        - v2
-    VersionsQuery:
+    Versions:
       type: string
       enum:
         - v1
