@@ -579,6 +579,26 @@ describe("compiler: parser", () => {
         strictEqual(span0.expression.value, "one");
       });
 
+      it("can nest string templates", () => {
+        const astNode = parseSuccessWithLog(
+          'alias T = "Start ${"nested-start ${"hi"} nested-end"} end";'
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.StringTemplateExpression);
+        strictEqual(span0.expression.head.value, "nested-start ");
+        strictEqual(span0.expression.spans.length, 1);
+
+        const nestedSpan0 = span0.expression.spans[0];
+        strictEqual(nestedSpan0.literal.value, " nested-end");
+        strictEqual(nestedSpan0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(nestedSpan0.expression.value, "hi");
+      });
+
       it("string with all ${} escape is still a StringLiteral", () => {
         const astNode = parseSuccessWithLog(`alias T = "Start \\\${12} middle \\\${23} end";`);
         const node = getNode(astNode);

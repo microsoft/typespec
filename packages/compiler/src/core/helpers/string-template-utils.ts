@@ -1,3 +1,4 @@
+import { createDiagnosticCollector } from "../index.js";
 import { createDiagnostic } from "../messages.js";
 import { Diagnostic, StringTemplate } from "../types.js";
 import { getTypeName } from "./type-name-utils.js";
@@ -12,7 +13,7 @@ import { getTypeName } from "./type-name-utils.js";
 export function stringTemplateToString(
   stringTemplate: StringTemplate
 ): [string, readonly Diagnostic[]] {
-  const diagnostics: Diagnostic[] = [];
+  const diagnostics = createDiagnosticCollector();
   const result = stringTemplate.spans
     .map((x) => {
       if (x.isInterpolated) {
@@ -21,8 +22,10 @@ export function stringTemplateToString(
           case "Number":
           case "Boolean":
             return String(x.type.value);
+          case "StringTemplate":
+            return diagnostics.pipe(stringTemplateToString(x.type));
           default:
-            diagnostics.push(
+            diagnostics.add(
               createDiagnostic({
                 code: "non-literal-string-template",
                 target: x.node,
@@ -35,5 +38,5 @@ export function stringTemplateToString(
       }
     })
     .join("");
-  return [result, diagnostics];
+  return diagnostics.wrap(result);
 }
