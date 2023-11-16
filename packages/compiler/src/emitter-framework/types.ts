@@ -58,7 +58,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   };
   writeOutput(): Promise<void>;
 
-  // TODO - is is a good way?????
+  /** Get source files that have been scoped. */
   getSourceFiles(): SourceFile<T>[];
 }
 

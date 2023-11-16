@@ -94,10 +94,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     this.#options = options;
   }
 
-  // TODO should we need this for all the types?
   modelDeclarationReferenceContext(model: Model, name: string): Context {
+    return this.#reduceVisibilityContext(model);
+  }
+
+  modelLiteralReferenceContext(model: Model): Context {
+    return this.#reduceVisibilityContext(model);
+  }
+
+  #reduceVisibilityContext(type: Type): Context {
     const visibility = this.#getVisibilityContext();
-    if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(model, visibility)) {
+    if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(type, visibility)) {
       return {
         visibility: Visibility.Read,
       };
@@ -778,7 +785,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
     const decl = this.emitter.result.declaration(fullName, schema);
-    // TODO  is there a
+
     checkDuplicateTypeName(
       this.emitter.getProgram(),
       type,

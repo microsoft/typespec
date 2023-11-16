@@ -977,7 +977,6 @@ function createOAPIEmitter(
         throw new ErrorTypeFoundError();
       }
 
-      // helps to read output and correlate to TypeSpec
       return schema;
     } else {
       // Use shared schema when type is not transformed by visibility from the canonical read visibility.
