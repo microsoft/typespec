@@ -51,6 +51,14 @@ function checkIsVersion(
   return version;
 }
 
+function checkOptionCanonicaliedVersion(program: Program): boolean {
+  if (program.getOption("canonicalized-version") === "true") {
+    return true;
+  }
+
+  return false;
+}
+
 export function $added(
   context: DecoratorContext,
   t:
@@ -69,6 +77,10 @@ export function $added(
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
+    return;
+  }
+
+  if (checkOptionCanonicaliedVersion(program)) {
     return;
   }
 
@@ -99,6 +111,10 @@ export function $removed(
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
+    return;
+  }
+
+  if (checkOptionCanonicaliedVersion(program)) {
     return;
   }
 

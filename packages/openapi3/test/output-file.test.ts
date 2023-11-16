@@ -39,11 +39,16 @@ describe("openapi3: output file", () => {
   beforeEach(async () => {
     runner = await createOpenAPITestRunner();
   });
-  async function compileOpenAPI(options: OpenAPI3EmitterOptions, code: string = ""): Promise<void> {
+  async function compileOpenAPI(
+    options: OpenAPI3EmitterOptions,
+    code: string = "",
+    miscOptions: Record<string, unknown> = {}
+  ): Promise<void> {
     const diagnostics = await runner.diagnose(code, {
       noEmit: false,
       emit: ["@typespec/openapi3"],
       options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
+      miscOptions,
     });
 
     expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
@@ -129,8 +134,25 @@ describe("openapi3: output file", () => {
         `
             );
 
-            expectHasOutput(`custom.v1.${fileType}`);
+            expectHasOutput(`custom.v1231.${fileType}`);
             expectHasOutput(`custom.v2.${fileType}`);
+          };
+        });
+
+        it("create merged file for canonicalized version", async () => {
+          const miscOptions: Record<string, unknown> = { "canonicalized-version": "true" };
+
+          async () => {
+            await compileOpenAPI(
+              {},
+              `
+            @versioned(Versions) namespace Service1 {
+              enum Versions {v1, v2}
+            }
+          `,
+              miscOptions
+            );
+            expectHasOutput(`CanonicalizedVersion.${fileType}`);
           };
         });
       });

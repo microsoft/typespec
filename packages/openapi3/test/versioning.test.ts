@@ -195,7 +195,7 @@ describe("openapi3: versioning", () => {
 
         @added(Versions.v2)
         model Widget { 
-          @key id: string; 
+          @key id: string;
         }
 
         @error
@@ -247,6 +247,49 @@ describe("openapi3: versioning", () => {
         @route("/widgets")
         interface Widgets extends Resource.ResourceOperations<Widget, Error> {}
     `);
+    });
+  });
+
+  describe("canonicalized version", () => {
+    it("works with models", async () => {
+      const miscOptions: Record<string, unknown> = { "canonicalized-version": "true" };
+
+      const Test = await openApiFor(
+        `
+        @versioned(Versions)
+        @service({title: "My Service"})
+        namespace MyService {
+          enum Versions {
+            "v1",
+            "v2",
+            "v3"}
+          model Test {
+            prop1: string;
+            @added(Versions.v2) prop2: string;
+            @removed(Versions.v2) prop3: string;
+            @madeOptional(Versions.v3) prop4?: string;
+          }
+
+
+        }
+      `,
+        ["v1", "v2", "v3"],
+        {},
+        miscOptions
+      );
+
+      strictEqual(Test.info.version, "0000-00-00");
+
+      deepStrictEqual(Test.components.schemas.Test, {
+        type: "object",
+        properties: {
+          prop1: { type: "string" },
+          prop2: { type: "string" },
+          prop3: { type: "string" },
+          prop4: { type: "string" },
+        },
+        required: ["prop1", "prop2", "prop3", "prop4"],
+      });
     });
   });
 });

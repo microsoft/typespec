@@ -263,14 +263,14 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
 
   return { emitOpenAPI };
 
-  function initializeEmitter(service: Service, version?: string) {
+  function initializeEmitter(service: Service, version?: string, canonicalizedVersion = false) {
     const auth = processAuth(service.type);
 
     root = {
       openapi: "3.0.0",
       info: {
         title: service.title ?? "(title)",
-        version: version ?? service.version ?? "0000-00-00",
+        version: canonicalizedVersion ? "0000-00-00" : version ?? service.version ?? "0000-00-00",
         description: getDoc(program, service.type),
         ...getInfo(program, service.type),
       },
@@ -374,8 +374,19 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
     });
   }
 
+  function checkOptionCanonicaliedVersion(program: Program): boolean {
+    if (program.getOption("canonicalized-version") === "true") {
+      return true;
+    }
+
+    return false;
+  }
+
   async function emitOpenAPI() {
     const services = listServices(program);
+
+    const canonicalizedVersion = checkOptionCanonicaliedVersion(program);
+
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
@@ -402,16 +413,26 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
             ? { type: projectedProgram.getGlobalNamespaceType() }
             : getService(program, projectedServiceNs)!,
           services.length > 1,
-          record.version
+          record.version,
+          canonicalizedVersion
         );
+
+        if (canonicalizedVersion) {
+          break;
+        }
       }
     }
   }
 
-  function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
+  function resolveOutputFile(
+    service: Service,
+    multipleService: boolean,
+    version?: string,
+    canonicalizedVersion = false
+  ): string {
     return interpolatePath(options.outputFile, {
       "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
-      version,
+      version: canonicalizedVersion ? "CanonicalizedVersion" : version,
     });
   }
 
@@ -654,9 +675,10 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
   async function emitOpenAPIFromVersion(
     service: Service,
     multipleService: boolean,
-    version?: string
+    version?: string,
+    canonicalizedVersion = false
   ) {
-    initializeEmitter(service, version);
+    initializeEmitter(service, version, canonicalizedVersion);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       reportIfNoRoutes(program, httpService.operations);
@@ -685,7 +707,7 @@ function createOAPIEmitter(program: Program, options: ResolvedOpenAPI3EmitterOpt
         // Write out the OpenAPI document to the output path
 
         await emitFile(program, {
-          path: resolveOutputFile(service, multipleService, version),
+          path: resolveOutputFile(service, multipleService, version, canonicalizedVersion),
           content: serializeDocument(root, options.fileType),
           newLine: options.newLine,
         });

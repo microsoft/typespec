@@ -1,4 +1,5 @@
 import {
+  CompilerOptions,
   Enum,
   Interface,
   IntrinsicType,
@@ -1720,6 +1721,158 @@ describe("versioning: logic", () => {
         }),
       };
     }
+  });
+
+  describe("canonicalized version", () => {
+    it("generate canonicalized version when added", async () => {
+      const options: CompilerOptions = { miscOptions: { "canonicalized-version": "true" } };
+
+      const { Test } = (await runner.compile(
+        `
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "1",
+          v2: "version two",
+          v3: "3"
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @added(Versions.v2) b: 1;
+          @added(Versions.v3) c: 1;
+        }
+        `,
+        options
+      )) as { Test: Model };
+
+      ok(Test.properties.has("a"), "canonicalized version has a");
+      ok(Test.properties.has("b"), "canonicalized version has b");
+      ok(Test.properties.has("c"), "canonicalized version has c");
+    });
+
+    it("generate versions when removed", async () => {
+      const { Test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "1",
+          v2: "version two",
+          v3: "3"
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @removed(Versions.v2) b: 1;
+          @added(Versions.v3) c: 1;
+        }
+        `)) as { Test: Model };
+
+      const v1 = project(Test, "1");
+      ok(v1.properties.has("a"), "v1 has a");
+      ok(v1.properties.has("b"), "v1 has b");
+      ok(!v1.properties.has("c"), "v1 doesn't have c");
+      const v2 = project(Test, "version two");
+      ok(v2.properties.has("a"), "v2 has a");
+      ok(!v2.properties.has("b"), "v2 doesn't have b");
+      ok(!v2.properties.has("c"), "v2 doesn't have c");
+      const v3 = project(Test, "3");
+      ok(v3.properties.has("a"), "v3 has a");
+      ok(!v3.properties.has("b"), "v3 doesn't have b");
+      ok(v3.properties.has("c"), "v3 has c");
+    });
+
+    it("generate canonicalized version when removed", async () => {
+      const options: CompilerOptions = { miscOptions: { "canonicalized-version": "true" } };
+
+      const { Test } = (await runner.compile(
+        `
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "1",
+          v2: "version two",
+          v3: "3"
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @added(Versions.v3) c: 1;
+
+          @removed(Versions.v2) b: 1;
+        }
+        `,
+        options
+      )) as { Test: Model };
+
+      ok(Test.properties.has("a"), "canonicalized version has a");
+      ok(Test.properties.has("b"), "canonicalized version has b");
+      ok(Test.properties.has("c"), "canonicalized version has c");
+    });
+
+    it("generate versions when renamed", async () => {
+      const { Test } = (await runner.compile(`
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "1",
+          v2: "version two",
+          v3: "3"
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @renamedFrom(Versions.v2, "oldB") b: 1;
+          @added(Versions.v3) c: 1;
+        }
+        `)) as { Test: Model };
+
+      const v1 = project(Test, "1");
+      ok(v1.properties.has("a"), "v1 has a");
+      ok(v1.properties.has("oldB"), "v1 has oldB");
+      ok(!v1.properties.has("c"), "v1 doesn't have c");
+      const v2 = project(Test, "version two");
+      ok(v2.properties.has("a"), "v2 has a");
+      ok(v2.properties.has("b"), "v2 has b");
+      ok(!v2.properties.has("c"), "v2 doesn't have c");
+      const v3 = project(Test, "3");
+      ok(v3.properties.has("a"), "v3 has a");
+      ok(v3.properties.has("b"), "v3 has b");
+      ok(v3.properties.has("c"), "v3 has c");
+    });
+
+    it("generate canonicalized version when renamed", async () => {
+      const options: CompilerOptions = { miscOptions: { "canonicalized-version": "true" } };
+
+      const { Test } = (await runner.compile(
+        `
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions {
+          v1: "1",
+          v2: "version two",
+          v3: "3"
+        }
+
+        @test model Test {
+          @added(Versions.v1) a: 1;
+          @renamedFrom(Versions.v2, "oldB") b: 1;
+          @added(Versions.v3) c: 1;
+        }
+        `,
+        options
+      )) as { Test: Model };
+
+      ok(Test.properties.has("a"), "canonicalized version has a");
+      ok(Test.properties.has("b"), "canonicalized version has b");
+      ok(!Test.properties.has("oldB"), "canonicalized version doesn't have oldB");
+      ok(Test.properties.has("c"), "canonicalized version has c");
+    });
   });
 
   function assertModelProjectsTo(types: [Model, string][], target: Model) {
