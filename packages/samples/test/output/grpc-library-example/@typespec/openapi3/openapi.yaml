@@ -224,42 +224,42 @@ components:
       required: true
       description: The name of the shelf in which the book is created.
       schema:
-        $ref: '#/components/schemas/shelf_nameCreate'
+        $ref: '#/components/schemas/shelf_name'
     DeleteBookRequest:
       name: name
       in: path
       required: true
       description: The name of the book to delete.
       schema:
-        $ref: '#/components/schemas/book_nameDelete'
+        $ref: '#/components/schemas/book_name'
     DeleteShelfRequest:
       name: name
       in: path
       required: true
       description: The name of the shelf to delete.
       schema:
-        $ref: '#/components/schemas/shelf_nameDelete'
+        $ref: '#/components/schemas/shelf_name'
     GetBookRequest:
       name: name
       in: path
       required: true
       description: The name of the book to retrieve.
       schema:
-        $ref: '#/components/schemas/book_nameQuery'
+        $ref: '#/components/schemas/book_name'
     GetShelfRequest:
       name: name
       in: path
       required: true
       description: The name of the shelf to retrieve.
       schema:
-        $ref: '#/components/schemas/shelf_nameQuery'
+        $ref: '#/components/schemas/shelf_name'
     ListBooksRequest.name:
       name: name
       in: path
       required: true
       description: The name of the shelf whose books we'd like to list.
       schema:
-        $ref: '#/components/schemas/shelf_nameQuery'
+        $ref: '#/components/schemas/shelf_name'
     ListRequestBase.page_size:
       name: page_size
       in: query
@@ -287,7 +287,7 @@ components:
       required: true
       description: The name of the shelf we're adding books to.
       schema:
-        $ref: '#/components/schemas/shelf_nameCreate'
+        $ref: '#/components/schemas/shelf_name'
   schemas:
     Book:
       type: object
@@ -437,37 +437,7 @@ components:
       description: |-
         The name of a book.
         Book names have the form `shelves/{shelf_id}/books/{book_id}`
-    book_nameDelete:
-      type: string
-      pattern: shelves/\w+/books/\w+
-      description: |-
-        The name of a book.
-        Book names have the form `shelves/{shelf_id}/books/{book_id}`
-    book_nameQuery:
-      type: string
-      pattern: shelves/\w+/books/\w+
-      description: |-
-        The name of a book.
-        Book names have the form `shelves/{shelf_id}/books/{book_id}`
     shelf_name:
-      type: string
-      pattern: shelves/\w+
-      description: |-
-        The name of a shelf.
-        Shelf names have the form `shelves/{shelf_id}`.
-    shelf_nameCreate:
-      type: string
-      pattern: shelves/\w+
-      description: |-
-        The name of a shelf.
-        Shelf names have the form `shelves/{shelf_id}`.
-    shelf_nameDelete:
-      type: string
-      pattern: shelves/\w+
-      description: |-
-        The name of a shelf.
-        Shelf names have the form `shelves/{shelf_id}`.
-    shelf_nameQuery:
       type: string
       pattern: shelves/\w+
       description: |-

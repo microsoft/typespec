@@ -436,6 +436,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
+  scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
+    return {};
+  }
+
   scalarInstantiation(scalar: Scalar, name: string | undefined): EmitterOutput<T> {
     return this.emitter.result.none();
   }

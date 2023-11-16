@@ -102,6 +102,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#reduceVisibilityContext(model);
   }
 
+  scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
+    return this.#reduceVisibilityContext(scalar);
+  }
+
   #reduceVisibilityContext(type: Type): Context {
     const visibility = this.#getVisibilityContext();
     if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(type, visibility)) {
@@ -761,6 +765,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
     return schema;
   }
+
   #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
     const refUrl = getRef(this.emitter.getProgram(), type);
     if (refUrl) {

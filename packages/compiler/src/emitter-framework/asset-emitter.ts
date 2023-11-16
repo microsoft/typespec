@@ -634,7 +634,7 @@ export function createAssetEmitter<T, TOptions extends object>(
 
       if (keyHasReferenceContext(entry.method)) {
         compilerAssert(
-          (typeEmitter as any)[lexicalKey],
+          (typeEmitter as any)[referenceKey],
           `TypeEmitter doesn't have a method named ${referenceKey}`
         );
       }
@@ -866,7 +866,6 @@ const noReferenceContext = new Set<string>([
   "booleanLiteral",
   "stringLiteral",
   "numericLiteral",
-  "scalarDeclaration",
   "scalarInstantiation",
   "enumDeclaration",
   "enumMember",
