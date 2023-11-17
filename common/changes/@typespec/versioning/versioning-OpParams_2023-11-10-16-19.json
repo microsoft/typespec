@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Fix issue where the version compatability of parameters in operation signatures was not checked.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}
