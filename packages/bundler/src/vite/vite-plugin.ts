@@ -9,12 +9,12 @@ import {
 } from "../bundler.js";
 
 export interface TypeSpecBundlePluginOptions {
-  folderName: string;
+  readonly folderName: string;
 
   /**
    * Name of libraries to bundle.
    */
-  libraries: string[];
+  readonly libraries: readonly string[];
 }
 
 export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plugin {

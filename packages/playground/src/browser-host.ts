@@ -13,7 +13,7 @@ export function resolveVirtualPath(path: string, ...paths: string[]) {
  * @returns
  */
 export async function createBrowserHost(
-  libsToLoad: string[],
+  libsToLoad: readonly string[],
   importOptions: LibraryImportOptions = {}
 ): Promise<BrowserHost> {
   const virtualFs = new Map<string, string>();
@@ -22,7 +22,12 @@ export async function createBrowserHost(
   const libraries: Record<string, PlaygroundTspLibrary> = {};
   for (const libName of libsToLoad) {
     const { _TypeSpecLibrary_, $lib } = (await importLibrary(libName, importOptions)) as any;
-    libraries[libName] = { name: libName, isEmitter: $lib?.emitter, definition: $lib };
+    libraries[libName] = {
+      name: libName,
+      isEmitter: $lib?.emitter,
+      definition: $lib,
+      packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
+    };
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
     }
