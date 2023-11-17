@@ -46,15 +46,10 @@ op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: byt
 
 ## Content type negotiation
 
-There could be cases where you might the same endpoint to return different content depending on the content type requested. This can be achieved in 2 ways:
-
-- using shared routes where different content response is represented as a different operation that share the same endpoint
-- using overloads where each different content response is an overload.
+There could be cases where you might the same endpoint to return different content depending on the content type requested. To achieve this scenario, you need to use using shared routes where different content response is represented as a different operation that share the same endpoint.
 
 For example assuming there is an api that lets you download the avatar as a `png` or `jpeg` which is decided by what `Accept` header is sent.
 
-### Option 1: Using shared route
-
 ```tsp
 model PngImage {
   @header contentType: "image/png";
@@ -72,28 +67,5 @@ op getAvatarAsPng(@header accept: "image/png"): PngImage;
 
 @route("/avatar")
 @sharedRoute
-op getAvatarAsJpeg(@header accept: "image/jpeg"): JpegImage;
-```
-
-### Option 2: Using overload
-
-```tsp
-model PngImage {
-  @header contentType: "image/png";
-  @body image: bytes;
-}
-
-model JpegImage {
-  @header contentType: "image/jpeg";
-  @body image: bytes;
-}
-
-@route("/avatar")
-op getAvatar(@header accept: "image/png" | "image/jpeg"): PngImage | JpegImage;
-
-@overload(getAvatar)
-op getAvatarAsPng(@header accept: "image/png"): PngImage;
-
-@overload(getAvatar)
 op getAvatarAsJpeg(@header accept: "image/jpeg"): JpegImage;
 ```
