@@ -119,9 +119,18 @@ export function getAllRoutes(
 
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   if (routes.length === 0) {
-    reportDiagnostic(program, {
-      code: "no-routes",
-      target: program.getGlobalNamespaceType(),
+    navigateProgram(program, {
+      namespace: (namespace) => {
+        if (namespace.operations.size > 0) {
+          reportDiagnostic(program, {
+            code: "no-service-found",
+            format: {
+              namespace: namespace.name,
+            },
+            target: namespace,
+          });
+        }
+      },
     });
   }
 }
