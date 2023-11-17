@@ -104,6 +104,18 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#reduceVisibilityContext(model);
   }
 
+  scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
+    return this.#reduceVisibilityContext(scalar);
+  }
+
+  enumDeclarationReferenceContext(en: Enum, name: string): Context {
+    return this.#reduceVisibilityContext(en);
+  }
+
+  unionDeclarationReferenceContext(union: Union): Context {
+    return this.#reduceVisibilityContext(union);
+  }
+
   #reduceVisibilityContext(type: Type): Context {
     const visibility = this.#getVisibilityContext();
     if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(type, visibility)) {
@@ -153,7 +165,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
-
     return this.#createDeclaration(model, baseName, this.#applyConstraints(model, schema));
   }
 
@@ -194,6 +205,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   modelInstantiation(model: Model, name: string | undefined): EmitterOutput<Record<string, any>> {
+    name = name ?? getOpenAPITypeName(this.emitter.getProgram(), model, this.#typeNameOptions());
     if (!name) {
       return this.modelLiteral(model);
     }
@@ -322,7 +334,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         delete schema.anyOf;
       }
 
-      return { ...schema, ...additionalProps };
+      const merged = new ObjectBuilder(schema);
+      for (const [key, value] of Object.entries(additionalProps)) {
+        merged.set(key, value);
+      }
+      return merged;
     }
   }
 
@@ -350,7 +366,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
-    return this.#createDeclaration(en, name, new ObjectBuilder(this.#enumSchema(en)));
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
+    return this.#createDeclaration(en, baseName, new ObjectBuilder(this.#enumSchema(en)));
   }
 
   #enumSchema(en: Enum): OpenAPI3Schema {
@@ -619,8 +636,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<OpenAPI3Schema> {
     const isStd = this.#isStdType(scalar);
     const schema = this.#getSchemaForScalar(scalar);
+    const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
+
     // Don't create a declaration for std types
-    return isStd ? schema : this.#createDeclaration(scalar, name, new ObjectBuilder(schema));
+    return isStd ? schema : this.#createDeclaration(scalar, baseName, new ObjectBuilder(schema));
   }
 
   scalarInstantiation(
@@ -774,6 +793,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
     return schema;
   }
+
   #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
     const refUrl = getRef(this.emitter.getProgram(), type);
     if (refUrl) {
