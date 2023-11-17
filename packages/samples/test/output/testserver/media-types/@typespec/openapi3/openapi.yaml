@@ -56,6 +56,15 @@ paths:
               $ref: '#/components/schemas/SourcePath'
 components:
   schemas:
+    Input:
+      type: object
+      required:
+        - input
+      properties:
+        input:
+          allOf:
+            - $ref: '#/components/schemas/SourcePath'
+          description: Input parameter.
     SourcePath:
       type: object
       required:

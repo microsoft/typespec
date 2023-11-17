@@ -210,7 +210,12 @@ function createOAPIEmitter(
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
     });
-    visibilityUsage = resolveVisibilityUsage(program, metadataInfo, service.type);
+    visibilityUsage = resolveVisibilityUsage(
+      program,
+      metadataInfo,
+      service.type,
+      options.omitUnreachableTypes
+    );
     schemaEmitter = context.getAssetEmitter(
       class extends OpenAPI3SchemaEmitter {
         constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
@@ -1316,7 +1321,7 @@ function createOAPIEmitter(
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
         if (
-          visibilityUsage.getUsage(type) === undefined &&
+          visibilityUsage.isUnreachable(type) &&
           !paramModels.has(type) &&
           !shouldInline(program, type)
         ) {
