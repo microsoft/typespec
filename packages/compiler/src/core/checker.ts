@@ -9,6 +9,7 @@ import {
   getTypeName,
   stringTemplateToString,
 } from "./helpers/index.js";
+import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
 import { createDiagnostic } from "./messages.js";
 import { getIdentifierContext, hasParseError, visitChildren } from "./parser.js";
 import { Program, ProjectedProgram } from "./program.js";
@@ -3301,8 +3302,8 @@ export function createChecker(program: Program): Checker {
       return true;
     }
     if (type.kind === "StringTemplate") {
-      const [_, diagnostics] = stringTemplateToString(type);
-      return diagnostics.length === 0;
+      const [valid] = isStringTemplateSerializable(type);
+      return valid;
     }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
