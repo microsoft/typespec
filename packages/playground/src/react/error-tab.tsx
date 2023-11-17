@@ -2,7 +2,7 @@ import { css } from "@emotion/react";
 import { tokens } from "@fluentui/react-components";
 import type { Diagnostic } from "@typespec/compiler";
 import { FunctionComponent } from "react";
-import { DiagnosticList } from "./diagnostic-list.js";
+import { DiagnosticList } from "./diagnostic-list/diagnostic-list.js";
 
 export interface ErrorTabProps {
   readonly internalCompilerError?: any;

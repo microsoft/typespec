@@ -1,0 +1,19 @@
+.list {
+  padding: 10px;
+}
+
+.item {
+  display: flex;
+  gap: 10px;
+}
+
+.item--error {
+  color: var(--colorStatusDangerForeground1);
+}
+.item--warning {
+  color: var(--colorStatusWarningForeground1);
+}
+
+.item-code {
+  color: var(--colorBrandForeground2);
+}
