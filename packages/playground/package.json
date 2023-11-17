@@ -40,8 +40,8 @@
       "default": "./dist/react/index.js"
     },
     "./react/viewers": {
-      "types": "./dist/src/react/viewers.d.ts",
-      "default": "./dist/react/viewers.js"
+      "types": "./dist/src/react/viewers/index.d.ts",
+      "default": "./dist/react/viewers/index.js"
     },
     "./style.css": "./dist/index.css"
   },

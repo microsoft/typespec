@@ -25,7 +25,7 @@ export default defineConfig([
     input: {
       index: "src/index.ts",
       "react/index": "src/react/index.ts",
-      "react/viewers": "src/react/viewers.tsx",
+      "react/viewers/index": "src/react/viewers/index.tsx",
       "tooling/index": "src/tooling/index.ts",
       "vite/index": "src/vite/index.ts",
     },
