@@ -53,14 +53,13 @@ export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterO
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": options as any },
   });
-  return diagnostics.filter((x) => x.code !== "@typespec/http/no-routes");
+  return diagnostics;
 }
 
 export async function openApiFor(
   code: string,
   versions?: string[],
-  options: OpenAPI3EmitterOptions = {},
-  miscOptions: Record<string, unknown> = {}
+  options: OpenAPI3EmitterOptions = {}
 ) {
   const host = await createOpenAPITestHost();
   const outPath = resolveVirtualPath("{version}.openapi.json");
@@ -74,14 +73,11 @@ export async function openApiFor(
     noEmit: false,
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
-    miscOptions,
   });
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
+  expectDiagnosticEmpty(diagnostics);
 
   if (!versions) {
     return JSON.parse(host.fs.get(resolveVirtualPath("openapi.json"))!);
-  } else if (miscOptions["canonicalized-version"] === "true") {
-    return JSON.parse(host.fs.get(resolveVirtualPath("CanonicalizedVersion.openapi.json"))!);
   } else {
     const output: any = {};
     for (const version of versions) {

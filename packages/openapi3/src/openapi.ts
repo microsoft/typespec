@@ -205,12 +205,17 @@ function createOAPIEmitter(
 
   return { emitOpenAPI };
 
-  function initializeEmitter(service: Service, version?: string, canonicalizedVersion = false) {
+  function initializeEmitter(service: Service, version?: string) {
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
     });
-    visibilityUsage = resolveVisibilityUsage(program, metadataInfo, service.type);
+    visibilityUsage = resolveVisibilityUsage(
+      program,
+      metadataInfo,
+      service.type,
+      options.omitUnreachableTypes
+    );
     schemaEmitter = context.getAssetEmitter(
       class extends OpenAPI3SchemaEmitter {
         constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
@@ -225,7 +230,7 @@ function createOAPIEmitter(
       openapi: "3.0.0",
       info: {
         title: service.title ?? "(title)",
-        version: canonicalizedVersion ? "0000-00-00" : version ?? service.version ?? "0000-00-00",
+        version: version ?? service.version ?? "0000-00-00",
         description: getDoc(program, service.type),
         ...getInfo(program, service.type),
       },
@@ -324,19 +329,8 @@ function createOAPIEmitter(
     });
   }
 
-  function checkOptionCanonicaliedVersion(program: Program): boolean {
-    if (program.getOption("canonicalized-version") === "true") {
-      return true;
-    }
-
-    return false;
-  }
-
   async function emitOpenAPI() {
     const services = listServices(program);
-
-    const canonicalizedVersion = checkOptionCanonicaliedVersion(program);
-
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
@@ -363,26 +357,16 @@ function createOAPIEmitter(
             ? { type: projectedProgram.getGlobalNamespaceType() }
             : getService(program, projectedServiceNs)!,
           services.length > 1,
-          record.version,
-          canonicalizedVersion
+          record.version
         );
-
-        if (canonicalizedVersion) {
-          break;
-        }
       }
     }
   }
 
-  function resolveOutputFile(
-    service: Service,
-    multipleService: boolean,
-    version?: string,
-    canonicalizedVersion = false
-  ): string {
+  function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
     return interpolatePath(options.outputFile, {
       "service-name": multipleService ? getNamespaceFullName(service.type) : undefined,
-      version: canonicalizedVersion ? "CanonicalizedVersion" : version,
+      version,
     });
   }
 
@@ -625,10 +609,9 @@ function createOAPIEmitter(
   async function emitOpenAPIFromVersion(
     service: Service,
     multipleService: boolean,
-    version?: string,
-    canonicalizedVersion = false
+    version?: string
   ) {
-    initializeEmitter(service, version, canonicalizedVersion);
+    initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
       reportIfNoRoutes(program, httpService.operations);
@@ -657,7 +640,7 @@ function createOAPIEmitter(
         // Write out the OpenAPI document to the output path
 
         await emitFile(program, {
-          path: resolveOutputFile(service, multipleService, version, canonicalizedVersion),
+          path: resolveOutputFile(service, multipleService, version),
           content: serializeDocument(root, options.fileType),
           newLine: options.newLine,
         });
@@ -1338,7 +1321,7 @@ function createOAPIEmitter(
     function processUnreferencedSchemas() {
       const addSchema = (type: Type) => {
         if (
-          visibilityUsage.getUsage(type) === undefined &&
+          visibilityUsage.isUnreachable(type) &&
           !paramModels.has(type) &&
           !shouldInline(program, type)
         ) {
