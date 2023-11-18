@@ -307,6 +307,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           </Pane>
           <Pane minSize={30}>
             <ProblemPane
+              collapsed={verticalPaneSizes[1] === verticalPaneSizesConst.collapsed[1]}
               compilationState={compilationState}
               onHeaderClick={toggleProblemPane}
               onDiagnosticSelected={handleDiagnosticSelected}

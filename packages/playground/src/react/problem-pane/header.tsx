@@ -7,11 +7,12 @@ import style from "./header.module.css";
 export interface ProblemPaneHeaderProps {
   compilationState: CompilationState | undefined;
   onClick?: MouseEventHandler<HTMLDivElement>;
+  collaped: boolean;
 }
 
-export const ProblemPaneHeader = memo(({ compilationState, onClick }: ProblemPaneHeaderProps) => {
+export const ProblemPaneHeader = memo(({ compilationState, ...props }: ProblemPaneHeaderProps) => {
   const noProblem = (
-    <Container status="none" onClick={onClick}>
+    <Container status="none" {...props}>
       No problems
     </Container>
   );
@@ -20,7 +21,7 @@ export const ProblemPaneHeader = memo(({ compilationState, onClick }: ProblemPan
   }
   if ("internalCompilerError" in compilationState) {
     return (
-      <Container status="error" onClick={onClick}>
+      <Container status="error" {...props}>
         <ErrorCircle16Filled /> Internal Compiler Error
       </Container>
     );
@@ -32,7 +33,7 @@ export const ProblemPaneHeader = memo(({ compilationState, onClick }: ProblemPan
   const errors = diagnostics.filter((x) => x.severity === "error");
   const warnings = diagnostics.filter((x) => x.severity === "warning");
   return (
-    <Container status={errors.length > 0 ? "error" : "warning"} onClick={onClick}>
+    <Container status={errors.length > 0 ? "error" : "warning"} {...props}>
       {errors.length > 0 ? (
         <>
           <ErrorCircle16Filled /> {errors.length} errors
@@ -48,13 +49,14 @@ export const ProblemPaneHeader = memo(({ compilationState, onClick }: ProblemPan
 });
 
 interface ContainerProps {
+  collaped: boolean;
+  onClick?: MouseEventHandler<HTMLDivElement>;
   children?: ReactNode;
   className?: string;
   status: "error" | "warning" | "none";
-  onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
-const Container = ({ children, className, status, onClick }: ContainerProps) => {
+const Container = ({ children, className, status, onClick, collaped }: ContainerProps) => {
   return (
     <div
       tabIndex={onClick === undefined ? undefined : 0}
@@ -67,7 +69,12 @@ const Container = ({ children, className, status, onClick }: ContainerProps) => 
       onClick={onClick}
     >
       <div className={style["header-content"]}>{children}</div>
-      <ChevronDown16Regular />
+      <ChevronDown16Regular
+        className={mergeClasses(
+          style["header-chevron"],
+          collaped && style["header-chevron--collapsed"]
+        )}
+      />
     </div>
   );
 };

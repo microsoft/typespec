@@ -6,18 +6,24 @@ import { ProblemPaneHeader } from "./header.js";
 import style from "./problem-pane.module.css";
 
 export interface ProblemPaneProps {
+  readonly collapsed: boolean;
   readonly compilationState: CompilationState | undefined;
   readonly onHeaderClick?: MouseEventHandler<HTMLDivElement>;
   readonly onDiagnosticSelected?: (diagnostic: Diagnostic) => void;
 }
 export const ProblemPane: FunctionComponent<ProblemPaneProps> = ({
+  collapsed,
   compilationState,
   onHeaderClick,
   onDiagnosticSelected,
 }) => {
   return (
     <div className={style["problem-pane"]}>
-      <ProblemPaneHeader compilationState={compilationState} onClick={onHeaderClick} />
+      <ProblemPaneHeader
+        compilationState={compilationState}
+        onClick={onHeaderClick}
+        collaped={collapsed}
+      />
       <div className={style["problem-content"]}>
         <ProblemPaneContent
           compilationState={compilationState}
@@ -28,7 +34,11 @@ export const ProblemPane: FunctionComponent<ProblemPaneProps> = ({
   );
 };
 
-const ProblemPaneContent: FunctionComponent<ProblemPaneProps> = ({
+interface ProblemPaneContentProps {
+  readonly compilationState: CompilationState | undefined;
+  readonly onDiagnosticSelected?: (diagnostic: Diagnostic) => void;
+}
+const ProblemPaneContent: FunctionComponent<ProblemPaneContentProps> = ({
   compilationState,
   onDiagnosticSelected,
 }) => {

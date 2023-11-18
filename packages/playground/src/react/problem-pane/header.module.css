@@ -23,3 +23,10 @@
   align-items: center;
   gap: 10px;
 }
+
+.header-chevron {
+  transition: transform 0.2s ease-in-out;
+}
+.header-chevron--collapsed {
+  transform: rotate(90deg);
+}
