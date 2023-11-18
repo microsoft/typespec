@@ -9,7 +9,7 @@ export interface DiagnosticListProps {
 
 export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({ diagnostics }) => {
   if (diagnostics.length === 0) {
-    return <div className="center">No errors</div>;
+    return <div className={style["list"]}>No errors</div>;
   }
   return (
     <div className={style["list"]}>

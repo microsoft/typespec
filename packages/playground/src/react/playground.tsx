@@ -19,6 +19,7 @@ import { EditorCommandBar } from "./editor-command-bar.js";
 import { OnMountData, useMonacoModel } from "./editor.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
+import { ProblemPane } from "./problem-pane/index.js";
 import Pane from "./split-pane/pane.js";
 import { SplitPane } from "./split-pane/split-pane.js";
 import { CompilationState, FileOutputViewer } from "./types.js";
@@ -226,6 +227,24 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editorRef.current = editor;
   }, []);
 
+  const [verticalPaneSizes, setVerticalPaneSizes] = useState<(string | number | undefined)[]>(
+    verticalPaneSizesConst.collapsed
+  );
+  const toggleProblemPane = useCallback(() => {
+    setVerticalPaneSizes((value) => {
+      return value === verticalPaneSizesConst.collapsed
+        ? verticalPaneSizesConst.expanded
+        : verticalPaneSizesConst.collapsed;
+    });
+  }, [setVerticalPaneSizes]);
+
+  const onVerticalPaneSizeChange = useCallback(
+    (sizes: number[]) => {
+      setVerticalPaneSizes(sizes);
+    },
+    [setVerticalPaneSizes]
+  );
+
   return (
     <PlaygroundContextProvider value={{ host }}>
       <div
@@ -238,38 +257,50 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
           fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
         }}
       >
-        <SplitPane
-          initialSizes={["50%", "50%"]}
-          css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
-        >
+        <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
           <Pane>
-            <EditorCommandBar
-              host={host}
-              selectedEmitter={selectedEmitter}
-              onSelectedEmitterChange={onSelectedEmitterChange}
-              compilerOptions={compilerOptions}
-              onCompilerOptionsChange={onCompilerOptionsChange}
-              samples={props.samples}
-              selectedSampleName={selectedSampleName}
-              onSelectedSampleNameChange={onSelectedSampleNameChange}
-              saveCode={saveCode}
-              formatCode={formatCode}
-              newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-              documentationUrl={props.links?.documentationUrl}
-            />
-            <TypeSpecEditor
-              model={typespecModel}
-              actions={typespecEditorActions}
-              options={props.editorOptions}
-              onMount={onTypeSpecEditorMount}
-            />
+            <SplitPane
+              initialSizes={["50%", "50%"]}
+              css={{
+                gridArea: "typespeceditor",
+                width: "100%",
+                height: "100%",
+                overflow: "hidden",
+              }}
+            >
+              <Pane>
+                <EditorCommandBar
+                  host={host}
+                  selectedEmitter={selectedEmitter}
+                  onSelectedEmitterChange={onSelectedEmitterChange}
+                  compilerOptions={compilerOptions}
+                  onCompilerOptionsChange={onCompilerOptionsChange}
+                  samples={props.samples}
+                  selectedSampleName={selectedSampleName}
+                  onSelectedSampleNameChange={onSelectedSampleNameChange}
+                  saveCode={saveCode}
+                  formatCode={formatCode}
+                  newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+                  documentationUrl={props.links?.documentationUrl}
+                />
+                <TypeSpecEditor
+                  model={typespecModel}
+                  actions={typespecEditorActions}
+                  options={props.editorOptions}
+                  onMount={onTypeSpecEditorMount}
+                />
+              </Pane>
+              <Pane>
+                <OutputView
+                  compilationState={compilationState}
+                  editorOptions={props.editorOptions}
+                  viewers={props.emitterViewers?.[selectedEmitter]}
+                />
+              </Pane>
+            </SplitPane>
           </Pane>
-          <Pane>
-            <OutputView
-              compilationState={compilationState}
-              editorOptions={props.editorOptions}
-              viewers={props.emitterViewers?.[selectedEmitter]}
-            />
+          <Pane minSize={30}>
+            <ProblemPane compilationState={compilationState} onHeaderClick={toggleProblemPane} />
           </Pane>
         </SplitPane>
         {props.footer ?? <DefaultFooter />}
@@ -278,6 +309,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   );
 };
 
+const verticalPaneSizesConst = {
+  collapsed: [undefined, 30],
+  expanded: [undefined, 200],
+};
 const outputDir = "./tsp-output";
 
 async function compile(

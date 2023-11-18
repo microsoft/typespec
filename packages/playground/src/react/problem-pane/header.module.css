@@ -1,0 +1,25 @@
+.header {
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 20px;
+  justify-content: space-between;
+  box-shadow: var(--shadow2);
+}
+
+.header--error {
+  background-color: var(--colorStatusDangerBackground3);
+  color: var(--colorNeutralForegroundInverted);
+}
+
+.header--warning {
+  background-color: var(--colorStatusWarningBackground3);
+  color: var(--colorNeutralForegroundInverted);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

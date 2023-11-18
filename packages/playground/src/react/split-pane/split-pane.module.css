@@ -49,6 +49,14 @@
   background-color: var(--colorNeutralStroke1Pressed);
 }
 
+.sash-vertical .sash-content-dragging {
+  width: 4px;
+}
+
+.sash-horizontal .sash-content-dragging {
+  height: 4px;
+}
+
 .pane {
   height: 100%;
   position: absolute;

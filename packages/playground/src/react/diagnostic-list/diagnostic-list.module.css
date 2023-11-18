@@ -10,6 +10,7 @@
 .item--error {
   color: var(--colorStatusDangerForeground1);
 }
+
 .item--warning {
   color: var(--colorStatusWarningForeground1);
 }

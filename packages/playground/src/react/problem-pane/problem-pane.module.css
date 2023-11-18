@@ -1,0 +1,5 @@
+.problem-pane {
+  overflow-y: auto;
+  height: 100%;
+  background-color: var(--colorNeutralBackground3);
+}
