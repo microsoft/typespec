@@ -1,4 +1,4 @@
-import { CompilerOptions } from "@typespec/compiler";
+import { CompilerOptions, Diagnostic } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import {
@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
-import { getMarkerLocation } from "../services.js";
+import { getMonacoRange } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { DefaultFooter } from "./default-footer.js";
@@ -134,7 +134,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(typespecCompiler, diag.target),
+        ...getMonacoRange(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
@@ -244,6 +244,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     },
     [setVerticalPaneSizes]
   );
+  const handleDiagnosticSelected = useCallback(
+    (diagnostic: Diagnostic) => {
+      editorRef.current?.setSelection(getMonacoRange(host.compiler, diagnostic.target));
+    },
+    [setVerticalPaneSizes]
+  );
 
   return (
     <PlaygroundContextProvider value={{ host }}>
@@ -300,7 +306,11 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
             </SplitPane>
           </Pane>
           <Pane minSize={30}>
-            <ProblemPane compilationState={compilationState} onHeaderClick={toggleProblemPane} />
+            <ProblemPane
+              compilationState={compilationState}
+              onHeaderClick={toggleProblemPane}
+              onDiagnosticSelected={handleDiagnosticSelected}
+            />
           </Pane>
         </SplitPane>
         {props.footer ?? <DefaultFooter />}

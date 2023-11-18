@@ -8,5 +8,11 @@
 
 .problem-content {
   overflow-y: auto;
+}
+.no-problems {
+  padding: 10px;
+}
+
+.internal-compiler-error {
   padding: 10px;
 }

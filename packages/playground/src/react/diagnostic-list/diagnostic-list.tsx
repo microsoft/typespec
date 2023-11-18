@@ -1,20 +1,36 @@
 import { mergeClasses } from "@fluentui/react-components";
-import type { Diagnostic } from "@typespec/compiler";
-import { FunctionComponent } from "react";
+import {
+  getSourceLocation,
+  type Diagnostic,
+  type DiagnosticTarget,
+  type NoTarget,
+} from "@typespec/compiler";
+import { FunctionComponent, memo, useCallback } from "react";
 import style from "./diagnostic-list.module.css";
 
 export interface DiagnosticListProps {
   readonly diagnostics: readonly Diagnostic[];
+  readonly onDiagnosticSelected?: (diagnostic: Diagnostic) => void;
 }
 
-export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({ diagnostics }) => {
+export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({
+  diagnostics,
+  onDiagnosticSelected,
+}) => {
   if (diagnostics.length === 0) {
     return <div className={style["list"]}>No errors</div>;
   }
+
+  const handleItemSelected = useCallback(
+    (diagnostic: Diagnostic) => {
+      onDiagnosticSelected?.(diagnostic);
+    },
+    [onDiagnosticSelected]
+  );
   return (
     <div className={style["list"]}>
       {diagnostics.map((x, i) => {
-        return <DiagnosticItem key={i} diagnostic={x} />;
+        return <DiagnosticItem key={i} diagnostic={x} onItemSelected={handleItemSelected} />;
       })}
     </div>
   );
@@ -22,11 +38,15 @@ export const DiagnosticList: FunctionComponent<DiagnosticListProps> = ({ diagnos
 
 interface DiagnosticItemProps {
   readonly diagnostic: Diagnostic;
+  readonly onItemSelected: (diagnostic: Diagnostic) => void;
 }
 
-const DiagnosticItem: FunctionComponent<DiagnosticItemProps> = ({ diagnostic }) => {
+const DiagnosticItem: FunctionComponent<DiagnosticItemProps> = ({ diagnostic, onItemSelected }) => {
+  const handleClick = useCallback(() => {
+    onItemSelected(diagnostic);
+  }, [diagnostic, onItemSelected]);
   return (
-    <div className={style["item"]}>
+    <div tabIndex={0} className={style["item"]} onClick={handleClick}>
       <div
         className={mergeClasses(
           (style["item-severity"],
@@ -37,6 +57,24 @@ const DiagnosticItem: FunctionComponent<DiagnosticItemProps> = ({ diagnostic }) 
       </div>
       <div className={style["item-code"]}>{diagnostic.code}</div>
       <div className={style["item-message"]}>{diagnostic.message}</div>
+      <div className={style["item-loc"]}>
+        <DiagnosticTargetLink target={diagnostic.target} />
+      </div>
     </div>
   );
 };
+
+const DiagnosticTargetLink = memo(({ target }: { target: DiagnosticTarget | typeof NoTarget }) => {
+  if (typeof target === "symbol") {
+    return <span></span>;
+  }
+  const location = getSourceLocation(target);
+  const file = location.file.path === "/test/main.tsp" ? "" : `${location.file.path}:`;
+  const { line, character } = location.file.getLineAndCharacterOfPosition(location.pos);
+  return (
+    <span>
+      {file}
+      {line + 1}:{character + 1}
+    </span>
+  );
+});
