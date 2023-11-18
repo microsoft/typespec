@@ -49,12 +49,22 @@
   background-color: var(--colorNeutralStroke1Pressed);
 }
 
+.sash-vertical .sash-content {
+  width: 1px;
+  margin-left: 1px;
+}
+
+.sash-horizontal .sash-content {
+  height: 1px;
+  margin-top: 1px;
+}
+
 .sash-vertical .sash-content-dragging {
-  width: 4px;
+  width: 100%;
 }
 
 .sash-horizontal .sash-content-dragging {
-  height: 4px;
+  height: 100%;
 }
 
 .pane {

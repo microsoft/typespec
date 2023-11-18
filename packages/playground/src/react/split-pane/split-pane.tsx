@@ -49,7 +49,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   split = "vertical",
   className: wrapClassName,
   sashRender = (_, active) => <SashContent dragging={active} />,
-  resizerSize = 1,
+  resizerSize = 4,
   performanceMode = false,
   onChange = () => null,
   onDragStart = () => null,
@@ -61,7 +61,6 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
     defaultSizes,
     onChange as any
   );
-  console.log("Resolve", resolvedPropSize);
   const axis = useRef<Axis>({ x: 0, y: 0 });
   const wrapper = useRef<HTMLDivElement>(null);
   const cacheSizes = useRef<CacheSizes>({ sizes: [], sashPosSizes: [] });
