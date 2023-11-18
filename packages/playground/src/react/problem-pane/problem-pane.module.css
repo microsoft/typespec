@@ -1,5 +1,14 @@
 .problem-pane {
-  overflow-y: auto;
   height: 100%;
   background-color: var(--colorNeutralBackground3);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.problem-content {
+  overflow-y: auto;
+}
+.internal-compiler-error {
+  padding: 20px;
 }

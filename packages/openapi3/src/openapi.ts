@@ -116,6 +116,7 @@ const defaultOptions = {
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
+  throw new Error("abc");
   const options = resolveOptions(context);
   const emitter = createOAPIEmitter(context, options);
   await emitter.emitOpenAPI();
