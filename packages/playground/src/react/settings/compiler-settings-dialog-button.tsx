@@ -9,7 +9,7 @@ import {
 } from "@fluentui/react-components";
 import { Settings24Regular } from "@fluentui/react-icons";
 import type { CompilerOptions } from "@typespec/compiler";
-import { usePlaygroundContext } from "../index.js";
+import { usePlaygroundContext } from "../context/index.js";
 import { CompilerSettings } from "./compiler-settings.js";
 
 export interface CompilerSettingsDialogButtonProps {

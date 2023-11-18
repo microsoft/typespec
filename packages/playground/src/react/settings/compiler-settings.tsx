@@ -1,3 +1,4 @@
+import { Divider } from "@fluentui/react-components";
 import { CompilerOptions, LinterRuleSet } from "@typespec/compiler";
 import { FunctionComponent, useCallback } from "react";
 import { BrowserHost } from "../../types.js";
@@ -41,6 +42,7 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
   return (
     <div>
       <>Emitter: {selectedEmitter}</>
+      <Divider style={{ marginTop: 20 }} />
       <h3>Options</h3>
       {library && (
         <EmitterOptionsForm
@@ -49,6 +51,7 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
           optionsChanged={emitterOptionsChanged}
         />
       )}
+      <Divider style={{ marginTop: 20 }} />
       <h3>Linter</h3>
       <LinterForm
         libraries={host.libraries}
