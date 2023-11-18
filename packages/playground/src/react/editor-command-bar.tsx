@@ -1,26 +1,11 @@
-import {
-  Dialog,
-  DialogBody,
-  DialogSurface,
-  DialogTrigger,
-  Link,
-  Toolbar,
-  ToolbarButton,
-  Tooltip,
-  tokens,
-} from "@fluentui/react-components";
-import {
-  Broom16Filled,
-  Bug16Regular,
-  Save16Regular,
-  Settings24Regular,
-} from "@fluentui/react-icons";
+import { Link, Toolbar, ToolbarButton, Tooltip, tokens } from "@fluentui/react-components";
+import { Broom16Filled, Bug16Regular, Save16Regular } from "@fluentui/react-icons";
 import { CompilerOptions } from "@typespec/compiler";
 import { FunctionComponent, useMemo } from "react";
 import { BrowserHost, PlaygroundSample } from "../types.js";
 import { EmitterDropdown } from "./emitter-dropdown.js";
 import { SamplesDropdown } from "./samples-dropdown.js";
-import { CompilerSettings } from "./settings/compiler-settings.js";
+import { CompilerSettingsDialogButton } from "./settings/compiler-settings-dialog-button.js";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
@@ -45,7 +30,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   host,
   selectedEmitter,
   onSelectedEmitterChange,
-  compilerOptions: emitterOptions,
+  compilerOptions,
   onCompilerOptionsChange,
   samples,
   selectedSampleName,
@@ -90,21 +75,13 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}
         />
-        <Dialog>
-          <DialogTrigger>
-            <ToolbarButton icon={<Settings24Regular />} />
-          </DialogTrigger>
-          <DialogSurface>
-            <DialogBody>
-              <CompilerSettings
-                host={host}
-                selectedEmitter={selectedEmitter}
-                options={emitterOptions}
-                onOptionsChanged={onCompilerOptionsChange}
-              />
-            </DialogBody>
-          </DialogSurface>
-        </Dialog>
+
+        <CompilerSettingsDialogButton
+          compilerOptions={compilerOptions}
+          onCompilerOptionsChange={onCompilerOptionsChange}
+          selectedEmitter={selectedEmitter}
+        />
+
         {documentation}
         <div css={{ flex: "1" }}></div>
         {bugButton}

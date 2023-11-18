@@ -5,12 +5,12 @@ import { EmitterOptions } from "../types.js";
 import { EmitterOptionsForm } from "./emitter-options-form.js";
 import { LinterForm } from "./linter-form.js";
 
-export type CompilerSettingsProps = {
-  host: BrowserHost;
-  selectedEmitter: string;
-  options: CompilerOptions;
-  onOptionsChanged: (options: CompilerOptions) => void;
-};
+export interface CompilerSettingsProps {
+  readonly host: BrowserHost;
+  readonly selectedEmitter: string;
+  readonly options: CompilerOptions;
+  readonly onOptionsChanged: (options: CompilerOptions) => void;
+}
 
 export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
   selectedEmitter,
@@ -39,8 +39,7 @@ export const CompilerSettings: FunctionComponent<CompilerSettingsProps> = ({
     [options]
   );
   return (
-    <div css={{ padding: 10 }}>
-      <h2>Settings</h2>
+    <div>
       <>Emitter: {selectedEmitter}</>
       <h3>Options</h3>
       {library && (
