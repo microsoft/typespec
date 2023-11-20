@@ -11,14 +11,15 @@ import {
   useState,
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
+import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
 import { getMonacoRange } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { DefaultFooter } from "./default-footer.js";
-import { EditorCommandBar } from "./editor-command-bar.js";
 import { OnMountData, useMonacoModel } from "./editor.js";
 import { useControllableValue } from "./hooks.js";
-import { OutputView } from "./output-view.js";
+import { OutputView } from "./output-view/output-view.js";
+import style from "./playground.module.css";
 import { ProblemPane } from "./problem-pane/index.js";
 import Pane from "./split-pane/pane.js";
 import { SplitPane } from "./split-pane/split-pane.js";
@@ -253,27 +254,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   return (
     <PlaygroundContextProvider value={{ host }}>
-      <div
-        css={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-          fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
-        }}
-      >
+      <div className={style["layout"]}>
         <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
           <Pane>
-            <SplitPane
-              initialSizes={["50%", "50%"]}
-              css={{
-                gridArea: "typespeceditor",
-                width: "100%",
-                height: "100%",
-                overflow: "hidden",
-              }}
-            >
+            <SplitPane initialSizes={["50%", "50%"]}>
               <Pane>
                 <EditorCommandBar
                   host={host}

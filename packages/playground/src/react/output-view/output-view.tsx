@@ -2,11 +2,12 @@ import { tokens } from "@fluentui/react-components";
 import { Program } from "@typespec/compiler";
 import { ColorPalette, ColorProvider, TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { FileOutput } from "./file-output.js";
-import { OutputTab, OutputTabs } from "./output-tabs/output-tabs.js";
-import { PlaygroundEditorsOptions } from "./playground.js";
-import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "./types.js";
-import { OutputEditor } from "./typespec-editor.js";
+import { FileOutput } from "../file-output/file-output.js";
+import { OutputTab, OutputTabs } from "../output-tabs/output-tabs.js";
+import { PlaygroundEditorsOptions } from "../playground.js";
+import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "../types.js";
+import { OutputEditor } from "../typespec-editor.js";
+import style from "./output-view.module.css";
 
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;
@@ -85,13 +86,13 @@ const OutputViewInternal: FunctionComponent<{
   }, []);
 
   return (
-    <>
+    <div className={style["output-view"]}>
       <OutputTabs
         tabs={tabs}
         selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
         onSelect={handleTabSelection}
       />
-      <div className="output-content" css={{ width: "100%", height: "100%", overflow: "hidden" }}>
+      <div className={style["output-content"]}>
         <OutputContent
           viewSelection={viewSelection}
           editorOptions={editorOptions}
@@ -99,7 +100,7 @@ const OutputViewInternal: FunctionComponent<{
           viewers={viewers}
         />
       </div>
-    </>
+    </div>
   );
 };
 
@@ -141,16 +142,7 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
         />
       );
     default:
-      return (
-        <div
-          css={{
-            height: "100%",
-            overflow: "scroll",
-          }}
-        >
-          {program && <TypeGraphViewer program={program} />}
-        </div>
-      );
+      return program && <TypeGraphViewer program={program} />;
   }
 };
 
@@ -161,9 +153,11 @@ interface TypeGraphViewerProps {
 }
 const TypeGraphViewer = ({ program }: TypeGraphViewerProps) => {
   return (
-    <ColorProvider colors={TypeGraphColors}>
-      <TypeSpecProgramViewer program={program} />
-    </ColorProvider>
+    <div className={style["type-graph-viewer"]}>
+      <ColorProvider colors={TypeGraphColors}>
+        <TypeSpecProgramViewer program={program} />
+      </ColorProvider>
+    </div>
   );
 };
 
