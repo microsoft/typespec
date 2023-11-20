@@ -65,11 +65,14 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           <ToolbarButton aria-label="Format" icon={<Broom16Filled />} onClick={formatCode as any} />
         </Tooltip>
         {samples && (
-          <SamplesDropdown
-            samples={samples}
-            selectedSampleName={selectedSampleName}
-            onSelectedSampleNameChange={onSelectedSampleNameChange}
-          />
+          <>
+            <SamplesDropdown
+              samples={samples}
+              selectedSampleName={selectedSampleName}
+              onSelectedSampleNameChange={onSelectedSampleNameChange}
+            />
+            <div className={style["spacer"]}></div>
+          </>
         )}
         <EmitterDropdown
           emitters={emitters}
@@ -77,15 +80,19 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           selectedEmitter={selectedEmitter}
         />
 
+        {documentation && (
+          <>
+            <div className={style["spacer"]}></div>
+            {documentation}
+          </>
+        )}
+        <div className={style["divider"]}></div>
+        {bugButton}
         <CompilerSettingsDialogButton
           compilerOptions={compilerOptions}
           onCompilerOptionsChange={onCompilerOptionsChange}
           selectedEmitter={selectedEmitter}
         />
-
-        {documentation}
-        <div className={style["divider"]}></div>
-        {bugButton}
       </Toolbar>
     </div>
   );
@@ -102,9 +109,7 @@ const FileBugButton: FunctionComponent<FileBugButtonProps> = ({ onClick }) => {
         aria-label="File Bug Report"
         icon={<Bug16Regular />}
         onClick={onClick as any}
-      >
-        File bug
-      </ToolbarButton>
+      ></ToolbarButton>
     </Tooltip>
   );
 };
