@@ -84,7 +84,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
         />
 
         {documentation}
-        <div css={{ flex: "1" }}></div>
+        <div className={style["divider"]}></div>
         {bugButton}
       </Toolbar>
     </div>

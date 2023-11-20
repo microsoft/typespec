@@ -13,7 +13,6 @@ const dependencies = Object.keys(packageJson.dependencies);
 const external = [
   ...dependencies,
   "swagger-ui-react/swagger-ui.css",
-  "@emotion/react/jsx-runtime",
   "@typespec/bundler/vite",
   "react-dom/client",
   "vite",
