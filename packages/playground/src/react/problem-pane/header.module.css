@@ -9,13 +9,13 @@
 }
 
 .header--error {
-  background-color: var(--colorStatusDangerBackground3);
-  color: var(--colorNeutralForegroundInverted);
+  background-color: var(--colorStatusDangerBackground2);
+  color: var(--colorNeutralForeground2);
 }
 
 .header--warning {
-  background-color: var(--colorStatusWarningBackground3);
-  color: var(--colorNeutralForegroundInverted);
+  background-color: var(--colorStatusWarningBackground2);
+  color: var(--colorNeutralForeground2);
 }
 
 .header-content {

@@ -3,7 +3,7 @@ import { Program } from "@typespec/compiler";
 import { ColorPalette, ColorProvider, TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
 import { FileOutput } from "./file-output.js";
-import { OutputTabs, Tab } from "./output-tabs.js";
+import { OutputTab, OutputTabs } from "./output-tabs/output-tabs.js";
 import { PlaygroundEditorsOptions } from "./playground.js";
 import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "./types.js";
 import { OutputEditor } from "./typespec-editor.js";
@@ -64,10 +64,10 @@ const OutputViewInternal: FunctionComponent<{
   }
 
   const diagnostics = program.diagnostics;
-  const tabs: Tab[] = useMemo(() => {
+  const tabs: OutputTab[] = useMemo(() => {
     return [
       ...outputFiles.map(
-        (x): Tab => ({
+        (x): OutputTab => ({
           align: "left",
           name: x,
           id: x,
