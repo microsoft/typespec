@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Move errors and warnings to a dedicated expandable banner at the bottom of the playground.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
