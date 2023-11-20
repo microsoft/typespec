@@ -5,17 +5,23 @@ import {
   Model,
   Namespace,
   Operation,
+  Program,
   ProjectionApplication,
   projectProgram,
   Scalar,
   Type,
   Union,
 } from "@typespec/compiler";
-import { BasicTestRunner, createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
+import {
+  BasicTestRunner,
+  createTestWrapper,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
-import { getVersions, indexTimeline } from "../src/versioning.js";
+import { buildVersionProjections, getVersions, indexTimeline } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 import {
   assertHasMembers,
@@ -871,6 +877,39 @@ describe("versioning: logic", () => {
 
       assertHasProperties(v1.parameters, []);
       assertHasProperties(v2.parameters, ["a"]);
+    });
+
+    it("can be added on the same version the underlying model is added", async () => {
+      const { MyService } = (await runner.compile(
+        `
+        @test("MyService")
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { v1, v2 };
+
+        @added(Versions.v1)
+        op create(body: Widget, @added(Versions.v2) newThing: NewThing): Widget;
+
+        model Widget {
+          @key id: string;
+          @added(Versions.v2) name: string;
+        }
+  
+        @added(Versions.v2)
+        model NewThing {
+          name: string;
+        }
+        `
+      )) as { MyService: Namespace };
+
+      const [v1, v2] = runProjections(runner.program, MyService);
+      const w1 = v1.projectedTypes.get(MyService) as Namespace;
+      const w2 = v2.projectedTypes.get(MyService) as Namespace;
+      w1.models.get("Widget")?.properties.size === 1;
+      w1.operations.get("create")?.parameters.properties.size === 1;
+      w2.models.get("Widget")?.properties.size === 2;
+      w2.operations.get("create")?.parameters.properties.size === 2;
     });
 
     it("can be removed", async () => {
@@ -1780,3 +1819,9 @@ describe("versioning: logic", () => {
     return projector.projectedTypes.get(target) as T;
   }
 });
+function runProjections(program: Program, rootNs: Namespace) {
+  const versions = buildVersionProjections(program, rootNs);
+  const projectedPrograms = versions.map((x) => projectProgram(program, x.projections));
+  projectedPrograms.forEach((p) => expectDiagnosticEmpty(p.diagnostics));
+  return projectedPrograms.map((p) => p.projector);
+}

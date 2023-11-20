@@ -809,35 +809,6 @@ describe("versioning: dependencies", () => {
     const [v1] = runProjections(runner.program, MyService);
     ok(v1.projectedTypes.get(MyService));
   });
-
-  it("allows an operation parameter to have versioned properties", async () => {
-    const { WidgetService } = (await runner.compile(`
-      @versioned(Versions)
-      @service({
-        title: "Widget Service",
-      })
-      @test("WidgetService")
-      namespace WidgetService;
-
-      enum Versions {
-        v1,
-        v2,
-      }
-
-      model Widget {
-        @key id: string;
-        @added(Versions.v2) name: string;
-      }
-
-      @added(Versions.v1)
-      @post
-      @route("create")
-      op create(@body _: Widget): Widget;
-      `)) as { WidgetService: Namespace };
-
-    const [v1, v2] = runProjections(runner.program, WidgetService);
-    ok(v1.projectedTypes.get(WidgetService));
-  });
 });
 
 function runProjections(program: Program, rootNs: Namespace) {
