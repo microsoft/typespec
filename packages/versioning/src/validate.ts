@@ -28,7 +28,7 @@ import {
 export function $onValidate(program: Program) {
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 
-  function addDependency(source: Namespace | undefined, target: Type | undefined) {
+  function addNamespaceDependency(source: Namespace | undefined, target: Type | undefined) {
     if (!target || !("namespace" in target) || !target.namespace) {
       return;
     }
@@ -47,13 +47,15 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
-        addDependency(model.namespace, model.sourceModel);
-        addDependency(model.namespace, model.baseModel);
+        addNamespaceDependency(model.namespace, model.sourceModel);
+        addNamespaceDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
-          addDependency(model.namespace, prop.type);
+          addNamespaceDependency(model.namespace, prop.type);
 
           // Validate model -> property have correct versioning
-          validateTargetVersionCompatible(program, model, prop, { isTargetADependent: true });
+          validateTargetVersionCompatible(program, model, prop, {
+            isTargetADependent: true,
+          });
 
           // Validate model property -> type have correct versioning
           const typeChangedFrom = getTypeChangedFrom(program, prop);
@@ -77,7 +79,7 @@ export function $onValidate(program: Program) {
           return;
         }
         for (const variant of union.variants.values()) {
-          addDependency(union.namespace, variant.type);
+          addNamespaceDependency(union.namespace, variant.type);
         }
         validateVersionedPropertyNames(program, union);
       },
@@ -88,13 +90,30 @@ export function $onValidate(program: Program) {
         }
 
         const namespace = op.namespace ?? op.interface?.namespace;
-        addDependency(namespace, op.sourceOperation);
-        addDependency(namespace, op.parameters);
-        addDependency(namespace, op.returnType);
-
+        addNamespaceDependency(namespace, op.sourceOperation);
+        addNamespaceDependency(namespace, op.returnType);
         if (op.interface) {
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
+
+        for (const prop of op.parameters.properties.values()) {
+          addNamespaceDependency(namespace, prop.type);
+
+          // Validate model -> property have correct versioning
+          validateTargetVersionCompatible(program, op, prop, { isTargetADependent: true });
+
+          // Validate model property -> type have correct versioning
+          const typeChangedFrom = getTypeChangedFrom(program, prop);
+          if (typeChangedFrom !== undefined) {
+            validateMultiTypeReference(program, prop);
+          } else {
+            validateReference(program, prop, prop.type);
+          }
+
+          // Validate model property type is correct when madeOptional
+          validateMadeOptional(program, prop);
+        }
+        validateVersionedPropertyNames(program, op.parameters);
         validateReference(program, op, op.returnType);
       },
       interface: (iface) => {
@@ -712,6 +731,24 @@ function validateAvailabilityForRef(
           targetAddedOn: targetAddedOn!,
         },
         target: source,
+      });
+    }
+    if (
+      [Availability.Unavailable].includes(sourceVal) &&
+      [Availability.Added, Availability.Available].includes(targetVal)
+    ) {
+      const targetAddedOn = findAvailabilityAfterVersion(key, Availability.Added, sourceAvail);
+
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "addedAfter",
+        format: {
+          sourceName: getTypeName(target),
+          targetName: getTypeName(source),
+          sourceAddedOn: key,
+          targetAddedOn: targetAddedOn!,
+        },
+        target: target,
       });
     }
     if (
