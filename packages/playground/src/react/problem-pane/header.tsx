@@ -36,12 +36,12 @@ export const ProblemPaneHeader = memo(({ compilationState, ...props }: ProblemPa
     <Container status={errors.length > 0 ? "error" : "warning"} {...props}>
       {errors.length > 0 ? (
         <>
-          <ErrorCircle16Filled /> {errors.length} errors
+          <ErrorCircle16Filled className={style["error-icon"]} /> {errors.length} errors
         </>
       ) : null}
       {warnings.length > 0 ? (
         <>
-          <Warning16Filled /> {warnings.length} warnings
+          <Warning16Filled className={style["warning-icon"]} /> {warnings.length} warnings
         </>
       ) : null}
     </Container>
