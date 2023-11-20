@@ -15,6 +15,7 @@ const external = [
   "swagger-ui-react/swagger-ui.css",
   "@typespec/bundler/vite",
   "react-dom/client",
+  "react/jsx-runtime",
   "vite",
   "@vitejs/plugin-react",
   "fs/promises",
