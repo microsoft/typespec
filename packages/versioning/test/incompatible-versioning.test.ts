@@ -126,7 +126,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+          "'TestService.test' is referencing versioned type 'TestService.test.newParam' but is not versioned itself.",
       });
     });
 
@@ -161,21 +161,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when when op was added before parameter", async () => {
-      const diagnostics = await runner.diagnose(`
-        model Foo {}
-
-        @added(Versions.v1)
-        op test(@added(Versions.v2) param: Foo): void;
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' was added in version 'v1' but referencing type 'TestService.(anonymous model).param' added in version 'v2'.",
-      });
-    });
-
-    it("emit diagnostic when op based on a template was added before parameter", async () => {
+    it("emit diagnostic when op based on a template was added before parameter type", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -189,6 +175,20 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
+      });
+    });
+
+    it("emit diagnostic when when parameter was added before op", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {}
+
+        @added(Versions.v2)
+        op test(@added(Versions.v1) param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' was added in version 'v2' but contains type 'TestService.test.param' added in version 'v1'.",
       });
     });
   });

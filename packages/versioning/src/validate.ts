@@ -3,11 +3,14 @@ import {
   getService,
   getTypeName,
   isTemplateInstance,
+  ModelProperty,
   Namespace,
   navigateProgram,
   NoTarget,
+  Operation,
   Program,
   Type,
+  TypeNameOptions,
 } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 import { Version } from "./types.js";
@@ -99,16 +102,12 @@ export function $onValidate(program: Program) {
         for (const prop of op.parameters.properties.values()) {
           addNamespaceDependency(namespace, prop.type);
 
-          // Validate model -> property have correct versioning
-          validateTargetVersionCompatible(program, op, prop, { isTargetADependent: true });
-
-          // Validate model property -> type have correct versioning
           const typeChangedFrom = getTypeChangedFrom(program, prop);
           if (typeChangedFrom !== undefined) {
+            // FIXME: This is probably busted too
             validateMultiTypeReference(program, prop);
           } else {
-            // FIXME: This is broken.
-            validateReference(program, prop, prop.type);
+            validateOperationParameter(program, op, prop);
           }
 
           // Validate model property type is correct when madeOptional
@@ -480,6 +479,86 @@ interface IncompatibleVersionValidateOptions {
 
 /**
  * Validate the target reference versioning is compatible with the source versioning.
+ * @param operation The operation being containing the parameter
+ * @param parameter The parameter used in the operation
+ */
+function validateOperationParameter(
+  program: Program,
+  operation: Operation,
+  parameter: ModelProperty
+) {
+  const allVersions = getAllVersions(program, operation);
+  if (allVersions === undefined) return;
+  const alwaysAvailMap = new Map<string, Availability>();
+  allVersions.forEach((ver) => alwaysAvailMap.set(ver.name, Availability.Available));
+
+  const operationAvailability = getAvailabilityMapWithParentInfo(program, operation);
+  const paramAvailability = getAvailabilityMapWithParentInfo(program, parameter);
+  const paramTypeAvailability = getAvailabilityMapWithParentInfo(program, parameter.type);
+  const [paramTypeNamespace] = getVersions(program, parameter.type);
+  // everything is available in all versions
+  if (
+    operationAvailability === undefined &&
+    paramAvailability === undefined &&
+    paramTypeAvailability === undefined
+  ) {
+    return;
+  }
+  // intrinstic types are always available
+  if (paramTypeNamespace === undefined) return;
+
+  // check if a parameter or parameter type is versioned but the operation is not
+  if (operationAvailability === undefined) {
+    if (paramAvailability !== undefined) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "default",
+        format: {
+          sourceName: getTypeName(operation, { operationName: operation.name }),
+          targetName: getTypeName(parameter, { operationName: operation.name }),
+        },
+        target: operation,
+      });
+      return;
+    } else if (paramTypeAvailability !== undefined) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "default",
+        format: {
+          sourceName: getTypeName(operation, { operationName: operation.name }),
+          targetName: getTypeName(parameter.type, { operationName: operation.name }),
+        },
+        target: operation,
+      });
+      return;
+    }
+  }
+
+  if (paramAvailability !== undefined) {
+    validateAvailabilityForContains(
+      program,
+      operationAvailability,
+      paramAvailability,
+      operation,
+      parameter,
+      { operationName: operation.name },
+      { operationName: operation.name }
+    );
+  } else if (paramTypeAvailability !== undefined) {
+    validateAvailabilityForRef(
+      program,
+      operationAvailability,
+      paramTypeAvailability,
+      operation,
+      parameter.type,
+      { operationName: operation.name },
+      { operationName: operation.name }
+    );
+  }
+}
+
+/**
+ * Validate the target reference versioning is compatible with the source versioning.
  * This will also validate any template arguments used in the reference.
  * e.g. The target cannot be added after the source was added.
  * @param source Source type referencing the target type.
@@ -681,7 +760,9 @@ function validateAvailabilityForRef(
   sourceAvail: Map<string, Availability> | undefined,
   targetAvail: Map<string, Availability>,
   source: Type,
-  target: Type
+  target: Type,
+  sourceOptions?: TypeNameOptions,
+  targetOptions?: TypeNameOptions
 ) {
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
@@ -765,8 +846,8 @@ function validateAvailabilityForRef(
         code: "incompatible-versioned-reference",
         messageId: "removedBefore",
         format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
+          sourceName: getTypeName(source, sourceOptions),
+          targetName: getTypeName(target, targetOptions),
           sourceRemovedOn: key,
           targetRemovedOn: targetRemovedOn!,
         },
@@ -781,7 +862,9 @@ function validateAvailabilityForContains(
   sourceAvail: Map<string, Availability> | undefined,
   targetAvail: Map<string, Availability>,
   source: Type,
-  target: Type
+  target: Type,
+  sourceOptions?: TypeNameOptions,
+  targetOptions?: TypeNameOptions
 ) {
   if (!sourceAvail) return;
 
@@ -799,8 +882,8 @@ function validateAvailabilityForContains(
         code: "incompatible-versioned-reference",
         messageId: "dependentAddedAfter",
         format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
+          sourceName: getTypeName(source, sourceOptions),
+          targetName: getTypeName(target, targetOptions),
           sourceAddedOn: sourceAddedOn!,
           targetAddedOn: key,
         },
