@@ -18,7 +18,7 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "@typespec/compiler/testing";
-import { fail, ok, strictEqual } from "assert";
+import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
 import { buildVersionProjections, getVersions, indexTimeline } from "../src/versioning.js";
@@ -971,6 +971,26 @@ describe("versioning: logic", () => {
       assertHasProperties(v4.parameters, []);
       assertHasProperties(v5.parameters, ["a"]);
       assertHasProperties(v6.parameters, []);
+    });
+
+    it("can be made optional", async () => {
+      const {
+        projections: [v1, v2],
+      } = await versionedOperation(
+        ["v1", "v2"],
+        `op Test(a: string, @madeOptional(Versions.v2) b?: string): void;`
+      );
+
+      const prop1 = [...v1.parameters.properties.values()];
+      const prop2 = [...v2.parameters.properties.values()];
+      deepStrictEqual(
+        prop1.map((x) => x.optional),
+        [false, false]
+      );
+      deepStrictEqual(
+        prop2.map((x) => x.optional),
+        [false, true]
+      );
     });
 
     async function versionedOperation(versions: string[], operation: string) {
