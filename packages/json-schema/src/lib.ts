@@ -92,7 +92,7 @@ export const libDef = {
     "duplicate-id": {
       severity: "error",
       messages: {
-        default: paramMessage`There is multiple types with the same id "${"id"}".`,
+        default: paramMessage`There are multiple types with the same id "${"id"}".`,
       },
     },
     "unknown-scalar": {
