@@ -67,12 +67,12 @@ components:
           description: Input parameter.
     SourcePath:
       type: object
-      description: Uri or local path to source data.
       required:
         - source
       properties:
         source:
           type: string
-          description: File source path.
           minLength: 0
           maxLength: 2048
+          description: File source path.
+      description: Uri or local path to source data.

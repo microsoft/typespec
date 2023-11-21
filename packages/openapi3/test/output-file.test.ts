@@ -46,7 +46,7 @@ describe("openapi3: output file", () => {
       options: { "@typespec/openapi3": { ...options, "emitter-output-dir": outputDir } },
     });
 
-    expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
+    expectDiagnosticEmpty(diagnostics);
   }
 
   function expectOutput(

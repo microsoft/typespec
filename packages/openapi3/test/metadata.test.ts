@@ -981,4 +981,64 @@ describe("openapi3: metadata", () => {
 
     deepStrictEqual(requestSchema, { format: "binary", type: "string" });
   });
+
+  it("don't create multiple scalars with different visibility if they are the same", async () => {
+    const res = await openApiFor(`
+      scalar uuid extends string;
+
+      model Bar {
+        id: uuid;
+      }
+      
+      @patch op test(...Bar): Bar;
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Bar", "BarUpdate", "uuid"]);
+    deepStrictEqual(res.components.schemas.uuid, {
+      type: "string",
+    });
+  });
+
+  it("model referenced via a patch operation and an unreachable types does create 2 schemas", async () => {
+    const res = await openApiFor(`
+      model Bar {
+        id: string;
+      }
+      
+      @patch op test(bar: Bar): void;
+
+      model Foo {
+        bar: Bar;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      Bar: {
+        type: "object",
+        required: ["id"],
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      BarUpdate: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      Foo: {
+        type: "object",
+        required: ["bar"],
+        properties: {
+          bar: {
+            $ref: "#/components/schemas/Bar",
+          },
+        },
+      },
+    });
+  });
 });

@@ -224,48 +224,42 @@ components:
       required: true
       description: The name of the shelf in which the book is created.
       schema:
-        type: string
-        pattern: shelves/\w+
+        $ref: '#/components/schemas/shelf_name'
     DeleteBookRequest:
       name: name
       in: path
       required: true
       description: The name of the book to delete.
       schema:
-        type: string
-        pattern: shelves/\w+/books/\w+
+        $ref: '#/components/schemas/book_name'
     DeleteShelfRequest:
       name: name
       in: path
       required: true
       description: The name of the shelf to delete.
       schema:
-        type: string
-        pattern: shelves/\w+
+        $ref: '#/components/schemas/shelf_name'
     GetBookRequest:
       name: name
       in: path
       required: true
       description: The name of the book to retrieve.
       schema:
-        type: string
-        pattern: shelves/\w+/books/\w+
+        $ref: '#/components/schemas/book_name'
     GetShelfRequest:
       name: name
       in: path
       required: true
       description: The name of the shelf to retrieve.
       schema:
-        type: string
-        pattern: shelves/\w+
+        $ref: '#/components/schemas/shelf_name'
     ListBooksRequest.name:
       name: name
       in: path
       required: true
       description: The name of the shelf whose books we'd like to list.
       schema:
-        type: string
-        pattern: shelves/\w+
+        $ref: '#/components/schemas/shelf_name'
     ListRequestBase.page_size:
       name: page_size
       in: query
@@ -293,12 +287,10 @@ components:
       required: true
       description: The name of the shelf we're adding books to.
       schema:
-        type: string
-        pattern: shelves/\w+
+        $ref: '#/components/schemas/shelf_name'
   schemas:
     Book:
       type: object
-      description: A single book in the library.
       required:
         - name
       properties:
@@ -318,9 +310,9 @@ components:
         read:
           type: boolean
           description: Value indicating whether the book has been read.
+      description: A single book in the library.
     CreateShelfRequest:
       type: object
-      description: Request message for LibraryService.CreateShelf.
       required:
         - body
       properties:
@@ -328,12 +320,12 @@ components:
           allOf:
             - $ref: '#/components/schemas/Shelf'
           description: The shelf to create.
+      description: Request message for LibraryService.CreateShelf.
     Empty:
       type: object
       description: No body returned
     ListBooksResponse:
       type: object
-      description: Response message for LibraryService.ListBooks.
       required:
         - books
       properties:
@@ -350,6 +342,7 @@ components:
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
             field in the subsequent call to `ListShelves` method to retrieve the next
             page of results.
+      description: Response message for LibraryService.ListBooks.
     ListResponseBase:
       type: object
       properties:
@@ -363,7 +356,6 @@ components:
             page of results.
     ListShelvesResponse:
       type: object
-      description: Response message for LibraryService.ListShelves.
       required:
         - shelves
       properties:
@@ -380,11 +372,9 @@ components:
             [ListShelvesRequest.page_token][google.example.library.v1.ListShelvesRequest.page_token]
             field in the subsequent call to `ListShelves` method to retrieve the next
             page of results.
+      description: Response message for LibraryService.ListShelves.
     MoveBookRequest:
       type: object
-      description: |-
-        Describes what book to move (name) and what shelf we're moving it
-        to (other_shelf_name).
       required:
         - name
         - other_shelf_name
@@ -397,6 +387,9 @@ components:
           allOf:
             - $ref: '#/components/schemas/shelf_name'
           description: The name of the destination shelf.
+      description: |-
+        Describes what book to move (name) and what shelf we're moving it
+        to (other_shelf_name).
     ProtobufAny:
       type: object
       properties:
@@ -406,7 +399,6 @@ components:
           type: string
     RpcStatus:
       type: object
-      description: An unexpected error response.
       properties:
         code:
           type: integer
@@ -417,9 +409,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProtobufAny'
+      description: An unexpected error response.
     Shelf:
       type: object
-      description: A Shelf contains a collection of books with a theme.
       required:
         - name
       properties:
@@ -433,9 +425,9 @@ components:
         theme:
           type: string
           description: The theme of the shelf
+      description: A Shelf contains a collection of books with a theme.
     UpdateBookRequest:
       type: object
-      description: Request message for LibraryService.UpdateBook.
       required:
         - name
         - book
@@ -448,15 +440,16 @@ components:
           allOf:
             - $ref: '#/components/schemas/Book'
           description: The book to update with. The name must match or be empty.
+      description: Request message for LibraryService.UpdateBook.
     book_name:
       type: string
+      pattern: shelves/\w+/books/\w+
       description: |-
         The name of a book.
         Book names have the form `shelves/{shelf_id}/books/{book_id}`
-      pattern: shelves/\w+/books/\w+
     shelf_name:
       type: string
+      pattern: shelves/\w+
       description: |-
         The name of a shelf.
         Shelf names have the form `shelves/{shelf_id}`.
-      pattern: shelves/\w+

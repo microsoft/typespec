@@ -17,8 +17,8 @@ import { BrowserHost } from "../types.js";
 import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js";
 
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
-  libraries: string[];
-  importConfig?: LibraryImportOptions;
+  readonly libraries: readonly string[];
+  readonly importConfig?: LibraryImportOptions;
 }
 
 interface StandalonePlaygroundContext {
