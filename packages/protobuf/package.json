@@ -29,7 +29,7 @@
     "test-official": "c8 mocha --forbid-only",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/standard-library/protobuf/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/protobuf/reference"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:~0.50.0"
