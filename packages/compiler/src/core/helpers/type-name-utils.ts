@@ -17,7 +17,6 @@ import {
 export interface TypeNameOptions {
   namespaceFilter?: (ns: Namespace) => boolean;
   printable?: boolean;
-  operationName?: string;
 }
 
 export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): string {
@@ -119,9 +118,8 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     }
   }
 
-  const defaultName = options?.operationName ?? "(anonymous model)";
   if (model.name === "") {
-    return nsPrefix + defaultName;
+    return nsPrefix + "(anonymous model)";
   }
   const modelName = nsPrefix + getIdentifierName(model.name, options);
   if (isTemplateInstance(model)) {
@@ -166,9 +164,8 @@ function isInTypeSpecNamespace(type: Type & { namespace?: Namespace }): boolean 
 
 function getModelPropertyName(prop: ModelProperty, options: TypeNameOptions | undefined) {
   const modelName = prop.model ? getModelName(prop.model, options) : undefined;
-  const defaultName = options?.operationName ?? "(anonymous mode)";
 
-  return `${modelName ?? defaultName}.${prop.name}`;
+  return `${modelName ?? "(anonymous model)"}.${prop.name}`;
 }
 
 function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined) {

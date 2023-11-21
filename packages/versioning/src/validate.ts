@@ -104,7 +104,7 @@ export function $onValidate(program: Program) {
 
           const typeChangedFrom = getTypeChangedFrom(program, prop);
           if (typeChangedFrom !== undefined) {
-            validateMultiTypeReference(program, prop, { operationName: op.name });
+            validateMultiTypeReference(program, prop);
           } else {
             validateOperationParameter(program, op, prop);
           }
@@ -513,8 +513,8 @@ function validateOperationParameter(
         code: "incompatible-versioned-reference",
         messageId: "default",
         format: {
-          sourceName: getTypeName(operation, { operationName: operation.name }),
-          targetName: getTypeName(parameter, { operationName: operation.name }),
+          sourceName: getTypeName(operation),
+          targetName: getTypeName(parameter),
         },
         target: operation,
       });
@@ -524,8 +524,8 @@ function validateOperationParameter(
         code: "incompatible-versioned-reference",
         messageId: "default",
         format: {
-          sourceName: getTypeName(operation, { operationName: operation.name }),
-          targetName: getTypeName(parameter.type, { operationName: operation.name }),
+          sourceName: getTypeName(operation),
+          targetName: getTypeName(parameter.type),
         },
         target: operation,
       });
@@ -539,9 +539,7 @@ function validateOperationParameter(
       operationAvailability,
       paramAvailability,
       operation,
-      parameter,
-      { operationName: operation.name },
-      { operationName: operation.name }
+      parameter
     );
   } else if (paramTypeAvailability !== undefined) {
     validateAvailabilityForRef(
@@ -549,9 +547,7 @@ function validateOperationParameter(
       operationAvailability,
       paramTypeAvailability,
       operation,
-      parameter.type,
-      { operationName: operation.name },
-      { operationName: operation.name }
+      parameter.type
     );
   }
 }

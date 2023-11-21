@@ -126,7 +126,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' is referencing versioned type 'TestService.test.newParam' but is not versioned itself.",
+          "'TestService.test' is referencing versioned type 'TestService.(anonymous model).newParam' but is not versioned itself.",
       });
     });
 
@@ -188,7 +188,7 @@ describe("versioning: validate incompatible references", () => {
       expectDiagnostics(diagnostics, {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
-          "'TestService.test' was added in version 'v2' but contains type 'TestService.test.param' added in version 'v1'.",
+          "'TestService.test' was added in version 'v2' but contains type 'TestService.(anonymous model).param' added in version 'v1'.",
       });
     });
 
@@ -208,13 +208,13 @@ describe("versioning: validate incompatible references", () => {
           code: "@typespec/versioning/incompatible-versioned-reference",
           severity: "error",
           message:
-            "'TestService.test.param' is referencing type 'TestService.Doo' which does not exist in version 'v1'.",
+            "'TestService.(anonymous model).param' is referencing type 'TestService.Doo' which does not exist in version 'v1'.",
         },
         {
           code: "@typespec/versioning/incompatible-versioned-reference",
           severity: "error",
           message:
-            "'TestService.test.param' is referencing type 'TestService.Foo' which does not exist in version 'v2'.",
+            "'TestService.(anonymous model).param' is referencing type 'TestService.Foo' which does not exist in version 'v2'.",
         },
       ]);
     });
