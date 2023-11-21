@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Handle: union variants as discriminator",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
