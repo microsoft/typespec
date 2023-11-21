@@ -34,20 +34,20 @@ The fields of the [OpenAPI Operation object][] are set as described below.
 
 The description field is set from the [(built-in) `@doc` decorator][doc-decorator] on the TypeSpec operation, and omitted when `@doc` is not present.
 
-[doc-decorator]: ../built-in-decorators.md#doc
+[doc-decorator]: ../../standard-library/built-in-decorators.md#doc
 
 ### summary
 
 The summary field is set from the [(built-in) `@summary` decorator][summary-decorator] on the TypeSpec operation, and omitted when `@summary` is not present.
 
-[summary-decorator]: ../built-in-decorators.md#summary
+[summary-decorator]: ../../standard-library/built-in-decorators.md#summary
 
 ### operationId
 
 The operationId can be explicitly specified with the [(OpenAPI) `@operationId` decorator][openapi-operationid-decorator],
 and otherwise is simple the operation name, prefixed with "<interface*name>*" when the operation is within an interface.
 
-[openapi-operationid-decorator]: ../built-in-decorators.md#operationId
+[openapi-operationid-decorator]: ../../standard-library/built-in-decorators.md#operationId
 
 ### parameters and requestBody
 
@@ -88,7 +88,7 @@ is taken as the response body.
 In the absence of explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
 
 [http-statuscode-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.statuscode
-[error-decorator]: ../built-in-decorators.md#error
+[error-decorator]: ../../standard-library/built-in-decorators.md#error
 
 See also [metadata](../http/operations.md#metadata) for more advanced details.
 
@@ -97,14 +97,14 @@ See also [metadata](../http/operations.md#metadata) for more advanced details.
 Any tags specified with the [(built-in) `@tag` decorator][tag-decorator] on the operation, interface, or
 enclosing namespace(s) are included in the OpenAPI operation's tags array.
 
-[tag-decorator]: ../built-in-decorators.md#tag
+[tag-decorator]: ../../standard-library/built-in-decorators.md#tag
 
 ### deprecated
 
 If the [(built-in) `#deprecated` directive][deprecated-decorator] is specified on the operation, then the operation's
 deprecated field is set to true.
 
-[deprecated-decorator]: ../built-in-decorators.md#deprecated
+[deprecated-decorator]: ../../standard-library/built-in-decorators.md#deprecated
 
 ### externalDocs
 
@@ -127,7 +127,7 @@ section with the TypeSpec name qualified by any enclosing namespaces.
 A special case is an instantiation of a model template, it is treated as an inline model unless the model template has
 a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema is defined in `components/schemas` with the friendly-name.
 
-[friendlyname]: ../built-in-decorators.md#friendlyname
+[friendlyname]: ../../standard-library/built-in-decorators.md#friendlyname
 
 The following table shows how TypeSpec types are translated to JSON Schema types:
 

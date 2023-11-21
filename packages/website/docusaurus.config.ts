@@ -241,7 +241,7 @@ const config: Config = {
       prism: {
         theme: themes.oneLight,
         darkTheme: themes.dracula,
-        additionalLanguages: [],
+        additionalLanguages: ["http"],
       },
       mermaid: {},
       algolia: {
