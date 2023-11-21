@@ -104,8 +104,7 @@ export function $onValidate(program: Program) {
 
           const typeChangedFrom = getTypeChangedFrom(program, prop);
           if (typeChangedFrom !== undefined) {
-            // FIXME: This is probably busted too
-            validateMultiTypeReference(program, prop);
+            validateMultiTypeReference(program, prop, { operationName: op.name });
           } else {
             validateOperationParameter(program, op, prop);
           }
@@ -204,7 +203,7 @@ function getAllVersions(p: Program, t: Type): Version[] | undefined {
 /**
  * Ensures that properties whose type has changed with versioning are valid.
  */
-function validateMultiTypeReference(program: Program, source: Type) {
+function validateMultiTypeReference(program: Program, source: Type, options?: TypeNameOptions) {
   const versionTypeMap = getVersionedTypeMap(program, source);
   if (versionTypeMap === undefined) return;
   for (const [version, type] of versionTypeMap!) {
@@ -218,8 +217,8 @@ function validateMultiTypeReference(program: Program, source: Type) {
       code: "incompatible-versioned-reference",
       messageId: "doesNotExist",
       format: {
-        sourceName: getTypeName(source),
-        targetName: getTypeName(type),
+        sourceName: getTypeName(source, options),
+        targetName: getTypeName(type, options),
         version: prettyVersion(version),
       },
       target: source,

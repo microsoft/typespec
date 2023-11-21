@@ -973,6 +973,25 @@ describe("versioning: logic", () => {
       assertHasProperties(v6.parameters, []);
     });
 
+    it("can change type over multiple versions", async () => {
+      const {
+        projections: [v1, v2, v3, v4, v5],
+      } = await versionedOperation(
+        ["v1", "v2", "v3", "v4", "v5"],
+        `op Test(
+          @typeChangedFrom(Versions.v2, string)
+          @typeChangedFrom(Versions.v4, utcDateTime)
+          date: int64
+        ): void;`
+      );
+
+      strictEqual((v1.parameters.properties.get("date")?.type as Scalar).name, "string");
+      strictEqual((v2.parameters.properties.get("date")?.type as Scalar).name, "utcDateTime");
+      strictEqual((v3.parameters.properties.get("date")?.type as Scalar).name, "utcDateTime");
+      strictEqual((v4.parameters.properties.get("date")?.type as Scalar).name, "int64");
+      strictEqual((v5.parameters.properties.get("date")?.type as Scalar).name, "int64");
+    });
+
     it("can be made optional", async () => {
       const {
         projections: [v1, v2],

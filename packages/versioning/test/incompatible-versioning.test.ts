@@ -191,6 +191,33 @@ describe("versioning: validate incompatible references", () => {
           "'TestService.test' was added in version 'v2' but contains type 'TestService.test.param' added in version 'v1'.",
       });
     });
+
+    it("emit diagnostic when type changed to types that don't exist", async () => {
+      const diagnostics = await runner.diagnose(`
+      @added(Versions.v3)  
+      model Foo {}
+
+      @removed(Versions.v1)
+      model Doo {}
+
+        @added(Versions.v3)
+        op test(@typeChangedFrom(Versions.v2, Doo) param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+          severity: "error",
+          message:
+            "'TestService.test.param' is referencing type 'TestService.Doo' which does not exist in version 'v1'.",
+        },
+        {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+          severity: "error",
+          message:
+            "'TestService.test.param' is referencing type 'TestService.Foo' which does not exist in version 'v2'.",
+        },
+      ]);
+    });
   });
 
   describe("operation return type", () => {
