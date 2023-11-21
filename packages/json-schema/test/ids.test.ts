@@ -34,8 +34,7 @@ describe("implicit ids", () => {
   });
 
   it("emit diagnostic on duplicate IDs", async () => {
-    await assert.rejects(async () => {
-      const [_, diagnostics] = await emitSchemaWithDiagnostics(`
+    const [_, diagnostics] = await emitSchemaWithDiagnostics(`
         namespace Test1 {
           model Foo {}
         }
@@ -43,11 +42,16 @@ describe("implicit ids", () => {
           model Foo {}
         }
       `);
-      expectDiagnostics(diagnostics, {
+    expectDiagnostics(diagnostics, [
+      {
         code: "@typespec/json-schema/duplicate-id",
-        message: "",
-      });
-    });
+        message: `There is multiple types with the same id "Foo.json".`,
+      },
+      {
+        code: "@typespec/json-schema/duplicate-id",
+        message: `There is multiple types with the same id "Foo.json".`,
+      },
+    ]);
   });
 });
 
