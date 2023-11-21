@@ -1,5 +1,6 @@
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import assert from "assert";
-import { emitSchema } from "./utils.js";
+import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 describe("implicit ids", () => {
   it("when bundling, sets the id based on the declaration name", async () => {
@@ -32,9 +33,9 @@ describe("implicit ids", () => {
     assert.strictEqual(schemas["Foo.json"].$id, "http://example.org/Foo.json");
   });
 
-  it("throws errors on duplicate IDs", async () => {
+  it("emit diagnostic on duplicate IDs", async () => {
     await assert.rejects(async () => {
-      await emitSchema(`
+      const [_, diagnostics] = await emitSchemaWithDiagnostics(`
         namespace Test1 {
           model Foo {}
         }
@@ -42,6 +43,10 @@ describe("implicit ids", () => {
           model Foo {}
         }
       `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/json-schema/duplicate-id",
+        message: "",
+      });
     });
   });
 });

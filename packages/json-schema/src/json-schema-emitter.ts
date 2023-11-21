@@ -1,6 +1,8 @@
 import {
   BooleanLiteral,
   compilerAssert,
+  DiagnosticTarget,
+  DuplicateTracker,
   emitFile,
   Enum,
   EnumMember,
@@ -69,7 +71,7 @@ import {
 } from "./index.js";
 import { JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
-  #seenIds = new Set();
+  #idDuplicateTracker = new DuplicateTracker<string, DiagnosticTarget>();
   #typeForSourceFile = new Map<SourceFile<any>, JsonSchemaDeclaration>();
   #refToDecl = new Map<string, Declaration<Record<string, unknown>>>();
 
@@ -164,10 +166,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   modelPropertyLiteral(property: ModelProperty): EmitterOutput<object> {
     const propertyType = this.emitter.emitTypeReference(property.type);
-
-    if (propertyType.kind !== "code") {
-      throw new Error("Unexpected non-code result from emit reference");
-    }
+    compilerAssert(propertyType.kind === "code", "Unexpected non-code result from emit reference");
 
     const result = new ObjectBuilder(propertyType.value);
 
@@ -321,9 +320,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     // could be made easier, as it's a bit subtle.
 
     const refSchema = this.emitter.emitTypeReference(property.type);
-    if (refSchema.kind !== "code") {
-      throw new Error("Unexpected non-code result from emit reference");
-    }
+    compilerAssert(refSchema.kind === "code", "Unexpected non-code result from emit reference");
     const schema = new ObjectBuilder(refSchema.value);
     this.#applyConstraints(property, schema);
     return schema;
@@ -411,7 +408,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     } else if (scalar.baseScalar) {
       result = this.#getSchemaForScalar(scalar.baseScalar);
     } else {
-      throw new Error(`Can't emit custom scalar type ${scalar.name}`);
+      reportDiagnostic(this.emitter.getProgram(), {
+        code: "unknown-scalar",
+        format: { name: scalar.name },
+        target: scalar,
+      });
+      return {};
     }
 
     const objectBuilder = new ObjectBuilder(result);
@@ -489,7 +491,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "bytes":
         return { type: "string", contentEncoding: "base64" };
       default:
-        throw new Error("Unknown scalar type " + baseBuiltIn.name);
+        compilerAssert(false, `Unknown built-in scalar type ${baseBuiltIn.name}`);
     }
   }
 
@@ -508,9 +510,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       const constraintType = fn(this.emitter.getProgram(), type);
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);
-        if (ref.kind !== "code") {
-          throw new Error("Couldn't get reference to contains type");
-        }
+        compilerAssert(ref.kind === "code", "Unexpected non-code result from emit reference");
         schema.set(key, ref.value);
       }
     };
@@ -591,7 +591,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
-    switch (name) {
+    switch (intrinsic.name) {
       case "null":
         return { type: "null" };
       case "unknown":
@@ -599,12 +599,27 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       case "never":
       case "void":
         return { not: {} };
+      case "ErrorType":
+        return {};
+      default:
+        const _assertNever: never = intrinsic.name;
+        compilerAssert(false, "Unreachable");
     }
-
-    throw new Error("Unknown intrinsic type " + name);
   }
 
+  #reportDuplicateIds() {
+    for (const [id, targets] of this.#idDuplicateTracker.entries()) {
+      for (const target of targets) {
+        reportDiagnostic(this.emitter.getProgram(), {
+          code: "duplicate-id",
+          format: { id },
+          target: target,
+        });
+      }
+    }
+  }
   async writeOutput(sourceFiles: SourceFile<Record<string, any>>[]): Promise<void> {
+    this.#reportDuplicateIds();
     const toEmit: EmittedSourceFile[] = [];
 
     for (const sf of sourceFiles) {
@@ -644,9 +659,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         ),
       };
     } else {
-      if (decls.length > 1) {
-        throw new Error("Emit error - multiple decls in single schema per file mode");
-      }
+      compilerAssert(decls.length === 1, "Multiple decls in single schema per file mode");
 
       content = { ...decls[0].value };
 
@@ -682,13 +695,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #getCurrentSourceFile() {
     let scope: Scope<object> = this.emitter.getContext().scope;
-    if (!scope) throw new Error("need scope");
+    compilerAssert(scope, "Scope should exists");
 
     while (scope && scope.kind !== "sourceFile") {
       scope = scope.parentScope;
     }
-
-    if (!scope) throw new Error("Didn't find source file scope");
+    compilerAssert(scope, "Top level scope should be a source file");
 
     return scope.sourceFile;
   }
@@ -697,15 +709,13 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const baseUri = findBaseUri(this.emitter.getProgram(), type);
     const explicitId = getId(this.emitter.getProgram(), type);
     if (explicitId) {
-      return this.#checkForDuplicateId(idWithBaseURI(explicitId, baseUri));
+      return this.#trackId(idWithBaseURI(explicitId, baseUri), type);
     }
 
     // generate an id
     if (this.emitter.getOptions().bundleId) {
-      if (!type.name) {
-        throw new Error("Type needs a name to emit a declaration id");
-      }
-      return this.#checkForDuplicateId(idWithBaseURI(name, baseUri));
+      compilerAssert(type.name, "Type needs a name to emit a declaration id");
+      return this.#trackId(idWithBaseURI(name, baseUri), type);
     } else {
       // generate the ID based on the file path
       const base = this.emitter.getOptions().emitterOutputDir;
@@ -713,9 +723,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       const relative = getRelativePathFromDirectory(base, file, false);
 
       if (baseUri) {
-        return this.#checkForDuplicateId(new URL(relative, baseUri).href);
+        return this.#trackId(new URL(relative, baseUri).href, type);
       } else {
-        return this.#checkForDuplicateId(relative);
+        return this.#trackId(relative, type);
       }
     }
 
@@ -728,12 +738,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
   }
 
-  #checkForDuplicateId(id: string) {
-    if (this.#seenIds.has(id)) {
-      throw new Error(`Duplicate id: ${id}`);
-    }
-
-    this.#seenIds.add(id);
+  #trackId(id: string, target: DiagnosticTarget) {
+    this.#idDuplicateTracker.track(id, target);
     return id;
   }
 
