@@ -316,7 +316,16 @@ export function createAssetEmitter<T, TOptions extends object>(
       return typeEmitter.writeOutput(sourceFiles);
     },
 
-    emitType(type) {
+    getSourceFiles() {
+      return sourceFiles;
+    },
+
+    emitType(type, context?: ContextState) {
+      if (context?.referenceContext) {
+        incomingReferenceContext = context?.referenceContext ?? incomingReferenceContext;
+        incomingReferenceContextTarget = type ?? incomingReferenceContextTarget;
+      }
+
       const declName =
         isDeclaration(type) && type.kind !== "Namespace" ? typeEmitter.declarationName(type) : null;
       const key = typeEmitterKey(type);
@@ -625,7 +634,7 @@ export function createAssetEmitter<T, TOptions extends object>(
 
       if (keyHasReferenceContext(entry.method)) {
         compilerAssert(
-          (typeEmitter as any)[lexicalKey],
+          (typeEmitter as any)[referenceKey],
           `TypeEmitter doesn't have a method named ${referenceKey}`
         );
       }
@@ -857,9 +866,7 @@ const noReferenceContext = new Set<string>([
   "booleanLiteral",
   "stringLiteral",
   "numericLiteral",
-  "scalarDeclaration",
   "scalarInstantiation",
-  "enumDeclaration",
   "enumMember",
   "enumMembers",
   "intrinsic",

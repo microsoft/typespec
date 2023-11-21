@@ -19,6 +19,10 @@
   ],
   "type": "module",
   "exports": {
+    ".": {
+      "types": "./dist-dev/src/index.d.ts",
+      "default": "./dist-dev/src/index.js"
+    },
     "./samples": {
       "types": "./samples/dist/samples.d.ts",
       "default": "./samples/dist/samples.js"

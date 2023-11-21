@@ -1,13 +1,22 @@
 import { CompilerOptions } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FunctionComponent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CompletionItemTag } from "vscode-languageserver";
 import { getMarkerLocation } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
+import { PlaygroundContextProvider } from "./context/playground-context.js";
+import { DefaultFooter } from "./default-footer.js";
 import { EditorCommandBar } from "./editor-command-bar.js";
 import { OnMountData, useMonacoModel } from "./editor.js";
-import { Footer } from "./footer.js";
 import { useControllableValue } from "./hooks.js";
 import { OutputView } from "./output-view.js";
 import Pane from "./split-pane/pane.js";
@@ -22,7 +31,7 @@ export interface PlaygroundProps {
   defaultContent?: string;
 
   /** List of available libraries */
-  libraries: string[];
+  readonly libraries: readonly string[];
 
   /** Emitter to use */
   emitter?: string;
@@ -57,6 +66,11 @@ export interface PlaygroundProps {
   onSave?: (value: PlaygroundSaveData) => void;
 
   editorOptions?: PlaygroundEditorsOptions;
+
+  /**
+   * Change the footer of the playground.
+   */
+  footer?: ReactNode;
 }
 
 export interface PlaygroundEditorsOptions {
@@ -213,54 +227,54 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   }, []);
 
   return (
-    <div
-      css={{
-        display: "grid",
-        gridTemplateColumns: "1",
-        gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"typespeceditor"\n    "footer"',
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-        fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
-      }}
-    >
-      <SplitPane
-        initialSizes={["50%", "50%"]}
-        css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
+    <PlaygroundContextProvider value={{ host }}>
+      <div
+        css={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
+        }}
       >
-        <Pane>
-          <EditorCommandBar
-            host={host}
-            selectedEmitter={selectedEmitter}
-            onSelectedEmitterChange={onSelectedEmitterChange}
-            compilerOptions={compilerOptions}
-            onCompilerOptionsChange={onCompilerOptionsChange}
-            samples={props.samples}
-            selectedSampleName={selectedSampleName}
-            onSelectedSampleNameChange={onSelectedSampleNameChange}
-            saveCode={saveCode}
-            formatCode={formatCode}
-            newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-            documentationUrl={props.links?.documentationUrl}
-          />
-          <TypeSpecEditor
-            model={typespecModel}
-            actions={typespecEditorActions}
-            options={props.editorOptions}
-            onMount={onTypeSpecEditorMount}
-          />
-        </Pane>
-        <Pane>
-          <OutputView
-            compilationState={compilationState}
-            editorOptions={props.editorOptions}
-            viewers={props.emitterViewers?.[selectedEmitter]}
-          />
-        </Pane>
-      </SplitPane>
-      <Footer host={host} />
-    </div>
+        <SplitPane
+          initialSizes={["50%", "50%"]}
+          css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
+        >
+          <Pane>
+            <EditorCommandBar
+              host={host}
+              selectedEmitter={selectedEmitter}
+              onSelectedEmitterChange={onSelectedEmitterChange}
+              compilerOptions={compilerOptions}
+              onCompilerOptionsChange={onCompilerOptionsChange}
+              samples={props.samples}
+              selectedSampleName={selectedSampleName}
+              onSelectedSampleNameChange={onSelectedSampleNameChange}
+              saveCode={saveCode}
+              formatCode={formatCode}
+              newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+              documentationUrl={props.links?.documentationUrl}
+            />
+            <TypeSpecEditor
+              model={typespecModel}
+              actions={typespecEditorActions}
+              options={props.editorOptions}
+              onMount={onTypeSpecEditorMount}
+            />
+          </Pane>
+          <Pane>
+            <OutputView
+              compilationState={compilationState}
+              editorOptions={props.editorOptions}
+              viewers={props.emitterViewers?.[selectedEmitter]}
+            />
+          </Pane>
+        </SplitPane>
+        {props.footer ?? <DefaultFooter />}
+      </div>
+    </PlaygroundContextProvider>
   );
 };
 

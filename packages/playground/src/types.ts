@@ -1,4 +1,4 @@
-import { CompilerHost, CompilerOptions, TypeSpecLibrary } from "@typespec/compiler";
+import { CompilerHost, CompilerOptions, NodePackage, TypeSpecLibrary } from "@typespec/compiler";
 
 export interface PlaygroundSample {
   filename: string;
@@ -13,6 +13,7 @@ export interface PlaygroundSample {
 
 export interface PlaygroundTspLibrary {
   name: string;
+  packageJson: NodePackage;
   isEmitter: boolean;
   definition?: TypeSpecLibrary<any>;
 }

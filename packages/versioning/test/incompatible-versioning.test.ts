@@ -181,6 +181,26 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("emit diagnostic when op was added before templated return type", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v3)
+        model Gadget {};
+
+        model List<T> {
+          value: T[];
+          nextLink?: url;
+        }
+
+        @added(Versions.v2)
+        op list(): List<Gadget>;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.list' was added in version 'v2' but referencing type 'TestService.Gadget' added in version 'v3'.",
+      });
+    });
+
     it("emit diagnostic when op was added before return type", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v3)
