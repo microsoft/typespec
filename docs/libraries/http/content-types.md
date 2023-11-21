@@ -97,3 +97,7 @@ op getAvatarAsPng(@header accept: "image/png"): PngImage;
 @overload(getAvatar)
 op getAvatarAsJpeg(@header accept: "image/jpeg"): JpegImage;
 ```
+
+## Multipart request
+
+See [Multipart docs](./multipart.md)
