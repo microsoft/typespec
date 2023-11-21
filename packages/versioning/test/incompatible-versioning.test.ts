@@ -117,6 +117,19 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("emit diagnostic when unversioned op has a versioned parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {}
+
+        op test(param: string, @added(Versions.v2) newParam: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing versioned type 'TestService.Foo' but is not versioned itself.",
+      });
+    });
+
     it("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
@@ -133,7 +146,7 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when when op was added before parameter", async () => {
+    it("emit diagnostic when when op was added before parameter type", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -145,6 +158,20 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
+      });
+    });
+
+    it("emit diagnostic when when op was added before parameter", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {}
+
+        @added(Versions.v1)
+        op test(@added(Versions.v2) param: Foo): void;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' was added in version 'v1' but referencing type 'TestService.(anonymous model).param' added in version 'v2'.",
       });
     });
 

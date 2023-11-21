@@ -107,6 +107,7 @@ export function $onValidate(program: Program) {
           if (typeChangedFrom !== undefined) {
             validateMultiTypeReference(program, prop);
           } else {
+            // FIXME: This is broken.
             validateReference(program, prop, prop.type);
           }
 
