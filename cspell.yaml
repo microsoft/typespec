@@ -47,6 +47,7 @@ words:
   - openapi
   - openapiv
   - picocolors
+  - prismjs
   - proto
   - protobuf
   - protoc
