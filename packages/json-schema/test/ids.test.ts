@@ -45,11 +45,11 @@ describe("implicit ids", () => {
     expectDiagnostics(diagnostics, [
       {
         code: "@typespec/json-schema/duplicate-id",
-        message: `There is multiple types with the same id "Foo.json".`,
+        message: `There are multiple types with the same id "Foo.json".`,
       },
       {
         code: "@typespec/json-schema/duplicate-id",
-        message: `There is multiple types with the same id "Foo.json".`,
+        message: `There are multiple types with the same id "Foo.json".`,
       },
     ]);
   });
