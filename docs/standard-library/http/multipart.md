@@ -12,7 +12,7 @@ op create(@header contentType: "multipart/form-data", username: string, avatar: 
 
 Each property of the body represents a part of the multipart request. The name of the property is used as the name of the part. Properties in models are ordered and the order is used to determine the order of the parts in the request.
 
-The previous example would correspond the following HTTP request:
+The previous example would correspond to the following HTTP request:
 
 ```http
 POST / HTTP/1.1
