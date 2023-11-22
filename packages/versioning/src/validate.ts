@@ -532,24 +532,6 @@ function validateOperationParameter(
       return;
     }
   }
-
-  if (paramAvailability !== undefined) {
-    validateAvailabilityForContains(
-      program,
-      operationAvailability,
-      paramAvailability,
-      operation,
-      parameter
-    );
-  } else if (paramTypeAvailability !== undefined) {
-    validateAvailabilityForRef(
-      program,
-      operationAvailability,
-      paramTypeAvailability,
-      operation,
-      parameter.type
-    );
-  }
 }
 
 /**
