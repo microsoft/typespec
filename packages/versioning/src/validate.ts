@@ -3,11 +3,14 @@ import {
   getService,
   getTypeName,
   isTemplateInstance,
+  ModelProperty,
   Namespace,
   navigateProgram,
   NoTarget,
+  Operation,
   Program,
   Type,
+  TypeNameOptions,
 } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 import { Version } from "./types.js";
@@ -28,7 +31,7 @@ import {
 export function $onValidate(program: Program) {
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 
-  function addDependency(source: Namespace | undefined, target: Type | undefined) {
+  function addNamespaceDependency(source: Namespace | undefined, target: Type | undefined) {
     if (!target || !("namespace" in target) || !target.namespace) {
       return;
     }
@@ -47,13 +50,15 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
-        addDependency(model.namespace, model.sourceModel);
-        addDependency(model.namespace, model.baseModel);
+        addNamespaceDependency(model.namespace, model.sourceModel);
+        addNamespaceDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
-          addDependency(model.namespace, prop.type);
+          addNamespaceDependency(model.namespace, prop.type);
 
           // Validate model -> property have correct versioning
-          validateTargetVersionCompatible(program, model, prop, { isTargetADependent: true });
+          validateTargetVersionCompatible(program, model, prop, {
+            isTargetADependent: true,
+          });
 
           // Validate model property -> type have correct versioning
           const typeChangedFrom = getTypeChangedFrom(program, prop);
@@ -77,7 +82,7 @@ export function $onValidate(program: Program) {
           return;
         }
         for (const variant of union.variants.values()) {
-          addDependency(union.namespace, variant.type);
+          addNamespaceDependency(union.namespace, variant.type);
         }
         validateVersionedPropertyNames(program, union);
       },
@@ -88,16 +93,26 @@ export function $onValidate(program: Program) {
         }
 
         const namespace = op.namespace ?? op.interface?.namespace;
-        addDependency(namespace, op.sourceOperation);
-        addDependency(namespace, op.parameters);
-        addDependency(namespace, op.returnType);
-
+        addNamespaceDependency(namespace, op.sourceOperation);
+        addNamespaceDependency(namespace, op.returnType);
         if (op.interface) {
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
+
         for (const prop of op.parameters.properties.values()) {
-          validateReference(program, op, prop.type);
+          addNamespaceDependency(namespace, prop.type);
+
+          const typeChangedFrom = getTypeChangedFrom(program, prop);
+          if (typeChangedFrom !== undefined) {
+            validateMultiTypeReference(program, prop);
+          } else {
+            validateOperationParameter(program, op, prop);
+          }
+
+          // Validate model property type is correct when madeOptional
+          validateMadeOptional(program, prop);
         }
+        validateVersionedPropertyNames(program, op.parameters);
         validateReference(program, op, op.returnType);
       },
       interface: (iface) => {
@@ -188,7 +203,7 @@ function getAllVersions(p: Program, t: Type): Version[] | undefined {
 /**
  * Ensures that properties whose type has changed with versioning are valid.
  */
-function validateMultiTypeReference(program: Program, source: Type) {
+function validateMultiTypeReference(program: Program, source: Type, options?: TypeNameOptions) {
   const versionTypeMap = getVersionedTypeMap(program, source);
   if (versionTypeMap === undefined) return;
   for (const [version, type] of versionTypeMap!) {
@@ -202,8 +217,8 @@ function validateMultiTypeReference(program: Program, source: Type) {
       code: "incompatible-versioned-reference",
       messageId: "doesNotExist",
       format: {
-        sourceName: getTypeName(source),
-        targetName: getTypeName(type),
+        sourceName: getTypeName(source, options),
+        targetName: getTypeName(type, options),
         version: prettyVersion(version),
       },
       target: source,
@@ -463,6 +478,82 @@ interface IncompatibleVersionValidateOptions {
 
 /**
  * Validate the target reference versioning is compatible with the source versioning.
+ * @param operation The operation being containing the parameter
+ * @param parameter The parameter used in the operation
+ */
+function validateOperationParameter(
+  program: Program,
+  operation: Operation,
+  parameter: ModelProperty
+) {
+  const allVersions = getAllVersions(program, operation);
+  if (allVersions === undefined) return;
+  const alwaysAvailMap = new Map<string, Availability>();
+  allVersions.forEach((ver) => alwaysAvailMap.set(ver.name, Availability.Available));
+
+  const operationAvailability = getAvailabilityMapWithParentInfo(program, operation);
+  const paramAvailability = getAvailabilityMapWithParentInfo(program, parameter);
+  const paramTypeAvailability = getAvailabilityMapWithParentInfo(program, parameter.type);
+  const [paramTypeNamespace] = getVersions(program, parameter.type);
+  // everything is available in all versions
+  if (
+    operationAvailability === undefined &&
+    paramAvailability === undefined &&
+    paramTypeAvailability === undefined
+  ) {
+    return;
+  }
+  // intrinstic types are always available
+  if (paramTypeNamespace === undefined) return;
+
+  // check if a parameter or parameter type is versioned but the operation is not
+  if (operationAvailability === undefined) {
+    if (paramAvailability !== undefined) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "default",
+        format: {
+          sourceName: getTypeName(operation),
+          targetName: getTypeName(parameter),
+        },
+        target: operation,
+      });
+      return;
+    } else if (paramTypeAvailability !== undefined) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "default",
+        format: {
+          sourceName: getTypeName(operation),
+          targetName: getTypeName(parameter.type),
+        },
+        target: operation,
+      });
+      return;
+    }
+  }
+
+  if (paramAvailability !== undefined) {
+    validateAvailabilityForContains(
+      program,
+      operationAvailability,
+      paramAvailability,
+      operation,
+      parameter
+    );
+  } else if (paramTypeAvailability !== undefined) {
+    validateAvailabilityForRef(
+      program,
+      operationAvailability,
+      paramTypeAvailability,
+      operation,
+      parameter.type
+    );
+  }
+}
+
+/**
+ * Validate the target reference versioning is compatible with the source versioning.
  * This will also validate any template arguments used in the reference.
  * e.g. The target cannot be added after the source was added.
  * @param source Source type referencing the target type.
@@ -664,7 +755,9 @@ function validateAvailabilityForRef(
   sourceAvail: Map<string, Availability> | undefined,
   targetAvail: Map<string, Availability>,
   source: Type,
-  target: Type
+  target: Type,
+  sourceOptions?: TypeNameOptions,
+  targetOptions?: TypeNameOptions
 ) {
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
@@ -718,6 +811,24 @@ function validateAvailabilityForRef(
       });
     }
     if (
+      [Availability.Unavailable].includes(sourceVal) &&
+      [Availability.Added, Availability.Available].includes(targetVal)
+    ) {
+      const targetAddedOn = findAvailabilityAfterVersion(key, Availability.Added, sourceAvail);
+
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "addedAfter",
+        format: {
+          sourceName: getTypeName(target),
+          targetName: getTypeName(source),
+          sourceAddedOn: key,
+          targetAddedOn: targetAddedOn!,
+        },
+        target: target,
+      });
+    }
+    if (
       [Availability.Removed].includes(sourceVal) &&
       [Availability.Unavailable].includes(targetVal)
     ) {
@@ -730,8 +841,8 @@ function validateAvailabilityForRef(
         code: "incompatible-versioned-reference",
         messageId: "removedBefore",
         format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
+          sourceName: getTypeName(source, sourceOptions),
+          targetName: getTypeName(target, targetOptions),
           sourceRemovedOn: key,
           targetRemovedOn: targetRemovedOn!,
         },
@@ -746,7 +857,9 @@ function validateAvailabilityForContains(
   sourceAvail: Map<string, Availability> | undefined,
   targetAvail: Map<string, Availability>,
   source: Type,
-  target: Type
+  target: Type,
+  sourceOptions?: TypeNameOptions,
+  targetOptions?: TypeNameOptions
 ) {
   if (!sourceAvail) return;
 
@@ -764,8 +877,8 @@ function validateAvailabilityForContains(
         code: "incompatible-versioned-reference",
         messageId: "dependentAddedAfter",
         format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
+          sourceName: getTypeName(source, sourceOptions),
+          targetName: getTypeName(target, targetOptions),
           sourceAddedOn: sourceAddedOn!,
           targetAddedOn: key,
         },
