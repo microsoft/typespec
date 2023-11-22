@@ -3,6 +3,9 @@ pr:
   - main
   - release/*
 
+variables:
+  - template: templates/variables/globals.yml
+
 jobs:
   - job: publish_playground
     displayName: Publish playground
