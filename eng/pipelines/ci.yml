@@ -7,6 +7,9 @@ trigger:
 
 pr: none
 
+variables:
+  - template: templates/variables/globals.yml
+
 jobs:
   - job: npm_stable
     displayName: Npm publish

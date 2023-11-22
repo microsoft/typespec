@@ -167,7 +167,7 @@ The Protobuf emitter supports declaring the streaming mode of an operation using
 
   Example: `rpc Example(stream In) returns (stream Out);`
 
-[native-service]: ../built-in-decorators#service
+[native-service]: ../../standard-library/built-in-decorators#service
 [protobuf-service]: reference/decorators#@TypeSpec.Protobuf.service
 [protobuf-package]: reference/decorators#@TypeSpec.Protobuf.package
 [protobuf-field]: reference/decorators#@TypeSpec.Protobuf.field

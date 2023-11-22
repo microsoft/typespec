@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Fix: Union variant are now assignable to the parent union",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

@@ -89,6 +89,18 @@ export const libDef = {
         default: paramMessage`Invalid type '${"type"}' for a default value`,
       },
     },
+    "duplicate-id": {
+      severity: "error",
+      messages: {
+        default: paramMessage`There are multiple types with the same id "${"id"}".`,
+      },
+    },
+    "unknown-scalar": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Scalar '${"name"}' is not a known scalar type and doesn't extend a known scalar type.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<JSONSchemaEmitterOptions>,
