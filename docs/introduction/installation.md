@@ -7,7 +7,7 @@ title: Installation
 
 ## Requirements
 
-Install [Node.js 16 LTS](https://nodejs.org/en/download/) and ensure you are able to run the `npm` command in a command prompt:
+Install [Node.js 18 LTS](https://nodejs.org/en/download/) and ensure you are able to run the `npm` command in a command prompt:
 
 ```bash
 npm --version
