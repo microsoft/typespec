@@ -1,6 +1,6 @@
 # Prerequisites
 
-- Install [Node.js](https://nodejs.org/) 18 LTS
+- Install [Node.js](https://nodejs.org/) 20 LTS
 - Install [Rush](https://rushjs.io/)
 
 ```bash
