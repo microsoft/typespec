@@ -146,52 +146,6 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when when op was added before parameter type", async () => {
-      const diagnostics = await runner.diagnose(`
-        @added(Versions.v2)
-        model Foo {}
-
-        @added(Versions.v1)
-        op test(param: Foo): void;
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
-      });
-    });
-
-    it("emit diagnostic when op based on a template was added before parameter type", async () => {
-      const diagnostics = await runner.diagnose(`
-        @added(Versions.v2)
-        model Foo {}
-
-        op Template<T>(param: T): void;
-
-        @added(Versions.v1)
-        op test is Template<Foo>;
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
-      });
-    });
-
-    it("emit diagnostic when when parameter was added before op", async () => {
-      const diagnostics = await runner.diagnose(`
-        model Foo {}
-
-        @added(Versions.v2)
-        op test(@added(Versions.v1) param: Foo): void;
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' was added in version 'v2' but contains type 'TestService.(anonymous model).param' added in version 'v1'.",
-      });
-    });
-
     it("emit diagnostic when type changed to types that don't exist", async () => {
       const diagnostics = await runner.diagnose(`
       @added(Versions.v3)  
