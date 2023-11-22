@@ -912,6 +912,34 @@ describe("versioning: logic", () => {
       w2.operations.get("create")?.parameters.properties.size === 2;
     });
 
+    it("can be lala", async () => {
+      const code = `
+        @test("MyService")
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { v1, v2 };
+
+        @added(Versions.v1)
+        op create(...Widget): Widget;
+
+        @added(Versions.v2)
+        op betterCreate(...Widget): Widget;
+
+        model Widget {
+          id: string;
+          @added(Versions.v2) name: string;
+        }`;
+      const { MyService } = (await runner.compile(code)) as { MyService: Namespace };
+      const [v1, v2] = runProjections(runner.program, MyService);
+      const w1 = v1.projectedTypes.get(MyService) as Namespace;
+      const w2 = v2.projectedTypes.get(MyService) as Namespace;
+      w1.models.get("Widget")?.properties.size === 1;
+      w1.operations.get("create")?.parameters.properties.size === 1;
+      w2.models.get("Widget")?.properties.size === 2;
+      w2.operations.get("create")?.parameters.properties.size === 2;
+    });
+
     it("can be removed", async () => {
       const {
         projections: [v1, v2],
