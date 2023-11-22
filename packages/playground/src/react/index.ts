@@ -16,4 +16,4 @@ export {
   createReactPlayground,
   renderReactPlayground,
 } from "./standalone.js";
-export * from "./types.js";
+export type * from "./types.js";

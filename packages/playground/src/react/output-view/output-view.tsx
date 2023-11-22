@@ -1,14 +1,13 @@
-import { css } from "@emotion/react";
 import { tokens } from "@fluentui/react-components";
-import { Diagnostic, Program } from "@typespec/compiler";
+import { Program } from "@typespec/compiler";
 import { ColorPalette, ColorProvider, TypeSpecProgramViewer } from "@typespec/html-program-viewer";
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import { ErrorTab, InternalCompilerError } from "./error-tab.js";
-import { FileOutput } from "./file-output.js";
-import { OutputTabs, Tab } from "./output-tabs.js";
-import { PlaygroundEditorsOptions } from "./playground.js";
-import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "./types.js";
-import { OutputEditor } from "./typespec-editor.js";
+import { FileOutput } from "../file-output/file-output.js";
+import { OutputTab, OutputTabs } from "../output-tabs/output-tabs.js";
+import { PlaygroundEditorsOptions } from "../playground.js";
+import { CompilationState, CompileResult, FileOutputViewer, ViewerProps } from "../types.js";
+import { OutputEditor } from "../typespec-editor.js";
+import style from "./output-view.module.css";
 
 export interface OutputViewProps {
   compilationState: CompilationState | undefined;
@@ -25,7 +24,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
     return <></>;
   }
   if ("internalCompilerError" in compilationState) {
-    return <InternalCompilerError error={compilationState.internalCompilerError} />;
+    return <></>;
   }
   return (
     <OutputViewInternal
@@ -66,41 +65,34 @@ const OutputViewInternal: FunctionComponent<{
   }
 
   const diagnostics = program.diagnostics;
-  const tabs: Tab[] = useMemo(() => {
+  const tabs: OutputTab[] = useMemo(() => {
     return [
       ...outputFiles.map(
-        (x): Tab => ({
+        (x): OutputTab => ({
           align: "left",
           name: x,
           id: x,
         })
       ),
       { id: "type-graph", name: "Type Graph", align: "right" },
-      {
-        id: "errors",
-        name: <ErrorTabLabel diagnostics={diagnostics} />,
-        align: "right",
-      },
     ];
   }, [outputFiles, diagnostics]);
   const handleTabSelection = useCallback((tabId: string) => {
     if (tabId === "type-graph") {
       setViewSelection({ type: "type-graph" });
-    } else if (tabId === "errors") {
-      setViewSelection({ type: "errors" });
     } else {
       void loadOutputFile(tabId);
     }
   }, []);
 
   return (
-    <>
+    <div className={style["output-view"]}>
       <OutputTabs
         tabs={tabs}
         selected={viewSelection.type === "file" ? viewSelection.filename : viewSelection.type}
         onSelect={handleTabSelection}
       />
-      <div className="output-content" css={{ width: "100%", height: "100%", overflow: "hidden" }}>
+      <div className={style["output-content"]}>
         <OutputContent
           viewSelection={viewSelection}
           editorOptions={editorOptions}
@@ -108,7 +100,7 @@ const OutputViewInternal: FunctionComponent<{
           viewers={viewers}
         />
       </div>
-    </>
+    </div>
   );
 };
 
@@ -149,51 +141,23 @@ const OutputContent: FunctionComponent<OutputContentProps> = ({
           viewers={resolvedViewers}
         />
       );
-    case "errors":
-      return <ErrorTab diagnostics={program?.diagnostics} />;
     default:
-      return (
-        <div
-          css={{
-            height: "100%",
-            overflow: "scroll",
-          }}
-        >
-          {program && <TypeGraphViewer program={program} />}
-        </div>
-      );
+      return program && <TypeGraphViewer program={program} />;
   }
 };
 
-type ViewSelection =
-  | { type: "file"; filename: string; content: string }
-  | { type: "type-graph" }
-  | { type: "errors" };
-
-const ErrorTabLabel: FunctionComponent<{
-  diagnostics?: readonly Diagnostic[];
-}> = ({ diagnostics }) => {
-  const errorCount = diagnostics ? diagnostics.length : 0;
-  return (
-    <div>Errors {errorCount > 0 ? <span css={ErrorTabCountStyles}>{errorCount}</span> : ""}</div>
-  );
-};
-
-const ErrorTabCountStyles = css({
-  backgroundColor: tokens.colorStatusDangerBackground3,
-  color: tokens.colorNeutralForegroundOnBrand,
-  padding: "0 5px",
-  borderRadius: "20px",
-});
+type ViewSelection = { type: "file"; filename: string; content: string } | { type: "type-graph" };
 
 interface TypeGraphViewerProps {
   program: Program;
 }
 const TypeGraphViewer = ({ program }: TypeGraphViewerProps) => {
   return (
-    <ColorProvider colors={TypeGraphColors}>
-      <TypeSpecProgramViewer program={program} />
-    </ColorProvider>
+    <div className={style["type-graph-viewer"]}>
+      <ColorProvider colors={TypeGraphColors}>
+        <TypeSpecProgramViewer program={program} />
+      </ColorProvider>
+    </div>
   );
 };
 

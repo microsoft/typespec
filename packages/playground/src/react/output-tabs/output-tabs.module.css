@@ -1,0 +1,19 @@
+.tabs {
+  border-bottom: 1px solid var(--colorNeutralStroke1);
+  box-shadow: var(--shadow2);
+}
+
+.tab-divider {
+  flex: 1;
+  border-right: 1px solid var(--colorNeutralStroke1);
+}
+
+.tab {
+  height: 40px;
+  border-right: 1px solid var(--colorNeutralStroke1) !important;
+  border-radius: 0 !important;
+}
+
+.tab--selected {
+  background-color: var(--colorNeutralBackground5) !important;
+}

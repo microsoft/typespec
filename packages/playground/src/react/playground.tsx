@@ -1,4 +1,4 @@
-import { CompilerOptions } from "@typespec/compiler";
+import { CompilerOptions, Diagnostic } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
 import {
@@ -11,14 +11,16 @@ import {
   useState,
 } from "react";
 import { CompletionItemTag } from "vscode-languageserver";
-import { getMarkerLocation } from "../services.js";
+import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
+import { getMonacoRange } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
 import { PlaygroundContextProvider } from "./context/playground-context.js";
 import { DefaultFooter } from "./default-footer.js";
-import { EditorCommandBar } from "./editor-command-bar.js";
 import { OnMountData, useMonacoModel } from "./editor.js";
 import { useControllableValue } from "./hooks.js";
-import { OutputView } from "./output-view.js";
+import { OutputView } from "./output-view/output-view.js";
+import style from "./playground.module.css";
+import { ProblemPane } from "./problem-pane/index.js";
 import Pane from "./split-pane/pane.js";
 import { SplitPane } from "./split-pane/split-pane.js";
 import { CompilationState, FileOutputViewer } from "./types.js";
@@ -133,7 +135,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(typespecCompiler, diag.target),
+        ...getMonacoRange(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
@@ -226,49 +228,73 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editorRef.current = editor;
   }, []);
 
+  const [verticalPaneSizes, setVerticalPaneSizes] = useState<(string | number | undefined)[]>(
+    verticalPaneSizesConst.collapsed
+  );
+  const toggleProblemPane = useCallback(() => {
+    setVerticalPaneSizes((value) => {
+      return value === verticalPaneSizesConst.collapsed
+        ? verticalPaneSizesConst.expanded
+        : verticalPaneSizesConst.collapsed;
+    });
+  }, [setVerticalPaneSizes]);
+
+  const onVerticalPaneSizeChange = useCallback(
+    (sizes: number[]) => {
+      setVerticalPaneSizes(sizes);
+    },
+    [setVerticalPaneSizes]
+  );
+  const handleDiagnosticSelected = useCallback(
+    (diagnostic: Diagnostic) => {
+      editorRef.current?.setSelection(getMonacoRange(host.compiler, diagnostic.target));
+    },
+    [setVerticalPaneSizes]
+  );
+
   return (
     <PlaygroundContextProvider value={{ host }}>
-      <div
-        css={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-          height: "100%",
-          overflow: "hidden",
-          fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
-        }}
-      >
-        <SplitPane
-          initialSizes={["50%", "50%"]}
-          css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
-        >
+      <div className={style["layout"]}>
+        <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
           <Pane>
-            <EditorCommandBar
-              host={host}
-              selectedEmitter={selectedEmitter}
-              onSelectedEmitterChange={onSelectedEmitterChange}
-              compilerOptions={compilerOptions}
-              onCompilerOptionsChange={onCompilerOptionsChange}
-              samples={props.samples}
-              selectedSampleName={selectedSampleName}
-              onSelectedSampleNameChange={onSelectedSampleNameChange}
-              saveCode={saveCode}
-              formatCode={formatCode}
-              newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-              documentationUrl={props.links?.documentationUrl}
-            />
-            <TypeSpecEditor
-              model={typespecModel}
-              actions={typespecEditorActions}
-              options={props.editorOptions}
-              onMount={onTypeSpecEditorMount}
-            />
+            <SplitPane initialSizes={["50%", "50%"]}>
+              <Pane>
+                <EditorCommandBar
+                  host={host}
+                  selectedEmitter={selectedEmitter}
+                  onSelectedEmitterChange={onSelectedEmitterChange}
+                  compilerOptions={compilerOptions}
+                  onCompilerOptionsChange={onCompilerOptionsChange}
+                  samples={props.samples}
+                  selectedSampleName={selectedSampleName}
+                  onSelectedSampleNameChange={onSelectedSampleNameChange}
+                  saveCode={saveCode}
+                  formatCode={formatCode}
+                  newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+                  documentationUrl={props.links?.documentationUrl}
+                />
+                <TypeSpecEditor
+                  model={typespecModel}
+                  actions={typespecEditorActions}
+                  options={props.editorOptions}
+                  onMount={onTypeSpecEditorMount}
+                />
+              </Pane>
+              <Pane>
+                <OutputView
+                  compilationState={compilationState}
+                  editorOptions={props.editorOptions}
+                  viewers={props.emitterViewers?.[selectedEmitter]}
+                />
+              </Pane>
+            </SplitPane>
           </Pane>
-          <Pane>
-            <OutputView
+          <Pane minSize={30}>
+            <ProblemPane
+              collapsed={verticalPaneSizes[1] === verticalPaneSizesConst.collapsed[1]}
               compilationState={compilationState}
-              editorOptions={props.editorOptions}
-              viewers={props.emitterViewers?.[selectedEmitter]}
+              onHeaderClick={toggleProblemPane}
+              onDiagnosticSelected={handleDiagnosticSelected}
             />
           </Pane>
         </SplitPane>
@@ -278,6 +304,10 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   );
 };
 
+const verticalPaneSizesConst = {
+  collapsed: [undefined, 30],
+  expanded: [undefined, 200],
+};
 const outputDir = "./tsp-output";
 
 async function compile(
