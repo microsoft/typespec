@@ -1,7 +1,7 @@
-import { css } from "@emotion/react";
 import { Select, SelectOnChangeData } from "@fluentui/react-components";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
-import { FileOutputViewer } from "./types.js";
+import { FileOutputViewer } from "../types.js";
+import style from "./file-output.module.css";
 
 export interface FileOutputProps {
   filename: string;
@@ -32,23 +32,18 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, conte
     return viewers.find((x) => x.key === selected)?.render;
   }, [selected, viewers]);
   return (
-    <div css={{ width: "100%", height: "100%", overflow: "hidden" }}>
-      <Select value={selected} onChange={handleSelected} css={DropdownStyle}>
-        {viewers.map(({ key, label }) => (
-          <option key={key} value={key}>
-            {label}
-          </option>
-        ))}
-      </Select>
+    <div className={style["file-output"]}>
+      <div className={style["viewer-selector"]}>
+        <Select value={selected} onChange={handleSelected}>
+          {viewers.map(({ key, label }) => (
+            <option key={key} value={key}>
+              {label}
+            </option>
+          ))}
+        </Select>
+      </div>
 
       {selectedRender && selectedRender({ filename, content })}
     </div>
   );
 };
-
-const DropdownStyle = css({
-  margin: "0.5rem 1.5rem",
-  position: "absolute",
-  "z-index": 1,
-  right: 0,
-});

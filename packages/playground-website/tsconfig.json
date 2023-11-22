@@ -14,9 +14,7 @@
     "jsx": "react-jsx",
     "checkJs": true,
     "allowJs": true,
-    "jsxImportSource": "@emotion/react",
-    "lib": ["DOM", "ES2022"],
-    "types": ["@emotion/react"]
+    "lib": ["DOM", "ES2022"]
   },
   "include": [
     "src/**/*.ts",

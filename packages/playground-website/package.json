@@ -61,7 +61,6 @@
     "@typespec/openapi": "workspace:~0.50.0",
     "@typespec/protobuf": "workspace:~0.50.0",
     "@typespec/html-program-viewer": "workspace:~0.50.0",
-    "@emotion/react": "^11.11.1",
     "react-dom": "~18.2.0",
     "react": "~18.2.0",
     "es-module-shims": "~1.8.0"

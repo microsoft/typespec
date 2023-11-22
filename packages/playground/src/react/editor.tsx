@@ -53,7 +53,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
   return (
     <div
       className="monaco-editor-container"
-      css={{ width: "100%", height: "100%", overflow: "hidden" }}
+      style={{ width: "100%", height: "100%", overflow: "hidden" }}
       ref={editorContainerRef}
     ></div>
   );

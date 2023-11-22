@@ -1,26 +1,12 @@
-import {
-  Dialog,
-  DialogBody,
-  DialogSurface,
-  DialogTrigger,
-  Link,
-  Toolbar,
-  ToolbarButton,
-  Tooltip,
-  tokens,
-} from "@fluentui/react-components";
-import {
-  Broom16Filled,
-  Bug16Regular,
-  Save16Regular,
-  Settings24Regular,
-} from "@fluentui/react-icons";
+import { Link, Toolbar, ToolbarButton, Tooltip } from "@fluentui/react-components";
+import { Broom16Filled, Bug16Regular, Save16Regular } from "@fluentui/react-icons";
 import { CompilerOptions } from "@typespec/compiler";
 import { FunctionComponent, useMemo } from "react";
+import { EmitterDropdown } from "../react/emitter-dropdown.js";
+import { SamplesDropdown } from "../react/samples-dropdown.js";
+import { CompilerSettingsDialogButton } from "../react/settings/compiler-settings-dialog-button.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
-import { EmitterDropdown } from "./emitter-dropdown.js";
-import { SamplesDropdown } from "./samples-dropdown.js";
-import { CompilerSettings } from "./settings/compiler-settings.js";
+import style from "./editor-command-bar.module.css";
 
 export interface EditorCommandBarProps {
   documentationUrl?: string;
@@ -45,7 +31,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   host,
   selectedEmitter,
   onSelectedEmitterChange,
-  compilerOptions: emitterOptions,
+  compilerOptions,
   onCompilerOptionsChange,
   samples,
   selectedSampleName,
@@ -70,7 +56,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   );
 
   return (
-    <div css={{ borderBottom: `1px solid ${tokens.colorNeutralStroke1}` }}>
+    <div className={style["bar"]}>
       <Toolbar>
         <Tooltip content="Save" relationship="description" withArrow>
           <ToolbarButton aria-label="Save" icon={<Save16Regular />} onClick={saveCode as any} />
@@ -79,35 +65,34 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
           <ToolbarButton aria-label="Format" icon={<Broom16Filled />} onClick={formatCode as any} />
         </Tooltip>
         {samples && (
-          <SamplesDropdown
-            samples={samples}
-            selectedSampleName={selectedSampleName}
-            onSelectedSampleNameChange={onSelectedSampleNameChange}
-          />
+          <>
+            <SamplesDropdown
+              samples={samples}
+              selectedSampleName={selectedSampleName}
+              onSelectedSampleNameChange={onSelectedSampleNameChange}
+            />
+            <div className={style["spacer"]}></div>
+          </>
         )}
         <EmitterDropdown
           emitters={emitters}
           onSelectedEmitterChange={onSelectedEmitterChange}
           selectedEmitter={selectedEmitter}
         />
-        <Dialog>
-          <DialogTrigger>
-            <ToolbarButton icon={<Settings24Regular />} />
-          </DialogTrigger>
-          <DialogSurface>
-            <DialogBody>
-              <CompilerSettings
-                host={host}
-                selectedEmitter={selectedEmitter}
-                options={emitterOptions}
-                onOptionsChanged={onCompilerOptionsChange}
-              />
-            </DialogBody>
-          </DialogSurface>
-        </Dialog>
-        {documentation}
-        <div css={{ flex: "1" }}></div>
+
+        {documentation && (
+          <>
+            <div className={style["spacer"]}></div>
+            {documentation}
+          </>
+        )}
+        <div className={style["divider"]}></div>
         {bugButton}
+        <CompilerSettingsDialogButton
+          compilerOptions={compilerOptions}
+          onCompilerOptionsChange={onCompilerOptionsChange}
+          selectedEmitter={selectedEmitter}
+        />
       </Toolbar>
     </div>
   );
@@ -124,9 +109,7 @@ const FileBugButton: FunctionComponent<FileBugButtonProps> = ({ onClick }) => {
         aria-label="File Bug Report"
         icon={<Bug16Regular />}
         onClick={onClick as any}
-      >
-        File bug
-      </ToolbarButton>
+      ></ToolbarButton>
     </Tooltip>
   );
 };
