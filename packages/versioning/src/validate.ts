@@ -718,24 +718,6 @@ function validateAvailabilityForRef(
       });
     }
     if (
-      [Availability.Unavailable].includes(sourceVal) &&
-      [Availability.Added, Availability.Available].includes(targetVal)
-    ) {
-      const targetAddedOn = findAvailabilityAfterVersion(key, Availability.Added, sourceAvail);
-
-      reportDiagnostic(program, {
-        code: "incompatible-versioned-reference",
-        messageId: "addedAfter",
-        format: {
-          sourceName: getTypeName(target),
-          targetName: getTypeName(source),
-          sourceAddedOn: key,
-          targetAddedOn: targetAddedOn!,
-        },
-        target: target,
-      });
-    }
-    if (
       [Availability.Removed].includes(sourceVal) &&
       [Availability.Unavailable].includes(targetVal)
     ) {
