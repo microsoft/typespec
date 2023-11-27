@@ -167,7 +167,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
-    const isMultipart = this.#getContentType() === "multipart/form-data";
+    const isMultipart = this.#getContentType().startsWith("multipart/");
     const name = isMultipart ? baseName + "MultiPart" : baseName;
     return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
   }
@@ -305,7 +305,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
-    const isMultipart = this.#getContentType() === "multipart/form-data";
+    const isMultipart = this.#getContentType().startsWith("multipart/");
     if (
       isMultipart &&
       prop.type.kind === "Scalar" &&

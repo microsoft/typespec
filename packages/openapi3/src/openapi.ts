@@ -874,7 +874,7 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(data.body.type, contentType);
         const schema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaForBody(data.body.type, Visibility.Read, false);
+          : getSchemaForBody(data.body.type, Visibility.Read, undefined);
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(schema);
         } else {
@@ -961,13 +961,13 @@ function createOAPIEmitter(
     }) as any;
   }
 
-  function getSchemaForBody(type: Type, visibility: Visibility, formData: boolean): any {
+  function getSchemaForBody(
+    type: Type,
+    visibility: Visibility,
+    multipart: string | undefined
+  ): any {
     const effectiveType = metadataInfo.getEffectivePayloadType(type, visibility);
-    return callSchemaEmitter(
-      effectiveType,
-      visibility,
-      formData ? "multipart/form-data" : "application/json"
-    );
+    return callSchemaEmitter(effectiveType, visibility, multipart ?? "application/json");
   }
 
   function getParamPlaceholder(property: ModelProperty) {
@@ -1042,7 +1042,11 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(body.type, contentType);
         const bodySchema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaForBody(body.type, visibility, contentType === "multipart/form-data");
+          : getSchemaForBody(
+              body.type,
+              visibility,
+              contentType.startsWith("multipart/") ? contentType : undefined
+            );
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(bodySchema);
         } else {
@@ -1080,7 +1084,11 @@ function createOAPIEmitter(
       const isBinary = isBinaryPayload(body.type, contentType);
       const bodySchema = isBinary
         ? { type: "string", format: "binary" }
-        : getSchemaForBody(body.type, visibility, contentType === "multipart/form-data");
+        : getSchemaForBody(
+            body.type,
+            visibility,
+            contentType.startsWith("multipart/") ? contentType : undefined
+          );
       const contentEntry: any = {
         schema: bodySchema,
       };

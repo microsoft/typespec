@@ -2,11 +2,15 @@ import "@typespec/rest";
 
 using TypeSpec.Http;
 
-model MyFlow {
-  type: OAuth2FlowType.implicit;
-  authorizationUrl: "https://api.example.com/oauth2/authorize";
-  refreshUrl: "https://api.example.com/oauth2/refresh";
-  scopes: ["read", "write"];
+model Data {
+  id: string;
+  profileImage: bytes;
+  address: Address;
 }
 
-op simpl(): string;
+model Address {
+  city: string;
+  street: string;
+}
+
+op basic(@header contentType: "multipart/form-data", @body body: Data): string;
