@@ -3,7 +3,8 @@
   cursor: pointer;
   display: flex;
   align-items: center;
-  height: 20px;
+  height: 30px;
+  box-sizing: border-box;
   justify-content: space-between;
   box-shadow: var(--shadow2);
 }
