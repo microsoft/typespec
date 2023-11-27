@@ -751,6 +751,19 @@ const diagnostics = {
     },
   },
 
+  "invalid-mime-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid mime type '${"mimeType"}'`,
+    },
+  },
+  "no-mime-type-suffix": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Cannot use mime type '${"mimeType"}' with suffix '${"suffix"}'. Use a simple mime \`type/subtype\` instead.`,
+    },
+  },
+
   /**
    * Service
    */

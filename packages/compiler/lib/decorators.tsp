@@ -19,7 +19,7 @@ extern dec summary(target: unknown, summary: valueof string);
 /**
  * Attach a documentation string.
  * @param doc Documentation string
- * @param formatArgs Record with key value pair that can be interpolated in the doc.
+ * @param formatArgs Record with key value pair that can be interpolated in the fdoc.
  *
  * @example
  * ```typespec
@@ -342,6 +342,8 @@ extern dec key(target: ModelProperty, altName?: valueof string);
 extern dec overload(target: Operation, overloadbase: Operation);
 
 /**
+ * DEPRECATED: Use `@encodedName` instead.
+ *
  * Provide an alternative name for this type.
  * @param targetName Projection target
  * @param projectedName Alternative name
@@ -359,6 +361,30 @@ extern dec projectedName(
   targetName: valueof string,
   projectedName: valueof string
 );
+
+/**
+ * Provide an alternative name for this type when serialized to the given mime type.
+ * @param mimeType Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`)
+ * @param name Alternative name
+ *
+ * @example
+ *
+ * ```typespec
+ * model Certificate {
+ *   @encodedName("application/json", "exp")
+ *   @encodedName("application/xml", "expiry")
+ *   expireAt: int32;
+ * }
+ * ```
+ *
+ * @example Invalid values
+ *
+ * ```typespec
+ * @encodedName("application/merge-patch+json", "exp")
+ *              ^ error cannot use subtype
+ * ```
+ */
+extern dec encodedName(target: unknown, mimeType: valueof string, name: valueof string);
 
 /**
  * Specify the property to be used to discriminate this type.

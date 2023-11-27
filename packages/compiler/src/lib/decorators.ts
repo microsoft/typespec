@@ -14,6 +14,7 @@ import {
   validateDecoratorUniqueOnNode,
 } from "../core/index.js";
 import { createDiagnostic, reportDiagnostic } from "../core/messages.js";
+import { parseMimeType } from "../core/mime-type.js";
 import { Program, ProjectedProgram } from "../core/program.js";
 import {
   ArrayModelType,
@@ -1383,4 +1384,77 @@ export function $returnTypeVisibility(
  */
 export function getReturnTypeVisibility(program: Program, entity: Operation): string[] | undefined {
   return program.stateMap(returnTypeVisibilityKey).get(entity);
+}
+
+const encodedNameKey = createStateSymbol("encodedName");
+
+export function $encodedName(
+  context: DecoratorContext,
+  target: Type,
+  mimeType: string,
+  name: string
+) {
+  let existing = context.program.stateMap(encodedNameKey).get(target);
+  if (existing === undefined) {
+    existing = new Map<string, string>();
+    context.program.stateMap(encodedNameKey).set(target, existing);
+  }
+  const mimeTypeObj = parseMimeType(mimeType);
+
+  if (mimeTypeObj === undefined) {
+    reportDiagnostic(context.program, {
+      code: "invalid-mime-type",
+      format: { mimeType },
+      target: context.getArgumentTarget(0)!,
+    });
+  } else if (mimeTypeObj.suffix) {
+    reportDiagnostic(context.program, {
+      code: "no-mime-type-suffix",
+      format: { mimeType, suffix: mimeTypeObj.suffix },
+      target: context.getArgumentTarget(0)!,
+    });
+  }
+  existing.set(mimeType, name);
+}
+
+function getEncodedName(program: Program, target: Type, mimeType: string): string | undefined {
+  const mimeTypeObj = parseMimeType(mimeType);
+  if (mimeTypeObj === undefined) {
+    return undefined;
+  }
+  const resolvedMimeType = mimeTypeObj?.suffix
+    ? `${mimeTypeObj.type}/${mimeTypeObj.suffix}`
+    : mimeType;
+  return program.stateMap(encodedNameKey).get(target)?.get(resolvedMimeType);
+}
+
+/**
+ * Resolve the encoded name for the given type when serialized to the given mime type.
+ * If a specific value was provided by `@encodedName` decorator for that mime type it will return that otherwise it will return the name of the type.
+ *
+ * @example
+ *
+ * For the given
+ * ```tsp
+ * model Certificate {
+ *   @encodedName("application/json", "exp")
+ *   @encodedName("application/xml", "expiry")
+ *   expireAt: utcDateTime;
+ *
+ * }
+ * ```
+ *
+ * ```ts
+ * resolveEncodedName(program, type, "application/json") // exp
+ * resolveEncodedName(program, type, "application/merge-patch+json") // exp
+ * resolveEncodedName(program, type, "application/xml") // expireAt
+ * resolveEncodedName(program, type, "application/yaml") // expiry
+ * ```
+ */
+export function resolveEncodedName(
+  program: Program,
+  target: Type & { name: string },
+  mimeType: string
+): string {
+  return getEncodedName(program, target, mimeType) ?? target.name;
 }
