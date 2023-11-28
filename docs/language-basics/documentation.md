@@ -18,8 +18,6 @@ The later has the advantage of being less intrusive to the spec.
 
 ## `@doc` Decorator
 
-## `@doc` Decorator
-
 The `@doc` decorator can be used to attach documentation to most TypeSpec declarations. It most-commonly accepts a string argument that will be used as the documentation for the declaration.
 
 ```typespec
