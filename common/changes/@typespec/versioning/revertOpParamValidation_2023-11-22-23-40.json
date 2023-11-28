@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/versioning",
-      "comment": "Fix crash in versioning library.",
+      "comment": "",
       "type": "none"
     }
   ],
