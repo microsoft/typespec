@@ -13,6 +13,7 @@ import {
 import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import { FunctionComponent, useMemo } from "react";
 import { VersionData } from "./import-map";
+import { LoadingSpinner } from "./loading-spinner";
 
 import "@typespec/playground/style.css";
 
@@ -52,6 +53,7 @@ export const WebsitePlayground = ({ versionData }: WebsitePlaygroundProps) => {
       importConfig={{ useShim: true }}
       editorOptions={editorOptions}
       footer={<PlaygroundFooter versionData={versionData} />}
+      fallback={<LoadingSpinner message="Loading libraries..." />}
     />
   );
 };
