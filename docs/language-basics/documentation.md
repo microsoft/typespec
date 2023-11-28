@@ -9,7 +9,7 @@ Documentation is crucial to any API. TypeSpec provides a number of ways to docum
 
 # Documenting APIs
 
-There is 2 ways to document your API using TypeSpec:
+There are 2 ways to document your API using TypeSpec:
 
 - `@doc` decorator
 - `/** */` Doc comments
