@@ -7,7 +7,15 @@ import {
   useToastController,
   webLightTheme,
 } from "@fluentui/react-components";
-import { FunctionComponent, useCallback, useEffect, useId, useMemo, useState } from "react";
+import {
+  FunctionComponent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
 import { LibraryImportOptions } from "../core.js";
@@ -19,6 +27,8 @@ import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js
 export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   readonly libraries: readonly string[];
   readonly importConfig?: LibraryImportOptions;
+  /** Content to show while the playground data is loading(Libraries) */
+  readonly fallback?: ReactNode;
 }
 
 interface StandalonePlaygroundContext {
@@ -80,7 +90,7 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
     [context]
   );
   if (context === undefined || fixedOptions === undefined) {
-    return <></>;
+    return config.fallback;
   }
 
   const options: PlaygroundProps = {

@@ -16,6 +16,12 @@ export function needsParens(path: AstPath<Node>, options: TypeSpecPrettierOption
   // eslint-disable-next-line deprecation/deprecation
   const node = path.getValue();
   switch (node.kind) {
+    case SyntaxKind.ValueOfExpression:
+      return (
+        parent.kind === SyntaxKind.UnionExpression ||
+        parent.kind === SyntaxKind.ArrayExpression ||
+        parent.kind === SyntaxKind.IntersectionExpression
+      );
     case SyntaxKind.IntersectionExpression:
       return (
         parent.kind === SyntaxKind.UnionExpression || parent.kind === SyntaxKind.ArrayExpression
