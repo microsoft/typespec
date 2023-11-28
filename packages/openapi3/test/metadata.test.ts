@@ -2,7 +2,7 @@ import { deepStrictEqual } from "assert";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
-  it("will expose all properties on unreferenced models", async () => {
+  it("will expose all properties on unreferenced models but filter properties on referenced models", async () => {
     const res = await openApiFor(`
       model M {
         @visibility("read") r: string;
@@ -22,6 +22,70 @@ describe("openapi3: metadata", () => {
           ruc: { type: "string" },
         },
         required: ["r"],
+      },
+    });
+  });
+
+  it("prioritizes read visibility when referenced and unreferenced models share schemas", async () => {
+    const res = await openApiFor(`
+      model Shared {
+        @visibility("create", "update") password: string;
+        prop: string;
+      }
+
+      model Unreferenced {
+        @visibility("read") r: string;
+        @visibility("create") c: string;
+        shared: Shared;
+      }
+
+      model Referenced {
+        @visibility("read") r: string;
+        @visibility("create") c: string;
+        shared: Shared;
+      }
+
+      @get op get(): Referenced;
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      Referenced: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          shared: { $ref: "#/components/schemas/Shared" },
+        },
+        required: ["r", "shared"],
+      },
+      Shared: {
+        type: "object",
+        required: ["prop"],
+        properties: {
+          prop: {
+            type: "string",
+          },
+        },
+      },
+      SharedReadOrCreateOrUpdateOrDelete: {
+        type: "object",
+        required: ["password", "prop"],
+        properties: {
+          password: {
+            type: "string",
+          },
+          prop: {
+            type: "string",
+          },
+        },
+      },
+      Unreferenced: {
+        type: "object",
+        properties: {
+          c: { type: "string" },
+          r: { type: "string", readOnly: true },
+          shared: { $ref: "#/components/schemas/SharedReadOrCreateOrUpdateOrDelete" },
+        },
+        required: ["r", "c", "shared"],
       },
     });
   });
