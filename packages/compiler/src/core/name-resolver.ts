@@ -60,11 +60,16 @@
 import { createSymbol, createSymbolTable } from "./binder.js";
 import {
   AliasStatementNode,
+  EnumStatementNode,
+  Expression,
   InterfaceStatementNode,
   ModelExpressionNode,
+  ModelPropertyNode,
   ModelStatementNode,
+  OperationStatementNode,
   ResolutionResult,
   TemplateParameterDeclarationNode,
+  UnionStatementNode,
   compilerAssert,
   visitChildren,
 } from "./index.js";
@@ -100,6 +105,7 @@ export function createResolver(program: Program) {
   const globalNamespaceNode = createGlobalNamespaceNode();
   const globalNamespaceSym = createSymbol(globalNamespaceNode, "global", SymbolFlags.Namespace);
   mutate(globalNamespaceNode).symbol = globalNamespaceSym;
+  const metaTypePrototypes = createMetaTypePrototypes();
 
   return {
     resolveProgram() {
@@ -199,9 +205,12 @@ export function createResolver(program: Program) {
     const [resolvedSym, resolvedSymResult] = result;
 
     if (resolvedSym && resolvedSym.flags & SymbolFlags.Alias) {
+      // unwrap aliases
       const aliasNode = resolvedSym.declarations[0];
       result = resolveAlias(aliasNode as AliasStatementNode);
     } else if (resolvedSym && resolvedSym.flags & SymbolFlags.TemplateParameter) {
+      // references to template parameters with constraints can reference the
+      // constraint type members
       const templateNode = resolvedSym.declarations[0] as TemplateParameterDeclarationNode;
       if (templateNode.constraint) {
         result = resolveTemplateParameter(templateNode);
@@ -243,20 +252,25 @@ export function createResolver(program: Program) {
     if (baseResult & ResolutionResultFlags.ResolutionFailed) {
       return [undefined, baseResult];
     }
+
     compilerAssert(baseSym, "Base symbol must be defined if resolution did not fail");
 
-    if (baseSym.flags & SymbolFlags.MemberContainer) {
-      return resolveMember(baseSym, node.id);
-    } else if (baseSym.flags & SymbolFlags.ExportContainer) {
-      return resolveExport(getMergedSymbol(baseSym), node.id);
+    if (node.selector === ".") {
+      if (baseSym.flags & SymbolFlags.MemberContainer) {
+        return resolveMember(baseSym, node.id);
+      } else if (baseSym.flags & SymbolFlags.ExportContainer) {
+        return resolveExport(getMergedSymbol(baseSym), node.id);
+      }
+    } else {
+      return resolveMetaMember(baseSym, node.id);
     }
 
     throw new Error("NYI rme " + inspectSymbol(baseSym));
   }
 
   function resolveMember(baseSym: Sym, id: IdentifierNode): ResolutionResult {
-    const baseNode = baseSym.declarations[0];
-    compilerAssert(baseNode, "Base symbol must have a declaration");
+    const baseNode = baseSym.node ?? baseSym.declarations[0];
+    compilerAssert(baseNode, "Base symbol must have an associated node");
 
     bindMemberContainer(baseNode);
 
@@ -266,8 +280,13 @@ export function createResolver(program: Program) {
         return resolveModelMember(baseSym, baseNode, id);
       case SyntaxKind.InterfaceStatement:
         return resolveInterfaceMember(baseSym, id);
+      case SyntaxKind.EnumStatement:
+        return resolveEnumMember(baseSym, id);
+      case SyntaxKind.UnionStatement:
+        return resolveUnionVariant(baseSym, id);
     }
-    throw new Error("NYI");
+
+    compilerAssert(false, "Unknown member container kind: " + SyntaxKind[baseNode.kind]);
   }
 
   function resolveModelMember(
@@ -327,6 +346,24 @@ export function createResolver(program: Program) {
     ];
   }
 
+  function resolveEnumMember(enumSym: Sym, id: IdentifierNode): ResolutionResult {
+    const memberSym = tableLookup(enumSym.members!, id);
+    if (memberSym) {
+      return [memberSym, ResolutionResultFlags.Resolved];
+    }
+
+    return [undefined, ResolutionResultFlags.NotFound];
+  }
+
+  function resolveUnionVariant(unionSym: Sym, id: IdentifierNode): ResolutionResult {
+    const memberSym = tableLookup(unionSym.members!, id);
+    if (memberSym) {
+      return [memberSym, ResolutionResultFlags.Resolved];
+    }
+
+    return [undefined, ResolutionResultFlags.NotFound];
+  }
+
   function resolveExport(baseSym: Sym, id: IdentifierNode): ResolutionResult {
     const node = baseSym.declarations[0];
     compilerAssert(
@@ -341,6 +378,7 @@ export function createResolver(program: Program) {
 
     return [exportSym, ResolutionResultFlags.Resolved];
   }
+
   function resolveAlias(node: AliasStatementNode): ResolutionResult {
     const symbol = node.symbol;
     const slinks = getSymbolLinks(symbol);
@@ -395,11 +433,41 @@ export function createResolver(program: Program) {
       slinks.constraintResolutionResult = ResolutionResultFlags.Resolved;
       return [node.constraint.symbol, ResolutionResultFlags.Resolved];
     } else {
-      // a computed type
+      // a computed type, just resolve to the template parameter symbol itself.
       slinks.constraintSymbol = node.symbol;
       slinks.constraintResolutionResult = ResolutionResultFlags.Resolved;
       return [node.symbol, ResolutionResultFlags.Resolved];
     }
+  }
+  function resolveExpression(node: Expression): ResolutionResult {
+    if (node.kind === SyntaxKind.TypeReference) {
+      return resolveTypeReference(node);
+    }
+
+    if (node.symbol) {
+      return [node.symbol, ResolutionResultFlags.Resolved];
+    }
+
+    return [undefined, ResolutionResultFlags.Unknown];
+  }
+
+  function resolveMetaMember(baseSym: Sym, id: IdentifierNode): ResolutionResult {
+    const baseNode =
+      baseSym.flags & SymbolFlags.Declaration ? baseSym.declarations[0] : baseSym.node;
+
+    const prototype = metaTypePrototypes.get(baseNode.kind);
+
+    if (!prototype) {
+      return [undefined, ResolutionResultFlags.NotFound];
+    }
+
+    const getter = prototype.get(id.sv);
+
+    if (!getter) {
+      return [undefined, ResolutionResultFlags.NotFound];
+    }
+
+    return getter(baseSym);
   }
 
   function tableLookup(table: SymbolTable, node: IdentifierNode, resolveDecorator = false) {
@@ -421,10 +489,17 @@ export function createResolver(program: Program) {
    * symbols. It will determine whether it has unknown members and set the
    * symbol link value appropriately. This is used during resolution to know if
    * member resolution should return `unknown` when a member isn't found.
-   * @param node
-   * @returns
    */
   function bindMemberContainer(node: Node) {
+    const sym = node.symbol!;
+    const symLinks = getSymbolLinks(sym);
+
+    if (symLinks.membersBound) {
+      return;
+    }
+
+    symLinks.membersBound = true;
+
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
@@ -433,21 +508,18 @@ export function createResolver(program: Program) {
       case SyntaxKind.InterfaceStatement:
         bindInterfaceMembers(node);
         return;
+      case SyntaxKind.EnumStatement:
+        bindEnumMembers(node);
+        return;
+      case SyntaxKind.UnionStatement:
+        bindUnionMembers(node);
+        return;
     }
   }
 
   function bindModelMembers(node: ModelStatementNode | ModelExpressionNode) {
-    if ((node as any).id?.sv === "Foo") {
-      debugger;
-    }
     const modelSym = node.symbol!;
     const modelSymLinks = getSymbolLinks(modelSym);
-
-    if (modelSymLinks.membersBound) {
-      return;
-    }
-
-    modelSymLinks.membersBound = true;
 
     const targetTable = getAugmentedSymbolTable(modelSym.members!);
 
@@ -470,25 +542,29 @@ export function createResolver(program: Program) {
       setUnknownMembers(modelSymLinks, sym, result);
     }
 
+    // here we just need to include spread properties, since regular properties
+    // were bound by the binder.
     for (const propertyNode of node.properties) {
-      if (propertyNode.kind === SyntaxKind.ModelSpreadProperty) {
-        const [sourceSym, sourceResult] = resolveTypeReference(propertyNode.target);
-
-        setUnknownMembers(modelSymLinks, sourceSym, sourceResult);
-
-        if (~sourceResult & ResolutionResultFlags.Resolved) {
-          continue;
-        }
-        compilerAssert(sourceSym, "Spread symbol must be defined if resolution succeeded");
-
-        if (~sourceSym.flags & SymbolFlags.Model) {
-          // will be a checker error
-          continue;
-        }
-
-        const sourceTable = getAugmentedSymbolTable(sourceSym.members!);
-        targetTable.include(sourceTable);
+      if (propertyNode.kind !== SyntaxKind.ModelSpreadProperty) {
+        continue;
       }
+
+      const [sourceSym, sourceResult] = resolveTypeReference(propertyNode.target);
+
+      setUnknownMembers(modelSymLinks, sourceSym, sourceResult);
+
+      if (~sourceResult & ResolutionResultFlags.Resolved) {
+        continue;
+      }
+      compilerAssert(sourceSym, "Spread symbol must be defined if resolution succeeded");
+
+      if (~sourceSym.flags & SymbolFlags.Model) {
+        // will be a checker error
+        continue;
+      }
+
+      const sourceTable = getAugmentedSymbolTable(sourceSym.members!);
+      targetTable.include(sourceTable);
     }
   }
 
@@ -505,14 +581,6 @@ export function createResolver(program: Program) {
 
   function bindInterfaceMembers(node: InterfaceStatementNode) {
     const ifaceSym = node.symbol!;
-    const ifaceSymLinks = getSymbolLinks(ifaceSym);
-
-    if (ifaceSymLinks.membersBound) {
-      return;
-    }
-
-    ifaceSymLinks.membersBound = true;
-
     for (const extendsRef of node.extends) {
       const [extendsSym, extendsResult] = resolveTypeReference(extendsRef);
       setUnknownMembers(ifaceSym, extendsSym, extendsResult);
@@ -531,6 +599,52 @@ export function createResolver(program: Program) {
       const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
       const targetTable = getAugmentedSymbolTable(ifaceSym.members!);
       targetTable.include(sourceTable);
+    }
+  }
+
+  function bindEnumMembers(node: EnumStatementNode) {
+    const enumSym = node.symbol!;
+    const enumSymLinks = getSymbolLinks(enumSym);
+    const targetTable = getAugmentedSymbolTable(enumSym.members!);
+
+    for (const memberNode of node.members) {
+      if (memberNode.kind !== SyntaxKind.EnumSpreadMember) {
+        continue;
+      }
+
+      const [sourceSym, sourceResult] = resolveTypeReference(memberNode.target);
+
+      setUnknownMembers(enumSymLinks, sourceSym, sourceResult);
+
+      if (~sourceResult & ResolutionResultFlags.Resolved) {
+        continue;
+      }
+
+      compilerAssert(sourceSym, "Spread symbol must be defined if resolution succeeded");
+
+      if (~sourceSym.flags & SymbolFlags.Enum) {
+        // will be a checker error
+        continue;
+      }
+
+      const sourceTable = getAugmentedSymbolTable(sourceSym.members!);
+      targetTable.include(sourceTable);
+    }
+  }
+
+  function bindUnionMembers(node: UnionStatementNode) {
+    const unionSym = node.symbol!;
+    const targetTable = getAugmentedSymbolTable(unionSym.members!);
+
+    for (const variantNode of node.options) {
+      if (!variantNode.id) {
+        continue;
+      }
+
+      targetTable.set(
+        variantNode.id.sv,
+        createSymbol(variantNode, variantNode.id.sv, SymbolFlags.Member)
+      );
     }
   }
 
@@ -778,6 +892,8 @@ export function createResolver(program: Program) {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
       case SyntaxKind.InterfaceStatement:
+      case SyntaxKind.EnumStatement:
+      case SyntaxKind.UnionStatement:
         bindMemberContainer(node);
         break;
       case SyntaxKind.AliasStatement:
@@ -785,9 +901,46 @@ export function createResolver(program: Program) {
         break;
       case SyntaxKind.TemplateParameterDeclaration:
         bindTemplateParameter(node);
+        break;
     }
 
     visitChildren(node, bindAndResolveNode);
+  }
+
+  type SymbolGetter = (baseSym: Sym) => ResolutionResult;
+  type TypePrototype = Map<string, SymbolGetter>;
+  type TypePrototypes = Map<SyntaxKind, TypePrototype>;
+
+  function createMetaTypePrototypes(): TypePrototypes {
+    const nodeInterfaces: TypePrototypes = new Map();
+
+    // model properties
+    const modelPropertyPrototype: TypePrototype = new Map();
+    modelPropertyPrototype.set("type", (baseSym) => {
+      const node = baseSym.node as ModelPropertyNode;
+      return resolveExpression(node.value);
+    });
+    nodeInterfaces.set(SyntaxKind.ModelProperty, modelPropertyPrototype);
+
+    // operations
+    const operationPrototype: TypePrototype = new Map();
+    operationPrototype.set("parameters", (baseSym) => {
+      let node = baseSym.declarations[0] as OperationStatementNode;
+      while (node.signature.kind === SyntaxKind.OperationSignatureReference) {
+        const [baseSym, baseResult] = resolveTypeReference(node.signature.baseOperation);
+        if (baseResult & ResolutionResultFlags.Resolved) {
+          node = baseSym!.declarations[0] as OperationStatementNode;
+          continue;
+        }
+
+        return [undefined, baseResult];
+      }
+
+      return resolveExpression(node.signature.parameters);
+    });
+    nodeInterfaces.set(SyntaxKind.OperationStatement, operationPrototype);
+
+    return nodeInterfaces;
   }
 }
 function reportCheckerDiagnostic(arg0: any) {

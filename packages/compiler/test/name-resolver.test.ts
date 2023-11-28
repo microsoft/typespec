@@ -210,27 +210,6 @@ describe.only("compiler: nameResolver", () => {
           },
         });
       });
-
-      it.skip("binds meta properties", () => {
-        const sym = getGlobalSymbol([
-          `
-          model Foo { }
-          ::properties.get
-          `,
-        ]);
-
-        assertSymbol(sym, {
-          exports: {
-            Template: {
-              members: {
-                x: {
-                  flags: SymbolFlags.Member,
-                },
-              },
-            },
-          },
-        });
-      });
     });
 
     describe("resolution", () => {
@@ -354,6 +333,61 @@ describe.only("compiler: nameResolver", () => {
 
   describe.skip("model expressions", () => {});
 
+  describe("model properties", () => {
+    it("resolves meta properties", () => {
+      const { "Foo.prop::type": propType, Bar } = getResolutions(
+        [
+          `
+          model Foo {
+            prop: Bar;
+          }
+          model Bar { }
+          ┆
+          `,
+        ],
+        "Foo.prop::type",
+        "Bar"
+      );
+      ok(propType[0] === Bar[0], "should resolve to Bar");
+    });
+
+    it("resolves meta properties of nested model types", () => {
+      const { "Foo.prop::type.nestedProp::type": propType, Bar } = getResolutions(
+        [
+          `
+          model Foo {
+            prop: {
+              nestedProp: Bar;
+            };
+          }
+          model Bar { }
+          ┆
+          `,
+        ],
+        "Foo.prop::type.nestedProp::type",
+        "Bar"
+      );
+      ok(propType[0] === Bar[0], "should resolve to Bar");
+    });
+
+    it("resolves meta properties of aliased model properties", () => {
+      const { "FooProp::type": propType, Bar } = getResolutions(
+        [
+          `
+          model Foo {
+            prop: Bar;
+          }
+          model Bar { }
+          alias FooProp = Foo.prop;
+          ┆
+          `,
+        ],
+        "FooProp::type",
+        "Bar"
+      );
+      ok(propType[0] === Bar[0], "should resolve to Bar");
+    });
+  });
   describe("interfaces", () => {
     describe("binding", () => {
       it("binds interface members from extends", () => {
@@ -489,13 +523,163 @@ describe.only("compiler: nameResolver", () => {
     });
   });
 
-  describe.skip("operations", () => {});
+  describe("operations", () => {
+    describe("resolution", () => {
+      it("resolves parameters meta property", () => {
+        const { "Foo::parameters.x::type": x, Bar: Bar } = getResolutions(
+          [
+            `
+            model Bar { }
+            op Foo(x: Bar): void;
+            ┆
+            `,
+          ],
+          "Foo::parameters.x::type",
+          "Bar"
+        );
 
-  describe.skip("enums", () => {});
+        ok(x[0] === Bar[0], "Should resolve to Bar");
+      });
 
-  describe.skip("unions", () => {});
+      it("resolves parameters meta property with is ops", () => {
+        const { "Baz::parameters.x::type": x, Bar: Bar } = getResolutions(
+          [
+            `
+            model Bar { }
+            op Foo(x: Bar): void;
+            op Baz is Foo;
+            ┆
+            `,
+          ],
+          "Baz::parameters.x::type",
+          "Bar"
+        );
 
-  describe.skip("scalars", () => {});
+        ok(x[0] === Bar[0], "Should resolve to Bar");
+      });
+    });
+  });
+
+  describe("enums", () => {
+    describe("binding", () => {
+      it("binds enum members from spread", () => {
+        const sym = getGlobalSymbol([
+          `
+          enum A {
+            x;
+            ... B;
+          }
+
+          enum B{
+            y: 2;
+          }
+          `,
+        ]);
+
+        assertSymbol(sym, {
+          exports: {
+            A: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member,
+                },
+                y: {
+                  flags: SymbolFlags.Member,
+                },
+              },
+            },
+            B: {
+              members: {
+                y: {
+                  flags: SymbolFlags.Member,
+                },
+              },
+            },
+          },
+        });
+      });
+    });
+
+    describe("resolution", () => {
+      it("resolves enum members", () => {
+        const { "Foo.x": x } = getResolutions(
+          [
+            `
+            enum Foo {
+              x;
+            }
+            ┆
+            `,
+          ],
+          "Foo.x"
+        );
+        assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
+      });
+
+      it("resolves enum members from spread", () => {
+        const { "Foo.x": x, "Bar.y": y } = getResolutions(
+          [
+            `
+            enum Foo {
+              x;
+            }
+            enum Bar {
+              ... Foo;
+              y;
+            }
+            ┆
+            `,
+          ],
+          "Foo.x",
+          "Bar.y"
+        );
+        assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
+        assertSymbol(y, { name: "y", flags: SymbolFlags.Member });
+      });
+    });
+  });
+
+  describe.only("unions", () => {
+    describe("binding", () => {
+      it("binds union members", () => {
+        const sym = getGlobalSymbol([
+          `
+          union Foo {
+            x: "x";
+          }
+          `,
+        ]);
+
+        assertSymbol(sym, {
+          exports: {
+            Foo: {
+              members: {
+                x: {
+                  flags: SymbolFlags.Member,
+                },
+              },
+            },
+          },
+        });
+      });
+    });
+    describe("resolution", () => {
+      it("resolves named union variants", () => {
+        const { "Foo.x": x } = getResolutions(
+          [
+            `
+            union Foo {
+              x: "x";
+            }
+            ┆
+            `,
+          ],
+          "Foo.x"
+        );
+        assertSymbol(x, { name: "x", flags: SymbolFlags.Member });
+      });
+    });
+  });
 
   describe("namespaces", () => {
     describe("binding", () => {
@@ -780,7 +964,9 @@ describe.only("compiler: nameResolver", () => {
     for (let source of sources) {
       const cursorPos = source.indexOf("┆");
       if (cursorPos >= 0) {
-        const aliasCodes = names.map((name) => `alias test${name.replace(/\./g, "")} = ${name};`);
+        const aliasCodes = names.map(
+          (name) => `alias test${name.replace(/\.|(::)/g, "")} = ${name};`
+        );
         const aliasOffsets: number[] = [];
         let prevOffset = 0;
         for (let i = 0; i < names.length; i++) {

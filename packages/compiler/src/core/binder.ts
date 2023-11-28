@@ -60,7 +60,7 @@ const SymbolTable = class extends Map<string, Sym> implements SymbolTable {
    */
   include(source: SymbolTable) {
     for (const [key, value] of source) {
-      super.set(key, value);
+      super.set(key, { ...value });
     }
     for (const [key, value] of source.duplicates) {
       this.duplicates.set(key, new Set(value));
