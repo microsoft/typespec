@@ -52,7 +52,7 @@ Doc comments starts with `/**` and continue until the closing `*/` is encountere
  * Get a widget.
  * @param widgetId The ID of the widget to retrieve.
  */
-op create(@path widgetId: string): Widget | Error;
+op read(@path widgetId: string): Widget | Error;
 ```
 
 This is functionally equivalent to:
