@@ -912,6 +912,34 @@ describe("versioning: logic", () => {
       w2.operations.get("create")?.parameters.properties.size === 2;
     });
 
+    it("can share a model reference between operations with different versions", async () => {
+      const code = `
+        @test("MyService")
+        @versioned(Versions)
+        namespace MyService;
+
+        enum Versions { v1, v2, v3 };
+        
+        model Foo {
+          prop: string;
+        }
+        
+        model Parameters {
+          name: string;
+        
+          @added(Versions.v2)
+          age: Foo;
+        }
+        
+        @added(Versions.v1)
+        op oldOp(...Parameters): void;
+        
+        @added(Versions.v3)
+        op newOp(...Parameters): void;
+        `;
+      ok(await runner.compile(code));
+    });
+
     it("can be removed", async () => {
       const {
         projections: [v1, v2],

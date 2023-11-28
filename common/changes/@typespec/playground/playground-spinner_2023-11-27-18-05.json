@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Allow standalone playground to show a loading fallback",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}

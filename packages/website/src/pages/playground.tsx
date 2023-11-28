@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import "@typespec/playground/style.css";
 import { FluentLayout } from "../components/fluent-layout/fluent-layout";
 import { VersionData, loadImportMap } from "../components/playground-component/import-map";
+import { LoadingSpinner } from "../components/playground-component/loading-spinner";
 
 export default function PlaygroundPage() {
   return (
@@ -34,5 +35,9 @@ const AsyncPlayground = () => {
       });
   }, []);
 
-  return mod && <mod.WebsitePlayground versionData={mod.versionData} />;
+  return mod ? (
+    <mod.WebsitePlayground versionData={mod.versionData} />
+  ) : (
+    <LoadingSpinner message="Loading playground..." />
+  );
 };
