@@ -48,7 +48,7 @@ const ProblemPaneContent: FunctionComponent<ProblemPaneContentProps> = ({
   if ("internalCompilerError" in compilationState) {
     return (
       <pre className={style["internal-compiler-error"]}>
-        {compilationState.internalCompilerError.stack}
+        {String(compilationState.internalCompilerError)}
       </pre>
     );
   }

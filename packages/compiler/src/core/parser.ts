@@ -2411,7 +2411,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   /**
    * Parses a documentation tag.
    *
-   * @see <a href="https://microsoft.github.io/typespec/language-basics/documentation#tsdoc-doc-comments">TypeSpec documentation docs</a>
+   * @see <a href="https://microsoft.github.io/typespec/language-basics/documentation#doc-comments">TypeSpec documentation docs</a>
    */
   function parseDocTag(): DocTag {
     const pos = tokenPos();
