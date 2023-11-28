@@ -59,7 +59,7 @@ This is functionally equivalent to:
 
 ```typespec
 @doc("Get a widget.")
-op create(
+op read(
   @doc("The ID of the widget to retrieve.")
   @path
   widgetId: string,
