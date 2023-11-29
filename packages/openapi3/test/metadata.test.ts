@@ -66,7 +66,7 @@ describe("openapi3: metadata", () => {
           },
         },
       },
-      SharedReadOrCreateOrUpdateOrDelete: {
+      SharedReadOrCreateOrUpdateOrDeleteOrQuery: {
         type: "object",
         required: ["password", "prop"],
         properties: {
@@ -83,7 +83,7 @@ describe("openapi3: metadata", () => {
         properties: {
           c: { type: "string" },
           r: { type: "string", readOnly: true },
-          shared: { $ref: "#/components/schemas/SharedReadOrCreateOrUpdateOrDelete" },
+          shared: { $ref: "#/components/schemas/SharedReadOrCreateOrUpdateOrDeleteOrQuery" },
         },
         required: ["r", "c", "shared"],
       },
