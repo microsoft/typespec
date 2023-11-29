@@ -8,6 +8,30 @@ TypeSpec HTTP protocol binding
 npm install @typespec/http
 ```
 
+## Linter
+
+### Usage
+
+Add the following in `tspconfig.yaml`:
+
+```yaml
+linter:
+  extends:
+    - "@typespec/http/all"
+```
+
+### RuleSets
+
+Available ruleSets:
+
+- [`@typespec/http/all`](#@typespec/http/all)
+
+### Rules
+
+| Name                                                                                                                                    | Description                                                                               |
+| --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`@typespec/http/op-reference-container-route`](https://microsoft.github.io/typespec/libraries/http/rules/op-reference-container-route) | Check for referenced (`op is`) operations which have a @route on one of their containers. |
+
 ## Decorators
 
 ### TypeSpec.Http
@@ -423,7 +447,7 @@ op create(): {@statusCode: 201 | 202}
 
 #### `@useAuth`
 
-Specify this service authentication. See the [documentation in the Http library](https://microsoft.github.io/typespec/standard-library/http/authentication) for full details.
+Specify this service authentication. See the [documentation in the Http library](https://microsoft.github.io/typespec/libraries/http/authentication) for full details.
 
 ```typespec
 @TypeSpec.Http.useAuth(auth: {} | Union | {}[])

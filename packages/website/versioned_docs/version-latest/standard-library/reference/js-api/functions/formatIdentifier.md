@@ -12,3 +12,7 @@ formatIdentifier(sv): string
 | Parameter | Type |
 | :------ | :------ |
 | `sv` | `string` |
+
+## Returns
+
+`string`

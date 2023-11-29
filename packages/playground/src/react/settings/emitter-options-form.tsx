@@ -9,21 +9,23 @@ import {
   SwitchOnChangeData,
   useId,
 } from "@fluentui/react-components";
-import { TypeSpecLibrary } from "@typespec/compiler";
 import { FunctionComponent, useCallback, useMemo } from "react";
+import { PlaygroundTspLibrary } from "../../types.js";
 import { EmitterOptions } from "../types.js";
+import style from "./emitter-options-form.module.css";
 
 export interface EmitterOptionsFormProps {
-  library: TypeSpecLibrary<any>;
-  options: EmitterOptions;
-  optionsChanged: (options: EmitterOptions) => void;
+  readonly library: PlaygroundTspLibrary;
+  readonly options: EmitterOptions;
+  readonly optionsChanged: (options: EmitterOptions) => void;
 }
+
 export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
   library,
   options,
   optionsChanged,
 }) => {
-  const emitterOptionsSchema = library.emitter?.options?.properties;
+  const emitterOptionsSchema = library.definition?.emitter?.options?.properties;
   if (emitterOptionsSchema === undefined) {
     return <>"No options"</>;
   }
@@ -42,10 +44,10 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
     [options, optionsChanged]
   );
   return (
-    <div>
+    <div className={style["form"]}>
       {entries.map(([key, value]) => {
         return (
-          <div key={key} css={{ margin: "16px 0" }}>
+          <div key={key} className={style["form-item"]}>
             <JsonSchemaPropertyInput
               emitterOptions={options[library.name] ?? {}}
               name={key}
@@ -59,19 +61,19 @@ export const EmitterOptionsForm: FunctionComponent<EmitterOptionsFormProps> = ({
   );
 };
 
-type JsonSchemaProperty = {
-  type: "string" | "boolean" | "number";
-  description?: string;
-  enum?: string[];
-  default?: any;
-};
+interface JsonSchemaProperty {
+  readonly type: "string" | "boolean" | "number";
+  readonly description?: string;
+  readonly enum?: string[];
+  readonly default?: any;
+}
 
-type JsonSchemaPropertyInputProps = {
-  emitterOptions: Record<string, unknown>;
-  name: string;
-  prop: JsonSchemaProperty;
-  onChange: (data: { name: string; value: unknown }) => void;
-};
+interface JsonSchemaPropertyInputProps {
+  readonly emitterOptions: Record<string, unknown>;
+  readonly name: string;
+  readonly prop: JsonSchemaProperty;
+  readonly onChange: (data: { name: string; value: unknown }) => void;
+}
 
 const JsonSchemaPropertyInput: FunctionComponent<JsonSchemaPropertyInputProps> = ({
   emitterOptions,
@@ -93,27 +95,31 @@ const JsonSchemaPropertyInput: FunctionComponent<JsonSchemaPropertyInputProps> =
 
   switch (prop.type) {
     case "boolean":
-      return <Switch label={prettyName} checked={value} onChange={handleChange} />;
+      return (
+        <Switch
+          className={style["switch"]}
+          label={prettyName}
+          labelPosition="above"
+          checked={value}
+          onChange={handleChange}
+        />
+      );
     case "string":
     default:
       return (
-        <div>
-          <div>
-            <Label htmlFor={inputId} title={name}>
-              {prettyName}
-            </Label>
-          </div>
-          <div>
-            {prop.enum ? (
-              <RadioGroup layout="horizontal" id={inputId} value={value} onChange={handleChange}>
-                {prop.enum.map((x) => (
-                  <Radio key={x} value={x} label={x} />
-                ))}
-              </RadioGroup>
-            ) : (
-              <Input id={inputId} value={value} onChange={handleChange} />
-            )}
-          </div>
+        <div className={style["item"]}>
+          <Label htmlFor={inputId} title={name}>
+            {prettyName}
+          </Label>
+          {prop.enum ? (
+            <RadioGroup layout="horizontal" id={inputId} value={value} onChange={handleChange}>
+              {prop.enum.map((x) => (
+                <Radio key={x} value={x} label={x} />
+              ))}
+            </RadioGroup>
+          ) : (
+            <Input id={inputId} value={value} onChange={handleChange} />
+          )}
         </div>
       );
   }

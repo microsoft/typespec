@@ -22,6 +22,8 @@ $summary(
 
 ## Returns
 
+`void`
+
 ## Summary
 
 attaches a documentation string. It is typically used to give a short, single-line

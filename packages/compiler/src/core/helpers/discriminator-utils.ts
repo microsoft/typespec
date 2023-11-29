@@ -203,6 +203,8 @@ function getStringValues(type: Type): string[] {
       return [...type.variants.values()].flatMap((x) => getStringValues(x.type)).filter(isDefined);
     case "EnumMember":
       return typeof type.value !== "number" ? [type.value ?? type.name] : [];
+    case "UnionVariant":
+      return getStringValues(type.type);
     default:
       return [];
   }

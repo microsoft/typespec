@@ -13,3 +13,7 @@ getRoutePath(program, entity): RoutePath | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `Interface` \| `Namespace` \| `Operation` |
+
+## Returns
+
+[`RoutePath`](../interfaces/RoutePath.md) \| `undefined`

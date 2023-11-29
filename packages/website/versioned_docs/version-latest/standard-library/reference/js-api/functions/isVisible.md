@@ -17,3 +17,7 @@ isVisible(
 | `program` | [`Program`](../interfaces/Program.md) |
 | `property` | [`ModelProperty`](../interfaces/ModelProperty.md) |
 | `visibilities` | readonly `string`[] |
+
+## Returns
+
+`boolean`

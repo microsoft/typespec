@@ -34,3 +34,7 @@ reportDiagnostic<M>(diag): void
 | Parameter | Type |
 | :------ | :------ |
 | `diag` | [`LinterRuleDiagnosticReport`](../type-aliases/LinterRuleDiagnosticReport.md)<`DM`, `M`\> |
+
+#### Returns
+
+`void`

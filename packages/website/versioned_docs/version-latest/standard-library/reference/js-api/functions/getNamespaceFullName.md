@@ -17,3 +17,5 @@ Return the full name of the namespace(e.g. "Foo.Bar")
 | `options`? | [`TypeNameOptions`](../interfaces/TypeNameOptions.md) |  |
 
 ## Returns
+
+`string`

@@ -23,16 +23,16 @@
   "main": "./dist/src/index.js",
   "exports": {
     ".": {
-      "default": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
     },
     "./ref-doc": {
-      "default": "./dist/src/ref-doc/index.js",
-      "types": "./dist/src/ref-doc/index.d.ts"
+      "types": "./dist/src/ref-doc/index.d.ts",
+      "default": "./dist/src/ref-doc/index.js"
     },
     "./ref-doc/emitters/docusaurus": {
-      "default": "./dist/src/ref-doc/emitters/docusaurus.js",
-      "types": "./dist/src/ref-doc/emitters/docusaurus.d.ts"
+      "types": "./dist/src/ref-doc/emitters/docusaurus.d.ts",
+      "default": "./dist/src/ref-doc/emitters/docusaurus.js"
     }
   },
   "engines": {
@@ -53,16 +53,16 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.49.0",
+    "@typespec/compiler": "workspace:~0.50.0",
     "yaml": "~2.3.2",
-    "prettier": "~3.0.3",
+    "prettier": "~3.1.0",
     "picocolors": "~1.0.0",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
-    "@typespec/prettier-plugin-typespec": "workspace:~0.49.0",
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
+    "@typespec/prettier-plugin-typespec": "workspace:~0.50.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/yargs": "~17.0.24",

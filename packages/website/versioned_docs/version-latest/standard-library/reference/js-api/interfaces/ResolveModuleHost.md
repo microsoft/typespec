@@ -19,6 +19,10 @@ Read a utf-8 encoded file.
 | :------ | :------ |
 | `path` | `string` |
 
+#### Returns
+
+`Promise`<`string`\>
+
 ***
 
 ### realpath()
@@ -35,6 +39,10 @@ Resolve the real path for the current host.
 | :------ | :------ |
 | `path` | `string` |
 
+#### Returns
+
+`Promise`<`string`\>
+
 ***
 
 ### stat()
@@ -50,3 +58,7 @@ Get information about the given path
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+#### Returns
+
+`Promise`<`object`\>

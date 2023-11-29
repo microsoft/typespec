@@ -13,3 +13,7 @@ getParentResource(program, resourceType): Model | undefined
 | :------ | :------ |
 | `program` | `Program` |
 | `resourceType` | `Model` |
+
+## Returns
+
+`Model` \| `undefined`

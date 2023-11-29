@@ -13,3 +13,7 @@ isStringType(program, target): target is Scalar
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) \| [`ProjectedProgram`](../interfaces/ProjectedProgram.md) |
 | `target` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`target is Scalar`

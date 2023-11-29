@@ -22,6 +22,10 @@ new ResolveModuleError(code, message): ResolveModuleError
 | `code` | `ResolveModuleErrorCode` |
 | `message` | `string` |
 
+#### Returns
+
+[`ResolveModuleError`](ResolveModuleError.md)
+
 #### Overrides
 
 Error.constructor
@@ -33,8 +37,8 @@ Error.constructor
 | `public` | `code` | `ResolveModuleErrorCode` | - | - |
 | `public` | `message` | `string` | - | Error.message |
 | `public` | `name` | `string` | - | Error.name |
-| `public` | `stack?` | `string` | - | Error.stack |
-| `static` | `prepareStackTrace?` | (`err`, `stackTraces`) => `any` | - | Error.prepareStackTrace |
+| `public` | `stack`? | `string` | - | Error.stack |
+| `static` | `prepareStackTrace`? | (`err`, `stackTraces`) => `any` | - | Error.prepareStackTrace |
 | `static` | `stackTraceLimit` | `number` | - | Error.stackTraceLimit |
 
 ## Methods
@@ -53,6 +57,10 @@ Create .stack property on a target object
 | :------ | :------ |
 | `targetObject` | `object` |
 | `constructorOpt`? | `Function` |
+
+#### Returns
+
+`void`
 
 #### Inherited from
 

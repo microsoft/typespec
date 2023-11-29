@@ -19,3 +19,7 @@ checkDuplicateTypeName(
 | `type` | `Type` |
 | `name` | `string` |
 | `existing` | `undefined` \| `Record`<`string`, `unknown`\> |
+
+## Returns
+
+`void`

@@ -87,7 +87,7 @@ This will create `tsconfig.json`. But we need to make a couple changes to this. 
 
 Open `./src/lib.ts` and create your library definition that registers your library with the TypeSpec compiler and defines any diagnostics your library will emit. Make sure to export the library definition as `$lib`.
 
-:::warn
+:::warning
 If `$lib` is not accessible from your library package (`import {$lib} from "my-library";`) some functionality will be unavailable like validation of emitter options, linter rules, etc.
 :::
 
@@ -226,13 +226,13 @@ export const MyTestLibrary = createTestLibrary({
   // ...
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js"
-  },
-  "typesVersions": {
-    "*": {
-      "*": ["./dist/src/index.d.ts"],
-      "testing": ["./dist/src/testing/index.d.ts"]
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./testing": {
+      "default": "./dist/src/testing/index.js",
+      "types": "./dist/src/testing/index.d.ts"
     }
   }
 }

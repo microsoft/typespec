@@ -18,7 +18,7 @@ title: "[I] Program"
 | `public` | `host` | [`CompilerHost`](CompilerHost.md) | - |
 | `public` | `jsSourceFiles` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - |
 | `public` | `literalTypes` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - |
-| `public` | `mainFile?` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
+| `public` | `mainFile`? | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
 | `readonly` | `projectRoot` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. |
 | `public` | `sourceFiles` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. |
 | `public` | `stateMaps` | `Map`<`symbol`, `StateMap`\> | - |
@@ -33,6 +33,10 @@ title: "[I] Program"
 getGlobalNamespaceType(): Namespace
 ```
 
+#### Returns
+
+[`Namespace`](Namespace.md)
+
 ***
 
 ### getOption()
@@ -46,6 +50,10 @@ getOption(key): undefined | string
 | Parameter | Type |
 | :------ | :------ |
 | `key` | `string` |
+
+#### Returns
+
+`undefined` \| `string`
 
 ***
 
@@ -63,6 +71,10 @@ Return location context of the given source file.
 | :------ | :------ |
 | `sourceFile` | [`SourceFile`](SourceFile.md) |
 
+#### Returns
+
+[`LocationContext`](../type-aliases/LocationContext.md)
+
 ***
 
 ### hasError()
@@ -70,6 +82,10 @@ Return location context of the given source file.
 ```ts
 hasError(): boolean
 ```
+
+#### Returns
+
+`boolean`
 
 ***
 
@@ -84,6 +100,10 @@ loadTypeSpecScript(typespecScript): Promise<TypeSpecScriptNode>
 | Parameter | Type |
 | :------ | :------ |
 | `typespecScript` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+`Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
 ***
 
@@ -100,6 +120,10 @@ onValidate(cb, LibraryMetadata): void
 | `cb` | (`program`) => `void` \| `Promise`<`void`\> |
 | `LibraryMetadata` | [`LibraryMetadata`](../type-aliases/LibraryMetadata.md) |
 
+#### Returns
+
+`void`
+
 ***
 
 ### reportDiagnostic()
@@ -113,6 +137,10 @@ reportDiagnostic(diagnostic): void
 | Parameter | Type |
 | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -128,6 +156,10 @@ reportDiagnostics(diagnostics): void
 | :------ | :------ |
 | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] |
 
+#### Returns
+
+`void`
+
 ***
 
 ### reportDuplicateSymbols()
@@ -141,6 +173,10 @@ reportDuplicateSymbols(symbols): void
 | Parameter | Type |
 | :------ | :------ |
 | `symbols` | `undefined` \| `SymbolTable` |
+
+#### Returns
+
+`void`
 
 ***
 
@@ -156,6 +192,10 @@ resolveTypeReference(reference): [undefined | Type, readonly Diagnostic[]]
 | :------ | :------ |
 | `reference` | `string` |
 
+#### Returns
+
+[`undefined` \| [`Type`](../type-aliases/Type.md), readonly [`Diagnostic`](Diagnostic.md)[]]
+
 ***
 
 ### stateMap()
@@ -169,6 +209,10 @@ stateMap(key): Map<Type, any>
 | Parameter | Type |
 | :------ | :------ |
 | `key` | `symbol` |
+
+#### Returns
+
+`Map`<[`Type`](../type-aliases/Type.md), `any`\>
 
 ***
 
@@ -184,6 +228,10 @@ stateSet(key): Set<Type>
 | :------ | :------ |
 | `key` | `symbol` |
 
+#### Returns
+
+`Set`<[`Type`](../type-aliases/Type.md)\>
+
 ***
 
 ### trace()
@@ -198,3 +246,7 @@ trace(area, message): void
 | :------ | :------ |
 | `area` | `string` |
 | `message` | `string` |
+
+#### Returns
+
+`void`

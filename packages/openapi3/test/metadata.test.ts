@@ -198,6 +198,43 @@ describe("openapi3: metadata", () => {
     });
   });
 
+  it("emits the appropriate properties for ResourceCreateModel", async () => {
+    const res = await openApiFor(`
+    using TypeSpec.Rest.Resource;
+
+    model M {
+      @visibility("read") r?: string;
+      @visibility("create") c?: string;
+      @visibility("update") u?: string;
+      all: string;
+    }
+
+    model MCreate is ResourceCreateModel<M>;
+
+    @route("/") @post op create(...MCreate): M; 
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      MCreate: {
+        type: "object",
+        description: "Resource create operation model.",
+        properties: {
+          c: { type: "string" },
+          all: { type: "string" },
+        },
+        required: ["all"],
+      },
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          all: { type: "string" },
+        },
+        required: ["all"],
+      },
+    });
+  });
+
   it("bubbles up visibility changes to referencers", async () => {
     const res = await openApiFor(
       `
@@ -943,5 +980,65 @@ describe("openapi3: metadata", () => {
       res.paths["/"].post.requestBody.content["application/octet-stream"].schema;
 
     deepStrictEqual(requestSchema, { format: "binary", type: "string" });
+  });
+
+  it("don't create multiple scalars with different visibility if they are the same", async () => {
+    const res = await openApiFor(`
+      scalar uuid extends string;
+
+      model Bar {
+        id: uuid;
+      }
+      
+      @patch op test(...Bar): Bar;
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Bar", "BarUpdate", "uuid"]);
+    deepStrictEqual(res.components.schemas.uuid, {
+      type: "string",
+    });
+  });
+
+  it("model referenced via a patch operation and an unreachable types does create 2 schemas", async () => {
+    const res = await openApiFor(`
+      model Bar {
+        id: string;
+      }
+      
+      @patch op test(bar: Bar): void;
+
+      model Foo {
+        bar: Bar;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      Bar: {
+        type: "object",
+        required: ["id"],
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      BarUpdate: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+          },
+        },
+      },
+      Foo: {
+        type: "object",
+        required: ["bar"],
+        properties: {
+          bar: {
+            $ref: "#/components/schemas/Bar",
+          },
+        },
+      },
+    });
   });
 });

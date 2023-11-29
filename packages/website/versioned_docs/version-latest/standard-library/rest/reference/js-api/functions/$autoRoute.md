@@ -19,3 +19,7 @@ auto-generated routes.
 | :------ | :------ |
 | `context` | `DecoratorContext` |
 | `entity` | `Interface` \| `Operation` |
+
+## Returns
+
+`void`

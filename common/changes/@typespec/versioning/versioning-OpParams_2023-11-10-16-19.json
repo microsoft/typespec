@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/versioning",
+      "comment": "Fix crash in versioning library.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/versioning"
+}

@@ -13,3 +13,7 @@ getStatusCodes(program, entity): HttpStatusCodes
 | :------ | :------ |
 | `program` | `Program` |
 | `entity` | `ModelProperty` |
+
+## Returns
+
+[`HttpStatusCodes`](../type-aliases/HttpStatusCodes.md)

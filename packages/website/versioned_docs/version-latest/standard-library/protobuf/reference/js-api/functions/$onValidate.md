@@ -14,3 +14,7 @@ Validation function
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
+
+## Returns
+
+`Promise`<`void`\>

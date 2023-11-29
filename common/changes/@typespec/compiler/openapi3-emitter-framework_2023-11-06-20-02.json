@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Emitter framework: Allow passing a custom context when calling `emitType` ",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

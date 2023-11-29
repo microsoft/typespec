@@ -13,3 +13,7 @@ getDiscriminator(program, entity): Discriminator | undefined
 | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) |
 | `entity` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+[`Discriminator`](../interfaces/Discriminator.md) \| `undefined`

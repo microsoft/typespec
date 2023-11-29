@@ -17,3 +17,7 @@ $contains(
 | `context` | `DecoratorContext` |
 | `target` | `Model` \| `ModelProperty` |
 | `value` | `Type` |
+
+## Returns
+
+`void`

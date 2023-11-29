@@ -17,3 +17,7 @@ $multipleOf(
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 | `value` | `number` |
+
+## Returns
+
+`void`

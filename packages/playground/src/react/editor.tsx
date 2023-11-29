@@ -5,6 +5,11 @@ export interface EditorProps {
   model: editor.IModel;
   actions?: editor.IActionDescriptor[];
   options: editor.IStandaloneEditorConstructionOptions;
+  onMount?: (data: OnMountData) => void;
+}
+
+export interface OnMountData {
+  editor: editor.IStandaloneCodeEditor;
 }
 
 export interface EditorCommand {
@@ -12,7 +17,7 @@ export interface EditorCommand {
   handle: () => void;
 }
 
-export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions }) => {
+export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions, onMount }) => {
   const editorContainerRef = useRef(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
@@ -22,7 +27,12 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
       automaticLayout: true,
       ...options,
     });
+    onMount?.({ editor: editorRef.current });
   }, []);
+
+  useEffect(() => {
+    editor.setTheme(options.theme ?? "typespec");
+  }, [options.theme]);
 
   useEffect(() => {
     const disposables: IDisposable[] = [];
@@ -43,7 +53,7 @@ export const Editor: FunctionComponent<EditorProps> = ({ model, options, actions
   return (
     <div
       className="monaco-editor-container"
-      css={{ width: "100%", height: "100%", overflow: "hidden" }}
+      style={{ width: "100%", height: "100%", overflow: "hidden" }}
       ref={editorContainerRef}
     ></div>
   );

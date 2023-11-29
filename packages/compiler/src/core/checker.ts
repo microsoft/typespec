@@ -1253,14 +1253,14 @@ export function createChecker(program: Program): Checker {
     return sym.flags & SymbolFlags.Model
       ? checkModelStatement(node as ModelStatementNode, mapper)
       : sym.flags & SymbolFlags.Scalar
-      ? checkScalar(node as ScalarStatementNode, mapper)
-      : sym.flags & SymbolFlags.Alias
-      ? checkAlias(node as AliasStatementNode, mapper)
-      : sym.flags & SymbolFlags.Interface
-      ? checkInterface(node as InterfaceStatementNode, mapper)
-      : sym.flags & SymbolFlags.Operation
-      ? checkOperation(node as OperationStatementNode, mapper)
-      : checkUnion(node as UnionStatementNode, mapper);
+        ? checkScalar(node as ScalarStatementNode, mapper)
+        : sym.flags & SymbolFlags.Alias
+          ? checkAlias(node as AliasStatementNode, mapper)
+          : sym.flags & SymbolFlags.Interface
+            ? checkInterface(node as InterfaceStatementNode, mapper)
+            : sym.flags & SymbolFlags.Operation
+              ? checkOperation(node as OperationStatementNode, mapper)
+              : checkUnion(node as UnionStatementNode, mapper);
   }
 
   function getOrInstantiateTemplate(
@@ -2492,12 +2492,19 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined,
     options: SymbolResolutionOptions
   ): Sym | undefined {
-    const node = aliasSymbol.declarations[0];
-    const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
-    const sym = resolveTypeReferenceSymInternal(targetNode as any, mapper, options);
-    if (sym === undefined) {
-      return undefined;
+    let current = aliasSymbol;
+    while (current.flags & SymbolFlags.Alias) {
+      const node = current.declarations[0];
+      const targetNode = node.kind === SyntaxKind.AliasStatement ? node.value : node;
+      const sym = resolveTypeReferenceSymInternal(targetNode as any, mapper, options);
+      if (sym === undefined) {
+        return undefined;
+      }
+      current = sym;
     }
+    const sym = current;
+    const node = aliasSymbol.declarations[0];
+
     const resolvedTargetNode = sym.declarations[0];
     if (!options.checkTemplateTypes || !isTemplatedNode(resolvedTargetNode)) {
       return sym;
@@ -5643,6 +5650,9 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
   ): [Related, Diagnostic[]] {
+    if (source.kind === "UnionVariant" && source.union === target) {
+      return [Related.true, []];
+    }
     for (const option of target.variants.values()) {
       const [related] = isTypeAssignableToInternal(
         source,

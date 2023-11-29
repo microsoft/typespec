@@ -23,6 +23,8 @@ Determines the visibility to use for a request with the given verb.
 
 ## Returns
 
+[`Visibility`](../enumerations/Visibility.md)
+
 The applicable parameter visibility or visibilities for the request.
 
 ## Deprecated

@@ -24,3 +24,7 @@ type accepts.
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | - |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) | Decorator target. Must be a string. (model Foo extends string) |
 | `knownValues` | [`Enum`](../interfaces/Enum.md) | Must be an enum. |
+
+## Returns
+
+`void`

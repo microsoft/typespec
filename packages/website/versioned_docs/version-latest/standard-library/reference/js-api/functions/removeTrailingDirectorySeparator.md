@@ -19,3 +19,7 @@ removeTrailingDirectorySeparator("/path/to/file.ext/") === "/path/to/file.ext"
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`string`

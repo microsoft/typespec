@@ -12,3 +12,7 @@ isNullType(type): type is NullType
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`Type`](../type-aliases/Type.md) |
+
+## Returns
+
+`type is NullType`

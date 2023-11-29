@@ -44,6 +44,18 @@ describe("compiler: references", () => {
         ref: "MyModel.x",
       }));
 
+    describe("member of alias of alias of model", () =>
+      itCanReference({
+        code: `
+          model MyModel {
+            @test("target") x: string;
+          }
+          alias Alias1  = MyModel;
+          alias MyModelAlias  = Alias1;
+        `,
+        ref: "MyModelAlias.x",
+      }));
+
     describe("spread property from model defined before", () =>
       itCanReference({
         code: `
@@ -417,6 +429,18 @@ describe("compiler: references", () => {
             @test("target") operation(): void;
           }
           alias MyInterfaceAlias  = MyInterface;
+        `,
+        ref: "MyInterfaceAlias.operation",
+      }));
+
+    describe("member of alias of alias of interface", () =>
+      itCanReference({
+        code: `
+          interface MyInterface {
+            @test("target") operation(): void;
+          }
+          alias MyInterfaceAlias1  = MyInterface;
+          alias MyInterfaceAlias  = MyInterfaceAlias1;
         `,
         ref: "MyInterfaceAlias.operation",
       }));

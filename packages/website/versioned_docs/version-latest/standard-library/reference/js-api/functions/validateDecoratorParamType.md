@@ -51,6 +51,8 @@ Validate a decorator parameter has the correct type.
 
 ## Returns
 
+`value is InferredTypeSpecValue<K>`
+
 true if the value is of one of the type in the list of expected types. If not emit a diagnostic.
 
 ## Deprecated

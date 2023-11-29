@@ -13,6 +13,7 @@ words:
   - cadl
   - cadleditor
   - cadleng
+  - clsx
   - cobertura
   - Contoso
   - createsorreplacesresource
@@ -46,6 +47,7 @@ words:
   - openapi
   - openapiv
   - picocolors
+  - prismjs
   - proto
   - protobuf
   - protoc

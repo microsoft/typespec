@@ -1,0 +1,18 @@
+.problem-pane {
+  height: 100%;
+  background-color: var(--colorNeutralBackground3);
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.problem-content {
+  overflow-y: auto;
+}
+.no-problems {
+  padding: 10px;
+}
+
+.internal-compiler-error {
+  padding: 10px;
+}

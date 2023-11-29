@@ -18,4 +18,6 @@ Check if the given model property is the content type header.
 
 ## Returns
 
+`boolean`
+
 True if the model property is marked as a header and has the name `content-type`(case insensitive.)

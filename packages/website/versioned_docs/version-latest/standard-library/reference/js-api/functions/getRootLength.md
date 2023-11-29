@@ -36,3 +36,7 @@ getRootLength("http://server/path") === 14 // "http://server/"
 | Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
+
+## Returns
+
+`number`

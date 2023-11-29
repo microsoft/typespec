@@ -15,3 +15,7 @@ given property, if any.
 | Parameter | Type |
 | :------ | :------ |
 | `property` | [`ModelProperty`](../interfaces/ModelProperty.md) |
+
+## Returns
+
+[`ModelProperty`](../interfaces/ModelProperty.md) \| `undefined`

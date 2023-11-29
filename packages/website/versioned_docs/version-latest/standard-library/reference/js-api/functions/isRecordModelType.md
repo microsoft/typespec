@@ -15,3 +15,7 @@ Check if a model is an array type.
 | :------ | :------ | :------ |
 | `program` | [`Program`](../interfaces/Program.md) | - |
 | `type` | [`Model`](../interfaces/Model.md) | Model type |
+
+## Returns
+
+`type is ArrayModelType`

@@ -41,12 +41,30 @@
 .sash-content {
   width: 100%;
   height: 100%;
-  background-color: #e5e5e5;
+  background-color: var(--colorNeutralStroke2);
 }
 
 .sash-content-dragging,
 .sash-content:hover {
-  background-color: #c3c3c3;
+  background-color: var(--colorNeutralStroke1Pressed);
+}
+
+.sash-vertical .sash-content {
+  width: 1px;
+  margin-left: 1px;
+}
+
+.sash-horizontal .sash-content {
+  height: 1px;
+  margin-top: 1px;
+}
+
+.sash-vertical .sash-content-dragging {
+  width: 100%;
+}
+
+.sash-horizontal .sash-content-dragging {
+  height: 100%;
 }
 
 .pane {

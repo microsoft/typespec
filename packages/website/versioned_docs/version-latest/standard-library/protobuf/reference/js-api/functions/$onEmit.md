@@ -14,3 +14,7 @@ Emitter main function.
 | Parameter | Type |
 | :------ | :------ |
 | `ctx` | `EmitContext`<`ProtobufEmitterOptions`\> |
+
+## Returns
+
+`Promise`<`void`\>

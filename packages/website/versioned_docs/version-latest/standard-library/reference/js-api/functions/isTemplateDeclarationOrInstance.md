@@ -14,3 +14,7 @@ Resolve if the type was created from a template type or is a template type decla
 | Parameter | Type |
 | :------ | :------ |
 | `type` | [`TemplatedType`](../type-aliases/TemplatedType.md) |
+
+## Returns
+
+`boolean`

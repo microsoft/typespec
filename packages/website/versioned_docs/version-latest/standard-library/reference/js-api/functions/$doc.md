@@ -22,6 +22,8 @@ $doc(
 
 ## Returns
 
+`void`
+
 ## Doc
 
 attaches a documentation string. Works great with multi-line string literals.

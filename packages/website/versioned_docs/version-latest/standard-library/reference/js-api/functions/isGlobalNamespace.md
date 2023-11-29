@@ -17,3 +17,5 @@ Check if the given namespace is the global namespace
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) | Namespace |
 
 ## Returns
+
+`namespace is Namespace & Object`

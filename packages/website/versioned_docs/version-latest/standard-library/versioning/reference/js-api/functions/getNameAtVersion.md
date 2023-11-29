@@ -20,4 +20,6 @@ getNameAtVersion(
 
 ## Returns
 
+`string`
+
 get old name if applicable.

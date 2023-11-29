@@ -20,7 +20,9 @@ export async function importTypeSpecCompiler(
  * @returns Promise with the loaded module.
  */
 export async function importLibrary(name: string, config: LibraryImportOptions): Promise<unknown> {
-  return config.useShim ? importShim(name) : import(/* @vite-ignore */ name);
+  return config.useShim
+    ? importShim(name)
+    : import(/* @vite-ignore */ /* webpackIgnore: true */ name);
 }
 
 /**

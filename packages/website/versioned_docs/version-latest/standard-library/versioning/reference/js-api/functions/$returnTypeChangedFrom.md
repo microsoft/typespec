@@ -19,3 +19,7 @@ $returnTypeChangedFrom(
 | `op` | `Operation` |
 | `v` | `EnumMember` |
 | `oldReturnType` | `any` |
+
+## Returns
+
+`void`

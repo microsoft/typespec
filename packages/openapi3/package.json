@@ -1,10 +1,10 @@
 {
   "name": "@typespec/openapi3",
-  "version": "0.49.0",
+  "version": "0.50.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
   "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,17 +20,13 @@
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/src/index.d.ts"
-      ],
-      "testing": [
-        "./dist/src/testing/index.d.ts"
-      ]
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
     }
   },
   "engines": {
@@ -45,7 +41,7 @@
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/standard-library/openapi3/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi3/reference"
   },
   "files": [
     "lib/*.tsp",
@@ -56,22 +52,22 @@
     "yaml": "~2.3.2"
   },
   "peerDependencies": {
-    "@typespec/versioning": "workspace:~0.49.0",
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/http": "workspace:~0.49.0",
-    "@typespec/openapi": "workspace:~0.49.0"
+    "@typespec/versioning": "workspace:~0.50.0",
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/http": "workspace:~0.50.0",
+    "@typespec/openapi": "workspace:~0.50.0"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
-    "@typespec/compiler": "workspace:~0.49.0",
-    "@typespec/http": "workspace:~0.49.0",
-    "@typespec/rest": "workspace:~0.49.0",
-    "@typespec/openapi": "workspace:~0.49.0",
-    "@typespec/versioning": "workspace:~0.49.0",
-    "@typespec/eslint-config-typespec": "workspace:~0.49.0",
-    "@typespec/library-linter": "workspace:~0.49.0",
-    "@typespec/eslint-plugin": "workspace:~0.49.0",
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/http": "workspace:~0.50.0",
+    "@typespec/rest": "workspace:~0.50.0",
+    "@typespec/openapi": "workspace:~0.50.0",
+    "@typespec/versioning": "workspace:~0.50.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
+    "@typespec/library-linter": "workspace:~0.50.0",
+    "@typespec/eslint-plugin": "workspace:~0.50.0",
     "@typespec/tspd": "workspace:~0.46.0",
     "eslint": "^8.49.0",
     "mocha": "~10.2.0",

@@ -29,3 +29,5 @@ Validate the decorator target is matching the expected value.
 | `expectedType` | `K` \| readonly `K`[] |  |
 
 ## Returns
+
+`target is K extends "Any" ? Type : Object`

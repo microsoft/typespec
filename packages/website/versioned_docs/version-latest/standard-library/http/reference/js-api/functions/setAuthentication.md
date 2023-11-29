@@ -17,3 +17,7 @@ setAuthentication(
 | `program` | `Program` |
 | `serviceNamespace` | `Namespace` |
 | `auth` | [`ServiceAuthentication`](../interfaces/ServiceAuthentication.md) |
+
+## Returns
+
+`void`

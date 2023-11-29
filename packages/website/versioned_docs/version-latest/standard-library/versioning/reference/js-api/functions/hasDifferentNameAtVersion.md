@@ -17,3 +17,7 @@ hasDifferentNameAtVersion(
 | `p` | `Program` |
 | `type` | `Type` |
 | `version` | `ObjectType` |
+
+## Returns
+
+`boolean`

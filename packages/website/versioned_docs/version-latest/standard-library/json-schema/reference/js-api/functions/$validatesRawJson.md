@@ -17,3 +17,7 @@ $validatesRawJson(
 | `context` | `DecoratorContext` |
 | `target` | `Model` |
 | `value` | `Type` |
+
+## Returns
+
+`void`

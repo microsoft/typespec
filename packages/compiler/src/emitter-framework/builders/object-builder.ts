@@ -27,7 +27,7 @@ export class ObjectBuilder<T> {
       compilerAssert(v.kind !== "circular", "Can't set a circular emit result.");
 
       if (v.kind === "none") {
-        this[key] = null;
+        this[key] = undefined;
         return;
       } else {
         value = v.value;

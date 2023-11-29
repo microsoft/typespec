@@ -19,3 +19,7 @@ paramMessage<T>(strings, ...keys): CallableMessage<T>
 | :------ | :------ |
 | `strings` | readonly `string`[] |
 | ...`keys` | `T` |
+
+## Returns
+
+[`CallableMessage`](../interfaces/CallableMessage.md)<`T`\>

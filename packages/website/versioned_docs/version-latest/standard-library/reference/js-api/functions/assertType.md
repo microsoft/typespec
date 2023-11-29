@@ -46,3 +46,7 @@ Assert that the input type has one of the kinds provided
 | `typeDescription` | `string` |
 | `t` | [`Type`](../type-aliases/Type.md) |
 | ...`kinds` | `TKind` |
+
+## Returns
+
+`asserts t is Object`

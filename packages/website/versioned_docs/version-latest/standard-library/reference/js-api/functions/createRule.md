@@ -21,3 +21,7 @@ Create a new linter rule.
 | Parameter | Type |
 | :------ | :------ |
 | `definition` | [`LinterRuleDefinition`](../interfaces/LinterRuleDefinition.md)<`N`, `T`\> |
+
+## Returns
+
+[`LinterRuleDefinition`](../interfaces/LinterRuleDefinition.md)<`N`, `T`\>

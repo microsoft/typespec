@@ -27,3 +27,7 @@ Examples (with canonicalVisibility = Visibility.Read):
 | :------ | :------ | :------ |
 | `visibility` | [`Visibility`](../enumerations/Visibility.md) | `undefined` |
 | `canonicalVisibility` | `undefined` \| [`Visibility`](../enumerations/Visibility.md) | `Visibility.None` |
+
+## Returns
+
+`string`
