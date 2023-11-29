@@ -70,7 +70,6 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
     "output-file": {
       type: "string",
       nullable: true,
-      format: "absolute-path",
       description: [
         "Name of the output file.",
         " Output file will interpolate the following values:",
