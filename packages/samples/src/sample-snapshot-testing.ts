@@ -104,7 +104,7 @@ function defineSampleSnaphotTest(
     const emit = options.emit;
     if (emit === undefined || emit.length === 0) {
       fail(
-        `No emitters configured for sample "${sample.name}". Make sure the  config at: "${options.config}" is correct.`
+        `No emitters configured for sample "${sample.name}". Make sure the  config at: "${options.configPath}" is correct.`
       );
     }
 

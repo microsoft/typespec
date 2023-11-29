@@ -1,10 +1,17 @@
 import Ajv, { ErrorObject, Options } from "ajv";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
-import { YamlScript } from "../yaml/types.js";
+import { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import { compilerAssert } from "./diagnostics.js";
 import { createDiagnostic } from "./messages.js";
 import { isPathAbsolute } from "./path-utils.js";
-import { Diagnostic, JSONSchemaType, JSONSchemaValidator, NoTarget, SourceFile } from "./types.js";
+import {
+  Diagnostic,
+  DiagnosticTarget,
+  JSONSchemaType,
+  JSONSchemaValidator,
+  NoTarget,
+  SourceFile,
+} from "./types.js";
 
 export interface JSONSchemaValidatorOptions {
   coerceTypes?: boolean;
@@ -31,7 +38,7 @@ export function createJSONSchemaValidator<T>(
 
   function validate(
     config: unknown,
-    target: YamlScript | SourceFile | typeof NoTarget
+    target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget
   ): Diagnostic[] {
     const validate = ajv.compile(schema);
     const valid = validate(config);
@@ -55,14 +62,9 @@ const IGNORED_AJV_PARAMS = new Set(["type", "errors"]);
 function ajvErrorToDiagnostic(
   obj: unknown,
   error: ErrorObject<string, Record<string, any>, unknown>,
-  target: YamlScript | SourceFile | typeof NoTarget
+  target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget
 ): Diagnostic {
-  const tspTarget =
-    target === NoTarget
-      ? target
-      : "kind" in target
-        ? getLocationInYamlScript(target, getErrorPath(error), "key")
-        : { file: target, pos: 0, end: 0 };
+  const tspTarget = resolveTarget(error, target);
   if (error.params.format === "absolute-path") {
     return createDiagnostic({
       code: "config-path-absolute",
@@ -86,6 +88,28 @@ function ajvErrorToDiagnostic(
     severity: "error",
     target: tspTarget,
   };
+}
+
+function resolveTarget(
+  error: ErrorObject<string, Record<string, any>, unknown>,
+  target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget
+): DiagnosticTarget | typeof NoTarget {
+  if (target === NoTarget) {
+    return NoTarget;
+  }
+  if (!("kind" in target)) {
+    return { file: target, pos: 0, end: 0 };
+  }
+  switch (target.kind) {
+    case "yaml-script":
+      return getLocationInYamlScript(target, getErrorPath(error), "key");
+    case "path-target":
+      return getLocationInYamlScript(
+        target.script,
+        [...target.path, ...getErrorPath(error)],
+        "key"
+      );
+  }
 }
 
 function getErrorPath(error: ErrorObject<string, Record<string, any>, unknown>): string[] {

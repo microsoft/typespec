@@ -318,7 +318,7 @@ export async function compile(
     getGlobalNamespaceType,
     resolveTypeReference,
     getSourceFileLocationContext,
-    projectRoot: getDirectoryPath(options.config ?? resolvedMain ?? ""),
+    projectRoot: getDirectoryPath(options.configPath ?? resolvedMain ?? ""),
   };
 
   trace("compiler.options", JSON.stringify(options, null, 2));
@@ -753,7 +753,13 @@ export async function compile(
       if (libDefinition?.emitter?.options) {
         const diagnostics = libDefinition?.emitterOptionValidator?.validate(
           emitterOptions,
-          NoTarget
+          options.config?.file
+            ? {
+                kind: "path-target",
+                path: ["options", emitterNameOrPath],
+                script: options.config.file,
+              }
+            : NoTarget
         );
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
