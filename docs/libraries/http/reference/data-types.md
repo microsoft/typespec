@@ -201,19 +201,20 @@ model TypeSpec.Http.NotModifiedResponse
 ### `OAuth2Auth` {#TypeSpec.Http.OAuth2Auth}
 
 OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server.
+
 OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
 For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
 For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 ```typespec
-model TypeSpec.Http.OAuth2Auth<TFlows>
+model TypeSpec.Http.OAuth2Auth<Flows>
 ```
 
 #### Template Parameters
 
-| Name   | Description                        |
-| ------ | ---------------------------------- |
-| TFlows | The list of supported OAuth2 flows |
+| Name  | Description                        |
+| ----- | ---------------------------------- |
+| Flows | The list of supported OAuth2 flows |
 
 ### `OkResponse` {#TypeSpec.Http.OkResponse}
 

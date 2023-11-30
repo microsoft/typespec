@@ -104,7 +104,7 @@ media type and encoding.
 
 Specify a custom property to add to the emitted schema. Useful for adding custom keywords
 and other vendor-specific extensions. The value will be converted to a schema unless the parameter
-is wrapped in the `Json<T>` template. For example, `@extension("x-schema", { x: "value" })` will
+is wrapped in the `Json<Data>` template. For example, `@extension("x-schema", { x: "value" })` will
 emit a JSON schema value for `x-schema`, whereas `@extension("x-schema", Json<{x: "value"}>)` will
 emit the raw JSON code `{x: "value"}`.
 
@@ -118,10 +118,10 @@ emit the raw JSON code `{x: "value"}`.
 
 #### Parameters
 
-| Name  | Type                    | Description                                                                          |
-| ----- | ----------------------- | ------------------------------------------------------------------------------------ |
-| key   | `valueof scalar string` | the name of the keyword of vendor extension, e.g. `x-custom`.                        |
-| value | `(intrinsic) unknown`   | the value of the keyword. Will be converted to a schema unless wrapped in `Json<T>`. |
+| Name  | Type                    | Description                                                                             |
+| ----- | ----------------------- | --------------------------------------------------------------------------------------- |
+| key   | `valueof scalar string` | the name of the keyword of vendor extension, e.g. `x-custom`.                           |
+| value | `(intrinsic) unknown`   | the value of the keyword. Will be converted to a schema unless wrapped in `Json<Data>`. |
 
 ### `@id` {#@TypeSpec.JsonSchema.id}
 

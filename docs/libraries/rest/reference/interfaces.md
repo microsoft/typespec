@@ -37,7 +37,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create(resource:
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
+op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<Item> | Error
 ```
 
 ### `ExtensionResourceCreate` {#TypeSpec.Rest.Resource.ExtensionResourceCreate}
@@ -173,7 +173,7 @@ interface TypeSpec.Rest.Resource.ExtensionResourceList<Extension, Resource, Erro
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
+op TypeSpec.Rest.Resource.ExtensionResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<Item> | Error
 ```
 
 ### `ExtensionResourceOperations` {#TypeSpec.Rest.Resource.ExtensionResourceOperations}
@@ -229,7 +229,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.create(resource: TypeSpec.
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<Item> | Error
 ```
 
 ### `ExtensionResourceRead` {#TypeSpec.Rest.Resource.ExtensionResourceRead}
@@ -308,7 +308,7 @@ op TypeSpec.Rest.Resource.ResourceCollectionOperations.create(resource: TypeSpec
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
+op TypeSpec.Rest.Resource.ResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<Item> | Error
 ```
 
 ### `ResourceCreate` {#TypeSpec.Rest.Resource.ResourceCreate}
@@ -462,7 +462,7 @@ interface TypeSpec.Rest.Resource.ResourceList<Resource, Error>
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
+op TypeSpec.Rest.Resource.ResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<Item> | Error
 ```
 
 ### `ResourceOperations` {#TypeSpec.Rest.Resource.ResourceOperations}
@@ -517,7 +517,7 @@ op TypeSpec.Rest.Resource.ResourceOperations.create(resource: TypeSpec.Rest.Reso
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
+op TypeSpec.Rest.Resource.ResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<Item> | Error
 ```
 
 ### `ResourceRead` {#TypeSpec.Rest.Resource.ResourceRead}
