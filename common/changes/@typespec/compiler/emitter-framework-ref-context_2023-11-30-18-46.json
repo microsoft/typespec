@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "[API] Emitter framework: `emitTypeReference` function takes an optioonal reference context that can be used to patch the context for the target.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
