@@ -28,7 +28,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   getContext(): Context;
   getOptions(): AssetEmitterOptions<TOptions>;
   getProgram(): Program;
-  emitTypeReference(type: Type): EmitEntity<T>;
+  emitTypeReference(type: Type, context?: Partial<ContextState>): EmitEntity<T>;
   emitDeclarationName(type: TypeSpecDeclaration): string | undefined;
   emitType(type: Type, context?: Partial<ContextState>): EmitEntity<T>;
   emitProgram(options?: { emitGlobalNamespace?: boolean; emitTypeSpecNamespace?: boolean }): void;
