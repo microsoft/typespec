@@ -39,15 +39,15 @@ Cookie: X-API-KEY=abcdef12345
 ```
 
 ```typespec
-model TypeSpec.Http.ApiKeyAuth<TLocation, TName>
+model TypeSpec.Http.ApiKeyAuth<Location, Name>
 ```
 
 #### Template Parameters
 
-| Name      | Description                 |
-| --------- | --------------------------- |
-| TLocation | The location of the API key |
-| TName     | The name of the API key     |
+| Name     | Description                 |
+| -------- | --------------------------- |
+| Location | The location of the API key |
+| Name     | The name of the API key     |
 
 ### `AuthorizationCodeFlow` {#TypeSpec.Http.AuthorizationCodeFlow}
 
@@ -97,18 +97,18 @@ model TypeSpec.Http.BearerAuth
 
 Defines a model with a single property of the given type, marked with `@body`.
 
-This can be useful in situations where you cannot use a bare T as the body
+This can be useful in situations where you cannot use a bare type as the body
 and it is awkward to add a property.
 
 ```typespec
-model TypeSpec.Http.Body<T>
+model TypeSpec.Http.Body<TBody>
 ```
 
 #### Template Parameters
 
-| Name | Description                              |
-| ---- | ---------------------------------------- |
-| T    | The type of the model's `body` property. |
+| Name  | Description                              |
+| ----- | ---------------------------------------- |
+| TBody | The type of the model's `body` property. |
 
 ### `ClientCredentialsFlow` {#TypeSpec.Http.ClientCredentialsFlow}
 
@@ -237,14 +237,14 @@ Produces a new model with the same properties as T, but with `@query`,
 `@header`, `@body`, and `@path` decorators removed from all properties.
 
 ```typespec
-model TypeSpec.Http.PlainData<T>
+model TypeSpec.Http.PlainData<Data>
 ```
 
 #### Template Parameters
 
 | Name | Description                            |
 | ---- | -------------------------------------- |
-| T    | The model to spread as the plain data. |
+| Data | The model to spread as the plain data. |
 
 ### `QueryOptions` {#TypeSpec.Http.QueryOptions}
 

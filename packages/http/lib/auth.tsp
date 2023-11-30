@@ -82,19 +82,19 @@ enum ApiKeyLocation {
  * Cookie: X-API-KEY=abcdef12345
  * ```
  *
- * @template TLocation The location of the API key
- * @template TName The name of the API key
+ * @template Location The location of the API key
+ * @template Name The name of the API key
  */
 @doc("")
-model ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
+model ApiKeyAuth<Location extends ApiKeyLocation, Name extends string> {
   @doc("API key authentication")
   type: AuthType.apiKey;
 
   @doc("location of the API key")
-  in: TLocation;
+  in: Location;
 
   @doc("name of the API key")
-  name: TName;
+  name: Name;
 }
 
 /**

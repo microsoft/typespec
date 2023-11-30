@@ -13,23 +13,23 @@ toc_max_heading_level: 3
 Extension resource operation templates for extension resource collections.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceCollectionOperations.create` {#TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create}
 
 Creates a new instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<Resource>): Extension | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 #### `ExtensionResourceCollectionOperations.list` {#TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list}
@@ -37,7 +37,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.create(resource:
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
 ```
 
 ### `ExtensionResourceCreate` {#TypeSpec.Rest.Resource.ExtensionResourceCreate}
@@ -45,23 +45,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceCollectionOperations.list(): TypeSpec
 Extension resource create operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceCreate<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceCreate<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceCreate.create` {#TypeSpec.Rest.Resource.ExtensionResourceCreate.create}
 
 Creates a new instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCreate.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCreate.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<Resource>): Extension | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 ### `ExtensionResourceCreateOrUpdate` {#TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate}
@@ -69,23 +69,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceCreate.create(resource: TypeSpec.Rest
 Extension resource create or update operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceCreateOrUpdate.createOrUpdate` {#TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate.createOrUpdate}
 
 Creates or update an instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate.createOrUpdate(resource: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate.createOrUpdate(resource: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Extension | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 ### `ExtensionResourceDelete` {#TypeSpec.Rest.Resource.ExtensionResourceDelete}
@@ -93,23 +93,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceCreateOrUpdate.createOrUpdate(resourc
 Extension resource delete operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceDelete<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceDelete<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceDelete.delete` {#TypeSpec.Rest.Resource.ExtensionResourceDelete.delete}
 
 Deletes an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceDelete.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | TError
+op TypeSpec.Rest.Resource.ExtensionResourceDelete.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | Error
 ```
 
 ### `ExtensionResourceInstanceOperations` {#TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations}
@@ -117,23 +117,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceDelete.delete(): TypeSpec.Rest.Resour
 Extension resource operation templates for extension resource instances.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceInstanceOperations.get` {#TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.get}
 
 Gets an instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.get(): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.get(): Extension | Error
 ```
 
 #### `ExtensionResourceInstanceOperations.update` {#TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.update}
@@ -141,7 +141,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.get(): TExtension 
 Updates an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Extension | Error
 ```
 
 #### `ExtensionResourceInstanceOperations.delete` {#TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.delete}
@@ -149,7 +149,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.update(properties:
 Deletes an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | TError
+op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | Error
 ```
 
 ### `ExtensionResourceList` {#TypeSpec.Rest.Resource.ExtensionResourceList}
@@ -157,23 +157,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceInstanceOperations.delete(): TypeSpec
 Extension resource list operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceList<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceList<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceList.list` {#TypeSpec.Rest.Resource.ExtensionResourceList.list}
 
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
 ```
 
 ### `ExtensionResourceOperations` {#TypeSpec.Rest.Resource.ExtensionResourceOperations}
@@ -181,23 +181,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceList.list(): TypeSpec.Rest.Resource.C
 Extension resource operation templates for extension resource instances and collections.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceOperations<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceOperations<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceOperations.get` {#TypeSpec.Rest.Resource.ExtensionResourceOperations.get}
 
 Gets an instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.get(): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.get(): Extension | Error
 ```
 
 #### `ExtensionResourceOperations.update` {#TypeSpec.Rest.Resource.ExtensionResourceOperations.update}
@@ -205,7 +205,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.get(): TExtension | TError
 Updates an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Extension | Error
 ```
 
 #### `ExtensionResourceOperations.delete` {#TypeSpec.Rest.Resource.ExtensionResourceOperations.delete}
@@ -213,7 +213,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.update(properties: TypeSpe
 Deletes an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | Error
 ```
 
 #### `ExtensionResourceOperations.create` {#TypeSpec.Rest.Resource.ExtensionResourceOperations.create}
@@ -221,7 +221,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.delete(): TypeSpec.Rest.Re
 Creates a new instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TExtension | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<Resource>): Extension | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 #### `ExtensionResourceOperations.list` {#TypeSpec.Rest.Resource.ExtensionResourceOperations.list}
@@ -229,7 +229,7 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.create(resource: TypeSpec.
 Lists all instances of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ExtensionResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
 ```
 
 ### `ExtensionResourceRead` {#TypeSpec.Rest.Resource.ExtensionResourceRead}
@@ -237,23 +237,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceOperations.list(): TypeSpec.Rest.Reso
 Extension resource read operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceRead<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceRead<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceRead.get` {#TypeSpec.Rest.Resource.ExtensionResourceRead.get}
 
 Gets an instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceRead.get(): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceRead.get(): Extension | Error
 ```
 
 ### `ExtensionResourceUpdate` {#TypeSpec.Rest.Resource.ExtensionResourceUpdate}
@@ -261,23 +261,23 @@ op TypeSpec.Rest.Resource.ExtensionResourceRead.get(): TExtension | TError
 Extension resource update operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ExtensionResourceUpdate<TExtension, TResource, TError>
+interface TypeSpec.Rest.Resource.ExtensionResourceUpdate<Extension, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TExtension | The extension resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Extension | The extension resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `ExtensionResourceUpdate.update` {#TypeSpec.Rest.Resource.ExtensionResourceUpdate.update}
 
 Updates an existing instance of the extension resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ExtensionResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TExtension | TError
+op TypeSpec.Rest.Resource.ExtensionResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Extension | Error
 ```
 
 ### `ResourceCollectionOperations` {#TypeSpec.Rest.Resource.ResourceCollectionOperations}
@@ -285,22 +285,22 @@ op TypeSpec.Rest.Resource.ExtensionResourceUpdate.update(properties: TypeSpec.Re
 Resource operation templates for resource collections.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceCollectionOperations<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceCollectionOperations<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description         |
-| --------- | ------------------- |
-| TResource | The resource model. |
-| TError    | The error response. |
+| Name     | Description         |
+| -------- | ------------------- |
+| Resource | The resource model. |
+| Error    | The error response. |
 
 #### `ResourceCollectionOperations.create` {#TypeSpec.Rest.Resource.ResourceCollectionOperations.create}
 
 Creates a new instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCollectionOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCollectionOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<Resource>): Resource | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 #### `ResourceCollectionOperations.list` {#TypeSpec.Rest.Resource.ResourceCollectionOperations.list}
@@ -308,7 +308,7 @@ op TypeSpec.Rest.Resource.ResourceCollectionOperations.create(resource: TypeSpec
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ResourceCollectionOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
 ```
 
 ### `ResourceCreate` {#TypeSpec.Rest.Resource.ResourceCreate}
@@ -316,22 +316,22 @@ op TypeSpec.Rest.Resource.ResourceCollectionOperations.list(): TypeSpec.Rest.Res
 Resource create operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceCreate<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceCreate<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description                   |
-| --------- | ----------------------------- |
-| TResource | The resource model to create. |
-| TError    | The error response.           |
+| Name     | Description                   |
+| -------- | ----------------------------- |
+| Resource | The resource model to create. |
+| Error    | The error response.           |
 
 #### `ResourceCreate.create` {#TypeSpec.Rest.Resource.ResourceCreate.create}
 
 Creates a new instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCreate.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCreate.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<Resource>): Resource | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 ### `ResourceCreateOrReplace` {#TypeSpec.Rest.Resource.ResourceCreateOrReplace}
@@ -339,22 +339,22 @@ op TypeSpec.Rest.Resource.ResourceCreate.create(resource: TypeSpec.Rest.Resource
 Resource create or replace operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceCreateOrReplace<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceCreateOrReplace<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description                              |
-| --------- | ---------------------------------------- |
-| TResource | The resource model to create or replace. |
-| TError    | The error response.                      |
+| Name     | Description                              |
+| -------- | ---------------------------------------- |
+| Resource | The resource model to create or replace. |
+| Error    | The error response.                      |
 
 #### `ResourceCreateOrReplace.createOrReplace` {#TypeSpec.Rest.Resource.ResourceCreateOrReplace.createOrReplace}
 
 Creates or replaces a instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCreateOrReplace.createOrReplace(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCreateOrReplace.createOrReplace(resource: TypeSpec.Rest.Resource.ResourceCreateModel<Resource>): Resource | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 ### `ResourceCreateOrUpdate` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdate}
@@ -362,22 +362,22 @@ op TypeSpec.Rest.Resource.ResourceCreateOrReplace.createOrReplace(resource: Type
 Resource create or update operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceCreateOrUpdate<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceCreateOrUpdate<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description                             |
-| --------- | --------------------------------------- |
-| TResource | The resource model to create or update. |
-| TError    | The error response.                     |
+| Name     | Description                             |
+| -------- | --------------------------------------- |
+| Resource | The resource model to create or update. |
+| Error    | The error response.                     |
 
 #### `ResourceCreateOrUpdate.createOrUpdate` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdate.createOrUpdate}
 
 Creates or update an instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceCreateOrUpdate.createOrUpdate(resource: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceCreateOrUpdate.createOrUpdate(resource: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Resource | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 ### `ResourceDelete` {#TypeSpec.Rest.Resource.ResourceDelete}
@@ -385,22 +385,22 @@ op TypeSpec.Rest.Resource.ResourceCreateOrUpdate.createOrUpdate(resource: TypeSp
 Resource delete operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceDelete<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceDelete<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description                   |
-| --------- | ----------------------------- |
-| TResource | The resource model to delete. |
-| TError    | The error response.           |
+| Name     | Description                   |
+| -------- | ----------------------------- |
+| Resource | The resource model to delete. |
+| Error    | The error response.           |
 
 #### `ResourceDelete.delete` {#TypeSpec.Rest.Resource.ResourceDelete.delete}
 
 Deletes an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceDelete.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | TError
+op TypeSpec.Rest.Resource.ResourceDelete.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | Error
 ```
 
 ### `ResourceInstanceOperations` {#TypeSpec.Rest.Resource.ResourceInstanceOperations}
@@ -408,22 +408,22 @@ op TypeSpec.Rest.Resource.ResourceDelete.delete(): TypeSpec.Rest.Resource.Resour
 Resource operation templates for resource instances.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceInstanceOperations<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceInstanceOperations<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description         |
-| --------- | ------------------- |
-| TResource | The resource model. |
-| TError    | The error response. |
+| Name     | Description         |
+| -------- | ------------------- |
+| Resource | The resource model. |
+| Error    | The error response. |
 
 #### `ResourceInstanceOperations.get` {#TypeSpec.Rest.Resource.ResourceInstanceOperations.get}
 
 Gets an instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceInstanceOperations.get(): TResource | TError
+op TypeSpec.Rest.Resource.ResourceInstanceOperations.get(): Resource | Error
 ```
 
 #### `ResourceInstanceOperations.update` {#TypeSpec.Rest.Resource.ResourceInstanceOperations.update}
@@ -431,7 +431,7 @@ op TypeSpec.Rest.Resource.ResourceInstanceOperations.get(): TResource | TError
 Updates an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceInstanceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TError
+op TypeSpec.Rest.Resource.ResourceInstanceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Resource | Error
 ```
 
 #### `ResourceInstanceOperations.delete` {#TypeSpec.Rest.Resource.ResourceInstanceOperations.delete}
@@ -439,7 +439,7 @@ op TypeSpec.Rest.Resource.ResourceInstanceOperations.update(properties: TypeSpec
 Deletes an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceInstanceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | TError
+op TypeSpec.Rest.Resource.ResourceInstanceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | Error
 ```
 
 ### `ResourceList` {#TypeSpec.Rest.Resource.ResourceList}
@@ -447,22 +447,22 @@ op TypeSpec.Rest.Resource.ResourceInstanceOperations.delete(): TypeSpec.Rest.Res
 Resource list operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceList<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceList<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description                 |
-| --------- | --------------------------- |
-| TResource | The resource model to list. |
-| TError    | The error response.         |
+| Name     | Description                 |
+| -------- | --------------------------- |
+| Resource | The resource model to list. |
+| Error    | The error response.         |
 
 #### `ResourceList.list` {#TypeSpec.Rest.Resource.ResourceList.list}
 
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ResourceList.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
 ```
 
 ### `ResourceOperations` {#TypeSpec.Rest.Resource.ResourceOperations}
@@ -470,22 +470,22 @@ op TypeSpec.Rest.Resource.ResourceList.list(): TypeSpec.Rest.Resource.Collection
 Resource operation templates for resources.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceOperations<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceOperations<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description         |
-| --------- | ------------------- |
-| TResource | The resource model. |
-| TError    | The error response. |
+| Name     | Description         |
+| -------- | ------------------- |
+| Resource | The resource model. |
+| Error    | The error response. |
 
 #### `ResourceOperations.get` {#TypeSpec.Rest.Resource.ResourceOperations.get}
 
 Gets an instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.get(): TResource | TError
+op TypeSpec.Rest.Resource.ResourceOperations.get(): Resource | Error
 ```
 
 #### `ResourceOperations.update` {#TypeSpec.Rest.Resource.ResourceOperations.update}
@@ -493,7 +493,7 @@ op TypeSpec.Rest.Resource.ResourceOperations.get(): TResource | TError
 Updates an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TError
+op TypeSpec.Rest.Resource.ResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Resource | Error
 ```
 
 #### `ResourceOperations.delete` {#TypeSpec.Rest.Resource.ResourceOperations.delete}
@@ -501,7 +501,7 @@ op TypeSpec.Rest.Resource.ResourceOperations.update(properties: TypeSpec.Rest.Re
 Deletes an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | TError
+op TypeSpec.Rest.Resource.ResourceOperations.delete(): TypeSpec.Rest.Resource.ResourceDeletedResponse | Error
 ```
 
 #### `ResourceOperations.create` {#TypeSpec.Rest.Resource.ResourceOperations.create}
@@ -509,7 +509,7 @@ op TypeSpec.Rest.Resource.ResourceOperations.delete(): TypeSpec.Rest.Resource.Re
 Creates a new instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<TResource>): TResource | TypeSpec.Rest.Resource.ResourceCreatedResponse<T> | TError
+op TypeSpec.Rest.Resource.ResourceOperations.create(resource: TypeSpec.Rest.Resource.ResourceCreateModel<Resource>): Resource | TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource> | Error
 ```
 
 #### `ResourceOperations.list` {#TypeSpec.Rest.Resource.ResourceOperations.list}
@@ -517,30 +517,30 @@ op TypeSpec.Rest.Resource.ResourceOperations.create(resource: TypeSpec.Rest.Reso
 Lists all instances of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | TError
+op TypeSpec.Rest.Resource.ResourceOperations.list(): TypeSpec.Rest.Resource.CollectionWithNextLink<T> | Error
 ```
 
 ### `ResourceRead` {#TypeSpec.Rest.Resource.ResourceRead}
 
-Represent the resource GET operation.
+Represents the resource GET operation.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceRead<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceRead<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description         |
-| --------- | ------------------- |
-| TResource | The resource model. |
-| TError    | The error response. |
+| Name     | Description         |
+| -------- | ------------------- |
+| Resource | The resource model. |
+| Error    | The error response. |
 
 #### `ResourceRead.get` {#TypeSpec.Rest.Resource.ResourceRead.get}
 
 Gets an instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceRead.get(): TResource | TError
+op TypeSpec.Rest.Resource.ResourceRead.get(): Resource | Error
 ```
 
 ### `ResourceUpdate` {#TypeSpec.Rest.Resource.ResourceUpdate}
@@ -548,22 +548,22 @@ op TypeSpec.Rest.Resource.ResourceRead.get(): TResource | TError
 Resource update operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.ResourceUpdate<TResource, TError>
+interface TypeSpec.Rest.Resource.ResourceUpdate<Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name      | Description                   |
-| --------- | ----------------------------- |
-| TResource | The resource model to update. |
-| TError    | The error response.           |
+| Name     | Description                   |
+| -------- | ----------------------------- |
+| Resource | The resource model to update. |
+| Error    | The error response.           |
 
 #### `ResourceUpdate.update` {#TypeSpec.Rest.Resource.ResourceUpdate.update}
 
 Updates an existing instance of the resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.ResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TResource | TError
+op TypeSpec.Rest.Resource.ResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Resource | Error
 ```
 
 ### `SingletonResourceOperations` {#TypeSpec.Rest.Resource.SingletonResourceOperations}
@@ -571,23 +571,23 @@ op TypeSpec.Rest.Resource.ResourceUpdate.update(properties: TypeSpec.Rest.Resour
 Singleton resource operation templates for singleton resource instances.
 
 ```typespec
-interface TypeSpec.Rest.Resource.SingletonResourceOperations<TSingleton, TResource, TError>
+interface TypeSpec.Rest.Resource.SingletonResourceOperations<Singleton, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TSingleton | The singleton resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Singleton | The singleton resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `SingletonResourceOperations.get` {#TypeSpec.Rest.Resource.SingletonResourceOperations.get}
 
 Gets the singleton resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.SingletonResourceOperations.get(): TSingleton | TError
+op TypeSpec.Rest.Resource.SingletonResourceOperations.get(): Singleton | Error
 ```
 
 #### `SingletonResourceOperations.update` {#TypeSpec.Rest.Resource.SingletonResourceOperations.update}
@@ -595,7 +595,7 @@ op TypeSpec.Rest.Resource.SingletonResourceOperations.get(): TSingleton | TError
 Updates the singleton resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.SingletonResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TSingleton | TError
+op TypeSpec.Rest.Resource.SingletonResourceOperations.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Singleton | Error
 ```
 
 ### `SingletonResourceRead` {#TypeSpec.Rest.Resource.SingletonResourceRead}
@@ -603,23 +603,23 @@ op TypeSpec.Rest.Resource.SingletonResourceOperations.update(properties: TypeSpe
 Singleton resource read operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.SingletonResourceRead<TSingleton, TResource, TError>
+interface TypeSpec.Rest.Resource.SingletonResourceRead<Singleton, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TSingleton | The singleton resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Singleton | The singleton resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `SingletonResourceRead.get` {#TypeSpec.Rest.Resource.SingletonResourceRead.get}
 
 Gets the singleton resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.SingletonResourceRead.get(): TSingleton | TError
+op TypeSpec.Rest.Resource.SingletonResourceRead.get(): Singleton | Error
 ```
 
 ### `SingletonResourceUpdate` {#TypeSpec.Rest.Resource.SingletonResourceUpdate}
@@ -627,21 +627,21 @@ op TypeSpec.Rest.Resource.SingletonResourceRead.get(): TSingleton | TError
 Singleton resource update operation template.
 
 ```typespec
-interface TypeSpec.Rest.Resource.SingletonResourceUpdate<TSingleton, TResource, TError>
+interface TypeSpec.Rest.Resource.SingletonResourceUpdate<Singleton, Resource, Error>
 ```
 
 #### Template Parameters
 
-| Name       | Description                   |
-| ---------- | ----------------------------- |
-| TSingleton | The singleton resource model. |
-| TResource  | The resource model.           |
-| TError     | The error response.           |
+| Name      | Description                   |
+| --------- | ----------------------------- |
+| Singleton | The singleton resource model. |
+| Resource  | The resource model.           |
+| Error     | The error response.           |
 
 #### `SingletonResourceUpdate.update` {#TypeSpec.Rest.Resource.SingletonResourceUpdate.update}
 
 Updates the singleton resource.
 
 ```typespec
-op TypeSpec.Rest.Resource.SingletonResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>): TSingleton | TError
+op TypeSpec.Rest.Resource.SingletonResourceUpdate.update(properties: TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>): Singleton | Error
 ```
