@@ -1295,7 +1295,7 @@ function createOAPIEmitter(
           !paramModels.has(type) &&
           !shouldInline(program, type)
         ) {
-          callSchemaEmitter(type, Visibility.Read);
+          callSchemaEmitter(type, Visibility.All);
         }
       };
       const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
