@@ -32,7 +32,7 @@ describe("compiler: resolve compiler options", () => {
       expectDiagnosticEmpty(diagnostics);
 
       deepStrictEqual(options, {
-        configPath: resolvePath(scenarioRoot, "custom/myConfig.yaml"),
+        config: resolvePath(scenarioRoot, "custom/myConfig.yaml"),
         emit: ["openapi"],
         options: {},
         outputDir: tspOutputPath,
