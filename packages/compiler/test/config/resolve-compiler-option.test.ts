@@ -16,11 +16,14 @@ describe("compiler: resolve compiler options", () => {
   describe("specifying explicit config file", () => {
     const resolveOptions = async (path: string) => {
       const fullPath = resolvePath(scenarioRoot, path);
-      const [{ config, ...options }, diagnostics] = await resolveCompilerOptions(NodeHost, {
-        cwd: normalizePath(process.cwd()),
-        entrypoint: fullPath, // not really used here
-        configPath: fullPath,
-      });
+      const [{ configFile: config, ...options }, diagnostics] = await resolveCompilerOptions(
+        NodeHost,
+        {
+          cwd: normalizePath(process.cwd()),
+          entrypoint: fullPath, // not really used here
+          configPath: fullPath,
+        }
+      );
       return [options, diagnostics] as const;
     };
 

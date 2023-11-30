@@ -13,7 +13,7 @@ export interface CompilerOptions {
   /**
    * Path to config YAML file used, this is also where the project root should be.
    */
-  configPath?: string;
+  config?: string;
 
   /**
    * @deprecated use outputDir.
@@ -65,5 +65,5 @@ export interface CompilerOptions {
   linterRuleSet?: LinterRuleSet;
 
   /** @internal */
-  config?: TypeSpecConfig;
+  readonly configFile?: TypeSpecConfig;
 }
