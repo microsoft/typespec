@@ -25,7 +25,6 @@ import {
   interpolatePath,
   isArrayModelType,
   isDeprecated,
-  isErrorType,
   isGlobalNamespace,
   isNeverType,
   isNullType,
@@ -179,10 +178,6 @@ function createOAPIEmitter(
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
 
-  // Keep track of inline types still in the process of having their schema computed
-  // This is used to detect cycles in inline types, which is an
-  let inProgressInlineTypes = new Set<Type>();
-
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
   // this map.
@@ -255,7 +250,6 @@ function createOAPIEmitter(
     serviceNamespace = getNamespaceFullName(service.type);
     currentPath = root.paths;
 
-    inProgressInlineTypes = new Set();
     params = new Map();
     paramModels = new Set();
     tags = new Set();
@@ -312,9 +306,11 @@ function createOAPIEmitter(
         };
 
         if (prop.type.kind === "Enum") {
-          variable.enum = getSchemaValue(prop.type, Visibility.Read).enum as any;
+          variable.enum = getSchemaValue(prop.type, Visibility.Read, "application/json")
+            .enum as any;
         } else if (prop.type.kind === "Union") {
-          variable.enum = getSchemaValue(prop.type, Visibility.Read).enum as any;
+          variable.enum = getSchemaValue(prop.type, Visibility.Read, "application/json")
+            .enum as any;
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
@@ -878,7 +874,7 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(data.body.type, contentType);
         const schema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaOrRef(data.body.type, Visibility.Read);
+          : getSchemaForBody(data.body.type, Visibility.Read, undefined);
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(schema);
         } else {
@@ -908,8 +904,12 @@ function createOAPIEmitter(
     return getOpenAPIParameterBase(prop, Visibility.Read);
   }
 
-  function callSchemaEmitter(type: Type, visibility: Visibility): Refable<OpenAPI3Schema> {
-    const result = emitTypeWithSchemaEmitter(type, visibility);
+  function callSchemaEmitter(
+    type: Type,
+    visibility: Visibility,
+    contentType?: string
+  ): Refable<OpenAPI3Schema> {
+    const result = emitTypeWithSchemaEmitter(type, visibility, contentType);
 
     switch (result.kind) {
       case "code":
@@ -928,8 +928,8 @@ function createOAPIEmitter(
     }
   }
 
-  function getSchemaValue(type: Type, visibility: Visibility): OpenAPI3Schema {
-    const result = emitTypeWithSchemaEmitter(type, visibility);
+  function getSchemaValue(type: Type, visibility: Visibility, contentType: string): OpenAPI3Schema {
+    const result = emitTypeWithSchemaEmitter(type, visibility, contentType);
 
     switch (result.kind) {
       case "code":
@@ -949,63 +949,25 @@ function createOAPIEmitter(
 
   function emitTypeWithSchemaEmitter(
     type: Type,
-    visibility: Visibility
+    visibility: Visibility,
+    contentType?: string
   ): EmitEntity<OpenAPI3Schema> {
+    if (!metadataInfo.isTransformed(type, visibility)) {
+      visibility = Visibility.Read;
+    }
+    contentType = contentType === "application/json" ? undefined : contentType;
     return schemaEmitter.emitType(type, {
-      referenceContext: { visibility, serviceNamespaceName: serviceNamespace },
+      referenceContext: { visibility, serviceNamespaceName: serviceNamespace, contentType },
     }) as any;
   }
 
-  function getSchemaOrRef(type: Type, visibility: Visibility): any {
-    if (
-      (type.kind === "Scalar" && program.checker.isStdType(type)) ||
-      type.kind === "String" ||
-      type.kind === "Number" ||
-      type.kind === "Boolean" ||
-      (type.kind === "Intrinsic" && type.name === "unknown") ||
-      type.kind === "EnumMember" ||
-      type.kind === "ModelProperty"
-    ) {
-      // Those types should just be inlined.
-      return callSchemaEmitter(type, visibility);
-    }
-
-    type = metadataInfo.getEffectivePayloadType(type, visibility);
-
-    const name = getOpenAPITypeName(program, type, typeNameOptions);
-    if (shouldInline(program, type)) {
-      const schema = getSchemaForInlineType(type, visibility, name);
-
-      if (schema === undefined && isErrorType(type)) {
-        // Exit early so that syntax errors are exposed.  This error will
-        // be caught and handled in emitOpenAPI.
-        throw new ErrorTypeFoundError();
-      }
-
-      return schema;
-    } else {
-      // Use shared schema when type is not transformed by visibility from the canonical read visibility.
-      if (!metadataInfo.isTransformed(type, visibility)) {
-        visibility = Visibility.Read;
-      }
-
-      return callSchemaEmitter(type, visibility);
-    }
-  }
-
-  function getSchemaForInlineType(type: Type, visibility: Visibility, name: string) {
-    if (inProgressInlineTypes.has(type)) {
-      reportDiagnostic(program, {
-        code: "inline-cycle",
-        format: { type: name },
-        target: type,
-      });
-      return {};
-    }
-    inProgressInlineTypes.add(type);
-    const schema = getSchemaForType(type, visibility);
-    inProgressInlineTypes.delete(type);
-    return schema;
+  function getSchemaForBody(
+    type: Type,
+    visibility: Visibility,
+    multipart: string | undefined
+  ): any {
+    const effectiveType = metadataInfo.getEffectivePayloadType(type, visibility);
+    return callSchemaEmitter(effectiveType, visibility, multipart ?? "application/json");
   }
 
   function getParamPlaceholder(property: ModelProperty) {
@@ -1080,7 +1042,11 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(body.type, contentType);
         const bodySchema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaOrRef(body.type, visibility);
+          : getSchemaForBody(
+              body.type,
+              visibility,
+              contentType.startsWith("multipart/") ? contentType : undefined
+            );
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(bodySchema);
         } else {
@@ -1118,7 +1084,11 @@ function createOAPIEmitter(
       const isBinary = isBinaryPayload(body.type, contentType);
       const bodySchema = isBinary
         ? { type: "string", format: "binary" }
-        : getSchemaOrRef(body.type, visibility);
+        : getSchemaForBody(
+            body.type,
+            visibility,
+            contentType.startsWith("multipart/") ? contentType : undefined
+          );
       const contentEntry: any = {
         schema: bodySchema,
       };
@@ -1325,7 +1295,7 @@ function createOAPIEmitter(
           !paramModels.has(type) &&
           !shouldInline(program, type)
         ) {
-          getSchemaOrRef(type, Visibility.Read);
+          callSchemaEmitter(type, Visibility.Read);
         }
       };
       const skipSubNamespaces = isGlobalNamespace(program, serviceNamespace);
@@ -1476,7 +1446,7 @@ function createOAPIEmitter(
     const values = getKnownValues(program, typespecType as any);
     if (values) {
       return {
-        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read)],
+        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, "application/json")],
       };
     }
 
@@ -1492,7 +1462,11 @@ function createOAPIEmitter(
     const encodeData = getEncode(program, typespecType);
     if (encodeData) {
       const newTarget = { ...target };
-      const newType = callSchemaEmitter(encodeData.type, Visibility.Read) as OpenAPI3Schema;
+      const newType = callSchemaEmitter(
+        encodeData.type,
+        Visibility.Read,
+        "application/json"
+      ) as OpenAPI3Schema;
       newTarget.type = newType.type;
       // If the target already has a format it takes priority. (e.g. int32)
       newTarget.format = mergeFormatAndEncoding(
