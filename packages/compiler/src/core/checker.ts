@@ -5581,6 +5581,9 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
   ): [Related, Diagnostic[]] {
+    if (source.kind === "UnionVariant" && source.union === target) {
+      return [Related.true, []];
+    }
     for (const option of target.variants.values()) {
       const [related] = isTypeAssignableToInternal(
         source,

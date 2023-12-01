@@ -1,6 +1,6 @@
 import { Diagnostic } from "@typespec/compiler";
 import { createAssetEmitter } from "@typespec/compiler/emitter-framework";
-import { createTestHost } from "@typespec/compiler/testing";
+import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
 import { JSONSchemaEmitterOptions } from "../src/lib.js";
@@ -11,23 +11,14 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
     libraries: [JsonSchemaTestLibrary],
   });
   if (decorators) {
-    await host.addJsFile("dec.js", decorators);
+    host.addJsFile("dec.js", decorators);
     contents = `import "./dec.js";\n` + contents;
   }
-  await host.addTypeSpecFile("main.cadl", contents);
+  host.addTypeSpecFile("main.cadl", contents);
   await host.compile("main.cadl", {
     outputDir: "cadl-output",
   });
   return host;
-}
-
-export async function emitSchema(
-  code: string,
-  options: JSONSchemaEmitterOptions = {},
-  testOptions: { emitNamespace?: boolean; emitTypes?: string[] } = { emitNamespace: true }
-) {
-  const [schemas, _] = await emitSchemaWithDiagnostics(code, options, testOptions);
-  return schemas;
 }
 
 export async function emitSchemaWithDiagnostics(
@@ -43,10 +34,14 @@ export async function emitSchemaWithDiagnostics(
     ? `import "@typespec/json-schema"; using TypeSpec.JsonSchema; @jsonSchema namespace test; ${code}`
     : `import "@typespec/json-schema"; using TypeSpec.JsonSchema; ${code}`;
   const host = await getHostForCadlFile(code);
-  const emitter = createAssetEmitter(host.program, JsonSchemaEmitter, {
-    emitterOutputDir: "cadl-output",
-    options,
-  } as any);
+  const emitter = createAssetEmitter(
+    host.program,
+    JsonSchemaEmitter as any,
+    {
+      emitterOutputDir: "cadl-output",
+      options,
+    } as any
+  );
   if (testOptions.emitTypes === undefined) {
     emitter.emitType(host.program.resolveTypeReference("test")[0]!);
   } else {
@@ -69,4 +64,14 @@ export async function emitSchemaWithDiagnostics(
   }
 
   return [schemas, host.program.diagnostics];
+}
+
+export async function emitSchema(
+  code: string,
+  options: JSONSchemaEmitterOptions = {},
+  testOptions: { emitNamespace?: boolean; emitTypes?: string[] } = { emitNamespace: true }
+) {
+  const [schemas, diagnostics] = await emitSchemaWithDiagnostics(code, options, testOptions);
+  expectDiagnosticEmpty(diagnostics);
+  return schemas;
 }

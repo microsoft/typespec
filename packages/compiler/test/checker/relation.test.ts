@@ -825,6 +825,14 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "string", target: "string | int32" });
     });
 
+    it("can assign any of the variants", async () => {
+      await expectTypeAssignable({
+        source: "Choice.yes",
+        target: "Choice",
+        commonCode: `union Choice {yes: "yes", no: "no" }`,
+      });
+    });
+
     it("can a subtype of any of the options", async () => {
       await expectTypeAssignable({ source: "int32", target: "string | numeric" });
     });

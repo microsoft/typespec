@@ -5,7 +5,6 @@ import {
   TypeSpecLanguageConfiguration,
 } from "@typespec/compiler";
 import * as monaco from "monaco-editor";
-import { editor } from "monaco-editor";
 import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -360,10 +359,10 @@ export async function registerMonacoLanguage(host: BrowserHost) {
   });
 }
 
-export function getMarkerLocation(
+export function getMonacoRange(
   typespecCompiler: typeof import("@typespec/compiler"),
   target: DiagnosticTarget | typeof NoTarget
-): Pick<editor.IMarkerData, "startLineNumber" | "startColumn" | "endLineNumber" | "endColumn"> {
+): monaco.IRange {
   const loc = typespecCompiler.getSourceLocation(target);
   if (loc === undefined || loc.file.path !== "/test/main.tsp") {
     return {

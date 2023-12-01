@@ -28,12 +28,7 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
       exclude: ["swagger-ui"],
     },
     plugins: [
-      react({
-        jsxImportSource: "@emotion/react",
-        babel: {
-          plugins: ["@emotion/babel-plugin"],
-        },
-      }),
+      react({}),
       playgroundManifestPlugin(config),
       !config.skipBundleLibraries
         ? typespecBundlePlugin({

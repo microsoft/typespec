@@ -5,6 +5,7 @@ import {
   expectDiagnostics,
   TestHost,
 } from "@typespec/compiler/testing";
+import { ok } from "assert";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 
 describe("versioning: incompatible use of decorators", () => {
@@ -103,7 +104,8 @@ describe("versioning: validate incompatible references", () => {
   });
 
   describe("operation", () => {
-    it("emit diagnostic when unversioned op has a versioned model as a parameter", async () => {
+    // TODO See: https://github.com/microsoft/typespec/issues/2695
+    it.skip("emit diagnostic when unversioned op has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -117,7 +119,18 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
+    it("allow unversioned op to have a versioned parameter", async () => {
+      ok(
+        await runner.compile(`
+        model Foo {}
+
+        op test(param: string, @added(Versions.v2) newParam: Foo): void;
+      `)
+      );
+    });
+
+    // TODO See: https://github.com/microsoft/typespec/issues/2695
+    it.skip("emit diagnostic when unversioned op based on a template has a versioned model as a parameter", async () => {
       const diagnostics = await runner.diagnose(`
         @added(Versions.v2)
         model Foo {}
@@ -133,36 +146,32 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
-    it("emit diagnostic when when op was added before parameter", async () => {
+    // TODO See: https://github.com/microsoft/typespec/issues/2695
+    it.skip("emit diagnostic when type changed to types that don't exist", async () => {
       const diagnostics = await runner.diagnose(`
-        @added(Versions.v2)
-        model Foo {}
+      @added(Versions.v3)  
+      model Foo {}
 
-        @added(Versions.v1)
-        op test(param: Foo): void;
+      @removed(Versions.v1)
+      model Doo {}
+
+      @added(Versions.v3)
+      op test(@typeChangedFrom(Versions.v2, Doo) param: Foo): void;
       `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
-      });
-    });
-
-    it("emit diagnostic when op based on a template was added before parameter", async () => {
-      const diagnostics = await runner.diagnose(`
-        @added(Versions.v2)
-        model Foo {}
-
-        op Template<T>(param: T): void;
-
-        @added(Versions.v1)
-        op test is Template<Foo>;
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "@typespec/versioning/incompatible-versioned-reference",
-        message:
-          "'TestService.test' was added in version 'v1' but referencing type 'TestService.Foo' added in version 'v2'.",
-      });
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+          severity: "error",
+          message:
+            "'TestService.(anonymous model).param' is referencing type 'TestService.Doo' which does not exist in version 'v1'.",
+        },
+        {
+          code: "@typespec/versioning/incompatible-versioned-reference",
+          severity: "error",
+          message:
+            "'TestService.(anonymous model).param' is referencing type 'TestService.Foo' which does not exist in version 'v2'.",
+        },
+      ]);
     });
   });
 

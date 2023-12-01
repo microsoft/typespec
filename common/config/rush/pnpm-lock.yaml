@@ -849,9 +849,6 @@ importers:
 
   ../../packages/playground:
     dependencies:
-      '@emotion/react':
-        specifier: ^11.11.1
-        version: 11.11.1(@types/react@18.2.34)(react@18.2.0)
       '@fluentui/react-components':
         specifier: ~9.32.1
         version: 9.32.3(@types/react-dom@18.2.14)(@types/react@18.2.34)(react-dom@18.2.0)(react@18.2.0)(scheduler@0.20.2)
@@ -1003,9 +1000,6 @@ importers:
 
   ../../packages/playground-website:
     dependencies:
-      '@emotion/react':
-        specifier: ^11.11.1
-        version: 11.11.1(@types/react@18.2.34)(react@18.2.0)
       '@typespec/compiler':
         specifier: workspace:~0.50.0
         version: link:../compiler
@@ -1548,6 +1542,9 @@ importers:
       prism-react-renderer:
         specifier: ^2.1.0
         version: 2.1.0(react@18.2.0)
+      prismjs:
+        specifier: ~1.29.0
+        version: 1.29.0
       react:
         specifier: ~18.2.0
         version: 18.2.0

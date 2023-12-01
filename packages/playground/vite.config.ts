@@ -21,14 +21,7 @@ const config = defineConfig({
   optimizeDeps: {
     exclude: ["swagger-ui"],
   },
-  plugins: [
-    react({
-      jsxImportSource: "@emotion/react",
-      babel: {
-        plugins: ["@emotion/babel-plugin"],
-      },
-    }),
-  ],
+  plugins: [react({})],
   server: {
     fs: {
       strict: false,

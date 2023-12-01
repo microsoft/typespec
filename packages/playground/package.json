@@ -40,8 +40,8 @@
       "default": "./dist/react/index.js"
     },
     "./react/viewers": {
-      "types": "./dist/src/react/viewers.d.ts",
-      "default": "./dist/react/viewers.js"
+      "types": "./dist/src/react/viewers/index.d.ts",
+      "default": "./dist/react/viewers/index.js"
     },
     "./style.css": "./dist/index.css"
   },
@@ -68,7 +68,6 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@emotion/react": "^11.11.1",
     "@fluentui/react-components": "~9.32.1",
     "@fluentui/react-icons": "~2.0.217",
     "@typespec/bundler": "workspace:~0.1.0-alpha.3",
