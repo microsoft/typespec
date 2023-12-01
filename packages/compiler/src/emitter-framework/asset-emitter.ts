@@ -584,8 +584,6 @@ export function createAssetEmitter<T, TOptions extends object>(
     method: TMethod,
     args: Parameters<TypeEmitter<T, TOptions>[TMethod]>
   ) {
-    console.log("Set context for type", method, context.referenceContext);
-
     const type = args[0];
     let newTypeStack: LexicalTypeStackEntry[];
 
@@ -631,7 +629,6 @@ export function createAssetEmitter<T, TOptions extends object>(
             ...incomingReferenceContext,
           }),
         });
-        console.log("Changed context", context.referenceContext);
       }
 
       const seenContext = knownContexts.get([entry, context]);
@@ -726,7 +723,6 @@ export function createAssetEmitter<T, TOptions extends object>(
         }),
       });
 
-      console.log("Context", context.referenceContext);
       const result = cb();
       context = oldContext;
       return result;

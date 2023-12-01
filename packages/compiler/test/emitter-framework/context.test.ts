@@ -449,7 +449,10 @@ describe("emitter-framework: emitter context", () => {
               context1: objTypeReference(this.emitter, prop, "context1"),
             };
           }
-          return this.emitter.getContext().contextValue;
+          return {
+            contextValue: this.emitter.getContext().contextValue,
+            incoming: this.emitter.getContext().incoming,
+          };
         }
       }
 
@@ -464,8 +467,10 @@ describe("emitter-framework: emitter context", () => {
       );
       strictEqual(result.kind, "code");
       deepStrictEqual(result.value, {
-        context1: "context1",
-        incoming: "incoming-value",
+        context1: {
+          contextValue: "context1",
+          incoming: "incoming-value",
+        },
       });
     });
 
