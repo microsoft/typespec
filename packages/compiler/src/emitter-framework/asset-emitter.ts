@@ -22,6 +22,7 @@ import {
   EmitEntity,
   EmitterResult,
   EmitterState,
+  EmitTypeReferenceOptions,
   LexicalTypeStackEntry,
   NamespaceScope,
   NoEmit,
@@ -205,8 +206,8 @@ export function createAssetEmitter<T, TOptions extends object>(
       return sourceFile;
     },
 
-    emitTypeReference(target, contextPatch?: Partial<ContextState>): EmitEntity<T> {
-      return withPatchedReferenceContext(contextPatch ?? {}, () => {
+    emitTypeReference(target, options?: EmitTypeReferenceOptions): EmitEntity<T> {
+      return withPatchedReferenceContext(options?.referenceContext, () => {
         const oldIncomingReferenceContext = incomingReferenceContext;
         const oldIncomingReferenceContextTarget = incomingReferenceContextTarget;
 
@@ -711,15 +712,18 @@ export function createAssetEmitter<T, TOptions extends object>(
     referenceTypeChain = oldRefTypeStack;
   }
 
-  function withPatchedReferenceContext<T>(contextPatch: Partial<ContextState>, cb: () => T): T {
-    if (contextPatch.referenceContext !== undefined) {
+  function withPatchedReferenceContext<T>(
+    referenceContext: Record<string, any> | undefined,
+    cb: () => T
+  ): T {
+    if (referenceContext !== undefined) {
       const oldContext = context;
 
       context = stateInterner.intern({
         lexicalContext: context.lexicalContext,
         referenceContext: stateInterner.intern({
           ...context.referenceContext,
-          ...contextPatch.referenceContext,
+          ...referenceContext,
         }),
       });
 

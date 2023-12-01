@@ -4,7 +4,6 @@ import {
   AssetEmitter,
   CodeTypeEmitter,
   Context,
-  ContextState,
   EmitEntity,
   EmitterOutput,
   TypeEmitter,
@@ -352,7 +351,7 @@ describe("emitter-framework: emitter context", () => {
       Emitter: typeof TypeEmitter<any>,
       code: string,
       ref: string,
-      contextPatch?: Partial<ContextState>
+      referenceContext?: Record<string, any>
     ): Promise<EmitEntity<any>> {
       const host = await getHostForTypeSpecFile(code);
       const emitter = createAssetEmitter(host.program, Emitter, {
@@ -361,7 +360,7 @@ describe("emitter-framework: emitter context", () => {
       } as any);
       const type = host.program.resolveTypeReference(ref)[0]!;
       ok(type, `Expected to have found reference ${ref}`);
-      return emitter.emitType(type, contextPatch);
+      return emitter.emitType(type, { referenceContext });
     }
 
     function objTypeReference(
@@ -463,7 +462,7 @@ describe("emitter-framework: emitter context", () => {
         model Bar {}
       `,
         "Foo",
-        { referenceContext: { incoming: "incoming-value" } }
+        { incoming: "incoming-value" }
       );
       strictEqual(result.kind, "code");
       deepStrictEqual(result.value, {
