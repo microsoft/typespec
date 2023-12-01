@@ -209,6 +209,10 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
     });
 
+    it("can assign string template with primitives interpolated", async () => {
+      await expectTypeAssignable({ source: `"foo \${123} bar"`, target: "string" });
+    });
+
     it("can assign string literal union", async () => {
       await expectTypeAssignable({ source: `"foo" | "bar"`, target: "string" });
     });

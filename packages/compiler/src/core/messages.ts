@@ -586,6 +586,13 @@ const diagnostics = {
         "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
+  "non-literal-string-template": {
+    severity: "error",
+    messages: {
+      default:
+        "Value interpolated in this string template cannot be converted to a string. Only literal types can be automatically interpolated.",
+    },
+  },
 
   /**
    * Binder

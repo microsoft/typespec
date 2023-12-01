@@ -44,6 +44,8 @@ export type TypeSpecScope =
   | "punctuation.terminator.statement.tsp"
   | "punctuation.definition.typeparameters.begin.tsp"
   | "punctuation.definition.typeparameters.end.tsp"
+  | "punctuation.definition.template-expression.begin.tsp"
+  | "punctuation.definition.template-expression.end.tsp"
   | "punctuation.squarebracket.open.tsp"
   | "punctuation.squarebracket.close.tsp"
   | "punctuation.curlybrace.open.tsp"
@@ -109,12 +111,26 @@ const escapeChar: MatchRule = {
   match: "\\\\.",
 };
 
+const templateExpression: BeginEndRule = {
+  key: "template-expression",
+  scope: meta,
+  begin: "\\$\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.definition.template-expression.begin.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.definition.template-expression.end.tsp" },
+  },
+  patterns: [expression],
+};
+
 const stringLiteral: BeginEndRule = {
   key: "string-literal",
   scope: "string.quoted.double.tsp",
   begin: '"',
   end: '"|$',
-  patterns: [escapeChar],
+  patterns: [templateExpression, escapeChar],
 };
 
 const tripleQuotedStringLiteral: BeginEndRule = {
@@ -122,7 +138,7 @@ const tripleQuotedStringLiteral: BeginEndRule = {
   scope: "string.quoted.triple.tsp",
   begin: '"""',
   end: '"""',
-  patterns: [escapeChar],
+  patterns: [templateExpression, escapeChar],
 };
 
 const punctuationComma: MatchRule = {
