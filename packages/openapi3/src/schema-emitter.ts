@@ -319,7 +319,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const refSchema = this.emitter.emitTypeReference(prop.type, {
-      referenceContext: { contentType: "application/json" },
+      referenceContext: isMultipart ? { contentType: "application/json" } : {},
     });
     if (refSchema.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
