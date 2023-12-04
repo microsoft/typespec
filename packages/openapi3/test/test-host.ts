@@ -1,4 +1,4 @@
-import { interpolatePath } from "@typespec/compiler";
+import { Diagnostic, interpolatePath } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
@@ -9,8 +9,10 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
+import { ok } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3TestLibrary } from "../src/testing/index.js";
+import { OpenAPI3Document } from "../src/types.js";
 
 export async function createOpenAPITestHost() {
   return createTestHost({
@@ -45,6 +47,25 @@ export async function createOpenAPITestRunner({
       emit: ["@typespec/openapi3"],
     },
   });
+}
+
+export async function emitOpenApiWithDiagnostics(
+  code: string,
+  options: OpenAPI3EmitterOptions = {}
+): Promise<[OpenAPI3Document, readonly Diagnostic[]]> {
+  const runner = await createOpenAPITestRunner();
+  const outputFile = resolveVirtualPath("openapi.json");
+  const diagnostics = await runner.diagnose(code, {
+    noEmit: false,
+    emit: ["@typespec/openapi3"],
+    options: {
+      "@typespec/openapi3": { ...options, "output-file": outputFile },
+    },
+  });
+  const content = runner.fs.get(outputFile);
+  ok(content, "Expected to have found openapi output");
+  const doc = JSON.parse(content);
+  return [doc, diagnostics];
 }
 
 export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {

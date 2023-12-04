@@ -23,7 +23,7 @@ paths:
               $ref: '#/components/schemas/DataMultiPart'
 components:
   schemas:
-    AddressMultiPart:
+    Address:
       type: object
       required:
         - city
@@ -46,4 +46,4 @@ components:
           type: string
           format: binary
         address:
-          $ref: '#/components/schemas/AddressMultiPart'
+          $ref: '#/components/schemas/Address'

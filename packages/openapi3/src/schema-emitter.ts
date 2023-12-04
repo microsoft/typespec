@@ -37,6 +37,8 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  StringTemplate,
+  stringTemplateToString,
   Tuple,
   Type,
   TypeNameOptions,
@@ -316,7 +318,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return { type: "string", format: "binary" };
     }
 
-    const refSchema = this.emitter.emitTypeReference(prop.type);
+    const refSchema = this.emitter.emitTypeReference(prop.type, {
+      referenceContext: isMultipart ? { contentType: "application/json" } : {},
+    });
     if (refSchema.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
@@ -366,6 +370,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   stringLiteral(string: StringLiteral): EmitterOutput<object> {
     return { type: "string", enum: [string.value] };
+  }
+
+  stringTemplate(string: StringTemplate): EmitterOutput<object> {
+    const [value, diagnostics] = stringTemplateToString(string);
+    if (diagnostics.length > 0) {
+      this.emitter
+        .getProgram()
+        .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
+      return { type: "string" };
+    }
+    return { type: "string", enum: [value] };
   }
 
   numericLiteral(number: NumericLiteral): EmitterOutput<object> {

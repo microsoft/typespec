@@ -8,11 +8,16 @@ import {
   NodeFlags,
   ParseOptions,
   SourceFile,
+  StringTemplateExpressionNode,
   SyntaxKind,
   TypeSpecScriptNode,
 } from "../src/core/types.js";
 import { DecorableNode } from "../src/formatter/print/types.js";
-import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
+import {
+  DiagnosticMatch,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../src/testing/expect.js";
 
 describe("compiler: parser", () => {
   describe("import statements", () => {
@@ -516,6 +521,141 @@ describe("compiler: parser", () => {
     );
 
     parseErrorEach(bad.map((e) => [`model ${e[0]} {}`, [e[1]]]));
+  });
+
+  describe("string template expressions", () => {
+    function getNode(astNode: TypeSpecScriptNode): Node {
+      const statement = astNode.statements[0];
+      strictEqual(statement.kind, SyntaxKind.AliasStatement);
+      return statement.value;
+    }
+    function getStringTemplateNode(astNode: TypeSpecScriptNode): StringTemplateExpressionNode {
+      const node = getNode(astNode);
+      strictEqual(node.kind, SyntaxKind.StringTemplateExpression);
+      return node;
+    }
+
+    describe("single line", () => {
+      it("parse a single line template expression", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \${"one"} middle \${23} end";`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 2);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " middle ");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+
+        const span1 = node.spans[1];
+        strictEqual(span1.literal.value, " end");
+        strictEqual(span1.expression.kind, SyntaxKind.NumericLiteral);
+        strictEqual(span1.expression.value, 23);
+      });
+
+      it("parse a single line template with a multi line model expression inside", () => {
+        const astNode = parseSuccessWithLog(
+          `alias T = "Start \${{ foo: "one",\nbar: "two" }} end";`
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.ModelExpression);
+        strictEqual(span0.expression.properties.length, 2);
+      });
+
+      it("can escape some ${}", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \${"one"} middle \\\${23} end";`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " middle ${23} end");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+      });
+
+      it("can nest string templates", () => {
+        const astNode = parseSuccessWithLog(
+          'alias T = "Start ${"nested-start ${"hi"} nested-end"} end";'
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.StringTemplateExpression);
+        strictEqual(span0.expression.head.value, "nested-start ");
+        strictEqual(span0.expression.spans.length, 1);
+
+        const nestedSpan0 = span0.expression.spans[0];
+        strictEqual(nestedSpan0.literal.value, " nested-end");
+        strictEqual(nestedSpan0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(nestedSpan0.expression.value, "hi");
+      });
+
+      it("string with all ${} escape is still a StringLiteral", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \\\${12} middle \\\${23} end";`);
+        const node = getNode(astNode);
+        strictEqual(node.kind, SyntaxKind.StringLiteral);
+        strictEqual(node.value, "Start ${12} middle ${23} end");
+      });
+    });
+
+    describe("multi line", () => {
+      it("parse a multiple line template expression", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \${"one"} 
+      middle \${23} 
+      end
+      """;`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 2);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " \nmiddle ");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+
+        const span1 = node.spans[1];
+        strictEqual(span1.literal.value, " \nend");
+        strictEqual(span1.expression.kind, SyntaxKind.NumericLiteral);
+        strictEqual(span1.expression.value, 23);
+      });
+
+      it("can escape some ${}", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \${"one"} 
+      middle \\\${23} 
+      end
+      """;`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " \nmiddle ${23} \nend");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+      });
+
+      it("escaping all ${} still produce a string literal", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \\\${12} 
+      middle \\\${23} 
+      end
+      """;`);
+        const node = getNode(astNode);
+        strictEqual(node.kind, SyntaxKind.StringLiteral);
+        strictEqual(node.value, "Start ${12} \nmiddle ${23} \nend");
+      });
+    });
   });
 
   // smaller repro of previous regen-samples baseline failures
@@ -1225,6 +1365,33 @@ function checkPositioning(node: Node, file: SourceFile) {
 }
 
 /**
+ * Parse the given code and log debug information.
+ */
+function parseWithLog(code: string, options?: ParseOptions): TypeSpecScriptNode {
+  logVerboseTestOutput("=== Source ===");
+  logVerboseTestOutput(code);
+
+  const astNode = parse(code, options);
+  logVerboseTestOutput("\n=== Parse Result ===");
+  dumpAST(astNode);
+  return astNode;
+}
+/**
+ * Check the given code parse successfully and log debug information.
+ */
+function parseSuccessWithLog(code: string, options?: ParseOptions): TypeSpecScriptNode {
+  const astNode = parseWithLog(code, options);
+  logVerboseTestOutput("\n=== Diagnostics ===");
+  logVerboseTestOutput((log) => {
+    for (const each of astNode.parseDiagnostics) {
+      log(formatDiagnostic(each));
+    }
+  });
+  expectDiagnosticEmpty(astNode.parseDiagnostics);
+  return astNode;
+}
+
+/**
  *
  * @param cases Test cases
  * @param options {
@@ -1237,16 +1404,10 @@ function parseErrorEach(
 ) {
   for (const [code, matches, callback] of cases) {
     it(`doesn't parse '${shorten(code)}'`, () => {
-      logVerboseTestOutput("=== Source ===");
-      logVerboseTestOutput(code);
-
-      const astNode = parse(code, options);
+      const astNode = parseWithLog(code, options);
       if (callback) {
         callback(astNode);
       }
-      logVerboseTestOutput("\n=== Parse Result ===");
-      dumpAST(astNode);
-
       logVerboseTestOutput("\n=== Diagnostics ===");
       logVerboseTestOutput((log) => {
         for (const each of astNode.parseDiagnostics) {

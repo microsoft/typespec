@@ -13,6 +13,8 @@ import {
   isPunctuation,
   isStatementKeyword,
 } from "../src/core/scanner.js";
+import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
+import { extractSquiggles } from "../src/testing/test-server-host.js";
 
 type TokenEntry = [
   Token,
@@ -215,10 +217,18 @@ describe("compiler: scanner", () => {
     ]);
   });
 
-  function scanString(text: string, expectedValue: string, expectedDiagnostic?: RegExp) {
+  function scanString(
+    text: string,
+    expectedValue: string,
+    expectedDiagnostic?: RegExp | DiagnosticMatch
+  ) {
     const scanner = createScanner(text, (diagnostic) => {
       if (expectedDiagnostic) {
-        assert.match(diagnostic.message, expectedDiagnostic);
+        if (expectedDiagnostic instanceof RegExp) {
+          assert.match(diagnostic.message, expectedDiagnostic);
+        } else {
+          expectDiagnostics([diagnostic], expectedDiagnostic);
+        }
       } else {
         assert.fail("No diagnostic expected, but got " + formatDiagnostic(diagnostic));
       }
@@ -238,6 +248,16 @@ describe("compiler: scanner", () => {
 
   it("scans strings single-line strings with escape sequences", () => {
     scanString('"Hello world \\r\\n \\t \\" \\\\ !"', 'Hello world \r\n \t " \\ !');
+  });
+
+  it("report diagnostic when escaping invalid char", () => {
+    const { source, pos, end } = extractSquiggles('"Hello world ~~~\\d~~~"');
+    scanString(source, "Hello world d", {
+      code: "invalid-escape-sequence",
+      message: "Invalid escape sequence.",
+      pos,
+      end,
+    });
   });
 
   it("does not allow multi-line, non-triple-quoted strings", () => {
