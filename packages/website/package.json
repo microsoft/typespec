@@ -60,6 +60,7 @@
     "playwright": "^1.39.0",
     "mermaid": "~10.4.0",
     "@typespec/eslint-config-typespec": "workspace:~0.50.0",
+    "@typespec/internal-build-utils": "workspace:~0.50.0",
     "eslint": "^8.49.0",
     "file-loader": "~6.2.0",
     "monaco-editor-webpack-plugin": "~7.1.0",

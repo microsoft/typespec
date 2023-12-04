@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // @ts-check
 
+import { run } from "@typespec/internal-build-utils";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-import { run } from "../../../eng/scripts/helpers.js";
 
 loadDotenv();
 
