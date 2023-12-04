@@ -15,6 +15,7 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  StringTemplate,
   Tuple,
   Type,
   Union,
@@ -461,6 +462,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<T> {
+    return this.emitter.result.none();
+  }
+
+  stringTemplateContext(string: StringTemplate): Context {
+    return {};
+  }
+
+  stringTemplate(stringTemplate: StringTemplate): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 

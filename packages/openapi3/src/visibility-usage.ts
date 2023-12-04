@@ -34,9 +34,10 @@ export function resolveVisibilityUsage(
   const reachableTypes = new Set<Type>(usages.keys());
 
   if (!omitUnreachableTypes) {
+    // Evaluate all unreferenced types and the types they reference with Visibility.All
     const trackType = (type: Type) => {
       if (!usages.has(type)) {
-        navigateReferencedTypes(type, Visibility.Read, (type, vis) =>
+        navigateReferencedTypes(type, Visibility.All, (type, vis) =>
           trackUsageExact(usages, type, vis)
         );
       }

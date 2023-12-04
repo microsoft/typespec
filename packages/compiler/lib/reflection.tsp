@@ -10,3 +10,4 @@ model Operation {}
 model Scalar {}
 model Union {}
 model UnionVariant {}
+model StringTemplate {}

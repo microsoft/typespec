@@ -102,7 +102,7 @@ export const $lib = createTypeSpecLibrary({
 } as const);
 
 // Optional but convenient, those are meant to be used locally in your library.
-export const { reportDiagnostic, createDiagnostic, createStateSymbol } = myLibrary;
+export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;
 ```
 
 Diagnostics are used for linters and decorators which are covered in subsequent topics.

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/json-schema",
+      "comment": "Added support for string template literals",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/json-schema"
+}

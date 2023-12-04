@@ -37,6 +37,8 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  StringTemplate,
+  stringTemplateToString,
   Tuple,
   Type,
   TypeNameOptions,
@@ -95,34 +97,38 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   modelDeclarationReferenceContext(model: Model, name: string): Context {
-    return this.#reduceVisibilityContext(model);
+    return this.reduceContext(model);
   }
 
   modelLiteralReferenceContext(model: Model): Context {
-    return this.#reduceVisibilityContext(model);
+    return this.reduceContext(model);
   }
 
   scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
-    return this.#reduceVisibilityContext(scalar);
+    return this.reduceContext(scalar);
   }
 
   enumDeclarationReferenceContext(en: Enum, name: string): Context {
-    return this.#reduceVisibilityContext(en);
+    return this.reduceContext(en);
   }
 
   unionDeclarationReferenceContext(union: Union): Context {
-    return this.#reduceVisibilityContext(union);
+    return this.reduceContext(union);
   }
 
-  #reduceVisibilityContext(type: Type): Context {
+  reduceContext(type: Type): Context {
     const visibility = this.#getVisibilityContext();
+    const patch: Record<string, any> = {};
     if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(type, visibility)) {
-      return {
-        visibility: Visibility.Read,
-      };
+      patch.visibility = Visibility.Read;
+    }
+    const contentType = this.#getContentType();
+
+    if (contentType === "application/json") {
+      delete patch.contentType;
     }
 
-    return {};
+    return patch;
   }
 
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
@@ -163,7 +169,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
-    return this.#createDeclaration(model, baseName, this.#applyConstraints(model, schema));
+    const isMultipart = this.#getContentType().startsWith("multipart/");
+    const name = isMultipart ? baseName + "MultiPart" : baseName;
+    return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
   }
 
   #applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
@@ -186,6 +194,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   #getVisibilityContext(): Visibility {
     return this.emitter.getContext().visibility ?? Visibility.Read;
+  }
+
+  #getContentType(): string {
+    return this.emitter.getContext().contentType ?? "application/json";
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
@@ -295,6 +307,16 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
+    const isMultipart = this.#getContentType().startsWith("multipart/");
+    if (
+      isMultipart &&
+      prop.type.kind === "Scalar" &&
+      prop.type.name === "bytes" &&
+      getEncode(program, prop.type) === undefined &&
+      getEncode(program, prop) === undefined
+    ) {
+      return { type: "string", format: "binary" };
+    }
 
     const refSchema = this.emitter.emitTypeReference(prop.type);
     if (refSchema.kind !== "code") {
@@ -346,6 +368,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
   stringLiteral(string: StringLiteral): EmitterOutput<object> {
     return { type: "string", enum: [string.value] };
+  }
+
+  stringTemplate(string: StringTemplate): EmitterOutput<object> {
+    const [value, diagnostics] = stringTemplateToString(string);
+    if (diagnostics.length > 0) {
+      this.emitter
+        .getProgram()
+        .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
+      return { type: "string" };
+    }
+    return { type: "string", enum: [value] };
   }
 
   numericLiteral(number: NumericLiteral): EmitterOutput<object> {
