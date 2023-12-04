@@ -79,8 +79,3 @@ const lang = {
 
 lang.string[0].inside.interpolation.inside = lang;
 export default lang;
-
-// TODO REMOVE FOR TESTING
-const test = /"(?:\\(?:\$\{(?:[^{}]|\$\{[^{}]*\})*\}|\r\n|[^(])|[^\\\r\n"])*"/;
-
-console.log("Test", test);
