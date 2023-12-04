@@ -39,7 +39,7 @@ After filling out the wizard, you will have a package.json file that defines you
 
 Unlike node libraries which support CommonJS (cjs), TypeSpec libraries must be Ecmascript Modules. So open your `package.json` and add the following top-level configuration key:
 
-```json
+```jsonc
   "type": "module"
 ```
 
@@ -59,7 +59,7 @@ See [dependency section](#defining-dependencies) for information on how to defin
 
 Your package.json needs to refer to two main files: your node module main file, and your TypeSpec main. The node module main file is the `"main"` key in your package.json file, and defines the entrypoint for your library when consumed as a node library, and must reference a js file. The TypeSpec main defines the entrypoint for your library when consumed from a TypeSpec program, and may reference either a js file (when your library doesn't contain any typespec types) or a TypeSpec file.
 
-```json
+```jsonc
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp"
 ```
@@ -75,7 +75,7 @@ npx tsc --init --strict
 
 This will create `tsconfig.json`. But we need to make a couple changes to this. Open `tsconfig.json` and set the following settings:
 
-```json
+```jsonc
 "module": "Node16",           // This and next setting tells TypeScript to use the new ESM import system to resolve types.
 "moduleResolution": "Node16",
 "target": "es2019",
@@ -244,7 +244,7 @@ export const MyTestLibrary = createTestLibrary({
 
 2. Add an `exports` for the `testing` endpoint to `package.json` (update with correct paths)
 
-```json
+```jsonc
 {
   // ...
   "main": "dist/src/index.js",
