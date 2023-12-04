@@ -40,7 +40,7 @@ model NotModified<Body> {
   @body body: Body;
 }
 
-@friendlyName("{name}ListResults", T)
+@friendlyName("{name}ListResults", Item)
 model ResponsePage<Item> {
   items: Item[];
   nextLink?: string;
