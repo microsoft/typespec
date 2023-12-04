@@ -85,6 +85,12 @@
       "versionPolicyName": "typespec"
     },
     {
+      "packageName": "@typespec/authorization",
+      "projectFolder": "packages/authorization",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
+    },
+    {
       "packageName": "@typespec/http",
       "projectFolder": "packages/http",
       "reviewCategory": "production",
