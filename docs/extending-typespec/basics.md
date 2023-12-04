@@ -76,11 +76,11 @@ npx tsc --init --strict
 This will create `tsconfig.json`. But we need to make a couple changes to this. Open `tsconfig.json` and set the following settings:
 
 ```json
-    "module": "Node16",           // This and next setting tells TypeScript to use the new ESM import system to resolve types.
-    "moduleResolution": "Node16",
-    "target": "es2019",
-    "rootDir": ".",
-    "outDir": "./dist",
+"module": "Node16",           // This and next setting tells TypeScript to use the new ESM import system to resolve types.
+"moduleResolution": "Node16",
+"target": "es2019",
+"rootDir": ".",
+"outDir": "./dist",
 ```
 
 ### 4. Create `lib.ts`
