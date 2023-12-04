@@ -1,18 +1,19 @@
 // @ts-check
 import { existsSync, readdirSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
-import { repoRoot, run } from "../eng/scripts/helpers.js";
+import { repoRoot } from "../eng/scripts/helpers.js";
+import { runOrExit } from "../packages/internal-build-utils/dist/src/index.js";
 
 const e2eTestDir = join(repoRoot, "e2e");
 const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 
-function main() {
+async function main() {
   printInfo();
   cleanE2EDirectory();
   const packages = packPackages();
 
   console.log("Check packages exists");
-  run("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
+  await runOrExit("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
 
   console.log("Check cli is working");
   runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
@@ -21,21 +22,21 @@ function main() {
   testBasicLatest(packages);
   testBasicCurrentTgz(packages);
 }
-main();
+await main();
 
 function printInfo() {
   console.log("-".repeat(100));
   console.log("Npm Version: ");
-  run("npm", ["-v"]);
+  runOrExit("npm", ["-v"]);
   console.log("-".repeat(100));
 }
 
 function cleanE2EDirectory() {
-  run("git", ["clean", "-xfd"], { cwd: e2eTestDir });
+  runOrExit("git", ["clean", "-xfd"], { cwd: e2eTestDir });
 }
 
-function packPackages() {
-  run("rush", ["publish", "--publish", "--pack", "--include-all"]);
+async function packPackages() {
+  await runOrExit("rush", ["publish", "--publish", "--pack", "--include-all"]);
   const outputFolder = join(repoRoot, "common/temp/artifacts/packages");
   const files = readdirSync(outputFolder);
   console.log("Built packages:", files);
@@ -58,8 +59,8 @@ function packPackages() {
   };
 }
 
-function runTypeSpec(compilerTgz, args, options) {
-  run(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
+async function runTypeSpec(compilerTgz, args, options) {
+  await runOrExit(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
 }
 
 function testBasicLatest(packages) {
