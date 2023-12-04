@@ -1,6 +1,8 @@
+// @ts-check
 import { copyFileSync, existsSync, mkdirSync, readdirSync } from "fs";
 import { join } from "path";
-import { forEachProject, repoRoot, run } from "./helpers.js";
+import { runOrExit } from "../../packages/internal-build-utils/dist/src/index.js";
+import { forEachProject, repoRoot } from "./helpers.js";
 
 // Create folder to collect all coverage files
 const rootCoverageTmp = join(repoRoot, "coverage", "tmp");
@@ -18,7 +20,7 @@ forEachProject((name, location, project) => {
 });
 
 // Generate merged report
-run(
+await runOrExit(
   "npm",
   [
     "exec",

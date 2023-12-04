@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 
-import { run } from "@typespec/internal-build-utils";
+import { runOrExit } from "@typespec/internal-build-utils";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,7 +13,7 @@ if (process.env.TYPESPEC_SKIP_DOCUSAURUS_BUILD?.toLowerCase() === "true") {
   process.exit(0);
 }
 
-run("docusaurus", ["build"]);
+await runOrExit("docusaurus", ["build"]);
 
 function loadDotenv() {
   const dirname = path.dirname(fileURLToPath(import.meta.url));
