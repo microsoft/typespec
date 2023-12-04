@@ -318,7 +318,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       return { type: "string", format: "binary" };
     }
 
-    const refSchema = this.emitter.emitTypeReference(prop.type);
+    const refSchema = this.emitter.emitTypeReference(prop.type, {
+      referenceContext: { contentType: "application/json" },
+    });
     if (refSchema.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
