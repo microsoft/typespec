@@ -25,6 +25,26 @@ export interface RunOptions extends SpawnOptions {
   throwOnNonZeroExit?: boolean;
 }
 
+/** Run the given command and exit if command return non zero exit code. */
+export async function runOrExit(command: string, args: string[], options?: RunOptions) {
+  return exitOnFailedCommand(() => run(command, args, options));
+}
+
+export async function exitOnFailedCommand(cb: () => Promise<unknown>) {
+  try {
+    await cb();
+  } catch (e: any) {
+    if (e instanceof CommandFailedError) {
+      // eslint-disable-next-line no-console
+      console.error(e.message);
+      process.exit(e.proc.exitCode ?? -1);
+    } else {
+      throw e;
+    }
+  }
+}
+
+/** Run the given command or throw CommandFailedError if the command returns non zero exit code. */
 export async function run(command: string, args: string[], options?: RunOptions) {
   if (!options?.silent) {
     // eslint-disable-next-line no-console
