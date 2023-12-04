@@ -13,6 +13,55 @@ importers:
 
   .: {}
 
+  ../../packages/authorization:
+    dependencies:
+      '@typespec/http':
+        specifier: workspace:~0.50.0
+        version: link:../http
+    devDependencies:
+      '@types/mocha':
+        specifier: ~10.0.1
+        version: 10.0.3
+      '@types/node':
+        specifier: ~18.11.9
+        version: 18.11.19
+      '@typespec/compiler':
+        specifier: workspace:~0.50.0
+        version: link:../compiler
+      '@typespec/eslint-config-typespec':
+        specifier: workspace:~0.50.0
+        version: link:../eslint-config-typespec
+      '@typespec/eslint-plugin':
+        specifier: workspace:~0.50.0
+        version: link:../eslint-plugin-typespec
+      '@typespec/library-linter':
+        specifier: workspace:~0.50.0
+        version: link:../library-linter
+      '@typespec/tspd':
+        specifier: workspace:~0.46.0
+        version: link:../tspd
+      c8:
+        specifier: ~8.0.1
+        version: 8.0.1
+      eslint:
+        specifier: ^8.49.0
+        version: 8.52.0
+      mocha:
+        specifier: ~10.2.0
+        version: 10.2.0
+      mocha-junit-reporter:
+        specifier: ~2.2.1
+        version: 2.2.1(mocha@10.2.0)
+      mocha-multi-reporters:
+        specifier: ~1.5.1
+        version: 1.5.1(mocha@10.2.0)
+      rimraf:
+        specifier: ~5.0.1
+        version: 5.0.5
+      typescript:
+        specifier: ~5.2.2
+        version: 5.2.2
+
   ../../packages/best-practices:
     devDependencies:
       '@types/mocha':
@@ -1236,6 +1285,9 @@ importers:
 
   ../../packages/samples:
     dependencies:
+      '@typespec/authorization':
+        specifier: workspace:*
+        version: link:../authorization
       '@typespec/best-practices':
         specifier: workspace:~0.45.0
         version: link:../best-practices

@@ -51,7 +51,8 @@
     "@typespec/openapi": "workspace:~0.50.0",
     "@typespec/openapi3": "workspace:~0.50.0",
     "@typespec/rest": "workspace:~0.50.0",
-    "@typespec/versioning": "workspace:~0.50.0"
+    "@typespec/versioning": "workspace:~0.50.0",
+    "@typespec/authorization": "workspace:*"
   },
   "devDependencies": {
     "@types/mocha": "~10.0.1",

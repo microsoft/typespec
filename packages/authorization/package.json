@@ -1,0 +1,41 @@
+{
+  "name": "@typespec/authorization",
+  "version": "1.0.0",
+  "description": "Extesions to typespec to support for describing authorization relative to programs and their APIs",
+  "main": "dist/index.js",
+  "tspMain": "lib/main.tsp",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p . && npm run lint-typespec-library",
+    "watch": "tsc -p . --watch",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
+    "test": "mocha",
+    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/http/reference"
+  },
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/http": "workspace:~0.50.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "~10.0.1",
+    "@types/node": "~18.11.9",
+    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
+    "@typespec/library-linter": "workspace:~0.50.0",
+    "@typespec/eslint-plugin": "workspace:~0.50.0",
+    "@typespec/tspd": "workspace:~0.46.0",
+    "eslint": "^8.49.0",
+    "mocha": "~10.2.0",
+    "mocha-junit-reporter": "~2.2.1",
+    "mocha-multi-reporters": "~1.5.1",
+    "c8": "~8.0.1",
+    "rimraf": "~5.0.1",
+    "typescript": "~5.2.2"
+  }
+}
