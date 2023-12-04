@@ -21,8 +21,8 @@
   "categories": [
     "Programming Languages"
   ],
-  "type": "commonjs",
-  "main": "./extension-shim.js",
+  "type": "module",
+  "main": "./dist/src/extension.cjs",
   "engines": {
     "vscode": "^1.82.0"
   },
@@ -106,20 +106,20 @@
     ]
   },
   "scripts": {
-    "clean": "rimraf ./dist ./dist-dev ./temp",
-    "build": "npm run compile && npm run rollup && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
-    "compile": "tsc -p .",
-    "watch": "tsc -p . --watch",
+    "clean": "rimraf ./dist ./temp",
+    "build": "npm run compile && npm run copy-tmlanguage && npm run generate-language-configuration && npm run generate-third-party-notices && npm run package-vsix",
+    "compile": "rollup --config rollup.config.ts --configPlugin typescript --failAfterWarnings 2>&1",
+    "watch": "rollup --config rollup.config.ts --configPlugin typescript --watch",
     "dogfood": "node scripts/dogfood.js",
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
-    "rollup": "rollup --config --failAfterWarnings 2>&1",
     "package-vsix": "vsce package"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-node-resolve": "~15.2.1",
+    "@rollup/plugin-typescript": "~11.1.5",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@types/vscode": "~1.82.0",

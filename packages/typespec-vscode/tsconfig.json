@@ -2,13 +2,14 @@
   "extends": "../tsconfig.json",
   "references": [{ "path": "../tmlanguage-generator/tsconfig.json" }],
   "compilerOptions": {
-    "outDir": "dist-dev",
+    "incremental": false,
+    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": false,
+    "resolveJsonModule": true,
+    "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
-    "skipLibCheck": true,
-    "types": ["node", "mocha"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["rollup.config.ts", "src/**/*.ts", "test/**/*.ts"]
 }

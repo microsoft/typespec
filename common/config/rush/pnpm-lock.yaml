@@ -1416,6 +1416,9 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: ~15.2.1
         version: 15.2.3(rollup@3.29.4)
+      '@rollup/plugin-typescript':
+        specifier: ~11.1.5
+        version: 11.1.5(rollup@3.29.4)(typescript@5.2.2)
       '@types/mocha':
         specifier: ~10.0.1
         version: 10.0.3
