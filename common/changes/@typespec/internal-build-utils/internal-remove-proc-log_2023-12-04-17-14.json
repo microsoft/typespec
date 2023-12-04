@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/internal-build-utils",
+      "comment": "Add `runOrExit` helper to have a cleaner script runner without carying about the failure",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/internal-build-utils"
+}
