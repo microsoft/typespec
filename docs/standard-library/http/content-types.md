@@ -46,7 +46,7 @@ op uploadImage(@header contentType: "image/png" | "image/jpeg", @body image: byt
 
 ## Content type negotiation
 
-There could be cases where you might the same endpoint to return different content depending on the content type requested. To achieve this scenario, you need to use using shared routes where different content response is represented as a different operation that share the same endpoint.
+There could be cases where the same endpoint returns different content depending on the content type requested. To achieve this scenario, use shared routes with each different content response is represented as a different operation that shares the same endpoint.
 
 For example assuming there is an api that lets you download the avatar as a `png` or `jpeg` which is decided by what `Accept` header is sent.
 
