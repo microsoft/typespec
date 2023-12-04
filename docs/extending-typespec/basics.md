@@ -301,16 +301,16 @@ describe("my library", () => {
   });
 
   // Check everything works fine
-  it("does this", () => {
-    const { Foo } = runner.compile(`
+  it("does this", async () => {
+    const { Foo } = await runner.compile(`
       @test model Foo {}
     `);
     strictEqual(Foo.kind, "Model");
   });
 
   // Check diagnostics are emitted
-  it("errors", () => {
-    const diagnostics = runner.diagnose(`
+  it("errors", async () => {
+    const diagnostics = await runner.diagnose(`
        model Bar {}
     `);
     expectDiagnostics(diagnostics, { code: "...", message: "..." });
@@ -324,7 +324,7 @@ The `@test` decorator is a decorator loaded in the test environment. It can be u
 When using the `compile` method it will return a `Record<string, Type>` which is a map of all the types annoted with the `@test` decorator.
 
 ```ts
-const { Foo, CustomName } = runner.compile(`
+const { Foo, CustomName } = await runner.compile(`
   @test model Foo {}
 
   model Bar {
