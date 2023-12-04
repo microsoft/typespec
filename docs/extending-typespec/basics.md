@@ -118,7 +118,7 @@ export { $lib } from "./lib.js";
 
 ### 6. Build TypeScript
 
-TypeSpec can only import JavaScript files, so any time changes are made to TypeScript sources, they need to be compiled before they are visible to TypeSpec. To do so, run `npx tsc -p .` in your library's root directory. You can also run `npx tsc -p --watch` if you would like to re-run the TypeScript compiler whenever files are changed.
+TypeSpec can only import JavaScript files, so any time changes are made to TypeScript sources, they need to be compiled before they are visible to TypeSpec. To do so, run `npx tsc -p .` in your library's root directory. You can also run `npx tsc -p . --watch` if you would like to re-run the TypeScript compiler whenever files are changed.
 
 ### 7. Add your main TypeSpec file
 
@@ -205,13 +205,31 @@ TypeSpec libraries can contain more than just types. Read the subsequent topics 
 
 TypeSpec provides a testing framework to help testing libraries. Examples here are shown using `mocha` but any other JS test framework can be used.
 
+### Add devDependencies
+
+Verify that you have the following in your `package.json`:
+
+```
+  ...,
+  "devDependencies": {
+    "@types/node": "~18.11.9",
+    "@types/mocha": "~10.0.1",  // if you want to include the mocha test framework
+    ...
+  }
+  ...
+```
+
 ### Define the testing library
 
-First step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library test.
+The first step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library test.
 
 1. Create a new file `./src/testing/index.ts` with the following content
 
 ```ts
+import { resolvePath } from "@typespec/compiler";
+import { createTestLibrary, TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import { fileURLToPath } from "url";
+
 export const MyTestLibrary = createTestLibrary({
   name: "<name-of-npm-pkg>",
   // Set this to the absolute path to the root of the package. (e.g. in this case this file would be compiled to ./dist/src/testing/index.js)
@@ -240,9 +258,9 @@ export const MyTestLibrary = createTestLibrary({
 
 ### Define the test host and test runner for your library
 
-Define some of the test framework base pieces that will be used in the tests. There is 2 functions:
+Define some of the test framework base pieces that will be used in the tests. There are 2 functions:
 
-- `createTestHost`: This is a lower level api that provide a virtual file system.
+- `createTestHost`: This is a lower level API that provides a virtual file system.
 - `createTestRunner`: This is a wrapper on top of the test host that will automatically add a `main.tsp` file and automatically import libraries.
 
 Create a new file `test/test-host.js` (change `test` to be your test folder)
@@ -258,7 +276,7 @@ export async function createMyTestHost() {
   });
 }
 export async function createMyTestRunner() {
-  const host = await createOpenAPITestHost();
+  const host = await createMyTestHost();
   return createTestWrapper(host, { autoUsings: ["My"] });
 }
 ```
