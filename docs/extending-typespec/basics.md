@@ -60,7 +60,7 @@ See [dependency section](#defining-dependencies) for information on how to defin
 Your package.json needs to refer to two main files: your node module main file, and your TypeSpec main. The node module main file is the `"main"` key in your package.json file, and defines the entrypoint for your library when consumed as a node library, and must reference a js file. The TypeSpec main defines the entrypoint for your library when consumed from a TypeSpec program, and may reference either a js file (when your library doesn't contain any typespec types) or a TypeSpec file.
 
 ```json
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp"
 ```
 
@@ -79,7 +79,7 @@ This will create `tsconfig.json`. But we need to make a couple changes to this. 
     "module": "Node16",           // This and next setting tells TypeScript to use the new ESM import system to resolve types.
     "moduleResolution": "Node16",
     "target": "es2019",
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
 ```
 
@@ -213,7 +213,12 @@ Verify that you have the following in your `package.json`:
   ...,
   "devDependencies": {
     "@types/node": "~18.11.9",
-    "@types/mocha": "~10.0.1",  // if you want to include the mocha test framework
+    ...,
+    // if you want to include the mocha test framework
+    "@types/mocha": "~10.0.1",
+    "mocha": "~10.2.0",
+    "mocha-junit-reporter": "~2.2.1",
+    "mocha-multi-reporters": "~1.5.1",
     ...
   }
   ...
@@ -227,7 +232,7 @@ The first step is to define how your library can be loaded from the test framewo
 
 ```ts
 import { resolvePath } from "@typespec/compiler";
-import { createTestLibrary, TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import { createTestLibrary } from "@typespec/compiler/testing";
 import { fileURLToPath } from "url";
 
 export const MyTestLibrary = createTestLibrary({
