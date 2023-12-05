@@ -205,6 +205,14 @@ Verify that you have the following in your `package.json`:
 }
 ```
 
+Also add a `.mocharc.yaml` file at the root of your project.
+
+```yaml
+timeout: 5000
+require: source-map-support/register
+spec: "dist/test/**/*.test.js"
+```
+
 ### b. Define the testing library
 
 The first step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library test.
@@ -320,14 +328,6 @@ CustomName; // type of : Bar.name
 #### f. Install the mocha test explorer for VSCode (optional)
 
 If you are using VSCode, you can install the [mocha test explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter) to run your tests from the editor. This will also allow you easily debug into your tests.
-
-After installing the extension, you need to add a `.mocharc.yaml` file at the root of your project.
-
-```yaml
-timeout: 5000
-require: source-map-support/register
-spec: "dist/test/**/*.test.js"
-```
 
 You should now be able to discover, run and debug into your tests from the test explorer.
 
