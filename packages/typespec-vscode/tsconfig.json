@@ -9,7 +9,7 @@
     "sourceMap": false,
     "resolveJsonModule": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "."
   },
   "include": ["rollup.config.ts", "src/**/*.ts", "test/**/*.ts"]
 }
