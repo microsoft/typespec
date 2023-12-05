@@ -39,6 +39,8 @@ words:
   - multis
   - munge
   - mylib
+  - noopener
+  - noreferrer
   - nostdlib
   - oapi
   - oneof
