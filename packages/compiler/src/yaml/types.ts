@@ -11,4 +11,12 @@ export interface YamlScript {
   readonly doc: Document.Parsed;
 }
 
+/**
+ * Represent the location of a value in a yaml script.
+ */
+export interface YamlPathTarget {
+  kind: "path-target";
+  script: YamlScript;
+  path: string[];
+}
 export type YamlDiagnosticTargetType = "value" | "key";
