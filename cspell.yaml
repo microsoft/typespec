@@ -15,6 +15,7 @@ words:
   - cadleng
   - clsx
   - cobertura
+  - codeql
   - Contoso
   - createsorreplacesresource
   - createsorupdatesresource
@@ -38,6 +39,8 @@ words:
   - multis
   - munge
   - mylib
+  - noopener
+  - noreferrer
   - nostdlib
   - oapi
   - oneof
