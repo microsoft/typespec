@@ -9,18 +9,18 @@ const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 
 async function main() {
   printInfo();
-  cleanE2EDirectory();
+  await cleanE2EDirectory();
   const packages = await packPackages();
 
   console.log("Check packages exists");
   await runOrExit("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
 
   console.log("Check cli is working");
-  runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
+  await runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
   console.log("Cli is working");
 
-  testBasicLatest(packages);
-  testBasicCurrentTgz(packages);
+  await testBasicLatest(packages);
+  await testBasicCurrentTgz(packages);
 }
 await main();
 
@@ -31,8 +31,8 @@ function printInfo() {
   console.log("-".repeat(100));
 }
 
-function cleanE2EDirectory() {
-  runOrExit("git", ["clean", "-xfd"], { cwd: e2eTestDir });
+async function cleanE2EDirectory() {
+  await runOrExit("git", ["clean", "-xfd"], { cwd: e2eTestDir });
 }
 
 async function packPackages() {
@@ -63,7 +63,7 @@ async function runTypeSpec(compilerTgz, args, options) {
   await runOrExit(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
 }
 
-function testBasicLatest(packages) {
+async function testBasicLatest(packages) {
   const basicLatestDir = join(e2eTestDir, "basic-latest");
   const outputDir = join(basicLatestDir, "tsp-output");
   console.log("Clearing basic-latest output");
@@ -71,13 +71,17 @@ function testBasicLatest(packages) {
   console.log("Cleared basic-latest output");
 
   console.log("Installing basic-latest dependencies");
-  runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: basicLatestDir });
+  await runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: basicLatestDir });
   console.log("Installed basic-latest dependencies");
 
   console.log("Running tsp compile .");
-  runTypeSpec(packages["@typespec/compiler"], ["compile", ".", "--emit", "@typespec/openapi3"], {
-    cwd: basicLatestDir,
-  });
+  await runTypeSpec(
+    packages["@typespec/compiler"],
+    ["compile", ".", "--emit", "@typespec/openapi3"],
+    {
+      cwd: basicLatestDir,
+    }
+  );
   console.log("Completed tsp compile .");
 
   expectOpenApiOutput(outputDir);
