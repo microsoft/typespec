@@ -34,36 +34,37 @@ const lang = {
   },
 
   // TEST swift regex to see if they cause issue ___ REMOVE ___
-  'string-literal': [
-		// https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
-		{
-			pattern: RegExp(
-				/(^|[^"#])/.source
-				+ '(?:'
-				// single-line string
-				+ /"(?:\\(?:\((?:[^()]|\([^()]*\))*\)|\r\n|[^(])|[^\\\r\n"])*"/.source
-				+ '|'
-				// multi-line string
-				+ /"""(?:\\(?:\((?:[^()]|\([^()]*\))*\)|[^(])|[^\\"]|"(?!""))*"""/.source
-				+ ')'
-				+ /(?!["#])/.source
-			),
-			lookbehind: true,
-			greedy: true,
-			inside: {
-				'interpolation': {
-					pattern: /(\\\()(?:[^()]|\([^()]*\))*(?=\))/,
-					lookbehind: true,
-					inside: null // see below
-				},
-				'interpolation-punctuation': {
-					pattern: /^\)|\\\($/,
-					alias: 'punctuation'
-				},
-				'punctuation': /\\(?=[\r\n])/,
-				'string': /[\s\S]+/
-			}
-		},
+  "string-literal": [
+    // https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
+    {
+      pattern: RegExp(
+        /(^|[^"#])/.source +
+          "(?:" +
+          // single-line string
+          /"(?:\\(?:\((?:[^()]|\([^()]*\))*\)|\r\n|[^(])|[^\\\r\n"])*"/.source +
+          "|" +
+          // multi-line string
+          /"""(?:\\(?:\((?:[^()]|\([^()]*\))*\)|[^(])|[^\\"]|"(?!""))*"""/.source +
+          ")" +
+          /(?!["#])/.source
+      ),
+      lookbehind: true,
+      greedy: true,
+      inside: {
+        interpolation: {
+          pattern: /(\\\()(?:[^()]|\([^()]*\))*(?=\))/,
+          lookbehind: true,
+          inside: null, // see below
+        },
+        "interpolation-punctuation": {
+          pattern: /^\)|\\\($/,
+          alias: "punctuation",
+        },
+        punctuation: /\\(?=[\r\n])/,
+        string: /[\s\S]+/,
+      },
+    },
+  ],
 
   string: [
     {
