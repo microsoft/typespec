@@ -11,7 +11,7 @@ export interface FooterItemProps {
 export const FooterItem: FunctionComponent<FooterItemProps> = ({ children, link, className }) => {
   const resolvedClassName = mergeClasses(style["footer-item"], className);
   return link ? (
-    <a className={resolvedClassName} href={link} target="_blank">
+    <a className={resolvedClassName} href={link} target="_blank" rel="noopener noreferrer">
       {children}
     </a>
   ) : (
