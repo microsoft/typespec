@@ -48,6 +48,8 @@ export async function exitOnFailedCommand<T>(cb: () => Promise<T>): Promise<T> {
   }
 }
 
+const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", "docusaurus", "tsc", "prettier"];
+
 /** Run the given command or throw CommandFailedError if the command returns non zero exit code. */
 export async function run(
   command: string,
@@ -66,6 +68,13 @@ export async function run(
     throwOnNonZeroExit: true,
     ...options,
   };
+
+  if (
+    (process.platform === "win32" && isCmdOnWindows.includes(command)) ||
+    isCmdOnWindows.some((x) => command.endsWith(`/${x}`))
+  ) {
+    command += ".cmd";
+  }
 
   try {
     const result = await execAsync(command, args, options);
