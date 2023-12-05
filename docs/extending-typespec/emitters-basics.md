@@ -72,6 +72,24 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 }
 ```
 
+### Emitter options known format:
+
+### `absolute-path`
+
+Specify that the value for this option should resolve to an absolute path. e.g. `"{project-root}/dir"`.
+
+:::important
+It is recommended that all options that involve path use this. Using relative path can be confusing for users on as it is not clear what the relative path is relative to. And more importantly relative path if not careful are resolved relative to the `cwd` in node file system which result in spec only compiling from the the project root.
+:::
+
+Example:
+
+```js
+{
+  "asset-dir": { type: "string", format: "absolute-path", nullable: true },
+}
+```
+
 ### Configuration options convention
 
 - Name options `kebab-case`. So it can be inline with the rest of the cli
