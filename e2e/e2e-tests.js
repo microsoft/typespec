@@ -10,7 +10,7 @@ const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 async function main() {
   printInfo();
   cleanE2EDirectory();
-  const packages = packPackages();
+  const packages = await packPackages();
 
   console.log("Check packages exists");
   await runOrExit("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
@@ -83,7 +83,7 @@ function testBasicLatest(packages) {
   expectOpenApiOutput(outputDir);
 }
 
-function testBasicCurrentTgz(packages) {
+async function testBasicCurrentTgz(packages) {
   const basicCurrentDir = join(e2eTestDir, "basic-current");
   const outputDir = join(basicCurrentDir, "tsp-output");
   console.log("Clearing basic-current");
@@ -107,13 +107,17 @@ function testBasicCurrentTgz(packages) {
   console.log("Generated package.json for basic-current");
 
   console.log("Installing basic-current dependencies");
-  runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: basicCurrentDir });
+  await runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: basicCurrentDir });
   console.log("Installed basic-current dependencies");
 
   console.log(`Running tsp compile . in "${basicCurrentDir}"`);
-  runTypeSpec(packages["@typespec/compiler"], ["compile", ".", "--emit", "@typespec/openapi3"], {
-    cwd: basicCurrentDir,
-  });
+  await runTypeSpec(
+    packages["@typespec/compiler"],
+    ["compile", ".", "--emit", "@typespec/openapi3"],
+    {
+      cwd: basicCurrentDir,
+    }
+  );
   console.log("Completed tsp compile .");
 
   expectOpenApiOutput(outputDir);
