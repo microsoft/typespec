@@ -70,8 +70,8 @@ export async function run(
   };
 
   if (
-    (process.platform === "win32" && isCmdOnWindows.includes(command)) ||
-    isCmdOnWindows.some((x) => command.endsWith(`/${x}`))
+    process.platform === "win32" &&
+    (isCmdOnWindows.includes(command) || isCmdOnWindows.some((x) => command.endsWith(`/${x}`)))
   ) {
     command += ".cmd";
   }
