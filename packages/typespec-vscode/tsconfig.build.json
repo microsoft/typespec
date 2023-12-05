@@ -4,7 +4,10 @@
   "compilerOptions": {
     "sourceMap": true,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "declaration": false,
+    "declarationMap": false,
+    "sourceRoot": ".."
   },
   "include": ["src/**/*.ts"]
 }
