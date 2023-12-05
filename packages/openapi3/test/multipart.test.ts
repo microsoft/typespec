@@ -87,8 +87,7 @@ describe("typespec-autorest: multipart", () => {
     });
   });
 
-  // Known issue https://github.com/microsoft/typespec/issues/2701
-  it.skip("bytes inside a json part will be treated as base64 encoded by default(same as for a json body)", async () => {
+  it("bytes inside a json part will be treated as base64 encoded by default(same as for a json body)", async () => {
     const res = await openApiFor(
       `
       op upload(@header contentType: "multipart/form-data", address: {city: string, icon: bytes}): void;

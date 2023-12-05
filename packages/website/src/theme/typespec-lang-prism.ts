@@ -34,23 +34,22 @@ const lang = {
   },
 
   string: [
-    // https://docs.swift.org/swift-book/LanguageGuide/StringsAndCharacters.html
     {
       pattern: new RegExp(
         /(^|[^"#])/.source +
           "(?:" +
           // multi-line string
-          /"""(?:\\(?:\$\{(?:[^{}]|\$\{[^{}]*\})*\}|[^(])|[^\\"]|"(?!""))*"""/.source +
+          /"""(?:\$(?:\{(?:[^{}]|\{[^{}]*\})*\}|[^{])|[^$"]|"(?!""))*"""/.source +
           "|" +
           // single-line string
-          /"(?:\\(?:\$\{(?:[^{}]|\$\{[^{}]*\})*\}|\r\n|[^(])|[^\\\r\n"])*"/.source +
+          /"(?:\$(?:\{(?:[^{}]|\{[^{}]*\})*\}|\r\n|[^{])|[^$\r\n"])*"/.source +
           ")"
       ),
       lookbehind: true,
       greedy: true,
       inside: {
         interpolation: {
-          pattern: /(\$\{)(?:[^{}]|\$\{[^{}]*\})*(?=\})/,
+          pattern: /(\$\{)(?:[^{}]|\{[^{}]*\})*(?=\})/,
           lookbehind: true,
           inside: null, // see below
         },

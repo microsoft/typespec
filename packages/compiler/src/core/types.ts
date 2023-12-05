@@ -1,7 +1,7 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
-import { YamlScript } from "../yaml/types.js";
+import { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
@@ -2037,6 +2037,9 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
 
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 
+/**
+ * @internal
+ */
 export interface JSONSchemaValidator {
   /**
    * Validate the configuration against its JSON Schema.
@@ -2045,7 +2048,10 @@ export interface JSONSchemaValidator {
    * @param target Source file target to use for diagnostics.
    * @returns Diagnostics produced by schema validation of the configuration.
    */
-  validate(config: unknown, target: YamlScript | SourceFile | typeof NoTarget): Diagnostic[];
+  validate(
+    config: unknown,
+    target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget
+  ): Diagnostic[];
 }
 
 /** @deprecated Use TypeSpecLibraryDef */
@@ -2166,6 +2172,7 @@ export interface TypeSpecLibrary<
 > extends TypeSpecLibraryDef<T, E> {
   /**
    * JSON Schema validator for emitter options
+   * @internal
    */
   readonly emitterOptionValidator?: JSONSchemaValidator;
 

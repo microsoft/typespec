@@ -1,4 +1,4 @@
-import { EmitterOptions } from "../config/types.js";
+import { EmitterOptions, TypeSpecConfig } from "../config/types.js";
 import { LinterRuleSet, ParseOptions } from "./types.js";
 
 export interface CompilerOptions {
@@ -11,7 +11,7 @@ export interface CompilerOptions {
   outputDir?: string;
 
   /**
-   * Path to config YAML file or folder in which to search for default tspconfig.yaml file.
+   * Path to config YAML file used, this is also where the project root should be.
    */
   config?: string;
 
@@ -63,4 +63,7 @@ export interface CompilerOptions {
 
   /** Ruleset to enable for linting. */
   linterRuleSet?: LinterRuleSet;
+
+  /** @internal */
+  readonly configFile?: TypeSpecConfig;
 }
