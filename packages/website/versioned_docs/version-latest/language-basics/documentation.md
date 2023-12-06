@@ -5,9 +5,16 @@ title: Documentation
 
 # Documentation
 
-Documentation is crucial to any API. TypeSpec provides a number of ways to document your API using TSDoc doc comments and decorators.
+Documentation is crucial to any API. TypeSpec provides a number of ways to document your API using doc comments and decorators.
 
 # Documenting APIs
+
+There are 2 ways to document your API using TypeSpec:
+
+- `@doc` decorator
+- `/** */` Doc comments
+
+The later has the advantage of being less intrusive to the spec.
 
 ## `@doc` Decorator
 
@@ -32,31 +39,43 @@ model Template<T extends {}>  {
 model A is Template<A>
 ```
 
-## TSDoc Doc Comments
+## Doc Comments
 
-TSDoc doc comments are a standard way to document TypeScript code. They are supported by many IDEs and can be used to generate external documentation using tools like [TypeDoc](https://typedoc.org/).
+You can annotate objects in your TypeSpec spec with doc comments. These comments will be considered the same as if they were attached using the `@doc` decorator and can be used to generate external documentation.
 
-You can annotate objects in your TypeSpec spec with TSDoc doc comments. These comments will be considered the same as if they were attached using the `@doc` decorator and can be used to generate external documentation.
+Doc comments starts with `/**` and continue until the closing `*/` is encountered. [Tags](#doc-comment-tags) can be used to provide additional documentation context.
 
 ```typespec
 /**
  * Get a widget.
  * @param widgetId The ID of the widget to retrieve.
- * /
-op @get create(@path widgetId: string): Widget | Error;
+ */
+op read(@path widgetId: string): Widget | Error;
 ```
 
 This is functionally equivalent to:
 
 ```typespec
 @doc("Get a widget.")
-op @get create(
+op read(
   @doc("The ID of the widget to retrieve.")
   @path
-  widgetId: string): Widget | Error;
+  widgetId: string,
+): Widget | Error;
 ```
 
-The benefit to using TSDoc doc comment syntax is that it keeps all of the documentation for a declaration in one place, making it easier to read and maintain. Additionally, it allows the generation of documentation using tools like TypeDoc without having to write a custom emitter to examine the `@doc` metadata.
+The benefit to using doc comment syntax is that it keeps all of the documentation for a declaration in one place, making it easier to read and maintain. Additionally, it allows the generation of documentation using tools like TypeDoc without having to write a custom emitter to examine the `@doc` metadata.
+
+### Doc comment tags
+
+As shown in the previous example doc comments can use certain tags to document additional elements or provide different documentation context.
+
+| Tag                     | Description                       | Example                                             |
+| ----------------------- | --------------------------------- | --------------------------------------------------- |
+| `@param`                | Documents a parameter.            | `@param widgetId The ID of the widget to retrieve.` |
+| `@returns`              | Documents the operation response. | `@returns The widget.`                              |
+| `@template`             | Document a template parameter     | `@template T the resource type`                     |
+| `@example` (unofficial) | Show examples                     | `@example \`model Foo {}\` `                        |
 
 # Comments
 

@@ -1,6 +1,14 @@
 # Change Log - @typespec/html-program-viewer
 
-This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Dec 2023 04:06:04 GMT and should not be manually modified.
+
+## 0.51.0
+Wed, 06 Dec 2023 04:06:04 GMT
+
+### Updates
+
+- Add ability to change colors of the program viewer using css variables. A `ColorProvider` component is also provided for convenience.
+- Upgrade formatter to prettier 3.1
 
 ## 0.50.0
 Wed, 08 Nov 2023 00:07:17 GMT

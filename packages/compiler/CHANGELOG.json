@@ -2,6 +2,47 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.51.0",
+      "tag": "@typespec/compiler_v0.51.0",
+      "date": "Wed, 06 Dec 2023 04:06:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "[API] Emitter framework: `emitTypeReference` function takes an optional reference context that can be used to patch the context for the target."
+          },
+          {
+            "comment": "Emitter API: Added `absolute-path` as a known format for emitter options which will validate the value passed by the user resolve to an absolute path."
+          },
+          {
+            "comment": "Linter rules can provide a url to the full documentation"
+          },
+          {
+            "comment": "**New language feature** **BREAKING** Added string template literal in typespec. Single and multi-line strings can be interpolated with `${` and `}`. Example `\\`Doc for url ${url} is here: ${location}\\``"
+          },
+          {
+            "comment": "Formatter: Fix: `valueof` expression with parentheses around will preserve them when they are meaningful(For example inside a union or array expression)"
+          },
+          {
+            "comment": "Emitter framework: allows scalar and enum declaration to provide a reference context."
+          },
+          {
+            "comment": "Fix: Union variant are now assignable to the parent union"
+          },
+          {
+            "comment": "Emitter framework: Allow passing a custom context when calling `emitType` "
+          },
+          {
+            "comment": "Upgrade formatter to prettier 3.1"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.5.0` to `~0.5.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.50.0",
       "tag": "@typespec/compiler_v0.50.0",
       "date": "Wed, 08 Nov 2023 00:07:17 GMT",

@@ -30,6 +30,8 @@ Validate a decorator parameter has the correct type.
   \| `"String"`
   \| `"Number"`
   \| `"Boolean"`
+  \| `"StringTemplate"`
+  \| `"StringTemplateSpan"`
   \| `"Tuple"`
   \| `"Union"`
   \| `"UnionVariant"`
