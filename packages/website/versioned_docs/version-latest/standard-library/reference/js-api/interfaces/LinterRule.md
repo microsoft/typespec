@@ -20,11 +20,12 @@ Resolved instance of a linter rule that will run.
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `description` | `string` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`description` |
+| `description` | `string` | Short description of the rule | [`LinterRuleDefinition`](LinterRuleDefinition.md).`description` |
 | `id` | `string` | Expanded rule id in format `<library-name>:<rule-name>` | - |
-| `messages` | `DM` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`messages` |
-| `name` | `N` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`name` |
-| `severity` | `"warning"` | - | [`LinterRuleDefinition`](LinterRuleDefinition.md).`severity` |
+| `messages` | `DM` | Messages that can be reported with the diagnostic. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`messages` |
+| `name` | `N` | Rule name (without the library name) | [`LinterRuleDefinition`](LinterRuleDefinition.md).`name` |
+| `severity` | `"warning"` | Rule default severity. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`severity` |
+| `url`? | `string` | Specifies the URL at which the full documentation can be accessed. | [`LinterRuleDefinition`](LinterRuleDefinition.md).`url` |
 
 ## Methods
 
@@ -33,6 +34,8 @@ Resolved instance of a linter rule that will run.
 ```ts
 create(context): SemanticNodeListener
 ```
+
+Creator
 
 #### Parameters
 
