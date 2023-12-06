@@ -24,6 +24,10 @@ type Node:
   | Statement
   | Expression
   | FunctionParameterNode
+  | StringTemplateSpanNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode
   | Modifier
   | DocNode
   | DocContent

@@ -1,6 +1,13 @@
 # Change Log - @typespec/http
 
-This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Dec 2023 19:40:58 GMT and should not be manually modified.
+
+## 0.51.0
+Wed, 06 Dec 2023 19:40:58 GMT
+
+### Updates
+
+- Add diagnostic when a namespace exists with routes, but no namespace is marked with `@service`.
 
 ## 0.50.0
 Wed, 08 Nov 2023 00:07:17 GMT
