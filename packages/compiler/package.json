@@ -52,6 +52,7 @@
   "files": [
     "lib/*.tsp",
     "dist/**",
+    "templates/*/**",
     "entrypoints",
     "!dist/test/**"
   ],

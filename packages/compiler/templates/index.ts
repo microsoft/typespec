@@ -1,20 +1,11 @@
-import { resolvePath } from "../../index.js";
-import { MANIFEST } from "../../manifest.js";
-import { InitTemplate } from "../init-template.js";
+import { resolvePath } from "../src/index.js";
+import { InitTemplate } from "../src/init/init-template.js";
+import { MANIFEST } from "../src/manifest.js";
 
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 
-const templateDir = resolvePath(
-  dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-  "..",
-  "..",
-  "src",
-  "init",
-  "templates"
-);
+const templateDir = resolvePath(dirname(fileURLToPath(import.meta.url)), "..", "..", "templates");
 
 function localFile(templateName: string, path: string) {
   return { path: resolvePath(templateDir, templateName, path), destination: path };
