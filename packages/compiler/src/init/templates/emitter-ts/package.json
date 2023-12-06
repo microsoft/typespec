@@ -6,9 +6,13 @@
   "dependencies": {
     "@typespec/compiler": "latest"
   },
+  "devDependencies": {
+    "@types/node": "latest"
+  },
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "test": "node --test ./dist/test/"
   },
   "private": true
 }

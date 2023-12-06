@@ -48,6 +48,9 @@ export const builtInTemplates: Record<string, InitTemplate> = {
       localFile("emitter-ts", "src/index.ts"),
       localFile("emitter-ts", "src/lib.ts"),
       localFile("emitter-ts", "src/emitter.ts"),
+      localFile("emitter-ts", "src/testing/index.ts"),
+      localFile("emitter-ts", "test/test-host.ts"),
+      localFile("emitter-ts", "test/hello.test.ts"),
     ],
   },
 };
