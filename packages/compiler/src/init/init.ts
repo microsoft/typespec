@@ -1,5 +1,6 @@
 import { readdir } from "fs/promises";
 import Mustache from "mustache";
+import pc from "picocolors";
 import prompts from "prompts";
 import * as semver from "semver";
 import { stringify } from "yaml";
@@ -18,6 +19,7 @@ import {
   InitTemplateLibrarySpec,
   InitTemplateSchema,
 } from "./init-template.js";
+import { builtInTemplates } from "./templates/index.js";
 
 export interface ScaffoldingConfig extends InitTemplate {
   /**
@@ -119,22 +121,29 @@ export function makeScaffoldingConfig(config: Partial<ScaffoldingConfig>): Scaff
   };
 }
 
+export interface InitTypeSpecProjectOptions {
+  templatesUrl?: string;
+  template?: string;
+}
+
 export async function initTypeSpecProject(
   host: CompilerHost,
   directory: string,
-  templatesUrl?: string
+  options: InitTypeSpecProjectOptions = {}
 ) {
   if (!(await confirmDirectoryEmpty(directory))) {
     return;
   }
 
   const folderName = getBaseFileName(directory);
-  const url: TemplatesUrl | undefined = templatesUrl ? { url: templatesUrl } : undefined;
+  const url: TemplatesUrl | undefined = options.templatesUrl
+    ? { url: options.templatesUrl }
+    : undefined;
 
   // Download template configuration and prompt user to select a template
   // No validation is done until one has been selected
   const templates = url === undefined ? builtInTemplates : await downloadTemplates(host, url);
-  const templateName = await promptTemplateSelection(templates, url);
+  const templateName = options.template ?? (await promptTemplateSelection(templates, url));
 
   // Validate minimum compiler version for non built-in templates
   if (url !== undefined && !(await validateTemplate(templates[templateName], url))) {
@@ -174,10 +183,12 @@ export async function initTypeSpecProject(
   await scaffoldNewProject(host, scaffoldingConfig);
 
   // eslint-disable-next-line no-console
+  console.log("");
+  // eslint-disable-next-line no-console
   console.log("TypeSpec init completed. You can run `tsp install` now to install dependencies.");
 
   // eslint-disable-next-line no-console
-  console.log("Project created successfully.");
+  console.log(pc.green("Project created successfully."));
 }
 
 async function promptCustomParameters(template: InitTemplate): Promise<Record<string, any>> {
@@ -214,24 +225,6 @@ async function confirmDirectoryEmpty(directory: string) {
     `Folder '${directory}' is not empty. Are you sure you want to initialize a new project here?`
   );
 }
-
-const builtInTemplates: Record<string, InitTemplate> = {
-  empty: {
-    title: "Empty project",
-    description: "Create an empty project.",
-    libraries: [],
-    compilerVersion: MANIFEST.version,
-  },
-  rest: {
-    title: "Generic Rest API",
-    description: "Create a project representing a generic Rest API",
-    compilerVersion: MANIFEST.version,
-    libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi3"],
-    config: {
-      emit: ["@typespec/openapi3"],
-    },
-  },
-};
 
 async function confirm(message: string): Promise<boolean> {
   const { confirm } = await prompts({
@@ -514,7 +507,7 @@ function validateTemplateDefinitions(
 function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
   for (const file of files) {
     if (file.path === fileName) {
-      return file.skipGeneration;
+      return file.skipGeneration ?? false;
     }
   }
   return false;

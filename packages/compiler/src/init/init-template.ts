@@ -5,7 +5,7 @@ import { TypeSpecRawConfig } from "../config/types.js";
 export interface InitTemplateFile {
   path: string;
   destination: string;
-  skipGeneration: boolean;
+  skipGeneration?: boolean;
 }
 
 export interface InitTemplateInput {
@@ -122,7 +122,7 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
         properties: {
           path: { type: "string" },
           destination: { type: "string" },
-          skipGeneration: { type: "boolean" },
+          skipGeneration: { type: "boolean", nullable: true },
         },
         required: ["path", "destination"],
       },
