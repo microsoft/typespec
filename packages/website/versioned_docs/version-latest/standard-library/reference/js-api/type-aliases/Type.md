@@ -17,6 +17,8 @@ type Type:
   | StringLiteral
   | NumericLiteral
   | BooleanLiteral
+  | StringTemplate
+  | StringTemplateSpan
   | Tuple
   | Union
   | UnionVariant

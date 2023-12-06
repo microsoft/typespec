@@ -1,6 +1,19 @@
 # Change Log - @typespec/json-schema
 
-This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Dec 2023 05:19:10 GMT and should not be manually modified.
+
+## 0.51.0
+Wed, 06 Dec 2023 05:19:10 GMT
+
+### Updates
+
+- Add support for simple literal default on model properties
+- Added support for string template literals
+- Fix: Enum with a value of `0` would have resulting in `type` of `string` and `number`
+- Fix: Scalar constraints combine with base scalar constraints
+- JsonSchema: Fix `@maxValueExclusive` setting `minimumExclusive` instead of `maximumExclusive`
+- Report diagnostic instead of throwing errors in the case of duplicate ids or unknown scalar
+- Add support for templated scalars.
 
 ## 0.50.0
 Wed, 08 Nov 2023 00:07:17 GMT

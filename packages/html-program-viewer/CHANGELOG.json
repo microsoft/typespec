@@ -2,6 +2,21 @@
   "name": "@typespec/html-program-viewer",
   "entries": [
     {
+      "version": "0.51.0",
+      "tag": "@typespec/html-program-viewer_v0.51.0",
+      "date": "Wed, 06 Dec 2023 05:19:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add ability to change colors of the program viewer using css variables. A `ColorProvider` component is also provided for convenience."
+          },
+          {
+            "comment": "Upgrade formatter to prettier 3.1"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.50.0",
       "tag": "@typespec/html-program-viewer_v0.50.0",
       "date": "Wed, 08 Nov 2023 00:07:17 GMT",

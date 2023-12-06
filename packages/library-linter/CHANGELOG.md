@@ -1,6 +1,11 @@
 # Change Log - @typespec/library-linter
 
-This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Dec 2023 05:19:10 GMT and should not be manually modified.
+
+## 0.51.0
+Wed, 06 Dec 2023 05:19:10 GMT
+
+_Version update only_
 
 ## 0.50.0
 Wed, 08 Nov 2023 00:07:17 GMT

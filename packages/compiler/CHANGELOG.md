@@ -1,6 +1,21 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Dec 2023 05:19:10 GMT and should not be manually modified.
+
+## 0.51.0
+Wed, 06 Dec 2023 05:19:10 GMT
+
+### Updates
+
+- [API] Emitter framework: `emitTypeReference` function takes an optional reference context that can be used to patch the context for the target.
+- Emitter API: Added `absolute-path` as a known format for emitter options which will validate the value passed by the user resolve to an absolute path.
+- Linter rules can provide a url to the full documentation
+- **New language feature** **BREAKING** Added string template literal in typespec. Single and multi-line strings can be interpolated with `${` and `}`. Example `\`Doc for url ${url} is here: ${location}\``
+- Formatter: Fix: `valueof` expression with parentheses around will preserve them when they are meaningful(For example inside a union or array expression)
+- Emitter framework: allows scalar and enum declaration to provide a reference context.
+- Fix: Union variant are now assignable to the parent union
+- Emitter framework: Allow passing a custom context when calling `emitType` 
+- Upgrade formatter to prettier 3.1
 
 ## 0.50.0
 Wed, 08 Nov 2023 00:07:17 GMT
