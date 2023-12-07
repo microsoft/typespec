@@ -8,6 +8,7 @@ import { TestLibrary } from "../src/testing/index.js";
 
 export async function createMyTestHost() {
   return createTestHost({
+    noEmit: false,
     libraries: [TestLibrary],
   });
 }
