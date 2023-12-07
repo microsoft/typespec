@@ -753,7 +753,13 @@ export async function compile(
       if (libDefinition?.emitter?.options) {
         const diagnostics = libDefinition?.emitterOptionValidator?.validate(
           emitterOptions,
-          NoTarget
+          options.configFile?.file
+            ? {
+                kind: "path-target",
+                path: ["options", emitterNameOrPath],
+                script: options.configFile.file,
+              }
+            : NoTarget
         );
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);

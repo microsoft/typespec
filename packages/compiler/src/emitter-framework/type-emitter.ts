@@ -15,6 +15,7 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  StringTemplate,
   Tuple,
   Type,
   Union,
@@ -436,6 +437,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
+  scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
+    return {};
+  }
+
   scalarInstantiation(scalar: Scalar, name: string | undefined): EmitterOutput<T> {
     return this.emitter.result.none();
   }
@@ -457,6 +462,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<T> {
+    return this.emitter.result.none();
+  }
+
+  stringTemplateContext(string: StringTemplate): Context {
+    return {};
+  }
+
+  stringTemplate(stringTemplate: StringTemplate): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
@@ -564,6 +577,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   }
 
   enumDeclarationContext(en: Enum, name: string): Context {
+    return {};
+  }
+
+  enumDeclarationReferenceContext(en: Enum, name: string): Context {
     return {};
   }
 

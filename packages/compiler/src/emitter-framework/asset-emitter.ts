@@ -22,6 +22,7 @@ import {
   EmitEntity,
   EmitterResult,
   EmitterState,
+  EmitTypeReferenceOptions,
   LexicalTypeStackEntry,
   NamespaceScope,
   NoEmit,
@@ -205,107 +206,122 @@ export function createAssetEmitter<T, TOptions extends object>(
       return sourceFile;
     },
 
-    emitTypeReference(target): EmitEntity<T> {
-      if (target.kind === "ModelProperty") {
-        return invokeTypeEmitter("modelPropertyReference", target);
-      } else if (target.kind === "EnumMember") {
-        return invokeTypeEmitter("enumMemberReference", target);
-      }
+    emitTypeReference(target, options?: EmitTypeReferenceOptions): EmitEntity<T> {
+      return withPatchedReferenceContext(options?.referenceContext, () => {
+        const oldIncomingReferenceContext = incomingReferenceContext;
+        const oldIncomingReferenceContextTarget = incomingReferenceContextTarget;
 
-      const oldIncomingReferenceContext = incomingReferenceContext;
-      const oldIncomingReferenceContextTarget = incomingReferenceContextTarget;
+        incomingReferenceContext = context.referenceContext ?? null;
+        incomingReferenceContextTarget = incomingReferenceContext ? target : null;
 
-      incomingReferenceContext = context.referenceContext ?? null;
-      incomingReferenceContextTarget = incomingReferenceContext ? target : null;
-
-      const entity = this.emitType(target);
-
-      incomingReferenceContext = oldIncomingReferenceContext;
-      incomingReferenceContextTarget = oldIncomingReferenceContextTarget;
-
-      let placeholder: Placeholder<T> | null = null;
-
-      if (entity.kind === "circular") {
-        let waiting = waitingCircularRefs.get(entity.emitEntityKey);
-        if (!waiting) {
-          waiting = [];
-          waitingCircularRefs.set(entity.emitEntityKey, waiting);
+        let result;
+        if (target.kind === "ModelProperty") {
+          result = invokeTypeEmitter("modelPropertyReference", target);
+        } else if (target.kind === "EnumMember") {
+          result = invokeTypeEmitter("enumMemberReference", target);
         }
 
-        const typeChainSnapshot = referenceTypeChain;
-        waiting.push({
-          state: {
-            lexicalTypeStack,
-            context,
-          },
-          cb: (resolvedEntity) =>
-            invokeReference(
-              this,
-              resolvedEntity,
-              true,
-              resolveReferenceCycle(typeChainSnapshot, entity, typeToEmitEntity as any)
-            ),
-        });
+        if (result) {
+          incomingReferenceContext = oldIncomingReferenceContext;
+          incomingReferenceContextTarget = oldIncomingReferenceContextTarget;
+          return result;
+        }
 
-        placeholder = new Placeholder();
-        return this.result.rawCode(placeholder);
-      } else {
-        return invokeReference(this, entity, false);
-      }
+        const entity = this.emitType(target);
 
-      function invokeReference(
-        assetEmitter: AssetEmitter<T, TOptions>,
-        entity: EmitEntity<T>,
-        circular: boolean,
-        cycle?: ReferenceCycle
-      ): EmitEntity<T> {
-        let ref;
-        const scope = currentScope();
+        incomingReferenceContext = oldIncomingReferenceContext;
+        incomingReferenceContextTarget = oldIncomingReferenceContextTarget;
 
-        if (circular) {
-          ref = typeEmitter.circularReference(entity, scope, cycle!);
+        let placeholder: Placeholder<T> | null = null;
+
+        if (entity.kind === "circular") {
+          let waiting = waitingCircularRefs.get(entity.emitEntityKey);
+          if (!waiting) {
+            waiting = [];
+            waitingCircularRefs.set(entity.emitEntityKey, waiting);
+          }
+
+          const typeChainSnapshot = referenceTypeChain;
+          waiting.push({
+            state: {
+              lexicalTypeStack,
+              context,
+            },
+            cb: (resolvedEntity) =>
+              invokeReference(
+                this,
+                resolvedEntity,
+                true,
+                resolveReferenceCycle(typeChainSnapshot, entity, typeToEmitEntity as any)
+              ),
+          });
+
+          placeholder = new Placeholder();
+          return this.result.rawCode(placeholder);
         } else {
-          if (entity.kind !== "declaration") {
-            return entity;
+          return invokeReference(this, entity, false);
+        }
+
+        function invokeReference(
+          assetEmitter: AssetEmitter<T, TOptions>,
+          entity: EmitEntity<T>,
+          circular: boolean,
+          cycle?: ReferenceCycle
+        ): EmitEntity<T> {
+          let ref;
+          const scope = currentScope();
+
+          if (circular) {
+            ref = typeEmitter.circularReference(entity, scope, cycle!);
+          } else {
+            if (entity.kind !== "declaration") {
+              return entity;
+            }
+            compilerAssert(
+              scope,
+              "Emit context must have a scope set in order to create references to declarations."
+            );
+            const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(
+              entity,
+              scope
+            );
+            ref = typeEmitter.reference(entity, pathUp, pathDown, commonScope);
           }
-          compilerAssert(
-            scope,
-            "Emit context must have a scope set in order to create references to declarations."
-          );
-          const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(entity, scope);
-          ref = typeEmitter.reference(entity, pathUp, pathDown, commonScope);
-        }
 
-        if (!(ref instanceof EmitterResult)) {
-          ref = assetEmitter.result.rawCode(ref) as RawCode<T>;
-        }
-
-        if (placeholder) {
-          // this should never happen as this function shouldn't be called until
-          // the target declaration is finished being emitted.
-          compilerAssert(ref.kind !== "circular", "TypeEmitter `reference` returned circular emit");
-
-          // this could presumably be allowed if we want.
-          compilerAssert(
-            ref.kind === "none" || !(ref.value instanceof Placeholder),
-            "TypeEmitter's `reference` method cannot return a placeholder."
-          );
-
-          switch (ref.kind) {
-            case "code":
-            case "declaration":
-              placeholder.setValue(ref.value as T);
-              break;
-            case "none":
-              // this cast is incorrect, think about what should happen
-              // if reference returns noEmit...
-              placeholder.setValue("" as T);
-              break;
+          if (!(ref instanceof EmitterResult)) {
+            ref = assetEmitter.result.rawCode(ref) as RawCode<T>;
           }
-        }
 
-        return ref;
-      }
+          if (placeholder) {
+            // this should never happen as this function shouldn't be called until
+            // the target declaration is finished being emitted.
+            compilerAssert(
+              ref.kind !== "circular",
+              "TypeEmitter `reference` returned circular emit"
+            );
+
+            // this could presumably be allowed if we want.
+            compilerAssert(
+              ref.kind === "none" || !(ref.value instanceof Placeholder),
+              "TypeEmitter's `reference` method cannot return a placeholder."
+            );
+
+            switch (ref.kind) {
+              case "code":
+              case "declaration":
+                placeholder.setValue(ref.value as T);
+                break;
+              case "none":
+                // this cast is incorrect, think about what should happen
+                // if reference returns noEmit...
+                placeholder.setValue("" as T);
+                break;
+            }
+          }
+
+          return ref;
+        }
+      });
     },
 
     emitDeclarationName(type): string | undefined {
@@ -316,7 +332,16 @@ export function createAssetEmitter<T, TOptions extends object>(
       return typeEmitter.writeOutput(sourceFiles);
     },
 
-    emitType(type) {
+    getSourceFiles() {
+      return sourceFiles;
+    },
+
+    emitType(type, context?: ContextState) {
+      if (context?.referenceContext) {
+        incomingReferenceContext = context?.referenceContext ?? incomingReferenceContext;
+        incomingReferenceContextTarget = type ?? incomingReferenceContextTarget;
+      }
+
       const declName =
         isDeclaration(type) && type.kind !== "Namespace" ? typeEmitter.declarationName(type) : null;
       const key = typeEmitterKey(type);
@@ -625,7 +650,7 @@ export function createAssetEmitter<T, TOptions extends object>(
 
       if (keyHasReferenceContext(entry.method)) {
         compilerAssert(
-          (typeEmitter as any)[lexicalKey],
+          (typeEmitter as any)[referenceKey],
           `TypeEmitter doesn't have a method named ${referenceKey}`
         );
       }
@@ -687,6 +712,29 @@ export function createAssetEmitter<T, TOptions extends object>(
     referenceTypeChain = oldRefTypeStack;
   }
 
+  function withPatchedReferenceContext<T>(
+    referenceContext: Record<string, any> | undefined,
+    cb: () => T
+  ): T {
+    if (referenceContext !== undefined) {
+      const oldContext = context;
+
+      context = stateInterner.intern({
+        lexicalContext: context.lexicalContext,
+        referenceContext: stateInterner.intern({
+          ...context.referenceContext,
+          ...referenceContext,
+        }),
+      });
+
+      const result = cb();
+      context = oldContext;
+      return result;
+    } else {
+      return cb();
+    }
+  }
+
   /**
    * Invoke the callback with the given context.
    */
@@ -728,6 +776,8 @@ export function createAssetEmitter<T, TOptions extends object>(
         return "namespace";
       case "ModelProperty":
         return "modelPropertyLiteral";
+      case "StringTemplate":
+        return "stringTemplate";
       case "Boolean":
         return "booleanLiteral";
       case "String":
@@ -855,11 +905,10 @@ function keyHasContext(key: keyof TypeEmitter<any, any>) {
 const noReferenceContext = new Set<string>([
   ...noContext,
   "booleanLiteral",
+  "stringTemplate",
   "stringLiteral",
   "numericLiteral",
-  "scalarDeclaration",
   "scalarInstantiation",
-  "enumDeclaration",
   "enumMember",
   "enumMembers",
   "intrinsic",

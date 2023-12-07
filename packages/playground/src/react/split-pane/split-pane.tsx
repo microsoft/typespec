@@ -19,8 +19,8 @@ export interface SplitPaneProps {
   children: JSX.Element[];
   allowResize?: boolean;
   split?: "vertical" | "horizontal";
-  initialSizes: (string | number)[];
-  sizes?: (string | number)[];
+  initialSizes?: (string | number)[];
+  sizes?: (string | number | undefined)[];
   sashRender?: (index: number, active: boolean) => React.ReactNode;
   onChange?: (sizes: number[]) => void;
   onDragStart?: (e: MouseEvent) => void;
@@ -56,7 +56,7 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   onDragEnd = () => null,
   ...others
 }: SplitPaneProps) => {
-  const [resolvedPropSize, updateSizes] = useControllableValue<(string | number)[]>(
+  const [resolvedPropSize, updateSizes] = useControllableValue<(string | number | undefined)[]>(
     propSizes,
     defaultSizes,
     onChange as any
@@ -151,7 +151,9 @@ export const SplitPane: FunctionComponent<SplitPaneProps> = ({
   );
 
   const resetPosition = useCallback(() => {
-    updateSizes(defaultSizes);
+    if (defaultSizes) {
+      updateSizes(defaultSizes);
+    }
   }, [defaultSizes, updateSizes]);
 
   const dragEnd = useCallback(

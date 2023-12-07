@@ -5,6 +5,9 @@ pr:
   - release/*
   - feature/website-design
 
+variables:
+  - template: templates/variables/globals.yml
+
 jobs:
   - job: Build_And_Test
     displayName: Build And Test

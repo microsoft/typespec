@@ -1,15 +1,26 @@
-import { CompilerOptions } from "@typespec/compiler";
+import { CompilerOptions, Diagnostic } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FunctionComponent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CompletionItemTag } from "vscode-languageserver";
-import { getMarkerLocation } from "../services.js";
+import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
+import { getMonacoRange } from "../services.js";
 import { BrowserHost, PlaygroundSample } from "../types.js";
-import { EditorCommandBar } from "./editor-command-bar.js";
+import { PlaygroundContextProvider } from "./context/playground-context.js";
+import { DefaultFooter } from "./default-footer.js";
 import { OnMountData, useMonacoModel } from "./editor.js";
-import { Footer } from "./footer.js";
 import { useControllableValue } from "./hooks.js";
-import { OutputView } from "./output-view.js";
+import { OutputView } from "./output-view/output-view.js";
+import style from "./playground.module.css";
+import { ProblemPane } from "./problem-pane/index.js";
 import Pane from "./split-pane/pane.js";
 import { SplitPane } from "./split-pane/split-pane.js";
 import { CompilationState, FileOutputViewer } from "./types.js";
@@ -22,7 +33,7 @@ export interface PlaygroundProps {
   defaultContent?: string;
 
   /** List of available libraries */
-  libraries: string[];
+  readonly libraries: readonly string[];
 
   /** Emitter to use */
   emitter?: string;
@@ -57,6 +68,11 @@ export interface PlaygroundProps {
   onSave?: (value: PlaygroundSaveData) => void;
 
   editorOptions?: PlaygroundEditorsOptions;
+
+  /**
+   * Change the footer of the playground.
+   */
+  footer?: ReactNode;
 }
 
 export interface PlaygroundEditorsOptions {
@@ -119,7 +135,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(typespecCompiler, diag.target),
+        ...getMonacoRange(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
@@ -212,58 +228,86 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     editorRef.current = editor;
   }, []);
 
+  const [verticalPaneSizes, setVerticalPaneSizes] = useState<(string | number | undefined)[]>(
+    verticalPaneSizesConst.collapsed
+  );
+  const toggleProblemPane = useCallback(() => {
+    setVerticalPaneSizes((value) => {
+      return value === verticalPaneSizesConst.collapsed
+        ? verticalPaneSizesConst.expanded
+        : verticalPaneSizesConst.collapsed;
+    });
+  }, [setVerticalPaneSizes]);
+
+  const onVerticalPaneSizeChange = useCallback(
+    (sizes: number[]) => {
+      setVerticalPaneSizes(sizes);
+    },
+    [setVerticalPaneSizes]
+  );
+  const handleDiagnosticSelected = useCallback(
+    (diagnostic: Diagnostic) => {
+      editorRef.current?.setSelection(getMonacoRange(host.compiler, diagnostic.target));
+    },
+    [setVerticalPaneSizes]
+  );
+
   return (
-    <div
-      css={{
-        display: "grid",
-        gridTemplateColumns: "1",
-        gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"typespeceditor"\n    "footer"',
-        width: "100%",
-        height: "100%",
-        overflow: "hidden",
-        fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
-      }}
-    >
-      <SplitPane
-        initialSizes={["50%", "50%"]}
-        css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}
-      >
-        <Pane>
-          <EditorCommandBar
-            host={host}
-            selectedEmitter={selectedEmitter}
-            onSelectedEmitterChange={onSelectedEmitterChange}
-            compilerOptions={compilerOptions}
-            onCompilerOptionsChange={onCompilerOptionsChange}
-            samples={props.samples}
-            selectedSampleName={selectedSampleName}
-            onSelectedSampleNameChange={onSelectedSampleNameChange}
-            saveCode={saveCode}
-            formatCode={formatCode}
-            newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-            documentationUrl={props.links?.documentationUrl}
-          />
-          <TypeSpecEditor
-            model={typespecModel}
-            actions={typespecEditorActions}
-            options={props.editorOptions}
-            onMount={onTypeSpecEditorMount}
-          />
-        </Pane>
-        <Pane>
-          <OutputView
-            compilationState={compilationState}
-            editorOptions={props.editorOptions}
-            viewers={props.emitterViewers?.[selectedEmitter]}
-          />
-        </Pane>
-      </SplitPane>
-      <Footer host={host} />
-    </div>
+    <PlaygroundContextProvider value={{ host }}>
+      <div className={style["layout"]}>
+        <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
+          <Pane>
+            <SplitPane initialSizes={["50%", "50%"]}>
+              <Pane>
+                <EditorCommandBar
+                  host={host}
+                  selectedEmitter={selectedEmitter}
+                  onSelectedEmitterChange={onSelectedEmitterChange}
+                  compilerOptions={compilerOptions}
+                  onCompilerOptionsChange={onCompilerOptionsChange}
+                  samples={props.samples}
+                  selectedSampleName={selectedSampleName}
+                  onSelectedSampleNameChange={onSelectedSampleNameChange}
+                  saveCode={saveCode}
+                  formatCode={formatCode}
+                  newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+                  documentationUrl={props.links?.documentationUrl}
+                />
+                <TypeSpecEditor
+                  model={typespecModel}
+                  actions={typespecEditorActions}
+                  options={props.editorOptions}
+                  onMount={onTypeSpecEditorMount}
+                />
+              </Pane>
+              <Pane>
+                <OutputView
+                  compilationState={compilationState}
+                  editorOptions={props.editorOptions}
+                  viewers={props.emitterViewers?.[selectedEmitter]}
+                />
+              </Pane>
+            </SplitPane>
+          </Pane>
+          <Pane minSize={30}>
+            <ProblemPane
+              collapsed={verticalPaneSizes[1] === verticalPaneSizesConst.collapsed[1]}
+              compilationState={compilationState}
+              onHeaderClick={toggleProblemPane}
+              onDiagnosticSelected={handleDiagnosticSelected}
+            />
+          </Pane>
+        </SplitPane>
+        {props.footer ?? <DefaultFooter />}
+      </div>
+    </PlaygroundContextProvider>
   );
 };
 
+const verticalPaneSizesConst = {
+  collapsed: [undefined, 30],
+  expanded: [undefined, 200],
+};
 const outputDir = "./tsp-output";
 
 async function compile(

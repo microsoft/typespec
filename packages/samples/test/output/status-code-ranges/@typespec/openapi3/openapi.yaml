@@ -28,7 +28,3 @@ components:
       properties:
         name:
           type: string
-    ServerError:
-      type: object
-    UserError:
-      type: object

@@ -2,6 +2,30 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.51.0",
+      "tag": "@typespec/openapi3_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle `bytes` as a multipart part type correctly and produce `type: string, format: binary`"
+          },
+          {
+            "comment": "Added support for string template literals"
+          },
+          {
+            "comment": "Handle: union variants as discriminator"
+          },
+          {
+            "comment": "Migrate code to use the emitter framework"
+          },
+          {
+            "comment": "Emitter will now emit all properties on unreferenced schemas."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.50.0",
       "tag": "@typespec/openapi3_v0.50.0",
       "date": "Wed, 08 Nov 2023 00:07:17 GMT",

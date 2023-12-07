@@ -1,6 +1,6 @@
 {
   "name": "@typespec/playground",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "author": "Microsoft Corporation",
   "description": "TypeSpec playground UI components.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -40,8 +40,8 @@
       "default": "./dist/react/index.js"
     },
     "./react/viewers": {
-      "types": "./dist/src/react/viewers.d.ts",
-      "default": "./dist/react/viewers.js"
+      "types": "./dist/src/react/viewers/index.d.ts",
+      "default": "./dist/react/viewers/index.js"
     },
     "./style.css": "./dist/index.css"
   },
@@ -68,18 +68,18 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@emotion/react": "^11.11.1",
     "@fluentui/react-components": "~9.32.1",
-    "@fluentui/react-icons": "^2.0.221",
-    "@typespec/bundler": "workspace:~0.1.0-alpha.3",
-    "@typespec/compiler": "workspace:~0.50.0",
-    "@typespec/html-program-viewer": "workspace:~0.50.0",
-    "@typespec/http": "workspace:~0.50.0",
-    "@typespec/openapi": "workspace:~0.50.0",
-    "@typespec/openapi3": "workspace:~0.50.0",
-    "@typespec/protobuf": "workspace:~0.50.0",
-    "@typespec/rest": "workspace:~0.50.0",
-    "@typespec/versioning": "workspace:~0.50.0",
+
+    "@fluentui/react-icons": "~2.0.221",
+    "@typespec/bundler": "workspace:~0.1.0-alpha.4",
+    "@typespec/compiler": "workspace:~0.51.0",
+    "@typespec/html-program-viewer": "workspace:~0.51.0",
+    "@typespec/http": "workspace:~0.51.0",
+    "@typespec/openapi": "workspace:~0.51.0",
+    "@typespec/openapi3": "workspace:~0.51.0",
+    "@typespec/protobuf": "workspace:~0.51.0",
+    "@typespec/rest": "workspace:~0.51.0",
+    "@typespec/versioning": "workspace:~0.51.0",
     "debounce": "~1.2.1",
     "lzutf8": "0.6.3",
     "monaco-editor": "~0.43.0",
@@ -87,7 +87,8 @@
     "react": "~18.2.0",
     "swagger-ui-react": "~5.7.2",
     "vscode-languageserver-textdocument": "~1.0.8",
-    "vscode-languageserver": "~9.0.0"
+    "vscode-languageserver": "~9.0.0",
+    "clsx": "~2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.22.20",
@@ -99,8 +100,8 @@
     "@types/react": "~18.2.22",
     "@types/swagger-ui-react": "^4.18.0",
     "@types/swagger-ui": "~3.52.0",
-    "@typespec/bundler": "workspace:~0.1.0-alpha.3",
-    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
+    "@typespec/bundler": "workspace:~0.1.0-alpha.4",
+    "@typespec/eslint-config-typespec": "workspace:~0.51.0",
     "@vitejs/plugin-react": "~4.1.0",
     "c8": "~8.0.1",
     "cross-env": "~7.0.3",

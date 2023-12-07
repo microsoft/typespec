@@ -40,6 +40,9 @@ packages/website/versioned_docs/**/reference/
 packages/website/versioned_docs/**/standard-library/built-in-decorators.md
 packages/website/versioned_docs/**/standard-library/built-in-data-types.md
 
+# Auto generated version list
+packages/website/playground-versions.json
+
 #.tsp init template
 eng/feeds/
 

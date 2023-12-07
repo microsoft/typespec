@@ -67,11 +67,29 @@ const config: Config = {
       type: "module",
       async: true,
     },
+  ],
+  headTags: [
     {
-      src: `https://typespec.blob.core.windows.net/pkgs/indexes/typespec/${latestVersion}.json`,
-      type: "importmap-shim",
+      tagName: "script",
+      attributes: {
+        // cspell:ignore esms
+        type: "esms-options",
+      },
+      innerHTML: JSON.stringify({
+        shimMode: true,
+      }),
+    },
+    {
+      tagName: "script",
+      attributes: {
+        type: "playground-options",
+      },
+      innerHTML: JSON.stringify({
+        latestVersion: latestVersion,
+      }),
     },
   ],
+
   themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [
@@ -230,7 +248,7 @@ const config: Config = {
       prism: {
         theme: themes.oneLight,
         darkTheme: themes.oneDark,
-        additionalLanguages: ["shell-session"],
+        additionalLanguages: ["http", "shell-session"],
       },
       mermaid: {},
       algolia: {

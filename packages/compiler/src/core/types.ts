@@ -1,9 +1,10 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
-import { YamlScript } from "../yaml/types.js";
+import { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
+import type { TokenFlags } from "./scanner.js";
 
 // prettier-ignore
 export type MarshalledValue<Type>  = 
@@ -98,6 +99,8 @@ export type Type =
   | StringLiteral
   | NumericLiteral
   | BooleanLiteral
+  | StringTemplate
+  | StringTemplateSpan
   | Tuple
   | Union
   | UnionVariant
@@ -478,6 +481,28 @@ export interface BooleanLiteral extends BaseType {
   value: boolean;
 }
 
+export interface StringTemplate extends BaseType {
+  kind: "StringTemplate";
+  node: StringTemplateExpressionNode;
+  spans: StringTemplateSpan[];
+}
+
+export type StringTemplateSpan = StringTemplateSpanLiteral | StringTemplateSpanValue;
+
+export interface StringTemplateSpanLiteral extends BaseType {
+  kind: "StringTemplateSpan";
+  node: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
+  isInterpolated: false;
+  type: StringLiteral;
+}
+
+export interface StringTemplateSpanValue extends BaseType {
+  kind: "StringTemplateSpan";
+  node: Expression;
+  isInterpolated: true;
+  type: Type;
+}
+
 export interface Tuple extends BaseType {
   kind: "Tuple";
   node: TupleExpressionNode;
@@ -736,6 +761,11 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
+  StringTemplateExpression,
+  StringTemplateHead,
+  StringTemplateMiddle,
+  StringTemplateTail,
+  StringTemplateSpan,
   ExternKeyword,
   VoidKeyword,
   NeverKeyword,
@@ -858,6 +888,10 @@ export type Node =
   | Statement
   | Expression
   | FunctionParameterNode
+  | StringTemplateSpanNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode
   | Modifier
   | DocNode
   | DocContent
@@ -1040,6 +1074,7 @@ export type Expression =
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
+  | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode;
@@ -1221,7 +1256,13 @@ export interface ModelSpreadPropertyNode extends BaseNode {
   readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 
-export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
+export type LiteralNode =
+  | StringLiteralNode
+  | NumericLiteralNode
+  | BooleanLiteralNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode;
 
 export interface StringLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.StringLiteral;
@@ -1237,6 +1278,39 @@ export interface NumericLiteralNode extends BaseNode {
 export interface BooleanLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.BooleanLiteral;
   readonly value: boolean;
+}
+
+export interface StringTemplateExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.StringTemplateExpression;
+  readonly head: StringTemplateHeadNode;
+  readonly spans: readonly StringTemplateSpanNode[];
+}
+
+// Each of these corresponds to a substitution expression and a template literal, in that order.
+// The template literal must have kind TemplateMiddleLiteral or TemplateTailLiteral.
+export interface StringTemplateSpanNode extends BaseNode {
+  readonly kind: SyntaxKind.StringTemplateSpan;
+  readonly expression: Expression;
+  readonly literal: StringTemplateMiddleNode | StringTemplateTailNode;
+}
+
+export interface StringTemplateLiteralLikeNode extends BaseNode {
+  readonly value: string;
+
+  /** @internal */
+  readonly tokenFlags: TokenFlags;
+}
+
+export interface StringTemplateHeadNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateHead;
+}
+
+export interface StringTemplateMiddleNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateMiddle;
+}
+
+export interface StringTemplateTailNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateTail;
 }
 
 export interface ExternKeywordNode extends BaseNode {
@@ -1963,6 +2037,9 @@ export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends Diagnost
 
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 
+/**
+ * @internal
+ */
 export interface JSONSchemaValidator {
   /**
    * Validate the configuration against its JSON Schema.
@@ -1971,7 +2048,10 @@ export interface JSONSchemaValidator {
    * @param target Source file target to use for diagnostics.
    * @returns Diagnostics produced by schema validation of the configuration.
    */
-  validate(config: unknown, target: YamlScript | SourceFile | typeof NoTarget): Diagnostic[];
+  validate(
+    config: unknown,
+    target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget
+  ): Diagnostic[];
 }
 
 /** @deprecated Use TypeSpecLibraryDef */
@@ -2022,10 +2102,17 @@ export interface LinterDefinition {
 }
 
 export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
+  /** Rule name (without the library name) */
   name: N;
+  /** Rule default severity. */
   severity: "warning";
+  /** Short description of the rule */
   description: string;
+  /** Specifies the URL at which the full documentation can be accessed. */
+  url?: string;
+  /** Messages that can be reported with the diagnostic. */
   messages: DM;
+  /** Creator */
   create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }
 
@@ -2085,6 +2172,7 @@ export interface TypeSpecLibrary<
 > extends TypeSpecLibraryDef<T, E> {
   /**
    * JSON Schema validator for emitter options
+   * @internal
    */
   readonly emitterOptionValidator?: JSONSchemaValidator;
 

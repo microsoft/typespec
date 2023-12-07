@@ -1,4 +1,4 @@
-import { interpolatePath } from "@typespec/compiler";
+import { Diagnostic, interpolatePath } from "@typespec/compiler";
 import {
   createTestHost,
   createTestWrapper,
@@ -9,8 +9,10 @@ import { HttpTestLibrary } from "@typespec/http/testing";
 import { OpenAPITestLibrary } from "@typespec/openapi/testing";
 import { RestTestLibrary } from "@typespec/rest/testing";
 import { VersioningTestLibrary } from "@typespec/versioning/testing";
+import { ok } from "assert";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3TestLibrary } from "../src/testing/index.js";
+import { OpenAPI3Document } from "../src/types.js";
 
 export async function createOpenAPITestHost() {
   return createTestHost({
@@ -47,13 +49,32 @@ export async function createOpenAPITestRunner({
   });
 }
 
+export async function emitOpenApiWithDiagnostics(
+  code: string,
+  options: OpenAPI3EmitterOptions = {}
+): Promise<[OpenAPI3Document, readonly Diagnostic[]]> {
+  const runner = await createOpenAPITestRunner();
+  const outputFile = resolveVirtualPath("openapi.json");
+  const diagnostics = await runner.diagnose(code, {
+    noEmit: false,
+    emit: ["@typespec/openapi3"],
+    options: {
+      "@typespec/openapi3": { ...options, "output-file": outputFile },
+    },
+  });
+  const content = runner.fs.get(outputFile);
+  ok(content, "Expected to have found openapi output");
+  const doc = JSON.parse(content);
+  return [doc, diagnostics];
+}
+
 export async function diagnoseOpenApiFor(code: string, options: OpenAPI3EmitterOptions = {}) {
   const runner = await createOpenAPITestRunner();
   const diagnostics = await runner.diagnose(code, {
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": options as any },
   });
-  return diagnostics.filter((x) => x.code !== "@typespec/http/no-routes");
+  return diagnostics;
 }
 
 export async function openApiFor(
@@ -74,7 +95,7 @@ export async function openApiFor(
     emit: ["@typespec/openapi3"],
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
+  expectDiagnosticEmpty(diagnostics);
 
   if (!versions) {
     return JSON.parse(host.fs.get(resolveVirtualPath("openapi.json"))!);

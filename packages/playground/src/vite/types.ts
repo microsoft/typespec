@@ -6,14 +6,13 @@ export interface PlaygroundUserConfig extends Omit<PlaygroundConfig, "samples"> 
   /**
    * If the bundle library plugin should be loaded.
    */
-  skipBundleLibraries?: boolean;
-  samples?: Record<string, PlaygroundSampleConfig>;
+  readonly skipBundleLibraries?: boolean;
+  readonly samples?: Record<string, PlaygroundSampleConfig>;
 }
 
 export interface PlaygroundConfig {
-  defaultEmitter: string;
-  libraries: string[];
-  samples: Record<string, PlaygroundSample>;
-  enableSwaggerUI: boolean;
-  links?: PlaygroundLinks;
+  readonly defaultEmitter: string;
+  readonly libraries: readonly string[];
+  readonly samples: Record<string, PlaygroundSample>;
+  readonly links?: PlaygroundLinks;
 }

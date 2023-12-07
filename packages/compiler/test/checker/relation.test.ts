@@ -209,6 +209,10 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
     });
 
+    it("can assign string template with primitives interpolated", async () => {
+      await expectTypeAssignable({ source: `"foo \${123} bar"`, target: "string" });
+    });
+
     it("can assign string literal union", async () => {
       await expectTypeAssignable({ source: `"foo" | "bar"`, target: "string" });
     });
@@ -819,6 +823,14 @@ describe("compiler: checker: type relations", () => {
   describe("Union target", () => {
     it("can assign any of the options", async () => {
       await expectTypeAssignable({ source: "string", target: "string | int32" });
+    });
+
+    it("can assign any of the variants", async () => {
+      await expectTypeAssignable({
+        source: "Choice.yes",
+        target: "Choice",
+        commonCode: `union Choice {yes: "yes", no: "no" }`,
+      });
     });
 
     it("can a subtype of any of the options", async () => {

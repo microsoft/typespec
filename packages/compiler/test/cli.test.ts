@@ -1,4 +1,4 @@
-import { deepStrictEqual, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { stringify } from "yaml";
 import { TypeSpecRawConfig } from "../src/config/types.js";
 import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
@@ -31,7 +31,9 @@ describe("compiler: cli", () => {
         env
       );
       expectDiagnosticEmpty(diagnostics);
-      return options;
+      ok(options, "Options should have been set.");
+      const { configFile: config, ...rest } = options;
+      return rest;
     }
 
     it("no args and config: return empty options with output-dir at {cwd}/tsp-output", async () => {
@@ -188,7 +190,7 @@ describe("compiler: cli", () => {
 
     interface TestUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions,
+      T extends Exclude<keyof CompilerOptions, "configFile">,
     > {
       default: CompileCliArgs[K];
       set: { in: CompileCliArgs[K]; alt: CompileCliArgs[K]; expected: CompilerOptions[T] }[];
@@ -196,7 +198,7 @@ describe("compiler: cli", () => {
 
     function testUnifiedOptions<
       K extends keyof CompileCliArgs & keyof TypeSpecRawConfig,
-      T extends keyof CompilerOptions,
+      T extends Exclude<keyof CompilerOptions, "configFile">,
     >(name: K, resolvedName: T, data: TestUnifiedOptions<K, T>) {
       describe(name, () => {
         it("default", async () => {

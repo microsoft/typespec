@@ -9,7 +9,7 @@ TypeSpec emitters are libraries that use various TypeSpec compiler APIs to refle
 
 ## Getting started
 
-TypeSpec emitters are a special kind of TypeSpec library and so have the same getting started instructions. Follow [these steps](#todo) to initialize a typespec library.
+TypeSpec emitters are a special kind of TypeSpec library and so have the same getting started instructions. Follow [these steps](./basics.md) to initialize a typespec library.
 
 ## $onEmit
 
@@ -68,6 +68,24 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
   const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
   const name = context.options.targetName;
   await context.program.host.writeFile(outputDir, `hello ${name}!`);
+}
+```
+
+### Emitter options known format:
+
+### `absolute-path`
+
+Specify that the value for this option should resolve to an absolute path. e.g. `"{project-root}/dir"`.
+
+:::important
+It is recommended that all options that involve path use this. Using relative path can be confusing for users on as it is not clear what the relative path is relative to. And more importantly relative path if not careful are resolved relative to the `cwd` in node file system which result in spec only compiling from the the project root.
+:::
+
+Example:
+
+```js
+{
+  "asset-dir": { type: "string", format: "absolute-path", nullable: true },
 }
 ```
 

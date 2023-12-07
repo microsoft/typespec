@@ -19,7 +19,7 @@ import { MarkdownRenderer, groupByNamespace } from "./markdown.js";
  * Render doc to a markdown using docusaurus addons.
  */
 export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<string, string> {
-  const renderer = new DocusaurusRenderer();
+  const renderer = new DocusaurusRenderer(refDoc);
   const files: Record<string, string> = {
     "index.mdx": renderIndexFile(renderer, refDoc),
   };
@@ -42,6 +42,10 @@ export function renderToDocusaurusMarkdown(refDoc: TypeSpecRefDoc): Record<strin
   const emitter = renderEmitter(renderer, refDoc);
   if (emitter) {
     files["emitter.md"] = emitter;
+  }
+  const linter = renderLinter(renderer, refDoc);
+  if (linter) {
+    files["linter.md"] = linter;
   }
 
   return files;
@@ -231,8 +235,31 @@ function renderEmitter(
 
   return renderMarkdowDoc(content);
 }
+function renderLinter(
+  renderer: DocusaurusRenderer,
+  refDoc: TypeSpecLibraryRefDoc
+): string | undefined {
+  if (refDoc.linter === undefined) {
+    return undefined;
+  }
+  const content: MarkdownDoc = [
+    "---",
+    `title: "Linter usage"`,
+    "toc_min_heading_level: 2",
+    "toc_max_heading_level: 3",
+    "---",
+    renderer.linterUsage(refDoc),
+  ];
+
+  return renderMarkdowDoc(content);
+}
 
 export class DocusaurusRenderer extends MarkdownRenderer {
+  #refDoc: TypeSpecLibraryRefDoc;
+  constructor(refDoc: TypeSpecLibraryRefDoc) {
+    super();
+    this.#refDoc = refDoc;
+  }
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;
@@ -258,5 +285,15 @@ export class DocusaurusRenderer extends MarkdownRenderer {
         },
       ])
     );
+  }
+
+  linterRuleLink(url: string) {
+    const homepage = (this.#refDoc.packageJson as any).docusaurusWebsite;
+    if (homepage && url.includes(homepage)) {
+      const fromRoot = url.replace(homepage, "");
+      return `${fromRoot}.md`;
+    } else {
+      return url;
+    }
   }
 }

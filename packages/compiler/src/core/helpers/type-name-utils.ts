@@ -45,6 +45,8 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
       return getTypeName(type.type, options);
     case "Tuple":
       return "[" + type.values.map((x) => getTypeName(x, options)).join(", ") + "]";
+    case "StringTemplate":
+      return "string";
     case "String":
     case "Number":
     case "Boolean":

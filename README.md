@@ -18,8 +18,8 @@ using the preview.
 
 You can try TypeSpec on the web without installing anything.
 
-- [TypeSpec playground](https://cadlplayground.z22.web.core.windows.net)
-- [TypeSpec playground for Azure services](https://cadlplayground.z22.web.core.windows.net/cadl-azure/)
+- [TypeSpec playground](https://microsoft.github.io/typespec/playground)
+- [TypeSpec playground for Azure services](https://azure.github.io/typespec-azure/playground)
 
 ## Getting Started
 
