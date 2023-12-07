@@ -70,7 +70,7 @@
   "dependencies": {
     "@fluentui/react-components": "~9.32.1",
 
-    "@fluentui/react-icons": "~2.0.221",
+    "@fluentui/react-icons": "^2.0.221",
     "@typespec/bundler": "workspace:~0.1.0-alpha.4",
     "@typespec/compiler": "workspace:~0.51.0",
     "@typespec/html-program-viewer": "workspace:~0.51.0",
@@ -88,7 +88,7 @@
     "swagger-ui-react": "~5.7.2",
     "vscode-languageserver-textdocument": "~1.0.8",
     "vscode-languageserver": "~9.0.0",
-    "clsx": "~2.0.0"
+    "clsx": "^2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.22.20",
