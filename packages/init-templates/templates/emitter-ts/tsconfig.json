@@ -7,6 +7,8 @@
     "lib": ["ES2022"],
     "rootDir": ".",
     "outDir": "dist",
+    "sourceMap": true,
+    "declaration": true,
 
     /* Linting */
     "strict": true

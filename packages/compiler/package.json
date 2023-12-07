@@ -73,6 +73,7 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
+    "@typespec/init-templates": "workspace:~0.51.0",
     "@babel/code-frame": "~7.22.13",
     "ajv": "~8.12.0",
     "picocolors": "~1.0.0",

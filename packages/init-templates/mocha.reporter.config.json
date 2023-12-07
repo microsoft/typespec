@@ -1,0 +1,4 @@
+{
+  "reporterEnabled": "spec, mocha-junit-reporter",
+  "maxDiffSize": 16384
+}

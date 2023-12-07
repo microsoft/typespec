@@ -157,6 +157,12 @@
       "versionPolicyName": "typespec"
     },
     {
+      "packageName": "@typespec/init-templates",
+      "projectFolder": "packages/init-templates",
+      "reviewCategory": "production",
+      "versionPolicyName": "typespec"
+    },
+    {
       "packageName": "@typespec/bundle-uploader",
       "projectFolder": "packages/bundle-uploader",
       "reviewCategory": "production",

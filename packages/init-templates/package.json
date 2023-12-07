@@ -1,0 +1,56 @@
+{
+  "name": "@typespec/init-templates",
+  "version": "0.51.0",
+  "author": "Microsoft Corporation",
+  "description": "Library containing templates",
+  "homepage": "https://microsoft.github.io/typespec",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build:template-index": "ts-node --esm ./.scripts/build.ts",
+    "build": "npm run build:template-index && tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "mocha",
+    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts"
+  },
+  "files": [
+    "templates/**/*",
+    "dist/src/**/*",
+    "scaffolding.json"
+  ],
+  "dependencies": {
+    "ts-node": "~10.9.1"
+  },
+  "devDependencies": {
+    "@typespec/eslint-config-typespec": "workspace:~0.51.0",
+    "@typespec/prettier-plugin-typespec": "workspace:~0.51.0",
+    "@types/mocha": "~10.0.1",
+    "@types/node": "~18.11.9",
+    "c8": "~8.0.1",
+    "eslint": "^8.49.0",
+    "mocha-junit-reporter": "~2.2.1",
+    "mocha-multi-reporters": "~1.5.1",
+    "mocha": "~10.2.0",
+    "source-map-support": "~0.5.21",
+    "rimraf": "~5.0.1",
+    "typescript": "~5.2.2"
+  }
+}

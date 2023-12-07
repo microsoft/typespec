@@ -1,10 +1,10 @@
+import { builtInTemplates } from "@typespec/init-templates";
 import { readdir } from "fs/promises";
 import Mustache from "mustache";
 import pc from "picocolors";
 import prompts from "prompts";
 import * as semver from "semver";
 import { stringify } from "yaml";
-import { builtInTemplates } from "../../templates/index.js";
 import { TypeSpecConfigFilename } from "../config/config-loader.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { createDiagnostic } from "../core/messages.js";
@@ -20,7 +20,6 @@ import {
   InitTemplateLibrarySpec,
   InitTemplateSchema,
 } from "./init-template.js";
-
 export interface ScaffoldingConfig extends InitTemplate {
   /**
    * Path where this template was loaded from.
