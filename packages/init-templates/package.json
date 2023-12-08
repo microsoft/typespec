@@ -23,7 +23,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build:template-index": "ts-node ./.scripts/build.ts",
+    "build:template-index": "node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./.scripts/build.ts",
     "build": "npm run build:template-index && tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
     "test": "mocha",
