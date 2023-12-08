@@ -9,12 +9,7 @@ const content: Record<string, any> = JSON.parse(
   await readFile(resolve(packageRoot, "scaffolding.json"), "utf-8")
 );
 
-export const builtInTemplates: Record<string, any> = Object.fromEntries(
-  Object.entries(content).map(([k, v]) => {
-    return [k, { ...v, files: v.files?.map(expandFile) ?? [] }];
-  })
-);
-
-function expandFile(file: any): any {
-  return { ...file, path: resolve(packageRoot, file.path) };
-}
+export const TypeSpecCoreTemplates = {
+  baseUri: packageRoot,
+  templates: content,
+};

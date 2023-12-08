@@ -1,25 +1,16 @@
-import { builtInTemplates } from "@typespec/init-templates";
+import { TypeSpecCoreTemplates } from "@typespec/init-templates";
 import { readdir } from "fs/promises";
 import pc from "picocolors";
 import prompts from "prompts";
 import * as semver from "semver";
 import { createDiagnostic } from "../core/messages.js";
-import { getBaseFileName } from "../core/path-utils.js";
+import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { readUrlOrPath } from "../core/util.js";
 import { MANIFEST } from "../manifest.js";
 import { InitTemplate, InitTemplateLibrarySpec, InitTemplateSchema } from "./init-template.js";
 import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";
-
-interface TemplatesUrl {
-  /** The original URL specified by the user. */
-  url: string;
-  /** The final URL after HTTP redirects. Populated when template is downloaded. */
-  finalUrl?: string;
-  /** The actual template file. Populated when template is downloaded. */
-  file?: SourceFile;
-}
 
 export interface InitTypeSpecProjectOptions {
   templatesUrl?: string;
@@ -36,21 +27,24 @@ export async function initTypeSpecProject(
   }
 
   const folderName = getBaseFileName(directory);
-  const url: TemplatesUrl | undefined = options.templatesUrl
-    ? { url: options.templatesUrl }
-    : undefined;
 
   // Download template configuration and prompt user to select a template
   // No validation is done until one has been selected
-  const templates = url === undefined ? builtInTemplates : await downloadTemplates(host, url);
-  const templateName = options.template ?? (await promptTemplateSelection(templates, url));
+  const result =
+    options.templatesUrl === undefined
+      ? (TypeSpecCoreTemplates as LoadedTemplate)
+      : await downloadTemplates(host, options.templatesUrl);
+  const templateName = options.template ?? (await promptTemplateSelection(result.templates));
 
   // Validate minimum compiler version for non built-in templates
-  if (url !== undefined && !(await validateTemplate(templates[templateName], url))) {
+  if (
+    result !== TypeSpecCoreTemplates &&
+    !(await validateTemplate(result.templates[templateName], result))
+  ) {
     return;
   }
 
-  const template = templates[templateName] as InitTemplate;
+  const template = result.templates[templateName] as InitTemplate;
   if (template.description) {
     // eslint-disable-next-line no-console
     console.log(template.description);
@@ -67,7 +61,7 @@ export async function initTypeSpecProject(
   const libraries = await selectLibraries(template);
   const parameters = await promptCustomParameters(template);
   const scaffoldingConfig = makeScaffoldingConfig(template, {
-    templateUri: url?.finalUrl ?? ".",
+    baseUri: result.baseUri,
     libraries,
     name,
     directory,
@@ -131,21 +125,21 @@ async function confirm(message: string): Promise<boolean> {
   return confirm;
 }
 
-async function downloadTemplates(
-  host: CompilerHost,
-  templatesUrl: TemplatesUrl
-): Promise<Record<string, unknown>> {
+export interface LoadedTemplate {
+  readonly baseUri: string;
+  readonly templates: Record<string, InitTemplate>;
+  readonly file: SourceFile;
+}
+async function downloadTemplates(host: CompilerHost, url: string): Promise<LoadedTemplate> {
   let file: SourceFile;
   try {
-    file = await readUrlOrPath(host, templatesUrl.url);
-    templatesUrl.finalUrl = file.path;
-    templatesUrl.file = file;
+    file = await readUrlOrPath(host, url);
   } catch (e: any) {
     throw new InitTemplateError([
       createDiagnostic({
         code: "init-template-download-failed",
         target: NoTarget,
-        format: { url: templatesUrl.url, message: e.message },
+        format: { url: url, message: e.message },
       }),
     ]);
   }
@@ -158,18 +152,15 @@ async function downloadTemplates(
       createDiagnostic({
         code: "init-template-invalid-json",
         target: NoTarget,
-        format: { url: templatesUrl.url, message: e.message },
+        format: { url: url, message: e.message },
       }),
     ]);
   }
 
-  return json as Record<string, unknown>;
+  return { templates: json as any, baseUri: getDirectoryPath(file.path), file };
 }
 
-async function promptTemplateSelection(
-  templates: Record<string, any>,
-  templatesUrl: TemplatesUrl | undefined
-): Promise<string> {
+async function promptTemplateSelection(templates: Record<string, any>): Promise<string> {
   const { templateName } = await prompts({
     type: "select",
     name: "templateName",
@@ -200,18 +191,17 @@ type ValidationResult = {
   diagnostics: readonly Diagnostic[];
 };
 
-async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Promise<boolean> {
+async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<boolean> {
   // After selection, validate the template definition
   const currentCompilerVersion = MANIFEST.version;
-  const validationTarget = templatesUrl.file as SourceFile;
   let validationResult: ValidationResult;
   // 1. If current version > compilerVersion, proceed with strict validation
   if (template.compilerVersion && semver.gte(currentCompilerVersion, template.compilerVersion)) {
-    validationResult = validateTemplateDefinitions(template, validationTarget, true);
+    validationResult = validateTemplateDefinitions(template, loaded.file, true);
 
     // 1.1 If strict validation fails, try relaxed validation
     if (!validationResult.valid) {
-      validationResult = validateTemplateDefinitions(template, validationTarget, false);
+      validationResult = validateTemplateDefinitions(template, loaded.file, false);
     }
   } else {
     // 2. if version mis-match or none specified, warn and prompt user to continue or not
@@ -224,7 +214,7 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
       )
     ) {
       // 2.1 If user choose to continue, proceed with relaxed validation
-      validationResult = validateTemplateDefinitions(template, validationTarget, false);
+      validationResult = validateTemplateDefinitions(template, loaded.file, false);
     } else {
       return false;
     }

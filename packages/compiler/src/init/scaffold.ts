@@ -20,7 +20,7 @@ export interface ScaffoldingConfig {
   /**
    * Path where this template was loaded from.
    */
-  templateUri: string;
+  baseUri: string;
 
   /**
    * Directory full path where the project should be initialized.
@@ -62,7 +62,7 @@ export function makeScaffoldingConfig(
   return {
     template,
     libraries: config.libraries ?? template.libraries?.map(normalizeLibrary) ?? [],
-    templateUri: config.templateUri ?? ".",
+    baseUri: config.baseUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",
     folderName: config.folderName ?? "",
@@ -181,7 +181,7 @@ async function writeFile(
   context: FileTemplatingContext,
   file: InitTemplateFile
 ) {
-  const baseDir = getDirectoryPath(config.templateUri) + "/";
+  const baseDir = config.baseUri + "/";
   const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
   const content = render(template.text, context);
   const destinationFilePath = joinPaths(config.directory, file.destination);
