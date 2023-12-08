@@ -41,7 +41,6 @@
   },
   "devDependencies": {
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
-    "@typespec/prettier-plugin-typespec": "workspace:~0.51.0",
     "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "c8": "~8.0.1",
