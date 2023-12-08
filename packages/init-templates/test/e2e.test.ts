@@ -9,7 +9,7 @@ import {
   makeScaffoldingConfig,
   scaffoldNewProject,
 } from "../../compiler/dist/src/init/scaffold.js";
-import { builtInTemplates } from "../src/index.js";
+import { TypeSpecCoreTemplates } from "../src/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const testTempRoot = resolve(__dirname, "../temp/scaffolded-template-tests");
@@ -65,12 +65,17 @@ describe("Init templates e2e tests", () => {
   });
 
   async function scaffoldTemplate(name: string): Promise<ScaffoldedTemplateFixture> {
-    const template = builtInTemplates[name];
+    const template = TypeSpecCoreTemplates.templates[name];
     ok(template, `Template '${name}' not found`);
     const targetFolder = resolve(testTempRoot, name);
     await scaffoldNewProject(
       NodeHost,
-      makeScaffoldingConfig(template, { name, folderName: name, directory: targetFolder })
+      makeScaffoldingConfig(template, {
+        name,
+        folderName: name,
+        directory: targetFolder,
+        baseUri: TypeSpecCoreTemplates.baseUri,
+      })
     );
 
     return {
