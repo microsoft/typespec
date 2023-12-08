@@ -1,77 +1,16 @@
 import { builtInTemplates } from "@typespec/init-templates";
 import { readdir } from "fs/promises";
-import Mustache from "mustache";
 import pc from "picocolors";
 import prompts from "prompts";
 import * as semver from "semver";
-import { stringify } from "yaml";
-import { TypeSpecConfigFilename } from "../config/config-loader.js";
-import { formatTypeSpec } from "../core/formatter.js";
 import { createDiagnostic } from "../core/messages.js";
-import { NodePackage } from "../core/module-resolver.js";
-import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import { getBaseFileName } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
-import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
+import { readUrlOrPath } from "../core/util.js";
 import { MANIFEST } from "../manifest.js";
-import {
-  InitTemplate,
-  InitTemplateFile,
-  InitTemplateLibrarySpec,
-  InitTemplateSchema,
-} from "./init-template.js";
-export interface ScaffoldingConfig extends InitTemplate {
-  /**
-   * Path where this template was loaded from.
-   */
-  templateUri: string;
-
-  /**
-   * Directory full path where the project should be initialized.
-   */
-  directory: string;
-
-  /**
-   * folder name where the project should be initialized.
-   */
-  folderName: string;
-
-  /**
-   * Name of the project.
-   */
-  name: string;
-
-  /**
-   * List of libraries to include
-   */
-  libraries: InitTemplateLibrarySpec[];
-
-  /**
-   * A flag to indicate not adding @typespec/compiler package to package.json.
-   * Other libraries may already brought in the dependency such as Azure template.
-   */
-  skipCompilerPackage: boolean;
-
-  /**
-   * Custom parameters provided in the tempalates.
-   */
-  parameters: Record<string, any>;
-
-  /**
-   * NormalizeVersion function replaces `-` with `_`.
-   */
-  normalizeVersion: () => (text: string, render: any) => string;
-
-  /**
-   * toLowerCase function for template replacement
-   */
-  toLowerCase: () => (text: string, render: any) => string;
-
-  /**
-   * Normalize package name for langauges other than C#. It replaces `.` with `-` and toLowerCase
-   */
-  normalizePackageName: () => (text: string, render: any) => string;
-}
+import { InitTemplate, InitTemplateLibrarySpec, InitTemplateSchema } from "./init-template.js";
+import { makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
 
 interface TemplatesUrl {
   /** The original URL specified by the user. */
@@ -80,44 +19,6 @@ interface TemplatesUrl {
   finalUrl?: string;
   /** The actual template file. Populated when template is downloaded. */
   file?: SourceFile;
-}
-
-const normalizeVersion = function () {
-  return function (text: string, render: any): string {
-    return render(text).replaceAll("-", "_");
-  };
-};
-
-const toLowerCase = function () {
-  return function (text: string, render: any): string {
-    return render(text).toLowerCase();
-  };
-};
-
-const normalizePackageName = function () {
-  return function (text: string, render: any): string {
-    return render(text).replaceAll(".", "-").toLowerCase();
-  };
-};
-
-export function makeScaffoldingConfig(config: Partial<ScaffoldingConfig>): ScaffoldingConfig {
-  return {
-    title: config.title ?? "",
-    description: config.description ?? "",
-    compilerVersion: config.compilerVersion ?? "",
-    templateUri: config.templateUri ?? ".",
-    libraries: config.libraries ?? [],
-    name: config.name ?? "",
-    directory: config.directory ?? "",
-    skipCompilerPackage: config.skipCompilerPackage ?? false,
-    folderName: config.folderName ?? "",
-    parameters: config.parameters ?? {},
-    config: config.config,
-    files: config.files,
-    normalizeVersion: config.normalizeVersion ?? normalizeVersion,
-    toLowerCase: config.toLowerCase ?? toLowerCase,
-    normalizePackageName: config.normalizePackageName ?? normalizePackageName,
-  };
 }
 
 export interface InitTypeSpecProjectOptions {
@@ -165,18 +66,13 @@ export async function initTypeSpecProject(
 
   const libraries = await selectLibraries(template);
   const parameters = await promptCustomParameters(template);
-  const scaffoldingConfig = makeScaffoldingConfig({
-    ...template,
+  const scaffoldingConfig = makeScaffoldingConfig(template, {
     templateUri: url?.finalUrl ?? ".",
     libraries,
     name,
     directory,
-    skipCompilerPackage: template.skipCompilerPackage ?? false,
     folderName,
     parameters,
-    normalizeVersion,
-    toLowerCase,
-    normalizePackageName,
   });
 
   await scaffoldNewProject(host, scaffoldingConfig);
@@ -349,13 +245,8 @@ function getLibrarySpec(library: string | InitTemplateLibrarySpec): InitTemplate
   return typeof library === "string" ? { name: library } : library;
 }
 
-async function getLibraryVersion(library: InitTemplateLibrarySpec): Promise<string> {
-  // TODO: Resolve 'latest' version from npm, issue #1919
-  return library.version ?? "latest";
-}
-
 async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibrarySpec[]> {
-  if (template.libraries.length === 0) {
+  if (template.libraries === undefined || template.libraries.length === 0) {
     return [];
   }
 
@@ -382,104 +273,6 @@ async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibr
   return libraries;
 }
 
-export async function scaffoldNewProject(host: CompilerHost, config: ScaffoldingConfig) {
-  await writePackageJson(host, config);
-  await writeConfig(host, config);
-  await writeMain(host, config);
-  await writeFiles(host, config);
-}
-
-async function writePackageJson(host: CompilerHost, config: ScaffoldingConfig) {
-  if (isFileSkipGeneration("package.json", config.files ?? [])) {
-    return;
-  }
-  const dependencies: Record<string, string> = {};
-
-  if (!config.skipCompilerPackage) {
-    dependencies["@typespec/compiler"] = "latest";
-  }
-
-  for (const library of config.libraries) {
-    dependencies[library.name] = await getLibraryVersion(library);
-  }
-
-  const packageJson: NodePackage = {
-    name: config.name,
-    version: "0.1.0",
-    type: "module",
-    dependencies,
-    private: true,
-  };
-
-  return host.writeFile(
-    joinPaths(config.directory, "package.json"),
-    JSON.stringify(packageJson, null, 2)
-  );
-}
-
-const placeholderConfig = `
-# extends: ../tspconfig.yaml                    # Extend another config file
-# emit:                                         # Emitter name
-#   - "<emitter-name"
-# options:                                      # Emitter options
-#   <emitter-name>:
-#    "<option-name>": "<option-value>"
-# environment-variables:                        # Environment variables which can be used to interpolate emitter options
-#   <variable-name>:
-#     default: "<variable-default>"
-# parameters:                                   # Parameters which can be used to interpolate emitter options
-#   <param-name>:
-#     default: "<param-default>"
-# trace:                                        # Trace areas to enable tracing
-#  - "<trace-name>"
-# warn-as-error: true                           # Treat warnings as errors
-# output-dir: "{project-root}/_generated"       # Configure the base output directory for all emitters
-`.trim();
-async function writeConfig(host: CompilerHost, config: ScaffoldingConfig) {
-  if (isFileSkipGeneration(TypeSpecConfigFilename, config.files ?? [])) {
-    return;
-  }
-  const content = config.config ? stringify(config.config) : placeholderConfig;
-  return host.writeFile(joinPaths(config.directory, TypeSpecConfigFilename), content);
-}
-
-async function writeMain(host: CompilerHost, config: ScaffoldingConfig) {
-  if (isFileSkipGeneration("main.tsp", config.files ?? [])) {
-    return;
-  }
-  const dependencies: Record<string, string> = {};
-
-  for (const library of config.libraries) {
-    dependencies[library.name] = await getLibraryVersion(library);
-  }
-
-  const lines = [...config.libraries.map((x) => `import "${x.name}";`), ""];
-  const content = lines.join("\n");
-
-  return host.writeFile(joinPaths(config.directory, "main.tsp"), await formatTypeSpec(content));
-}
-
-async function writeFiles(host: CompilerHost, config: ScaffoldingConfig) {
-  if (!config.files) {
-    return;
-  }
-  for (const file of config.files) {
-    if (file.skipGeneration !== true) {
-      await writeFile(host, config, file);
-    }
-  }
-}
-
-async function writeFile(host: CompilerHost, config: ScaffoldingConfig, file: InitTemplateFile) {
-  const baseDir = getDirectoryPath(config.templateUri) + "/";
-  const template = await readUrlOrPath(host, resolveRelativeUrlOrPath(baseDir, file.path));
-  const content = Mustache.render(template.text, config);
-  const destinationFilePath = joinPaths(config.directory, file.destination);
-  // create folders in case they don't exist
-  await host.mkdirp(getDirectoryPath(destinationFilePath) + "/");
-  return host.writeFile(joinPaths(config.directory, file.destination), content);
-}
-
 /**
  * Error thrown when init template acquisition fails or template is invalid.
  *
@@ -501,15 +294,6 @@ function validateTemplateDefinitions(
   });
   const diagnostics = validator.validate(template, templateName);
   return { valid: diagnostics.length === 0, diagnostics };
-}
-
-function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
-  for (const file of files) {
-    if (file.path === fileName) {
-      return file.skipGeneration ?? false;
-    }
-  }
-  return false;
 }
 
 function logDiagnostics(diagnostics: readonly Diagnostic[]): void {

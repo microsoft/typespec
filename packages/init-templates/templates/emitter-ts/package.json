@@ -18,7 +18,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "test": "node --test ./dist/test/",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings=0",
+    "lint": "eslint src/ test/ --report-unused-disable-directives --max-warnings=0",
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
     "format": "prettier .  --write",
     "format:check": "prettier --check ."

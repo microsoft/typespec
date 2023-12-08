@@ -1,7 +1,7 @@
-timeout: 5000
-require: source-map-support/register
-spec: "dist/test/**/*.{test,e2e}.js"
-ignore: "dist/test/manual/**/*.js"
+timeout: 60_000
+require: source-map-support/register.js
+spec: "test/**/*.{test,e2e}.ts"
 
 # Config for https://www.npmjs.com/package/mocha-multi-reporters
 reporterOptions: "configFile=mocha.reporter.config.json"
+node-option: loader=ts-node/esm

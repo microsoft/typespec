@@ -26,12 +26,12 @@ export interface InitTemplate {
   description: string;
 
   /** Minimum Compiler Support Version */
-  compilerVersion: string;
+  compilerVersion?: string;
 
   /**
    * List of libraries to include
    */
-  libraries: InitTemplateLibrary[];
+  libraries?: InitTemplateLibrary[];
 
   /**
    * Config
@@ -91,12 +91,13 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   properties: {
     title: { type: "string" },
     description: { type: "string" },
-    compilerVersion: { type: "string" },
+    compilerVersion: { type: "string", nullable: true },
     libraries: {
       type: "array",
       items: {
         oneOf: [{ type: "string" }, InitTemplateLibrarySpecSchema],
       },
+      nullable: true,
     },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },
@@ -128,5 +129,5 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
       },
     },
   },
-  required: ["title", "description", "compilerVersion"],
+  required: ["title", "description"],
 };

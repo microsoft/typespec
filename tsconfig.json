@@ -8,6 +8,7 @@
     { "path": "packages/eslint-plugin-typespec/tsconfig.json" },
     { "path": "packages/openapi/tsconfig.json" },
     { "path": "packages/openapi3/tsconfig.json" },
+    { "path": "packages/init-templates/tsconfig.build.json" },
     { "path": "packages/lint/tsconfig.json" },
     { "path": "packages/migrate/tsconfig.json" },
     { "path": "packages/typespec-vscode/tsconfig.json" },

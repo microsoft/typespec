@@ -17,15 +17,15 @@
     "typespec"
   ],
   "type": "module",
-  "main": "./dist/src/index.js",
+  "main": "./dist/index.js",
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build:template-index": "ts-node --esm ./.scripts/build.ts",
-    "build": "npm run build:template-index && tsc -p .",
-    "watch": "tsc -p . --watch",
+    "build": "npm run build:template-index && tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json --watch",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
     "lint": "eslint . --ext .ts --max-warnings=0",

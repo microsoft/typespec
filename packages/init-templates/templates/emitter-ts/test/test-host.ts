@@ -8,7 +8,6 @@ import { TestLibrary } from "../src/testing/index.js";
 
 export async function createMyTestHost() {
   return createTestHost({
-    noEmit: false,
     libraries: [TestLibrary],
   });
 }
@@ -18,6 +17,7 @@ export async function createMyTestRunner() {
 
   return createTestWrapper(host, {
     compilerOptions: {
+      noEmit: false,
       emit: ["{{name}}"],
     },
   });
