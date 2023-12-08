@@ -1,6 +1,5 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { resolve } from "path/posix";
-import type { InitTemplate } from "../../compiler/dist/src/init/init-template.js";
 import { localDir, packageRoot } from "./helpers.js";
 
 const pkgJson = JSON.parse(
@@ -8,7 +7,7 @@ const pkgJson = JSON.parse(
 );
 const minCompilerVersion = pkgJson.version;
 
-const builtInTemplates: Record<string, InitTemplate> = {
+const builtInTemplates: Record<string, any> = {
   empty: {
     title: "Empty project",
     description: "Create an empty project.",

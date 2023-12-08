@@ -2,7 +2,6 @@ import { readdir } from "fs/promises";
 import { dirname } from "path";
 import { join, resolve } from "path/posix";
 import { fileURLToPath } from "url";
-import type { InitTemplateFile } from "../../compiler/dist/src/init/init-template.js";
 
 export const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const templateDir = resolve("templates");
@@ -35,11 +34,11 @@ async function readFilesInDirRecursively(dir: string): Promise<string[]> {
   return files;
 }
 
-export function localFile(templateName: string, path: string): InitTemplateFile {
+export function localFile(templateName: string, path: string): any {
   return { path: join("templates", templateName, path), destination: path };
 }
 
-export async function localDir(templateName: string): Promise<InitTemplateFile[]> {
+export async function localDir(templateName: string): Promise<any[]> {
   const files = await readFilesInDirRecursively(resolve(templateDir, templateName));
   return files.map((f) => localFile(templateName, f));
 }
