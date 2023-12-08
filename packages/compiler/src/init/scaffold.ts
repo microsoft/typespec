@@ -6,7 +6,12 @@ import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { CompilerHost } from "../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
 import { FileTemplatingContext, createFileTemplatingContext, render } from "./file-templating.js";
-import { InitTemplate, InitTemplateFile, InitTemplateLibrarySpec } from "./init-template.js";
+import {
+  InitTemplate,
+  InitTemplateFile,
+  InitTemplateLibrary,
+  InitTemplateLibrarySpec,
+} from "./init-template.js";
 
 export interface ScaffoldingConfig {
   /** Template used to resolve that config */
@@ -43,13 +48,20 @@ export interface ScaffoldingConfig {
   parameters: Record<string, any>;
 }
 
+export function normalizeLibrary(library: InitTemplateLibrary): InitTemplateLibrarySpec {
+  if (typeof library === "string") {
+    return { name: library };
+  }
+  return library;
+}
+
 export function makeScaffoldingConfig(
   template: InitTemplate,
   config: Partial<ScaffoldingConfig>
 ): ScaffoldingConfig {
   return {
     template,
-    libraries: config.libraries ?? [],
+    libraries: config.libraries ?? template.libraries?.map(normalizeLibrary) ?? [],
     templateUri: config.templateUri ?? ".",
     name: config.name ?? "",
     directory: config.directory ?? "",

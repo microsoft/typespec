@@ -10,7 +10,7 @@ import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js
 import { readUrlOrPath } from "../core/util.js";
 import { MANIFEST } from "../manifest.js";
 import { InitTemplate, InitTemplateLibrarySpec, InitTemplateSchema } from "./init-template.js";
-import { makeScaffoldingConfig, scaffoldNewProject } from "./scaffold.js";
+import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";
 
 interface TemplatesUrl {
   /** The original URL specified by the user. */
@@ -241,17 +241,13 @@ async function validateTemplate(template: any, templatesUrl: TemplatesUrl): Prom
   return true;
 }
 
-function getLibrarySpec(library: string | InitTemplateLibrarySpec): InitTemplateLibrarySpec {
-  return typeof library === "string" ? { name: library } : library;
-}
-
 async function selectLibraries(template: InitTemplate): Promise<InitTemplateLibrarySpec[]> {
   if (template.libraries === undefined || template.libraries.length === 0) {
     return [];
   }
 
   const libraryChoices = template.libraries.map((x) => ({
-    ...getLibrarySpec(x),
+    ...normalizeLibrary(x),
     description: "",
   }));
 
