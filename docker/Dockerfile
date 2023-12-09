@@ -13,14 +13,14 @@ RUN rush install
 RUN rush rebuild --to @typespec/compiler
 
 WORKDIR /app/packages/compiler
-RUN npm pack
+RUN rush publish --publish --pack --include-all
 
 # --------------------------------
 #  Setup final image
 # --------------------------------
 FROM mcr.microsoft.com/mirror/docker/library/node:18-alpine
 
-COPY --from=builder /app/packages/compiler/*.tgz /tmp/compiler.tgz
+COPY --from=builder /app/common/temp/artifacts/packages/typespec-compiler-*.tgz /tmp/compiler.tgz
 
 RUN npm install -g /tmp/compiler.tgz && rm /tmp/compiler.tgz
 

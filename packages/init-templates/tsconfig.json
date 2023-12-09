@@ -3,6 +3,6 @@
   "compilerOptions": {
     "types": ["node", "mocha"]
   },
-  "ts-node": {"esm": true},
+  "ts-node": { "esm": true },
   "include": [".scripts/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
 }
