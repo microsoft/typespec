@@ -13,4 +13,5 @@ export const TypeSpecPlaygroundConfig = {
     "@typespec/protobuf",
   ],
   samples,
+  defaultSample: "Hello World" satisfies keyof typeof samples,
 } as const;

@@ -29,6 +29,9 @@ export interface ReactPlaygroundConfig extends Partial<PlaygroundProps> {
   readonly importConfig?: LibraryImportOptions;
   /** Content to show while the playground data is loading(Libraries) */
   readonly fallback?: ReactNode;
+
+  /** If no sample or other code is said to be loaded in the playground state load this sample instead. */
+  readonly defaultSample?: string;
 }
 
 interface StandalonePlaygroundContext {
@@ -85,7 +88,10 @@ export const StandalonePlayground: FunctionComponent<ReactPlaygroundConfig> = (c
         defaultContent: context.initialState.content,
         defaultEmitter: context.initialState.emitter ?? config.defaultEmitter,
         defaultCompilerOptions: context.initialState.options,
-        defaultSampleName: context.initialState.sampleName,
+        defaultSampleName:
+          context.initialState.sampleName ?? context.initialState.content === undefined
+            ? config.defaultSample
+            : undefined,
       },
     [context]
   );
