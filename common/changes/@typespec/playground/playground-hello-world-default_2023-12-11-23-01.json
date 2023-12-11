@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Add a new `defaultSample` option to the standalone playground that will load this sample automatically if no sample or content was specified in the playground state",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
