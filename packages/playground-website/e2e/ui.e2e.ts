@@ -23,7 +23,7 @@ test.describe("playground UI tests", () => {
   });
 
   test("save code with ctrl/cmd+S", async ({ page }) => {
-    await page.goto(host);
+    await page.goto(`${host}/?c=`);
     const typespecEditorContainer = page.locator("_react=TypeSpecEditor");
     await typespecEditorContainer.click();
     await typespecEditorContainer.pressSequentially("op sharedCode(): string;");
