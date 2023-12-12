@@ -17,6 +17,7 @@ type Expression:
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
+  | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode;

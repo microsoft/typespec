@@ -2,6 +2,18 @@
   "name": "@typespec/rest",
   "entries": [
     {
+      "version": "0.51.0",
+      "tag": "@typespec/rest_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix issue with `ResourceCreateModel` template collecting \"update\" properties instead of \"create\" properties."
+          }
+        ]
+      }
+    },
+    {
       "version": "0.50.0",
       "tag": "@typespec/rest_v0.50.0",
       "date": "Wed, 08 Nov 2023 00:07:17 GMT",
