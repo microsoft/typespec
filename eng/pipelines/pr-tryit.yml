@@ -20,33 +20,33 @@ jobs:
 
       - template: ./templates/install.yml
 
-      - template: ./templates/build.yml
+      # - template: ./templates/build.yml
 
-      - task: AzureCLI@1
-        displayName: "Publish playground to PR endpoint"
-        inputs:
-          azureSubscription: "Azure SDK Engineering System"
-          scriptLocation: inlineScript
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination \$web \
-              --account-name "cadlplayground" \
-              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-              --source "./packages/playground-website/dist/" \
-              --overwrite
+      # - task: AzureCLI@1
+      #   displayName: "Publish playground to PR endpoint"
+      #   inputs:
+      #     azureSubscription: "Azure SDK Engineering System"
+      #     scriptLocation: inlineScript
+      #     inlineScript: |
+      #       az storage blob upload-batch \
+      #         --destination \$web \
+      #         --account-name "cadlplayground" \
+      #         --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
+      #         --source "./packages/playground-website/dist/" \
+      #         --overwrite
 
-      - task: AzureCLI@1
-        displayName: "Publish website to PR endpoint"
-        inputs:
-          azureSubscription: "Azure SDK Engineering System"
-          scriptLocation: inlineScript
-          inlineScript: |
-            az storage blob upload-batch \
-              --destination \$web \
-              --account-name "tspwebsitepr" \
-              --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
-              --source "./packages/website/build/" \
-              --overwrite
+      # - task: AzureCLI@1
+      #   displayName: "Publish website to PR endpoint"
+      #   inputs:
+      #     azureSubscription: "Azure SDK Engineering System"
+      #     scriptLocation: inlineScript
+      #     inlineScript: |
+      #       az storage blob upload-batch \
+      #         --destination \$web \
+      #         --account-name "tspwebsitepr" \
+      #         --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
+      #         --source "./packages/website/build/" \
+      #         --overwrite
 
       - script: node eng/scripts/create-tryit-comment.js "cadl-azure"
         displayName: Check already commented
