@@ -26,7 +26,10 @@ async function main() {
   const folderName = process.argv.length > 2 ? `/${process.argv[2]}` : "";
   const repo = process.env["BUILD_REPOSITORY_ID"];
   const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
-  const ghAuth = getGithubAuthHeader(repo);
+  const ghAuth = process.env.GH_TOKEN;
+  if (ghAuth === undefined) {
+    throw new Error("GH_TOKEN environment variable is not set");
+  }
 
   console.log("Looking for comments in", { repo, prNumber });
   const data = await listComments(repo, prNumber, ghAuth);
