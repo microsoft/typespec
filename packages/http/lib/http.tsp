@@ -24,13 +24,13 @@ model Response<Status> {
  * This can be useful in situations where you cannot use a bare type as the body
  * and it is awkward to add a property.
  *
- * @template TBody The type of the model's `body` property.
+ * @template Type The type of the model's `body` property.
  */
 @doc("")
-model Body<TBody> {
+model Body<Type> {
   @body
   @doc("The body type of the operation request or response.")
-  body: TBody;
+  body: Type;
 }
 
 /**

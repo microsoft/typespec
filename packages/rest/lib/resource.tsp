@@ -228,16 +228,16 @@ interface ResourceDelete<Resource extends {}, Error> {
  * This only provides the model structure and not actual pagination support. See
  * https://github.com/microsoft/typespec/issues/705 for general paging support.
  *
- * @template Item The resource type of the collection.
+ * @template Resource The resource type of the collection.
  */
-@doc("Paged response of {name} items", Item)
-@friendlyName("{name}CollectionWithNextLink", Item)
-model CollectionWithNextLink<Item extends {}> {
+@doc("Paged response of {name} items", Resource)
+@friendlyName("{name}CollectionWithNextLink", Resource)
+model CollectionWithNextLink<Resource extends {}> {
   @doc("The items on this page")
-  value: Item[];
+  value: Resource[];
 
   @doc("The link to the next page of items")
-  nextLink?: ResourceLocation<Item>;
+  nextLink?: ResourceLocation<Resource>;
 }
 
 /**
