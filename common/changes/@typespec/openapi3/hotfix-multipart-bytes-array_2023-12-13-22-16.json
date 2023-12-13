@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix: Multipart part of type `bytes[]` is treated as multiple binary part",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
