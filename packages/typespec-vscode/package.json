@@ -24,7 +24,7 @@
   "type": "commonjs",
   "main": "./extension-shim.js",
   "engines": {
-    "vscode": "^1.82.0"
+    "vscode": "^1.85.0"
   },
   "activationEvents": [
     "onLanguage:typespec",
