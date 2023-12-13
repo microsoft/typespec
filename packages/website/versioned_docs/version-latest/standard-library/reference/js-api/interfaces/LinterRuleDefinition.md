@@ -18,10 +18,11 @@ title: "[I] LinterRuleDefinition"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `description` | `string` | - |
-| `messages` | `DM` | - |
-| `name` | `N` | - |
-| `severity` | `"warning"` | - |
+| `description` | `string` | Short description of the rule |
+| `messages` | `DM` | Messages that can be reported with the diagnostic. |
+| `name` | `N` | Rule name (without the library name) |
+| `severity` | `"warning"` | Rule default severity. |
+| `url`? | `string` | Specifies the URL at which the full documentation can be accessed. |
 
 ## Methods
 
@@ -30,6 +31,8 @@ title: "[I] LinterRuleDefinition"
 ```ts
 create(context): SemanticNodeListener
 ```
+
+Creator
 
 #### Parameters
 

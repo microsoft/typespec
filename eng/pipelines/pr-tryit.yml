@@ -47,3 +47,8 @@ jobs:
               --destination-path $(TYPESPEC_WEBSITE_BASE_PATH) \
               --source "./packages/website/build/" \
               --overwrite
+
+      - script: node eng/scripts/create-tryit-comment.js "cadl-azure"
+        displayName: Check already commented
+        env:
+          GH_TOKEN: $(azuresdk-github-pat)

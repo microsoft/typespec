@@ -783,7 +783,7 @@ In TypeSpec this information is specified with [decorators on the namespace][typ
 | `license`            | `@info`                |                             |
 | `contact`            | `@info`                |                             |
 
-[typespec-service-metadata]: https://microsoft.github.io/typespec/docs/standard-library/http/#service-definition-and-metadata
+[typespec-service-metadata]: https://microsoft.github.io/typespec/docs/libraries/http/#service-definition-and-metadata
 
 ```typespec
 @doc("The Contoso Widget Service provides access to the Contoso Widget API.")

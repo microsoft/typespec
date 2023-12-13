@@ -94,6 +94,7 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
   const resolvedOptions: CompilerOptions = omitUndefined({
     outputDir: expandedConfig.outputDir,
     config: config.filename,
+    configFile: config,
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,

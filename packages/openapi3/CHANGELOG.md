@@ -1,6 +1,17 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Wed, 08 Nov 2023 00:07:17 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Dec 2023 19:40:58 GMT and should not be manually modified.
+
+## 0.51.0
+Wed, 06 Dec 2023 19:40:58 GMT
+
+### Updates
+
+- Handle `bytes` as a multipart part type correctly and produce `type: string, format: binary`
+- Added support for string template literals
+- Handle: union variants as discriminator
+- Migrate code to use the emitter framework
+- Emitter will now emit all properties on unreferenced schemas.
 
 ## 0.50.0
 Wed, 08 Nov 2023 00:07:17 GMT

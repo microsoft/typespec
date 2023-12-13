@@ -29,6 +29,27 @@ Determine if the scanner has reached the end of the input.
 
 ***
 
+### findTripleQuotedStringIndent()
+
+```ts
+findTripleQuotedStringIndent(start, end): [number, number]
+```
+
+Finds the indent for the given triple quoted string.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `start` | `number` |  |
+| `end` | `number` |  |
+
+#### Returns
+
+[`number`, `number`]
+
+***
+
 ### getTokenText()
 
 ```ts
@@ -58,6 +79,26 @@ getTokenText().
 #### Returns
 
 `string`
+
+***
+
+### reScanStringTemplate()
+
+```ts
+reScanStringTemplate(tokenFlags): StringTemplateToken
+```
+
+Unconditionally back up and scan a template expression portion.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `tokenFlags` | [`TokenFlags`](../enumerations/TokenFlags.md) | Token Flags for head StringTemplateToken |
+
+#### Returns
+
+[`StringTemplateToken`](../type-aliases/StringTemplateToken.md)
 
 ***
 
@@ -113,3 +154,34 @@ Reset the scanner to the given start and end positions, invoke the callback, and
 #### Returns
 
 `T`
+
+***
+
+### unindentAndUnescapeTripleQuotedString()
+
+```ts
+unindentAndUnescapeTripleQuotedString(
+   start, 
+   end, 
+   indentationStart, 
+   indentationEnd, 
+   token, 
+   tokenFlags): string
+```
+
+Unindent and unescape the triple quoted string rawText
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `start` | `number` |
+| `end` | `number` |
+| `indentationStart` | `number` |
+| `indentationEnd` | `number` |
+| `token` | `StringLiteral` \| [`StringTemplateToken`](../type-aliases/StringTemplateToken.md) |
+| `tokenFlags` | [`TokenFlags`](../enumerations/TokenFlags.md) |
+
+#### Returns
+
+`string`
