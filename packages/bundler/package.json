@@ -1,6 +1,6 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a typespec library.",
   "homepage": "https://microsoft.github.io/typespec",
@@ -44,29 +44,29 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.50.0",
+    "@typespec/compiler": "workspace:~0.51.0",
     "@rollup/plugin-virtual": "~3.0.1",
     "@rollup/plugin-commonjs": "~25.0.4",
-    "@rollup/plugin-json": "~6.0.0",
+    "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-node-resolve": "~15.2.1",
     "@rollup/plugin-multi-entry": "~6.0.0",
-    "rollup": "~3.29.2",
+    "rollup": "~4.9.0",
     "@rollup/plugin-alias": "~5.0.0",
     "yargs": "~17.7.2",
     "picocolors": "~1.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "~10.0.1",
+    "@types/mocha": "~10.0.6",
     "@types/node": "~18.11.9",
-    "@typespec/eslint-config-typespec": "workspace:~0.50.0",
-    "eslint": "^8.49.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.51.0",
+    "eslint": "^8.55.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",
     "c8": "~8.0.1",
     "rimraf": "~5.0.1",
-    "typescript": "~5.2.2",
-    "vite": "^4.4.9",
-    "@types/yargs": "~17.0.24"
+    "typescript": "~5.3.3",
+    "vite": "^5.0.8",
+    "@types/yargs": "~17.0.32"
   }
 }

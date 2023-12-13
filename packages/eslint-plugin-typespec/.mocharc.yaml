@@ -1,5 +1,8 @@
 timeout: 5000
-require: source-map-support/register
+require:
+  - source-map-support/register
+  - ./dist/test/global-setup.js
+
 spec: "dist/test/**/*.test.js"
 ignore: "dist/test/manual/**/*.js"
 
