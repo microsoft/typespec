@@ -49,7 +49,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "yaml": "~2.3.2"
+    "yaml": "~2.3.4"
   },
   "peerDependencies": {
     "@typespec/versioning": "workspace:~0.51.0",

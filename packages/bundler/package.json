@@ -67,6 +67,6 @@
     "rimraf": "~5.0.1",
     "typescript": "~5.3.3",
     "vite": "^4.4.9",
-    "@types/yargs": "~17.0.24"
+    "@types/yargs": "~17.0.32"
   }
 }
