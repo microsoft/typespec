@@ -1305,8 +1305,8 @@ importers:
         specifier: workspace:~0.51.0
         version: link:../internal-build-utils
       ecmarkup:
-        specifier: ~12.0.3
-        version: 12.0.3
+        specifier: ~18.1.0
+        version: 18.1.0
 
   ../../packages/tmlanguage-generator:
     dependencies:
@@ -10257,14 +10257,14 @@ packages:
       safe-buffer: 5.2.1
     dev: false
 
-  /ecmarkdown@7.2.0:
-    resolution: {integrity: sha512-p0C4SJCvnvtm0y9gPhXBb5DlNbHsNS44ihVKBw3MXviZG2QQpZNH4z/3PbkpgECOjKOeZI+m84ISHVV9WLECFQ==}
+  /ecmarkdown@8.1.0:
+    resolution: {integrity: sha512-dx6cM6RFjzAXkWr2KQRikED4gy70NFQ0vTI4XUQM/LWcjUYRJUbGdd7nd++trXi5az1JSe49TeeCIVMKDXOtcQ==}
     dependencies:
       escape-html: 1.0.3
     dev: true
 
-  /ecmarkup@12.0.3:
-    resolution: {integrity: sha512-iWn/8Az5izJqZzlNari7MONi+4bpUw7iuoktVf9mtxkxxg+da/vYdwk7G0pORM1moceJtVcdu7KEZnMEdgAj5A==}
+  /ecmarkup@18.1.0:
+    resolution: {integrity: sha512-0ngQ2YYizUkswKZcCn8g8BlCoaEAN8R2DOZfupk0k2lnIWzUZJNxjld4lt97YTJxcZxVTMERmukZ8svBSz9UcQ==}
     engines: {node: '>= 12 || ^11.10.1 || ^10.13 || ^8.10'}
     hasBin: true
     dependencies:
@@ -10272,7 +10272,7 @@ packages:
       command-line-args: 5.2.1
       command-line-usage: 6.1.3
       dedent-js: 1.0.1
-      ecmarkdown: 7.2.0
+      ecmarkdown: 8.1.0
       eslint-formatter-codeframe: 7.32.1
       fast-glob: 3.3.2
       grammarkdown: 3.3.2
@@ -10280,6 +10280,7 @@ packages:
       html-escape: 1.0.2
       js-yaml: 3.14.1
       jsdom: 19.0.0
+      nwsapi: 2.2.0
       parse5: 6.0.1
       prex: 0.4.9
       promise-debounce: 1.0.1
@@ -12322,7 +12323,7 @@ packages:
       http-proxy-agent: 5.0.0
       https-proxy-agent: 5.0.1
       is-potential-custom-element-name: 1.0.1
-      nwsapi: 2.2.7
+      nwsapi: 2.2.0
       parse5: 6.0.1
       saxes: 5.0.1
       symbol-tree: 3.2.4
@@ -14002,8 +14003,8 @@ packages:
     dependencies:
       boolbase: 1.0.0
 
-  /nwsapi@2.2.7:
-    resolution: {integrity: sha512-ub5E4+FBPKwAZx0UwIQOjYWGHTEq5sPqHQNRN8Z9e4A7u3Tj1weLJsL59yH9vmvqEtBHaOmT6cYQKIZOxp35FQ==}
+  /nwsapi@2.2.0:
+    resolution: {integrity: sha512-h2AatdwYH+JHiZpv7pt/gSX1XoRGb7L/qSIeuqA6GwYoF9w1vP1cw42TO0aI2pNyshRK5893hNSl+1//vHK7hQ==}
     dev: true
 
   /object-assign@4.1.1:
