@@ -102,4 +102,21 @@ describe("typespec-autorest: multipart", () => {
       }
     );
   });
+
+  it("enum used in both a json payload and multipart part shouldn't create 2 models", async () => {
+    const res = await openApiFor(
+      `
+      enum FilePurpose {
+        one,
+        two,
+      }
+      
+      interface Files {
+        @get listFiles(purpose: FilePurpose): string;
+        @post uploadFile(@header contentType: "multipart/form-data", purpose: FilePurpose): string;
+      }
+      `
+    );
+    deepStrictEqual(res.components.schemas.FilePurpose, { type: "string", enum: ["one", "two"] });
+  });
 });

@@ -125,7 +125,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const contentType = this.#getContentType();
 
     if (contentType === "application/json") {
-      delete patch.contentType;
+      patch.contentType = undefined;
     }
 
     return patch;

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix: OpenAPI3 creating conflicting type declaration when type was used in multipart implicit body and json body",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
