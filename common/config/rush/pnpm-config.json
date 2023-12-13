@@ -89,7 +89,7 @@
    * PNPM documentation: https://pnpm.io/package_json#pnpmoverrides
    */
   "globalOverrides": {
-    "node-fetch@3.2.8": "^3.3.2",
+    "node-fetch@3.2.8": "^3.3.2"
     // "example1": "^1.0.0",
     // "example2": "npm:@company/example2@^1.0.0"
   },

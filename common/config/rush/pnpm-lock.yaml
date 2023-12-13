@@ -1424,8 +1424,8 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@types/vscode':
-        specifier: ~1.82.0
-        version: 1.82.0
+        specifier: ~1.85.0
+        version: 1.85.0
       '@typespec/compiler':
         specifier: workspace:~0.51.0
         version: link:../compiler
@@ -1436,8 +1436,8 @@ importers:
         specifier: workspace:~0.51.0
         version: link:../internal-build-utils
       '@vscode/vsce':
-        specifier: ~2.21.0
-        version: 2.21.1
+        specifier: ~2.22.0
+        version: 2.22.0
       c8:
         specifier: ~8.0.1
         version: 8.0.1
@@ -7756,8 +7756,8 @@ packages:
     resolution: {integrity: sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==}
     dev: false
 
-  /@types/vscode@1.82.0:
-    resolution: {integrity: sha512-VSHV+VnpF8DEm8LNrn8OJ8VuUNcBzN3tMvKrNpbhhfuVjFm82+6v44AbDhLvVFgCzn6vs94EJNTp7w8S6+Q1Rw==}
+  /@types/vscode@1.85.0:
+    resolution: {integrity: sha512-CF/RBon/GXwdfmnjZj0WTUMZN5H6YITOfBCP4iEZlOtVQXuzw6t7Le7+cR+7JzdMrnlm7Mfp49Oj2TuSXIWo3g==}
     dev: true
 
   /@types/ws@8.5.10:
@@ -7981,8 +7981,8 @@ packages:
       - supports-color
     dev: true
 
-  /@vscode/vsce@2.21.1:
-    resolution: {integrity: sha512-f45/aT+HTubfCU2oC7IaWnH9NjOWp668ML002QiFObFRVUCoLtcwepp9mmql/ArFUy+HCHp54Xrq4koTcOD6TA==}
+  /@vscode/vsce@2.22.0:
+    resolution: {integrity: sha512-8df4uJiM3C6GZ2Sx/KilSKVxsetrTBBIUb3c0W4B1EWHcddioVs5mkyDKtMNP0khP/xBILVSzlXxhV+nm2rC9A==}
     engines: {node: '>= 14'}
     hasBin: true
     dependencies:

@@ -122,7 +122,7 @@
     "@rollup/plugin-node-resolve": "~15.2.1",
     "@types/mocha": "~10.0.6",
     "@types/node": "~18.11.9",
-    "@types/vscode": "~1.82.0",
+    "@types/vscode": "~1.85.0",
     "@typespec/compiler": "workspace:~0.51.0",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
     "@typespec/internal-build-utils": "workspace:~0.51.0",
@@ -134,7 +134,7 @@
     "rimraf": "~5.0.1",
     "rollup": "~4.9.0",
     "typescript": "~5.3.3",
-    "@vscode/vsce": "~2.21.0",
+    "@vscode/vsce": "~2.22.0",
     "vscode-languageclient": "~9.0.0"
   }
 }
