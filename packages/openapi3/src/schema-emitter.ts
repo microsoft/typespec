@@ -305,17 +305,27 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return props;
   }
 
+  #isBytesKeptRaw(type: Type) {
+    const program = this.emitter.getProgram();
+    return (
+      type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined
+    );
+  }
+
   modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
     const program = this.emitter.getProgram();
     const isMultipart = this.#getContentType().startsWith("multipart/");
-    if (
-      isMultipart &&
-      prop.type.kind === "Scalar" &&
-      prop.type.name === "bytes" &&
-      getEncode(program, prop.type) === undefined &&
-      getEncode(program, prop) === undefined
-    ) {
-      return { type: "string", format: "binary" };
+    if (isMultipart) {
+      if (this.#isBytesKeptRaw(prop.type) && getEncode(program, prop) === undefined) {
+        return { type: "string", format: "binary" };
+      }
+      if (
+        prop.type.kind === "Model" &&
+        isArrayModelType(program, prop.type) &&
+        this.#isBytesKeptRaw(prop.type.indexer.value)
+      ) {
+        return { type: "array", items: { type: "string", format: "binary" } };
+      }
     }
 
     const refSchema = this.emitter.emitTypeReference(prop.type, {
