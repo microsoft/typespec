@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/eslint-plugin",
+      "comment": "Update dependencies",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/eslint-plugin"
+}

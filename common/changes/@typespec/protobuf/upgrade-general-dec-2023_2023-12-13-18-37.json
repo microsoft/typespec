@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/protobuf",
+      "comment": "Update dependencies",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/protobuf"
+}

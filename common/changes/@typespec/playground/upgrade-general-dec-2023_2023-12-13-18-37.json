@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Update dependencies",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
