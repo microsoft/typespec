@@ -90,9 +90,6 @@
    */
   "globalOverrides": {
     "node-fetch@3.2.8": "^3.3.2",
-    // BUG https://github.com/microsoft/tabster/issues/316
-    "@fluentui/react-tabster": "9.12.9",
-    "tabster": "4.7.0"
     // "example1": "^1.0.0",
     // "example2": "npm:@company/example2@^1.0.0"
   },

@@ -76,7 +76,7 @@
     "@types/swagger-ui-react": "^4.18.0",
     "@types/swagger-ui": "~3.52.0",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
-    "@vitejs/plugin-react": "~4.1.0",
+    "@vitejs/plugin-react": "~4.2.1",
     "c8": "~8.0.1",
     "cross-env": "~7.0.3",
     "eslint": "^8.55.0",
@@ -84,8 +84,8 @@
     "mocha-multi-reporters": "~1.5.1",
     "mocha": "~10.2.0",
     "rimraf": "~5.0.1",
-    "rollup-plugin-visualizer": "~5.9.2",
+    "rollup-plugin-visualizer": "~5.11.0",
     "typescript": "~5.3.3",
-    "vite": "^4.4.9"
+    "vite": "^5.0.8"
   }
 }

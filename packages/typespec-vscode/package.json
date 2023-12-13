@@ -132,7 +132,7 @@
     "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",
     "rimraf": "~5.0.1",
-    "rollup": "~3.29.2",
+    "rollup": "~4.9.0",
     "typescript": "~5.3.3",
     "@vscode/vsce": "~2.21.0",
     "vscode-languageclient": "~9.0.0"
