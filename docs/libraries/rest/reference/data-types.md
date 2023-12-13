@@ -26,14 +26,14 @@ This only provides the model structure and not actual pagination support. See
 https://github.com/microsoft/typespec/issues/705 for general paging support.
 
 ```typespec
-model TypeSpec.Rest.Resource.CollectionWithNextLink<Item>
+model TypeSpec.Rest.Resource.CollectionWithNextLink<Resource>
 ```
 
 #### Template Parameters
 
-| Name | Description                          |
-| ---- | ------------------------------------ |
-| Item | The resource type of the collection. |
+| Name     | Description                          |
+| -------- | ------------------------------------ |
+| Resource | The resource type of the collection. |
 
 ### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
 

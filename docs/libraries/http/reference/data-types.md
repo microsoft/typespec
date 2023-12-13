@@ -101,14 +101,14 @@ This can be useful in situations where you cannot use a bare type as the body
 and it is awkward to add a property.
 
 ```typespec
-model TypeSpec.Http.Body<TBody>
+model TypeSpec.Http.Body<Type>
 ```
 
 #### Template Parameters
 
-| Name  | Description                              |
-| ----- | ---------------------------------------- |
-| TBody | The type of the model's `body` property. |
+| Name | Description                              |
+| ---- | ---------------------------------------- |
+| Type | The type of the model's `body` property. |
 
 ### `ClientCredentialsFlow` {#TypeSpec.Http.ClientCredentialsFlow}
 
