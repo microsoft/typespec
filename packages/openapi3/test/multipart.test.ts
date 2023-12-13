@@ -107,8 +107,8 @@ describe("typespec-autorest: multipart", () => {
     const res = await openApiFor(
       `
       enum FilePurpose {
-        fineTune,
-        fineTuneResults,
+        one,
+        two,
       }
       
       interface Files {
@@ -117,6 +117,6 @@ describe("typespec-autorest: multipart", () => {
       }
       `
     );
-    deepStrictEqual(res.components.schemas.FilePurpose, {});
+    deepStrictEqual(res.components.schemas.FilePurpose, { type: "string", enum: ["one", "two"] });
   });
 });
