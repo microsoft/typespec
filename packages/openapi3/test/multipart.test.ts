@@ -41,7 +41,7 @@ describe("typespec-autorest: multipart", () => {
   it("part of type `bytes[]` produce `type: array, items: {type: string, format: binary}`", async () => {
     const res = await openApiFor(
       `
-      op upload(@header contentType: "multipart/form-data", profileImage: bytes): void;
+      op upload(@header contentType: "multipart/form-data", profileImage: bytes[]): void;
       `
     );
     const op = res.paths["/"].post;
