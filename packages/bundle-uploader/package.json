@@ -37,8 +37,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@azure/identity": "~3.3.2",
-    "@azure/storage-blob": "~12.16.0",
+    "@azure/identity": "~4.0.0",
+    "@azure/storage-blob": "~12.17.0",
     "@typespec/bundler": "workspace:~0.1.0-alpha.4",
     "picocolors": "~1.0.0",
     "semver": "^7.5.4",
