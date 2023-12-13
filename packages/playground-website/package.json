@@ -56,7 +56,7 @@
     "@typespec/compiler": "workspace:~0.51.0",
     "@typespec/http": "workspace:~0.51.0",
     "@typespec/rest": "workspace:~0.51.0",
-    "@typespec/openapi3": "workspace:~0.51.0",
+    "@typespec/openapi3": "workspace:~0.51.1",
     "@typespec/json-schema": "workspace:~0.51.0",
     "@typespec/openapi": "workspace:~0.51.0",
     "@typespec/protobuf": "workspace:~0.51.0",
