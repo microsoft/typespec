@@ -1,10 +1,13 @@
-import { ESLintUtils } from "@typescript-eslint/utils";
+import { RuleTester } from "@typescript-eslint/rule-tester";
+import * as mocha from "mocha";
 import { callDecoratorRule } from "../../src/rules/call-decorator";
 import { getFixturesRootDir } from "./utils";
 
+RuleTester.afterAll = mocha.after;
+
 const rootDir = getFixturesRootDir();
 
-const ruleTester = new ESLintUtils.RuleTester({
+const ruleTester = new RuleTester({
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: "./tsconfig.json",

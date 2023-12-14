@@ -44,26 +44,26 @@
     "@typespec/compiler-v0.40": "npm:@cadl-lang/compiler@0.40.0",
     "@typespec/compiler-v0.41": "npm:@typespec/compiler@0.41.0",
     "@typespec/compiler-v0.42": "npm:@typespec/compiler@0.42.0",
-    "globby": "~13.2.2",
-    "prettier": "~3.1.0",
+    "globby": "~14.0.0",
+    "prettier": "~3.1.1",
     "semver": "^7.5.4",
     "yargs": "~17.7.2",
-    "yaml": "~2.3.2"
+    "yaml": "~2.3.4"
   },
   "devDependencies": {
-    "@types/mocha": "~10.0.1",
+    "@types/mocha": "~10.0.6",
     "@types/node": "~18.11.9",
-    "@types/semver": "^7.5.2",
-    "@types/yargs": "~17.0.24",
+    "@types/semver": "^7.5.6",
+    "@types/yargs": "~17.0.32",
     "@typespec/compiler": "workspace:~0.51.0",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
     "@typespec/eslint-plugin": "workspace:~0.51.0",
     "c8": "~8.0.1",
-    "eslint": "^8.49.0",
+    "eslint": "^8.55.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",
     "rimraf": "~5.0.1",
-    "typescript": "~5.2.2"
+    "typescript": "~5.3.3"
   }
 }
