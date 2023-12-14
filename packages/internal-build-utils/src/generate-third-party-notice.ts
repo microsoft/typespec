@@ -51,8 +51,11 @@ async function findThirdPartyPackages() {
     const contents = JSON.parse(await readFile(map, "utf-8"));
     const sources = contents.sources;
     for (const source of sources) {
-      const sourcePath = join(dirname(map), source);
+      const sourcePath = resolve(dirname(map), source);
       const packageRoot = await getPackageRoot(sourcePath);
+      if (packageRoot === undefined) {
+        continue;
+      }
       const pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf-8"));
 
       if (pkg.name === rootName || /microsoft/i.test(JSON.stringify(pkg.author))) {
@@ -80,15 +83,18 @@ async function* projectSourcemaps(rootPath: string): any {
 
       yield* projectSourcemaps(filepath);
     } else {
-      if (file.name.endsWith(".js.map")) {
+      if (file.name.endsWith(".js.map") || file.name.endsWith(".cjs.map")) {
         yield filepath;
       }
     }
   }
 }
 
-async function getPackageRoot(filename: string): Promise<any> {
+async function getPackageRoot(filename: string): Promise<string | undefined> {
   const dir = dirname(filename);
+  if (dir === "/") {
+    return undefined;
+  }
   try {
     const pkgPath = join(dir, "package.json");
     await stat(pkgPath);

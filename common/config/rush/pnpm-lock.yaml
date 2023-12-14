@@ -1417,6 +1417,9 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: ~15.2.1
         version: 15.2.3(rollup@4.9.0)
+      '@rollup/plugin-typescript':
+        specifier: ~11.1.5
+        version: 11.1.5(rollup@4.9.0)(typescript@5.3.3)
       '@types/mocha':
         specifier: ~10.0.6
         version: 10.0.6
@@ -6930,6 +6933,7 @@ packages:
 
   /@swagger-api/apidom-ns-json-schema-draft-4@0.87.0:
     resolution: {integrity: sha512-dea5jN2F9w8wt/YBZLrNdqF6gcxLOUhCEOJ/qsIK9ZT/Hyb/HjEOAqpLQhQMdZgIyefc/Mh0KGKBdQAxegKMqw==}
+    requiresBuild: true
     dependencies:
       '@babel/runtime-corejs3': 7.23.6
       '@swagger-api/apidom-ast': 0.87.0
