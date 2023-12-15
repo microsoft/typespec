@@ -60,7 +60,7 @@ import {
 import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { CompilerOptions } from "../core/options.js";
-import { getNodeAtPosition, visitChildren } from "../core/parser.js";
+import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import {
   ensureTrailingDirectorySeparator,
   getDirectoryPath,
@@ -107,6 +107,7 @@ import {
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
+import { UpdateManger } from "./update-manager.js";
 
 interface CachedFile {
   type: "file";
@@ -127,6 +128,7 @@ interface CachedError {
 
 export function createServer(host: ServerHost): Server {
   // Remember original URL when we convert it to a local path so that we can
+  const updateManager = new UpdateManger((document) => compileV2(document));
   // get it back. We can't convert it back because things like URL-encoding
   // could give us back an equivalent but non-identical URL but the original
   // URL is used as a key into the opened documents and so we must reproduce
@@ -284,19 +286,15 @@ export function createServer(host: ServerHost): Server {
     script: TypeSpecScriptNode
   ) => (T | undefined) | Promise<T | undefined>;
 
-  async function compile(
+  interface CompileResult {
+    program: Program;
+    document: TextDocument;
+    script: TypeSpecScriptNode;
+  }
+
+  async function compileV2(
     document: TextDocument | TextDocumentIdentifier
-  ): Promise<Program | undefined>;
-
-  async function compile<T>(
-    document: TextDocument | TextDocumentIdentifier,
-    callback: CompileCallback<T>
-  ): Promise<T | undefined>;
-
-  async function compile<T>(
-    document: TextDocument | TextDocumentIdentifier,
-    callback?: CompileCallback<T>
-  ): Promise<T | Program | undefined> {
+  ): Promise<CompileResult | undefined> {
     const path = await getPath(document);
     const mainFile = await getMainFileForDocument(path);
     const config = await getConfig(mainFile);
@@ -330,16 +328,13 @@ export function createServer(host: ServerHost): Server {
         return undefined;
       }
 
-      if (callback) {
-        const doc = "version" in document ? document : host.getOpenDocumentByURL(document.uri);
-        compilerAssert(doc, "Failed to get document.");
-        const path = await getPath(doc);
-        const script = program.sourceFiles.get(path);
-        compilerAssert(script, "Failed to get script.");
-        return await callback(program, doc, script);
-      }
+      const doc = "version" in document ? document : host.getOpenDocumentByURL(document.uri);
+      compilerAssert(doc, "Failed to get document.");
+      const resolvedPath = await getPath(doc);
+      const script = program.sourceFiles.get(resolvedPath);
+      compilerAssert(script, "Failed to get script.");
 
-      return program;
+      return { program, document: doc, script };
     } catch (err: any) {
       if (host.throwInternalErrors) {
         throw err;
@@ -358,6 +353,30 @@ export function createServer(host: ServerHost): Server {
       });
 
       return undefined;
+    }
+  }
+  async function compile(
+    document: TextDocument | TextDocumentIdentifier
+  ): Promise<Program | undefined>;
+
+  async function compile<T>(
+    document: TextDocument | TextDocumentIdentifier,
+    callback: CompileCallback<T>
+  ): Promise<T | undefined>;
+
+  async function compile<T>(
+    document: TextDocument | TextDocumentIdentifier,
+    callback?: CompileCallback<T>
+  ): Promise<T | Program | undefined> {
+    const result = await compileV2(document);
+
+    if (result === undefined) {
+      return undefined;
+    }
+    if (callback) {
+      return await callback(result.program, result.document, result.script);
+    } else {
+      return result.program;
     }
   }
 
@@ -380,10 +399,18 @@ export function createServer(host: ServerHost): Server {
     return config;
   }
 
-  async function getScript(document: TextDocument | TextDocumentIdentifier) {
+  async function getScript(
+    document: TextDocument | TextDocumentIdentifier
+  ): Promise<TypeSpecScriptNode> {
     const file = await compilerHost.readFile(await getPath(document));
     const cached = compilerHost.parseCache?.get(file);
-    return cached ?? (await compile<TypeSpecScriptNode>(document, (_, __, script) => script));
+    if (cached === undefined) {
+      const parsed = parse(file);
+      compilerHost.parseCache?.set(file, parsed);
+      return parsed;
+    } else {
+      return cached;
+    }
   }
 
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
@@ -471,11 +498,13 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
-    const program = await compile(change.document);
-    if (!program) {
-      return;
-    }
-
+    updateManager.scheduleUpdate(
+      change.document,
+      "checkChange",
+      (result) => result && handleChanges(result)
+    );
+  }
+  async function handleChanges({ program, document }: CompileResult) {
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
@@ -483,7 +512,7 @@ export function createServer(host: ServerHost): Server {
     // stale diagnostics from a previous run will stick around in the IDE.
     //
     const diagnosticMap: Map<TextDocument, VSDiagnostic[]> = new Map();
-    diagnosticMap.set(change.document, []);
+    diagnosticMap.set(document, []);
     for (const each of program.sourceFiles.values()) {
       const document = (each.file as ServerSourceFile)?.document;
       if (document) {
@@ -492,33 +521,33 @@ export function createServer(host: ServerHost): Server {
     }
 
     for (const each of program.diagnostics) {
-      let document: TextDocument | undefined;
+      let diagDocument: TextDocument | undefined;
 
       const location = getSourceLocation(each.target, { locateId: true });
       if (location?.file) {
-        document = (location.file as ServerSourceFile).document;
+        diagDocument = (location.file as ServerSourceFile).document;
       } else {
         // https://github.com/microsoft/language-server-protocol/issues/256
         //
         // LSP does not currently allow sending a diagnostic with no location so
         // we report diagnostics with no location on the document that changed to
         // trigger.
-        document = change.document;
+        diagDocument = document;
       }
 
-      if (!document || !upToDate(document)) {
+      if (!diagDocument || !upToDate(diagDocument)) {
         continue;
       }
 
-      const start = document.positionAt(location?.pos ?? 0);
-      const end = document.positionAt(location?.end ?? 0);
+      const start = diagDocument.positionAt(location?.pos ?? 0);
+      const end = diagDocument.positionAt(location?.end ?? 0);
       const range = Range.create(start, end);
       const severity = convertSeverity(each.severity);
       const diagnostic = VSDiagnostic.create(range, each.message, severity, each.code, "TypeSpec");
       if (each.code === "deprecated") {
         diagnostic.tags = [DiagnosticTag.Deprecated];
       }
-      const diagnostics = diagnosticMap.get(document);
+      const diagnostics = diagnosticMap.get(diagDocument);
       compilerAssert(
         diagnostics,
         "Diagnostic reported against a source file that was not added to the program."
