@@ -101,6 +101,7 @@ import {
   getTemplateParameterDocumentation,
 } from "./type-details.js";
 import {
+  CompileResult,
   SemanticTokenKind,
   Server,
   ServerHost,
@@ -128,7 +129,7 @@ interface CachedError {
 
 export function createServer(host: ServerHost): Server {
   // Remember original URL when we convert it to a local path so that we can
-  const updateManager = new UpdateManger((document) => compileV2(document));
+  const updateManager = new UpdateManger(compile);
   // get it back. We can't convert it back because things like URL-encoding
   // could give us back an equivalent but non-identical URL but the original
   // URL is used as a key into the opened documents and so we must reproduce
@@ -280,19 +281,7 @@ export function createServer(host: ServerHost): Server {
     fileSystemCache.notify(params.changes);
   }
 
-  type CompileCallback<T> = (
-    program: Program,
-    document: TextDocument,
-    script: TypeSpecScriptNode
-  ) => (T | undefined) | Promise<T | undefined>;
-
-  interface CompileResult {
-    program: Program;
-    document: TextDocument;
-    script: TypeSpecScriptNode;
-  }
-
-  async function compileV2(
+  async function compile(
     document: TextDocument | TextDocumentIdentifier
   ): Promise<CompileResult | undefined> {
     const path = await getPath(document);
@@ -353,30 +342,6 @@ export function createServer(host: ServerHost): Server {
       });
 
       return undefined;
-    }
-  }
-  async function compile(
-    document: TextDocument | TextDocumentIdentifier
-  ): Promise<Program | undefined>;
-
-  async function compile<T>(
-    document: TextDocument | TextDocumentIdentifier,
-    callback: CompileCallback<T>
-  ): Promise<T | undefined>;
-
-  async function compile<T>(
-    document: TextDocument | TextDocumentIdentifier,
-    callback?: CompileCallback<T>
-  ): Promise<T | Program | undefined> {
-    const result = await compileV2(document);
-
-    if (result === undefined) {
-      return undefined;
-    }
-    if (callback) {
-      return await callback(result.program, result.document, result.script);
-    } else {
-      return result.program;
     }
   }
 
@@ -481,20 +446,21 @@ export function createServer(host: ServerHost): Server {
   async function findDocumentHighlight(
     params: DocumentHighlightParams
   ): Promise<DocumentHighlight[]> {
-    let highlights: DocumentHighlight[] = [];
-    await compile(params.textDocument, (program, document, file) => {
-      const identifiers = findReferenceIdentifiers(
-        program,
-        file,
-        document.offsetAt(params.position),
-        [file]
-      );
-      highlights = identifiers.map((identifier) => ({
-        range: getRange(identifier, file.file),
-        kind: DocumentHighlightKind.Read,
-      }));
-    });
-    return highlights;
+    const result = await compile(params.textDocument);
+    if (result === undefined) {
+      return [];
+    }
+    const { program, document, script } = result;
+    const identifiers = findReferenceIdentifiers(
+      program,
+      script,
+      document.offsetAt(params.position),
+      [script]
+    );
+    return identifiers.map((identifier) => ({
+      range: getRange(identifier, script.file),
+      kind: DocumentHighlightKind.Read,
+    }));
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
@@ -561,19 +527,19 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
-    const docString = await compile(params.textDocument, (program, document, file) => {
-      const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      const sym =
-        id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
-      if (sym) {
-        return getSymbolDetails(program, sym);
-      }
-      return undefined;
-    });
+    const result = await compile(params.textDocument);
+    if (result === undefined) {
+      return { contents: [] };
+    }
+    const { program, document, script } = result;
+
+    const id = getNodeAtPosition(script, document.offsetAt(params.position));
+    const sym =
+      id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
 
     const markdown: MarkupContent = {
       kind: MarkupKind.Markdown,
-      value: docString ?? "",
+      value: sym ? getSymbolDetails(program, sym) : "",
     };
     return {
       contents: markdown,
@@ -581,23 +547,26 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
-    return await compile(params.textDocument, (program, document, file) => {
-      const data = getSignatureHelpNodeAtPosition(file, document.offsetAt(params.position));
-      if (data === undefined) {
-        return undefined;
-      }
-      const { node, argumentIndex } = data;
-      switch (node.kind) {
-        case SyntaxKind.TypeReference:
-          return getSignatureHelpForTemplate(program, node, argumentIndex);
-        case SyntaxKind.DecoratorExpression:
-        case SyntaxKind.AugmentDecoratorStatement:
-          return getSignatureHelpForDecorator(program, node, argumentIndex);
-        default:
-          const _assertNever: never = node;
-          compilerAssert(false, "Unreachable");
-      }
-    });
+    const result = await compile(params.textDocument);
+    if (result === undefined) {
+      return undefined;
+    }
+    const { script, document, program } = result;
+    const data = getSignatureHelpNodeAtPosition(script, document.offsetAt(params.position));
+    if (data === undefined) {
+      return undefined;
+    }
+    const { node, argumentIndex } = data;
+    switch (node.kind) {
+      case SyntaxKind.TypeReference:
+        return getSignatureHelpForTemplate(program, node, argumentIndex);
+      case SyntaxKind.DecoratorExpression:
+      case SyntaxKind.AugmentDecoratorStatement:
+        return getSignatureHelpForDecorator(program, node, argumentIndex);
+      default:
+        const _assertNever: never = node;
+        compilerAssert(false, "Unreachable");
+    }
   }
 
   function getSignatureHelpForTemplate(
@@ -763,11 +732,13 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
-    const sym = await compile(params.textDocument, (program, document, file) => {
-      const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind === SyntaxKind.Identifier ? program.checker.resolveIdentifier(id) : undefined;
-    });
-
+    const result = await compile(params.textDocument);
+    if (result === undefined) {
+      return [];
+    }
+    const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
+    const sym =
+      id?.kind === SyntaxKind.Identifier ? result.program.checker.resolveIdentifier(id) : undefined;
     return getLocations(sym?.declarations);
   }
   async function complete(params: CompletionParams): Promise<CompletionList> {
@@ -775,43 +746,54 @@ export function createServer(host: ServerHost): Server {
       isIncomplete: false,
       items: [],
     };
-    await compile(params.textDocument, async (program, document, file) => {
-      const node = getCompletionNodeAtPosition(file, document.offsetAt(params.position));
+    const result = await compile(params.textDocument);
+    if (result) {
+      const { script, document, program } = result;
+      const node = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
       await resolveCompletion(
         {
           program,
-          file,
+          file: script,
           completions,
           params,
         },
         node
       );
-    });
+    }
     return completions;
   }
 
   async function findReferences(params: ReferenceParams): Promise<Location[]> {
-    const identifiers = await compile(params.textDocument, (program, document, file) =>
-      findReferenceIdentifiers(program, file, document.offsetAt(params.position))
+    const result = await compile(params.textDocument);
+    if (result === undefined) {
+      return [];
+    }
+    const identifiers = findReferenceIdentifiers(
+      result.program,
+      result.script,
+      result.document.offsetAt(params.position)
     );
     return getLocations(identifiers);
   }
 
   async function prepareRename(params: PrepareRenameParams): Promise<Range | undefined> {
-    return await compile(params.textDocument, (_, document, file) => {
-      const id = getNodeAtPosition(file, document.offsetAt(params.position));
-      return id?.kind === SyntaxKind.Identifier ? getLocation(id)?.range : undefined;
-    });
+    const result = await compile(params.textDocument);
+    if (result === undefined) {
+      return undefined;
+    }
+    const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
+    return id?.kind === SyntaxKind.Identifier ? getLocation(id)?.range : undefined;
   }
 
   async function rename(params: RenameParams): Promise<WorkspaceEdit> {
     const changes: Record<string, TextEdit[]> = {};
-    await compile(params.textDocument, (program, document, file) => {
+    const result = await compile(params.textDocument);
+    if (result) {
       const identifiers = findReferenceIdentifiers(
-        program,
-        file,
-        document.offsetAt(params.position)
+        result.program,
+        result.script,
+        result.document.offsetAt(params.position)
       );
       for (const id of identifiers) {
         const location = getLocation(id);
@@ -825,7 +807,7 @@ export function createServer(host: ServerHost): Server {
           changes[location.uri] = [change];
         }
       }
-    });
+    }
     return { changes };
   }
 

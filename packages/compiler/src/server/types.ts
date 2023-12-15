@@ -32,7 +32,7 @@ import {
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver";
 import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
-import { CompilerHost, Program, SourceFile } from "../index.js";
+import { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../index.js";
 
 export interface ServerHost {
   compilerHost: CompilerHost;
@@ -42,10 +42,15 @@ export interface ServerHost {
   log(message: string): void;
 }
 
+export interface CompileResult {
+  program: Program;
+  document: TextDocument;
+  script: TypeSpecScriptNode;
+}
 export interface Server {
   readonly pendingMessages: readonly string[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<Program | undefined>;
+  compile(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
   initialize(params: InitializeParams): Promise<InitializeResult>;
   initialized(params: InitializedParams): void;
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
