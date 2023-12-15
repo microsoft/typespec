@@ -1,4 +1,4 @@
-import { CompilerOptions } from "../index.js";
+import { CompilerOptions } from "../core/index.js";
 
 export const serverOptions: CompilerOptions = {
   noEmit: true,
