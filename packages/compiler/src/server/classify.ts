@@ -13,7 +13,7 @@ import {
   isPunctuation,
   visitChildren,
 } from "../core/index.js";
-import { SemanticToken, SemanticTokenKind } from "./serverlib.js";
+import { SemanticToken, SemanticTokenKind } from "./types.js";
 
 /**
  * Compute the semantic tokens for the given AST.

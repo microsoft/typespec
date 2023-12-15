@@ -25,7 +25,6 @@ import {
   MarkupKind,
   ParameterInformation,
   PrepareRenameParams,
-  PublishDiagnosticsParams,
   Range,
   ReferenceParams,
   RenameParams,
@@ -42,7 +41,6 @@ import {
   TextEdit,
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
-  WorkspaceFolder,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
 import {
@@ -94,6 +92,7 @@ import {
 } from "../core/util.js";
 import { getSemanticTokens } from "./classify.js";
 import { resolveCompletion } from "./completion.js";
+import { serverOptions } from "./constants.js";
 import { getPositionBeforeTrivia } from "./server-utils.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import {
@@ -101,85 +100,13 @@ import {
   getSymbolDetails,
   getTemplateParameterDocumentation,
 } from "./type-details.js";
-
-export interface ServerHost {
-  compilerHost: CompilerHost;
-  throwInternalErrors?: boolean;
-  getOpenDocumentByURL(url: string): TextDocument | undefined;
-  sendDiagnostics(params: PublishDiagnosticsParams): void;
-  log(message: string): void;
-}
-
-export interface Server {
-  readonly pendingMessages: readonly string[];
-  readonly workspaceFolders: readonly ServerWorkspaceFolder[];
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<Program | undefined>;
-  initialize(params: InitializeParams): Promise<InitializeResult>;
-  initialized(params: InitializedParams): void;
-  workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
-  watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
-  formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]>;
-  gotoDefinition(params: DefinitionParams): Promise<Location[]>;
-  complete(params: CompletionParams): Promise<CompletionList>;
-  findReferences(params: ReferenceParams): Promise<Location[]>;
-  findDocumentHighlight(params: DocumentHighlightParams): Promise<DocumentHighlight[]>;
-  prepareRename(params: PrepareRenameParams): Promise<Range | undefined>;
-  rename(params: RenameParams): Promise<WorkspaceEdit>;
-  getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
-  buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
-  checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
-  getHover(params: HoverParams): Promise<Hover>;
-  getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
-  getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
-  getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
-  documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
-  log(message: string, details?: any): void;
-}
-
-export interface ServerSourceFile extends SourceFile {
-  // Keep track of the open document (if any) associated with a source file.
-  readonly document?: TextDocument;
-}
-
-export interface ServerWorkspaceFolder extends WorkspaceFolder {
-  // Remember path to URL conversion for workspace folders. This path must
-  // be resolved and normalized as other paths and have a trailing separator
-  // character so that we can test if a path is within a workspace using
-  // startsWith.
-  path: string;
-}
-
-export enum SemanticTokenKind {
-  Namespace,
-  Type,
-  Class,
-  Enum,
-  Interface,
-  Struct,
-  TypeParameter,
-  Parameter,
-  Variable,
-  Property,
-  EnumMember,
-  Event,
-  Function,
-  Method,
-  Macro,
-  Keyword,
-  Comment,
-  String,
-  Number,
-  Regexp,
-  Operator,
-
-  DocCommentTag,
-}
-
-export interface SemanticToken {
-  kind: SemanticTokenKind;
-  pos: number;
-  end: number;
-}
+import {
+  SemanticTokenKind,
+  Server,
+  ServerHost,
+  ServerSourceFile,
+  ServerWorkspaceFolder,
+} from "./types.js";
 
 interface CachedFile {
   type: "file";
@@ -197,15 +124,6 @@ interface CachedError {
   data?: any;
   version?: undefined;
 }
-
-const serverOptions: CompilerOptions = {
-  noEmit: true,
-  designTimeBuild: true,
-  parseOptions: {
-    comments: true,
-    docs: true,
-  },
-};
 
 export function createServer(host: ServerHost): Server {
   // Remember original URL when we convert it to a local path so that we can

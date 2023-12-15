@@ -6,8 +6,8 @@ import { fileURLToPath } from "url";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../src/core/diagnostics.js";
-import { SemanticToken, SemanticTokenKind } from "../../src/server/serverlib.js";
 import { TypeSpecScope } from "../../src/server/tmlanguage.js";
+import { SemanticToken, SemanticTokenKind } from "../../src/server/types.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 // vscode-oniguruma depends on those type from the DOM library.
