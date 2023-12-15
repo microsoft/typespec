@@ -370,7 +370,7 @@ export function createServer(host: ServerHost): Server {
     const file = await compilerHost.readFile(await getPath(document));
     const cached = compilerHost.parseCache?.get(file);
     if (cached === undefined) {
-      const parsed = parse(file);
+      const parsed = parse(file, { docs: true, comments: true });
       compilerHost.parseCache?.set(file, parsed);
       return parsed;
     } else {
