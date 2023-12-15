@@ -35,18 +35,19 @@ import { TextDocument, TextEdit } from "vscode-languageserver-textdocument";
 import { CompilerHost, Program, SourceFile, TypeSpecScriptNode } from "../index.js";
 
 export interface ServerHost {
-  compilerHost: CompilerHost;
-  throwInternalErrors?: boolean;
-  getOpenDocumentByURL(url: string): TextDocument | undefined;
-  sendDiagnostics(params: PublishDiagnosticsParams): void;
-  log(message: string): void;
+  readonly compilerHost: CompilerHost;
+  readonly throwInternalErrors?: boolean;
+  readonly getOpenDocumentByURL: (url: string) => TextDocument | undefined;
+  readonly sendDiagnostics: (params: PublishDiagnosticsParams) => void;
+  readonly log: (message: string) => void;
 }
 
 export interface CompileResult {
-  program: Program;
-  document: TextDocument;
-  script: TypeSpecScriptNode;
+  readonly program: Program;
+  readonly document: TextDocument;
+  readonly script: TypeSpecScriptNode;
 }
+
 export interface Server {
   readonly pendingMessages: readonly string[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
