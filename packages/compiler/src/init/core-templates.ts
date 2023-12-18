@@ -1,12 +1,14 @@
-// @ts-check
 import { readFile } from "fs/promises";
 import { dirname } from "path";
-import { resolve } from "path/posix";
 import { fileURLToPath } from "url";
+import { resolvePath } from "../core/path-utils.js";
 
-export const templatesDir = resolve(dirname(fileURLToPath(import.meta.url)), "../../../templates");
+export const templatesDir = resolvePath(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../../templates"
+);
 
-const content = JSON.parse(await readFile(resolve(templatesDir, "scaffolding.json"), "utf-8"));
+const content = JSON.parse(await readFile(resolvePath(templatesDir, "scaffolding.json"), "utf-8"));
 
 export const TypeSpecCoreTemplates = {
   baseUri: templatesDir,

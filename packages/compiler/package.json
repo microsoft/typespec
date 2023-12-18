@@ -52,7 +52,7 @@
   "files": [
     "lib/*.tsp",
     "dist/**",
-    "templates/*/**",
+    "templates/**",
     "entrypoints",
     "!dist/test/**"
   ],
@@ -67,7 +67,7 @@
     "dogfood": "node scripts/dogfood.js",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
-    "test:e2e": "mocha --config ./.mocharc.e2e.yaml",
+    "e2e": "mocha --config ./.mocharc.e2e.yaml",
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
