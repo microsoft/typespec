@@ -12,23 +12,28 @@ The guidelines in this article are used in TypeSpec Core libraries. You can use 
 
 ## Naming convention
 
-| Type             | Naming                                       | Example                                          |
-| ---------------- | -------------------------------------------- | ------------------------------------------------ |
-| scalar           | camelCase                                    | `scalar uuid extends string;`                    |
-| model            | PascalCase                                   | `model Pet {}`                                   |
-| model property   | camelCase                                    | `model Pet {furColor: string}`                   |
-| enum             | PascalCase                                   | `enum Direction {}`                              |
-| enum member      | camelCase                                    | `enum Direction {up, down}`                      |
-| namespace        | PascalCase                                   | `namespace Org.PetStore`                         |
-| interface        | PascalCase                                   | `interface Stores {}`                            |
-| operation        | camelCase                                    | `op listPets(): Pet[];`                          |
-| operation params | camelCase                                    | `op getPet(petId: string): Pet;`                 |
-| unions           | PascalCase                                   | `union Pet {cat: Cat, dog: Dog}`                 |
-| unions variants  | camelCase                                    | `union Pet {cat: Cat, dog: Dog}`                 |
-| alias            | camelCase or PascalCase depending on context | `alias myString = string` or `alias MyPet = Pet` |
-| decorators       | camelCase                                    | `@format`, `@resourceCollection`                 |
-| functions        | camelCase                                    | `addedAfter`                                     |
-| file name        | kebab-case                                   | `my-lib.tsp`                                     |
+| Type               | Naming                                       | Example                                          |
+| ------------------ | -------------------------------------------- | ------------------------------------------------ |
+| scalar             | camelCase                                    | `scalar uuid extends string;`                    |
+| model              | PascalCase                                   | `model Pet {}`                                   |
+| model property     | camelCase                                    | `model Pet {furColor: string}`                   |
+| enum               | PascalCase                                   | `enum Direction {}`                              |
+| enum member        | camelCase                                    | `enum Direction {up, down}`                      |
+| namespace          | PascalCase                                   | `namespace Org.PetStore`                         |
+| interface          | PascalCase                                   | `interface Stores {}`                            |
+| operation          | camelCase                                    | `op listPets(): Pet[];`                          |
+| operation params   | camelCase                                    | `op getPet(petId: string): Pet;`                 |
+| unions             | PascalCase                                   | `union Pet {cat: Cat, dog: Dog}`                 |
+| unions variants    | camelCase                                    | `union Pet {cat: Cat, dog: Dog}`                 |
+| alias              | camelCase or PascalCase depending on context | `alias myString = string` or `alias MyPet = Pet` |
+| decorators         | camelCase                                    | `@format`, `@resourceCollection`                 |
+| functions          | camelCase                                    | `addedAfter`                                     |
+| file name          | kebab-case                                   | `my-lib.tsp`                                     |
+| template parameter | PascalCase                                   | `<ExampleParameter>`                             |
+
+:::note
+In some languages, particularly object-oriented programming languages, it's conventional to prefix certain names with a latter to indicate what kind of thing they are. For example, prefixing interface names with `I` (as in `IPet`) or prefixing template parameter names with `T` (as in `TResponse`). **This is not conventional in TypeSpec**.
+:::
 
 ## Layout convention
 
