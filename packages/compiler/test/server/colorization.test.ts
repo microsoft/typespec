@@ -755,6 +755,28 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    it("named template argument list", async () => {
+      const tokens = await tokenize("alias X = Foo<boolean, T = string, U = int32>;");
+      deepStrictEqual(tokens, [
+        Token.keywords.alias,
+        Token.identifiers.type("X"),
+        Token.operators.assignment,
+        Token.identifiers.type("Foo"),
+        Token.punctuation.typeParameters.begin,
+        Token.identifiers.type("boolean"),
+        Token.punctuation.comma,
+        Token.identifiers.type("T"),
+        Token.operators.assignment,
+        Token.identifiers.type("string"),
+        Token.punctuation.comma,
+        Token.identifiers.type("U"),
+        Token.operators.assignment,
+        Token.identifiers.type("int32"),
+        Token.punctuation.typeParameters.end,
+        Token.punctuation.semicolon,
+      ]);
+    });
+
     describe("namespaces", () => {
       it("simple global namespace", async () => {
         const tokens = await tokenize("namespace Foo;");

@@ -63,6 +63,7 @@ import {
   StringTemplateExpressionNode,
   StringTemplateSpanNode,
   SyntaxKind,
+  TemplateArgumentNode,
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
@@ -212,6 +213,8 @@ export function printNode(
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
       return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
+    case SyntaxKind.TemplateArgument:
+      return printTemplateArgument(path as AstPath<TemplateArgumentNode>, options, print);
     case SyntaxKind.ValueOfExpression:
       return printValueOfExpression(path as AstPath<ValueOfExpressionNode>, options, print);
     case SyntaxKind.TemplateParameterDeclaration:
@@ -1345,6 +1348,21 @@ export function printTypeReference(
   const type = path.call(print, "target");
   const template = printTemplateParameters(path, options, print, "arguments");
   return [type, template];
+}
+
+export function printTemplateArgument(
+  path: AstPath<TemplateArgumentNode>,
+  _options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+): Doc {
+  if (path.getValue().name !== undefined) {
+    const name = path.call(print, "name");
+    const argument = path.call(print, "argument");
+
+    return group([name, " = ", argument]);
+  } else {
+    return path.call(print, "argument");
+  }
 }
 
 export function printValueOfExpression(

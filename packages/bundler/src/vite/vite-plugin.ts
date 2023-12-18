@@ -100,8 +100,8 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
     },
 
     transformIndexHtml: {
-      enforce: "post",
-      transform: (html: string, ctx: IndexHtmlTransformContext) => {
+      order: "post",
+      handler: (html: string, ctx: IndexHtmlTransformContext) => {
         // Inject the importmap before the html script. Cannot just use injectTo:head-prepend as vite will inject its own script before that and cause a failure.
         const importMapTag = `<script type="importmap">\n${JSON.stringify(
           createImportMap(options.folderName, definitions),
