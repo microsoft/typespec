@@ -32,7 +32,7 @@ The guidelines in this article are used in TypeSpec Core libraries. You can use 
 | template parameter | PascalCase                                   | `<ExampleParameter>`                             |
 
 :::note
-In some languages, particularly object-oriented programming languages, it's conventional to prefix certain names with a latter to indicate what kind of thing they are. For example, prefixing interface names with `I` (as in `IPet`) or prefixing template parameter names with `T` (as in `TResponse`). **This is not conventional in TypeSpec**.
+In some languages, particularly object-oriented programming languages, it's conventional to prefix certain names with a letter to indicate what kind of thing they are. For example, prefixing interface names with `I` (as in `IPet`) or prefixing template parameter names with `T` (as in `TResponse`). **This is not conventional in TypeSpec**.
 :::
 
 ## Layout convention
