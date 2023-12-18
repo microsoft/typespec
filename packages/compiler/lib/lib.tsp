@@ -146,10 +146,10 @@ model Array<Element> {}
 
 /**
  * @dev Model with string properties where all the properties have type `Property`
- * @template Property The type of the properties
+ * @template Element The type of the properties
  */
-@indexer(string, Property)
-model Record<Property> {}
+@indexer(string, Element)
+model Record<Element> {}
 
 /**
  * Represent a URL string as described by https://url.spec.whatwg.org/
