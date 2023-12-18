@@ -37,7 +37,10 @@ describe("compiler: server: completion", () => {
         label: "Record",
         insertText: "Record",
         kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel Record<T>\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nmodel Record<Element>\n```",
+        },
       },
     ]);
   });

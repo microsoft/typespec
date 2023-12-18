@@ -3,7 +3,13 @@ import { createSymbol, createSymbolTable } from "./binder.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
+import {
+  TypeNameOptions,
+  getNamespaceFullName,
+  getTypeName,
+  stringTemplateToString,
+} from "./helpers/index.js";
+import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
 import { createDiagnostic } from "./messages.js";
 import {
   exprIsBareIdentifier,
@@ -107,6 +113,14 @@ import {
   StdTypes,
   StringLiteral,
   StringLiteralNode,
+  StringTemplate,
+  StringTemplateExpressionNode,
+  StringTemplateHeadNode,
+  StringTemplateMiddleNode,
+  StringTemplateSpan,
+  StringTemplateSpanLiteral,
+  StringTemplateSpanValue,
+  StringTemplateTailNode,
   Sym,
   SymbolFlags,
   SymbolLinks,
@@ -652,6 +666,8 @@ export function createChecker(program: Program): Checker {
         return checkTupleExpression(node, mapper);
       case SyntaxKind.StringLiteral:
         return checkStringLiteral(node);
+      case SyntaxKind.StringTemplateExpression:
+        return checkStringTemplateExpresion(node, mapper);
       case SyntaxKind.ArrayExpression:
         return checkArrayExpression(node, mapper);
       case SyntaxKind.UnionExpression:
@@ -2530,6 +2546,48 @@ export function createChecker(program: Program): Checker {
         return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
     }
   }
+
+  function checkStringTemplateExpresion(
+    node: StringTemplateExpressionNode,
+    mapper: TypeMapper | undefined
+  ): StringTemplate {
+    const spans: StringTemplateSpan[] = [createTemplateSpanLiteral(node.head)];
+    for (const span of node.spans) {
+      spans.push(createTemplateSpanValue(span.expression, mapper));
+      spans.push(createTemplateSpanLiteral(span.literal));
+    }
+    const type = createType({
+      kind: "StringTemplate",
+      node,
+      spans,
+    });
+
+    return type;
+  }
+
+  function createTemplateSpanLiteral(
+    node: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode
+  ): StringTemplateSpanLiteral {
+    return createType({
+      kind: "StringTemplateSpan",
+      node: node,
+      isInterpolated: false,
+      type: getLiteralType(node),
+    });
+  }
+
+  function createTemplateSpanValue(
+    node: Expression,
+    mapper: TypeMapper | undefined
+  ): StringTemplateSpanValue {
+    return createType({
+      kind: "StringTemplateSpan",
+      node: node,
+      isInterpolated: true,
+      type: getTypeForNode(node, mapper),
+    });
+  }
+
   function checkStringLiteral(str: StringLiteralNode): StringLiteral {
     return getLiteralType(str);
   }
@@ -3390,6 +3448,10 @@ export function createChecker(program: Program): Checker {
     if (type === nullType) {
       return true;
     }
+    if (type.kind === "StringTemplate") {
+      const [valid] = isStringTemplateSerializable(type);
+      return valid;
+    }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
   }
@@ -3571,6 +3633,8 @@ export function createChecker(program: Program): Checker {
     if (valueOf) {
       if (value.kind === "Boolean" || value.kind === "String" || value.kind === "Number") {
         return literalTypeToValue(value);
+      } else if (value.kind === "StringTemplate") {
+        return stringTemplateToString(value)[0];
       }
     }
     return value;
@@ -4205,7 +4269,13 @@ export function createChecker(program: Program): Checker {
     return finishTypeForProgramAndChecker(program, typePrototype, typeDef);
   }
 
-  function getLiteralType(node: StringLiteralNode): StringLiteral;
+  function getLiteralType(
+    node:
+      | StringLiteralNode
+      | StringTemplateHeadNode
+      | StringTemplateMiddleNode
+      | StringTemplateTailNode
+  ): StringLiteral;
   function getLiteralType(node: NumericLiteralNode): NumericLiteral;
   function getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   function getLiteralType(node: LiteralNode): LiteralType;
@@ -5017,16 +5087,23 @@ export function createChecker(program: Program): Checker {
     } as const);
   }
 
-  function createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
+  function createLiteralType(
+    value: string,
+    node?:
+      | StringLiteralNode
+      | StringTemplateHeadNode
+      | StringTemplateMiddleNode
+      | StringTemplateTailNode
+  ): StringLiteral;
   function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
   function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
-    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+    node?: LiteralNode
   ): StringLiteral | NumericLiteral | BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
-    node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode
+    node?: LiteralNode
   ): StringLiteral | NumericLiteral | BooleanLiteral {
     if (program.literalTypes.has(value)) {
       return program.literalTypes.get(value)!;
@@ -5414,6 +5491,7 @@ export function createChecker(program: Program): Checker {
       case "Number":
         return isNumericLiteralRelatedTo(source, target);
       case "String":
+      case "StringTemplate":
         return areScalarsRelated(target, getStdType("string"));
       case "Boolean":
         return areScalarsRelated(target, getStdType("boolean"));
@@ -6190,6 +6268,8 @@ function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] 
   return args.map((arg) => {
     if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
       return literalTypeToValue(arg);
+    } else if (arg.kind === "StringTemplate") {
+      return stringTemplateToString(arg)[0];
     }
     return arg as any;
   });

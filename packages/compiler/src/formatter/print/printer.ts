@@ -60,6 +60,8 @@ import {
   ScalarStatementNode,
   Statement,
   StringLiteralNode,
+  StringTemplateExpressionNode,
+  StringTemplateSpanNode,
   SyntaxKind,
   TemplateArgumentNode,
   TemplateParameterDeclarationNode,
@@ -360,6 +362,16 @@ export function printNode(
       return "";
     case SyntaxKind.EmptyStatement:
       return "";
+    case SyntaxKind.StringTemplateExpression:
+      return printStringTemplateExpression(
+        path as AstPath<StringTemplateExpressionNode>,
+        options,
+        print
+      );
+    case SyntaxKind.StringTemplateSpan:
+    case SyntaxKind.StringTemplateHead:
+    case SyntaxKind.StringTemplateMiddle:
+    case SyntaxKind.StringTemplateTail:
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.InvalidStatement:
@@ -1688,6 +1700,22 @@ export function printReturnExpression(
   print: PrettierChildPrint
 ) {
   return ["return ", path.call(print, "value")];
+}
+
+export function printStringTemplateExpression(
+  path: AstPath<StringTemplateExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+  const content = [
+    getRawText(node.head, options),
+    path.map((span: AstPath<StringTemplateSpanNode>) => {
+      const expression = span.call(print, "expression");
+      return [expression, getRawText(span.node.literal, options)];
+    }, "spans"),
+  ];
+  return content;
 }
 
 function printItemList<T extends Node>(

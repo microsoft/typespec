@@ -937,17 +937,12 @@ export function createServer(host: ServerHost): Server {
     function mapTokens() {
       const tokens = new Map<number, SemanticToken>();
       const scanner = createScanner(file, () => {});
-
+      const templateStack: [Token, TokenFlags][] = [];
       while (scanner.scan() !== Token.EndOfFile) {
         if (scanner.tokenFlags & TokenFlags.DocComment) {
           classifyDocComment({ pos: scanner.tokenPosition, end: scanner.position });
         } else {
-          const kind = classifyToken(scanner.token);
-          if (kind === ignore) {
-            continue;
-          }
-          tokens.set(scanner.tokenPosition, {
-            kind: kind === defer ? undefined! : kind,
+          handleToken(scanner.token, scanner.tokenFlags, {
             pos: scanner.tokenPosition,
             end: scanner.position,
           });
@@ -969,6 +964,98 @@ export function createServer(host: ServerHost): Server {
             });
           }
         });
+      }
+
+      function handleToken(token: Token, tokenFlags: TokenFlags, range: TextRange) {
+        switch (token) {
+          case Token.StringTemplateHead:
+            templateStack.push([token, tokenFlags]);
+            classifyStringTemplate(token, range);
+            break;
+          case Token.OpenBrace:
+            // If we don't have anything on the template stack,
+            // then we aren't trying to keep track of a previously scanned template head.
+            if (templateStack.length > 0) {
+              templateStack.push([token, tokenFlags]);
+            }
+            handleSimpleToken(token, range);
+            break;
+          case Token.CloseBrace:
+            // If we don't have anything on the template stack,
+            // then we aren't trying to keep track of a previously scanned template head.
+            if (templateStack.length > 0) {
+              const [lastToken, lastTokenFlags] = templateStack[templateStack.length - 1];
+
+              if (lastToken === Token.StringTemplateHead) {
+                token = scanner.reScanStringTemplate(lastTokenFlags);
+
+                // Only pop on a TemplateTail; a TemplateMiddle indicates there is more for us.
+                if (token === Token.StringTemplateTail) {
+                  templateStack.pop();
+                  classifyStringTemplate(token, {
+                    pos: scanner.tokenPosition,
+                    end: scanner.position,
+                  });
+                } else {
+                  compilerAssert(
+                    token === Token.StringTemplateMiddle,
+                    "Should have been a template middle."
+                  );
+                  classifyStringTemplate(token, {
+                    pos: scanner.tokenPosition,
+                    end: scanner.position,
+                  });
+                }
+              } else {
+                compilerAssert(lastToken === Token.OpenBrace, "Should have been an open brace");
+                templateStack.pop();
+              }
+              break;
+            }
+            handleSimpleToken(token, range);
+            break;
+          default:
+            handleSimpleToken(token, range);
+        }
+      }
+
+      function handleSimpleToken(token: Token, range: TextRange) {
+        const kind = classifyToken(scanner.token);
+        if (kind === ignore) {
+          return;
+        }
+        tokens.set(range.pos, {
+          kind: kind === defer ? undefined! : kind,
+          ...range,
+        });
+      }
+
+      function classifyStringTemplate(
+        token: Token.StringTemplateHead | Token.StringTemplateMiddle | Token.StringTemplateTail,
+        range: TextRange
+      ) {
+        const stringStart = token === Token.StringTemplateHead ? range.pos : range.pos + 1;
+        const stringEnd = token === Token.StringTemplateTail ? range.end : range.end - 2;
+
+        if (stringStart !== range.pos) {
+          tokens.set(range.pos, {
+            kind: SemanticTokenKind.Operator,
+            pos: range.pos,
+            end: stringStart,
+          });
+        }
+        tokens.set(stringStart, {
+          kind: SemanticTokenKind.String,
+          pos: stringStart,
+          end: stringEnd,
+        });
+        if (stringEnd !== range.end) {
+          tokens.set(stringEnd, {
+            kind: SemanticTokenKind.Operator,
+            pos: stringEnd,
+            end: range.end,
+          });
+        }
       }
     }
 

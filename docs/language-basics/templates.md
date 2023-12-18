@@ -15,9 +15,9 @@ Templates can be used on:
 - [interfaces](./interfaces.md)
 
 ```typespec
-model Page<T> {
+model Page<Item> {
   size: number;
-  item: T[];
+  item: Item[];
 }
 
 model DogPage {
@@ -30,9 +30,9 @@ model DogPage {
 A template parameter can be given a default argument value with `= <value>`.
 
 ```typespec
-model Page<T = string> {
+model Page<Item = string> {
   size: number;
-  item: T[];
+  item: Item[];
 }
 ```
 
@@ -41,7 +41,7 @@ model Page<T = string> {
 Template parameters can specify a constraint using the `extends` keyword. See the [type relations](./type-relations.md) documentation for details on how validation works.
 
 ```typespec
-alias Foo<T extends string> = T;
+alias Foo<Type extends string> = Type;
 ```
 
 Now, instantiating Foo with an argument that does not satisfy the constraint `string` will result in an error:
@@ -54,16 +54,16 @@ alias Bar = Foo<123>;
 A template parameter constraint can also be a model expression:
 
 ```typespec
-// Expect T to be a model with property name: string
-alias Foo<T extends {name: string}> = T;
+// Expect Type to be a model with property name: string
+alias Foo<Type extends {name: string}> = Type;
 ```
 
 Template parameter defaults also need to respect the constraint:
 
 ```typespec
-alias Foo<T extends string = "Abc">  = T
+alias Foo<Type extends string = "Abc">  = Type
 // Invalid
-alias Bar<T extends string = 123>  = T
+alias Bar<Type extends string = 123>  = Type
                              ^ Type '123' is not assignable to type 'TypeSpec.string'
 ```
 
