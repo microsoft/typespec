@@ -1584,7 +1584,7 @@ importers:
         specifier: workspace:~0.51.0
         version: link:../http
       '@typespec/internal-build-utils':
-        specifier: workspace:~0.50.0
+        specifier: workspace:~0.51.0
         version: link:../internal-build-utils
       '@typespec/json-schema':
         specifier: workspace:~0.51.0
