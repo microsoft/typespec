@@ -23,7 +23,6 @@ Definition of a TypeSpec library
 | `readonly` | `diagnostics` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> | Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`diagnostics` |
 | `readonly` | `emitter`? | `object` | Emitter configuration if library is an emitter. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`emitter` |
 | `readonly` | `emitter.options`? | [`JSONSchemaType`](../type-aliases/JSONSchemaType.md)<`E`\> | - | - |
-| `readonly` | `emitterOptionValidator`? | [`JSONSchemaValidator`](JSONSchemaValidator.md) | JSON Schema validator for emitter options | - |
 | `readonly` | `linter`? | [`LinterDefinition`](LinterDefinition.md) | Configuration if library is providing linting rules/rulesets. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`linter` |
 | `readonly` | `name` | `string` | Name of the library. Must match the package.json name. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`name` |
 | `public` | `requireImports`? | readonly `string`[] | List of other library that should be imported when this is used as an emitter.<br />Compiler will emit an error if the libraries are not explicitly imported. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`requireImports` |

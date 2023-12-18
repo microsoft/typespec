@@ -30,7 +30,7 @@ Use the `#deprecated` directive instead:
 
 ```typespec
 #deprecated "Use ActionV2"
-op Action<T>(): T;
+op Action<Result>(): Result;
 ```
 
 
@@ -233,8 +233,8 @@ Specifies how a templated type should name their instances.
 
 ```typespec
 @friendlyName("{name}List", T)
-model List<T> {
-value: T[];
+model List<Item> {
+value: Item[];
 nextLink: string;
 }
 ```
