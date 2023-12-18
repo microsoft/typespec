@@ -220,7 +220,7 @@ describe("compiler: templates", () => {
     const diagnostics = await testHost.diagnose("main.tsp");
     expectDiagnostics(diagnostics, {
       code: "invalid-template-args",
-      message: "Template argument 'T' is required and not specified.",
+      message: "Template argument 'Element' is required and not specified.",
     });
   });
 
