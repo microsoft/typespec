@@ -43,7 +43,7 @@ packages/website/versioned_docs/**/standard-library/built-in-data-types.md
 packages/website/playground-versions.json
 
 # Auto generated built-in template list
-packages/init-templates/scaffolding.json
+packages/compiler/templates/scaffolding.json
 
 #.tsp init template
 eng/feeds/
