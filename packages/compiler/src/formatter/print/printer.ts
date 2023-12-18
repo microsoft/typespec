@@ -1343,7 +1343,7 @@ export function printTemplateArgument(
   _options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  if (path.getNode()?.name !== undefined) {
+  if (path.getValue().name !== undefined) {
     const name = path.call(print, "name");
     const argument = path.call(print, "argument");
 
