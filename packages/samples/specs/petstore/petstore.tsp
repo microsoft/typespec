@@ -35,14 +35,14 @@ model Error {
 }
 
 @doc("Not modified")
-model NotModified<T> {
+model NotModified<Body> {
   @statusCode _: 304;
-  @body body: T;
+  @body body: Body;
 }
 
-@friendlyName("{name}ListResults", T)
-model ResponsePage<T> {
-  items: T[];
+@friendlyName("{name}ListResults", Item)
+model ResponsePage<Item> {
+  items: Item[];
   nextLink?: string;
 }
 
