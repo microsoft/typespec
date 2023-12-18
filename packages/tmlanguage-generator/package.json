@@ -38,10 +38,10 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
-    "@types/plist": "~3.0.2",
+    "@types/plist": "~3.0.5",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
-    "eslint": "^8.49.0",
+    "eslint": "^8.55.0",
     "rimraf": "~5.0.1",
-    "typescript": "~5.2.2"
+    "typescript": "~5.3.3"
   }
 }

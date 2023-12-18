@@ -34,6 +34,7 @@ words:
   - jsyaml
   - keyer
   - lzutf
+  - mocharc
   - msbuild
   - MSRC
   - multis

@@ -38,14 +38,14 @@
     "@typespec/compiler": "workspace:~0.51.0",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
     "@typespec/eslint-plugin": "workspace:~0.51.0",
-    "@types/mocha": "~10.0.1",
+    "@types/mocha": "~10.0.6",
     "@types/node": "~18.11.9",
     "@typespec/tspd": "workspace:~0.46.0",
     "c8": "~8.0.1",
-    "eslint": "^8.49.0",
+    "eslint": "^8.55.0",
     "mocha": "~10.2.0",
     "rimraf": "~5.0.1",
-    "typescript": "~5.2.2",
+    "typescript": "~5.3.3",
     "micromatch": "^4.0.5",
     "@types/micromatch": "^4.0.2"
   }

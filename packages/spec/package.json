@@ -16,12 +16,12 @@
   },
   "type": "module",
   "scripts": {
-    "build": "ecmarkup --strict src/spec.emu.html dist/spec.html",
+    "build": "ecmarkup --strict src/spec.emu.html dist/spec.html 2>&1",
     "watch": "node scripts/watch-spec.js"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
-    "ecmarkup": "~12.0.3",
+    "ecmarkup": "~18.1.0",
     "@typespec/internal-build-utils": "workspace:~0.51.0"
   }
 }
