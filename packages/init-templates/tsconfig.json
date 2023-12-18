@@ -1,8 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "types": ["node", "mocha"]
-  },
-  "ts-node": { "esm": true },
-  "include": [".scripts/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
-}

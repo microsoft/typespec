@@ -27,43 +27,43 @@
     "libraries": [],
     "files": [
       {
-        "path": "templates/emitter-ts/.eslintrc.yml",
+        "path": "emitter-ts/.eslintrc.yml",
         "destination": ".eslintrc.yml"
       },
       {
-        "path": "templates/emitter-ts/package.json",
+        "path": "emitter-ts/package.json",
         "destination": "package.json"
       },
       {
-        "path": "templates/emitter-ts/prettierrc.yaml",
+        "path": "emitter-ts/prettierrc.yaml",
         "destination": "prettierrc.yaml"
       },
       {
-        "path": "templates/emitter-ts/src/emitter.ts",
+        "path": "emitter-ts/src/emitter.ts",
         "destination": "src/emitter.ts"
       },
       {
-        "path": "templates/emitter-ts/src/index.ts",
+        "path": "emitter-ts/src/index.ts",
         "destination": "src/index.ts"
       },
       {
-        "path": "templates/emitter-ts/src/lib.ts",
+        "path": "emitter-ts/src/lib.ts",
         "destination": "src/lib.ts"
       },
       {
-        "path": "templates/emitter-ts/src/testing/index.ts",
+        "path": "emitter-ts/src/testing/index.ts",
         "destination": "src/testing/index.ts"
       },
       {
-        "path": "templates/emitter-ts/test/hello.test.ts",
+        "path": "emitter-ts/test/hello.test.ts",
         "destination": "test/hello.test.ts"
       },
       {
-        "path": "templates/emitter-ts/test/test-host.ts",
+        "path": "emitter-ts/test/test-host.ts",
         "destination": "test/test-host.ts"
       },
       {
-        "path": "templates/emitter-ts/tsconfig.json",
+        "path": "emitter-ts/tsconfig.json",
         "destination": "tsconfig.json"
       }
     ]

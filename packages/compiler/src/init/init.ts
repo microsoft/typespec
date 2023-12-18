@@ -1,4 +1,3 @@
-import { TypeSpecCoreTemplates } from "@typespec/init-templates";
 import { readdir } from "fs/promises";
 import pc from "picocolors";
 import prompts from "prompts";
@@ -9,6 +8,7 @@ import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { readUrlOrPath } from "../core/util.js";
 import { MANIFEST } from "../manifest.js";
+import { TypeSpecCoreTemplates } from "./core-templates.js";
 import { InitTemplate, InitTemplateLibrarySpec, InitTemplateSchema } from "./init-template.js";
 import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";
 

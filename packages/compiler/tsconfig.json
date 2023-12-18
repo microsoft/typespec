@@ -6,5 +6,5 @@
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "types": ["node", "mocha"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "templates/index.ts", "templates/*.e2e.ts", "./.scripts/**/*.ts"]
 }

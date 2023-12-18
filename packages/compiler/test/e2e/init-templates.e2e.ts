@@ -4,12 +4,9 @@ import { rm } from "fs/promises";
 import { dirname } from "path";
 import { resolve } from "path/posix";
 import { fileURLToPath } from "url";
-import { NodeHost } from "../../compiler/dist/src/index.js";
-import {
-  makeScaffoldingConfig,
-  scaffoldNewProject,
-} from "../../compiler/dist/src/init/scaffold.js";
-import { TypeSpecCoreTemplates } from "../src/index.js";
+import { NodeHost } from "../../src/index.js";
+import { TypeSpecCoreTemplates } from "../../src/init/core-templates.js";
+import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const testTempRoot = resolve(__dirname, "../temp/scaffolded-template-tests");

@@ -4,7 +4,7 @@ import { join, resolve } from "path/posix";
 import { fileURLToPath } from "url";
 
 export const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const templateDir = resolve("templates");
+const templateDir = "templates";
 
 function isEnoentError(e: unknown): e is { code: "ENOENT" } {
   return typeof e === "object" && e !== null && "code" in e;
@@ -35,7 +35,7 @@ async function readFilesInDirRecursively(dir: string): Promise<string[]> {
 }
 
 export function localFile(templateName: string, path: string): any {
-  return { path: join("templates", templateName, path), destination: path };
+  return { path: join(templateName, path), destination: path };
 }
 
 export async function localDir(templateName: string): Promise<any[]> {

@@ -36,6 +36,6 @@ const builtInTemplates: Record<string, any> = {
 const distDir = resolve(packageRoot, "dist");
 await mkdir(distDir, { recursive: true });
 await writeFile(
-  resolve(packageRoot, "scaffolding.json"),
+  resolve(packageRoot, "templates", "scaffolding.json"),
   JSON.stringify(builtInTemplates, null, 2)
 );
