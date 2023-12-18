@@ -99,13 +99,13 @@ model OptionalProperties<Source>
 
 
 ```typespec
-model Record<Property>
+model Record<Element>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| Property | The type of the properties |
+| Element | The type of the properties |
 
 
 

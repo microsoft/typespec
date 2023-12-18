@@ -39,7 +39,7 @@ describe("compiler: server: completion", () => {
         kind: CompletionItemKind.Class,
         documentation: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\nmodel Record<Property>\n```",
+          value: "```typespec\nmodel Record<Element>\n```",
         },
       },
     ]);
