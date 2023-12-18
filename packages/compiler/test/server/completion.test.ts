@@ -596,6 +596,54 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes template parameter names in arguments", async () => {
+    const completions = await complete(`
+      model Template<Param> {
+        prop: Param;
+      }
+
+      model M {
+        prop: Template<P┆>;
+      }
+      `);
+
+    check(completions, [
+      {
+        label: "Param",
+        insertText: "Param = ",
+        kind: CompletionItemKind.Struct,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(template parameter)\n```typespec\nParam\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes template parameter names in arguments with equals sign already in place", async () => {
+    const completions = await complete(`
+      model Template<Param> {
+        prop: Param;
+      }
+
+      model M {
+        prop: Template<P┆ = string>;
+      }
+      `);
+
+    check(completions, [
+      {
+        label: "Param",
+        insertText: "Param",
+        kind: CompletionItemKind.Struct,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(template parameter)\n```typespec\nParam\n```",
+        },
+      },
+    ]);
+  });
+
   it("completes sibling in namespace", async () => {
     const completions = await complete(
       `
