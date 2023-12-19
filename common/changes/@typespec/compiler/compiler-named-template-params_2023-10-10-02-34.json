@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Added support for named template arguments (#2340)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

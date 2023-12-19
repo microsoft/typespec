@@ -816,6 +816,7 @@ export enum SyntaxKind {
   ProjectionDecoratorReferenceExpression,
   Return,
   JsNamespaceDeclaration,
+  TemplateArgument,
 }
 
 export const enum NodeFlags {
@@ -872,6 +873,7 @@ export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
   | JsNamespaceDeclarationNode
+  | TemplateArgumentNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -1070,7 +1072,6 @@ export type Expression =
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
-  | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
@@ -1352,7 +1353,13 @@ export interface ValueOfExpressionNode extends BaseNode {
 export interface TypeReferenceNode extends BaseNode {
   readonly kind: SyntaxKind.TypeReference;
   readonly target: MemberExpressionNode | IdentifierNode;
-  readonly arguments: readonly Expression[];
+  readonly arguments: readonly TemplateArgumentNode[];
+}
+
+export interface TemplateArgumentNode extends BaseNode {
+  readonly kind: SyntaxKind.TemplateArgument;
+  readonly name?: IdentifierNode;
+  readonly argument: Expression;
 }
 
 export interface ProjectionReferenceNode extends BaseNode {
@@ -1613,6 +1620,7 @@ export interface IdentifierContext {
 
 export enum IdentifierKind {
   TypeReference,
+  TemplateArgument,
   Decorator,
   Function,
   Using,

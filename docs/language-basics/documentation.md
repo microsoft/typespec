@@ -31,8 +31,8 @@ model Dog {
 The `@doc` decorator can also accept a source object which can be used, for example, to provide templated documentation for a generic type.
 
 ```typespec
-@doc("Templated {name}", T)
-model Template<T extends {}>  {
+@doc("Templated {name}", Type)
+model Template<Type extends {}>  {
 }
 
 // doc will read "Templated A"

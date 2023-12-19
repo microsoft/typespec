@@ -2295,6 +2295,18 @@ alias Foo = Bar<
 >;`,
       });
     });
+
+    it("handles nested named template args", async () => {
+      await assertFormat({
+        code: 'alias F=Foo<int32,V=Foo<V=unknown,T=null,U="test">,U=Foo<string,T=int32,V=never>>;',
+        expected: `
+alias F = Foo<
+  int32,
+  V = Foo<V = unknown, T = null, U = "test">,
+  U = Foo<string, T = int32, V = never>
+>;`,
+      });
+    });
   });
 
   describe("array expression", () => {

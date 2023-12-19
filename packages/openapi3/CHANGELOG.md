@@ -1,6 +1,14 @@
 # Change Log - @typespec/openapi3
 
-This log was last generated on Wed, 06 Dec 2023 19:40:58 GMT and should not be manually modified.
+This log was last generated on Wed, 13 Dec 2023 23:28:17 GMT and should not be manually modified.
+
+## 0.51.1
+Wed, 13 Dec 2023 23:28:17 GMT
+
+### Patches
+
+- Fix: Multipart part of type `bytes[]` is now treated as multiple binary part
+- Fix: OpenAPI3 creating conflicting type declaration when type was used in multipart implicit body and json body
 
 ## 0.51.0
 Wed, 06 Dec 2023 19:40:58 GMT
