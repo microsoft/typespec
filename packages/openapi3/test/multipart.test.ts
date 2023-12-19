@@ -38,6 +38,27 @@ describe("typespec-autorest: multipart", () => {
     });
   });
 
+  it("part of type `bytes[]` produce `type: array, items: {type: string, format: binary}`", async () => {
+    const res = await openApiFor(
+      `
+      op upload(@header contentType: "multipart/form-data", profileImage: bytes[]): void;
+      `
+    );
+    const op = res.paths["/"].post;
+    deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+      schema: {
+        type: "object",
+        properties: {
+          profileImage: {
+            type: "array",
+            items: { type: "string", format: "binary" },
+          },
+        },
+        required: ["profileImage"],
+      },
+    });
+  });
+
   it("part of type `string` produce `type: string`", async () => {
     const res = await openApiFor(
       `
@@ -101,5 +122,22 @@ describe("typespec-autorest: multipart", () => {
         format: "byte",
       }
     );
+  });
+
+  it("enum used in both a json payload and multipart part shouldn't create 2 models", async () => {
+    const res = await openApiFor(
+      `
+      enum FilePurpose {
+        one,
+        two,
+      }
+      
+      interface Files {
+        @get listFiles(purpose: FilePurpose): string;
+        @post uploadFile(@header contentType: "multipart/form-data", purpose: FilePurpose): string;
+      }
+      `
+    );
+    deepStrictEqual(res.components.schemas.FilePurpose, { type: "string", enum: ["one", "two"] });
   });
 });
