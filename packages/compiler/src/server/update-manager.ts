@@ -46,7 +46,7 @@ export class UpdateManger<T> {
 }
 
 /**
- * Debounces a function but also waits at minimum the specified number of miliseconds until
+ * Debounces a function but also waits at minimum the specified number of milliseconds until
  * the next invocation. This avoids needless calls when a synchronous call (like diagnostics)
  * took too long and the whole timeout of the next call was eaten up already.
  *
