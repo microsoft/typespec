@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "IDE: Performance improvements to the language server. TypeSpec extension will not recompile on every char added but will resolve diagnostics only after a debounce timer.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
