@@ -15,7 +15,7 @@ You will need both node and npm installed. Additionally, if you intend to develo
 
 ## Setup with templates
 
-Available templates: 
+Available templates:
 
 ```bash
 # Create a TypeSpec emitter with TypeScript enabled.

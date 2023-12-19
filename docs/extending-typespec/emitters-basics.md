@@ -9,9 +9,10 @@ TypeSpec emitters are libraries that use various TypeSpec compiler APIs to refle
 
 ## Getting started
 
-TypeSpec emitters are a special kind of TypeSpec library and so have the same getting started instructions. 
+TypeSpec emitters are a special kind of TypeSpec library and so have the same getting started instructions.
 
 Setup the boilerplate for an emitter using our template:
+
 ```bash
 tsp init --template emitter-ts
 ```
