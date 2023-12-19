@@ -37,7 +37,10 @@ describe("compiler: server: completion", () => {
         label: "Record",
         insertText: "Record",
         kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel Record<T>\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nmodel Record<Element>\n```",
+        },
       },
     ]);
   });
@@ -579,6 +582,54 @@ describe("compiler: server: completion", () => {
       }
       `
     );
+
+    check(completions, [
+      {
+        label: "Param",
+        insertText: "Param",
+        kind: CompletionItemKind.Struct,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(template parameter)\n```typespec\nParam\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes template parameter names in arguments", async () => {
+    const completions = await complete(`
+      model Template<Param> {
+        prop: Param;
+      }
+
+      model M {
+        prop: Template<P┆>;
+      }
+      `);
+
+    check(completions, [
+      {
+        label: "Param",
+        insertText: "Param = ",
+        kind: CompletionItemKind.Struct,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(template parameter)\n```typespec\nParam\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes template parameter names in arguments with equals sign already in place", async () => {
+    const completions = await complete(`
+      model Template<Param> {
+        prop: Param;
+      }
+
+      model M {
+        prop: Template<P┆ = string>;
+      }
+      `);
 
     check(completions, [
       {

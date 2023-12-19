@@ -286,6 +286,9 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case SyntaxKind.DocUnknownTag:
         classifyDocTag(node.tagName, SemanticTokenKind.Macro);
         break;
+      case SyntaxKind.TemplateArgument:
+        if (node.name) classify(node.name, SemanticTokenKind.TypeParameter);
+        break;
       default:
         break;
     }
