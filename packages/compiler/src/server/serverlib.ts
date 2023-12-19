@@ -12,7 +12,6 @@ import {
   DocumentHighlightParams,
   DocumentSymbol,
   DocumentSymbolParams,
-  FileEvent,
   FoldingRange,
   FoldingRangeParams,
   Hover,
@@ -36,37 +35,19 @@ import {
   SignatureHelp,
   SignatureHelpParams,
   TextDocumentChangeEvent,
-  TextDocumentIdentifier,
   TextDocumentSyncKind,
   TextEdit,
   Diagnostic as VSDiagnostic,
   WorkspaceEdit,
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
-import {
-  defaultConfig,
-  findTypeSpecConfigPath,
-  loadTypeSpecConfigFile,
-} from "../config/config-loader.js";
-import { resolveOptionsFromConfig } from "../config/config-to-options.js";
-import { TypeSpecConfig } from "../config/types.js";
 import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
-import {
-  compilerAssert,
-  createSourceFile,
-  formatDiagnostic,
-  getSourceLocation,
-} from "../core/diagnostics.js";
+import { compilerAssert, createSourceFile, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
-import { CompilerOptions } from "../core/options.js";
-import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
-import {
-  ensureTrailingDirectorySeparator,
-  getDirectoryPath,
-  joinPaths,
-} from "../core/path-utils.js";
-import { Program, compile as compileProgram } from "../core/program.js";
+import { getNodeAtPosition, visitChildren } from "../core/parser.js";
+import { ensureTrailingDirectorySeparator } from "../core/path-utils.js";
+import { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import {
   AugmentDecoratorStatementNode,
@@ -80,19 +61,14 @@ import {
   SyntaxKind,
   TextRange,
   TypeReferenceNode,
-  Diagnostic as TypeSpecDiagnostic,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import {
-  doIO,
-  getNormalizedRealPath,
-  getSourceFileKindFromExt,
-  loadFile,
-  resolveTspMain,
-} from "../core/util.js";
+import { getNormalizedRealPath, getSourceFileKindFromExt } from "../core/util.js";
 import { getSemanticTokens } from "./classify.js";
+import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
-import { serverOptions } from "./constants.js";
+import { createFileService } from "./file-service.js";
+import { createFileSystemCache } from "./file-system-cache.js";
 import { getPositionBeforeTrivia } from "./server-utils.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import {
@@ -110,40 +86,25 @@ import {
 } from "./types.js";
 import { UpdateManger } from "./update-manager.js";
 
-interface CachedFile {
-  type: "file";
-  file: SourceFile;
-  version?: number;
-
-  // Cache additional data beyond the raw text of the source file. Currently
-  // used only for JSON.parse result of package.json.
-  data?: any;
-}
-
-interface CachedError {
-  type: "error";
-  error: unknown;
-  data?: any;
-  version?: undefined;
-}
-
 export function createServer(host: ServerHost): Server {
-  // Remember original URL when we convert it to a local path so that we can
-  const updateManager = new UpdateManger(compile);
-  // get it back. We can't convert it back because things like URL-encoding
-  // could give us back an equivalent but non-identical URL but the original
-  // URL is used as a key into the opened documents and so we must reproduce
-  // it exactly.
-  const pathToURLMap = new Map<string, string>();
+  const fileService = createFileService({ serverHost: host });
 
   // Cache all file I/O. Only open documents are sent over the LSP pipe. When
   // the compiler reads a file that isn't open, we use this cache to avoid
   // hitting the disk. Entries are invalidated when LSP client notifies us of
   // a file change.
-  const fileSystemCache = createFileSystemCache();
+  const fileSystemCache = createFileSystemCache({
+    fileService,
+  });
   const compilerHost = createCompilerHost();
 
-  const oldPrograms = new Map<string, Program>();
+  const compileService = createCompileService({
+    fileService,
+    fileSystemCache,
+    compilerHost,
+    serverHost: host,
+  });
+  const updateManager = new UpdateManger((x) => compileService.compile(x));
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
@@ -156,7 +117,7 @@ export function createServer(host: ServerHost): Server {
     get workspaceFolders() {
       return workspaceFolders;
     },
-    compile,
+    compile: compileService.compile,
     initialize,
     initialized,
     workspaceFoldersChanged,
@@ -217,7 +178,7 @@ export function createServer(host: ServerHost): Server {
       for (const w of params.workspaceFolders ?? []) {
         workspaceFolders.push({
           ...w,
-          path: ensureTrailingDirectorySeparator(await fileURLToRealPath(w.uri)),
+          path: ensureTrailingDirectorySeparator(await fileService.fileURLToRealPath(w.uri)),
         });
       }
       capabilities.workspace = {
@@ -233,8 +194,10 @@ export function createServer(host: ServerHost): Server {
           name: "<root>",
           // eslint-disable-next-line deprecation/deprecation
           uri: params.rootUri,
-          // eslint-disable-next-line deprecation/deprecation
-          path: ensureTrailingDirectorySeparator(await fileURLToRealPath(params.rootUri)),
+          path: ensureTrailingDirectorySeparator(
+            // eslint-disable-next-line deprecation/deprecation
+            await fileService.fileURLToRealPath(params.rootUri)
+          ),
         },
       ];
       // eslint-disable-next-line deprecation/deprecation
@@ -270,7 +233,7 @@ export function createServer(host: ServerHost): Server {
     for (const folder of e.added) {
       map.set(folder.uri, {
         ...folder,
-        path: ensureTrailingDirectorySeparator(await fileURLToRealPath(folder.uri)),
+        path: ensureTrailingDirectorySeparator(await fileService.fileURLToRealPath(folder.uri)),
       });
     }
     workspaceFolders = Array.from(map.values());
@@ -281,105 +244,8 @@ export function createServer(host: ServerHost): Server {
     fileSystemCache.notify(params.changes);
   }
 
-  async function compile(
-    document: TextDocument | TextDocumentIdentifier
-  ): Promise<CompileResult | undefined> {
-    const path = await getPath(document);
-    const mainFile = await getMainFileForDocument(path);
-    const config = await getConfig(mainFile);
-
-    const [optionsFromConfig, _] = resolveOptionsFromConfig(config, { cwd: path });
-    const options: CompilerOptions = {
-      ...optionsFromConfig,
-      ...serverOptions,
-    };
-
-    if (!upToDate(document)) {
-      return undefined;
-    }
-
-    let program: Program;
-    try {
-      program = await compileProgram(compilerHost, mainFile, options, oldPrograms.get(mainFile));
-      oldPrograms.set(mainFile, program);
-      if (!upToDate(document)) {
-        return undefined;
-      }
-
-      if (mainFile !== path && !program.sourceFiles.has(path)) {
-        // If the file that changed wasn't imported by anything from the main
-        // file, retry using the file itself as the main file.
-        program = await compileProgram(compilerHost, path, options, oldPrograms.get(path));
-        oldPrograms.set(path, program);
-      }
-
-      if (!upToDate(document)) {
-        return undefined;
-      }
-
-      const doc = "version" in document ? document : host.getOpenDocumentByURL(document.uri);
-      compilerAssert(doc, "Failed to get document.");
-      const resolvedPath = await getPath(doc);
-      const script = program.sourceFiles.get(resolvedPath);
-      compilerAssert(script, "Failed to get script.");
-
-      return { program, document: doc, script };
-    } catch (err: any) {
-      if (host.throwInternalErrors) {
-        throw err;
-      }
-      host.sendDiagnostics({
-        uri: document.uri,
-        diagnostics: [
-          {
-            severity: DiagnosticSeverity.Error,
-            range: Range.create(0, 0, 0, 0),
-            message:
-              `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n` +
-              err.stack,
-          },
-        ],
-      });
-
-      return undefined;
-    }
-  }
-
-  async function getConfig(mainFile: string): Promise<TypeSpecConfig> {
-    const entrypointStat = await host.compilerHost.stat(mainFile);
-
-    const lookupDir = entrypointStat.isDirectory() ? mainFile : getDirectoryPath(mainFile);
-    const configPath = await findTypeSpecConfigPath(compilerHost, lookupDir, true);
-    if (!configPath) {
-      return { ...defaultConfig, projectRoot: getDirectoryPath(mainFile) };
-    }
-
-    const cached = await fileSystemCache.get(configPath);
-    if (cached?.data) {
-      return cached.data;
-    }
-
-    const config = await loadTypeSpecConfigFile(compilerHost, configPath);
-    await fileSystemCache.setData(configPath, config);
-    return config;
-  }
-
-  async function getScript(
-    document: TextDocument | TextDocumentIdentifier
-  ): Promise<TypeSpecScriptNode> {
-    const file = await compilerHost.readFile(await getPath(document));
-    const cached = compilerHost.parseCache?.get(file);
-    if (cached === undefined) {
-      const parsed = parse(file, { docs: true, comments: true });
-      compilerHost.parseCache?.set(file, parsed);
-      return parsed;
-    } else {
-      return cached;
-    }
-  }
-
   async function getFoldingRanges(params: FoldingRangeParams): Promise<FoldingRange[]> {
-    const ast = await getScript(params.textDocument);
+    const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
     }
@@ -435,7 +301,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]> {
-    const ast = await getScript(params.textDocument);
+    const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
     }
@@ -446,7 +312,7 @@ export function createServer(host: ServerHost): Server {
   async function findDocumentHighlight(
     params: DocumentHighlightParams
   ): Promise<DocumentHighlight[]> {
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return [];
     }
@@ -501,7 +367,7 @@ export function createServer(host: ServerHost): Server {
         diagDocument = document;
       }
 
-      if (!diagDocument || !upToDate(diagDocument)) {
+      if (!diagDocument || !fileService.upToDate(diagDocument)) {
         continue;
       }
 
@@ -527,7 +393,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getHover(params: HoverParams): Promise<Hover> {
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return { contents: [] };
     }
@@ -547,7 +413,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined> {
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return undefined;
     }
@@ -732,7 +598,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function gotoDefinition(params: DefinitionParams): Promise<Location[]> {
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return [];
     }
@@ -746,7 +612,7 @@ export function createServer(host: ServerHost): Server {
       isIncomplete: false,
       items: [],
     };
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result) {
       const { script, document, program } = result;
       const node = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
@@ -765,7 +631,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function findReferences(params: ReferenceParams): Promise<Location[]> {
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return [];
     }
@@ -778,7 +644,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function prepareRename(params: PrepareRenameParams): Promise<Range | undefined> {
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result === undefined) {
       return undefined;
     }
@@ -788,7 +654,7 @@ export function createServer(host: ServerHost): Server {
 
   async function rename(params: RenameParams): Promise<WorkspaceEdit> {
     const changes: Record<string, TextEdit[]> = {};
-    const result = await compile(params.textDocument);
+    const result = await compileService.compile(params.textDocument);
     if (result) {
       const identifiers = findReferenceIdentifiers(
         result.program,
@@ -843,7 +709,7 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getSemanticTokensForDocument(params: SemanticTokensParams) {
-    const ast = await getScript(params.textDocument);
+    const ast = await compileService.getScript(params.textDocument);
     if (!ast) {
       return [];
     }
@@ -854,7 +720,7 @@ export function createServer(host: ServerHost): Server {
   async function buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens> {
     const builder = new SemanticTokensBuilder();
     const tokens = await getSemanticTokensForDocument(params);
-    const file = await compilerHost.readFile(await getPath(params.textDocument));
+    const file = await compilerHost.readFile(await fileService.getPath(params.textDocument));
     const starts = file.getLineStarts();
 
     for (const token of tokens) {
@@ -888,7 +754,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     return {
-      uri: getURL(location.file.path),
+      uri: fileService.getURL(location.file.path),
       range: getRange(location, location.file),
     };
   }
@@ -935,151 +801,6 @@ export function createServer(host: ServerHost): Server {
     });
   }
 
-  /**
-   * Determine if the given document is the latest version.
-   *
-   * A document can become out-of-date if a change comes in during an async
-   * operation.
-   */
-  function upToDate(document: TextDocument | TextDocumentIdentifier) {
-    if (!("version" in document)) {
-      return true;
-    }
-    return document.version === host.getOpenDocumentByURL(document.uri)?.version;
-  }
-
-  /**
-   * Infer the appropriate entry point (a.k.a. "main file") for analyzing a
-   * change to the file at the given path. This is necessary because different
-   * results can be obtained from compiling the same file with different entry
-   * points.
-   *
-   * Walk directory structure upwards looking for package.json with tspMain or
-   * main.tsp file. Stop search when reaching a workspace root. If a root is
-   * reached without finding an entry point, use the given path as its own
-   * entry point.
-   *
-   * Untitled documents are always treated as their own entry points as they
-   * do not exist in a directory that could pull them in via another entry
-   * point.
-   */
-  async function getMainFileForDocument(path: string) {
-    if (path.startsWith("untitled:")) {
-      return path;
-    }
-
-    let dir = getDirectoryPath(path);
-    const options = { allowFileNotFound: true };
-
-    while (true) {
-      let mainFile = "main.tsp";
-      let pkg: any;
-      const pkgPath = joinPaths(dir, "package.json");
-      const cached = await fileSystemCache.get(pkgPath);
-
-      if (cached?.data) {
-        pkg = cached.data;
-      } else {
-        [pkg] = await loadFile(
-          compilerHost,
-          pkgPath,
-          JSON.parse,
-          logMainFileSearchDiagnostic,
-          options
-        );
-        await fileSystemCache.setData(pkgPath, pkg ?? {});
-      }
-
-      const tspMain = resolveTspMain(pkg);
-      if (typeof tspMain === "string") {
-        mainFile = tspMain;
-      }
-
-      const candidate = joinPaths(dir, mainFile);
-      const stat = await doIO(
-        () => compilerHost.stat(candidate),
-        candidate,
-        logMainFileSearchDiagnostic,
-        options
-      );
-
-      if (stat?.isFile()) {
-        return candidate;
-      }
-
-      const parentDir = getDirectoryPath(dir);
-      if (parentDir === dir) {
-        break;
-      }
-      dir = parentDir;
-    }
-
-    return path;
-
-    function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
-      log(
-        `Unexpected diagnostic while looking for main file of ${path}`,
-        formatDiagnostic(diagnostic)
-      );
-    }
-  }
-
-  async function getPath(document: TextDocument | TextDocumentIdentifier) {
-    if (isUntitled(document.uri)) {
-      return document.uri;
-    }
-    const path = await fileURLToRealPath(document.uri);
-    pathToURLMap.set(path, document.uri);
-    return path;
-  }
-
-  function getURL(path: string) {
-    if (isUntitled(path)) {
-      return path;
-    }
-    return pathToURLMap.get(path) ?? compilerHost.pathToFileURL(path);
-  }
-
-  function isUntitled(pathOrUrl: string) {
-    return pathOrUrl.startsWith("untitled:");
-  }
-
-  function getOpenDocument(path: string) {
-    const url = getURL(path);
-    return url ? host.getOpenDocumentByURL(url) : undefined;
-  }
-
-  async function fileURLToRealPath(url: string) {
-    return getNormalizedRealPath(compilerHost, compilerHost.fileURLToPath(url));
-  }
-
-  function createFileSystemCache() {
-    const cache = new Map<string, CachedFile | CachedError>();
-    let changes: FileEvent[] = [];
-    return {
-      async get(path: string) {
-        for (const change of changes) {
-          const path = await fileURLToRealPath(change.uri);
-          cache.delete(path);
-        }
-        changes = [];
-        return cache.get(path);
-      },
-      set(path: string, entry: CachedFile | CachedError) {
-        cache.set(path, entry);
-      },
-      async setData(path: string, data: any) {
-        const entry = await this.get(path);
-        if (entry) {
-          entry.data = data;
-        }
-      },
-      notify(changes: FileEvent[]) {
-        changes.push(...changes);
-      },
-    };
-  }
-
   function createCompilerHost(): CompilerHost {
     const base = host.compilerHost;
     return {
@@ -1091,7 +812,7 @@ export function createServer(host: ServerHost): Server {
     };
 
     async function readFile(path: string): Promise<ServerSourceFile> {
-      const document = getOpenDocument(path);
+      const document = fileService.getOpenDocument(path);
       const cached = await fileSystemCache.get(path);
 
       // Try cache
@@ -1127,7 +848,7 @@ export function createServer(host: ServerHost): Server {
     async function stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }> {
       // if we have an open document for the path or a cache entry, then we know
       // it's a file and not a directory and needn't hit the disk.
-      if (getOpenDocument(path) || (await fileSystemCache.get(path))?.type === "file") {
+      if (fileService.getOpenDocument(path) || (await fileSystemCache.get(path))?.type === "file") {
         return {
           isFile() {
             return true;
@@ -1141,7 +862,7 @@ export function createServer(host: ServerHost): Server {
     }
 
     function getSourceFileKind(path: string) {
-      const document = getOpenDocument(path);
+      const document = fileService.getOpenDocument(path);
       if (document?.languageId === "typespec") {
         return "typespec";
       }
