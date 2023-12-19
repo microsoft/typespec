@@ -103,6 +103,7 @@ export function createServer(host: ServerHost): Server {
     fileSystemCache,
     compilerHost,
     serverHost: host,
+    log,
   });
   const updateManager = new UpdateManger((x) => compileService.compile(x));
 

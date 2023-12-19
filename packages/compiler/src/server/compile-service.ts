@@ -1,4 +1,3 @@
-import { log } from "console";
 import { DiagnosticSeverity, Range, TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
@@ -50,16 +49,19 @@ export interface CompileService {
 }
 
 export interface CompileServiceOptions {
-  fileSystemCache: FileSystemCache;
-  fileService: FileService;
-  serverHost: ServerHost;
-  compilerHost: CompilerHost;
+  readonly fileSystemCache: FileSystemCache;
+  readonly fileService: FileService;
+  readonly serverHost: ServerHost;
+  readonly compilerHost: CompilerHost;
+  readonly log: (message: string, details?: unknown) => void;
 }
+
 export function createCompileService({
   compilerHost,
   serverHost,
   fileService,
   fileSystemCache,
+  log,
 }: CompileServiceOptions): CompileService {
   const oldPrograms = new Map<string, Program>();
 
