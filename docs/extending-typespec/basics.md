@@ -13,6 +13,15 @@ This document assumes you will be using [TypeScript](https://typescriptlang.org)
 
 You will need both node and npm installed. Additionally, if you intend to develop multiple libraries together, you will likely want to establish a monorepo as this will make developing the libraries in tandem much easier. TypeSpec itself uses [rush.js](https://rushjs.io/).
 
+## Setup with templates
+
+Available templates: 
+
+```bash
+# Create a TypeSpec emitter with TypeScript enabled.
+tsp init --template emitter-ts
+```
+
 ## Canonical package structure
 
 The following is a high level overview of the contents of a TypeSpec package. These files are explained in more detail in the subsequent sections.
@@ -24,6 +33,8 @@ The following is a high level overview of the contents of a TypeSpec package. Th
 - **package.json** - metadata about your TypeSpec package
 
 ## 1 - Initial setup
+
+You can skip this if you used one of the templates above.
 
 ### a. Initialize your package directory &amp; package.json
 
