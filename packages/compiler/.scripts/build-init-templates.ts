@@ -30,7 +30,11 @@ const builtInTemplates: Record<string, InitTemplate> = {
     compilerVersion: minCompilerVersion,
     libraries: [],
     config: undefined,
-    files: [{ destination: "main.tsp", skipGeneration: true }, ...(await localDir("emitter-ts"))],
+    files: [
+      { destination: "main.tsp", skipGeneration: true },
+      { destination: "tspconfig.yaml", skipGeneration: true },
+      ...(await localDir("emitter-ts")),
+    ],
   },
 };
 

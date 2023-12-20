@@ -31,6 +31,10 @@
         "skipGeneration": true
       },
       {
+        "destination": "tspconfig.yaml",
+        "skipGeneration": true
+      },
+      {
         "path": "emitter-ts/.eslintrc.yml",
         "destination": ".eslintrc.yml"
       },
