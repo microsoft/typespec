@@ -25,6 +25,7 @@ import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import { CompileResult, ServerHost } from "./types.js";
+import { UpdateManger } from "./update-manager.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -46,6 +47,15 @@ export interface CompileService {
    * @param document The document to load the AST for.
    */
   getScript(document: TextDocument | TextDocumentIdentifier): Promise<TypeSpecScriptNode>;
+
+  /**
+   * Notify the service that the given document has changed and a compilation should be requested.
+   * It will recompile after a debounce timer so we don't recompile on every keystroke.
+   * @param document Document that changed.
+   */
+  notifyChange(document: TextDocument): void;
+
+  on(event: "compileEnd", listener: (result: CompileResult) => void): void;
 }
 
 export interface CompileServiceOptions {
@@ -64,8 +74,25 @@ export function createCompileService({
   log,
 }: CompileServiceOptions): CompileService {
   const oldPrograms = new Map<string, Program>();
+  const eventListeners = new Map<string, (...args: unknown[]) => void>();
+  const updated = new UpdateManger((document) => compile(document));
 
-  return { compile, getScript };
+  return { compile, getScript, on, notifyChange };
+
+  function on(event: string, listener: (...args: any[]) => void) {
+    eventListeners.set(event, listener);
+  }
+
+  function notify(event: string, ...args: unknown[]) {
+    const listener = eventListeners.get(event);
+    if (listener) {
+      listener(...args);
+    }
+  }
+
+  function notifyChange(document: TextDocument) {
+    updated.scheduleUpdate(document);
+  }
 
   async function compile(
     document: TextDocument | TextDocumentIdentifier
@@ -109,7 +136,9 @@ export function createCompileService({
       const script = program.sourceFiles.get(resolvedPath);
       compilerAssert(script, "Failed to get script.");
 
-      return { program, document: doc, script };
+      const result: CompileResult = { program, document: doc, script };
+      notify("compileEnd", result);
+      return result;
     } catch (err: any) {
       if (serverHost.throwInternalErrors) {
         throw err;

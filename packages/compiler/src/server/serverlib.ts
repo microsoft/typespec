@@ -84,7 +84,6 @@ import {
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
-import { UpdateManger } from "./update-manager.js";
 
 export function createServer(host: ServerHost): Server {
   const fileService = createFileService({ serverHost: host });
@@ -105,7 +104,7 @@ export function createServer(host: ServerHost): Server {
     serverHost: host,
     log,
   });
-  const updateManager = new UpdateManger((x) => compileService.compile(x));
+  compileService.on("compileEnd", (result) => reportDiagnostics(result));
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
   let isInitialized = false;
@@ -331,13 +330,9 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function checkChange(change: TextDocumentChangeEvent<TextDocument>) {
-    updateManager.scheduleUpdate(
-      change.document,
-      "checkChange",
-      (result) => result && handleChanges(result)
-    );
+    compileService.notifyChange(change.document);
   }
-  async function handleChanges({ program, document }: CompileResult) {
+  async function reportDiagnostics({ program, document }: CompileResult) {
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array

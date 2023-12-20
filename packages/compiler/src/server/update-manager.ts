@@ -1,31 +1,28 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { UPDATE_DEBOUNCE_TIME } from "./constants.js";
 
-interface PendingUpdate<T> {
+interface PendingUpdate {
   latest: TextDocument;
-  callbacks: Map<string, (result: T) => unknown>;
 }
 /**
  * Track file updates and recompile the affected files after some debounce time.
  */
 export class UpdateManger<T> {
-  #pendingUpdates = new Map<string, PendingUpdate<T>>();
+  #pendingUpdates = new Map<string, PendingUpdate>();
   #updateCb: (document: TextDocument) => Promise<T>;
 
   constructor(updateCb: (document: TextDocument) => Promise<T>) {
     this.#updateCb = updateCb;
   }
 
-  public scheduleUpdate<U>(document: TextDocument, key: string, callback: (result: T) => U) {
+  public scheduleUpdate(document: TextDocument) {
     const existing = this.#pendingUpdates.get(document.uri);
     if (existing === undefined) {
       this.#pendingUpdates.set(document.uri, {
-        callbacks: new Map([[key, callback]]),
         latest: document,
       });
     } else {
       existing.latest = document;
-      existing.callbacks.set(key, callback);
     }
     this.#scheduleBatchUpdate();
   }
@@ -37,11 +34,8 @@ export class UpdateManger<T> {
     this.#pendingUpdates.clear();
   }, UPDATE_DEBOUNCE_TIME);
 
-  async #update(update: PendingUpdate<T>) {
-    const result = await this.#updateCb(update.latest);
-    for (const callback of update.callbacks.values()) {
-      callback(result);
-    }
+  async #update(update: PendingUpdate) {
+    await this.#updateCb(update.latest);
   }
 }
 
