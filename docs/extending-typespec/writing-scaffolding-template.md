@@ -96,6 +96,9 @@ Additionally the following values and functions are available:
 | Functions                             |                                                                 |
 | `toLowerCase(value: string)`          | Convert string to lower case                                    |
 | `normalizePackageName(value: string)` | Normalize package name. It replaces `.` with`-` and toLowerCase |
+| `naming.pascalCase(value: string)`    | Convert string to PascalCase                                    |
+| `naming.camelCase(value: string)`     | Convert string to camelCase                                     |
+| `naming.kebabCase(value: string)`     | Convert string to kebab-case                                    |
 
 ## Demanding additional input from the user
 
