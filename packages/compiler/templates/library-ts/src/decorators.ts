@@ -1,6 +1,8 @@
 import { DecoratorContext, Operation, Program } from "@typespec/compiler";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
+export const namespace = "{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}";
+
 const alternateNameKey = createStateSymbol("alternateName");
 export function $alternateName(context: DecoratorContext, target: Operation, name: string) {
   if (name === "banned") {

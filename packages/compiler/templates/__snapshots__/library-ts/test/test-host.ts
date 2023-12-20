@@ -10,6 +10,8 @@ export async function createLibraryTsTestHost() {
 export async function createLibraryTsTestRunner() {
   const host = await createLibraryTsTestHost();
 
-  return createTestWrapper(host);
+  return createTestWrapper(host, {
+    autoUsings: ["LibraryTs"]
+  });
 }
 

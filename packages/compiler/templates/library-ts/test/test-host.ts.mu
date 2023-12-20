@@ -10,6 +10,8 @@ export async function create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}
 export async function create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestRunner() {
   const host = await create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestHost();
 
-  return createTestWrapper(host);
+  return createTestWrapper(host, {
+    autoUsings: ["{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}"]
+  });
 }
 

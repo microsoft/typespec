@@ -2,6 +2,8 @@ import "../dist/src/decorators.js";
 
 using TypeSpec.Reflection;
 
+namespace {{#casing.pascalCase}}{{name}}{{/casing.pascalCase}};
+
 /**
  * Provide an alternate name for an operation.
  * @param name The alternate name.
