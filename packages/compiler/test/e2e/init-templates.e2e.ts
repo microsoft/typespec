@@ -9,7 +9,8 @@ import { TypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const testTempRoot = resolve(__dirname, "../temp/scaffolded-template-tests");
+const testTempRoot = resolve(__dirname, "../../../temp/scaffolded-template-tests");
+const snapshotFolder = resolve(__dirname, "../../../templates/__snapshots__");
 
 async function execAsync(
   command: string,
@@ -61,10 +62,9 @@ describe("Init templates e2e tests", () => {
     await rm(testTempRoot, { recursive: true, force: true });
   });
 
-  async function scaffoldTemplate(name: string): Promise<ScaffoldedTemplateFixture> {
+  async function scaffoldTemplateTo(name: string, targetFolder: string) {
     const template = TypeSpecCoreTemplates.templates[name];
     ok(template, `Template '${name}' not found`);
-    const targetFolder = resolve(testTempRoot, name);
     await scaffoldNewProject(
       NodeHost,
       makeScaffoldingConfig(template, {
@@ -74,6 +74,14 @@ describe("Init templates e2e tests", () => {
         baseUri: TypeSpecCoreTemplates.baseUri,
       })
     );
+  }
+  async function scaffoldTemplateSnapshot(name: string): Promise<void> {
+    await scaffoldTemplateTo(name, resolve(snapshotFolder, name));
+  }
+
+  async function scaffoldTemplateForTest(name: string): Promise<ScaffoldedTemplateFixture> {
+    const targetFolder = resolve(testTempRoot, name);
+    await scaffoldTemplateTo(name, targetFolder);
 
     return {
       directory: targetFolder,
@@ -95,12 +103,22 @@ describe("Init templates e2e tests", () => {
     };
   }
 
-  it("create emitter-ts template", async () => {
-    const fixture = await scaffoldTemplate("emitter-ts");
-    await fixture.checkCommand("npm", ["install"]);
-    await fixture.checkCommand("npm", ["run", "build"]);
-    await fixture.checkCommand("npm", ["run", "test"]);
-    await fixture.checkCommand("npm", ["run", "lint"]);
-    await fixture.checkCommand("npm", ["run", "format"]);
+  describe("create templates", () => {
+    before(async () => {
+      await rm(snapshotFolder, { recursive: true, force: true });
+    });
+
+    it("emitter-ts", () => scaffoldTemplateSnapshot("emitter-ts"));
+  });
+
+  describe("validate templates", () => {
+    it("validate emitter-ts template", async () => {
+      const fixture = await scaffoldTemplateForTest("emitter-ts");
+      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["run", "build"]);
+      await fixture.checkCommand("npm", ["run", "test"]);
+      await fixture.checkCommand("npm", ["run", "lint"]);
+      await fixture.checkCommand("npm", ["run", "format"]);
+    });
   });
 });
