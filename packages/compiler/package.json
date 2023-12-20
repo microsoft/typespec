@@ -52,12 +52,14 @@
   "files": [
     "lib/*.tsp",
     "dist/**",
+    "templates/**",
     "entrypoints",
     "!dist/test/**"
   ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-manifest && npm run compile && npm run generate-tmlanguage",
+    "build:init-templates-index": "node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./.scripts/build-init-templates.ts",
+    "build": "npm run gen-manifest && npm run build:init-templates-index && npm run compile && npm run generate-tmlanguage",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
@@ -65,6 +67,7 @@
     "dogfood": "node scripts/dogfood.js",
     "test": "mocha",
     "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "e2e": "mocha --config ./.mocharc.e2e.yaml",
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
@@ -110,6 +113,7 @@
     "vscode-oniguruma": "~2.0.1",
     "vscode-textmate": "~9.0.0",
     "sinon": "~17.0.1",
-    "@types/sinon": "~10.0.20"
+    "@types/sinon": "~10.0.20",
+    "ts-node": "~10.9.1"
   }
 }
