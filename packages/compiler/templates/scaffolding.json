@@ -131,7 +131,7 @@
         "destination": "src/lib.ts"
       },
       {
-        "path": "emitter-ts/src/testing/index.ts",
+        "path": "emitter-ts/src/testing/index.ts.mu",
         "destination": "src/testing/index.ts"
       },
       {
