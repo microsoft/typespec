@@ -39,7 +39,7 @@
         "destination": ".eslintrc.yml"
       },
       {
-        "path": "library-ts/lib/decorators.tsp",
+        "path": "library-ts/lib/decorators.tsp.mu",
         "destination": "lib/decorators.tsp"
       },
       {
