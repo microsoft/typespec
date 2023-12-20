@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add a new `tsp init` template for setting up a library",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

@@ -67,12 +67,20 @@
         "destination": "src/lib.ts"
       },
       {
+        "path": "library-ts/src/rules/no-interfaces.rule.ts",
+        "destination": "src/rules/no-interfaces.rule.ts"
+      },
+      {
         "path": "library-ts/src/testing/index.ts.mu",
         "destination": "src/testing/index.ts"
       },
       {
         "path": "library-ts/test/decorators.test.ts.mu",
         "destination": "test/decorators.test.ts"
+      },
+      {
+        "path": "library-ts/test/rules/no-interfaces.rule.test.ts",
+        "destination": "test/rules/no-interfaces.rule.test.ts"
       },
       {
         "path": "library-ts/test/test-host.ts.mu",
