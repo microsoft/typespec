@@ -67,10 +67,6 @@
         "destination": "test/hello.test.ts"
       },
       {
-        "path": "emitter-ts/test/test-host.ts",
-        "destination": "test/test-host.ts"
-      },
-      {
         "path": "emitter-ts/test/test-host.ts.mu",
         "destination": "test/test-host.ts"
       },
