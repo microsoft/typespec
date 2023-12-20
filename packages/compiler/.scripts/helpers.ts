@@ -35,7 +35,8 @@ async function readFilesInDirRecursively(dir: string): Promise<string[]> {
 }
 
 export function localFile(templateName: string, path: string): any {
-  return { path: join(templateName, path), destination: path };
+  const destination = path.endsWith(".mu") ? path.slice(0, -3) : path;
+  return { path: join(templateName, path), destination };
 }
 
 export async function localDir(templateName: string): Promise<any[]> {

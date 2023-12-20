@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { resolve } from "path/posix";
+import type { InitTemplate } from "../src/init/init-template.js";
 import { localDir, packageRoot } from "./helpers.js";
 
 const pkgJson = JSON.parse(
@@ -7,7 +8,7 @@ const pkgJson = JSON.parse(
 );
 const minCompilerVersion = pkgJson.version;
 
-const builtInTemplates: Record<string, any> = {
+const builtInTemplates: Record<string, InitTemplate> = {
   empty: {
     title: "Empty project",
     description: "Create an empty project.",
@@ -29,7 +30,11 @@ const builtInTemplates: Record<string, any> = {
     compilerVersion: minCompilerVersion,
     libraries: [],
     config: undefined,
-    files: await localDir("emitter-ts"),
+    files: [
+      { destination: "main.tsp", skipGeneration: true },
+      { destination: "tspconfig.yaml", skipGeneration: true },
+      ...(await localDir("emitter-ts")),
+    ],
   },
 };
 

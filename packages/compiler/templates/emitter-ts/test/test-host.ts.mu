@@ -6,14 +6,14 @@ import {
 } from "@typespec/compiler/testing";
 import { TestLibrary } from "../src/testing/index.js";
 
-export async function createMyTestHost() {
+export async function create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestHost() {
   return createTestHost({
     libraries: [TestLibrary],
   });
 }
 
-export async function createMyTestRunner() {
-  const host = await createMyTestHost();
+export async function create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestRunner() {
+  const host = await create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestHost();
 
   return createTestWrapper(host, {
     compilerOptions: {
@@ -26,7 +26,7 @@ export async function createMyTestRunner() {
 export async function emitWithDiagnostics(
   code: string
 ): Promise<[Record<string, string>, readonly Diagnostic[]]> {
-  const runner = await createMyTestRunner();
+  const runner = await create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestRunner();
   await runner.compileAndDiagnose(code, {
     outputDir: "tsp-output",
   });
