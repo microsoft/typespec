@@ -1,0 +1,71 @@
+{
+  "empty": {
+    "title": "Empty project",
+    "description": "Create an empty project.",
+    "libraries": [],
+    "compilerVersion": "0.51.0"
+  },
+  "rest": {
+    "title": "Generic Rest API",
+    "description": "Create a project representing a generic Rest API",
+    "compilerVersion": "0.51.0",
+    "libraries": [
+      "@typespec/http",
+      "@typespec/rest",
+      "@typespec/openapi3"
+    ],
+    "config": {
+      "emit": [
+        "@typespec/openapi3"
+      ]
+    }
+  },
+  "emitter-ts": {
+    "title": "TypeSpec Emitter (With TypeScript)",
+    "description": "Create a new package that will be emitting typespec",
+    "compilerVersion": "0.51.0",
+    "libraries": [],
+    "files": [
+      {
+        "path": "emitter-ts/.eslintrc.yml",
+        "destination": ".eslintrc.yml"
+      },
+      {
+        "path": "emitter-ts/package.json",
+        "destination": "package.json"
+      },
+      {
+        "path": "emitter-ts/prettierrc.yaml",
+        "destination": "prettierrc.yaml"
+      },
+      {
+        "path": "emitter-ts/src/emitter.ts",
+        "destination": "src/emitter.ts"
+      },
+      {
+        "path": "emitter-ts/src/index.ts",
+        "destination": "src/index.ts"
+      },
+      {
+        "path": "emitter-ts/src/lib.ts",
+        "destination": "src/lib.ts"
+      },
+      {
+        "path": "emitter-ts/src/testing/index.ts",
+        "destination": "src/testing/index.ts"
+      },
+      {
+        "path": "emitter-ts/test/hello.test.ts",
+        "destination": "test/hello.test.ts"
+      },
+      {
+        "path": "emitter-ts/test/test-host.ts",
+        "destination": "test/test-host.ts"
+      },
+      {
+        "path": "emitter-ts/tsconfig.json",
+        "destination": "tsconfig.json"
+      }
+    ]
+  }
+}
