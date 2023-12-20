@@ -5,7 +5,7 @@ import { ScaffoldingConfig } from "./scaffold.js";
 
 export type FileTemplatingContext = Omit<InitTemplate, "libraries"> &
   ScaffoldingConfig & {
-    naming: NamingUtils;
+    casing: CasingUtils;
     /**
      * NormalizeVersion function replaces `-` with `_`.
      */
@@ -22,7 +22,7 @@ export type FileTemplatingContext = Omit<InitTemplate, "libraries"> &
     normalizePackageName: () => (text: string, render: any) => string;
   };
 
-export interface NamingUtils {
+export interface CasingUtils {
   readonly camelCase: () => (text: string, render: (...args: any) => string) => string;
   readonly pascalCase: () => (text: string, render: (...args: any) => string) => string;
   readonly kebabCase: () => (text: string, render: (...args: any) => string) => string;
@@ -35,7 +35,7 @@ export function createFileTemplatingContext(config: ScaffoldingConfig): FileTemp
     normalizeVersion,
     toLowerCase,
     normalizePackageName,
-    naming,
+    casing,
   };
 }
 
@@ -43,7 +43,7 @@ export function render(content: string, context: FileTemplatingContext): string 
   return Mustache.render(content, context);
 }
 
-const naming: NamingUtils = {
+const casing: CasingUtils = {
   camelCase: createNamingUtils(camelCase),
   kebabCase: createNamingUtils(kebabCase),
   pascalCase: createNamingUtils(pascalCase),
