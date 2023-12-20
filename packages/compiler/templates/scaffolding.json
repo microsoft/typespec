@@ -20,6 +20,70 @@
       ]
     }
   },
+  "library-ts": {
+    "title": "TypeSpec Library (With TypeScript)",
+    "description": "Create a new package to add decorators or linters to typespec.",
+    "compilerVersion": "0.51.0",
+    "libraries": [],
+    "files": [
+      {
+        "destination": "main.tsp",
+        "skipGeneration": true
+      },
+      {
+        "destination": "tspconfig.yaml",
+        "skipGeneration": true
+      },
+      {
+        "path": "library-ts/.eslintrc.yml",
+        "destination": ".eslintrc.yml"
+      },
+      {
+        "path": "library-ts/lib/decorators.tsp",
+        "destination": "lib/decorators.tsp"
+      },
+      {
+        "path": "library-ts/lib/main.tsp",
+        "destination": "lib/main.tsp"
+      },
+      {
+        "path": "library-ts/package.json",
+        "destination": "package.json"
+      },
+      {
+        "path": "library-ts/prettierrc.yaml",
+        "destination": "prettierrc.yaml"
+      },
+      {
+        "path": "library-ts/src/decorators.ts",
+        "destination": "src/decorators.ts"
+      },
+      {
+        "path": "library-ts/src/index.ts",
+        "destination": "src/index.ts"
+      },
+      {
+        "path": "library-ts/src/lib.ts",
+        "destination": "src/lib.ts"
+      },
+      {
+        "path": "library-ts/src/testing/index.ts.mu",
+        "destination": "src/testing/index.ts"
+      },
+      {
+        "path": "library-ts/test/decorators.test.ts.mu",
+        "destination": "test/decorators.test.ts"
+      },
+      {
+        "path": "library-ts/test/test-host.ts.mu",
+        "destination": "test/test-host.ts"
+      },
+      {
+        "path": "library-ts/tsconfig.json",
+        "destination": "tsconfig.json"
+      }
+    ]
+  },
   "emitter-ts": {
     "title": "TypeSpec Emitter (With TypeScript)",
     "description": "Create a new package that will be emitting typespec",
