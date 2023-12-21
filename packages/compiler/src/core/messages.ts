@@ -1,6 +1,6 @@
 // Static assert: this won't compile if one of the entries above is invalid.
 import { createDiagnosticCreator } from "./diagnostic-creator.js";
-import { paramMessage } from "./param-message.js";
+import { paramMessage } from "./library.js";
 import type { TypeOfDiagnostics } from "./types.js";
 
 const diagnostics = {
