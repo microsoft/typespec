@@ -317,7 +317,7 @@ export function reportDeprecated(
   program.reportDiagnostic({
     severity: "warning",
     code: "deprecated",
-    message,
+    message: `Deprecated: ${message}`,
     target,
   });
 }
