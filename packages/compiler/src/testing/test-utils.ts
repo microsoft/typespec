@@ -1,7 +1,7 @@
 import { fileURLToPath } from "url";
-import { resolvePath } from "../core/index.js";
+import { NodeHost, resolvePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
-import { NodeHost, findProjectRoot } from "../core/util.js";
+import { findProjectRoot } from "../core/util.js";
 import { StandardTestLibrary } from "./test-host.js";
 import {
   BasicTestRunner,

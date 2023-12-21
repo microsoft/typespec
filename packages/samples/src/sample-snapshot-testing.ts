@@ -13,6 +13,7 @@ import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
+import { afterAll, beforeAll, it } from "vitest";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
 
@@ -44,17 +45,16 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
       writtenSnapshots.push(filename);
     },
   };
-  before(async () => {
+  beforeAll(async () => {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  after(async function (this: any) {
+  // afterEach((context) => {
+  //   console.log("Context after each", context.task.result?.state);
+  // });
+  afterAll(async function (context: any) {
     if (context.runCount !== samples.length) {
       return; // Not running the full test suite, so don't bother checking snapshots.
-    }
-
-    if (this.test.parent.tests.some((x: any) => x.state === "failed")) {
-      return; // Do not check snapshots if the test failed so we don't get a confusing error message about the missing snapshot if there is already a failure.
     }
 
     const missingSnapshots = new Set<string>(existingSnapshots);
@@ -108,6 +108,7 @@ function defineSampleSnaphotTest(
       );
     }
 
+    console.log("HOst", host, NodeHost.getSourceFileKind);
     const program = await compile(host, sample.fullPath, options);
     expectDiagnosticEmpty(program.diagnostics);
 

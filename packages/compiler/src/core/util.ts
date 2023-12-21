@@ -22,7 +22,6 @@ import {
 } from "./types.js";
 
 export { typespecVersion } from "../manifest.js";
-export { NodeHost } from "./node-host.js";
 
 /**
  * Recursively calls Object.freeze such that all objects and arrays
