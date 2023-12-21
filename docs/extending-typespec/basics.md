@@ -238,7 +238,7 @@ import { fileURLToPath } from "url";
 export const MyTestLibrary = createTestLibrary({
   name: "<name-of-npm-pkg>",
   // Set this to the absolute path to the root of the package. (e.g. in this case this file would be compiled to ./dist/src/testing/index.js)
-  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
 });
 ```
 
