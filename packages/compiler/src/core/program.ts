@@ -9,7 +9,7 @@ import {
   resolveTypeSpecEntrypointForDir,
 } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
-// import { getLibraryUrlsLoaded } from "./library.js";
+import { getLibraryUrlsLoaded } from "./library.js";
 import { createLinter } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
@@ -55,7 +55,15 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-import { deepEquals, doIO, isDefined, mapEquals, mutate, resolveTspMain } from "./util.js";
+import {
+  deepEquals,
+  doIO,
+  findProjectRoot,
+  isDefined,
+  mapEquals,
+  mutate,
+  resolveTspMain,
+} from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;
@@ -411,12 +419,12 @@ export async function compile(
   async function validateLoadedLibraries() {
     const loadedRoots = new Set<string>();
     // Check all the files that were loaded
-    // for (const fileUrl of getLibraryUrlsLoaded()) {
-    //   const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
-    //   if (root) {
-    //     loadedRoots.add(root);
-    //   }
-    // }
+    for (const fileUrl of getLibraryUrlsLoaded()) {
+      const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
+      if (root) {
+        loadedRoots.add(root);
+      }
+    }
 
     const libraries = new Map([...loadedLibraries.entries()]);
     const incompatibleLibraries = new Map<string, TypeSpecLibraryReference[]>();
