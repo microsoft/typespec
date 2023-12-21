@@ -1,5 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { emitOpenApiWithDiagnostics, openApiFor } from "./test-host.js";
 
 describe("openapi3: string templates", () => {

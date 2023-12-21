@@ -28,8 +28,8 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "test": "vitest",
+    "test-official": "vitest run --coverage",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -51,6 +51,7 @@
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
     "@types/semver": "^7.5.6",
     "eslint": "^8.55.0",
+    "vitest": "^1.1.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",

@@ -128,6 +128,7 @@
     "@typespec/internal-build-utils": "workspace:~0.51.0",
     "eslint": "^8.55.0",
     "c8": "~8.0.1",
+    "vitest": "^1.1.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",

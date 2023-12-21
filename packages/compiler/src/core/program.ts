@@ -420,9 +420,11 @@ export async function compile(
     const loadedRoots = new Set<string>();
     // Check all the files that were loaded
     for (const fileUrl of getLibraryUrlsLoaded()) {
-      const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
-      if (root) {
-        loadedRoots.add(root);
+      if (fileUrl.startsWith("file:")) {
+        const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
+        if (root) {
+          loadedRoots.add(root);
+        }
       }
     }
 

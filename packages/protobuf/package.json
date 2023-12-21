@@ -43,6 +43,7 @@
     "@typespec/tspd": "workspace:~0.46.0",
     "c8": "~8.0.1",
     "eslint": "^8.55.0",
+    "vitest": "^1.1.0",
     "mocha": "~10.2.0",
     "rimraf": "~5.0.1",
     "typescript": "~5.3.3",

@@ -9,7 +9,7 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node", "mocha"]
+    "lib": ["DOM", "ESNext"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]
 }

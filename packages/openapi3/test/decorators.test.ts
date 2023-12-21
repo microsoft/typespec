@@ -4,6 +4,7 @@ import {
   expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getRef } from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 

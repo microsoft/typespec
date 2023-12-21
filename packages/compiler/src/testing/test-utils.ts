@@ -1,5 +1,7 @@
+import { fileURLToPath } from "url";
 import { resolvePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
+import { NodeHost, findProjectRoot } from "../core/util.js";
 import { StandardTestLibrary } from "./test-host.js";
 import {
   BasicTestRunner,
@@ -8,6 +10,10 @@ import {
   TypeSpecTestLibraryInit,
 } from "./types.js";
 
+/** Find the package root from the provided file */
+export function findTestPackageRoot(fileUrl: string): Promise<string> {
+  return findProjectRoot(NodeHost, fileURLToPath(fileUrl)) as Promise<string>;
+}
 /**
  * Define a test library defaulting to the most common library structure.
  * @param init Library configuration.
