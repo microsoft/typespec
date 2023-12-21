@@ -2,7 +2,6 @@ import { fileURLToPath } from "url";
 import { NodeHost, resolvePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { findProjectRoot } from "../core/util.js";
-import { StandardTestLibrary } from "./test-host.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -12,7 +11,7 @@ import {
 
 /** Find the package root from the provided file */
 export function findTestPackageRoot(fileUrl: string): Promise<string> {
-  return findProjectRoot(NodeHost, fileURLToPath(fileUrl)) as Promise<string>;
+  return findProjectRoot(NodeHost.stat, fileURLToPath(fileUrl)) as Promise<string>;
 }
 /**
  * Define a test library defaulting to the most common library structure.
@@ -69,7 +68,8 @@ export function createTestWrapper(
   } = testWrapperOptions;
   const autoCode = [
     ...(
-      autoImports ?? host.libraries.filter((x) => x !== StandardTestLibrary).map((x) => x.name)
+      autoImports ??
+      host.libraries.filter((x) => x.name !== "@typespec/compiler").map((x) => x.name)
     ).map((x) => `import "${x}";`),
     ...(autoUsings ?? []).map((x) => `using ${x};`),
   ].join("\n");

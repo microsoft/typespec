@@ -66,6 +66,7 @@
     "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
     "dogfood": "node scripts/dogfood.js",
     "test": "vitest",
+"test:watch": "vitest -w",
     "test-official": "vitest run --coverage",
     "e2e": "mocha --config ./.mocharc.e2e.yaml",
     "gen-manifest": "node scripts/generate-manifest.js",

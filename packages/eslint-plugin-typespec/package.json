@@ -26,6 +26,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest",
+"test:watch": "vitest -w",
     "test-official": "vitest run --coverage",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"

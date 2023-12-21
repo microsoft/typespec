@@ -1,6 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import manifest from "../manifest.js";
+let manifest;
+try {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  manifest = await import("../manifest.js");
+} catch {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  manifest = await import("../dist/manifest.js");
+}
 
 export const typespecVersion = manifest.version;
 

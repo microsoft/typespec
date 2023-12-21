@@ -263,14 +263,14 @@ export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
  * @param lookIn
  */
 export async function findProjectRoot(
-  host: CompilerHost,
+  statFn: CompilerHost["stat"],
   path: string
 ): Promise<string | undefined> {
   let current = path;
   while (true) {
     const pkgPath = joinPaths(current, "package.json");
     const stat = await doIO(
-      () => host.stat(pkgPath),
+      () => statFn(pkgPath),
       pkgPath,
       () => {}
     );

@@ -136,11 +136,11 @@ export const $lib = createTypeSpecLibrary({
     ruleSets: {
       all: {
         enable: {
-          [`@typespec/http/${opReferenceContainerRouteRule.name}`]: true,
+          [`@typespec/http/op-reference-container-route`]: true,
         },
       },
     },
   },
 });
 
-export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;
+export const { reportDiagnostic, createDiagnostic } = $lib;
