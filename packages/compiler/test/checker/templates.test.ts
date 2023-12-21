@@ -1,4 +1,5 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
 import { Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
 import {

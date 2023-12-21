@@ -1,3 +1,4 @@
+import { beforeEach, describe, it } from "vitest";
 import { createTestHost, expectDiagnostics, TestHost } from "../../src/testing/index.js";
 
 describe("compiler: semantic checks on source with parse errors", () => {

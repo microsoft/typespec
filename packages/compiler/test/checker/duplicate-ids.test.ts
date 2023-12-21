@@ -1,3 +1,4 @@
+import { beforeEach, describe, it } from "vitest";
 import { Diagnostic } from "../../src/core/types.js";
 import { createTestHost, expectDiagnostics, TestHost } from "../../src/testing/index.js";
 

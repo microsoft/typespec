@@ -1,6 +1,7 @@
 import { rejects } from "assert";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import { NodeHost, Program, compile, resolvePath } from "../../../src/core/index.js";
 import { CompilerOptions } from "../../../src/core/options.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";

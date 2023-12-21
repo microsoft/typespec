@@ -1,3 +1,4 @@
+import { describe, it } from "vitest";
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter } from "../../src/core/linter.js";
 import { LibraryInstance, LinterDefinition } from "../../src/index.js";

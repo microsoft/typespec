@@ -8,7 +8,6 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node", "mocha"],
     "resolveJsonModule": true
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]

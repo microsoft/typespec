@@ -1,3 +1,4 @@
+import { beforeEach, describe, it } from "vitest";
 import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,

@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getService, listServices, Namespace } from "../../src/index.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 

@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { createProjectedNameProgram, ModelProperty, projectProgram } from "../src/core/index.js";
 import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 

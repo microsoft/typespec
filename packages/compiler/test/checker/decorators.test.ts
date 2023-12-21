@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { setTypeSpecNamespace } from "../../src/core/index.js";
 import {
   BasicTestRunner,

@@ -4,6 +4,7 @@ import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname, join, resolve } from "path";
 import * as prettier from "prettier";
 import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import * as plugin from "../../../src/formatter/index.js";
 
 async function format(code: string): Promise<string> {

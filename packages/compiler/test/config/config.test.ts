@@ -1,6 +1,7 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
 import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../src/config/index.js";
 import { createSourceFile } from "../../src/core/diagnostics.js";

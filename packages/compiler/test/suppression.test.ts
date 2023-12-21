@@ -1,3 +1,4 @@
+import { beforeEach, describe, it } from "vitest";
 import { navigateProgram } from "../src/core/semantic-walker.js";
 import {
   createTestHost,

@@ -5,7 +5,6 @@
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node", "mocha"],
     "lib": ["DOM"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts"]

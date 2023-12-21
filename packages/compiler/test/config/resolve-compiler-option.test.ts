@@ -1,6 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import { resolveCompilerOptions } from "../../src/config/index.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { normalizePath, resolvePath } from "../../src/index.js";

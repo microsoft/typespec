@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Logger, LogInfo, Tracer } from "../../src/core/index.js";
 import { createTracer } from "../../src/core/logger/tracer.js";
 

@@ -1,4 +1,5 @@
 import { deepEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Operation, StringLiteral, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost, expectDiagnosticEmpty } from "../../src/testing/index.js";
 

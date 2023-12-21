@@ -1,4 +1,5 @@
 import { ok } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   Enum,
   Interface,
