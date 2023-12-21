@@ -1,4 +1,5 @@
-import { compilerAssert, createDiagnosticCreator } from "./diagnostics.js";
+import { createDiagnosticCreator } from "./diagnostic-creator.js";
+import { compilerAssert } from "./diagnostics.js";
 import { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
