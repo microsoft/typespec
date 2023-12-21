@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { migrateTypeSpecContent } from "../src/migration-impl.js";
 import { migrateQueryHeaderRequiredFormat } from "../src/migrations/v0.43/query-header-required-format.js";
 

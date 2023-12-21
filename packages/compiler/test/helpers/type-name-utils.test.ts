@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { getTypeName, TypeNameOptions } from "../../src/core/index.js";
+import { TypeNameOptions, getTypeName } from "../../src/core/index.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 
 describe("compiler: TypeNameUtils", () => {

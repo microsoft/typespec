@@ -3,8 +3,8 @@ import { beforeEach, describe, it } from "vitest";
 import {
   Interface,
   ListOperationOptions,
-  listOperationsIn,
   Namespace,
+  listOperationsIn,
 } from "../../src/core/index.js";
 import { BasicTestRunner, createTestRunner } from "../../src/testing/index.js";
 

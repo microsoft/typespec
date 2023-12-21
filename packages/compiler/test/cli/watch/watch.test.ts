@@ -3,6 +3,7 @@ import { WatchEventType, mkdirSync } from "fs";
 import { appendFile, mkdir, rm } from "fs/promises";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { afterEach, beforeAll, describe, it } from "vitest";
 import { ProjectWatcher, createWatcher } from "../../../src/core/cli/actions/compile/watch.js";
 import { getDirectoryPath, resolvePath } from "../../../src/index.js";
 
@@ -55,7 +56,7 @@ class FixtureFS {
 }
 
 describe("compiler: node host", () => {
-  before(async () => {
+  beforeAll(async () => {
     try {
       await rm(fixtureRoot, { recursive: true });
     } catch {}
@@ -66,7 +67,7 @@ describe("compiler: node host", () => {
   let fixtures: FixtureFS;
   let changes: [WatchEventType, string][];
 
-  beforeEach(() => {
+  beforeAll(() => {
     fixtures = new FixtureFS();
     changes = [];
     watcher = createWatcher((evt, name) => {

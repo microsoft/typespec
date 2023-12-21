@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { migrateTypeSpecContent } from "../src/migration-impl.js";
 import { migrateZonedDateTimeToUtcDateTime } from "../src/migrations/v0.43/zoned-date-time-to-utc-date-time.js";
 

@@ -1,4 +1,4 @@
-import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
+import { DecoratorContext, Namespace, getNamespaceFullName } from "@typespec/compiler";
 import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";

@@ -3,13 +3,13 @@ import { beforeEach, describe, it } from "vitest";
 import {
   Enum,
   Interface,
+  Model,
+  Namespace,
+  Operation,
   isDeclaredInNamespace,
   isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   isTemplateInstance,
-  Model,
-  Namespace,
-  Operation,
 } from "../src/core/index.js";
 import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 

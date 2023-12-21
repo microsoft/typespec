@@ -1,6 +1,7 @@
 import assert from "assert";
 import path from "path";
 import url from "url";
+import { describe, it } from "vitest";
 
 import micromatch from "micromatch";
 

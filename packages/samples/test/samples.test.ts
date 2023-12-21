@@ -1,5 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
 import { fileURLToPath } from "url";
+import { describe } from "vitest";
 import { defineSampleSnaphotTests } from "../src/sample-snapshot-testing.js";
 
 const excludedSamples = [

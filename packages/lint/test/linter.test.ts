@@ -1,10 +1,11 @@
-import { createTypeSpecLibrary, Diagnostic } from "@typespec/compiler";
+import { Diagnostic, createTypeSpecLibrary } from "@typespec/compiler";
 import {
   createTestHost,
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "@typespec/compiler/testing";
-import { createRule, getLinter, LibraryLinter } from "../src/index.js";
+import { beforeEach, describe, it } from "vitest";
+import { LibraryLinter, createRule, getLinter } from "../src/index.js";
 
 describe("lint: linter", () => {
   let linter: LibraryLinter;

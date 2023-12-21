@@ -1,4 +1,4 @@
-import { fileURLToPath, URL } from "url";
+import { URL, fileURLToPath } from "url";
 import { describe, it } from "vitest";
 import { NodeHost } from "../../src/core/node-host.js";
 import { compile } from "../../src/core/program.js";

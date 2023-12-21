@@ -1,4 +1,5 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { DecoratorContext, IntrinsicType, Operation, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";
 import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
