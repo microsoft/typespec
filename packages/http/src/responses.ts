@@ -25,7 +25,7 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-import { createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./internal-lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
 import { HttpStateKeys } from "./state.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";

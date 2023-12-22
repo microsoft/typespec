@@ -1,5 +1,5 @@
 import { Program } from "@typespec/compiler";
-import { reportDiagnostic } from "./lib.js";
+import { reportDiagnostic } from "./internal-lib.js";
 import { getAllHttpServices } from "./operations.js";
 import { isSharedRoute } from "./route.js";
 

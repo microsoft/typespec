@@ -5,6 +5,8 @@ import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
   CallableMessage,
   DiagnosticMessages,
+  InternalLibrary,
+  InternalLibraryDef,
   JSONSchemaValidator,
   LinterRuleDefinition,
   TypeSpecLibrary,
@@ -27,6 +29,18 @@ export function getLibraryUrlsLoaded(): Set<string> {
 
 /** @deprecated use createTypeSpecLibrary */
 export const createCadlLibrary = createTypeSpecLibrary;
+
+export function createInternalLibrary<T extends { [code: string]: DiagnosticMessages }>(
+  def: InternalLibraryDef<T>
+): InternalLibrary<T> {
+  const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(def.diagnostics, def.name);
+
+  return {
+    ...def,
+    reportDiagnostic,
+    createDiagnostic,
+  };
+}
 
 /**
  * Create a new TypeSpec library definition.
@@ -51,18 +65,22 @@ export function createTypeSpecLibrary<
   E extends Record<string, any>,
 >(lib: Readonly<TypeSpecLibraryDef<T, E>>): TypeSpecLibrary<T, E> {
   let emitterOptionValidator: JSONSchemaValidator;
+  const internalLib = "internal" in lib ? lib.internal : createInternalLibrary(lib);
 
-  const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
+  const { reportDiagnostic, createDiagnostic } = internalLib;
   function createStateSymbol(name: string): symbol {
-    return Symbol.for(`${lib.name}.${name}`);
+    return Symbol.for(`${internalLib.name}.${name}`);
   }
 
   const caller = getCaller();
   if (caller) {
     loadedUrls.add(caller);
   }
+
   return {
     ...lib,
+    name: internalLib.name,
+    diagnostics: internalLib.diagnostics,
     reportDiagnostic,
     createDiagnostic,
     createStateSymbol,
@@ -78,7 +96,7 @@ export function createTypeSpecLibrary<
   };
 
   function getTracer(program: Program) {
-    return program.tracer.sub(lib.name);
+    return program.tracer.sub(internalLib.name);
   }
 }
 

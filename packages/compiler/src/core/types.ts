@@ -2069,22 +2069,21 @@ export type CadlLibraryDef<
 > = TypeSpecLibraryDef<T, E>;
 
 /**
- * Definition of a TypeSpec library
+ * Represent items that are will be used in the library itself.
+ * This is useful to separate from the public declaration which could cause circular reference with linters.
  */
-export interface TypeSpecLibraryDef<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-> {
+export interface InternalLibraryDef<T extends { [code: string]: DiagnosticMessages }> {
   /**
    * Name of the library. Must match the package.json name.
    */
   readonly name: string;
-
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
   readonly diagnostics: DiagnosticMap<T>;
+}
 
+export interface LibraryProps<E extends Record<string, any> = Record<string, never>> {
   /**
    * List of other library that should be imported when this is used as an emitter.
    * Compiler will emit an error if the libraries are not explicitly imported.
@@ -2103,6 +2102,13 @@ export interface TypeSpecLibraryDef<
    */
   readonly linter?: LinterDefinition;
 }
+
+export type TypeSpecLibraryDef<
+  T extends { [code: string]: DiagnosticMessages },
+  E extends Record<string, any> = Record<string, never>,
+> =
+  | (InternalLibraryDef<T> & LibraryProps<E>)
+  | (LibraryProps<E> & { internal: InternalLibrary<T> });
 
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];
@@ -2174,10 +2180,25 @@ export type CadlLibrary<
   E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibrary<T, E>;
 
+export interface InternalLibrary<T extends { [code: string]: DiagnosticMessages }>
+  extends InternalLibraryDef<T> {
+  reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
+    program: Program,
+    diag: DiagnosticReport<T, C, M>
+  ): void;
+  createDiagnostic<C extends keyof T, M extends keyof T[C]>(
+    diag: DiagnosticReport<T, C, M>
+  ): Diagnostic;
+}
+
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
-> extends TypeSpecLibraryDef<T, E> {
+> extends LibraryProps<E>,
+    InternalLibrary<T> {
+  /** Library name */
+  readonly name: string;
+
   /**
    * JSON Schema validator for emitter options
    * @internal

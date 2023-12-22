@@ -15,7 +15,7 @@ import {
   Program,
   SyntaxKind,
 } from "@typespec/compiler";
-import { createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./internal-lib.js";
 import { getResponsesForOperation } from "./responses.js";
 import { isSharedRoute, resolvePathAndParameters } from "./route.js";
 import {

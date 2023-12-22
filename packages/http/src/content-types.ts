@@ -1,6 +1,6 @@
 import { createDiagnosticCollector, Diagnostic, ModelProperty, Program } from "@typespec/compiler";
 import { getHeaderFieldName } from "./decorators.js";
-import { createDiagnostic } from "./lib.js";
+import { createDiagnostic } from "./internal-lib.js";
 
 /**
  * Check if the given model property is the content type header.

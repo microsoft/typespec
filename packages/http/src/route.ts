@@ -1,4 +1,4 @@
-import { createDiagnostic, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, reportDiagnostic } from "./internal-lib.js";
 
 import {
   createDiagnosticCollector,
