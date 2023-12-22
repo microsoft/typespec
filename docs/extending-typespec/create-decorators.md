@@ -187,15 +187,15 @@ export function $customName(context: DecoratorContext, target: Type, name: strin
 }
 ```
 
-```ts file=internal-lib.ts
-export const internalLib = createInternalLib({
-  ...
+```ts file=lib.ts
+export const $lib = createTypeSpecLibrary({
+  // ...
   state: {
-    customName: {description: "State for the @customName decorator"},
-  }
-})
+    customName: { description: "State for the @customName decorator" },
+  },
+});
 
-export const StateKeys = internalLib.stateKeys;
+export const StateKeys = $lib.stateKeys;
 ```
 
 ### Reporting diagnostic on decorator or arguments

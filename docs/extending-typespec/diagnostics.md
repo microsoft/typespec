@@ -23,10 +23,10 @@ TypeSpec compiler report errors and warnings in the spec using the diagnostic AP
 ### Declare the diagnostics you are reporting
 
 ```ts
-import { createInternalLibrary } from "@typespec/compiler";
+import { createTypeSpecLibrary } from "@typespec/compiler";
 
 // in lib.js
-export const internalLibrary = createInternalLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/my-lib",
   diagnostics: {
     // Basic diagnostic with a fixed message

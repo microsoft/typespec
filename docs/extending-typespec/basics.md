@@ -117,36 +117,6 @@ export const $lib = createTypeSpecLibrary({
 export const { reportDiagnostic, createDiagnostic } = $lib;
 ```
 
-:::warning
-Defining everything in the library(diagnostics, linters, emitters) might cause circular references which can be an issue with some loader system(e.g. vitest). It is then recommended to use the internal library approach where you create an extra file `internal-lib.ts` with the following
-
-```ts file=internal-lib.ts
-import { createTypeSpecLibrary } from "@typespec/compiler";
-
-export const internalLib = createTypeSpecLibrary({
-  name: "myLibrary",
-  diagnostics: {
-    // ... diagnostics
-  },
-} as const);
-
-// Optional but convenient, those are meant to be used locally in your library.
-export const { reportDiagnostic, createDiagnostic } = internalLib;
-```
-
-And change your `lib.ts` to
-
-```ts file=lib.ts
-export const $lib = createTypeSpecLibrary({
-  internal: internalLib,
-  // other public facing properties.
-} as const);]
-
-// Note we don't export `reportDiagnostic, createDiagnostic` here anymore.
-```
-
-:::
-
 Diagnostics are used for linters and decorators which are covered in subsequent topics.
 
 ### f. Create `index.ts`
