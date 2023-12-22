@@ -37,7 +37,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
-"test:watch": "vitest -w",
+    "test:watch": "vitest -w",
     "test-official": "vitest run --coverage",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
@@ -67,6 +67,7 @@
     "@babel/core": "^7.22.20",
     "eslint": "^8.55.0",
     "vitest": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.0",
     "mocha": "~10.2.0",
     "mocha-junit-reporter": "~2.2.1",
     "mocha-multi-reporters": "~1.5.1",

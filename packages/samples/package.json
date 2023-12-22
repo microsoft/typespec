@@ -62,6 +62,7 @@
     "cross-env": "~7.0.3",
     "eslint": "^8.55.0",
     "vitest": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.0",
     "mocha": "~10.2.0",
     "rimraf": "~5.0.1",
     "typescript": "~5.3.3"
