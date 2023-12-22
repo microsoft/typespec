@@ -4,5 +4,8 @@ export default defineConfig({
   test: {
     environment: "node",
     isolate: false,
+    outputFile: {
+      junit: "./test-results.xml",
+    },
   },
 });
