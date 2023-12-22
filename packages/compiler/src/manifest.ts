@@ -2,11 +2,10 @@ let manifest;
 try {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  manifest = await import("../manifest.js");
+  manifest = (await import("../manifest.js")).default;
 } catch {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  manifest = await import("../dist/manifest.js");
+  const name = "../dist/manifest.js";
+  manifest = (await import(/* @vite-ignore */ name)).default;
 }
 
 export const typespecVersion = manifest.version;
