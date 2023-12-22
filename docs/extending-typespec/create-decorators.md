@@ -174,7 +174,7 @@ Decorators can be used to register some metadata. For this you can use the `cont
 
 ```ts file=decorators.ts
 import type { DecoratorContext, Type } from "@typespec/compiler";
-import type { StateKeys } from "./internal-lib.js";
+import type { StateKeys } from "./lib.js";
 
 // Create a unique key
 const key = StateKeys.customName;

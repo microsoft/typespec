@@ -5,9 +5,8 @@ import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
   CallableMessage,
   DiagnosticMessages,
-  InternalLibrary,
-  InternalLibraryDef,
   JSONSchemaValidator,
+  LinterDefinition,
   LinterRuleDefinition,
   StateDef,
   TypeSpecLibrary,
@@ -30,20 +29,6 @@ export function getLibraryUrlsLoaded(): Set<string> {
 
 /** @deprecated use createTypeSpecLibrary */
 export const createCadlLibrary = createTypeSpecLibrary;
-
-export function createInternalLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  State extends string = never,
->(def: InternalLibraryDef<T, State>): InternalLibrary<T, State> {
-  const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(def.diagnostics, def.name);
-
-  return {
-    ...def,
-    stateKeys: createStateKeys(def.name, def.state),
-    reportDiagnostic,
-    createDiagnostic,
-  };
-}
 
 function createStateKeys<T extends string>(
   libName: string,
@@ -78,13 +63,14 @@ function createStateKeys<T extends string>(
 export function createTypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any>,
->(lib: Readonly<TypeSpecLibraryDef<T, E>>): TypeSpecLibrary<T, E> {
+  State extends string = never,
+>(lib: Readonly<TypeSpecLibraryDef<T, E, State>>): TypeSpecLibrary<T, E, State> {
   let emitterOptionValidator: JSONSchemaValidator;
-  const internalLib = "internal" in lib ? lib.internal : createInternalLibrary(lib);
 
-  const { reportDiagnostic, createDiagnostic } = internalLib;
+  const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
+
   function createStateSymbol(name: string): symbol {
-    return Symbol.for(`${internalLib.name}.${name}`);
+    return Symbol.for(`${lib.name}.${name}`);
   }
 
   const caller = getCaller();
@@ -94,9 +80,8 @@ export function createTypeSpecLibrary<
 
   return {
     ...lib,
-    name: internalLib.name,
-    diagnostics: internalLib.diagnostics,
-    stateKeys: internalLib.stateKeys,
+    diagnostics: lib.diagnostics,
+    stateKeys: createStateKeys(lib.name, lib.state),
     reportDiagnostic,
     createDiagnostic,
     createStateSymbol,
@@ -112,8 +97,12 @@ export function createTypeSpecLibrary<
   };
 
   function getTracer(program: Program) {
-    return program.tracer.sub(internalLib.name);
+    return program.tracer.sub(lib.name);
   }
+}
+
+export function defineLinter(def: LinterDefinition): LinterDefinition {
+  return def;
 }
 
 export function paramMessage<T extends string[]>(

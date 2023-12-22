@@ -21,7 +21,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
-import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./internal-lib.js";
+import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
 import { getStatusCodesFromType } from "./status-codes.js";
 import {

@@ -15,7 +15,7 @@ import {
   getQueryParamOptions,
   isBody,
 } from "./decorators.js";
-import { createDiagnostic } from "./internal-lib.js";
+import { createDiagnostic } from "./lib.js";
 import { gatherMetadata, isMetadata, resolveRequestVisibility } from "./metadata.js";
 import {
   HttpOperation,

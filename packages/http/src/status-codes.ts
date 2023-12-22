@@ -10,7 +10,7 @@ import {
   getMinValue,
   ignoreDiagnostics,
 } from "@typespec/compiler";
-import { createDiagnostic } from "./internal-lib.js";
+import { createDiagnostic } from "./lib.js";
 import { HttpStatusCodeRange, HttpStatusCodes } from "./types.js";
 
 function error(target: DiagnosticTarget): [HttpStatusCodes, readonly Diagnostic[]] {

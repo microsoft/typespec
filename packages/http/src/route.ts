@@ -9,7 +9,7 @@ import {
   createDiagnosticCollector,
   validateDecoratorTarget,
 } from "@typespec/compiler";
-import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./internal-lib.js";
+import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,

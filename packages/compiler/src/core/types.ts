@@ -1783,6 +1783,7 @@ export interface LibraryInstance {
   entrypoint: JsSourceFileNode | undefined;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
+  linter: LinterDefinition;
 }
 
 export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
@@ -2068,26 +2069,6 @@ export type CadlLibraryDef<
   E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibraryDef<T, E>;
 
-/**
- * Represent items that are will be used in the library itself.
- * This is useful to separate from the public declaration which could cause circular reference with linters.
- */
-export interface InternalLibraryDef<
-  T extends { [code: string]: DiagnosticMessages },
-  State extends string,
-> {
-  /**
-   * Name of the library. Must match the package.json name.
-   */
-  readonly name: string;
-  /**
-   * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
-   */
-  readonly diagnostics: DiagnosticMap<T>;
-
-  readonly state?: Record<State, StateDef>;
-}
-
 export interface StateDef {
   /**
    * Description for this state.
@@ -2095,7 +2076,20 @@ export interface StateDef {
   readonly description?: string;
 }
 
-export interface LibraryProps<E extends Record<string, any> = Record<string, never>> {
+export interface TypeSpecLibraryDef<
+  T extends { [code: string]: DiagnosticMessages },
+  E extends Record<string, any> = Record<string, never>,
+  State extends string = never,
+> {
+  /**
+   * Library name. MUST match package.json name.
+   */
+  readonly name: string;
+  /**
+   * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
+   */
+  readonly diagnostics: DiagnosticMap<T>;
+
   /**
    * List of other library that should be imported when this is used as an emitter.
    * Compiler will emit an error if the libraries are not explicitly imported.
@@ -2111,17 +2105,12 @@ export interface LibraryProps<E extends Record<string, any> = Record<string, nev
 
   /**
    * Configuration if library is providing linting rules/rulesets.
+   * @deprecated Use `export const $linter` instead. This will cause circular reference with linters.
    */
   readonly linter?: LinterDefinition;
-}
 
-export type TypeSpecLibraryDef<
-  T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>,
-  State extends string = never,
-> =
-  | (InternalLibraryDef<T, State> & LibraryProps<E>)
-  | (LibraryProps<E> & { internal: InternalLibrary<T, State> });
+  readonly state?: Record<State, StateDef>;
+}
 
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];
@@ -2193,27 +2182,11 @@ export type CadlLibrary<
   E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibrary<T, E>;
 
-export interface InternalLibrary<
-  T extends { [code: string]: DiagnosticMessages },
-  State extends string,
-> extends InternalLibraryDef<T, State> {
-  reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
-    program: Program,
-    diag: DiagnosticReport<T, C, M>
-  ): void;
-  createDiagnostic<C extends keyof T, M extends keyof T[C]>(
-    diag: DiagnosticReport<T, C, M>
-  ): Diagnostic;
-
-  stateKeys: Record<State, symbol>;
-}
-
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
   State extends string = never,
-> extends LibraryProps<E>,
-    InternalLibrary<T, State> {
+> extends TypeSpecLibraryDef<T, E, State> {
   /** Library name */
   readonly name: string;
 
@@ -2242,6 +2215,8 @@ export interface TypeSpecLibrary<
    * All trace area logged via this tracer will be prefixed with the library name.
    */
   getTracer(program: Program): Tracer;
+
+  readonly stateKeys: Record<State, symbol>;
 }
 
 /**

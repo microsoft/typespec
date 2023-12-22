@@ -70,7 +70,7 @@ import {
   EmitContext,
   resolvePath,
 } from "@typespec/compiler";
-import { internalLib } from "./internal-lib.js";
+import { internalLib } from "./lib.js";
 
 export interface EmitterOptions {
   "target-name": string;
@@ -166,7 +166,7 @@ The following example will emit models with the `@emitThis` decorator and also a
 
 ```typescript
 import { DecoratorContext, Model } from "@typespec/compiler";
-import { StateKeys } from "./internal-lib.js";
+import { StateKeys } from "./lib.js";
 
 // Decorator Setup Code
 
