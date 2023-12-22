@@ -108,7 +108,6 @@ function defineSampleSnaphotTest(
       );
     }
 
-    console.log("HOst", host, NodeHost.getSourceFileKind);
     const program = await compile(host, sample.fullPath, options);
     expectDiagnosticEmpty(program.diagnostics);
 
