@@ -130,6 +130,26 @@ export const internalLib = createInternalLibrary({
       },
     },
   },
+  state: {
+    authentication: { description: "State for the @auth decorator" },
+    header: { description: "State for the @header decorator" },
+    query: { description: "State for the @query decorator" },
+    path: { description: "State for the @path decorator" },
+    body: { description: "State for the @body decorator" },
+    statusCode: { description: "State for the @statusCode decorator" },
+    verbs: { description: "State for the verb decorators (@get, @post, @put, etc.)" },
+    servers: { description: "State for the @server decorator" },
+    includeInapplicableMetadataInPayload: {
+      description: "State for the @includeInapplicableMetadataInPayload decorator",
+    },
+
+    // route.ts
+    externalInterfaces: {},
+    routeProducer: {},
+    routes: {},
+    sharedRoutes: { description: "State for the @sharedRoute decorator" },
+    routeOptions: {},
+  },
 });
 
-export const { reportDiagnostic, createDiagnostic } = internalLib;
+export const { reportDiagnostic, createDiagnostic, stateKeys: HttpStateKeys } = internalLib;

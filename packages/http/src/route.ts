@@ -1,7 +1,4 @@
-import { createDiagnostic, reportDiagnostic } from "./internal-lib.js";
-
 import {
-  createDiagnosticCollector,
   DecoratorContext,
   DiagnosticResult,
   Interface,
@@ -9,10 +6,11 @@ import {
   Operation,
   Program,
   Type,
+  createDiagnosticCollector,
   validateDecoratorTarget,
 } from "@typespec/compiler";
+import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./internal-lib.js";
 import { getOperationParameters } from "./parameters.js";
-import { HttpStateKeys } from "./state.js";
 import {
   HttpOperation,
   HttpOperationParameters,
@@ -196,11 +194,11 @@ export function setRouteProducer(
   operation: Operation,
   routeProducer: RouteProducer
 ): void {
-  program.stateMap(HttpStateKeys.routeProducerKey).set(operation, routeProducer);
+  program.stateMap(HttpStateKeys.routeProducer).set(operation, routeProducer);
 }
 
 export function getRouteProducer(program: Program, operation: Operation): RouteProducer {
-  return program.stateMap(HttpStateKeys.routeProducerKey).get(operation);
+  return program.stateMap(HttpStateKeys.routeProducer).get(operation);
 }
 
 export function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
@@ -210,7 +208,7 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
     return;
   }
 
-  const state = context.program.stateMap(HttpStateKeys.routesKey);
+  const state = context.program.stateMap(HttpStateKeys.routes);
 
   if (state.has(entity) && entity.kind === "Namespace") {
     const existingPath: string | undefined = state.get(entity);
@@ -230,18 +228,18 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
 }
 
 export function setSharedRoute(program: Program, operation: Operation) {
-  program.stateMap(HttpStateKeys.sharedRoutesKey).set(operation, true);
+  program.stateMap(HttpStateKeys.sharedRoutes).set(operation, true);
 }
 
 export function isSharedRoute(program: Program, operation: Operation): boolean {
-  return program.stateMap(HttpStateKeys.sharedRoutesKey).get(operation) === true;
+  return program.stateMap(HttpStateKeys.sharedRoutes).get(operation) === true;
 }
 
 export function getRoutePath(
   program: Program,
   entity: Namespace | Interface | Operation
 ): RoutePath | undefined {
-  const path = program.stateMap(HttpStateKeys.routesKey).get(entity);
+  const path = program.stateMap(HttpStateKeys.routes).get(entity);
   return path
     ? {
         path,
@@ -255,12 +253,12 @@ export function setRouteOptionsForNamespace(
   namespace: Namespace,
   options: RouteOptions
 ) {
-  program.stateMap(HttpStateKeys.routeOptionsKey).set(namespace, options);
+  program.stateMap(HttpStateKeys.routeOptions).set(namespace, options);
 }
 
 export function getRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace
 ): RouteOptions | undefined {
-  return program.stateMap(HttpStateKeys.routeOptionsKey).get(namespace);
+  return program.stateMap(HttpStateKeys.routeOptions).get(namespace);
 }

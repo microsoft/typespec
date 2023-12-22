@@ -2,7 +2,12 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Library declaration: Added the abolity to split declaration of elements used internally in the library(Diagnostics)  from the public definition(linters, emitter options, etc.) to be able to deal with some circular reference issue encountered.",
+      "comment": "Library declaration: Added the ability to split declaration of elements used internally in the library(Diagnostics)  from the public definition(linters, emitter options, etc.) to be able to deal with some circular reference issue encountered.",
+      "type": "none"
+    },
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Library declaration: State symbols can now be declared in the library declaration(Prefereably internal declaration added above) to have a central place to define state symbols used in your libraries.",
       "type": "none"
     }
   ],

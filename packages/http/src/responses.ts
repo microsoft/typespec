@@ -25,9 +25,8 @@ import {
   isHeader,
   isStatusCode,
 } from "./decorators.js";
-import { createDiagnostic, reportDiagnostic } from "./internal-lib.js";
+import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./internal-lib.js";
 import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
-import { HttpStateKeys } from "./state.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -189,7 +188,7 @@ function getResponseStatusCodes(
 }
 
 function getExplicitSetStatusCode(program: Program, entity: Model | ModelProperty): "*"[] {
-  return program.stateMap(HttpStateKeys.statusCodeKey).get(entity) ?? [];
+  return program.stateMap(HttpStateKeys.statusCode).get(entity) ?? [];
 }
 
 /**

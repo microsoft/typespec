@@ -9,6 +9,7 @@ import {
   InternalLibraryDef,
   JSONSchemaValidator,
   LinterRuleDefinition,
+  StateDef,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
@@ -30,16 +31,30 @@ export function getLibraryUrlsLoaded(): Set<string> {
 /** @deprecated use createTypeSpecLibrary */
 export const createCadlLibrary = createTypeSpecLibrary;
 
-export function createInternalLibrary<T extends { [code: string]: DiagnosticMessages }>(
-  def: InternalLibraryDef<T>
-): InternalLibrary<T> {
+export function createInternalLibrary<
+  T extends { [code: string]: DiagnosticMessages },
+  State extends string = never,
+>(def: InternalLibraryDef<T, State>): InternalLibrary<T, State> {
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(def.diagnostics, def.name);
 
   return {
     ...def,
+    stateKeys: createStateKeys(def.name, def.state),
     reportDiagnostic,
     createDiagnostic,
   };
+}
+
+function createStateKeys<T extends string>(
+  libName: string,
+  state: Record<T, StateDef> | undefined
+): Record<T, symbol> {
+  const result: Record<string, symbol> = {};
+
+  for (const key of Object.keys(state ?? {})) {
+    result[key] = Symbol.for(`${libName}/${key}`);
+  }
+  return result as Record<T, symbol>;
 }
 
 /**
@@ -81,6 +96,7 @@ export function createTypeSpecLibrary<
     ...lib,
     name: internalLib.name,
     diagnostics: internalLib.diagnostics,
+    stateKeys: internalLib.stateKeys,
     reportDiagnostic,
     createDiagnostic,
     createStateSymbol,

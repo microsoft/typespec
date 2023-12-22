@@ -2072,7 +2072,10 @@ export type CadlLibraryDef<
  * Represent items that are will be used in the library itself.
  * This is useful to separate from the public declaration which could cause circular reference with linters.
  */
-export interface InternalLibraryDef<T extends { [code: string]: DiagnosticMessages }> {
+export interface InternalLibraryDef<
+  T extends { [code: string]: DiagnosticMessages },
+  State extends string,
+> {
   /**
    * Name of the library. Must match the package.json name.
    */
@@ -2081,6 +2084,15 @@ export interface InternalLibraryDef<T extends { [code: string]: DiagnosticMessag
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
   readonly diagnostics: DiagnosticMap<T>;
+
+  readonly state?: Record<State, StateDef>;
+}
+
+export interface StateDef {
+  /**
+   * Description for this state.
+   */
+  readonly description?: string;
 }
 
 export interface LibraryProps<E extends Record<string, any> = Record<string, never>> {
@@ -2106,9 +2118,10 @@ export interface LibraryProps<E extends Record<string, any> = Record<string, nev
 export type TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
+  State extends string = never,
 > =
-  | (InternalLibraryDef<T> & LibraryProps<E>)
-  | (LibraryProps<E> & { internal: InternalLibrary<T> });
+  | (InternalLibraryDef<T, State> & LibraryProps<E>)
+  | (LibraryProps<E> & { internal: InternalLibrary<T, State> });
 
 export interface LinterDefinition {
   rules: LinterRuleDefinition<string, DiagnosticMessages>[];
@@ -2180,8 +2193,10 @@ export type CadlLibrary<
   E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibrary<T, E>;
 
-export interface InternalLibrary<T extends { [code: string]: DiagnosticMessages }>
-  extends InternalLibraryDef<T> {
+export interface InternalLibrary<
+  T extends { [code: string]: DiagnosticMessages },
+  State extends string,
+> extends InternalLibraryDef<T, State> {
   reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
     diag: DiagnosticReport<T, C, M>
@@ -2189,13 +2204,16 @@ export interface InternalLibrary<T extends { [code: string]: DiagnosticMessages 
   createDiagnostic<C extends keyof T, M extends keyof T[C]>(
     diag: DiagnosticReport<T, C, M>
   ): Diagnostic;
+
+  stateKeys: Record<State, symbol>;
 }
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
+  State extends string = never,
 > extends LibraryProps<E>,
-    InternalLibrary<T> {
+    InternalLibrary<T, State> {
   /** Library name */
   readonly name: string;
 
