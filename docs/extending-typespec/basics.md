@@ -114,7 +114,7 @@ export const $lib = createTypeSpecLibrary({
 } as const);
 
 // Optional but convenient, those are meant to be used locally in your library.
-export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;
+export const { reportDiagnostic, createDiagnostic } = $lib;
 ```
 
 :::warning
