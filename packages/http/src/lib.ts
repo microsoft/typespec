@@ -136,7 +136,7 @@ export const $lib = createTypeSpecLibrary({
     ruleSets: {
       all: {
         enable: {
-          [`@typespec/http/op-reference-container-route`]: true,
+          [`@typespec/http/${opReferenceContainerRouteRule.name}`]: true,
         },
       },
     },
