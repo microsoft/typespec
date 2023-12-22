@@ -42,7 +42,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "vitest",
+    "test": "vitest run",
 "test:watch": "vitest -w",
     "test-official": "vitest run --coverage",
     "lint": "eslint . --ext .ts --max-warnings=0",

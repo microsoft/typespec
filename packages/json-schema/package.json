@@ -31,7 +31,7 @@
     "build": "tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
-    "test": "vitest",
+    "test": "vitest run",
 "test:watch": "vitest -w",
     "test-official": "vitest run --coverage",
     "lint": "eslint . --ext .ts --max-warnings=0",
