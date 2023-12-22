@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@typespec/compiler",
-      "comment": "Library declaration: Added the ability to split declaration of elements used internally in the library(Diagnostics)  from the public definition(linters, emitter options, etc.) to be able to deal with some circular reference issue encountered.",
+      "comment": "Library declaration: Deprecated linter property on `$lib` in favor of a new `$linter` variable that can be exported. This was done to prevent circular reference caused by referencing linter rules in $lib.",
       "type": "none"
     },
     {

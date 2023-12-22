@@ -21,12 +21,16 @@ export async function createBrowserHost(
 
   const libraries: Record<string, PlaygroundTspLibrary> = {};
   for (const libName of libsToLoad) {
-    const { _TypeSpecLibrary_, $lib } = (await importLibrary(libName, importOptions)) as any;
+    const { _TypeSpecLibrary_, $lib, $linter } = (await importLibrary(
+      libName,
+      importOptions
+    )) as any;
     libraries[libName] = {
       name: libName,
       isEmitter: $lib?.emitter,
       definition: $lib,
       packageJson: JSON.parse(_TypeSpecLibrary_.typespecSourceFiles["package.json"]),
+      linter: $linter,
     };
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.typespecSourceFiles)) {
       virtualFs.set(`/test/node_modules/${libName}/${key}`, value);
