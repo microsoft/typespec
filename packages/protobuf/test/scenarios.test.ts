@@ -1,6 +1,5 @@
 import assert from "assert";
 import path from "path";
-import url from "url";
 import { describe, it } from "vitest";
 
 import micromatch from "micromatch";
@@ -24,7 +23,7 @@ const patternsToRun = process.env.RUN_SCENARIOS?.split(",") ?? ["*"];
 
 const TypeSpecProtobufTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/protobuf",
-  packageRoot: path.resolve(url.fileURLToPath(import.meta.url), "../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
   files: [
     { realDir: "", pattern: "package.json", virtualPath: "./node_modules/@typespec/protobuf" },
     {
