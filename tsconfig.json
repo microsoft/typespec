@@ -8,8 +8,6 @@
     { "path": "packages/eslint-plugin-typespec/tsconfig.json" },
     { "path": "packages/openapi/tsconfig.json" },
     { "path": "packages/openapi3/tsconfig.json" },
-    { "path": "packages/lint/tsconfig.json" },
-    { "path": "packages/migrate/tsconfig.json" },
     { "path": "packages/internal-build-utils/tsconfig.json" },
     { "path": "packages/bundle-uploader/tsconfig.json" },
     { "path": "packages/tmlanguage-generator/tsconfig.json" },
