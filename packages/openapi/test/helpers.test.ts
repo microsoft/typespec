@@ -9,6 +9,7 @@ describe("openapi: helpers", () => {
   beforeEach(async () => {
     runner = await createTestRunner();
   });
+
   describe("resolveOperationId", () => {
     async function testResolveOperationId(code: string) {
       const { foo } = (await runner.compile(code)) as { foo: Operation };
