@@ -50,8 +50,8 @@ describe("compiler: linter", () => {
       definition: createTypeSpecLibrary({
         name: "@typespec/test",
         diagnostics: {},
-        linter: linterDef,
       }),
+      linter: linterDef,
     };
 
     await host.compile("main.tsp");

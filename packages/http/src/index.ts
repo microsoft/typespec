@@ -1,4 +1,5 @@
 export { $lib } from "./lib.js";
+export { $linter } from "./linter.js";
 
 export * from "./content-types.js";
 export * from "./decorators.js";

@@ -89,8 +89,10 @@ export async function extractLibraryRefDocs(
         options: extractEmitterOptionsRefDoc(lib.emitter.options),
       };
     }
-    if (lib?.linter) {
-      refDoc.linter = extractLinterRefDoc(lib.name, lib.linter);
+    // eslint-disable-next-line deprecation/deprecation
+    const linter = entrypoint.$linter ?? lib?.linter;
+    if (lib && linter) {
+      refDoc.linter = extractLinterRefDoc(lib.name, linter);
     }
   }
 
