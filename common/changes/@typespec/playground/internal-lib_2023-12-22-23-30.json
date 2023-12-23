@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Handle new `$linter` exported variable",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}

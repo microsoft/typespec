@@ -6,7 +6,9 @@ import {
   CallableMessage,
   DiagnosticMessages,
   JSONSchemaValidator,
+  LinterDefinition,
   LinterRuleDefinition,
+  StateDef,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
@@ -27,6 +29,18 @@ export function getLibraryUrlsLoaded(): Set<string> {
 
 /** @deprecated use createTypeSpecLibrary */
 export const createCadlLibrary = createTypeSpecLibrary;
+
+function createStateKeys<T extends string>(
+  libName: string,
+  state: Record<T, StateDef> | undefined
+): Record<T, symbol> {
+  const result: Record<string, symbol> = {};
+
+  for (const key of Object.keys(state ?? {})) {
+    result[key] = Symbol.for(`${libName}/${key}`);
+  }
+  return result as Record<T, symbol>;
+}
 
 /**
  * Create a new TypeSpec library definition.
@@ -49,10 +63,12 @@ export const createCadlLibrary = createTypeSpecLibrary;
 export function createTypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any>,
->(lib: Readonly<TypeSpecLibraryDef<T, E>>): TypeSpecLibrary<T, E> {
+  State extends string = never,
+>(lib: Readonly<TypeSpecLibraryDef<T, E, State>>): TypeSpecLibrary<T, E, State> {
   let emitterOptionValidator: JSONSchemaValidator;
 
   const { reportDiagnostic, createDiagnostic } = createDiagnosticCreator(lib.diagnostics, lib.name);
+
   function createStateSymbol(name: string): symbol {
     return Symbol.for(`${lib.name}.${name}`);
   }
@@ -61,8 +77,11 @@ export function createTypeSpecLibrary<
   if (caller) {
     loadedUrls.add(caller);
   }
+
   return {
     ...lib,
+    diagnostics: lib.diagnostics,
+    stateKeys: createStateKeys(lib.name, lib.state),
     reportDiagnostic,
     createDiagnostic,
     createStateSymbol,
@@ -80,6 +99,10 @@ export function createTypeSpecLibrary<
   function getTracer(program: Program) {
     return program.tracer.sub(lib.name);
   }
+}
+
+export function defineLinter(def: LinterDefinition): LinterDefinition {
+  return def;
 }
 
 export function paramMessage<T extends string[]>(

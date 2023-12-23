@@ -710,6 +710,7 @@ export async function compile(
       ...resolution,
       metadata,
       definition: libDefinition,
+      linter: entrypoint?.esmExports.$linter,
     };
   }
 
