@@ -5,6 +5,9 @@ export default defineConfig({
     environment: "node",
     testTimeout: 60_000,
     isolate: false,
+    coverage: {
+      reporter: ["cobertura", "json", "text"],
+    },
     outputFile: {
       junit: "./test-results.xml",
     },

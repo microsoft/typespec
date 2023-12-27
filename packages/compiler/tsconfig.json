@@ -12,6 +12,6 @@
     "templates/*.e2e.ts",
     "./.scripts/**/*.ts",
     "vitest.config.ts",
-    "vitest.config.e2e.ts",
+    "vitest.config.e2e.ts"
   ]
 }

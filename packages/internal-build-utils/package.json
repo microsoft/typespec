@@ -46,7 +46,6 @@
     "semver": "^7.5.4"
   },
   "devDependencies": {
-    
     "@types/node": "~18.11.9",
     "@types/yargs": "~17.0.32",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
@@ -54,7 +53,6 @@
     "eslint": "^8.55.0",
     "vitest": "^1.1.0",
     "@vitest/coverage-v8": "^1.1.0",
-
     "c8": "~8.0.1",
     "rimraf": "~5.0.1",
     "typescript": "~5.3.3",

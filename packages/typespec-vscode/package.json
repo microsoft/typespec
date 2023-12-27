@@ -120,7 +120,6 @@
     "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-node-resolve": "~15.2.1",
     "@rollup/plugin-typescript": "~11.1.5",
-    
     "@types/node": "~18.11.9",
     "@types/vscode": "~1.85.0",
     "@typespec/compiler": "workspace:~0.51.0",
@@ -130,7 +129,6 @@
     "c8": "~8.0.1",
     "vitest": "^1.1.0",
     "@vitest/coverage-v8": "^1.1.0",
-
     "rimraf": "~5.0.1",
     "rollup": "~4.9.0",
     "typescript": "~5.3.3",
