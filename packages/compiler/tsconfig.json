@@ -10,6 +10,7 @@
     "test/**/*.ts",
     "templates/index.ts",
     "templates/*.e2e.ts",
-    "./.scripts/**/*.ts"
+    "./.scripts/**/*.ts",
+    "vite.config.ts"
   ]
 }
