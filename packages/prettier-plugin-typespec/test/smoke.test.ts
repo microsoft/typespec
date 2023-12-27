@@ -3,6 +3,7 @@ const prettier = require("prettier");
 const prettier_2 = require("prettier_2");
 const { strictEqual } = require("assert");
 const { resolve } = require("path");
+import { describe, it } from "vitest";
 
 describe("prettier-plugin: smoke test", () => {
   it("loads and formats", async () => {

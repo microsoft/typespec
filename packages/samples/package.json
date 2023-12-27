@@ -33,7 +33,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
-    "test-official": "vitest",
+    "test-official": "vitest run --reporter=junit --reporter=default",
     "test:regen": "cross-env RECORD=true vitest run",
     "regen-samples": "cross-env RECORD=true vitest run"
   },
