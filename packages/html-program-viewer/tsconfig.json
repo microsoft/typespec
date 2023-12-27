@@ -13,7 +13,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
     "lib": ["DOM", "ES2022"],
-    "types": ["@emotion/react", "mocha"]
+    "types": ["@emotion/react"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "vitest.config.ts"]
 }
