@@ -34,8 +34,8 @@
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test-official": "vitest",
-    "test:regen": "cross-env RECORD=true mocha",
-    "regen-samples": "cross-env RECORD=true mocha"
+    "test:regen": "cross-env RECORD=true vitest run",
+    "regen-samples": "cross-env RECORD=true vitest run"
   },
   "files": [
     "lib/*.tsp",
@@ -54,7 +54,7 @@
     "@typespec/versioning": "workspace:~0.51.0"
   },
   "devDependencies": {
-    "@types/mocha": "~10.0.6",
+    
     "@types/node": "~18.11.9",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
     "@typespec/internal-build-utils": "workspace:~0.51.0",
@@ -63,7 +63,6 @@
     "eslint": "^8.55.0",
     "vitest": "^1.1.0",
     "@vitest/coverage-v8": "^1.1.0",
-    "mocha": "~10.2.0",
     "rimraf": "~5.0.1",
     "typescript": "~5.3.3"
   }

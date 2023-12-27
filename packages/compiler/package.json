@@ -68,7 +68,7 @@
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test-official": "vitest run --coverage --reporter=junit --reporter=default",
-    "e2e": "mocha --config ./.mocharc.e2e.yaml",
+    "e2e": "vitest run --config ./vitest.config.e2e.ts",
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
@@ -92,7 +92,7 @@
   },
   "devDependencies": {
     "@types/babel__code-frame": "~7.0.6",
-    "@types/mocha": "~10.0.6",
+    
     "@types/mustache": "~4.2.5",
     "@types/node": "~18.11.9",
     "@types/prompts": "~2.4.9",
@@ -104,9 +104,7 @@
     "grammarkdown": "~3.3.2",
     "vitest": "^1.1.0",
     "@vitest/coverage-v8": "^1.1.0",
-    "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.1",
-    "mocha-multi-reporters": "~1.5.1",
+
     "c8": "~8.0.1",
     "prettier-plugin-organize-imports": "~3.2.4",
     "source-map-support": "~0.5.21",
