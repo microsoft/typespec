@@ -36,7 +36,7 @@ describe("compiler: yaml: diagnostics", () => {
     });
   }
 
-  describe("property at root", () =>
+  describe("property at root", () => {
     itFindKeyAndValueLocation(
       `
         one: abc
@@ -44,9 +44,10 @@ describe("compiler: yaml: diagnostics", () => {
         three: ghi
       `,
       ["two"]
-    ));
+    );
+  });
 
-  describe("property at in nested object", () =>
+  describe("property at in nested object", () => {
     itFindKeyAndValueLocation(
       `
       root: true
@@ -57,9 +58,10 @@ describe("compiler: yaml: diagnostics", () => {
           three: ghi
     `,
       ["nested", "more", "two"]
-    ));
+    );
+  });
 
-  describe("property under array", () =>
+  describe("property under array", () => {
     itFindKeyAndValueLocation(
       `
       items:
@@ -69,7 +71,8 @@ describe("compiler: yaml: diagnostics", () => {
           three: ghi
       `,
       ["items", "1", "two"]
-    ));
+    );
+  });
 
   it("array item", () =>
     findRightLocation(

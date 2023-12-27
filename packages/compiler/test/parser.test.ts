@@ -32,8 +32,9 @@ describe("compiler: parser", () => {
     ]);
   });
 
-  describe("empty script", () =>
-    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]));
+  describe("empty script", () => {
+    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]);
+  });
 
   describe("model statements", () => {
     parseEach([

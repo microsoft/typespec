@@ -517,7 +517,7 @@ describe("compiler: templates", () => {
     });
   });
 
-  describe("named template argument instantiations", async () => {
+  describe("named template argument instantiations", () => {
     it("with named arguments", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
