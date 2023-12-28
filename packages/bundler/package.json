@@ -35,7 +35,7 @@
     "watch": "tsc -p . --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default",
+    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },

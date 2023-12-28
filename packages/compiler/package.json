@@ -67,7 +67,7 @@
     "dogfood": "node scripts/dogfood.js",
     "test": "vitest run",
     "test:watch": "vitest -w",
-    "test-official": "vitest run --coverage --reporter=junit --reporter=default",
+    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "e2e": "vitest run --config ./vitest.config.e2e.ts",
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
