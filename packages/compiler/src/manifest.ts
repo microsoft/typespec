@@ -5,7 +5,7 @@ try {
   manifest = (await import("../manifest.js")).default;
 } catch {
   const name = "../dist/manifest.js";
-  manifest = (await import(/* @vite-ignore */ name)).default;
+  manifest = (await import(/* @vite-ignore */ /* webpackIgnore: true */ name)).default;
 }
 
 export const typespecVersion = manifest.version;
