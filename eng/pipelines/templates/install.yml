@@ -28,7 +28,7 @@ steps:
     displayName: "Log tool versions used"
 
   # purge before install to ensure a clean state between retries
-  - script: pnpm install --forzen-lockfile
+  - script: pnpm install
     displayName: Install JavaScript Dependencies
     retryCountOnTaskFailure: 3
 

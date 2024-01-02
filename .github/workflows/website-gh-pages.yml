@@ -34,7 +34,7 @@ jobs:
       - uses: pnpm/action-setup@v2
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Build
         run: pnpm run build --to @typespec/website -v
