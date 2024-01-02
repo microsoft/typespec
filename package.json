@@ -3,17 +3,27 @@
   "private": true,
   "packageManager": "pnpm@8.13.1",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "watch": "tsc --build ./tsconfig.ws.json --watch",
     "build": "pnpm -r run build",
-    "clean": "pnpm -r run clean",
-    "lint": "pnpm -r run lint",
-    "format": "npm run -s prettier -- --write",
     "check-format": "npm run -s prettier -- --check",
+    "check-version-mismatch": "syncpack list-mismatches",
+    "clean": "pnpm -r run clean",
+    "cspell": "cspell --no-progress \"**/*.{md,tsp,ts,tsx}\" ",
+    "fix-version-mismatch": "syncpack fix-mismatches",
+    "format": "npm run -s prettier -- --write",
+    "lint": "pnpm -r run lint",
+    "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
+    "preinstall": "npx only-allow pnpm",
     "prettier": "prettier --config ./.prettierrc.yaml .",
-    "cspell": "cspell --no-progress \"**/*.{md,tsp,ts,tsx}\" "
+    "regen-docs": "pnpm -r run regen-docs",
+    "update-latest-docs": "pnpm -r run update-latest-docs",
+    "regen-samples": "pnpm -r run regen-samples",
+    "test-official": "pnpm -r run test-official",
+    "test:e2e": "pnpm -r run e2e",
+    "test": "pnpm -r run test",
+    "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "prettier": "~3.1.1"
+    "prettier": "~3.1.1",
+    "c8": "^8.0.1"
   }
 }

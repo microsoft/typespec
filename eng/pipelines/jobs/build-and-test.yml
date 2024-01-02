@@ -39,7 +39,7 @@ steps:
     displayName: Spell check
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: pnpm run e2e
+  - script: pnpm run test:e2e
     displayName: E2E Tests
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks

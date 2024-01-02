@@ -81,6 +81,7 @@ words:
   - vswhere
   - westus
   - xplat
+  - syncpack
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
