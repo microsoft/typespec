@@ -20,7 +20,8 @@
     "test-official": "pnpm -r run test-official",
     "test:e2e": "pnpm -r run e2e",
     "test": "pnpm -r run test",
-    "watch": "tsc --build ./tsconfig.ws.json --watch"
+    "watch": "tsc --build ./tsconfig.ws.json --watch",
+    "prepare-publish": "pnpm changeset version"
   },
   "devDependencies": {
     "prettier": "~3.1.1",

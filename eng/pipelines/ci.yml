@@ -32,9 +32,9 @@ jobs:
       - template: ./templates/upload-coverage.yml
 
       - script: |
-          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          pnpm run publish --publish --include-all --set-access-level public
-        displayName: Release
+          pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
+          pnpm -r publish --access public --no-git-checks
+        displayName: Publish packages
 
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
@@ -80,9 +80,9 @@ jobs:
         workingDirectory: ./packages/compiler
 
       - script: |
-          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          pnpm run publish --publish --include-all --set-access-level public --tag next
-        displayName: Release
+          pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
+          pnpm -r publish --access public --no-git-checks --tag next
+        displayName: Publish packages
 
   - job: docker
     displayName: Docker build and publish
