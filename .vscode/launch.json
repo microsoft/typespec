@@ -21,26 +21,6 @@
       }
     },
     {
-      "type": "node",
-      "request": "attach",
-      "name": "Tests",
-      "port": 9229,
-      "smartStep": true,
-      "sourceMaps": true,
-      "continueOnAttach": true,
-      "skipFiles": [
-        "<node_internals>/**/*.js",
-        "**/.vscode/extensions/hbenl.vscode-mocha-test-adapter-*/**.js"
-      ],
-      "outFiles": [
-        "${workspaceFolder}/packages/*/dist/**/*.js",
-        "${workspaceFolder}/packages/*/dist-dev/**/*.js"
-      ],
-      "presentation": {
-        "hidden": true
-      }
-    },
-    {
       "name": "Attach to Language Server",
       "type": "node",
       "request": "attach",

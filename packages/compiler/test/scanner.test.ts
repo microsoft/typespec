@@ -1,6 +1,7 @@
 import assert from "assert";
 import { readFile } from "fs/promises";
 import { URL } from "url";
+import { describe, it } from "vitest";
 import { isIdentifierContinue, isIdentifierStart } from "../src/core/charcode.js";
 import { DiagnosticHandler, formatDiagnostic } from "../src/core/diagnostics.js";
 import {

@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { InitTemplate } from "../../src/init/init-template.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/index.js";

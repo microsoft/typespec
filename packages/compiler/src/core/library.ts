@@ -3,7 +3,6 @@ import { compilerAssert } from "./diagnostics.js";
 import { Program } from "./program.js";
 import { createJSONSchemaValidator } from "./schema-validator.js";
 import {
-  CallableMessage,
   DiagnosticMessages,
   JSONSchemaValidator,
   LinterDefinition,
@@ -12,6 +11,8 @@ import {
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
+
+export { paramMessage } from "./param-message.js";
 
 const globalLibraryUrlsLoadedSym = Symbol.for("TYPESPEC_LIBRARY_URLS_LOADED");
 if ((globalThis as any)[globalLibraryUrlsLoadedSym] === undefined) {
@@ -103,25 +104,6 @@ export function createTypeSpecLibrary<
 
 export function defineLinter(def: LinterDefinition): LinterDefinition {
   return def;
-}
-
-export function paramMessage<T extends string[]>(
-  strings: readonly string[],
-  ...keys: T
-): CallableMessage<T> {
-  const template = (dict: Record<T[number], string>) => {
-    const result = [strings[0]];
-    keys.forEach((key, i) => {
-      const value = (dict as any)[key];
-      if (value !== undefined) {
-        result.push(value);
-      }
-      result.push(strings[i + 1]);
-    });
-    return result.join("");
-  };
-  template.keys = keys;
-  return template;
 }
 
 /** Create a new linter rule. */

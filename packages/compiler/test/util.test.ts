@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { RekeyableMap } from "../src/core/index.js";
 import { createRekeyableMap } from "../src/core/util.js";
 

@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { Model, ModelProperty, Program, Type, getTypeName } from "../../src/core/index.js";
 import {
   ArrayBuilder,
@@ -127,7 +128,7 @@ describe("compiler: emitter-framework: circular references", () => {
     );
   });
 
-  context("cycle with declaration inside", () => {
+  describe("cycle with declaration inside", () => {
     it("doesn't report issue if referencing a declaration in the cycle", async () => {
       const code = `
         model First { foo: Foo }

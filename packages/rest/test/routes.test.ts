@@ -2,6 +2,7 @@ import { ModelProperty, Operation } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { isSharedRoute } from "@typespec/http";
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import {
   compileOperations,
   createRestTestRunner,

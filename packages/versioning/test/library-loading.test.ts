@@ -1,6 +1,7 @@
 import { Namespace, projectProgram } from "@typespec/compiler";
 import { BasicTestRunner, createTestWrapper } from "@typespec/compiler/testing";
 import { notStrictEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { buildVersionProjections } from "../src/versioning.js";
 import { createVersioningTestHost } from "./test-host.js";
 

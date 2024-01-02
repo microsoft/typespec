@@ -118,7 +118,7 @@ async function addLibraryImportCompletion(
   node: StringLiteralNode
 ) {
   const documentPath = file.file.path;
-  const projectRoot = await findProjectRoot(program.host, documentPath);
+  const projectRoot = await findProjectRoot(program.host.stat, documentPath);
   if (projectRoot !== undefined) {
     const [packagejson] = await loadFile(
       program.host,
