@@ -23,7 +23,8 @@
     "test": "pnpm -r run test",
     "watch": "tsc --build ./tsconfig.ws.json --watch",
     "prepare-publish": "pnpm changeset version",
-    "pack:all": "node ./eng/scripts/pack-all.js"
+    "pack:all": "node ./eng/scripts/pack-all.js",
+    "dogfood": "pnpm install && pnpm build && pnpm -r dogfood"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",

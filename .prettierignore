@@ -8,7 +8,9 @@
 common/temp/
 common/scripts/
 common/changes/
-common/config/rush/pnpm-lock.yaml
+
+# Pnpm lock file
+pnpm-lock.yaml
 
 # Coverage report directory
 **/coverage/
