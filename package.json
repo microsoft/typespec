@@ -22,10 +22,12 @@
     "test:e2e": "pnpm -r run e2e",
     "test": "pnpm -r run test",
     "watch": "tsc --build ./tsconfig.ws.json --watch",
-    "prepare-publish": "pnpm changeset version"
+    "prepare-publish": "pnpm changeset version",
+    "pack:all": "node ./eng/scripts/pack-all.js"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
+    "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^8.0.1",
     "cspell": "^6.31.1",
     "prettier-plugin-organize-imports": "~3.2.4",

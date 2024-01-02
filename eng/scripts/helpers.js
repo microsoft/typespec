@@ -103,20 +103,3 @@ export function run(command, args, options) {
 
   return proc;
 }
-
-export function runPrettier(...args) {
-  run(
-    prettier,
-    [
-      ...args,
-      "--config",
-      ".prettierrc.json",
-      "--ignore-path",
-      ".prettierignore",
-      "**/*.{ts,js,tsx,jsx,cjs,mjs,css,json,yml,yaml,tsp,cadl,md}",
-    ],
-    {
-      cwd: repoRoot,
-    }
-  );
-}
