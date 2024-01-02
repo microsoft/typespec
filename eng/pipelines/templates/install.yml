@@ -25,7 +25,7 @@ steps:
     displayName: "Log tool versions used"
 
   # purge before install to ensure a clean state between retries
-  - script: node common/scripts/install-run-rush.js install --purge
+  - script: pnpm run install --purge
     displayName: Install JavaScript Dependencies
     retryCountOnTaskFailure: 3
 

@@ -26,14 +26,14 @@ jobs:
           nodeVersion: "20.x"
       - template: ./templates/build.yml
 
-      - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
+      - script: pnpm run test-official --parallelism max --verbose
         displayName: Test
 
       - template: ./templates/upload-coverage.yml
 
       - script: |
           set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
+          pnpm run publish --publish --include-all --set-access-level public
         displayName: Release
 
       - task: AzureCLI@1
@@ -81,7 +81,7 @@ jobs:
 
       - script: |
           set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public --tag next
+          pnpm run publish --publish --include-all --set-access-level public --tag next
         displayName: Release
 
   - job: docker

@@ -1,0 +1,19 @@
+{
+  "name": "@typespec/monorepo",
+  "private": true,
+  "packageManager": "pnpm@8.13.1",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "watch": "tsc --build ./tsconfig.ws.json --watch",
+    "build": "pnpm -r run build",
+    "clean": "pnpm -r run clean",
+    "lint": "pnpm -r run lint",
+    "format": "npm run -s prettier -- --write",
+    "check-format": "npm run -s prettier -- --check",
+    "prettier": "prettier --config ./.prettierrc.yaml .",
+    "cspell": "cspell --no-progress \"**/*.{md,tsp,ts,tsx}\" "
+  },
+  "devDependencies": {
+    "prettier": "~3.1.1"
+  }
+}
