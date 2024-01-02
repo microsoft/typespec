@@ -32,7 +32,7 @@ jobs:
           node-version: 18.x
 
       - name: Install dependencies
-        run: pnpm run install --max-install-attempts 3
+        run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm run build --to @typespec/website -v
