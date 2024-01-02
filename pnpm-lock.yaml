@@ -8,9 +8,14 @@ importers:
 
   .:
     devDependencies:
+      c8:
+        specifier: ^8.0.1
+        version: 8.0.1
       prettier:
         specifier: ~3.1.1
         version: 3.1.1
+
+  e2e: {}
 
   packages/best-practices:
     devDependencies:
