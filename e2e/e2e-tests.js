@@ -35,8 +35,8 @@ function cleanE2EDirectory() {
 }
 
 function packPackages() {
-  run("rush", ["publish", "--publish", "--pack", "--include-all"]);
-  const outputFolder = join(repoRoot, "common/temp/artifacts/packages");
+  run("pnpm", ["pack:all"]);
+  const outputFolder = join(repoRoot, "/temp/artifacts");
   const files = readdirSync(outputFolder);
   console.log("Built packages:", files);
 
