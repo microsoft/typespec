@@ -52,11 +52,11 @@
     "pnpm-config.json": "jsonc",
     "version-policies.json": "jsonc"
   },
-  "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
+  "typescript.tsdk": "./node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
   "vitest.enable": true,
-  "vitest.commandLine": "node ./packages/compiler/node_modules/vitest/vitest.mjs",
-  "prettier.prettierPath": "./packages/compiler/node_modules/prettier/index.cjs",
+  "vitest.commandLine": "node ./node_modules/vitest/vitest.mjs",
+  "prettier.prettierPath": "./node_modules/prettier/index.cjs",
   "prettier.documentSelectors": ["**/*.tsp"],
   "testExplorer.errorDecoration": false,
   "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"

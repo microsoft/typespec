@@ -31,9 +31,11 @@
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^8.0.1",
     "cspell": "^6.31.1",
-    "prettier-plugin-organize-imports": "~3.2.4",
     "prettier": "~3.1.1",
-    "syncpack": "^11.2.1"
+    "prettier-plugin-organize-imports": "~3.2.4",
+    "syncpack": "^11.2.1",
+    "typescript": "~5.3.3",
+    "vitest": "^1.1.0"
   },
   "syncpack": {
     "dependencyTypes": [
