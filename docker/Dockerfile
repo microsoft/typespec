@@ -11,7 +11,7 @@ ENV TYPESPEC_SKIP_VS_BUILD=1
 RUN npm install -g pnpm@8.13.1
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter "@typespec/compiler" run build
-å
+
 WORKDIR /app/packages/compiler
 RUN npm pack
 
