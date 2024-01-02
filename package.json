@@ -1,5 +1,6 @@
 {
   "name": "@typespec/monorepo",
+  "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@8.13.1",
   "scripts": {
@@ -9,11 +10,11 @@
     "clean": "pnpm -r run clean",
     "cspell": "cspell --no-progress \"**/*.{md,tsp,ts,tsx}\" ",
     "fix-version-mismatch": "syncpack fix-mismatches",
-    "format": "npm run -s prettier -- --write",
+    "format": "pnpm run prettier --write",
     "lint": "pnpm -r run lint",
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
     "preinstall": "npx only-allow pnpm",
-    "prettier": "prettier --config ./.prettierrc.yaml .",
+    "prettier": "prettier .",
     "regen-docs": "pnpm -r run regen-docs",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "regen-samples": "pnpm -r run regen-samples",
@@ -24,7 +25,21 @@
     "prepare-publish": "pnpm changeset version"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "c8": "^8.0.1",
+    "cspell": "^6.31.1",
+    "prettier-plugin-organize-imports": "~3.2.4",
     "prettier": "~3.1.1",
-    "c8": "^8.0.1"
+    "syncpack": "^11.2.1"
+  },
+  "syncpack": {
+    "dependencyTypes": [
+      "dev",
+      "overrides",
+      "peer",
+      "pnpmOverrides",
+      "prod",
+      "resolutions"
+    ]
   }
 }

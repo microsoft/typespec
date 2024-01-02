@@ -104,7 +104,6 @@
     "vitest": "^1.1.0",
     "@vitest/coverage-v8": "^1.1.0",
     "c8": "~8.0.1",
-    "prettier-plugin-organize-imports": "~3.2.4",
     "source-map-support": "~0.5.21",
     "rimraf": "~5.0.1",
     "tmlanguage-generator": "workspace:~0.5.1",
