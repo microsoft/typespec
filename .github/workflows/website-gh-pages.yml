@@ -31,6 +31,8 @@ jobs:
         with:
           node-version: 18.x
 
+      - uses: pnpm/action-setup@v2
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

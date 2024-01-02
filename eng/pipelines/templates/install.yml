@@ -15,11 +15,14 @@ steps:
     inputs:
       version: 6.0.x
 
+  - script: npm install -g pnpm@8.13.1
+    displayName: Install pnpm
+
   - script: |
       echo "Node:"
       node -v
-      echo "Npm:"
-      npm -v
+      echo "Pnpm:"
+      pnpm -v
       echo "Dotnet:"
       dotnet --version
     displayName: "Log tool versions used"
