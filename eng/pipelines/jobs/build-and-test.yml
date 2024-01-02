@@ -15,7 +15,7 @@ steps:
 
   - template: ../templates/build.yml
 
-  - script: pnpm run test-official --verbose
+  - script: pnpm run test-official
     displayName: Test
 
   - template: ../templates/upload-coverage.yml
@@ -24,7 +24,7 @@ steps:
     displayName: Check Formatting
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: pnpm run lint  --verbose
+  - script: pnpm run lint
     displayName: Lint
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 

@@ -26,7 +26,7 @@ jobs:
           nodeVersion: "20.x"
       - template: ./templates/build.yml
 
-      - script: pnpm run test-official --verbose
+      - script: pnpm run test-official
         displayName: Test
 
       - template: ./templates/upload-coverage.yml

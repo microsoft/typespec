@@ -1,5 +1,5 @@
 # Template building all packages with parallelism.
 
 steps:
-  - script: pnpm run build --verbose
+  - script: pnpm run build
     displayName: Build
