@@ -21,9 +21,9 @@
     "purge": "rimraf node_modules/ --glob packages/*/node_modules/",
     "regen-docs": "pnpm -r run regen-docs",
     "regen-samples": "pnpm -r run regen-samples",
-    "test-official": "pnpm -r --parallel test-official",
+    "test-official": "pnpm -r --parallel --aggregate-output test-official",
     "test:e2e": "pnpm -r run e2e",
-    "test": "pnpm -r --parallel run test",
+    "test": "pnpm -r --parallel --aggregate-output run test",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
