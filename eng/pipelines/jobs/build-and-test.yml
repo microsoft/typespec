@@ -44,7 +44,7 @@ steps:
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).
-  - script: pnpm uninstall
+  - script: pnpm run purge
     displayName: "Purge dependencies"
     condition: always()
 
