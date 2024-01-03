@@ -1,7 +1,6 @@
 import { spawn, spawnSync } from "child_process";
-import { dirname,  resolve } from "path";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const prettier = resolve(repoRoot, "packages/compiler/node_modules/.bin/prettier");
@@ -12,11 +11,10 @@ export function listPackages() {
   return findWorkspacePackagesNoCheck(repoRoot);
 }
 
-
 // We could use { shell: true } to let Windows find .cmd, but that causes other issues.
 // It breaks ENOENT checking for command-not-found and also handles command/args with spaces
 // poorly.
-const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", "docusaurus", tsc, prettier];
+const isCmdOnWindows = ["pnpm", "npm", "code", "code-insiders", "docusaurus", tsc, prettier];
 
 export class CommandFailedError extends Error {
   constructor(msg, proc) {
