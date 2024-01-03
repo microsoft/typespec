@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@8.13.1",
   "scripts": {
-    "build": "pnpm -r --workspace-concurrency 0 build ",
+    "build": "pnpm -r --workspace-concurrency 8 build ",
     "check-format": "npm run -s prettier -- --check",
     "check-version-mismatch": "syncpack list-mismatches",
     "clean": "pnpm -r run clean",
@@ -21,7 +21,7 @@
     "purge": "rimraf node_modules/ --glob packages/*/node_modules/",
     "regen-docs": "pnpm -r run regen-docs",
     "regen-samples": "pnpm -r run regen-samples",
-    "test-official": "pnpm -r --workspace-concurrency 0 test-official",
+    "test-official": "pnpm -r --workspace-concurrency 8 test-official",
     "test:e2e": "pnpm -r run e2e",
     "test": "pnpm -r run test",
     "update-latest-docs": "pnpm -r run update-latest-docs",
