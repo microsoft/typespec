@@ -35,7 +35,7 @@ function cleanE2EDirectory() {
 }
 
 function packPackages() {
-  run("pnpm", ["pack:all"]);
+  run("pnpm", ["-w", "pack:all"], { cwd: repoRoot });
   const outputFolder = join(repoRoot, "/temp/artifacts");
   const files = readdirSync(outputFolder);
   console.log("Built packages:", files);

@@ -21,7 +21,7 @@
     "purge": "rimraf node_modules/ --glob packages/*/node_modules/",
     "regen-docs": "pnpm -r run regen-docs",
     "regen-samples": "pnpm -r run regen-samples",
-    "test-official": "pnpm -r --workspace-concurrency 8 test-official",
+    "test-official": "pnpm -r --parallel test-official",
     "test:e2e": "pnpm -r run e2e",
     "test": "pnpm -r --parallel run test",
     "update-latest-docs": "pnpm -r run update-latest-docs",
