@@ -1,34 +1,17 @@
 import { spawn, spawnSync } from "child_process";
-import { readFileSync } from "fs";
-import { dirname, join, resolve } from "path";
+import { dirname,  resolve } from "path";
 import { fileURLToPath } from "url";
 
-function read(filename) {
-  const txt = readFileSync(filename, "utf-8")
-    .replace(/\r/gm, "")
-    .replace(/\n/gm, "«")
-    .replace(/\/\*.*?\*\//gm, "")
-    .replace(/«/gm, "\n")
-    .replace(/\s+\/\/.*/g, "");
-  return JSON.parse(txt);
-}
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const prettier = resolve(repoRoot, "packages/compiler/node_modules/.bin/prettier");
 export const tsc = resolve(repoRoot, "packages/compiler/node_modules/.bin/tsc");
 
-const rush = read(`${repoRoot}/rush.json`);
-
-export function forEachProject(onEach, filter) {
-  // load all the projects
-  for (const each of rush.projects) {
-    const packageName = each.packageName;
-    if (filter !== undefined && !filter.includes(packageName)) continue;
-    const projectFolder = resolve(`${repoRoot}/${each.projectFolder}`);
-    const project = JSON.parse(readFileSync(`${projectFolder}/package.json`, "utf-8"));
-    onEach(packageName, projectFolder, project);
-  }
+/** @returns {Promise<import("@pnpm/find-workspace-packages").Project[]>*/
+export function listPackages() {
+  return findWorkspacePackagesNoCheck(repoRoot);
 }
+
 
 // We could use { shell: true } to let Windows find .cmd, but that causes other issues.
 // It breaks ENOENT checking for command-not-found and also handles command/args with spaces
