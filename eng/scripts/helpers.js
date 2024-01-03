@@ -30,36 +30,6 @@ export function forEachProject(onEach, filter) {
   }
 }
 
-export function npmForEachDependency(cmd, projectDir, options) {
-  const project = JSON.parse(readFileSync(`${projectDir}/package.json`, "utf-8"));
-  const deps = [
-    Object.keys(project.dependencies || {}),
-    Object.keys(project.devDependencies || {}),
-    Object.keys(project.peerDependencies || {}),
-  ].flat();
-
-  forEachProject((name, location, project) => {
-    if (project.scripts[cmd] || cmd === "pack") {
-      const args = cmd === "pack" ? [cmd] : ["run", cmd];
-      run("npm", args, { cwd: location, ...options });
-    }
-  }, deps);
-}
-
-export function npmForEach(cmd, options) {
-  forEachProject((name, location, project) => {
-    if (cmd === "test-official" && !project.scripts[cmd] && project.scripts["test"]) {
-      const pj = join(location, "package.json");
-      throw new Error(`${pj} has a 'test' script, but no 'test-official' script for CI.`);
-    }
-
-    if (project.scripts[cmd] || cmd === "pack") {
-      const args = cmd === "pack" ? [cmd] : ["run", cmd];
-      run("npm", args, { cwd: location, ...options });
-    }
-  });
-}
-
 // We could use { shell: true } to let Windows find .cmd, but that causes other issues.
 // It breaks ENOENT checking for command-not-found and also handles command/args with spaces
 // poorly.
