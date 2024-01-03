@@ -12,7 +12,7 @@ function main() {
   const packages = packPackages();
 
   console.log("Check packages exists");
-  run("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
+  run("ls", [`${repoRoot}/temp/artifacts`]);
 
   console.log("Check cli is working");
   runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
