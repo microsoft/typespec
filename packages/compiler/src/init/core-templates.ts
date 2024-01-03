@@ -1,12 +1,8 @@
 import { readFile } from "fs/promises";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
 import { resolvePath } from "../core/path-utils.js";
+import { CompilerPackageRoot } from "../core/node-host.js";
 
-export const templatesDir = resolvePath(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../templates"
-);
+export const templatesDir = resolvePath(CompilerPackageRoot, "templates");
 
 const content = JSON.parse(await readFile(resolvePath(templatesDir, "scaffolding.json"), "utf-8"));
 
