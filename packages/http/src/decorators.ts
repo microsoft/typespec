@@ -1,5 +1,3 @@
-import { createDiagnostic, reportDiagnostic } from "./lib.js";
-
 import {
   DecoratorContext,
   Diagnostic,
@@ -23,8 +21,8 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
-import { HttpStateKeys } from "./state.js";
 import { getStatusCodesFromType } from "./status-codes.js";
 import {
   AuthenticationOption,
@@ -85,11 +83,11 @@ export function $header(
       target: context.decoratorTarget,
     });
   }
-  context.program.stateMap(HttpStateKeys.headerFieldsKey).set(entity, options);
+  context.program.stateMap(HttpStateKeys.header).set(entity, options);
 }
 
 export function getHeaderFieldOptions(program: Program, entity: Type): HeaderFieldOptions {
-  return program.stateMap(HttpStateKeys.headerFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.header).get(entity);
 }
 
 export function getHeaderFieldName(program: Program, entity: Type): string {
@@ -97,7 +95,7 @@ export function getHeaderFieldName(program: Program, entity: Type): string {
 }
 
 export function isHeader(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.headerFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.header).has(entity);
 }
 
 export function $query(
@@ -133,11 +131,11 @@ export function $query(
       target: context.decoratorTarget,
     });
   }
-  context.program.stateMap(HttpStateKeys.queryFieldsKey).set(entity, options);
+  context.program.stateMap(HttpStateKeys.query).set(entity, options);
 }
 
 export function getQueryParamOptions(program: Program, entity: Type): QueryParameterOptions {
-  return program.stateMap(HttpStateKeys.queryFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.query).get(entity);
 }
 
 export function getQueryParamName(program: Program, entity: Type): string {
@@ -145,7 +143,7 @@ export function getQueryParamName(program: Program, entity: Type): string {
 }
 
 export function isQueryParam(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.queryFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.query).has(entity);
 }
 
 export function $path(context: DecoratorContext, entity: ModelProperty, paramName?: string) {
@@ -153,11 +151,11 @@ export function $path(context: DecoratorContext, entity: ModelProperty, paramNam
     type: "path",
     name: paramName ?? entity.name,
   };
-  context.program.stateMap(HttpStateKeys.pathFieldsKey).set(entity, options);
+  context.program.stateMap(HttpStateKeys.path).set(entity, options);
 }
 
 export function getPathParamOptions(program: Program, entity: Type): PathParameterOptions {
-  return program.stateMap(HttpStateKeys.pathFieldsKey).get(entity);
+  return program.stateMap(HttpStateKeys.path).get(entity);
 }
 
 export function getPathParamName(program: Program, entity: Type): string {
@@ -165,19 +163,19 @@ export function getPathParamName(program: Program, entity: Type): string {
 }
 
 export function isPathParam(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.pathFieldsKey).has(entity);
+  return program.stateMap(HttpStateKeys.path).has(entity);
 }
 
 export function $body(context: DecoratorContext, entity: ModelProperty) {
-  context.program.stateSet(HttpStateKeys.bodyFieldsKey).add(entity);
+  context.program.stateSet(HttpStateKeys.body).add(entity);
 }
 
 export function isBody(program: Program, entity: Type): boolean {
-  return program.stateSet(HttpStateKeys.bodyFieldsKey).has(entity);
+  return program.stateSet(HttpStateKeys.body).has(entity);
 }
 
 export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
-  context.program.stateSet(HttpStateKeys.statusCodeKey).add(entity);
+  context.program.stateSet(HttpStateKeys.statusCode).add(entity);
 
   // eslint-disable-next-line deprecation/deprecation
   setLegacyStatusCodeState(context, entity);
@@ -226,18 +224,18 @@ function setLegacyStatusCodeState(context: DecoratorContext, entity: ModelProper
     });
     return false;
   }
-  context.program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
+  context.program.stateMap(HttpStateKeys.statusCode).set(entity, codes);
 }
 
 /**
  * @deprecated DO NOT USE, for internal use only.
  */
 export function setStatusCode(program: Program, entity: Model | ModelProperty, codes: string[]) {
-  program.stateMap(HttpStateKeys.statusCodeKey).set(entity, codes);
+  program.stateMap(HttpStateKeys.statusCode).set(entity, codes);
 }
 
 export function isStatusCode(program: Program, entity: Type) {
-  return program.stateMap(HttpStateKeys.statusCodeKey).has(entity);
+  return program.stateMap(HttpStateKeys.statusCode).has(entity);
 }
 
 export function getStatusCodesWithDiagnostics(
@@ -306,8 +304,8 @@ function rangeDescription(start: number, end: number) {
 
 function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void {
   if (entity.kind === "Operation") {
-    if (!program.stateMap(HttpStateKeys.operationVerbsKey).has(entity)) {
-      program.stateMap(HttpStateKeys.operationVerbsKey).set(entity, verb);
+    if (!program.stateMap(HttpStateKeys.verbs).has(entity)) {
+      program.stateMap(HttpStateKeys.verbs).set(entity, verb);
     } else {
       reportDiagnostic(program, {
         code: "http-verb-duplicate",
@@ -325,7 +323,7 @@ function setOperationVerb(program: Program, entity: Type, verb: HttpVerb): void 
 }
 
 export function getOperationVerb(program: Program, entity: Type): HttpVerb | undefined {
-  return program.stateMap(HttpStateKeys.operationVerbsKey).get(entity);
+  return program.stateMap(HttpStateKeys.verbs).get(entity);
 }
 
 export function $get(context: DecoratorContext, entity: Operation) {
@@ -386,10 +384,10 @@ export function $server(
     }
   }
 
-  let servers: HttpServer[] = context.program.stateMap(HttpStateKeys.serversKey).get(target);
+  let servers: HttpServer[] = context.program.stateMap(HttpStateKeys.servers).get(target);
   if (servers === undefined) {
     servers = [];
-    context.program.stateMap(HttpStateKeys.serversKey).set(target, servers);
+    context.program.stateMap(HttpStateKeys.servers).set(target, servers);
   }
   servers.push({
     url,
@@ -399,7 +397,7 @@ export function $server(
 }
 
 export function getServers(program: Program, type: Namespace): HttpServer[] | undefined {
-  return program.stateMap(HttpStateKeys.serversKey).get(type);
+  return program.stateMap(HttpStateKeys.servers).get(type);
 }
 
 export function $plainData(context: DecoratorContext, entity: Model) {
@@ -407,11 +405,11 @@ export function $plainData(context: DecoratorContext, entity: Model) {
 
   const decoratorsToRemove = ["$header", "$body", "$query", "$path", "$statusCode"];
   const [headers, bodies, queries, paths, statusCodes] = [
-    program.stateMap(HttpStateKeys.headerFieldsKey),
-    program.stateSet(HttpStateKeys.bodyFieldsKey),
-    program.stateMap(HttpStateKeys.queryFieldsKey),
-    program.stateMap(HttpStateKeys.pathFieldsKey),
-    program.stateMap(HttpStateKeys.statusCodeKey),
+    program.stateMap(HttpStateKeys.header),
+    program.stateSet(HttpStateKeys.body),
+    program.stateMap(HttpStateKeys.query),
+    program.stateMap(HttpStateKeys.path),
+    program.stateMap(HttpStateKeys.statusCode),
   ];
 
   for (const property of entity.properties.values()) {
@@ -449,7 +447,7 @@ export function setAuthentication(
   serviceNamespace: Namespace,
   auth: ServiceAuthentication
 ) {
-  program.stateMap(HttpStateKeys.authenticationKey).set(serviceNamespace, auth);
+  program.stateMap(HttpStateKeys.authentication).set(serviceNamespace, auth);
 }
 
 function extractServiceAuthentication(
@@ -582,7 +580,7 @@ export function getAuthentication(
   program: Program,
   namespace: Namespace
 ): ServiceAuthentication | undefined {
-  return program.stateMap(HttpStateKeys.authenticationKey).get(namespace);
+  return program.stateMap(HttpStateKeys.authentication).get(namespace);
 }
 
 /**
@@ -660,7 +658,7 @@ export function $includeInapplicableMetadataInPayload(
   ) {
     return;
   }
-  const state = context.program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayloadKey);
+  const state = context.program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayload);
   state.set(entity, value);
 }
 
@@ -677,7 +675,7 @@ export function includeInapplicableMetadataInPayload(
 ): boolean {
   let e: ModelProperty | Namespace | Model | undefined;
   for (e = property; e; e = e.kind === "ModelProperty" ? e.model : e.namespace) {
-    const value = program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayloadKey).get(e);
+    const value = program.stateMap(HttpStateKeys.includeInapplicableMetadataInPayload).get(e);
     if (value !== undefined) {
       return value;
     }

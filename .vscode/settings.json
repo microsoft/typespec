@@ -54,23 +54,8 @@
   },
   "typescript.tsdk": "./packages/compiler/node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
-  "testExplorer.useNativeTesting": true,
-  "mochaExplorer.parallel": false,
-  "mochaExplorer.files": [
-    "./packages/*/dist/test/**/*.test.js",
-    "./packages/*/dist/test/**/*.e2e.js",
-    "./packages/*/dist-dev/test/**/*.test.js",
-    "./packages/*/test/**/*.test.js"
-  ],
-  "mochaExplorer.ignore": "./packages/*/dist/test/manual/**/*.js",
-  "mochaExplorer.mochaPath": "./packages/compiler/node_modules/mocha",
-  "mochaExplorer.timeout": 500000,
-  "mochaExplorer.require": "source-map-support/register",
-  "mochaExplorer.debuggerConfig": "Tests",
-  "mochaExplorer.env": {
-    "TYPESPEC_VERBOSE_TEST_OUTPUT": "true",
-    "NODE_OPTIONS": "--stack-trace-limit=50"
-  },
+  "vitest.enable": true,
+  "vitest.commandLine": "node ./packages/compiler/node_modules/vitest/vitest.mjs",
   "prettier.prettierPath": "./packages/compiler/node_modules/prettier/index.cjs",
   "prettier.documentSelectors": ["**/*.tsp"],
   "testExplorer.errorDecoration": false,

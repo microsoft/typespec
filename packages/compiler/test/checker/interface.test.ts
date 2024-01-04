@@ -1,4 +1,5 @@
 import { deepStrictEqual, notStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { getDoc } from "../../src/index.js";

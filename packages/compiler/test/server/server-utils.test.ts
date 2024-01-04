@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual, throws } from "assert";
+import { describe, it } from "vitest";
 import { Comment } from "../../src/core/index.js";
 import { parse } from "../../src/core/parser.js";
 import { TypeSpecScriptNode } from "../../src/core/types.js";

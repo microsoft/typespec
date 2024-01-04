@@ -1,16 +1,17 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
-    "types": ["node", "mocha"]
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts",
     "test/**/*.ts",
     "templates/index.ts",
     "templates/*.e2e.ts",
-    "./.scripts/**/*.ts"
+    "./.scripts/**/*.ts",
+    "vitest.config.ts",
+    "vitest.config.e2e.ts"
   ]
 }

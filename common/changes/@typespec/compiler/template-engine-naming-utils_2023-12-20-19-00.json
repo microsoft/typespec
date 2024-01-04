@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add new helper function to change casing to the init templates",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

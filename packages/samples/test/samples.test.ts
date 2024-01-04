@@ -1,5 +1,6 @@
 import { resolvePath } from "@typespec/compiler";
-import { fileURLToPath } from "url";
+import { findTestPackageRoot } from "@typespec/compiler/testing";
+import { describe } from "vitest";
 import { defineSampleSnaphotTests } from "../src/sample-snapshot-testing.js";
 
 const excludedSamples = [
@@ -7,7 +8,7 @@ const excludedSamples = [
   "local-typespec",
 ];
 
-const pkgRoot = resolvePath(fileURLToPath(import.meta.url), "../../..");
+const pkgRoot = await findTestPackageRoot(import.meta.url);
 const samplesRoot = resolvePath(pkgRoot, "specs");
 const rootOutputDir = resolvePath(pkgRoot, "test/output");
 

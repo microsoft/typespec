@@ -3,9 +3,9 @@ import { globby } from "globby";
 import { resolveConfig } from "prettier";
 import { PrettierParserError } from "../formatter/parser.js";
 import { checkFormatTypeSpec, formatTypeSpec } from "./formatter.js";
-import { Diagnostic, NoTarget } from "./index.js";
 import { createDiagnostic } from "./messages.js";
 import { normalizePath } from "./path-utils.js";
+import { Diagnostic, NoTarget } from "./types.js";
 
 export interface TypeSpecFormatOptions {
   exclude?: string[];

@@ -86,7 +86,7 @@ export async function scaffoldNewProject(host: CompilerHost, config: Scaffolding
 
 function isFileSkipGeneration(fileName: string, files: InitTemplateFile[]): boolean {
   for (const file of files) {
-    if (file.path === fileName) {
+    if (file.destination === fileName) {
       return file.skipGeneration ?? false;
     }
   }

@@ -1,5 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
+import { describe, it } from "vitest";
 import { checkFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: polymorphic model inheritance with discriminator", () => {

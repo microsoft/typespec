@@ -1,6 +1,7 @@
 import { Model } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { getResourceTypeKey } from "../src/resource.js";
 import { getSegment } from "../src/rest.js";
 import { compileOperations, createRestTestRunner, getRoutesFor } from "./test-host.js";

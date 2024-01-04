@@ -1,6 +1,7 @@
 import { Scalar } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getResourceLocationType } from "../src/rest.js";
 import { createRestTestRunner } from "./test-host.js";
 

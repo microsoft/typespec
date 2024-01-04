@@ -1,4 +1,5 @@
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { Model, ModelProperty, Namespace, Program, Type } from "../../src/core/index.js";
 import {
   AssetEmitter,
