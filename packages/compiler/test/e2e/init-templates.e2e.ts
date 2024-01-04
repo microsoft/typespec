@@ -10,8 +10,8 @@ import { TypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const testTempRoot = resolve(__dirname, "../../../temp/scaffolded-template-tests");
-const snapshotFolder = resolve(__dirname, "../../../templates/__snapshots__");
+const testTempRoot = resolve(__dirname, "../../temp/scaffolded-template-tests");
+const snapshotFolder = resolve(__dirname, "../../templates/__snapshots__");
 
 async function execAsync(
   command: string,
@@ -89,7 +89,7 @@ describe("Init templates e2e tests", () => {
       checkCommand: async (command: string, args: string[] = [], options: SpawnOptions = {}) => {
         const result = await execAsync(command, args, {
           ...options,
-          cwd: resolve(testTempRoot, "emitter-ts"),
+          cwd: targetFolder,
         });
         ok(
           result.exitCode === 0,
@@ -110,11 +110,21 @@ describe("Init templates e2e tests", () => {
     });
 
     it("emitter-ts", () => scaffoldTemplateSnapshot("emitter-ts"));
+    it("library-ts", () => scaffoldTemplateSnapshot("library-ts"));
   });
 
   describe("validate templates", () => {
     it("validate emitter-ts template", async () => {
       const fixture = await scaffoldTemplateForTest("emitter-ts");
+      await fixture.checkCommand("npm", ["install"]);
+      await fixture.checkCommand("npm", ["run", "build"]);
+      await fixture.checkCommand("npm", ["run", "test"]);
+      await fixture.checkCommand("npm", ["run", "lint"]);
+      await fixture.checkCommand("npm", ["run", "format"]);
+    });
+
+    it("validate library-ts template", async () => {
+      const fixture = await scaffoldTemplateForTest("library-ts");
       await fixture.checkCommand("npm", ["install"]);
       await fixture.checkCommand("npm", ["run", "build"]);
       await fixture.checkCommand("npm", ["run", "test"]);

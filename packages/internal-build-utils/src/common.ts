@@ -25,7 +25,37 @@ export interface RunOptions extends SpawnOptions {
   throwOnNonZeroExit?: boolean;
 }
 
-export async function run(command: string, args: string[], options?: RunOptions) {
+/** Run the given command and exit if command return non zero exit code. */
+export async function runOrExit(
+  command: string,
+  args: string[],
+  options?: RunOptions
+): Promise<ExecResult> {
+  return exitOnFailedCommand(() => run(command, args, options));
+}
+
+export async function exitOnFailedCommand<T>(cb: () => Promise<T>): Promise<T> {
+  try {
+    return await cb();
+  } catch (e: any) {
+    if (e instanceof CommandFailedError) {
+      // eslint-disable-next-line no-console
+      console.error(e.message);
+      process.exit(e.proc.exitCode ?? -1);
+    } else {
+      throw e;
+    }
+  }
+}
+
+const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", "docusaurus", "tsc", "prettier"];
+
+/** Run the given command or throw CommandFailedError if the command returns non zero exit code. */
+export async function run(
+  command: string,
+  args: string[],
+  options?: RunOptions
+): Promise<ExecResult> {
   if (!options?.silent) {
     // eslint-disable-next-line no-console
     console.log();
@@ -38,6 +68,13 @@ export async function run(command: string, args: string[], options?: RunOptions)
     throwOnNonZeroExit: true,
     ...options,
   };
+
+  if (
+    process.platform === "win32" &&
+    (isCmdOnWindows.includes(command) || isCmdOnWindows.some((x) => command.endsWith(`/${x}`)))
+  ) {
+    command += ".cmd";
+  }
 
   try {
     const result = await execAsync(command, args, options);
@@ -52,18 +89,24 @@ export async function run(command: string, args: string[], options?: RunOptions)
     if (options.ignoreCommandNotFound && e.code === "ENOENT") {
       // eslint-disable-next-line no-console
       console.log(`Skipped: Command \`${command}\` not found.`);
-      return { exitCode: 0, stdout: "", stderr: "" };
+      return { exitCode: 0, stdout: "", stderr: "" } as any;
     } else {
       throw e;
     }
   }
 }
 
+export interface ExecResult {
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  proc: ChildProcess;
+}
 export async function execAsync(
   command: string,
   args: string[],
   options: SpawnOptions
-): Promise<{ exitCode: number; stdout: string; stderr: string; proc: ChildProcess }> {
+): Promise<ExecResult> {
   const child = spawn(command, args, options);
 
   return new Promise((resolve, reject) => {

@@ -49,6 +49,7 @@ packages/website/playground-versions.json
 
 # Auto generated built-in template list
 packages/compiler/templates/scaffolding.json
+packages/compiler/templates/__snapshots__/
 
 #.tsp init template
 eng/feeds/
