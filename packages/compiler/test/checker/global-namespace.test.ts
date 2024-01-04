@@ -1,6 +1,7 @@
 import assert, { notStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model } from "../../src/core/types.js";
-import { createTestHost, TestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: global namespace", () => {
   let testHost: TestHost;

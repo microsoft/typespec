@@ -117,6 +117,9 @@ export function run(
 }
 
 export function logDiagnosticCount(diagnostics: readonly Diagnostic[]) {
+  if (diagnostics.length === 0) {
+    return;
+  }
   const errorCount = diagnostics.filter((x) => x.severity === "error").length;
   const warningCount = diagnostics.filter((x) => x.severity === "warning").length;
 

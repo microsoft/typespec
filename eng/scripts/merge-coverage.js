@@ -10,7 +10,7 @@ mkdirSync(rootCoverageTmp, { recursive: true });
 
 // Copy coverage files from each project to common folder
 forEachProject((name, location, project) => {
-  const coverageTmp = join(location, "coverage", "tmp");
+  const coverageTmp = join(location, "coverage", ".tmp");
   if (existsSync(coverageTmp)) {
     const files = readdirSync(coverageTmp);
     for (const file of files) {

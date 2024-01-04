@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   DecoratorContext,
   TypeSpecValue,

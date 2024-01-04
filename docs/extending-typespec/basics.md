@@ -13,6 +13,15 @@ This document assumes you will be using [TypeScript](https://typescriptlang.org)
 
 You will need both node and npm installed. Additionally, if you intend to develop multiple libraries together, you will likely want to establish a monorepo as this will make developing the libraries in tandem much easier. TypeSpec itself uses [rush.js](https://rushjs.io/).
 
+## Setup with templates
+
+Available templates:
+
+```bash
+# Create a TypeSpec emitter with TypeScript enabled.
+tsp init --template emitter-ts
+```
+
 ## Canonical package structure
 
 The following is a high level overview of the contents of a TypeSpec package. These files are explained in more detail in the subsequent sections.
@@ -24,6 +33,8 @@ The following is a high level overview of the contents of a TypeSpec package. Th
 - **package.json** - metadata about your TypeSpec package
 
 ## 1 - Initial setup
+
+You can skip this if you used one of the templates above.
 
 ### a. Initialize your package directory &amp; package.json
 
@@ -103,7 +114,7 @@ export const $lib = createTypeSpecLibrary({
 } as const);
 
 // Optional but convenient, those are meant to be used locally in your library.
-export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;
+export const { reportDiagnostic, createDiagnostic } = $lib;
 ```
 
 Diagnostics are used for linters and decorators which are covered in subsequent topics.
@@ -128,7 +139,7 @@ Alternatively, you can add these as scripts in your `package.json` to make them 
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "mocha"
+    "test": "node --test ./dist/test"
   }
 ```
 
@@ -190,27 +201,31 @@ TypeSpec libraries are defined using `peerDependencies` so we don't end-up with 
 
 ## 4. Testing your TypeSpec library
 
-TypeSpec provides a testing framework to help testing libraries. Examples here are shown using `mocha` but any other JS test framework can be used.
+TypeSpec provides a testing framework to help testing libraries. Examples here are shown using node built-in test framework(Available node 20+) but any other JS test framework can be used that will provide more advanced features like vitest which is used in this project.
 
 ### a. Add devDependencies
 
 Verify that you have the following in your `package.json`:
 
-```
+```json
 "devDependencies": {
   "@types/node": "~18.11.9",
-  "@types/mocha": "~10.0.1",
-  "mocha": "~10.2.0",
   "source-map-support": "^0.5.21"
 }
 ```
 
-Also add a `.mocharc.yaml` file at the root of your project.
+Also add a `vitest.config.ts` file at the root of your project.
 
-```yaml
-timeout: 5000
-require: source-map-support/register
-spec: "dist/test/**/*.test.js"
+```ts
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    environment: "node",
+    // testTimeout: 10000, // Uncomment to increase the default timeout
+    isolate: false, // Your test shouldn't have side effects to this will improve performance.
+  },
+});
 ```
 
 ### b. Define the testing library
@@ -227,7 +242,7 @@ import { fileURLToPath } from "url";
 export const MyTestLibrary = createTestLibrary({
   name: "<name-of-npm-pkg>",
   // Set this to the absolute path to the root of the package. (e.g. in this case this file would be compiled to ./dist/src/testing/index.js)
-  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
 });
 ```
 
@@ -277,10 +292,22 @@ export async function createMyTestRunner() {
 
 ### d. Write tests
 
-After setting up that infrastructure you can start writing tests. For tests to be recognized by mocha the file names must follow the following format: `<name>.test.ts`
+After setting up that infrastructure you can start writing tests. By default Node.js will run all files matching these patterns:
+
+```
+**/*.test.?(c|m)js
+**/*-test.?(c|m)js
+**/*_test.?(c|m)js
+**/test-*.?(c|m)js
+**/test.?(c|m)js
+**/test/**/*.?(c|m)js
+```
+
+[See nodejs doc](https://nodejs.org/api/test.html)
 
 ```ts
 import { createMyTestRunner } from "./test-host.js";
+import { describe, beforeEach, it } from "node:test";
 
 describe("my library", () => {
   let runner: BasicTestRunner;
@@ -325,9 +352,9 @@ Foo; // type of: model Foo {}
 CustomName; // type of : Bar.name
 ```
 
-#### f. Install the mocha test explorer for VSCode (optional)
+#### f. Install vscode extension for the test framework
 
-If you are using VSCode, you can install the [mocha test explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter) to run your tests from the editor. This will also allow you easily debug into your tests.
+If you are using VSCode, you can install the [Node test runner](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run your tests from the editor. This will also allow you easily debug into your tests.
 
 You should now be able to discover, run and debug into your tests from the test explorer.
 

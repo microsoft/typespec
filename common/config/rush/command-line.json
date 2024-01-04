@@ -34,6 +34,14 @@
       "ignoreDependencyOrder": true
     },
     {
+      "commandKind": "bulk",
+      "name": "test:e2e",
+      "summary": "(CUSTOM) Runs all the e2e tests.",
+      "enableParallelism": true,
+      "ignoreMissingScript": true,
+      "ignoreDependencyOrder": true
+    },
+    {
       "commandKind": "global",
       "safeForSimultaneousRushProcesses": true,
       "name": "merge-coverage",

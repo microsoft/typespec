@@ -2,24 +2,14 @@ import { deepStrictEqual, ok } from "assert";
 import { readFile } from "fs/promises";
 import { createRequire } from "module";
 import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../src/core/diagnostics.js";
 import { SemanticToken, SemanticTokenKind } from "../../src/server/serverlib.js";
 import { TypeSpecScope } from "../../src/server/tmlanguage.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
-
-// vscode-oniguruma depends on those type from the DOM library.
-// As we are only using this in this test it is better to not add the whole DOM library just for this.
-declare global {
-  type Response = any;
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace WebAssembly {
-    type WebAssemblyInstantiatedSource = any;
-    type ImportValue = any;
-  }
-}
+import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
@@ -1345,7 +1335,7 @@ const registry = new Registry({
   onigLib: createOnigLib(),
   loadGrammar: async () => {
     const data = await readFile(
-      resolve(dirname(fileURLToPath(import.meta.url)), "../../typespec.tmLanguage"),
+      resolve(await findTestPackageRoot(import.meta.url), "dist/typespec.tmLanguage"),
       "utf-8"
     );
     return parseRawGrammar(data);

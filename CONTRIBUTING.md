@@ -154,8 +154,8 @@ PR validation will ensure that reference docs are up to date.
 
 ## Recommended extensions
 
-1. [Mocha Test Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter):
-   Run tests from the IDE.
+1. [Vitest Test Explorer](https://marketplace.visualstudio.com/items?itemName=ZixuanChen.vitest-explorer):
+   Run tests from the IDE. (Version `0.2.43` is bugged on OSX, use `0.2.42` instead)
 2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode):
    Automatically keep code formatted correctly on save.
 3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint):
@@ -191,17 +191,13 @@ Terminal pane will have three parallel watch tasks running:
 
 ## Testing
 
-With [Mocha Test
-Explorer](https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter)
-installed, click on its icon in the sidebar, then click on the play
-button at the top or on any individual test or test group to run just
-one test or just one group. You can also click on the bug icon next to
-an individual test to debug it.
+```bash
+# Run all the tests
+rush test
 
-You can see additional information logged by each test using
-`logVerboseTestOutput` by clicking on the test and looking at the
-output pane. Unlike the command line, no environment variable is
-needed.
+# Run in a specific package tests in watch mode
+npm run test:watch
+```
 
 ## Debugging
 

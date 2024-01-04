@@ -5,6 +5,7 @@ import {
   expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   getAuthentication,
   getHeaderFieldName,
@@ -24,7 +25,6 @@ import {
 } from "../src/decorators.js";
 import { Visibility, getRequestVisibility, resolveRequestVisibility } from "../src/metadata.js";
 import { createHttpTestRunner } from "./test-host.js";
-
 describe("http: decorators", () => {
   let runner: BasicTestRunner;
 

@@ -1,5 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { getService, listServices, Namespace } from "../../src/index.js";
+import { beforeEach, describe, it } from "vitest";
+import { Namespace, getService, listServices } from "../../src/index.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: service", () => {

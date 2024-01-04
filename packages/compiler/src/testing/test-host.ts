@@ -12,7 +12,7 @@ import { Program, compile as compileProgram } from "../core/program.js";
 import { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
 import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
-import { createTestWrapper } from "./test-utils.js";
+import { createTestWrapper, findTestPackageRoot } from "./test-utils.js";
 import {
   BasicTestRunner,
   TestFileSystem,
@@ -220,7 +220,7 @@ export async function createTestFileSystem(options?: TestHostOptions): Promise<T
 
 export const StandardTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/compiler",
-  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
   files: [
     { virtualPath: "./.tsp/dist/src/lib", realDir: "./dist/src/lib", pattern: "*" },
     { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "*" },

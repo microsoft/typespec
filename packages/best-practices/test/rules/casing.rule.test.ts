@@ -3,6 +3,7 @@ import {
   createLinterRuleTester,
   createTestRunner,
 } from "@typespec/compiler/testing";
+import { beforeEach, describe, it } from "vitest";
 import { casingRule } from "../../src/rules/casing.rule.js";
 
 describe("casing rule", () => {

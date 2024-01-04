@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { DocumentSymbol, SymbolKind } from "vscode-languageserver/node.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 

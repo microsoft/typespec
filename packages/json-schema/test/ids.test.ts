@@ -1,5 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import assert from "assert";
+import { describe, it } from "vitest";
 import { emitSchema, emitSchemaWithDiagnostics } from "./utils.js";
 
 describe("implicit ids", () => {

@@ -103,18 +103,6 @@
       "versionPolicyName": "typespec"
     },
     {
-      "packageName": "@typespec/lint",
-      "projectFolder": "packages/lint",
-      "reviewCategory": "production",
-      "shouldPublish": false
-    },
-    {
-      "packageName": "@typespec/migrate",
-      "projectFolder": "packages/migrate",
-      "reviewCategory": "production",
-      "versionPolicyName": "typespec"
-    },
-    {
       "packageName": "@typespec/library-linter",
       "projectFolder": "packages/library-linter",
       "reviewCategory": "production",

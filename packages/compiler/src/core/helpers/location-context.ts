@@ -1,4 +1,4 @@
-import { getSourceLocation } from "../index.js";
+import { getSourceLocation } from "../diagnostics.js";
 import { Program } from "../program.js";
 import { DiagnosticTarget, LocationContext } from "../types.js";
 
