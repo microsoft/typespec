@@ -1,9 +1,23 @@
 import {
   BooleanLiteral,
-  compilerAssert,
   DiscriminatedUnion,
   Enum,
   EnumMember,
+  IntrinsicScalarName,
+  IntrinsicType,
+  Model,
+  ModelProperty,
+  NumericLiteral,
+  Program,
+  Scalar,
+  StringLiteral,
+  StringTemplate,
+  Tuple,
+  Type,
+  TypeNameOptions,
+  Union,
+  UnionVariant,
+  compilerAssert,
   getDeprecated,
   getDiscriminatedUnion,
   getDiscriminator,
@@ -24,26 +38,13 @@ import {
   getSummary,
   getTypeName,
   ignoreDiagnostics,
-  IntrinsicScalarName,
-  IntrinsicType,
   isArrayModelType,
   isNeverType,
   isNullType,
   isSecret,
   isTemplateDeclaration,
-  Model,
-  ModelProperty,
-  NumericLiteral,
-  Program,
-  Scalar,
-  StringLiteral,
-  StringTemplate,
+  resolveEncodedName,
   stringTemplateToString,
-  Tuple,
-  Type,
-  TypeNameOptions,
-  Union,
-  UnionVariant,
 } from "@typespec/compiler";
 import {
   ArrayBuilder,
@@ -59,7 +60,7 @@ import {
   SourceFileScope,
   TypeEmitter,
 } from "@typespec/compiler/emitter-framework";
-import { getVisibilitySuffix, MetadataInfo, Visibility } from "@typespec/http";
+import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
   getExtensions,
@@ -275,10 +276,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
   }
 
   modelProperties(model: Model): EmitterOutput<Record<string, OpenAPI3SchemaProperty>> {
+    const program = this.emitter.getProgram();
     const props = new ObjectBuilder();
     const visibility = this.emitter.getContext().visibility;
+    const contentType = this.#getContentType();
 
-    for (const [name, prop] of model.properties) {
+    for (const prop of model.properties.values()) {
       if (isNeverType(prop.type)) {
         // If the property has a type of 'never', don't include it in the schema
         continue;
@@ -287,10 +290,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         continue;
       }
       const result = this.emitter.emitModelProperty(prop);
-      props.set(name, result);
+      const encodedName = resolveEncodedName(program, prop, contentType);
+      props.set(encodedName, result);
     }
 
-    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    const discriminator = getDiscriminator(program, model);
     if (discriminator && !(discriminator.propertyName in props)) {
       props.set(discriminator.propertyName, {
         type: "string",

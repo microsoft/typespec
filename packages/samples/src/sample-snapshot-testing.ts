@@ -13,7 +13,7 @@ import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { fail, ok, strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "fs/promises";
-import { afterAll, beforeAll, it } from "vitest";
+import { File, Suite, afterAll, beforeAll, it } from "vitest";
 
 const shouldUpdateSnapshots = process.env.RECORD === "true";
 
@@ -49,11 +49,8 @@ export function defineSampleSnaphotTests(config: SampleSnapshotTestOptions) {
     existingSnapshots = await readFilesInDirRecursively(config.outputDir);
   });
 
-  // afterEach((context) => {
-  //   console.log("Context after each", context.task.result?.state);
-  // });
-  afterAll(async function (context: any) {
-    if (context.runCount !== samples.length) {
+  afterAll(async function (context: Readonly<Suite | File>) {
+    if (context.tasks.length !== samples.length) {
       return; // Not running the full test suite, so don't bother checking snapshots.
     }
 

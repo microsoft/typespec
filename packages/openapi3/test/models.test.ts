@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: models", () => {
@@ -22,7 +22,7 @@ describe("openapi3: models", () => {
     });
   });
 
-  it("uses json name specified", async () => {
+  it("uses json name specified via @projectedName (LEGACY)", async () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
@@ -31,13 +31,43 @@ describe("openapi3: models", () => {
       };`
     );
 
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.Foo, {
-      type: "object",
+    expect(res.schemas.Foo).toMatchObject({
       properties: {
         xJson: { type: "integer", format: "int32" },
       },
-      required: ["xJson"],
+    });
+  });
+
+  it("uses json name specified via @encodedName", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `model Foo {
+        @encoded("application/json", "xJson")
+        x: int32;
+      };`
+    );
+
+    expect(res.schemas.Foo).toMatchObject({
+      properties: {
+        xJson: { type: "integer", format: "int32" },
+      },
+    });
+  });
+
+  it("uses json name specified via @encodedName even if @projectedName is provided", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `model Foo {
+        @encoded("application/json", "xJson")
+        @projectedName("json", "projectedJson")
+        x: int32;
+      };`
+    );
+
+    expect(res.schemas.Foo).toMatchObject({
+      properties: {
+        xJson: { type: "integer", format: "int32" },
+      },
     });
   });
 

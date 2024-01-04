@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { parseMimeType } from "../../src/core/mime-type.js";
 
 describe("compiler: mime-type utils", () => {

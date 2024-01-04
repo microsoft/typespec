@@ -1,32 +1,30 @@
 openapi: 3.0.0
 info:
-  title: Sample showcasing projected names
+  title: Sample showcasing encoded names
   version: 0000-00-00
+  description: |-
+    This example showcase propviding a different name over the wire.
+    In this example the `WithEncodedNames` model has a `notBefore` property that should get serialized as `nbf` when serialized as json.
 tags: []
 paths:
   /:
     get:
       operationId: test
-      parameters:
-        - name: $select
-          in: query
-          required: true
-          schema:
-            type: string
+      parameters: []
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WithProjectedNames'
+                $ref: '#/components/schemas/WithEncodedNames'
 components:
   schemas:
-    WithProjectedNames:
+    WithEncodedNames:
       type: object
       required:
-        - nbf
-        - exp
+        - notBefore
+        - expires
         - created
         - updated
       properties:
