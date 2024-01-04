@@ -12,6 +12,9 @@ common/changes/
 # Pnpm lock file
 pnpm-lock.yaml
 
+# Emu spec file, formatting is wrong
+packages/spec/src/spec.emu.html
+
 # Coverage report directory
 **/coverage/
 
