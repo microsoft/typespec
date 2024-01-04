@@ -4,11 +4,11 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
 } from "@typespec/compiler/testing";
-import { TestLibrary } from "../src/testing/index.js";
+import { {{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestLibrary } from "../src/testing/index.js";
 
 export async function create{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestHost() {
   return createTestHost({
-    libraries: [TestLibrary],
+    libraries: [{{#casing.pascalCase}}{{name}}{{/casing.pascalCase}}TestLibrary],
   });
 }
 

@@ -4,11 +4,11 @@ import {
   createTestWrapper,
   expectDiagnosticEmpty,
 } from "@typespec/compiler/testing";
-import { TestLibrary } from "../src/testing/index.js";
+import { EmitterTsTestLibrary } from "../src/testing/index.js";
 
 export async function createEmitterTsTestHost() {
   return createTestHost({
-    libraries: [TestLibrary],
+    libraries: [EmitterTsTestLibrary],
   });
 }
 
