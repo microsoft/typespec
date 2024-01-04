@@ -51,9 +51,26 @@ To pass your emitter custom options, the options must be registered with the com
 
 The following example extends the hello world emitter to be configured with a name:
 
-```typescript
-import { JSONSchemaType, createTypeSpecLibrary } from "@typespec/compiler";
-import Path from "path";
+```ts file=src/internal-lib.ts
+export const $lib = createTypeSpecLibrary({
+  name: "MyEmitter",
+  diagnostics: {
+    // Add diagnostics here.
+  },
+  state: {
+    // Add state keys here for decorators.
+  },
+});
+```
+
+```ts file=src/lib.ts
+import {
+  JSONSchemaType,
+  createTypeSpecLibrary,
+  EmitContext,
+  resolvePath,
+} from "@typespec/compiler";
+import { internalLib } from "./lib.js";
 
 export interface EmitterOptions {
   "target-name": string;
@@ -69,15 +86,14 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "MyEmitter",
-  diagnostics: {},
+  internal: internalLib,
   emitter: {
     options: EmitterOptionsSchema,
   },
 });
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
-  const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
+  const outputDir = resolvePath(context.emitterOutputDir, "hello.txt");
   const name = context.options.targetName;
   await context.program.host.writeFile(outputDir, `hello ${name}!`);
 }
@@ -149,15 +165,14 @@ The following example will emit models with the `@emitThis` decorator and also a
 [See creating decorator documentation for more details](./create-decorators.md)
 
 ```typescript
-import { DecoratorContext, Model, createStateSymbol } from "@typespec/compiler";
+import { DecoratorContext, Model } from "@typespec/compiler";
+import { StateKeys } from "./lib.js";
 
 // Decorator Setup Code
 
-const emitThisKey = createStateSymbol("emitThis");
-
 // @emitThis decorator
 export function $emitThis(context: DecoratorContext, target: Model) {
-  context.program.stateSet(emitThisKey).add(target);
+  context.program.stateSet(StateKeys.emitThis).add(target);
 }
 
 export async function $onEmit(context: EmitContext) {

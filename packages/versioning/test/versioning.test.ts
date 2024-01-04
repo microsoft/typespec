@@ -7,10 +7,10 @@ import {
   Operation,
   Program,
   ProjectionApplication,
-  projectProgram,
   Scalar,
   Type,
   Union,
+  projectProgram,
 } from "@typespec/compiler";
 import {
   BasicTestRunner,
@@ -19,6 +19,7 @@ import {
   expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Version } from "../src/types.js";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
 import { buildVersionProjections, getVersions, indexTimeline } from "../src/versioning.js";

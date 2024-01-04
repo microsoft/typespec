@@ -87,6 +87,7 @@ ignorePaths:
   - "**/dist-dev/**"
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
+  - "**/coverage/**"
   - packages/website/build/**
   - common/scripts/*
 enableFiletypes:

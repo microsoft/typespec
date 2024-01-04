@@ -1,5 +1,6 @@
 import { Namespace } from "@typespec/compiler";
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { VersioningTimeline } from "../src/versioning-timeline.js";
 import { resolveVersions } from "../src/versioning.js";
 import { createVersioningTestRunner } from "./test-host.js";

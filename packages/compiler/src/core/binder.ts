@@ -1,10 +1,5 @@
 import { compilerAssert } from "./diagnostics.js";
-import {
-  FileLibraryMetadata,
-  JsNamespaceDeclarationNode,
-  NodeFlags,
-  getLocationContext,
-} from "./index.js";
+import { getLocationContext } from "./helpers/index.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -12,14 +7,17 @@ import {
   Declaration,
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
+  FileLibraryMetadata,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
   InterfaceStatementNode,
+  JsNamespaceDeclarationNode,
   JsSourceFileNode,
   ModelExpressionNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  NodeFlags,
   OperationStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,

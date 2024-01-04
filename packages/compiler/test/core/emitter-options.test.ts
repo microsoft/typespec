@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { Diagnostic, EmitContext, createTypeSpecLibrary } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { createTestHost } from "../../src/testing/test-host.js";

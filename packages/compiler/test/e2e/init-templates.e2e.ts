@@ -4,6 +4,7 @@ import { rm } from "fs/promises";
 import { dirname } from "path";
 import { resolve } from "path/posix";
 import { fileURLToPath } from "url";
+import { beforeAll, describe, it } from "vitest";
 import { NodeHost } from "../../src/index.js";
 import { TypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
@@ -58,7 +59,7 @@ interface ScaffoldedTemplateFixture {
 }
 
 describe("Init templates e2e tests", () => {
-  before(async () => {
+  beforeAll(async () => {
     await rm(testTempRoot, { recursive: true, force: true });
   });
 
@@ -104,7 +105,7 @@ describe("Init templates e2e tests", () => {
   }
 
   describe("create templates", () => {
-    before(async () => {
+    beforeAll(async () => {
       await rm(snapshotFolder, { recursive: true, force: true });
     });
 

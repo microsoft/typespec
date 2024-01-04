@@ -10,7 +10,7 @@ import { SwaggerUIViewer } from "@typespec/playground/react/viewers";
 import samples from "../samples/dist/samples.js";
 
 import { MANIFEST } from "@typespec/compiler";
-import "@typespec/playground/style.css";
+import "@typespec/playground/styles.css";
 import "./style.css";
 
 registerMonacoDefaultWorkersForVite();

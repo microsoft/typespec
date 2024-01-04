@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { table } from "../../src/ref-doc/utils/markdown.js";
 
 describe("ref-doc: markdown", () => {

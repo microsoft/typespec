@@ -1,5 +1,6 @@
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { getOperationsWithServiceNamespace } from "./test-host.js";
 
 describe("http: response descriptions", () => {

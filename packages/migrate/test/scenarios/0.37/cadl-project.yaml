@@ -1,3 +1,0 @@
-emitters:
-  "@azure-tools/cadl-autorest":
-    output-file: test.json

@@ -1,4 +1,5 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
 import { Operation, getDoc, isArrayModelType } from "../../src/index.js";

@@ -1,5 +1,6 @@
 import { rejects, strictEqual } from "assert";
 import * as prettier from "prettier";
+import { describe, it } from "vitest";
 import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";

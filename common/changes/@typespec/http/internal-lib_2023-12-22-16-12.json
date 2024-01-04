@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Migrate to new Internal/Public library definition",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
