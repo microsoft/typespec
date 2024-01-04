@@ -1,8 +1,8 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
-import { noInterfaceRule } from "./rules/no-interfaces.rule.js";
 
 export const $lib = createTypeSpecLibrary({
   name: "library-ts",
+  // Define diagnostics for the library. This will provide a typed API to report diagnostic as well as a auto doc generation.
   diagnostics: {
     "banned-alternate-name": {
       severity: "error",
@@ -11,17 +11,10 @@ export const $lib = createTypeSpecLibrary({
       },
     },
   },
-  linter: {
-    rules: [noInterfaceRule],
-    ruleSets: {
-      recommended: {
-        enable: { [`library-ts/${noInterfaceRule.name}`]: true },
-      },
-      all: {
-        enable: { [`library-ts/${noInterfaceRule.name}`]: true },
-      },
-    },
+  // Defined state keys for storing metadata in decorator.
+  state: {
+    alternateName: { description: "alternateName" },
   },
 });
 
-export const { reportDiagnostic, createDiagnostic, createStateSymbol } = $lib;
+export const { reportDiagnostic, createDiagnostic, stateKeys: StateKeys } = $lib;

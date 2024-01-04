@@ -10,8 +10,8 @@ import { TypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const testTempRoot = resolve(__dirname, "../../../temp/scaffolded-template-tests");
-const snapshotFolder = resolve(__dirname, "../../../templates/__snapshots__");
+const testTempRoot = resolve(__dirname, "../../temp/scaffolded-template-tests");
+const snapshotFolder = resolve(__dirname, "../../templates/__snapshots__");
 
 async function execAsync(
   command: string,

@@ -1,10 +1,8 @@
-import {
-  createTestLibrary,
-  findTestPackageRoot,
-  TypeSpecTestLibrary,
-} from "@typespec/compiler/testing";
+import { resolvePath } from "@typespec/compiler";
+import { createTestLibrary, TypeSpecTestLibrary } from "@typespec/compiler/testing";
+import { fileURLToPath } from "url";
 
 export const EmitterTsTestLibrary: TypeSpecTestLibrary = createTestLibrary({
   name: "emitter-ts",
-  packageRoot: await findTestPackageRoot(import.meta.url),
+  packageRoot: resolvePath(fileURLToPath(import.meta.url), "../../../../"),
 });
