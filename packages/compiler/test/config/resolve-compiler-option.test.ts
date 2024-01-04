@@ -1,14 +1,14 @@
 import { deepStrictEqual } from "assert";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import { resolveCompilerOptions } from "../../src/config/index.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { normalizePath, resolvePath } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
+import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
-  dirname(fileURLToPath(import.meta.url)),
-  "../../../test/config/scenarios"
+  await findTestPackageRoot(import.meta.url),
+  "test/config/scenarios"
 );
 
 describe("compiler: resolve compiler options", () => {

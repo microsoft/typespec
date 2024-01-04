@@ -1,6 +1,7 @@
 import { Namespace } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getExtensions, getExternalDocs, getInfo } from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 

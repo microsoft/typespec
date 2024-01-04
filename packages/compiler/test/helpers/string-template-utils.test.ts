@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { ModelProperty, stringTemplateToString } from "../../src/index.js";
 import { expectDiagnosticEmpty } from "../../src/testing/expect.js";
 import { createTestRunner } from "../../src/testing/test-host.js";

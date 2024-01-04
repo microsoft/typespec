@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   LibraryLocationContext,
   LocationContext,

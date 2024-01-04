@@ -1,6 +1,8 @@
+import { describe, it } from "vitest";
+
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter } from "../../src/core/linter.js";
-import { LibraryInstance, LinterDefinition } from "../../src/index.js";
+import type { LibraryInstance, LinterDefinition } from "../../src/index.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -48,8 +50,8 @@ describe("compiler: linter", () => {
       definition: createTypeSpecLibrary({
         name: "@typespec/test",
         diagnostics: {},
-        linter: linterDef,
       }),
+      linter: linterDef,
     };
 
     await host.compile("main.tsp");

@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Program } from "../../src/core/program.js";
 import { DecoratorContext, Type } from "../../src/core/types.js";
 import { createRekeyableMap } from "../../src/core/util.js";

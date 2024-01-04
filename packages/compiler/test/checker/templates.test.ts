@@ -1,4 +1,5 @@
 import { deepStrictEqual, fail, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
 import { Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
 import {
@@ -516,7 +517,7 @@ describe("compiler: templates", () => {
     });
   });
 
-  describe("named template argument instantiations", async () => {
+  describe("named template argument instantiations", () => {
     it("with named arguments", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",

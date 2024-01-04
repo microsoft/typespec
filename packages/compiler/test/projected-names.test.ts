@@ -1,5 +1,6 @@
 import { strictEqual } from "assert";
-import { createProjectedNameProgram, ModelProperty, projectProgram } from "../src/core/index.js";
+import { beforeEach, describe, it } from "vitest";
+import { ModelProperty, createProjectedNameProgram, projectProgram } from "../src/core/index.js";
 import { BasicTestRunner, createTestRunner } from "../src/testing/index.js";
 
 describe("compiler: projected-names", () => {

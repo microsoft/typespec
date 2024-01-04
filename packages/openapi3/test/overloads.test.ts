@@ -1,9 +1,10 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: overloads", () => {
-  context("overloads use same endpoint", () => {
+  describe("overloads use same endpoint", () => {
     let res: OpenAPI3Document;
     beforeEach(async () => {
       res = await openApiFor(
@@ -30,7 +31,7 @@ describe("openapi3: overloads", () => {
     });
   });
 
-  context("overloads all use different endpoint", () => {
+  describe("overloads all use different endpoint", () => {
     let res: OpenAPI3Document;
     beforeEach(async () => {
       res = await openApiFor(
@@ -73,7 +74,7 @@ describe("openapi3: overloads", () => {
     });
   });
 
-  context("some overload all use different endpoint", () => {
+  describe("some overload all use different endpoint", () => {
     let res: OpenAPI3Document;
     beforeEach(async () => {
       res = await openApiFor(

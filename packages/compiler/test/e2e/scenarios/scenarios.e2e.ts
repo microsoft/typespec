@@ -1,12 +1,12 @@
 import { rejects } from "assert";
-import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { resolve } from "path";
+import { describe, it } from "vitest";
 import { NodeHost, Program, compile, resolvePath } from "../../../src/core/index.js";
 import { CompilerOptions } from "../../../src/core/options.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../../src/testing/expect.js";
+import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const scenarioRoot = resolvePath(__dirname, "../../../../test/e2e/scenarios");
+const scenarioRoot = resolvePath(await findTestPackageRoot(import.meta.url), "test/e2e/scenarios");
 
 describe("compiler: entrypoints", () => {
   async function compileScenario(name: string, options: CompilerOptions = {}): Promise<Program> {
