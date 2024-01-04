@@ -67,6 +67,10 @@
         "destination": "src/lib.ts"
       },
       {
+        "path": "library-ts/src/linter.ts",
+        "destination": "src/linter.ts"
+      },
+      {
         "path": "library-ts/src/rules/no-interfaces.rule.ts",
         "destination": "src/rules/no-interfaces.rule.ts"
       },
