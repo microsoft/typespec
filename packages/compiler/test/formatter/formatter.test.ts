@@ -1,5 +1,6 @@
 import { rejects, strictEqual } from "assert";
 import * as prettier from "prettier";
+import { describe, it } from "vitest";
 import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
@@ -2295,6 +2296,18 @@ alias Foo = Bar<
 >;`,
       });
     });
+
+    it("handles nested named template args", async () => {
+      await assertFormat({
+        code: 'alias F=Foo<int32,V=Foo<V=unknown,T=null,U="test">,U=Foo<string,T=int32,V=never>>;',
+        expected: `
+alias F = Foo<
+  int32,
+  V = Foo<V = unknown, T = null, U = "test">,
+  U = Foo<string, T = int32, V = never>
+>;`,
+      });
+    });
   });
 
   describe("array expression", () => {
@@ -2424,6 +2437,41 @@ model Foo {
 `,
         expected: `
 @@doc(myOp::parameters.foo, "");
+`,
+      });
+    });
+  });
+
+  describe("valueof", () => {
+    it("format simple valueof", async () => {
+      await assertFormat({
+        code: `
+alias A =      valueof        string;
+`,
+        expected: `
+alias A = valueof string;
+`,
+      });
+    });
+
+    it("keeps parentheses around valueof inside a union", async () => {
+      await assertFormat({
+        code: `
+alias A =      (valueof        string) | Model;
+`,
+        expected: `
+alias A = (valueof string) | Model;
+`,
+      });
+    });
+
+    it("keeps parentheses around valueof inside a array expression", async () => {
+      await assertFormat({
+        code: `
+alias A =      (valueof        string)[];
+`,
+        expected: `
+alias A = (valueof string)[];
 `,
       });
     });
@@ -2690,6 +2738,56 @@ This is markdown
 op test(): string;
 \`\`\`
 `,
+      });
+    });
+  });
+
+  describe("string templates", () => {
+    describe("single line", () => {
+      it("format simple single line string template", async () => {
+        await assertFormat({
+          code: `alias T = "foo \${     "def" } baz";`,
+          expected: `alias T = "foo \${"def"} baz";`,
+        });
+      });
+
+      it("format simple single line string template with multiple interpolation", async () => {
+        await assertFormat({
+          code: `alias T = "foo \${     "one" } bar \${"two" } baz";`,
+          expected: `alias T = "foo \${"one"} bar \${"two"} baz";`,
+        });
+      });
+
+      it("format model expression in single line string template", async () => {
+        await assertFormat({
+          code: `alias T = "foo \${     {foo: 1, bar: 2} } baz";`,
+          expected: `
+alias T = "foo \${{
+  foo: 1;
+  bar: 2;
+}} baz";
+          `,
+        });
+      });
+    });
+    describe("triple quoted", () => {
+      it("format simple single line string template", async () => {
+        await assertFormat({
+          code: `
+alias T = """
+  This \${     "one" } goes over
+  multiple
+  \${     "two" }
+  lines
+  """;`,
+          expected: `
+alias T = """
+  This \${"one"} goes over
+  multiple
+  \${"two"}
+  lines
+  """;`,
+        });
       });
     });
   });

@@ -9,6 +9,7 @@ import {
   Model,
   ModelProperty,
   Operation,
+  StringTemplate,
   TemplateParameterDeclarationNode,
   Type,
   UnionVariant,
@@ -46,9 +47,12 @@ export function getTypeSignature(type: Type | ValueType): string {
       return `(number) ${type.value.toString()}`;
     case "Intrinsic":
       return `(intrinsic) ${type.name}`;
-
     case "FunctionParameter":
       return getFunctionParameterSignature(type);
+    case "StringTemplate":
+      return `(string template)\n${getStringTemplateSignature(type)}`;
+    case "StringTemplateSpan":
+      return `(string template span)\n${getTypeName(type.type)}`;
     case "ModelProperty":
       return `(model property) ${`${type.name}: ${getTypeName(type.type)}`}`;
     case "EnumMember":
@@ -117,6 +121,18 @@ function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
   return `${rest}${parameter.name}${optional}: ${getTypeName(parameter.type)}`;
+}
+
+function getStringTemplateSignature(stringTemplate: StringTemplate) {
+  return (
+    "`" +
+    [
+      stringTemplate.spans.map((span) => {
+        return span.isInterpolated ? "${" + getTypeName(span.type) + "}" : span.type.value;
+      }),
+    ].join("") +
+    "`"
+  );
 }
 
 function getModelPropertySignature(property: ModelProperty) {

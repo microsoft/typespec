@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Add `noopener noreferrer` to footer external links",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}

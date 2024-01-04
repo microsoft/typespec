@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Diagnostic, FunctionParameterNode, Model, Type } from "../../src/core/index.js";
 import {
   BasicTestRunner,
@@ -207,6 +208,10 @@ describe("compiler: checker: type relations", () => {
 
     it("can assign string literal", async () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
+    });
+
+    it("can assign string template with primitives interpolated", async () => {
+      await expectTypeAssignable({ source: `"foo \${123} bar"`, target: "string" });
     });
 
     it("can assign string literal union", async () => {

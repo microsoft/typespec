@@ -1,9 +1,7 @@
 import { deepStrictEqual, strictEqual } from "assert";
-import {
-  ScaffoldingConfig,
-  makeScaffoldingConfig,
-  scaffoldNewProject,
-} from "../../src/init/init.js";
+import { beforeEach, describe, it } from "vitest";
+import { InitTemplate } from "../../src/init/init-template.js";
+import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 import { TestHost, createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
 describe("compiler: init: templates", () => {
@@ -16,15 +14,18 @@ describe("compiler: init: templates", () => {
     return testHost.fs.get(resolveVirtualPath(path));
   }
 
-  async function runTemplate(config: Partial<ScaffoldingConfig>): Promise<void> {
+  async function runTemplate(overrides: Partial<InitTemplate>): Promise<void> {
+    const template: InitTemplate = {
+      title: "Test Template",
+      description: "This is only a test.",
+      ...overrides,
+    };
     await scaffoldNewProject(
       testHost.compilerHost,
-      makeScaffoldingConfig({
-        title: "Test Template",
+      makeScaffoldingConfig(template, {
         name: "test-template",
         folderName: "test-template",
-        description: "This is only a test.",
-        ...config,
+        template,
       })
     );
   }

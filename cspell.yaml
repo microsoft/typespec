@@ -15,6 +15,7 @@ words:
   - cadleng
   - clsx
   - cobertura
+  - codeql
   - Contoso
   - createsorreplacesresource
   - createsorupdatesresource
@@ -33,11 +34,14 @@ words:
   - jsyaml
   - keyer
   - lzutf
+  - mocharc
   - msbuild
   - MSRC
   - multis
   - munge
   - mylib
+  - noopener
+  - noreferrer
   - nostdlib
   - oapi
   - oneof
@@ -83,6 +87,7 @@ ignorePaths:
   - "**/dist-dev/**"
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
+  - "**/coverage/**"
   - packages/website/build/**
   - common/scripts/*
 enableFiletypes:

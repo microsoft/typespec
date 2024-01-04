@@ -23,7 +23,7 @@ import {
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
-import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import { getDirectoryPath, joinPaths } from "./path-utils.js";
 import { createProjector } from "./projector.js";
 import {
   CompilerHost,
@@ -420,9 +420,11 @@ export async function compile(
     const loadedRoots = new Set<string>();
     // Check all the files that were loaded
     for (const fileUrl of getLibraryUrlsLoaded()) {
-      const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
-      if (root) {
-        loadedRoots.add(root);
+      if (fileUrl.startsWith("file:")) {
+        const root = await findProjectRoot(host.stat, host.fileURLToPath(fileUrl));
+        if (root) {
+          loadedRoots.add(root);
+        }
       }
     }
 
@@ -710,6 +712,7 @@ export async function compile(
       ...resolution,
       metadata,
       definition: libDefinition,
+      linter: entrypoint?.esmExports.$linter,
     };
   }
 
@@ -753,7 +756,13 @@ export async function compile(
       if (libDefinition?.emitter?.options) {
         const diagnostics = libDefinition?.emitterOptionValidator?.validate(
           emitterOptions,
-          NoTarget
+          options.configFile?.file
+            ? {
+                kind: "path-target",
+                path: ["options", emitterNameOrPath],
+                script: options.configFile.file,
+              }
+            : NoTarget
         );
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
@@ -1001,10 +1010,7 @@ export async function compile(
       throw err;
     }
 
-    const expected = resolvePath(
-      await host.realpath(host.fileURLToPath(import.meta.url)),
-      "../../../.."
-    );
+    const expected = host.getExecutionRoot();
 
     if (actual.path !== expected && MANIFEST.version !== actual.manifest.version) {
       const betterTypeSpecServerPath = actual.path;

@@ -1,6 +1,7 @@
 import { resolvePath } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3Document } from "../src/types.js";
 import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";

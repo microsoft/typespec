@@ -60,7 +60,10 @@ import {
   ScalarStatementNode,
   Statement,
   StringLiteralNode,
+  StringTemplateExpressionNode,
+  StringTemplateSpanNode,
   SyntaxKind,
+  TemplateArgumentNode,
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
@@ -210,6 +213,8 @@ export function printNode(
       return printUnionVariant(path as AstPath<UnionVariantNode>, options, print);
     case SyntaxKind.TypeReference:
       return printTypeReference(path as AstPath<TypeReferenceNode>, options, print);
+    case SyntaxKind.TemplateArgument:
+      return printTemplateArgument(path as AstPath<TemplateArgumentNode>, options, print);
     case SyntaxKind.ValueOfExpression:
       return printValueOfExpression(path as AstPath<ValueOfExpressionNode>, options, print);
     case SyntaxKind.TemplateParameterDeclaration:
@@ -357,6 +362,16 @@ export function printNode(
       return "";
     case SyntaxKind.EmptyStatement:
       return "";
+    case SyntaxKind.StringTemplateExpression:
+      return printStringTemplateExpression(
+        path as AstPath<StringTemplateExpressionNode>,
+        options,
+        print
+      );
+    case SyntaxKind.StringTemplateSpan:
+    case SyntaxKind.StringTemplateHead:
+    case SyntaxKind.StringTemplateMiddle:
+    case SyntaxKind.StringTemplateTail:
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.InvalidStatement:
@@ -1335,6 +1350,21 @@ export function printTypeReference(
   return [type, template];
 }
 
+export function printTemplateArgument(
+  path: AstPath<TemplateArgumentNode>,
+  _options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+): Doc {
+  if (path.getValue().name !== undefined) {
+    const name = path.call(print, "name");
+    const argument = path.call(print, "argument");
+
+    return group([name, " = ", argument]);
+  } else {
+    return path.call(print, "argument");
+  }
+}
+
 export function printValueOfExpression(
   path: AstPath<ValueOfExpressionNode>,
   options: TypeSpecPrettierOptions,
@@ -1670,6 +1700,22 @@ export function printReturnExpression(
   print: PrettierChildPrint
 ) {
   return ["return ", path.call(print, "value")];
+}
+
+export function printStringTemplateExpression(
+  path: AstPath<StringTemplateExpressionNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+  const content = [
+    getRawText(node.head, options),
+    path.map((span: AstPath<StringTemplateSpanNode>) => {
+      const expression = span.call(print, "expression");
+      return [expression, getRawText(span.node.literal, options)];
+    }, "spans"),
+  ];
+  return content;
 }
 
 function printItemList<T extends Node>(

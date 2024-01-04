@@ -200,10 +200,15 @@ async function main() {
       "init [templatesUrl]",
       "Create a new TypeSpec project.",
       (cmd) =>
-        cmd.positional("templatesUrl", {
-          description: "Url of the initialization template",
-          type: "string",
-        }),
+        cmd
+          .positional("templatesUrl", {
+            description: "Url of the initialization template",
+            type: "string",
+          })
+          .option("template", {
+            type: "string",
+            description: "Name of the template to use",
+          }),
       withCliHostAndDiagnostics((host, args) => initAction(host, args))
     )
     .command(

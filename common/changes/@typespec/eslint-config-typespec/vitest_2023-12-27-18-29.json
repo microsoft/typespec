@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/eslint-config-typespec",
+      "comment": "Migrate test rules to vitest",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/eslint-config-typespec"
+}

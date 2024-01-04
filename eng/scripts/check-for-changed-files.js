@@ -1,6 +1,7 @@
-import { run } from "./helpers.js";
+// @ts-check
+import { runOrExit } from "../../packages/internal-build-utils/dist/src/common.js";
 
-const proc = run("git", ["status", "--porcelain"], {
+const proc = await runOrExit("git", ["status", "--porcelain"], {
   encoding: "utf-8",
   stdio: [null, "pipe", "pipe"],
 });

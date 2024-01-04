@@ -1,7 +1,96 @@
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: metadata", () => {
+  it("will expose all properties on unreferenced models but filter properties on referenced models", async () => {
+    const res = await openApiFor(`
+      model M {
+        @visibility("read") r: string;
+        @visibility("create", "update") uc?: string;
+        @visibility("read", "create") rc?: string;
+        @visibility("read", "update", "create") ruc?: string;
+      }
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      M: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          uc: { type: "string" },
+          rc: { type: "string" },
+          ruc: { type: "string" },
+        },
+        required: ["r"],
+      },
+    });
+  });
+
+  it("prioritizes read visibility when referenced and unreferenced models share schemas", async () => {
+    const res = await openApiFor(`
+      model Shared {
+        @visibility("create", "update") password: string;
+        prop: string;
+      }
+
+      model Unreferenced {
+        @visibility("read") r: string;
+        @visibility("create") c: string;
+        shared: Shared;
+      }
+
+      model Referenced {
+        @visibility("read") r: string;
+        @visibility("create") c: string;
+        shared: Shared;
+      }
+
+      @get op get(): Referenced;
+    `);
+
+    deepStrictEqual(res.components.schemas, {
+      Referenced: {
+        type: "object",
+        properties: {
+          r: { type: "string", readOnly: true },
+          shared: { $ref: "#/components/schemas/Shared" },
+        },
+        required: ["r", "shared"],
+      },
+      Shared: {
+        type: "object",
+        required: ["prop"],
+        properties: {
+          prop: {
+            type: "string",
+          },
+        },
+      },
+      SharedReadOrCreateOrUpdateOrDeleteOrQuery: {
+        type: "object",
+        required: ["password", "prop"],
+        properties: {
+          password: {
+            type: "string",
+          },
+          prop: {
+            type: "string",
+          },
+        },
+      },
+      Unreferenced: {
+        type: "object",
+        properties: {
+          c: { type: "string" },
+          r: { type: "string", readOnly: true },
+          shared: { $ref: "#/components/schemas/SharedReadOrCreateOrUpdateOrDeleteOrQuery" },
+        },
+        required: ["r", "c", "shared"],
+      },
+    });
+  });
+
   it("will expose create visibility properties on PATCH model using @requestVisibility", async () => {
     const res = await openApiFor(`
       model M {

@@ -69,7 +69,7 @@ extern dec errorsDoc(target: Operation, doc: valueof string);
  *
  * ```typespec
  * #deprecated "Use ActionV2"
- * op Action<T>(): T;
+ * op Action<Result>(): Result;
  * ```
  */
 #deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
@@ -288,8 +288,8 @@ extern dec tag(target: Namespace | Interface | Operation, tag: valueof string);
  * @example
  * ```typespec
  * @friendlyName("{name}List", T)
- * model List<T> {
- *   value: T[];
+ * model List<Item> {
+ *   value: Item[];
  *   nextLink: string;
  * }
  * ```

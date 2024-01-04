@@ -1,27 +1,29 @@
 import assert from "assert";
 import path from "path";
-import url from "url";
+import { describe, it } from "vitest";
 
 import micromatch from "micromatch";
 
-import { formatDiagnostic } from "@typespec/compiler";
+import { formatDiagnostic, resolvePath } from "@typespec/compiler";
 import {
-  createTestHost,
-  resolveVirtualPath,
   TypeSpecTestLibrary,
+  createTestHost,
+  findTestPackageRoot,
+  resolveVirtualPath,
 } from "@typespec/compiler/testing";
 import { readdirSync, statSync } from "fs";
-import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
+import { mkdir, readFile, readdir, rm, stat, writeFile } from "fs/promises";
 import { ProtobufEmitterOptions } from "../src/lib.js";
 
-const SCENARIOS_DIRECTORY = url.fileURLToPath(new url.URL("../../test/scenarios", import.meta.url));
+const pkgRoot = await findTestPackageRoot(import.meta.url);
+const SCENARIOS_DIRECTORY = resolvePath(pkgRoot, "test/scenarios");
 
 const shouldRecord = process.env.RECORD === "true";
 const patternsToRun = process.env.RUN_SCENARIOS?.split(",") ?? ["*"];
 
 const TypeSpecProtobufTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/protobuf",
-  packageRoot: path.resolve(url.fileURLToPath(import.meta.url), "../../../"),
+  packageRoot: await findTestPackageRoot(import.meta.url),
   files: [
     { realDir: "", pattern: "package.json", virtualPath: "./node_modules/@typespec/protobuf" },
     {

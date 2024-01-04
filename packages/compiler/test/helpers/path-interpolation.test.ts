@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { interpolatePath } from "../../src/core/helpers/path-interpolation.js";
 
 describe("Path interpolation", () => {
@@ -14,7 +15,7 @@ describe("Path interpolation", () => {
     strictEqual(interpolatePath("output.{version}.json", { version: "v1" }), "output.v1.json");
   });
 
-  context("when value to interpolate is undefined", () => {
+  describe("when value to interpolate is undefined", () => {
     it("omit path segment if followed by /", () => {
       strictEqual(
         interpolatePath("dist/{version}/output.json", { serviceName: "PetStore" }),

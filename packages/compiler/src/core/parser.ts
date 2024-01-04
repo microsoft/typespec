@@ -90,8 +90,14 @@ import {
   SourceFile,
   Statement,
   StringLiteralNode,
+  StringTemplateExpressionNode,
+  StringTemplateHeadNode,
+  StringTemplateMiddleNode,
+  StringTemplateSpanNode,
+  StringTemplateTailNode,
   Sym,
   SyntaxKind,
+  TemplateArgumentNode,
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
@@ -1145,12 +1151,13 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       ...finishNode(pos),
     };
   }
+
   function parseReferenceExpression(
     message?: keyof CompilerDiagnostics["token-expected"]
   ): TypeReferenceNode {
     const pos = tokenPos();
     const target = parseIdentifierOrMemberExpression(message);
-    const args = parseOptionalList(ListKind.TemplateArguments, parseExpression);
+    const args = parseOptionalList(ListKind.TemplateArguments, parseTemplateArgument);
 
     return {
       kind: SyntaxKind.TypeReference,
@@ -1158,6 +1165,47 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       arguments: args,
       ...finishNode(pos),
     };
+  }
+
+  function parseTemplateArgument(): TemplateArgumentNode {
+    const pos = tokenPos();
+
+    // Early error recovery for missing identifier followed by eq
+    if (token() === Token.Equals) {
+      error({ code: "token-expected", messageId: "identifier" });
+      nextToken();
+      return {
+        kind: SyntaxKind.TemplateArgument,
+        name: createMissingIdentifier(),
+        argument: parseExpression(),
+        ...finishNode(pos),
+      };
+    }
+
+    const expr: Expression = parseExpression();
+
+    const eq = parseOptional(Token.Equals);
+
+    if (eq) {
+      const isBareIdentifier = exprIsBareIdentifier(expr);
+
+      if (!isBareIdentifier) {
+        error({ code: "invalid-template-argument-name", target: expr });
+      }
+
+      return {
+        kind: SyntaxKind.TemplateArgument,
+        name: isBareIdentifier ? expr.target : createMissingIdentifier(),
+        argument: parseExpression(),
+        ...finishNode(pos),
+      };
+    } else {
+      return {
+        kind: SyntaxKind.TemplateArgument,
+        argument: expr,
+        ...finishNode(pos),
+      };
+    }
   }
 
   function parseAugmentDecorator(): AugmentDecoratorStatementNode {
@@ -1346,6 +1394,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           return parseReferenceExpression();
         case Token.StringLiteral:
           return parseStringLiteral();
+        case Token.StringTemplateHead:
+          return parseStringTemplateExpression();
         case Token.TrueKeyword:
         case Token.FalseKeyword:
           return parseBooleanLiteral();
@@ -1452,6 +1502,119 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseStringTemplateExpression(): StringTemplateExpressionNode {
+    const pos = tokenPos();
+    const head = parseStringTemplateHead();
+    const spans = parseStringTemplateSpans(head.tokenFlags);
+    const last = spans[spans.length - 1];
+
+    if (head.tokenFlags & TokenFlags.TripleQuoted) {
+      const [indentationsStart, indentationEnd] = scanner.findTripleQuotedStringIndent(
+        last.literal.pos,
+        last.literal.end
+      );
+      mutate(head).value = scanner.unindentAndUnescapeTripleQuotedString(
+        head.pos,
+        head.end,
+        indentationsStart,
+        indentationEnd,
+        Token.StringTemplateHead,
+        head.tokenFlags
+      );
+      for (const span of spans) {
+        mutate(span.literal).value = scanner.unindentAndUnescapeTripleQuotedString(
+          span.literal.pos,
+          span.literal.end,
+          indentationsStart,
+          indentationEnd,
+          span === last ? Token.StringTemplateTail : Token.StringTemplateMiddle,
+          head.tokenFlags
+        );
+      }
+    }
+    return {
+      kind: SyntaxKind.StringTemplateExpression,
+      head,
+      spans,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseStringTemplateHead(): StringTemplateHeadNode {
+    const pos = tokenPos();
+    const flags = tokenFlags();
+    const text = flags & TokenFlags.TripleQuoted ? "" : tokenValue();
+
+    parseExpected(Token.StringTemplateHead);
+
+    return {
+      kind: SyntaxKind.StringTemplateHead,
+      value: text,
+      tokenFlags: flags,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseStringTemplateSpans(tokenFlags: TokenFlags): readonly StringTemplateSpanNode[] {
+    const list: StringTemplateSpanNode[] = [];
+    let node: StringTemplateSpanNode;
+    do {
+      node = parseTemplateTypeSpan(tokenFlags);
+      list.push(node);
+    } while (node.literal.kind === SyntaxKind.StringTemplateMiddle);
+    return list;
+  }
+
+  function parseTemplateTypeSpan(tokenFlags: TokenFlags): StringTemplateSpanNode {
+    const pos = tokenPos();
+    const expression = parseExpression();
+    const literal = parseLiteralOfTemplateSpan(tokenFlags);
+    return {
+      kind: SyntaxKind.StringTemplateSpan,
+      literal,
+      expression,
+      ...finishNode(pos),
+    };
+  }
+  function parseLiteralOfTemplateSpan(
+    headTokenFlags: TokenFlags
+  ): StringTemplateMiddleNode | StringTemplateTailNode {
+    const pos = tokenPos();
+    const flags = tokenFlags();
+    const text = flags & TokenFlags.TripleQuoted ? "" : tokenValue();
+
+    if (token() === Token.CloseBrace) {
+      nextStringTemplateToken(headTokenFlags);
+      return parseTemplateMiddleOrTemplateTail();
+    } else {
+      parseExpected(Token.StringTemplateTail);
+      return {
+        kind: SyntaxKind.StringTemplateTail,
+        value: text,
+        tokenFlags: flags,
+        ...finishNode(pos),
+      };
+    }
+  }
+
+  function parseTemplateMiddleOrTemplateTail(): StringTemplateMiddleNode | StringTemplateTailNode {
+    const pos = tokenPos();
+    const flags = tokenFlags();
+    const text = flags & TokenFlags.TripleQuoted ? "" : tokenValue();
+    const kind =
+      token() === Token.StringTemplateMiddle
+        ? SyntaxKind.StringTemplateMiddle
+        : SyntaxKind.StringTemplateTail;
+
+    nextToken();
+    return {
+      kind,
+      value: text,
+      tokenFlags: flags,
+      ...finishNode(pos),
+    };
+  }
+
   function parseNumericLiteral(): NumericLiteralNode {
     const pos = tokenPos();
     const valueAsString = tokenValue();
@@ -1549,7 +1712,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       target = {
         kind: SyntaxKind.FunctionParameter,
         id: createMissingIdentifier(),
-        type: createMissingIdentifier(),
+        type: createMissingTypeReference(),
         optional: false,
         rest: false,
         ...finishNode(pos),
@@ -2411,7 +2574,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
   /**
    * Parses a documentation tag.
    *
-   * @see <a href="https://microsoft.github.io/typespec/language-basics/documentation#tsdoc-doc-comments">TypeSpec documentation docs</a>
+   * @see <a href="https://microsoft.github.io/typespec/language-basics/documentation#doc-comments">TypeSpec documentation docs</a>
    */
   function parseDocTag(): DocTag {
     const pos = tokenPos();
@@ -2581,6 +2744,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     scanner.scanDoc();
   }
 
+  function nextStringTemplateToken(tokenFlags: TokenFlags) {
+    scanner.reScanStringTemplate(tokenFlags);
+  }
+
   function createMissingIdentifier(): IdentifierNode {
     const pos = tokenPos();
     previousTokenEnd = pos;
@@ -2589,6 +2756,17 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return {
       kind: SyntaxKind.Identifier,
       sv: "<missing identifier>" + missingIdentifierCounter,
+      ...finishNode(pos),
+    };
+  }
+
+  function createMissingTypeReference(): TypeReferenceNode {
+    const pos = tokenPos();
+
+    return {
+      kind: SyntaxKind.TypeReference,
+      target: createMissingIdentifier(),
+      arguments: [],
       ...finishNode(pos),
     };
   }
@@ -2963,6 +3141,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 
 export type NodeCallback<T> = (c: Node) => T;
 
+export function exprIsBareIdentifier(
+  expr: Expression
+): expr is TypeReferenceNode & { target: IdentifierNode; arguments: [] } {
+  return (
+    expr.kind === SyntaxKind.TypeReference &&
+    expr.target.kind === SyntaxKind.Identifier &&
+    expr.arguments.length === 0
+  );
+}
+
 export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined {
   if (node.directives) {
     const result = visitEach(cb, node.directives);
@@ -3152,6 +3340,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return (
         visitNode(cb, node.id) || visitNode(cb, node.constraint) || visitNode(cb, node.default)
       );
+    case SyntaxKind.TemplateArgument:
+      return (node.name && visitNode(cb, node.name)) || visitNode(cb, node.argument);
     case SyntaxKind.ProjectionLambdaParameterDeclaration:
       return visitNode(cb, node.id);
     case SyntaxKind.ProjectionParameterDeclaration:
@@ -3168,7 +3358,15 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.DocUnknownTag:
       return visitNode(cb, node.tagName) || visitEach(cb, node.content);
 
+    case SyntaxKind.StringTemplateExpression:
+      return visitNode(cb, node.head) || visitEach(cb, node.spans);
+    case SyntaxKind.StringTemplateSpan:
+      return visitNode(cb, node.expression) || visitNode(cb, node.literal);
+
     // no children for the rest of these.
+    case SyntaxKind.StringTemplateHead:
+    case SyntaxKind.StringTemplateMiddle:
+    case SyntaxKind.StringTemplateTail:
     case SyntaxKind.StringLiteral:
     case SyntaxKind.NumericLiteral:
     case SyntaxKind.BooleanLiteral:
@@ -3346,6 +3544,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
       break;
     case SyntaxKind.UsingStatement:
       kind = IdentifierKind.Using;
+      break;
+    case SyntaxKind.TemplateArgument:
+      kind = IdentifierKind.TemplateArgument;
       break;
     default:
       kind =

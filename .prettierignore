@@ -39,5 +39,12 @@ packages/website/versioned_docs/**/reference/
 packages/website/versioned_docs/**/standard-library/built-in-decorators.md
 packages/website/versioned_docs/**/standard-library/built-in-data-types.md
 
+# Auto generated version list
+packages/website/playground-versions.json
+
+# Auto generated built-in template list
+packages/compiler/templates/scaffolding.json
+packages/compiler/templates/__snapshots__/
+
 #.tsp init template
 eng/feeds/

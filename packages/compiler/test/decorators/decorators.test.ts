@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   Model,
   ModelProperty,

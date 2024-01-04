@@ -29,6 +29,8 @@ Assert that the input type has one of the kinds provided
   \| `"String"`
   \| `"Number"`
   \| `"Boolean"`
+  \| `"StringTemplate"`
+  \| `"StringTemplateSpan"`
   \| `"Tuple"`
   \| `"Union"`
   \| `"UnionVariant"`

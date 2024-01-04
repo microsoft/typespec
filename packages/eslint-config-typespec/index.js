@@ -1,7 +1,7 @@
 module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: { project: "./tsconfig.json" },
-  plugins: ["@typescript-eslint/eslint-plugin", "prettier", "unicorn", "mocha", "deprecation"],
+  plugins: ["@typescript-eslint/eslint-plugin", "prettier", "unicorn", "deprecation"],
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   env: {
     node: true,
@@ -36,14 +36,6 @@ module.exports = {
     "unicorn/filename-case": ["error", { case: "kebabCase" }],
 
     /**
-     * Mocha
-     */
-    "mocha/no-identical-title": "error",
-    "mocha/no-nested-tests": "error",
-    "mocha/no-empty-description": "error",
-    "mocha/no-exclusive-tests": "warn",
-
-    /**
      * Core
      */
     "no-inner-declarations": "off",
@@ -68,8 +60,19 @@ module.exports = {
   ignorePatterns: ["dist/**/*", "dist-dev/**/*"],
   overrides: [
     {
-      files: ["test/**/*"],
+      /**
+       * Test files specific rules
+       */
+      files: ["**/*.test.ts"],
+      plugins: ["vitest"],
       rules: {
+        "vitest/no-focused-tests": "warn",
+        "vitest/no-identical-title": "error",
+        "vitest/no-commented-out-tests": "warn",
+        "vitest/no-import-node-test": "warn",
+        "vitest/require-local-test-context-for-concurrent-snapshots": "warn",
+        "vitest/valid-describe-callback": "warn",
+        "vitest/valid-expect": "warn",
         "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
       },
     },

@@ -92,32 +92,33 @@ context.reportDiagnostic({
 
 <!-- cspell:disable-next-line -->
 
-When defining your `$lib` with `createTypeSpecLibrary`([See](./basics.md#4-create-libts)) an additional entry for `linter` can be provided
+Export a `$linter` variable from your library entrypoint:
 
-```ts
+```ts title="index.ts"
+export { $linter } from "./linter.js";
+```
+
+```ts title="linter.ts"
+import { defineLinter } from "@typespec/compiler";
 // Import the rule defined previously
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/my-linter",
-  diagnostics: {},
-  linter: {
-    // Include all the rules your linter is defining here.
-    rules: [requiredDocRule],
+export const $linter = defineLinter({
+  // Include all the rules your linter is defining here.
+  rules: [requiredDocRule],
 
-    // Optionally a linter can provide a set of rulesets
-    ruleSets: {
-      recommended: {
-        // (optional) A ruleset takes a map of rules to explicitly enable
-        enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
+  // Optionally a linter can provide a set of rulesets
+  ruleSets: {
+    recommended: {
+      // (optional) A ruleset takes a map of rules to explicitly enable
+      enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
 
-        // (optional) A rule set can extend another rule set
-        extends: ["@typespec/best-practices/recommended"],
+      // (optional) A rule set can extend another rule set
+      extends: ["@typespec/best-practices/recommended"],
 
-        // (optional) A rule set can disable a rule enabled in a ruleset it extended.
-        disable: {
-          "`@typespec/best-practices/no-a": "This doesn't apply in this ruleset.",
-        },
+      // (optional) A rule set can disable a rule enabled in a ruleset it extended.
+      disable: {
+        "`@typespec/best-practices/no-a": "This doesn't apply in this ruleset.",
       },
     },
   },

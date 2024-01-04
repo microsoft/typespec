@@ -82,35 +82,37 @@ enum ApiKeyLocation {
  * Cookie: X-API-KEY=abcdef12345
  * ```
  *
- * @template TLocation The location of the API key
- * @template TName The name of the API key
+ * @template Location The location of the API key
+ * @template Name The name of the API key
  */
 @doc("")
-model ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string> {
+model ApiKeyAuth<Location extends ApiKeyLocation, Name extends string> {
   @doc("API key authentication")
   type: AuthType.apiKey;
 
   @doc("location of the API key")
-  in: TLocation;
+  in: Location;
 
   @doc("name of the API key")
-  name: TName;
+  name: Name;
 }
 
 /**
  * OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server.
+ *
  * OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
  * For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
- * @template TFlows The list of supported OAuth2 flows
+ *
+ * @template Flows The list of supported OAuth2 flows
  */
 @doc("")
-model OAuth2Auth<TFlows extends OAuth2Flow[]> {
+model OAuth2Auth<Flows extends OAuth2Flow[]> {
   @doc("OAuth2 authentication")
   type: AuthType.oauth2;
 
   @doc("Supported OAuth2 flows")
-  flows: TFlows;
+  flows: Flows;
 }
 
 @doc("Describes the OAuth2 flow type")

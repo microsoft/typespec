@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { setTypeSpecNamespace } from "../../src/core/index.js";
 import {
   BasicTestRunner,
@@ -272,6 +273,60 @@ describe("compiler: checker: decorators", () => {
           message: "Argument '456' is not assignable to parameter of type 'string'",
         },
       ]);
+    });
+
+    describe("value marshalling", () => {
+      async function testCallDecorator(type: string, value: string): Promise<any> {
+        await runner.compile(`
+          extern dec testDec(target: unknown, arg1: ${type});
+
+          @testDec(${value})
+          @test
+          model Foo {}
+        `);
+        return calledArgs[2];
+      }
+
+      describe("passing a string literal", () => {
+        it("`: valueof string` cast the value to a JS string", async () => {
+          const arg = await testCallDecorator("valueof string", `"one"`);
+          strictEqual(arg, "one");
+        });
+
+        it("`: string` keeps the StringLiteral type", async () => {
+          const arg = await testCallDecorator("string", `"one"`);
+          strictEqual(arg.kind, "String");
+        });
+      });
+
+      describe("passing a string template", () => {
+        it("`: valueof string` cast the value to a JS string", async () => {
+          const arg = await testCallDecorator(
+            "valueof string",
+            '"Start ${"one"} middle ${"two"} end"'
+          );
+          strictEqual(arg, "Start one middle two end");
+        });
+
+        it("`: string` keeps the StringTemplate type", async () => {
+          const arg = await testCallDecorator("string", '"Start ${"one"} middle ${"two"} end"');
+          strictEqual(arg.kind, "StringTemplate");
+        });
+      });
+
+      describe("passing a numeric literal", () => {
+        it("valueof int32 cast the value to a JS number", async () => {
+          const arg = await testCallDecorator("valueof int32", `123`);
+          strictEqual(arg, 123);
+        });
+      });
+
+      describe("passing a boolean literal", () => {
+        it("valueof boolean cast the value to a JS boolean", async () => {
+          const arg = await testCallDecorator("valueof boolean", `true`);
+          strictEqual(arg, true);
+        });
+      });
     });
   });
 

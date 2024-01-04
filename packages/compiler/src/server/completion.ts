@@ -118,7 +118,7 @@ async function addLibraryImportCompletion(
   node: StringLiteralNode
 ) {
   const documentPath = file.file.path;
-  const projectRoot = await findProjectRoot(program.host, documentPath);
+  const projectRoot = await findProjectRoot(program.host.stat, documentPath);
   if (projectRoot !== undefined) {
     const [packagejson] = await loadFile(
       program.host,
@@ -213,7 +213,7 @@ function addIdentifierCompletion(
   if (result.size === 0) {
     return;
   }
-  for (const [key, { sym, label }] of result) {
+  for (const [key, { sym, label, suffix }] of result) {
     let kind: CompletionItemKind;
     let deprecated = false;
     const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
@@ -241,7 +241,7 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printId(key),
+      insertText: printId(key) + (suffix ?? ""),
     };
     if (deprecated) {
       item.tags = [CompletionItemTag.Deprecated];
