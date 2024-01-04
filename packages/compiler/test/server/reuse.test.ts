@@ -1,4 +1,5 @@
 import { ok } from "assert";
+import { describe, it } from "vitest";
 import { Program, SymbolTable, visitChildren } from "../../src/core/index.js";
 import { mutate } from "../../src/core/util.js";
 import {

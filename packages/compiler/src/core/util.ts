@@ -22,7 +22,6 @@ import {
 } from "./types.js";
 
 export { typespecVersion } from "../manifest.js";
-export { NodeHost } from "./node-host.js";
 
 /**
  * Recursively calls Object.freeze such that all objects and arrays
@@ -264,14 +263,14 @@ export function omitUndefined<T extends Record<string, unknown>>(data: T): T {
  * @param lookIn
  */
 export async function findProjectRoot(
-  host: CompilerHost,
+  statFn: CompilerHost["stat"],
   path: string
 ): Promise<string | undefined> {
   let current = path;
   while (true) {
     const pkgPath = joinPaths(current, "package.json");
     const stat = await doIO(
-      () => host.stat(pkgPath),
+      () => statFn(pkgPath),
       pkgPath,
       () => {}
     );

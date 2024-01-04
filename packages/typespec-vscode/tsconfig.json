@@ -1,5 +1,5 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "references": [{ "path": "../tmlanguage-generator/tsconfig.json" }],
   "compilerOptions": {
     "incremental": false,

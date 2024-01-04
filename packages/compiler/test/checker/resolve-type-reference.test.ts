@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   BasicTestRunner,
   createTestHost,

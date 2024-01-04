@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Union, UnionVariant } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 

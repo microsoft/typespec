@@ -1,11 +1,12 @@
 import {
   BasicTestRunner,
+  TestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
   expectDiagnostics,
-  TestHost,
 } from "@typespec/compiler/testing";
 import { ok } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { createVersioningTestHost, createVersioningTestRunner } from "./test-host.js";
 
 describe("versioning: incompatible use of decorators", () => {

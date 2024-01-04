@@ -1,9 +1,6 @@
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import * as mocha from "mocha";
 import { callDecoratorRule } from "../../src/rules/call-decorator";
 import { getFixturesRootDir } from "./utils";
-
-RuleTester.afterAll = mocha.after;
 
 const rootDir = getFixturesRootDir();
 

@@ -1,4 +1,5 @@
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { beforeEach, describe, it } from "vitest";
 import { createViewerTestRunner } from "./test-host.js";
 
 describe("html-program-viewer: smoke tests", () => {

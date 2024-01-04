@@ -1,4 +1,5 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Program, projectProgram } from "../../src/core/program.js";
 import { createProjector } from "../../src/core/projector.js";
 import {
