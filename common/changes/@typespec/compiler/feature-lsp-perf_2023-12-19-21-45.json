@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "IDE: Performance improvements to the language server.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

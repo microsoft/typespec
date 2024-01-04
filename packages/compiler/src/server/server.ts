@@ -12,7 +12,8 @@ import {
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../core/util.js";
-import { Server, ServerHost, createServer } from "./serverlib.js";
+import { createServer } from "./serverlib.js";
+import { Server, ServerHost } from "./types.js";
 
 let server: Server | undefined = undefined;
 
