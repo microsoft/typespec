@@ -18,7 +18,7 @@
     "preinstall": "npx only-allow pnpm",
     "prepare-publish": "pnpm changeset version",
     "prettier": "prettier .",
-    "purge": "rimraf node_modules/ --glob \"packages/*/node_modules/\"",
+    "purge": "rimraf --glob \"packages/*/node_modules/\"",
     "regen-docs": "pnpm -r  --parallel --aggregate-output run regen-docs",
     "regen-samples": "pnpm -r run regen-samples",
     "test-official": "pnpm -r --aggregate-output test-official",
