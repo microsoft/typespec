@@ -18,6 +18,9 @@ You will need both node and npm installed. Additionally, if you intend to develo
 Available templates:
 
 ```bash
+# Create a TypeSpec library(Decorators & Linters) with TypeScript enabled.
+tsp init --template library-ts
+
 # Create a TypeSpec emitter with TypeScript enabled.
 tsp init --template emitter-ts
 ```

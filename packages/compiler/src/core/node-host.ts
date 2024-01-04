@@ -7,7 +7,7 @@ import { joinPaths } from "./path-utils.js";
 import { CompilerHost, RmOptions } from "./types.js";
 import { findProjectRoot, getSourceFileKindFromExt } from "./util.js";
 
-const root = (await findProjectRoot(stat, fileURLToPath(import.meta.url)))!;
+export const CompilerPackageRoot = (await findProjectRoot(stat, fileURLToPath(import.meta.url)))!;
 
 /**
  * Implementation of the @see CompilerHost using the real file system.
@@ -23,7 +23,7 @@ export const NodeHost: CompilerHost = {
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   readDir: (path: string) => readdir(path),
   rm: (path: string, options: RmOptions) => rm(path, options),
-  getExecutionRoot: () => root,
+  getExecutionRoot: () => CompilerPackageRoot,
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
     const rootDir = this.getExecutionRoot();

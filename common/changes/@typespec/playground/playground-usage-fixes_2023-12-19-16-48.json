@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Fix: Wrong css exports `style.css` was provided instead of `styles.css`. Both are now available for backward compatibility but `styles.css` is the recommended name.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}

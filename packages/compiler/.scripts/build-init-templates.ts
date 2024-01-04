@@ -24,12 +24,22 @@ const builtInTemplates: Record<string, InitTemplate> = {
       emit: ["@typespec/openapi3"],
     },
   },
+  "library-ts": {
+    title: "TypeSpec Library (With TypeScript)",
+    description: "Create a new package to add decorators or linters to typespec.",
+    compilerVersion: minCompilerVersion,
+    libraries: [],
+    files: [
+      { destination: "main.tsp", skipGeneration: true },
+      { destination: "tspconfig.yaml", skipGeneration: true },
+      ...(await localDir("library-ts")),
+    ],
+  },
   "emitter-ts": {
     title: "TypeSpec Emitter (With TypeScript)",
     description: "Create a new package that will be emitting typespec",
     compilerVersion: minCompilerVersion,
     libraries: [],
-    config: undefined,
     files: [
       { destination: "main.tsp", skipGeneration: true },
       { destination: "tspconfig.yaml", skipGeneration: true },

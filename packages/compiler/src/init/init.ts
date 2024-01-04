@@ -196,7 +196,10 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
   const currentCompilerVersion = MANIFEST.version;
   let validationResult: ValidationResult;
   // 1. If current version > compilerVersion, proceed with strict validation
-  if (template.compilerVersion && semver.gte(currentCompilerVersion, template.compilerVersion)) {
+  if (
+    template.compilerVersion === undefined ||
+    semver.gte(currentCompilerVersion, template.compilerVersion)
+  ) {
     validationResult = validateTemplateDefinitions(template, loaded.file, true);
 
     // 1.1 If strict validation fails, try relaxed validation
@@ -205,9 +208,7 @@ async function validateTemplate(template: any, loaded: LoadedTemplate): Promise<
     }
   } else {
     // 2. if version mis-match or none specified, warn and prompt user to continue or not
-    const confirmationMessage = template.compilerVersion
-      ? `The template you selected is designed for tsp version ${template.compilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`
-      : `The template you selected did not specify minimum support compiler version. You are currently using tsp version ${currentCompilerVersion}.`;
+    const confirmationMessage = `The template you selected is designed for tsp version ${template.compilerVersion}. You are currently using tsp version ${currentCompilerVersion}.`;
     if (
       await confirm(
         `${confirmationMessage} The project created may not be correct. Do you want to continue?`
