@@ -43,7 +43,8 @@
       "types": "./dist/src/react/viewers/index.d.ts",
       "default": "./dist/react/viewers/index.js"
     },
-    "./style.css": "./dist/index.css"
+    "./style.css": "./dist/index.css",
+    "./styles.css": "./dist/index.css"
   },
   "engines": {
     "node": ">=18.0.0"
