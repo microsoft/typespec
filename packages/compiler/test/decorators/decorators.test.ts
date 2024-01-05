@@ -22,7 +22,12 @@ import {
   isErrorModel,
   resolveEncodedName,
 } from "../../src/lib/decorators.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
+import {
+  BasicTestRunner,
+  createTestRunner,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../../src/testing/index.js";
 
 describe("compiler: built-in decorators", () => {
   let runner: BasicTestRunner;
@@ -1104,6 +1109,59 @@ describe("compiler: built-in decorators", () => {
         code: "no-mime-type-suffix",
         message:
           "Cannot use mime type 'application/merge-patch+json' with suffix 'json'. Use a simple mime `type/subtype` instead.",
+      });
+    });
+
+    describe("detect conflicts", () => {
+      it("emit error if encoded name is same as existing property ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            exp: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, {
+          code: "encoded-name-conflict",
+          message:
+            "Encoded name 'exp' conflicts with existing member name for mime type 'application/json'",
+        });
+      });
+
+      it("emit error if 2 properties use the same encoded name with the same mimeType ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/json", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+        ]);
+      });
+
+      it("is ok if 2 different mime type have the same encoded name", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/xml", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
       });
     });
 
