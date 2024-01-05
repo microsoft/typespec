@@ -19,7 +19,7 @@ extern dec summary(target: unknown, summary: valueof string);
 /**
  * Attach a documentation string.
  * @param doc Documentation string
- * @param formatArgs Record with key value pair that can be interpolated in the fdoc.
+ * @param formatArgs Record with key value pair that can be interpolated in the doc.
  *
  * @example
  * ```typespec
