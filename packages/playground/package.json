@@ -69,8 +69,8 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-icons": "^2.0.221",
     "@fluentui/react-components": "~9.42.0",
+    "@fluentui/react-icons": "^2.0.221",
     "@typespec/bundler": "workspace:~0.1.0-alpha.4",
     "@typespec/compiler": "workspace:~0.51.0",
     "@typespec/html-program-viewer": "workspace:~0.51.0",
