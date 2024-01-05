@@ -53,5 +53,3 @@ eng/feeds/
 # Skip formatting tsp files
 
 *.noformat.tsp
-
-packages/website/static/lottie/*.json

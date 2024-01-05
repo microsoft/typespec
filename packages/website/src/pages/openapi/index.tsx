@@ -64,6 +64,7 @@ import heroOpenAPIYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero
 import { IllustrationCard } from "../../components/illustration-card/illustration-card";
 import { OpenAPI3InteroperateIllustration } from "../../components/interoperate-illustration/interoperate-illustration";
 import { LearnMoreCard } from "../../components/learn-more-card/learn-more-card";
+
 export const OpenAPI3HeroIllustration = () => {
   return (
     <IllustrationCard>
@@ -73,7 +74,7 @@ export const OpenAPI3HeroIllustration = () => {
         </TabItem>
         <TabItem value="openapi.yaml">
           <div className={style["hero-openapi"]}>
-            <CodeBlock language="tsp">{heroOpenAPIYaml}</CodeBlock>
+            <CodeBlock language="yaml">{heroOpenAPIYaml}</CodeBlock>
           </div>
         </TabItem>
       </Tabs>

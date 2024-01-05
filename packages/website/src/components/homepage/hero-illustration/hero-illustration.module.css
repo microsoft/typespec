@@ -1,0 +1,21 @@
+.hero-illustration {
+  width: 1200px;
+}
+
+.split-windows {
+  height: 700px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.split-window {
+  flex: 1;
+  min-height: 100%;
+  overflow-y: auto;
+}
+
+.output {
+  opacity: 80%;
+}
