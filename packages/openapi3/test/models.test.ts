@@ -42,7 +42,7 @@ describe("openapi3: models", () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
-        @encoded("application/json", "xJson")
+        @encodedName("application/json", "xJson")
         x: int32;
       };`
     );
@@ -58,7 +58,7 @@ describe("openapi3: models", () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
-        @encoded("application/json", "xJson")
+        @encodedName("application/json", "xJson")
         @projectedName("json", "projectedJson")
         x: int32;
       };`
