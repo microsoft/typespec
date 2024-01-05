@@ -2,7 +2,7 @@ import { reportDiagnostic } from "../core/messages.js";
 import { parseMimeType } from "../core/mime-type.js";
 import { Program } from "../core/program.js";
 import { DecoratorContext, Enum, Model, Type, Union } from "../core/types.js";
-import { DuplicateTracker } from "../index.js";
+import { DuplicateTracker } from "../core/util.js";
 
 function createStateSymbol(name: string) {
   return Symbol.for(`TypeSpec.${name}`);
