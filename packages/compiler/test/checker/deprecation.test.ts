@@ -1,14 +1,15 @@
+import { beforeEach, describe, it } from "vitest";
 import { Diagnostic } from "../../src/index.js";
 import {
   BasicTestRunner,
+  DiagnosticMatch,
+  TestHost,
   createTestHost,
   createTestRunner,
   createTestWrapper,
-  DiagnosticMatch,
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
-  TestHost,
 } from "../../src/testing/index.js";
 
 describe("compiler: checker: deprecation", () => {

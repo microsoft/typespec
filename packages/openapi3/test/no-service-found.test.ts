@@ -1,4 +1,5 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
+import { describe, it } from "vitest";
 import { diagnoseOpenApiFor } from "./test-host.js";
 
 describe("openapi3: no-service-found diagnostic", () => {

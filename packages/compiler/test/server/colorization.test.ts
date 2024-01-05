@@ -2,24 +2,14 @@ import { deepStrictEqual, ok } from "assert";
 import { readFile } from "fs/promises";
 import { createRequire } from "module";
 import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
 import { createSourceFile } from "../../src/core/diagnostics.js";
-import { SemanticToken, SemanticTokenKind } from "../../src/server/serverlib.js";
 import { TypeSpecScope } from "../../src/server/tmlanguage.js";
+import { SemanticToken, SemanticTokenKind } from "../../src/server/types.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
-
-// vscode-oniguruma depends on those type from the DOM library.
-// As we are only using this in this test it is better to not add the whole DOM library just for this.
-declare global {
-  type Response = any;
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace WebAssembly {
-    type WebAssemblyInstantiatedSource = any;
-    type ImportValue = any;
-  }
-}
+import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
@@ -755,6 +745,28 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    it("named template argument list", async () => {
+      const tokens = await tokenize("alias X = Foo<boolean, T = string, U = int32>;");
+      deepStrictEqual(tokens, [
+        Token.keywords.alias,
+        Token.identifiers.type("X"),
+        Token.operators.assignment,
+        Token.identifiers.type("Foo"),
+        Token.punctuation.typeParameters.begin,
+        Token.identifiers.type("boolean"),
+        Token.punctuation.comma,
+        Token.identifiers.type("T"),
+        Token.operators.assignment,
+        Token.identifiers.type("string"),
+        Token.punctuation.comma,
+        Token.identifiers.type("U"),
+        Token.operators.assignment,
+        Token.identifiers.type("int32"),
+        Token.punctuation.typeParameters.end,
+        Token.punctuation.semicolon,
+      ]);
+    });
+
     describe("namespaces", () => {
       it("simple global namespace", async () => {
         const tokens = await tokenize("namespace Foo;");
@@ -1323,7 +1335,7 @@ const registry = new Registry({
   onigLib: createOnigLib(),
   loadGrammar: async () => {
     const data = await readFile(
-      resolve(dirname(fileURLToPath(import.meta.url)), "../../typespec.tmLanguage"),
+      resolve(await findTestPackageRoot(import.meta.url), "dist/typespec.tmLanguage"),
       "utf-8"
     );
     return parseRawGrammar(data);

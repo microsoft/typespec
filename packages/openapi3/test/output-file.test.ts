@@ -5,6 +5,7 @@ import {
   resolveVirtualPath,
 } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 
@@ -102,7 +103,7 @@ describe("openapi3: output file", () => {
 
   describe("multiple outputs", () => {
     (["json", "yaml"] as const).forEach((fileType) => {
-      context(`when file-type is ${fileType}`, () => {
+      describe(`when file-type is ${fileType}`, () => {
         it("create distinct files for distinct services", () => {
           async () => {
             await compileOpenAPI(

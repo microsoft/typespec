@@ -25,8 +25,9 @@
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts"
   },
@@ -39,19 +40,18 @@
     "eslint": ">=0.8.0"
   },
   "devDependencies": {
-    "@types/mocha": "~10.0.1",
     "@types/node": "~18.11.9",
     "@typespec/eslint-config-typespec": "workspace:~0.51.0",
-    "@typescript-eslint/parser": "^6.2.1",
-    "eslint": "^8.49.0",
-    "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.1",
-    "mocha-multi-reporters": "~1.5.1",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@typescript-eslint/rule-tester": "~6.14.0",
+    "eslint": "^8.55.0",
+    "vitest": "^1.1.0",
+    "@vitest/coverage-v8": "^1.1.0",
     "c8": "~8.0.1",
     "rimraf": "~5.0.1",
-    "typescript": "~5.2.2"
+    "typescript": "~5.3.3"
   },
   "dependencies": {
-    "@typescript-eslint/utils": "~5.59.11"
+    "@typescript-eslint/utils": "~6.14.0"
   }
 }

@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { Range } from "vscode-languageserver/node.js";
 import {
   createTestServerHost,

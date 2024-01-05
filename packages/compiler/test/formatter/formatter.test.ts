@@ -1,5 +1,6 @@
 import { rejects, strictEqual } from "assert";
 import * as prettier from "prettier";
+import { describe, it } from "vitest";
 import * as plugin from "../../src/formatter/index.js";
 
 type TestParser = "typespec" | "markdown";
@@ -2292,6 +2293,18 @@ alias Foo = Bar<
 alias Foo = Bar<
   "very long string that is overflowing the max column allowed",
   "very long string that is overflowing the max column allowed"
+>;`,
+      });
+    });
+
+    it("handles nested named template args", async () => {
+      await assertFormat({
+        code: 'alias F=Foo<int32,V=Foo<V=unknown,T=null,U="test">,U=Foo<string,T=int32,V=never>>;',
+        expected: `
+alias F = Foo<
+  int32,
+  V = Foo<V = unknown, T = null, U = "test">,
+  U = Foo<string, T = int32, V = never>
 >;`,
       });
     });

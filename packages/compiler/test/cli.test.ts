@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { stringify } from "yaml";
 import { TypeSpecRawConfig } from "../src/config/types.js";
 import { CompileCliArgs, getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
@@ -53,7 +54,7 @@ describe("compiler: cli", () => {
       deepStrictEqual(options?.options, {});
     });
 
-    context("config file with emitters", () => {
+    describe("config file with emitters", () => {
       beforeEach(() => {
         host.addTypeSpecFile(
           "ws/tspconfig.yaml",

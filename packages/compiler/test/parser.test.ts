@@ -1,4 +1,5 @@
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { CharCode } from "../src/core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
@@ -31,8 +32,9 @@ describe("compiler: parser", () => {
     ]);
   });
 
-  describe("empty script", () =>
-    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]));
+  describe("empty script", () => {
+    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]);
+  });
 
   describe("model statements", () => {
     parseEach([

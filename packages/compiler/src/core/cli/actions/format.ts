@@ -1,5 +1,5 @@
+import { logDiagnostics } from "../../diagnostics.js";
 import { findUnformattedTypeSpecFiles, formatTypeSpecFiles } from "../../formatter-fs.js";
-import { logDiagnostics } from "../../index.js";
 import { CliCompilerHost } from "../types.js";
 
 export interface FormatArgs {

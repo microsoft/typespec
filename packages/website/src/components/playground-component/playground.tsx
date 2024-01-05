@@ -15,7 +15,7 @@ import { FunctionComponent, useMemo } from "react";
 import { VersionData } from "./import-map";
 import { LoadingSpinner } from "./loading-spinner";
 
-import "@typespec/playground/style.css";
+import "@typespec/playground/styles.css";
 
 export const FluentLayout = ({ children }) => {
   return (

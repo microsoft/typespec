@@ -11,13 +11,14 @@ export {
   createCadlLibrary,
   createLinterRule as createRule,
   createTypeSpecLibrary,
+  defineLinter,
   paramMessage,
   // eslint-disable-next-line deprecation/deprecation
   setCadlNamespace,
   setTypeSpecNamespace,
 } from "./library.js";
 export * from "./module-resolver.js";
-export * from "./node-host.js";
+export { NodeHost } from "./node-host.js";
 export * from "./options.js";
 export * from "./parser.js";
 export * from "./path-utils.js";

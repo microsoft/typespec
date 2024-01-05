@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Namespace, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
 import {
   getDoc,

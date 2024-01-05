@@ -1,5 +1,5 @@
 import { getSourceLocation } from "../diagnostics.js";
-import { Logger, LogInfo, LogLevel, LogSink, ProcessedLog } from "../types.js";
+import type { Logger, LogInfo, LogLevel, LogSink, ProcessedLog } from "../types.js";
 
 const LogLevels = {
   trace: 10,

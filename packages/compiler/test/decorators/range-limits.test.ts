@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model } from "../../src/core/types.js";
 import {
   getMaxItems,

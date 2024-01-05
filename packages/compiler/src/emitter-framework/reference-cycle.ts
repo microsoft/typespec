@@ -1,4 +1,4 @@
-import { Type, getTypeName } from "../index.js";
+import { Type, getTypeName } from "../core/index.js";
 import { EmitEntity } from "./types.js";
 
 export interface ReferenceCycleEntry {

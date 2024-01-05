@@ -816,6 +816,7 @@ export enum SyntaxKind {
   ProjectionDecoratorReferenceExpression,
   Return,
   JsNamespaceDeclaration,
+  TemplateArgument,
 }
 
 export const enum NodeFlags {
@@ -872,6 +873,7 @@ export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
   | JsNamespaceDeclarationNode
+  | TemplateArgumentNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -1070,7 +1072,6 @@ export type Expression =
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
-  | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
@@ -1352,7 +1353,13 @@ export interface ValueOfExpressionNode extends BaseNode {
 export interface TypeReferenceNode extends BaseNode {
   readonly kind: SyntaxKind.TypeReference;
   readonly target: MemberExpressionNode | IdentifierNode;
-  readonly arguments: readonly Expression[];
+  readonly arguments: readonly TemplateArgumentNode[];
+}
+
+export interface TemplateArgumentNode extends BaseNode {
+  readonly kind: SyntaxKind.TemplateArgument;
+  readonly name?: IdentifierNode;
+  readonly argument: Expression;
 }
 
 export interface ProjectionReferenceNode extends BaseNode {
@@ -1613,6 +1620,7 @@ export interface IdentifierContext {
 
 export enum IdentifierKind {
   TypeReference,
+  TemplateArgument,
   Decorator,
   Function,
   Using,
@@ -1775,6 +1783,7 @@ export interface LibraryInstance {
   entrypoint: JsSourceFileNode | undefined;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
+  linter: LinterDefinition;
 }
 
 export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
@@ -2060,18 +2069,22 @@ export type CadlLibraryDef<
   E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibraryDef<T, E>;
 
-/**
- * Definition of a TypeSpec library
- */
+export interface StateDef {
+  /**
+   * Description for this state.
+   */
+  readonly description?: string;
+}
+
 export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
+  State extends string = never,
 > {
   /**
-   * Name of the library. Must match the package.json name.
+   * Library name. MUST match package.json name.
    */
   readonly name: string;
-
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
@@ -2092,8 +2105,11 @@ export interface TypeSpecLibraryDef<
 
   /**
    * Configuration if library is providing linting rules/rulesets.
+   * @deprecated Use `export const $linter` instead. This will cause circular reference with linters.
    */
   readonly linter?: LinterDefinition;
+
+  readonly state?: Record<State, StateDef>;
 }
 
 export interface LinterDefinition {
@@ -2169,7 +2185,11 @@ export type CadlLibrary<
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
-> extends TypeSpecLibraryDef<T, E> {
+  State extends string = never,
+> extends TypeSpecLibraryDef<T, E, State> {
+  /** Library name */
+  readonly name: string;
+
   /**
    * JSON Schema validator for emitter options
    * @internal
@@ -2195,6 +2215,8 @@ export interface TypeSpecLibrary<
    * All trace area logged via this tracer will be prefixed with the library name.
    */
   getTracer(program: Program): Tracer;
+
+  readonly stateKeys: Record<State, symbol>;
 }
 
 /**

@@ -5,27 +5,25 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup --config 2>&1 && npm run generate-third-party-notices",
-    "test": "mocha --timeout 5000 'test/**/*.js'",
-    "test-official": "mocha --timeout 5000 --forbid-only 'test/**/*.js'",
+    "test": "vitest run",
+    "test-official": "vitest run",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices"
   },
   "author": "Microsoft Corporation",
   "license": "MIT",
   "dependencies": {
-    "prettier": "~3.1.0"
+    "prettier": "~3.1.1"
   },
   "devDependencies": {
     "prettier_2": "npm:prettier@2.8.7",
     "@typespec/compiler": "workspace:~0.51.0",
     "@typespec/internal-build-utils": "workspace:~0.51.0",
     "@rollup/plugin-commonjs": "~25.0.4",
-    "@rollup/plugin-json": "~6.0.0",
+    "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-node-resolve": "~15.2.1",
     "@rollup/plugin-replace": "~5.0.2",
-    "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.1",
-    "mocha-multi-reporters": "~1.5.1",
-    "rollup": "~3.29.2"
+    "vitest": "^1.1.0",
+    "rollup": "~4.9.0"
   },
   "files": [
     "dist/**/*",
