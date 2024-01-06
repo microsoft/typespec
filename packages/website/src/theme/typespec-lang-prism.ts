@@ -28,7 +28,7 @@ const lang = {
   },
 
   property: {
-    pattern: /((?:^|[,{])[ \t]*)(?!\s)[_$a-zA-Z\xA0-\uFFFF](?:(?!\s)[$\w\xA0-\uFFFF])*(?=\s*:)/m,
+    pattern: /\b[A-Za-z]\w*(?=\s*:)/m,
     lookbehind: true,
     alias: "property",
   },
@@ -68,7 +68,7 @@ const lang = {
     /\b(?:import|model|scalar|namespace|op|interface|union|using|is|extends|enum|alias|return|void|never|if|else|projection|dec|extern|fn)\b/,
 
   function: /\b[a-z_]\w*(?=[ \t]*\()/i,
-  variable: /\b(?:[A-Z_\d]*[a-z]\w*)?\b/,
+  variable: /\b[A-Za-z]\w*\b/,
 
   number: /(?:\b\d+(?:\.\d*)?|\B\.\d+)(?:E[+-]?\d+)?/i,
   operator:
@@ -76,5 +76,5 @@ const lang = {
   punctuation: /[{}[\];(),.:]/,
 };
 
-lang.string[0].inside.interpolation.inside = lang;
+// lang.string[0].inside.interpolation.inside = lang;
 export default lang;
