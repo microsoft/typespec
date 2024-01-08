@@ -36,7 +36,7 @@ const Hero = () => {
       <div className={style["hero-container"]}>
         <div className={style["hero-content"]}>
           <h1 className={style["hero-title"]}>TypeSpec</h1>
-          <div className={style["hero-subtitle"]}>Describe APIs at scale</div>
+          <div className={style["hero-subtitle"]}>Describe APIs</div>
           <DescriptionText size="large" className={style["hero-description"]}>
             Describe your data up front and generate schemas, API specifications, client / server
             code, docs, and more.

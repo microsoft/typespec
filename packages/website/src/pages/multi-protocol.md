@@ -8,9 +8,7 @@ TypeSpec is a protocol agnostic language. It could be used with many different p
 
 In this example we have a protobuf service and we want to emit a json schema for the models which we can use later to validate the data in our service implementation.
 
-[Try it in the playground](/playground)
-
-```tsp
+```tsp tryit="{"emit": ["@typespec/protobuf", "@typespec/json-schema"]}"
 import "@typespec/protobuf";
 import "@typespec/http";
 import "@typespec/json-schema";

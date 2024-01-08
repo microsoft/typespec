@@ -20,7 +20,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserHost } from "../browser-host.js";
 import { LibraryImportOptions } from "../core.js";
 import { registerMonacoLanguage } from "../services.js";
-import { StateStorage, createUrlStateStorage } from "../state-storage.js";
+import { StateStorage, UrlStateStorage, createUrlStateStorage } from "../state-storage.js";
 import { BrowserHost } from "../types.js";
 import { Playground, PlaygroundProps, PlaygroundSaveData } from "./playground.js";
 
@@ -122,7 +122,7 @@ export async function renderReactPlayground(config: ReactPlaygroundConfig) {
   );
 }
 
-export function createStandalonePlaygroundStateStorage(): StateStorage<PlaygroundSaveData> {
+export function createStandalonePlaygroundStateStorage(): UrlStateStorage<PlaygroundSaveData> {
   const stateStorage = createUrlStateStorage<PlaygroundSaveData>({
     content: {
       queryParam: "c",
@@ -142,6 +142,7 @@ export function createStandalonePlaygroundStateStorage(): StateStorage<Playgroun
 
   return {
     load: stateStorage.load,
+    resolveSearchParams: stateStorage.resolveSearchParams,
     save(data: PlaygroundSaveData) {
       stateStorage.save(
         data.sampleName ? { sampleName: data.sampleName, options: data.options } : data

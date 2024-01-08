@@ -3,7 +3,6 @@ trigger:
 pr:
   - main
   - release/*
-  - feature/website-design
 
 variables:
   - template: templates/variables/globals.yml
