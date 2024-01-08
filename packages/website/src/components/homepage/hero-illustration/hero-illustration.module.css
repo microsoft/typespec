@@ -20,3 +20,7 @@
   opacity: 90%;
   font-size: 90%;
 }
+
+.hero-illustration :global(.theme-code-block) {
+  border-radius: 0;
+}
