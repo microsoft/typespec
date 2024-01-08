@@ -8,7 +8,7 @@ interface FeatureListItem {
   title: string;
   description?: string;
   image?: FluentImageName;
-  link: string;
+  link?: string;
 }
 
 export interface FeatureListProps {
@@ -33,9 +33,11 @@ const FeatureListItemEl = ({ title, description, image, link }: FeatureListItemE
       <div className={style["item-content"]}>
         <NeutralText size={"large"}>{title}</NeutralText>
         <DescriptionText>{description}</DescriptionText>
-        <Link href={link}>
-          <Text>Learn more →</Text>
-        </Link>
+        {link && (
+          <Link href={link}>
+            <Text>Learn more →</Text>
+          </Link>
+        )}
       </div>
     </div>
   );

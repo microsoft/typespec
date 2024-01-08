@@ -82,16 +82,16 @@ const Overview = () => {
               },
               {
                 title: "Easy integration with your toolchain",
-                description: "Description TBU",
+                description:
+                  "Write TypeSpec, emit to various formats and intergrate with their ecosystems.",
                 image: "document-add",
-                link: "/docs/standard-library/openapi3/reference",
               },
               {
                 title: "Multi-protocol support",
                 description:
                   "TypeSpec's standard library includes support for OpenAPI 3.0, JSON Schema 2020-12, Protobuf, and JSON RPC.",
                 image: "tasks",
-                link: "/docs/standard-library/openapi3/reference",
+                link: "/multi-protocol",
               },
             ]}
           />
