@@ -201,7 +201,7 @@ const config: Config = {
           },
           {
             type: "doc",
-            docId: "introduction/introduction",
+            docId: "introduction/installation",
             position: "left",
             label: "Docs",
           },
