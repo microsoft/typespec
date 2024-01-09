@@ -62,7 +62,7 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "Handbook",
       items: [
-        "handbook/usage",
+        "handbook/cli",
         "handbook/style-guide",
         "handbook/formatter",
         "handbook/reproducibility",
