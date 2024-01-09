@@ -1,12 +1,21 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
+import style from "./layouts.module.css";
 
 export const FluentLayout = ({ children }) => {
   return (
     <Layout>
       <FluentWrapper>{children}</FluentWrapper>
     </Layout>
+  );
+};
+
+export const ShowcaseLayout = ({ children }) => {
+  return (
+    <FluentLayout>
+      <div className={style["showcase-layout"]}>{children}</div>
+    </FluentLayout>
   );
 };
 

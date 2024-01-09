@@ -3,16 +3,16 @@ import { Links } from "@site/src/constants";
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 import { CodeBlock } from "../../components/code-block/code-block";
-import { FluentLayout } from "../../components/fluent-layout";
+import { ShowcaseLayout } from "../../components/layouts/fluent-layout";
 import { Section } from "../../components/section/section";
 import { SectionedLayout } from "../../components/sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../../components/use-case-overview/use-case-overview";
 import style from "./openapi.module.css";
 export default function Home() {
   return (
-    <FluentLayout>
+    <ShowcaseLayout>
       <OpenApiContent />
-    </FluentLayout>
+    </ShowcaseLayout>
   );
 }
 

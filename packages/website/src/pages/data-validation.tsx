@@ -1,6 +1,6 @@
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
-import { FluentLayout } from "../components/fluent-layout";
+import { ShowcaseLayout } from "../components/layouts/fluent-layout";
 import { Section } from "../components/section/section";
 import { SectionedLayout } from "../components/sectioned-layout/sectioned-layout";
 import { UseCaseOverview } from "../components/use-case-overview/use-case-overview";
@@ -8,9 +8,9 @@ import { Links } from "../constants";
 
 export default function Home() {
   return (
-    <FluentLayout>
+    <ShowcaseLayout>
       <DataValidationContent />
-    </FluentLayout>
+    </ShowcaseLayout>
   );
 }
 
