@@ -1,6 +1,6 @@
 ---
-id: usage
-title: Usage
+id: cli
+title: Cli usage
 ---
 
 # Usage

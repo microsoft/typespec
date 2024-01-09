@@ -12,12 +12,12 @@ export const Links = {
   },
   libraryReferences: {
     openapi3: {
-      index: "/docs/standard-library/openapi3/reference",
-      decorators: "/docs/standard-library/openapi3/reference/decorators",
+      index: "/docs/libraries/openapi3/reference",
+      decorators: "/docs/libraries/openapi3/reference/decorators",
     },
     jsonSchema: {
-      index: "/docs/standard-library/json-schema/reference",
-      decorators: "/docs/standard-library/json-schema/reference/decorators",
+      index: "/docs/libraries/json-schema/reference",
+      decorators: "/docs/libraries/json-schema/reference/decorators",
     },
   },
   tooling: {
