@@ -76,5 +76,5 @@ const lang = {
   punctuation: /[{}[\];(),.:]/,
 };
 
-// lang.string[0].inside.interpolation.inside = lang;
+lang.string[0].inside.interpolation.inside = lang;
 export default lang;
