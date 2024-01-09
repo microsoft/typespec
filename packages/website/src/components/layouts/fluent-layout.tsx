@@ -1,3 +1,4 @@
+import BrowserOnly from "@docusaurus/BrowserOnly";
 import { useColorMode } from "@docusaurus/theme-common";
 import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import Layout from "@theme/Layout";
@@ -13,9 +14,14 @@ export const FluentLayout = ({ children }) => {
 
 export const ShowcaseLayout = ({ children }) => {
   return (
-    <FluentLayout>
-      <div className={style["showcase-layout"]}>{children}</div>
-    </FluentLayout>
+    // Need to do this because fluentui can't do SSR simply...
+    <BrowserOnly
+      children={() => (
+        <FluentLayout>
+          <div className={style["showcase-layout"]}>{children}</div>
+        </FluentLayout>
+      )}
+    />
   );
 };
 
