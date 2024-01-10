@@ -83,7 +83,7 @@ const Overview = () => {
               {
                 title: "Easy integration with your toolchain",
                 description:
-                  "Write TypeSpec, emit to various formats and intergrate with their ecosystems.",
+                  "Write TypeSpec, emit to various formats and integrate with their ecosystems.",
                 image: "document-add",
               },
               {
