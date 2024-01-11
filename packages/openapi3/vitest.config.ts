@@ -11,5 +11,6 @@ export default defineConfig({
       junit: "./test-results.xml",
     },
     testTimeout: 10000,
+    watchExclude: ["dist/**"],
   },
 });
