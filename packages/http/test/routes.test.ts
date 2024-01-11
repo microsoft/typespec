@@ -150,6 +150,19 @@ describe("http: routes", () => {
     });
   });
 
+  describe("path parameters when no explicit @route", () => {
+    it("uses the name of the parameter by default and wraps in {}", async () => {
+      const routes = await getRoutesFor(`op test(@path myParam: string): void;`);
+
+      deepStrictEqual(routes, [{ verb: "get", path: "/{myParam}", params: ["myParam"] }]);
+    });
+    it("respect the name provided by @path argument", async () => {
+      const routes = await getRoutesFor(`op test(@path("custom-name") myParam: string): void;`);
+
+      deepStrictEqual(routes, [{ verb: "get", path: "/{custom-name}", params: ["custom-name"] }]);
+    });
+  });
+
   it("combines routes on namespaced bare operations", async () => {
     const routes = await getRoutesFor(
       `
