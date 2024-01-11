@@ -898,7 +898,7 @@ describe("compiler: checker: type relations", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    describe.only("using template parameter as a constraint", () => {
+    describe("using template parameter as a constraint", () => {
       it("pass if the argument is assignable to the constraint", async () => {
         const diagnostics = await runner.diagnose(`
           model Template<A, B extends A> {
@@ -946,6 +946,20 @@ describe("compiler: checker: type relations", () => {
           code: "missing-property",
           message: `Property 'a' is missing on type '(anonymous model)' but required in '(anonymous model)'`,
         });
+      });
+
+      it("respect the constraint when using in another template", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Other<T extends {a: string}> {
+            t: T
+          }
+          
+          model Template<A extends {a: string}, B extends A> {
+            t: Other<B>;
+          }
+          `);
+
+        expectDiagnosticEmpty(diagnostics);
       });
     });
   });

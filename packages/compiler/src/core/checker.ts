@@ -5366,9 +5366,10 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    if (source.kind === "TemplateParameter") {
+    while (source.kind === "TemplateParameter" && source.constraint !== source) {
       source = source.constraint ?? unknownType;
     }
+
     if (source === target) return [Related.true, []];
     if (target.kind === "Value") {
       return isAssignableToValueType(source, target, diagnosticTarget, relationCache);

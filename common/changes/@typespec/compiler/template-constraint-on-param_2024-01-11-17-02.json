@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Add ability to use another template parameter as a constraint. e.g. `model Foo<A, B extends A>`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
