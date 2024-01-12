@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Fix: Wrong route generated when path parameter is not alpha numeric(Either with a different name provided in `@path` or if the property name is not an identifier)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
