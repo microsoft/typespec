@@ -156,10 +156,21 @@ describe("http: routes", () => {
 
       deepStrictEqual(routes, [{ verb: "get", path: "/{myParam}", params: ["myParam"] }]);
     });
+
     it("respect the name provided by @path argument", async () => {
       const routes = await getRoutesFor(`op test(@path("custom-name") myParam: string): void;`);
 
       deepStrictEqual(routes, [{ verb: "get", path: "/{custom-name}", params: ["custom-name"] }]);
+    });
+
+    it("respect the name provided by @path argument when being explicit in the route", async () => {
+      const routes = await getRoutesFor(
+        `@route("/foo/{custom-name}") op test(@path("custom-name") myParam: string): void;`
+      );
+
+      deepStrictEqual(routes, [
+        { verb: "get", path: "/foo/{custom-name}", params: ["custom-name"] },
+      ]);
     });
   });
 
