@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: parameters", () => {
@@ -348,6 +348,18 @@ describe("openapi3: parameters", () => {
       );
       strictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"], undefined);
       ok(res.paths["/"].post.requestBody.content["application/json"]);
+    });
+  });
+
+  describe("path parameters", () => {
+    it("figure out the route parameter from the name of the param", async () => {
+      const res = await openApiFor(`op test(@path myParam: string): void;`);
+      expect(res.paths).toHaveProperty("/{myParam}");
+    });
+
+    it("uses explicit name provided from @path", async () => {
+      const res = await openApiFor(`op test(@path("my-custom-path") myParam: string): void;`);
+      expect(res.paths).toHaveProperty("/{my-custom-path}");
     });
   });
 });

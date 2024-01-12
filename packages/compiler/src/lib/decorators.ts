@@ -30,6 +30,8 @@ import {
   Type,
   Union,
 } from "../core/types.js";
+
+export { $encodedName, resolveEncodedName } from "./encoded-names.js";
 export * from "./service.js";
 
 export const namespace = "TypeSpec";
