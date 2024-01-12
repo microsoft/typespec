@@ -1,6 +1,14 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Model, Namespace, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
+import {
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Scalar,
+  getVisibility,
+  isSecret,
+} from "../../src/index.js";
 import {
   getDoc,
   getEncode,
@@ -12,8 +20,14 @@ import {
   getOverloads,
   getReturnsDoc,
   isErrorModel,
+  resolveEncodedName,
 } from "../../src/lib/decorators.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
+import {
+  BasicTestRunner,
+  createTestRunner,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../../src/testing/index.js";
 
 describe("compiler: built-in decorators", () => {
   let runner: BasicTestRunner;
@@ -1065,6 +1079,114 @@ describe("compiler: built-in decorators", () => {
           message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
         },
       ]);
+    });
+  });
+
+  describe("@encodedName", () => {
+    it("emit error if passing invalid mime type", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Cert {
+          @encodedName("foo/bar/baz", "exp")
+          expireAt: utcDateTime;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-mime-type",
+        message: `Invalid mime type 'foo/bar/baz'`,
+      });
+    });
+
+    it("emit error if passing mime type with suffix", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Cert {
+          @encodedName("application/merge-patch+json", "exp")
+          expireAt: utcDateTime;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "no-mime-type-suffix",
+        message:
+          "Cannot use mime type 'application/merge-patch+json' with suffix 'json'. Use a simple mime `type/subtype` instead.",
+      });
+    });
+
+    describe("detect conflicts", () => {
+      it("emit error if encoded name is same as existing property ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            exp: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, {
+          code: "encoded-name-conflict",
+          message:
+            "Encoded name 'exp' conflicts with existing member name for mime type 'application/json'",
+        });
+      });
+
+      it("emit error if 2 properties use the same encoded name with the same mimeType ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/json", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+        ]);
+      });
+
+      it("is ok if 2 different mime type have the same encoded name", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/xml", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+    });
+
+    it("resolve explicit encoded name", async () => {
+      const { expireAt } = (await runner.compile(`
+        model Cert {
+          @encodedName("application/json", "exp")
+          @test expireAt: utcDateTime;
+        }
+      `)) as { expireAt: ModelProperty };
+      strictEqual(resolveEncodedName(runner.program, expireAt, "application/json"), "exp");
+      strictEqual(
+        resolveEncodedName(runner.program, expireAt, "application/merge-patch+json"),
+        "exp"
+      );
+    });
+
+    it("resolve default name if no explicit encoded name", async () => {
+      const { expireAt } = (await runner.compile(`
+        model Cert {
+          @encodedName("application/json", "exp")
+          @test expireAt: utcDateTime;
+        }
+      `)) as { expireAt: ModelProperty };
+      strictEqual(resolveEncodedName(runner.program, expireAt, "application/xml"), "expireAt");
     });
   });
 });
