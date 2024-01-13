@@ -221,6 +221,7 @@ Also add a `vitest.config.ts` file at the root of your project.
 
 ```ts
 import { defineConfig } from "vitest/config";
+import { defaultTypeSpecVitestConfig } from "../../vitest.workspace";
 
 export default defineConfig({
   test: {

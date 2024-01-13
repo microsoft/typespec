@@ -1,15 +1,9 @@
 import { defineConfig } from "vitest/config";
+import { defaultTypeSpecVitestConfig } from "../../vitest.workspace";
 
 export default defineConfig({
   test: {
-    environment: "node",
-    isolate: false,
-    coverage: {
-      reporter: ["cobertura", "json", "text"],
-    },
-    outputFile: {
-      junit: "./test-results.xml",
-    },
+    ...defaultTypeSpecVitestConfig
 
     include: ["test/**/*.test.ts"],
   },
