@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
 import { defaultTypeSpecVitestConfig } from "../../vitest.workspace.js";
 
 export default defineConfig({
