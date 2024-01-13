@@ -15,5 +15,5 @@
     "lib": ["DOM", "ES2022"],
     "types": ["@emotion/react"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "vitest.config.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"]
 }

@@ -1,10 +1,12 @@
-import { defineConfig } from "vitest/config";
-import { defaultTypeSpecVitestConfig } from "../../vitest.workspace";
+import { defineConfig, mergeConfig } from "vitest/config";
+import { defaultTypeSpecVitestConfig } from "../../vitest.workspace.js";
 
-export default defineConfig({
-  test: {
-    ...defaultTypeSpecVitestConfig
-    testTimeout: 10000,
-    watchExclude: ["dist/**"],
-  },
-});
+export default mergeConfig(
+  defaultTypeSpecVitestConfig,
+  defineConfig({
+    test: {
+      testTimeout: 10000,
+      watchExclude: ["dist/**"],
+    },
+  })
+);

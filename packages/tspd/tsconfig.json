@@ -7,5 +7,5 @@
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "lib": ["DOM"]
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts"]
 }
