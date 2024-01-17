@@ -1,4 +1,4 @@
-export default ["packages/*/vite.config.[m]ts"];
+export default ["packages/*/vitest.config.ts", "packages/*/vitest.config.mts"];
 
 /**
  * Default Config For all typespec projects using vitest.

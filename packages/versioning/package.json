@@ -60,7 +60,7 @@
     "@typespec/eslint-plugin": "workspace:~0.51.0",
     "@typespec/tspd": "workspace:~0.46.0",
     "eslint": "^8.55.0",
-    "vitest": "^1.1.0",
+    "vitest": "^1.2.0",
     "@vitest/coverage-v8": "^1.1.0",
     "@vitest/ui": "~1.1.3",
     "c8": "~8.0.1",
