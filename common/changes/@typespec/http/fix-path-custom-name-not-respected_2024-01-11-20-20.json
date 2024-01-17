@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Fix: `@path` custom name not respected",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Feature: Added encoded name decorator",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
