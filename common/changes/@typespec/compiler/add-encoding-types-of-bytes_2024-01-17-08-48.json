@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "add bytes encode to the general encode type",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}
