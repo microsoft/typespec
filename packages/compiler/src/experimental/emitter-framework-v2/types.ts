@@ -4,6 +4,7 @@ import type {
   BaseType,
   BooleanLiteral,
   Diagnostic,
+  DiagnosticTarget,
   Enum,
   EnumMember,
   Interface,
@@ -15,14 +16,16 @@ import type {
   Operation,
   Scalar,
   StringLiteral,
+  StringTemplate,
   Tuple,
   Type,
   Union,
   UnionVariant,
 } from "../../core/types.js";
-import { Placeholder } from "../../emitter-framework/placeholder.js";
 import { ReferenceCycle } from "../../emitter-framework/reference-cycle.js";
-import { EmitterOutput } from "../../emitter-framework/type-emitter.js";
+import { Placeholder } from "./placeholder.js";
+
+export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
 
 /**
  * Represent a type that is not handled by an emitter. This is different from the actual `UnknownType` type that represent the `unknown` keyword being used as a type.
@@ -46,13 +49,17 @@ export interface EmitterHooksProps<Output, Context extends object> {
 export interface OnUnhandledTypeProps<Output, Context extends object>
   extends EmitterHooksProps<Output, Context> {
   readonly type: UnhandledType;
+  readonly diagnosticTarget: DiagnosticTarget;
 }
 
-export interface EmitterInit<Output, Context extends object>
+export interface TypeEmitterHook<Output, Context extends object>
   extends TypeHook<Output, Context>,
     TypeInternalHook<Output, Context>,
     TypeContextHook<Output, Context>,
-    MiscHooks<Output, Context> {
+    MiscHooks<Output, Context> {}
+
+export interface EmitterInit<Output, Context extends object>
+  extends Partial<TypeEmitterHook<Output, Context>> {
   /**
    * Required implementation for an emitter.
    * In the case a type is received by the emitter and it not handled this callback will be called.
@@ -80,14 +87,16 @@ export interface ModelDeclarationProps {
   readonly name: string;
 }
 export interface ModelLiteralProps {
-  readonly type: Model & { name: "" };
+  readonly type: Model;
 }
 export interface ModelInstantiationProps {
   readonly type: Model;
+  readonly name: string;
 }
 export interface ArrayDeclarationProps {
   readonly type: ArrayModelType;
   readonly elementType: Type;
+  readonly name: string;
 }
 export interface ArrayLiteralProps {
   readonly type: ArrayModelType;
@@ -105,6 +114,9 @@ export interface BooleanLiteralProps {
 export interface StringLiteralProps {
   readonly type: StringLiteral;
 }
+export interface StringTemplateProps {
+  readonly type: StringTemplate;
+}
 export interface NumericLiteralProps {
   readonly type: NumericLiteral;
 }
@@ -119,6 +131,7 @@ export interface EnumMemberReferenceProps {
 }
 export interface UnionDeclarationProps {
   readonly type: Union;
+  readonly name: string;
 }
 export interface UnionLiteralProps {
   readonly type: Union;
@@ -137,6 +150,7 @@ export interface TupleLiteralProps {
 }
 export interface IntrinsicProps {
   readonly type: IntrinsicType;
+  readonly name: IntrinsicType["name"];
 }
 export interface InterfaceOperationDeclarationProps {
   readonly type: Operation;
@@ -207,20 +221,34 @@ export interface WriteOutputProps<Output, Context extends object> {
   readonly emitter: AssetEmitter<Output, Context>;
 }
 
+export interface ReduceContextProps<Output, Context extends object> {
+  readonly method: keyof BaseTypeHooksParams;
+  readonly type: Type;
+  readonly context: Context;
+  readonly emitter: AssetEmitter<Output, Context>;
+}
+
 // TODO: better name?
 // TODO: also merge CommonHooksProps automatically?
 export interface MiscHooks<Output, Context extends object> {
-  readonly declarationName?: (props: DeclarationNameProps<Output, Context>) => string | undefined;
-  readonly sourceFile?: (
+  readonly declarationName: (props: DeclarationNameProps<Output, Context>) => string | undefined;
+  readonly sourceFile: (
     props: SourceFileProps<Output, Context>
   ) => Promise<EmittedSourceFile> | EmittedSourceFile;
-  readonly writeOutput?: (props: WriteOutputProps<Output, Context>) => void;
+  readonly writeOutput: (props: WriteOutputProps<Output, Context>) => void;
 
-  readonly reference?: (props: ReferenceProps<Output, Context>) => object | EmitEntity<Output>; // TODO: check return type.
+  readonly reference: (props: ReferenceProps<Output, Context>) => object | EmitEntity<Output>; // TODO: check return type.
 
-  readonly circularReference?: (
+  readonly circularReference: (
     props: CircularReferenceProps<Output, Context>
   ) => Output | EmitEntity<Output>; // TODO: check return type.
+
+  /**
+   * Called before any type hook is called and can be used to reduce the context to a more standard type.
+   * As the context is used as a unique key to create individual types it can be used to make sure 2 equivalent context are reduce to the same value.
+   * @returns The reduced context
+   */
+  readonly reduceContext: (props: ReduceContextProps<Output, Context>) => Context;
 }
 
 export interface BaseTypeHooksParams {
@@ -234,8 +262,9 @@ export interface BaseTypeHooksParams {
   readonly modelPropertyReference: ModelPropertyReferenceProps;
   readonly booleanLiteral: BooleanLiteralProps;
   readonly stringLiteral: StringLiteralProps;
+  readonly stringTemplate: StringTemplateProps;
   readonly numericLiteral: NumericLiteralProps;
-  readonly enum: EnumDeclarationProps;
+  readonly enumDeclaration: EnumDeclarationProps;
   // TODO: should this be enumMemberLiteral?
   readonly enumMember: EnumMemberProps;
   readonly enumMemberReference: EnumMemberReferenceProps;
@@ -289,9 +318,9 @@ export type TypeContextHook<Output, Context extends object> = {
   ) => Context;
 };
 
-export interface LexicalTypeStackEntry {
-  method: TypeHookMethod;
-  args: any;
+export interface LexicalTypeStackEntry<T extends TypeHookMethod = TypeHookMethod> {
+  method: T;
+  args: TypeHooksParams[T];
 }
 
 export interface EmitterState<Context extends object> {

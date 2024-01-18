@@ -1,22 +1,18 @@
 import {
   BooleanLiteral,
   DiscriminatedUnion,
+  EmitContext,
   Enum,
-  EnumMember,
   IntrinsicScalarName,
-  IntrinsicType,
   Model,
   ModelProperty,
   NumericLiteral,
   Program,
   Scalar,
   StringLiteral,
-  StringTemplate,
-  Tuple,
   Type,
   TypeNameOptions,
   Union,
-  UnionVariant,
   compilerAssert,
   getDeprecated,
   getDiscriminatedUnion,
@@ -49,17 +45,16 @@ import {
 import {
   ArrayBuilder,
   AssetEmitter,
-  Context,
-  Declaration,
+  DefaultCircularReferenceHandler,
   EmitEntity,
+  EmitterInit,
   EmitterOutput,
   ObjectBuilder,
   Placeholder,
-  ReferenceCycle,
   Scope,
   SourceFileScope,
-  TypeEmitter,
-} from "@typespec/compiler/emitter-framework";
+  createAssetEmitter,
+} from "@typespec/compiler/experimental/emitter-framework-v2";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
@@ -70,85 +65,55 @@ import {
   shouldInline,
 } from "@typespec/openapi";
 import { getOneOf, getRef } from "./decorators.js";
-import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { OpenAPI3EmitterOptions, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPI3Discriminator, OpenAPI3Schema, OpenAPI3SchemaProperty } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 
-/**
- * OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
- */
-export class OpenAPI3SchemaEmitter extends TypeEmitter<
-  Record<string, any>,
-  OpenAPI3EmitterOptions
-> {
-  #metadataInfo: MetadataInfo;
-  #visibilityUsage: VisibilityUsageTracker;
-  #options: ResolvedOpenAPI3EmitterOptions;
-  constructor(
-    emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
-    metadataInfo: MetadataInfo,
-    visibilityUsage: VisibilityUsageTracker,
-    options: ResolvedOpenAPI3EmitterOptions
-  ) {
-    super(emitter);
-    this.#metadataInfo = metadataInfo;
-    this.#visibilityUsage = visibilityUsage;
-    this.#options = options;
+export interface OpenAPI3SchemaEmitterContext {
+  visibility?: Visibility;
+  contentType?: string;
+  scope?: Scope<any>;
+}
+
+type OpenAPI3EmitterHooks = EmitterInit<any, OpenAPI3SchemaEmitterContext>;
+
+export function createOpenAPI3SchemaEmitter(
+  program: Program,
+  emitContext: EmitContext<OpenAPI3EmitterOptions>,
+  metadataInfo: MetadataInfo,
+  visibilityUsage: VisibilityUsageTracker,
+  serviceNamespaceName: string,
+  resolvedOptions: ResolvedOpenAPI3EmitterOptions
+): AssetEmitter<any, OpenAPI3SchemaEmitterContext, any> {
+  function getVisibilityContext(context: OpenAPI3SchemaEmitterContext): Visibility {
+    return context.visibility ?? Visibility.Read;
   }
 
-  modelDeclarationReferenceContext(model: Model, name: string): Context {
-    return this.reduceContext(model);
+  function getContentType(context: OpenAPI3SchemaEmitterContext): string {
+    return context.contentType ?? "application/json";
   }
 
-  modelLiteralReferenceContext(model: Model): Context {
-    return this.reduceContext(model);
-  }
-
-  scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
-    return this.reduceContext(scalar);
-  }
-
-  enumDeclarationReferenceContext(en: Enum, name: string): Context {
-    return this.reduceContext(en);
-  }
-
-  unionDeclarationReferenceContext(union: Union): Context {
-    return this.reduceContext(union);
-  }
-
-  reduceContext(type: Type): Context {
-    const visibility = this.#getVisibilityContext();
-    const patch: Record<string, any> = {};
-    if (visibility !== Visibility.Read && !this.#metadataInfo.isTransformed(type, visibility)) {
-      patch.visibility = Visibility.Read;
-    }
-    const contentType = this.#getContentType();
-
-    if (contentType === "application/json") {
-      patch.contentType = undefined;
-    }
-
-    return patch;
-  }
-
-  modelDeclaration(model: Model, _: string): EmitterOutput<object> {
-    const program = this.emitter.getProgram();
-    const visibility = this.#getVisibilityContext();
+  const modelDeclaration: OpenAPI3EmitterHooks["modelDeclaration"] = ({
+    type: model,
+    emitter,
+    context,
+  }): EmitterOutput<object> => {
+    const visibility = getVisibilityContext(context);
     const schema: ObjectBuilder<any> = new ObjectBuilder({
       type: "object",
-      required: this.#requiredModelProperties(model, visibility),
-      properties: this.emitter.emitModelProperties(model),
+      required: requiredModelProperties(model, visibility),
+      properties: emitter.emitModelProperties(model),
     });
 
     if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+      schema.set("additionalProperties", emitter.emitTypeReference(model.indexer.value));
     }
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     // getSchemaOrRef on all children to push them into components.schemas
     for (const child of derivedModels) {
-      this.emitter.emitTypeReference(child);
+      emitter.emitTypeReference(child);
     }
 
     const discriminator = getDiscriminator(program, model);
@@ -157,33 +122,52 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
       const openApiDiscriminator: OpenAPI3Discriminator = { ...discriminator };
       if (union.variants.size > 0) {
-        openApiDiscriminator.mapping = this.#getDiscriminatorMapping(union);
+        openApiDiscriminator.mapping = getDiscriminatorMapping(union, emitter);
       }
 
       schema.discriminator = openApiDiscriminator;
     }
 
-    this.#applyExternalDocs(model, schema);
+    applyExternalDocs(model, schema);
 
     if (model.baseModel) {
-      schema.set("allOf", B.array([this.emitter.emitTypeReference(model.baseModel)]));
+      schema.set("allOf", B.array([emitter.emitTypeReference(model.baseModel)]));
     }
 
-    const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
-    const isMultipart = this.#getContentType().startsWith("multipart/");
+    const baseName = getOpenAPITypeName(program, model, typeNameOptions());
+    const isMultipart = getContentType(context).startsWith("multipart/");
     const name = isMultipart ? baseName + "MultiPart" : baseName;
-    return this.#createDeclaration(model, name, this.#applyConstraints(model, schema));
+    return createDeclaration(model, name, applyConstraints(model, schema), emitter, context);
+  };
+
+  function requiredModelProperties(model: Model, visibility: Visibility): string[] | undefined {
+    const requiredProps = [];
+
+    for (const prop of model.properties.values()) {
+      if (isNeverType(prop.type)) {
+        // If the property has a type of 'never', don't include it in the schema
+        continue;
+      }
+      if (!metadataInfo.isPayloadProperty(prop, visibility)) {
+        continue;
+      }
+
+      if (!metadataInfo.isOptional(prop, visibility)) {
+        requiredProps.push(prop.name);
+      }
+    }
+
+    return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
-  #applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
-    const externalDocs = getExternalDocs(this.emitter.getProgram(), typespecType);
+  function applyExternalDocs(typespecType: Type, target: Record<string, unknown>) {
+    const externalDocs = getExternalDocs(program, typespecType);
     if (externalDocs) {
       target.externalDocs = externalDocs;
     }
   }
 
-  #typeNameOptions(): TypeNameOptions {
-    const serviceNamespaceName = this.emitter.getContext().serviceNamespaceName;
+  function typeNameOptions(): TypeNameOptions {
     return {
       // shorten type names by removing TypeSpec and service namespace
       namespaceFilter(ns) {
@@ -193,103 +177,90 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     };
   }
 
-  #getVisibilityContext(): Visibility {
-    return this.emitter.getContext().visibility ?? Visibility.Read;
-  }
-
-  #getContentType(): string {
-    return this.emitter.getContext().contentType ?? "application/json";
-  }
-
-  modelLiteral(model: Model): EmitterOutput<object> {
+  const modelLiteral: OpenAPI3EmitterHooks["modelLiteral"] = ({
+    type: model,
+    emitter,
+    context,
+  }): EmitterOutput<object> => {
     const schema = new ObjectBuilder({
       type: "object",
-      properties: this.emitter.emitModelProperties(model),
-      required: this.#requiredModelProperties(model, this.#getVisibilityContext()),
+      properties: emitter.emitModelProperties(model),
+      required: requiredModelProperties(model, getVisibilityContext(context)),
     });
 
     if (model.indexer) {
-      schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
+      schema.set("additionalProperties", emitter.emitTypeReference(model.indexer.value));
     }
 
     return schema;
-  }
+  };
 
-  modelInstantiation(model: Model, name: string | undefined): EmitterOutput<Record<string, any>> {
-    name = name ?? getOpenAPITypeName(this.emitter.getProgram(), model, this.#typeNameOptions());
+  const modelInstantiation: OpenAPI3EmitterHooks["modelInstantiation"] = ({
+    type,
+    name,
+    emitter,
+    context,
+  }): EmitterOutput<Record<string, any>> => {
+    name = name ?? getOpenAPITypeName(program, type, typeNameOptions());
     if (!name) {
-      return this.modelLiteral(model);
+      return modelLiteral({ type, emitter, context });
     }
 
-    return this.modelDeclaration(model, name);
-  }
+    return modelDeclaration({ type, name, emitter, context });
+  };
 
-  arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<object> {
+  const arrayDeclaration: OpenAPI3EmitterHooks["arrayDeclaration"] = ({
+    type: array,
+    name,
+    elementType,
+    emitter,
+    context,
+  }): EmitterOutput<object> => {
     const schema = new ObjectBuilder({
       type: "array",
-      items: this.emitter.emitTypeReference(elementType),
+      items: emitter.emitTypeReference(elementType, {
+        referenceContext: { visibility: getVisibilityContext(context) | Visibility.Item },
+      }),
     });
 
-    return this.#createDeclaration(array, name, this.#applyConstraints(array, schema));
-  }
+    return createDeclaration(array, name, applyConstraints(array, schema), emitter, context);
+  };
 
-  arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
-    return {
-      visibility: this.#getVisibilityContext() | Visibility.Item,
-    };
-  }
-
-  arrayLiteral(array: Model, elementType: Type): EmitterOutput<object> {
-    return this.#inlineType(
+  const arrayLiteral: OpenAPI3EmitterHooks["arrayLiteral"] = ({
+    type: array,
+    elementType,
+    emitter,
+    context,
+  }): EmitterOutput<object> => {
+    return inlineType(
       array,
       new ObjectBuilder({
         type: "array",
-        items: this.emitter.emitTypeReference(elementType),
+        items: emitter.emitTypeReference(elementType, {
+          referenceContext: { visibility: getVisibilityContext(context) | Visibility.Item },
+        }),
       })
     );
-  }
+  };
 
-  arrayLiteralReferenceContext(array: Model, elementType: Type): Context {
-    return {
-      visibility: this.#getVisibilityContext() | Visibility.Item,
-    };
-  }
-
-  #requiredModelProperties(model: Model, visibility: Visibility): string[] | undefined {
-    const requiredProps = [];
-
-    for (const prop of model.properties.values()) {
-      if (isNeverType(prop.type)) {
-        // If the property has a type of 'never', don't include it in the schema
-        continue;
-      }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
-        continue;
-      }
-
-      if (!this.#metadataInfo.isOptional(prop, visibility)) {
-        requiredProps.push(prop.name);
-      }
-    }
-
-    return requiredProps.length > 0 ? requiredProps : undefined;
-  }
-
-  modelProperties(model: Model): EmitterOutput<Record<string, OpenAPI3SchemaProperty>> {
-    const program = this.emitter.getProgram();
+  const modelProperties: OpenAPI3EmitterHooks["modelProperties"] = ({
+    type: model,
+    emitter,
+    context,
+  }): EmitterOutput<Record<string, OpenAPI3SchemaProperty>> => {
     const props = new ObjectBuilder();
-    const visibility = this.emitter.getContext().visibility;
-    const contentType = this.#getContentType();
+    const visibility = context.visibility!;
+    const contentType = getContentType(context);
 
     for (const prop of model.properties.values()) {
       if (isNeverType(prop.type)) {
         // If the property has a type of 'never', don't include it in the schema
         continue;
       }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+      if (!metadataInfo.isPayloadProperty(prop, visibility)) {
         continue;
       }
-      const result = this.emitter.emitModelProperty(prop);
+      const result = emitter.emitModelProperty(prop);
       const encodedName = resolveEncodedName(program, prop, contentType);
       props.set(encodedName, result);
     }
@@ -303,36 +274,38 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     if (Object.keys(props).length === 0) {
-      return this.emitter.result.none();
+      return emitter.result.none();
     }
 
     return props;
-  }
+  };
 
-  #isBytesKeptRaw(type: Type) {
-    const program = this.emitter.getProgram();
+  function isBytesKeptRaw(type: Type) {
     return (
       type.kind === "Scalar" && type.name === "bytes" && getEncode(program, type) === undefined
     );
   }
 
-  modelPropertyLiteral(prop: ModelProperty): EmitterOutput<object> {
-    const program = this.emitter.getProgram();
-    const isMultipart = this.#getContentType().startsWith("multipart/");
+  const modelPropertyLiteral: OpenAPI3EmitterHooks["modelPropertyLiteral"] = ({
+    type: prop,
+    emitter,
+    context,
+  }): EmitterOutput<object> => {
+    const isMultipart = getContentType(context).startsWith("multipart/");
     if (isMultipart) {
-      if (this.#isBytesKeptRaw(prop.type) && getEncode(program, prop) === undefined) {
+      if (isBytesKeptRaw(prop.type) && getEncode(program, prop) === undefined) {
         return { type: "string", format: "binary" };
       }
       if (
         prop.type.kind === "Model" &&
         isArrayModelType(program, prop.type) &&
-        this.#isBytesKeptRaw(prop.type.indexer.value)
+        isBytesKeptRaw(prop.type.indexer.value)
       ) {
         return { type: "array", items: { type: "string", format: "binary" } };
       }
     }
 
-    const refSchema = this.emitter.emitTypeReference(prop.type, {
+    const refSchema = emitter.emitTypeReference(prop.type, {
       referenceContext: isMultipart ? { contentType: "application/json" } : {},
     });
     if (refSchema.kind !== "code") {
@@ -341,11 +314,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
 
-    const schema = this.#applyEncoding(prop, refSchema.value as any);
+    const schema = applyEncoding(prop, refSchema.value as any);
     // Apply decorators on the property to the type's schema
-    const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
+    const additionalProps: Partial<OpenAPI3Schema> = applyConstraints(prop, {});
     if (prop.default) {
-      additionalProps.default = this.#getDefaultValue(prop.type, prop.default);
+      additionalProps.default = getDefaultValue(prop.type, prop.default);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -353,7 +326,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     // Attach any additional OpenAPI extensions
-    this.#attachExtensions(program, prop, additionalProps);
+    attachExtensions(program, prop, additionalProps);
 
     if (schema && isRef) {
       if (Object.keys(additionalProps).length === 0) {
@@ -376,38 +349,50 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
       return merged;
     }
-  }
+  };
 
-  booleanLiteral(boolean: BooleanLiteral): EmitterOutput<object> {
-    return { type: "boolean", enum: [boolean.value] };
-  }
+  const booleanLiteral: OpenAPI3EmitterHooks["booleanLiteral"] = ({
+    type,
+  }): EmitterOutput<object> => {
+    return { type: "boolean", enum: [type.value] };
+  };
 
-  stringLiteral(string: StringLiteral): EmitterOutput<object> {
-    return { type: "string", enum: [string.value] };
-  }
+  const stringLiteral: OpenAPI3EmitterHooks["stringLiteral"] = ({
+    type,
+  }): EmitterOutput<object> => {
+    return { type: "string", enum: [type.value] };
+  };
 
-  stringTemplate(string: StringTemplate): EmitterOutput<object> {
-    const [value, diagnostics] = stringTemplateToString(string);
+  const stringTemplate: OpenAPI3EmitterHooks["stringTemplate"] = ({
+    type,
+    emitter,
+  }): EmitterOutput<object> => {
+    const [value, diagnostics] = stringTemplateToString(type);
     if (diagnostics.length > 0) {
-      this.emitter
+      emitter
         .getProgram()
         .reportDiagnostics(diagnostics.map((x) => ({ ...x, severity: "warning" })));
       return { type: "string" };
     }
     return { type: "string", enum: [value] };
-  }
+  };
 
-  numericLiteral(number: NumericLiteral): EmitterOutput<object> {
-    return { type: "number", enum: [number.value] };
-  }
+  const numericLiteral: OpenAPI3EmitterHooks["numericLiteral"] = ({
+    type,
+  }): EmitterOutput<object> => {
+    return { type: "number", enum: [type.value] };
+  };
 
-  enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), en, this.#typeNameOptions());
-    return this.#createDeclaration(en, baseName, new ObjectBuilder(this.#enumSchema(en)));
-  }
+  const enumDeclaration: OpenAPI3EmitterHooks["enumDeclaration"] = ({
+    type,
+    emitter,
+    context,
+  }): EmitterOutput<object> => {
+    const baseName = getOpenAPITypeName(program, type, typeNameOptions());
+    return createDeclaration(type, baseName, new ObjectBuilder(enumSchema(type)), emitter, context);
+  };
 
-  #enumSchema(en: Enum): OpenAPI3Schema {
-    const program = this.emitter.getProgram();
+  function enumSchema(en: Enum): OpenAPI3Schema {
     if (en.members.size === 0) {
       reportDiagnostic(program, { code: "empty-enum", target: en });
       return {};
@@ -426,32 +411,35 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const schema: OpenAPI3Schema = { type: enumTypes.values().next().value, enum: [...enumValues] };
 
-    return this.#applyConstraints(en, schema);
+    return applyConstraints(en, schema);
   }
 
-  enumMember(member: EnumMember): EmitterOutput<Record<string, any>> {
-    return this.enumMemberReference(member);
-  }
-
-  enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
+  const enumMemberReference: OpenAPI3EmitterHooks["enumMember"] = ({
+    type,
+  }): EmitterOutput<Record<string, any>> => {
     // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
-    switch (typeof member.value) {
+    switch (typeof type.value) {
       case "undefined":
-        return { type: "string", enum: [member.name] };
+        return { type: "string", enum: [type.name] };
       case "string":
-        return { type: "string", enum: [member.value] };
+        return { type: "string", enum: [type.value] };
       case "number":
-        return { type: "number", enum: [member.value] };
+        return { type: "number", enum: [type.value] };
     }
-  }
+  };
+  const enumMember: OpenAPI3EmitterHooks["enumMember"] = enumMemberReference;
 
-  unionDeclaration(union: Union, name: string): EmitterOutput<object> {
-    const schema = this.#unionSchema(union);
-    return this.#createDeclaration(union, name, schema);
-  }
+  const unionDeclaration: OpenAPI3EmitterHooks["unionDeclaration"] = ({
+    type: union,
+    name,
+    emitter,
+    context,
+  }): EmitterOutput<object> => {
+    const schema = unionSchema(union, emitter);
+    return createDeclaration(union, name, schema, emitter, context);
+  };
 
-  #unionSchema(union: Union) {
-    const program = this.emitter.getProgram();
+  function unionSchema(union: Union, emitter: AssetEmitter<any, any, any>) {
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
       return {};
@@ -471,7 +459,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
       if (isLiteralType(variant.type)) {
         if (!literalVariantEnumByType[variant.type.kind]) {
-          const enumSchema = this.emitter.emitTypeReference(variant.type);
+          const enumSchema = emitter.emitTypeReference(variant.type);
           compilerAssert(
             enumSchema.kind === "code",
             "Unexpected enum schema. Should be kind: code"
@@ -482,7 +470,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
         }
       } else {
-        const enumSchema = this.emitter.emitTypeReference(variant.type);
+        const enumSchema = emitter.emitTypeReference(variant.type);
         compilerAssert(enumSchema.kind === "code", "Unexpected enum schema. Should be kind: code");
         schemaMembers.push({ schema: enumSchema.value, type: variant.type });
       }
@@ -537,44 +525,54 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       // Diagnostic already reported in compiler for unions
       const discriminatedUnion = ignoreDiagnostics(getDiscriminatedUnion(union, discriminator));
       if (discriminatedUnion.variants.size > 0) {
-        schema.discriminator.mapping = this.#getDiscriminatorMapping(discriminatedUnion);
+        schema.discriminator.mapping = getDiscriminatorMapping(discriminatedUnion, emitter);
       }
     }
 
-    return this.#applyConstraints(union, schema);
+    return applyConstraints(union, schema);
   }
 
-  #getDiscriminatorMapping(union: DiscriminatedUnion) {
+  function getDiscriminatorMapping(
+    union: DiscriminatedUnion,
+    emitter: AssetEmitter<any, any, any>
+  ) {
     const mapping: Record<string, string> | undefined = {};
     for (const [key, model] of union.variants.entries()) {
-      const ref = this.emitter.emitTypeReference(model);
+      const ref = emitter.emitTypeReference(model);
       compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
       mapping[key] = (ref.value as any).$ref;
     }
     return mapping;
   }
 
-  unionLiteral(union: Union): EmitterOutput<object> {
-    return this.#unionSchema(union);
-  }
+  const unionLiteral: OpenAPI3EmitterHooks["unionLiteral"] = ({
+    type,
+    emitter,
+  }): EmitterOutput<object> => {
+    return unionSchema(type, emitter);
+  };
 
-  unionVariants(union: Union): EmitterOutput<object> {
+  const unionVariants: OpenAPI3EmitterHooks["unionVariants"] = ({
+    type: union,
+    emitter,
+  }): EmitterOutput<object> => {
     const variants = new ArrayBuilder();
     for (const variant of union.variants.values()) {
-      variants.push(this.emitter.emitType(variant));
+      variants.push(emitter.emitType(variant));
     }
     return variants;
-  }
+  };
 
-  unionVariant(variant: UnionVariant): EmitterOutput<object> {
-    return this.emitter.emitTypeReference(variant.type);
-  }
+  const unionVariant: OpenAPI3EmitterHooks["unionVariant"] = ({
+    type: variant,
+    emitter,
+  }): EmitterOutput<object> => {
+    return emitter.emitTypeReference(variant.type);
+  };
 
-  modelPropertyReference(prop: ModelProperty): EmitterOutput<object> {
-    return this.modelPropertyLiteral(prop);
-  }
+  const modelPropertyReference = modelPropertyLiteral;
 
-  #attachExtensions(program: Program, type: Type, emitObject: OpenAPI3Schema) {
+  function attachExtensions(program: Program, type: Type, emitObject: OpenAPI3Schema) {
     // Attach any OpenAPI extensions
     const extensions = getExtensions(program, type);
     if (extensions) {
@@ -584,9 +582,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #getDefaultValue(type: Type, defaultType: Type): any {
-    const program = this.emitter.getProgram();
-
+  function getDefaultValue(type: Type, defaultType: Type): any {
     switch (defaultType.kind) {
       case "String":
         return defaultType.value;
@@ -602,11 +598,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
         if (type.kind === "Tuple") {
           return defaultType.values.map((defaultTupleValue, index) =>
-            this.#getDefaultValue(type.values[index], defaultTupleValue)
+            getDefaultValue(type.values[index], defaultTupleValue)
           );
         } else {
           return defaultType.values.map((defaultTuplevalue) =>
-            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue)
+            getDefaultValue(type.indexer!.value, defaultTuplevalue)
           );
         }
 
@@ -629,13 +625,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  reference(
-    targetDeclaration: Declaration<Record<string, unknown>>,
-    pathUp: Scope<Record<string, unknown>>[],
-    pathDown: Scope<Record<string, unknown>>[],
-    commonScope: Scope<Record<string, unknown>> | null
-  ): object | EmitEntity<Record<string, unknown>> {
-    if (targetDeclaration.value instanceof Placeholder) {
+  const reference: OpenAPI3EmitterHooks["reference"] = ({
+    target,
+    pathUp,
+    pathDown,
+  }): object | EmitEntity<Record<string, unknown>> => {
+    if (target.value instanceof Placeholder) {
       // I don't think this is possible, confirm.
       throw new Error("Can't form reference to declaration that hasn't been created yet");
     }
@@ -645,19 +640,18 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const targetSfScope = pathDown[0] as SourceFileScope<object> | undefined;
 
     if (targetSfScope && currentSfScope && !targetSfScope.sourceFile.meta.shouldEmit) {
-      currentSfScope.sourceFile.meta.bundledRefs.push(targetDeclaration);
+      currentSfScope.sourceFile.meta.bundledRefs.push(target);
     }
 
-    return { $ref: `#/components/schemas/${targetDeclaration.name}` };
-  }
+    return { $ref: `#/components/schemas/${target.name}` };
+  };
 
-  circularReference(
-    target: EmitEntity<Record<string, any>>,
-    scope: Scope<Record<string, any>> | undefined,
-    cycle: ReferenceCycle
-  ): Record<string, any> | EmitEntity<Record<string, any>> {
+  const circularReference: OpenAPI3EmitterHooks["circularReference"] = (
+    props
+  ): object | EmitEntity<Record<string, unknown>> => {
+    const { cycle } = props;
     if (!cycle.containsDeclaration) {
-      reportDiagnostic(this.emitter.getProgram(), {
+      reportDiagnostic(program, {
         code: "inline-cycle",
         format: {
           type: cycle.toString(),
@@ -666,37 +660,45 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       });
       return {};
     }
-    return super.circularReference(target, scope, cycle);
-  }
+    return DefaultCircularReferenceHandler(props);
+  };
 
-  scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<OpenAPI3Schema> {
-    const isStd = this.#isStdType(scalar);
-    const schema = this.#getSchemaForScalar(scalar);
-    const baseName = getOpenAPITypeName(this.emitter.getProgram(), scalar, this.#typeNameOptions());
+  const scalarDeclaration: OpenAPI3EmitterHooks["scalarDeclaration"] = ({
+    type: scalar,
+    emitter,
+    context,
+  }): EmitterOutput<OpenAPI3Schema> => {
+    const isStd = isStdType(scalar);
+    const schema = getSchemaForScalar(scalar);
+    const baseName = getOpenAPITypeName(program, scalar, typeNameOptions());
 
     // Don't create a declaration for std types
-    return isStd ? schema : this.#createDeclaration(scalar, baseName, new ObjectBuilder(schema));
-  }
+    return isStd
+      ? schema
+      : createDeclaration(scalar, baseName, new ObjectBuilder(schema), emitter, context);
+  };
 
-  scalarInstantiation(
-    scalar: Scalar,
-    name: string | undefined
-  ): EmitterOutput<Record<string, any>> {
-    return this.#getSchemaForScalar(scalar);
-  }
+  const scalarInstantiation: OpenAPI3EmitterHooks["scalarInstantiation"] = ({
+    type: scalar,
+  }): EmitterOutput<OpenAPI3Schema> => {
+    return getSchemaForScalar(scalar);
+  };
 
-  tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+  const tupleLiteral: OpenAPI3EmitterHooks["tupleLiteral"] = ({
+    type,
+  }): EmitterOutput<OpenAPI3Schema> => {
     return { type: "array", items: {} };
-  }
-  #getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
+  };
+
+  function getSchemaForScalar(scalar: Scalar): OpenAPI3Schema {
     let result: OpenAPI3Schema = {};
-    const isStd = this.#isStdType(scalar);
+    const isStd = isStdType(scalar);
     if (isStd) {
-      result = this.#getSchemaForStdScalars(scalar);
+      result = getSchemaForStdScalars(scalar);
     } else if (scalar.baseScalar) {
-      result = this.#getSchemaForScalar(scalar.baseScalar);
+      result = getSchemaForScalar(scalar.baseScalar);
     }
-    const withDecorators = this.#applyEncoding(scalar, this.#applyConstraints(scalar, result));
+    const withDecorators = applyEncoding(scalar, applyConstraints(scalar, result));
     if (isStd) {
       // Standard types are going to be inlined in the spec and we don't want the description of the scalar to show up
       delete withDecorators.description;
@@ -704,7 +706,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return withDecorators;
   }
 
-  #getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
+  function getSchemaForStdScalars(scalar: Scalar & { name: IntrinsicScalarName }): OpenAPI3Schema {
     switch (scalar.name) {
       case "bytes":
         return { type: "string", format: "byte" };
@@ -761,12 +763,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  #applyConstraints(
+  function applyConstraints(
     type: Scalar | Model | ModelProperty | Union | Enum,
     original: OpenAPI3Schema
   ): ObjectBuilder<OpenAPI3Schema> {
     const schema = new ObjectBuilder(original);
-    const program = this.emitter.getProgram();
+
     const applyConstraint = (fn: (p: Program, t: Type) => any, key: keyof OpenAPI3Schema) => {
       const value = fn(program, type);
       if (value !== undefined) {
@@ -800,7 +802,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     // the stdlib applies a format of "url" but json schema wants "uri",
     // so ignore this format if it's the built-in type.
-    if (!this.#isStdType(type) || type.name !== "url") {
+    if (!isStdType(type) || type.name !== "url") {
       applyConstraint(getFormat, "format");
     }
 
@@ -811,52 +813,58 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       "deprecated"
     );
 
-    this.#attachExtensions(program, type, schema);
+    attachExtensions(program, type, schema);
 
     const values = getKnownValues(program, type as any);
     if (values) {
       return new ObjectBuilder({
-        oneOf: [schema, this.#enumSchema(values)],
+        oneOf: [schema, enumSchema(values)],
       });
     }
 
     return new ObjectBuilder(schema);
   }
 
-  #inlineType(type: Type, schema: ObjectBuilder<any>) {
-    if (this.#options.includeXTypeSpecName !== "never") {
-      schema.set("x-typespec-name", getTypeName(type, this.#typeNameOptions()));
+  function inlineType(type: Type, schema: ObjectBuilder<any>) {
+    if (resolvedOptions.includeXTypeSpecName !== "never") {
+      schema.set("x-typespec-name", getTypeName(type, typeNameOptions()));
     }
     return schema;
   }
 
-  #createDeclaration(type: Type, name: string, schema: ObjectBuilder<any>) {
-    const refUrl = getRef(this.emitter.getProgram(), type);
+  function createDeclaration(
+    type: Type,
+    name: string,
+    schema: ObjectBuilder<any>,
+    emitter: AssetEmitter<any, OpenAPI3SchemaEmitterContext>,
+    context: OpenAPI3SchemaEmitterContext
+  ) {
+    const refUrl = getRef(program, type);
     if (refUrl) {
       return {
         $ref: refUrl,
       };
     }
 
-    if (shouldInline(this.emitter.getProgram(), type)) {
-      return this.#inlineType(type, schema);
+    if (shouldInline(program, type)) {
+      return inlineType(type, schema);
     }
 
-    const title = getSummary(this.emitter.getProgram(), type);
+    const title = getSummary(program, type);
     if (title) {
       schema.set("title", title);
     }
 
-    const usage = this.#visibilityUsage.getUsage(type);
+    const usage = visibilityUsage.getUsage(type);
     const shouldAddSuffix = usage !== undefined && usage.size > 1;
-    const visibility = this.#getVisibilityContext();
+    const visibility = getVisibilityContext(context);
     const fullName =
       name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
 
-    const decl = this.emitter.result.declaration(fullName, schema);
+    const decl = emitter.result.declaration(fullName, schema);
 
     checkDuplicateTypeName(
-      this.emitter.getProgram(),
+      program,
       type,
       fullName,
       Object.fromEntries(decl.scope.declarations.map((x) => [x.name, true]))
@@ -864,22 +872,22 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return decl;
   }
 
-  #isStdType(type: Type): type is Scalar & { name: IntrinsicScalarName } {
-    return this.emitter.getProgram().checker.isStdType(type);
+  function isStdType(type: Type): type is Scalar & { name: IntrinsicScalarName } {
+    return program.checker.isStdType(type);
   }
 
-  #applyEncoding(
+  function applyEncoding(
     typespecType: Scalar | ModelProperty,
     target: OpenAPI3Schema | Placeholder<OpenAPI3Schema>
   ): OpenAPI3Schema {
-    const encodeData = getEncode(this.emitter.getProgram(), typespecType);
+    const encodeData = getEncode(program, typespecType);
     if (encodeData) {
       const newTarget = new ObjectBuilder(target);
-      const newType = this.#getSchemaForStdScalars(encodeData.type as any);
+      const newType = getSchemaForStdScalars(encodeData.type as any);
 
       newTarget.type = newType.type;
       // If the target already has a format it takes priority. (e.g. int32)
-      newTarget.format = this.#mergeFormatAndEncoding(
+      newTarget.format = mergeFormatAndEncoding(
         newTarget.format,
         encodeData.encoding,
         newType.format
@@ -888,7 +896,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
     return new ObjectBuilder(target);
   }
-  #mergeFormatAndEncoding(
+  function mergeFormatAndEncoding(
     format: string | undefined,
     encoding: string,
     encodeAsFormat: string | undefined
@@ -919,19 +927,91 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
   }
 
-  intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {
+  const intrinsic: OpenAPI3EmitterHooks["intrinsic"] = ({
+    name,
+  }): EmitterOutput<OpenAPI3Schema> => {
     switch (name) {
       case "unknown":
         return {};
     }
 
     throw new Error("Unknown intrinsic type " + name);
-  }
+  };
 
-  programContext(program: Program): Context {
-    const sourceFile = this.emitter.createSourceFile("openapi");
-    return { scope: sourceFile.globalScope };
-  }
+  return createAssetEmitter(
+    program,
+    {
+      onUnhandledType: ({ type, diagnosticTarget, emitter }) => {
+        return [
+          {},
+          [
+            createDiagnostic({
+              code: "invalid-schema",
+              format: { type: type.kind },
+              target: diagnosticTarget,
+            }),
+          ],
+        ];
+      },
+      modelDeclaration,
+      modelLiteral,
+      modelProperties,
+      modelInstantiation,
+      modelPropertyLiteral,
+      modelPropertyReference,
+      arrayDeclaration,
+      arrayLiteral,
+      unionDeclaration,
+      unionVariant,
+      unionVariants,
+      enumDeclaration,
+      enumMember,
+      enumMemberReference,
+      scalarDeclaration,
+      scalarInstantiation,
+      intrinsic,
+      reference,
+      circularReference,
+      tupleLiteral,
+      booleanLiteral,
+      stringLiteral,
+      stringTemplate,
+      numericLiteral,
+      unionLiteral,
+      reduceContext: ({ type, context, emitter, method }) => {
+        if (
+          !(
+            method === "modelDeclaration" ||
+            method === "modelLiteral" ||
+            method === "scalarDeclaration" ||
+            method === "enumDeclaration" ||
+            method === "unionDeclaration"
+          )
+        ) {
+          return context;
+        }
+
+        const visibility = getVisibilityContext(context);
+
+        const patch: Record<string, any> = {};
+        if (visibility !== Visibility.Read && !metadataInfo.isTransformed(type, visibility)) {
+          patch.visibility = Visibility.Read;
+        }
+        const contentType = getContentType(context);
+
+        if (contentType === "application/json") {
+          patch.contentType = undefined;
+        }
+
+        return patch;
+      },
+      programContext: ({ program, emitter }): OpenAPI3SchemaEmitterContext => {
+        const sourceFile = emitter.createSourceFile("openapi");
+        return { scope: sourceFile.globalScope };
+      },
+    },
+    emitContext
+  );
 }
 
 function isLiteralType(type: Type): type is StringLiteral | NumericLiteral | BooleanLiteral {

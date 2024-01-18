@@ -46,7 +46,7 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 
-import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, EmitEntity } from "@typespec/compiler/experimental/emitter-framework-v2";
 import {
   createMetadataInfo,
   getAuthentication,
@@ -89,7 +89,7 @@ import { buildVersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
-import { OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { createOpenAPI3SchemaEmitter, OpenAPI3SchemaEmitterContext } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
   OpenAPI3Header,
@@ -166,7 +166,11 @@ function createOAPIEmitter(
   options: ResolvedOpenAPI3EmitterOptions
 ) {
   let program = context.program;
-  let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
+  let schemaEmitter: AssetEmitter<
+    OpenAPI3Schema,
+    OpenAPI3SchemaEmitterContext,
+    OpenAPI3EmitterOptions
+  >;
 
   let root: OpenAPI3Document;
 
@@ -211,12 +215,15 @@ function createOAPIEmitter(
       service.type,
       options.omitUnreachableTypes
     );
-    schemaEmitter = context.getAssetEmitter(
-      class extends OpenAPI3SchemaEmitter {
-        constructor(emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>) {
-          super(emitter, metadataInfo, visibilityUsage, options);
-        }
-      } as any
+    serviceNamespace = getNamespaceFullName(service.type);
+
+    schemaEmitter = createOpenAPI3SchemaEmitter(
+      program,
+      context,
+      metadataInfo,
+      visibilityUsage,
+      serviceNamespace!,
+      options
     );
 
     const auth = processAuth(service.type);
@@ -247,7 +254,6 @@ function createOAPIEmitter(
       root.servers = resolveServers(servers);
     }
 
-    serviceNamespace = getNamespaceFullName(service.type);
     currentPath = root.paths;
 
     params = new Map();
@@ -957,7 +963,7 @@ function createOAPIEmitter(
     }
     contentType = contentType === "application/json" ? undefined : contentType;
     return schemaEmitter.emitType(type, {
-      referenceContext: { visibility, serviceNamespaceName: serviceNamespace, contentType },
+      referenceContext: { visibility, contentType },
     }) as any;
   }
 

@@ -10,15 +10,19 @@ import {
   Type,
 } from "../../core/index.js";
 import { CustomKeyMap } from "../../emitter-framework/custom-key-map.js";
-import { Placeholder } from "../../emitter-framework/placeholder.js";
-import { resolveDeclarationReferenceScope } from "../../emitter-framework/ref-scope.js";
 import { ReferenceCycle } from "../../emitter-framework/reference-cycle.js";
-import { BasicDeclarationName, WriteAllFiles } from "./handlers.js";
+import {
+  BasicDeclarationName,
+  DefaultCircularReferenceHandler,
+  WriteAllFiles,
+} from "./handlers.js";
+import { Placeholder } from "./placeholder.js";
+import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import {
   AssetEmitter,
   AssetEmitterOptions,
+  BaseTypeHooksParams,
   CircularEmit,
-  CircularReferenceProps,
   ContextState,
   Declaration,
   EmitEntity,
@@ -50,36 +54,14 @@ interface ReferenceChainEntry<Context extends object> {
   readonly context: ContextState<Context>;
 }
 
-const defaultHandler = {
+const defaultHandlers = {
   declarationName: BasicDeclarationName,
   writeOutput: WriteAllFiles,
   reference: ({ emitter }: ReferenceProps<any, any>): EmitEntity<any> => {
     return emitter.result.none();
   },
 
-  circularReference: ({
-    target,
-    emitter,
-    cycle,
-    scope,
-    context,
-    reference,
-  }: CircularReferenceProps<any, any>): EmitEntity<any> | any => {
-    if (!cycle.containsDeclaration) {
-      throw new Error(
-        `Circular references to non-declarations are not supported by this emitter. Cycle:\n${cycle}`
-      );
-    }
-    if (target.kind !== "declaration") {
-      return target;
-    }
-    compilerAssert(
-      scope,
-      "Emit context must have a scope set in order to create references to declarations."
-    );
-    const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
-    return reference({ target, pathUp, pathDown, commonScope, emitter, context });
-  },
+  circularReference: DefaultCircularReferenceHandler,
 };
 
 export function createAssetEmitter<
@@ -91,7 +73,7 @@ export function createAssetEmitter<
   init: EmitterInit<Output, Context>,
   emitContext: EmitContext<Options>
 ): AssetEmitter<Output, Context, Options> {
-  const typeEmitter = { ...defaultHandler, ...init };
+  const typeEmitter = { ...defaultHandlers, ...init };
   const sourceFiles: SourceFile<Output>[] = [];
 
   const options = {
@@ -329,7 +311,7 @@ export function createAssetEmitter<
           const scope = currentScope();
 
           if (circular) {
-            ref = typeEmitter.circularReference(
+            ref = typeEmitter.circularReference!(
               wrapWithCommonProps({
                 target: entity,
                 scope,
@@ -411,7 +393,7 @@ export function createAssetEmitter<
       const declName =
         isDeclaration(type) && type.kind !== "Namespace" ? this.emitDeclarationName(type) : null;
       const key = typeEmitterKey(type);
-      let args: any[];
+      const args: any = { type };
       switch (key) {
         case "scalarDeclaration":
         case "scalarInstantiation":
@@ -423,25 +405,26 @@ export function createAssetEmitter<
         case "enumDeclaration":
         case "unionDeclaration":
         case "unionInstantiation":
-          args = [declName];
+          args.name = declName;
           break;
 
         case "arrayDeclaration":
           const arrayDeclElement = (type as Model).indexer!.value;
-          args = [declName, arrayDeclElement];
+          args.name = declName;
+          args.elementType = arrayDeclElement;
           break;
         case "arrayLiteral":
           const arrayLiteralElement = (type as Model).indexer!.value;
-          args = [arrayLiteralElement];
+          args.elementType = arrayLiteralElement;
           break;
         case "intrinsic":
-          args = [declName];
+          args.name = declName;
           break;
         default:
-          args = [];
+          break;
       }
 
-      const result = (invokeTypeEmitter as any)(key, type, ...args);
+      const result = (invokeTypeEmitter as any)(key, args);
 
       return result;
     },
@@ -582,7 +565,7 @@ export function createAssetEmitter<
 
       typeToEmitEntity.set(emitEntityKey, new CircularEmit(emitEntityKey));
       compilerAssert(typeEmitter[method], `TypeEmitter doesn't have a method named ${method}.`);
-      entity = liftToRawCode((typeEmitter[method] as any)(args));
+      entity = liftToRawCode((typeEmitter[method] as any)(wrapWithCommonProps(args)));
     });
 
     if (cached) {
@@ -661,7 +644,10 @@ export function createAssetEmitter<
       while (ns) {
         if (ns.name === "") break;
         newTypeStack.unshift(
-          stackEntryInterner.intern({ method: "namespace", args: stackEntryInterner.intern([ns]) })
+          stackEntryInterner.intern({
+            method: "namespace",
+            args: stackEntryInterner.intern({ type: ns }),
+          })
         );
         ns = ns.namespace;
       }
@@ -688,7 +674,7 @@ export function createAssetEmitter<
     context = programContext;
 
     for (const entry of lexicalTypeStack) {
-      if (incomingReferenceContext && entry.args[0] === incomingReferenceContextTarget) {
+      if (incomingReferenceContext && entry.args.type === incomingReferenceContextTarget) {
         // bring in any reference context so it is available for any types nested beneath this type.
         context = stateInterner.intern({
           lexicalContext: context.lexicalContext,
@@ -708,8 +694,18 @@ export function createAssetEmitter<
       const lexicalKey = entry.method + "Context";
 
       const newContext = (typeEmitter as any)[lexicalKey]
-        ? (typeEmitter as any)[lexicalKey](...entry.args)
+        ? (typeEmitter as any)[lexicalKey](entry.args)
         : {};
+
+      const newReferenceContext =
+        typeEmitter.reduceContext && canReduceContext(entry.method)
+          ? typeEmitter.reduceContext({
+              method: entry.method,
+              type: entry.args.type,
+              context: context.referenceContext,
+              emitter: assetEmitter as any,
+            })
+          : {};
 
       // assemble our new reference and lexical contexts.
       const newContextState = stateInterner.intern({
@@ -717,7 +713,10 @@ export function createAssetEmitter<
           ...context.lexicalContext,
           ...newContext,
         }),
-        referenceContext: context.referenceContext,
+        referenceContext: stateInterner.intern({
+          ...context.referenceContext,
+          ...newReferenceContext,
+        }),
       });
 
       knownContexts.set([entry, context], newContextState);
@@ -964,4 +963,19 @@ function resolveReferenceCycle(
   throw new Error(
     `Couldn't resolve the circular reference stack for ${getTypeName(entity.emitEntityKey[1])}`
   );
+}
+
+const cannotReduceReferenceContext = new Set<string>([
+  "booleanLiteral",
+  "stringTemplate",
+  "stringLiteral",
+  "numericLiteral",
+  "scalarInstantiation",
+  "enumMember",
+  "enumMembers",
+  "intrinsic",
+]);
+
+function canReduceContext(key: TypeHookMethod): key is keyof BaseTypeHooksParams {
+  return !cannotReduceReferenceContext.has(key);
 }
