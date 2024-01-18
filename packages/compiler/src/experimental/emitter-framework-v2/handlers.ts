@@ -1,5 +1,5 @@
 import { compilerAssert, emitFile, isTemplateDeclaration } from "../../core/index.js";
-import { resolveDeclarationReferenceScope } from "../../emitter-framework/ref-scope.js";
+import { resolveDeclarationReferenceScope } from "./ref-scope.js";
 import { TypeEmitterHook } from "./types.js";
 
 export const DefaultCircularReferenceHandler: TypeEmitterHook<any, any>["circularReference"] = ({

@@ -431,15 +431,21 @@ export interface AssetEmitter<
 
 export type EmitEntity<T> = Declaration<T> | RawCode<T> | NoEmit | CircularEmit;
 
+/** Structure referencing type and context used to create a declaration  */
+export interface DeclarationSource<Context extends object = object> {
+  readonly type: Type;
+  readonly context: Context;
+}
 export class EmitterResult {}
-export class Declaration<T> extends EmitterResult {
+export class Declaration<T, Context extends object = object> extends EmitterResult {
   public kind = "declaration" as const;
   public meta: Record<string, any> = {};
 
   constructor(
-    public name: string,
-    public scope: Scope<T>,
-    public value: T | Placeholder<T>
+    public readonly name: string,
+    public readonly scope: Scope<T>,
+    public value: T | Placeholder<T>,
+    public readonly source: DeclarationSource<Context>
   ) {
     if (value instanceof Placeholder) {
       value.onValue((v) => (this.value = v));

@@ -25,6 +25,7 @@ import {
   CircularEmit,
   ContextState,
   Declaration,
+  DeclarationSource,
   EmitEntity,
   EmitterHooksProps,
   EmitterInit,
@@ -192,11 +193,15 @@ export function createAssetEmitter<
     result: {
       declaration(name, value) {
         const scope = currentScope();
+        const source: DeclarationSource<Context> = {
+          type: lexicalTypeStack[lexicalTypeStack.length - 1].args.type,
+          context: resolveContext(),
+        };
         compilerAssert(
           scope,
           "Emit context must have a scope set in order to create declarations. Consider setting scope to a new source file's global scope in the `programContext` method of `TypeEmitter`."
         );
-        return new Declaration(name, scope, value);
+        return new Declaration(name, scope, value, source);
       },
       rawCode(value) {
         return new RawCode(value);
