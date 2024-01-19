@@ -1,0 +1,4 @@
+emit: ["@typespec/protobuf"]
+options:
+  "@typespec/protobuf":
+    emitter-output-dir: "{project-root}/out"

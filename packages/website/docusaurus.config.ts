@@ -97,7 +97,6 @@ const config: Config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       {
         docs: {
-          routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           path: "../../docs",
           versions: getVersionLabels(),
@@ -113,7 +112,7 @@ const config: Config = {
     ],
   ],
   staticDirectories: [
-    resolve(__dirname, "./node_modules/@typespec/spec/dist"),
+    resolve(__dirname, "static"),
     resolve(__dirname, "./node_modules/es-module-shims/dist"),
   ],
 
@@ -183,17 +182,38 @@ const config: Config = {
         title: "TypeSpec",
         items: [
           {
+            type: "dropdown",
+            label: "Use cases",
+            items: [
+              {
+                label: "OpenAPI",
+                to: "/openapi",
+              },
+              {
+                label: "Data validation and type consistency",
+                to: "/data-validation",
+              },
+              {
+                label: "Tooling support",
+                to: "/tooling",
+              },
+            ],
+          },
+          {
             type: "doc",
-            docId: "introduction/introduction",
+            docId: "introduction/installation",
             position: "left",
             label: "Docs",
           },
-          {
-            to: "/specification",
-            position: "left",
-            label: "Specification",
-          },
           { to: "/playground", label: "Playground", position: "left" },
+          {
+            label: "Community",
+            to: "/community",
+          },
+          {
+            label: "Getting started",
+            to: "/docs/introduction/installation",
+          },
           {
             type: "docsVersionDropdown",
             position: "right",
@@ -208,40 +228,27 @@ const config: Config = {
       },
       footer: {
         style: "dark",
-        // links: [
-        //   {
-        //     title: "Docs",
-        //     items: [
-        //       {
-        //         label: "Introduction",
-        //         to: "/",
-        //       },
-        //       {
-        //         label: "Language basics",
-        //         to: "/language-basics/overview",
-        //       },
-        //     ],
-        //   },
-        //   {
-        //     title: "Community & Support",
-        //     items: [
-        //       {
-        //         label: "Stack Overflow",
-        //         href: "https://stackoverflow.microsoft.com/search?q=typespec",
-        //       },
-        //       {
-        //         label: "Microsoft Teams Channel",
-        //         href: "http://aka.ms/typespec/discussions",
-        //       },
-        //     ],
-        //   },
-        // ],
-        copyright: `Copyright © ${new Date().getFullYear()} Microsoft Corp.`,
+        links: [
+          {
+            title: "Docs",
+            items: [
+              {
+                label: "Introduction",
+                to: "/docs",
+              },
+              {
+                label: "Language basics",
+                to: "/docs/language-basics/overview",
+              },
+            ],
+          },
+        ],
+        copyright: `© ${new Date().getFullYear()} Microsoft`,
       },
       prism: {
         theme: themes.oneLight,
         darkTheme: themes.oneDark,
-        additionalLanguages: ["http"],
+        additionalLanguages: ["http", "shell-session", "protobuf"],
       },
       mermaid: {},
       algolia: {
