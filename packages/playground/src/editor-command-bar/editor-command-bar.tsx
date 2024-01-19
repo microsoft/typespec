@@ -12,7 +12,7 @@ export interface EditorCommandBarProps {
   documentationUrl?: string;
   saveCode: () => Promise<void> | void;
   formatCode: () => Promise<void> | void;
-  newIssue?: () => Promise<void> | void;
+  fileBug?: () => Promise<void> | void;
   host: BrowserHost;
   selectedEmitter: string;
   onSelectedEmitterChange: (emitter: string) => void;
@@ -27,7 +27,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
   documentationUrl,
   saveCode,
   formatCode,
-  newIssue,
+  fileBug,
   host,
   selectedEmitter,
   onSelectedEmitterChange,
@@ -45,7 +45,7 @@ export const EditorCommandBar: FunctionComponent<EditorCommandBarProps> = ({
     </label>
   ) : undefined;
 
-  const bugButton = newIssue ? <FileBugButton onClick={newIssue} /> : undefined;
+  const bugButton = fileBug ? <FileBugButton onClick={fileBug} /> : undefined;
 
   const emitters = useMemo(
     () =>
