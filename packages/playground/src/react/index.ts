@@ -14,6 +14,7 @@ export type { PlaygroundProps, PlaygroundSaveData } from "./playground.js";
 export {
   StandalonePlayground,
   createReactPlayground,
+  createStandalonePlaygroundStateStorage,
   renderReactPlayground,
 } from "./standalone.js";
 export type * from "./types.js";

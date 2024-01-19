@@ -2,7 +2,7 @@ import BrowserOnly from "@docusaurus/BrowserOnly";
 import { useEffect, useState } from "react";
 
 import "@typespec/playground/styles.css";
-import { FluentLayout } from "../components/fluent-layout/fluent-layout";
+import { FluentLayout } from "../components/layouts/fluent-layout";
 import { VersionData, loadImportMap } from "../components/playground-component/import-map";
 import { LoadingSpinner } from "../components/playground-component/loading-spinner";
 

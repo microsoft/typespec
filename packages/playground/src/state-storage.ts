@@ -5,6 +5,10 @@ export interface StateStorage<T extends object> {
   save(t: Partial<T>): void;
 }
 
+export interface UrlStateStorage<T extends object> extends StateStorage<T> {
+  resolveSearchParams(t: Partial<T>): URLSearchParams;
+}
+
 export type UrlStorageSchema<T> = {
   [key in keyof T]: UrlStorageItem;
 };
@@ -26,8 +30,8 @@ export interface UrlStorageItem {
  */
 export function createUrlStateStorage<const T extends object>(
   schema: UrlStorageSchema<T>
-): StateStorage<T> {
-  return { load, save };
+): UrlStateStorage<T> {
+  return { load, save, resolveSearchParams };
 
   function load(): Partial<T> {
     const result: Record<string, string> = {};
@@ -78,7 +82,12 @@ export function createUrlStateStorage<const T extends object>(
   }
 
   function save(data: T) {
-    const params = new URLSearchParams(location.search);
+    const params = resolveSearchParams(data, true);
+    history.pushState(null, "", window.location.pathname + "?" + params.toString());
+  }
+
+  function resolveSearchParams(data: T, mergeWithExisting = false): URLSearchParams {
+    const params = new URLSearchParams(mergeWithExisting ? location.search : undefined);
     for (const [key, item] of Object.entries<UrlStorageItem>(schema)) {
       const value = (data as any)[key];
 
@@ -90,7 +99,7 @@ export function createUrlStateStorage<const T extends object>(
         params.delete(item.queryParam);
       }
     }
-    history.pushState(null, "", window.location.pathname + "?" + params.toString());
+    return params;
   }
 
   function compress(item: UrlStorageItem, value: string): string {

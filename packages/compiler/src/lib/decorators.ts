@@ -694,7 +694,7 @@ export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimestamp";
 export type DurationKnownEncoding = "ISO8601" | "seconds";
 export type BytesKnownEncoding = "base64" | "base64url";
 export interface EncodeData {
-  encoding: DateTimeKnownEncoding | DurationKnownEncoding | string;
+  encoding: DateTimeKnownEncoding | DurationKnownEncoding | BytesKnownEncoding | string;
   type: Scalar;
 }
 
