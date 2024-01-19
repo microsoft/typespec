@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/playground",
+      "comment": "Remove `githubIssueUrl` link and replace with a `onFileBug` callback.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/playground"
+}
