@@ -1078,7 +1078,12 @@ export function createChecker(program: Program): Checker {
       const [argNode, type] = init();
 
       if (param.constraint) {
-        if (!checkTypeAssignable(type, param.constraint, argNode)) {
+        const constraint =
+          param.constraint.kind === "TemplateParameter"
+            ? finalMap.get(param.constraint)!
+            : param.constraint;
+
+        if (!checkTypeAssignable(type, constraint, argNode)) {
           // TODO-TIM check if we expose this below
           const effectiveType = param.constraint?.kind === "Value" ? unknownType : param.constraint;
 
@@ -5361,9 +5366,10 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    if (source.kind === "TemplateParameter") {
+    while (source.kind === "TemplateParameter" && source.constraint !== source) {
       source = source.constraint ?? unknownType;
     }
+
     if (source === target) return [Related.true, []];
     if (target.kind === "Value") {
       return isAssignableToValueType(source, target, diagnosticTarget, relationCache);
