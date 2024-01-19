@@ -1,5 +1,6 @@
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
+import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
@@ -386,17 +387,7 @@ export async function compile(
   // onValidate stage
   await runValidators();
 
-  for (const [requiredImport, emitterName] of requireImports) {
-    if (!loadedLibraries.has(requiredImport)) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "missing-import",
-          format: { requiredImport, emitterName },
-          target: NoTarget,
-        })
-      );
-    }
-  }
+  validateRequiredImports();
 
   await validateLoadedLibraries();
   if (program.hasError()) {
@@ -841,6 +832,7 @@ export async function compile(
   }
 
   async function runValidators() {
+    runCompilerValidators();
     for (const validator of validateCbs) {
       await runValidator(validator);
     }
@@ -860,6 +852,25 @@ export async function compile(
         );
       } else {
         throw new ExternalError({ kind: "validator", metadata: validator.metadata, error });
+      }
+    }
+  }
+
+  /** Run the compiler built-in validators */
+  function runCompilerValidators() {
+    validateEncodedNamesConflicts(program);
+  }
+
+  function validateRequiredImports() {
+    for (const [requiredImport, emitterName] of requireImports) {
+      if (!loadedLibraries.has(requiredImport)) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "missing-import",
+            format: { requiredImport, emitterName },
+            target: NoTarget,
+          })
+        );
       }
     }
   }

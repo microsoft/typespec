@@ -66,7 +66,7 @@ export function resolvePathAndParameters(
 
   // Pull out path parameters to verify what's in the path string
   const paramByName = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map(({ param }) => param.name)
+    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
   );
 
   // Ensure that all of the parameters defined in the route are accounted for in
@@ -170,7 +170,7 @@ export function DefaultRouteProducer(
 
   // Pull out path parameters to verify what's in the path string
   const unreferencedPathParamNames = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map(({ param }) => param.name)
+    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
   );
 
   // Compile the list of all route params that aren't represented in the route

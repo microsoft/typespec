@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/rest",
+      "comment": "Handle custom @path name in the building of the route",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/rest"
+}
