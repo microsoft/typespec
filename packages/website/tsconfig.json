@@ -2,8 +2,11 @@
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react-jsx",
     "target": "ES2022",
-    "jsx": "react-jsx"
+    "paths": {
+      "@site/*": ["./*"]
+    }
   },
   "include": ["**/*.tsx", "**/*.ts", "**/*.js"],
   "exclude": ["build/**/*.js", ".scripts/**/*.mjs"]

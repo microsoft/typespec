@@ -39,26 +39,14 @@ const sidebars: SidebarsConfig = {
   docsSidebar: [
     {
       type: "category",
-      label: "Introduction",
+      label: "Getting started",
       items: [
-        "introduction/introduction",
         "introduction/installation",
         {
           type: "category",
           label: "Editor",
           items: ["introduction/editor/vscode", "introduction/editor/vs"],
         },
-        "introduction/usage",
-        "introduction/style-guide",
-        "introduction/formatter",
-        "introduction/reproducibility",
-        {
-          type: "category",
-          label: "Configuration",
-          items: ["introduction/configuration/configuration", "introduction/configuration/tracing"],
-        },
-        "introduction/releases",
-        "introduction/faq",
       ],
     },
     {
@@ -68,6 +56,23 @@ const sidebars: SidebarsConfig = {
         "getting-started/getting-started",
         "getting-started/getting-started-http",
         "getting-started/typespec-for-openapi-dev",
+      ],
+    },
+    {
+      type: "category",
+      label: "Handbook",
+      items: [
+        "handbook/cli",
+        "handbook/style-guide",
+        "handbook/formatter",
+        "handbook/reproducibility",
+        {
+          type: "category",
+          label: "Configuration",
+          items: ["handbook/configuration/configuration", "handbook/configuration/tracing"],
+        },
+        "handbook/releases",
+        "handbook/faq",
       ],
     },
     {
