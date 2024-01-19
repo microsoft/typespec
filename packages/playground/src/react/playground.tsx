@@ -59,6 +59,8 @@ export interface PlaygroundProps {
   /** Callback when sample change */
   onSampleNameChange?: (sampleName: string) => void;
 
+  onFileBug?: () => void;
+
   /** Playground links */
   links?: PlaygroundLinks;
 
@@ -96,8 +98,6 @@ export interface PlaygroundSaveData {
 export interface PlaygroundLinks {
   /** Link to documentation */
   documentationUrl?: string;
-  /** Issue to github issue to open a new issue. */
-  githubIssueUrl?: string;
 }
 
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
@@ -209,12 +209,12 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     void editorRef.current?.getAction("editor.action.formatDocument")?.run();
   }, [typespecModel]);
 
-  const newIssue = useCallback(async () => {
-    saveCode();
-    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
-    const url = `${props?.links?.githubIssueUrl}?body=${bodyPayload}`;
-    window.open(url, "_blank");
-  }, [saveCode, typespecModel]);
+  const fileBug = useCallback(async () => {
+    if (props.onFileBug) {
+      saveCode();
+      props.onFileBug();
+    }
+  }, [saveCode, typespecModel, props.onFileBug]);
 
   const typespecEditorActions = useMemo(
     (): editor.IActionDescriptor[] => [
@@ -270,7 +270,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
                   onSelectedSampleNameChange={onSelectedSampleNameChange}
                   saveCode={saveCode}
                   formatCode={formatCode}
-                  newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
+                  fileBug={props.onFileBug ? fileBug : undefined}
                   documentationUrl={props.links?.documentationUrl}
                 />
                 <TypeSpecEditor
