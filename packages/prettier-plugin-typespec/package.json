@@ -22,7 +22,7 @@
     "@rollup/plugin-json": "~6.1.0",
     "@rollup/plugin-node-resolve": "~15.2.1",
     "@rollup/plugin-replace": "~5.0.2",
-    "vitest": "^1.1.0",
+    "vitest": "^1.2.0",
     "rollup": "~4.9.0"
   },
   "files": [
