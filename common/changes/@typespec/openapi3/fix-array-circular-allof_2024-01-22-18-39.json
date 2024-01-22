@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/openapi3",
+      "comment": "Fix circular reference would not always inline array properties",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/openapi3"
+}
