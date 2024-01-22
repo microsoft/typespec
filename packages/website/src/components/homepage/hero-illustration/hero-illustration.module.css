@@ -1,6 +1,11 @@
 .hero-illustration {
   width: 1200px;
 }
+@media only screen and (max-width: 1200px) {
+  .hero-illustration {
+    width: 700px;
+  }
+}
 
 .split-windows {
   height: 700px;
