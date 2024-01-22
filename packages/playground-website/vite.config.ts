@@ -19,7 +19,6 @@ export default defineConfig(({ mode }) => {
   const config = definePlaygroundViteConfig({
     ...TypeSpecPlaygroundConfig,
     links: {
-      githubIssueUrl: `https://github.com/microsoft/typespec/issues/new`,
       documentationUrl: "https://microsoft.github.io/typespec",
     },
     skipBundleLibraries: !useLocalLibraries,
