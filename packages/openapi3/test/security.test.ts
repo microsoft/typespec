@@ -1,5 +1,5 @@
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: security", () => {
@@ -87,6 +87,24 @@ describe("openapi3: security", () => {
       },
     });
     deepStrictEqual(res.security, [{ OAuth2Auth: ["read", "write"] }]);
+  });
+
+  it("set openId auth", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @useAuth(OpenIdConnectAuth<"https://api.example.com/openid">)
+      namespace MyService {}
+      `
+    );
+    expect(res.components.securitySchemes).toEqual({
+      OpenIdConnectAuth: {
+        type: "openIdConnect",
+        openIdConnectUrl: "https://api.example.com/openid",
+        description: expect.stringMatching(/^OpenID Connect/),
+      },
+    });
+    deepStrictEqual(res.security, [{ OpenIdConnectAuth: [] }]);
   });
 
   it("can specify custom auth name with description", async () => {

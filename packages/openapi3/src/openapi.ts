@@ -169,9 +169,9 @@ function createOAPIEmitter(
   let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
 
   let root: OpenAPI3Document;
-
+  let currentService: Service;
   // Get the service namespace string for use in name shortening
-  let serviceNamespace: string | undefined;
+  let serviceNamespaceName: string | undefined;
   let currentPath: any;
   let currentEndpoint: OpenAPI3Operation;
 
@@ -194,13 +194,14 @@ function createOAPIEmitter(
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
       const name = getNamespaceFullName(ns);
-      return name !== serviceNamespace;
+      return name !== serviceNamespaceName;
     },
   };
 
   return { emitOpenAPI };
 
   function initializeEmitter(service: Service, version?: string) {
+    currentService = service;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
@@ -247,7 +248,7 @@ function createOAPIEmitter(
       root.servers = resolveServers(servers);
     }
 
-    serviceNamespace = getNamespaceFullName(service.type);
+    serviceNamespaceName = getNamespaceFullName(service.type);
     currentPath = root.paths;
 
     params = new Map();
@@ -957,7 +958,7 @@ function createOAPIEmitter(
     }
     contentType = contentType === "application/json" ? undefined : contentType;
     return schemaEmitter.emitType(type, {
-      referenceContext: { visibility, serviceNamespaceName: serviceNamespace, contentType },
+      referenceContext: { visibility, serviceNamespaceName: serviceNamespaceName, contentType },
     }) as any;
   }
 
@@ -1538,24 +1539,31 @@ function createOAPIEmitter(
     for (const option of authentication.options) {
       const oai3SecurityOption: Record<string, string[]> = {};
       for (const scheme of option.schemes) {
-        const [oaiScheme, scopes] = getOpenAPI3Scheme(scheme);
-        oaiSchemes[scheme.id] = oaiScheme;
-        oai3SecurityOption[scheme.id] = scopes;
+        const result = getOpenAPI3Scheme(scheme);
+        if (result) {
+          oaiSchemes[scheme.id] = result.scheme;
+          oai3SecurityOption[scheme.id] = result.scopes;
+        }
       }
       security.push(oai3SecurityOption);
     }
     return { securitySchemes: oaiSchemes, security };
   }
 
-  function getOpenAPI3Scheme(auth: HttpAuth): [OpenAPI3SecurityScheme, string[]] {
+  function getOpenAPI3Scheme(
+    auth: HttpAuth
+  ): { scheme: OpenAPI3SecurityScheme; scopes: string[] } | undefined {
     switch (auth.type) {
       case "http":
-        return [{ type: "http", scheme: auth.scheme, description: auth.description }, []];
+        return {
+          scheme: { type: "http", scheme: auth.scheme, description: auth.description },
+          scopes: [],
+        };
       case "apiKey":
-        return [
-          { type: "apiKey", in: auth.in, name: auth.name, description: auth.description },
-          [],
-        ];
+        return {
+          scheme: { type: "apiKey", in: auth.in, name: auth.name, description: auth.description },
+          scopes: [],
+        };
       case "oauth2":
         const flows: OpenAPI3OAuthFlows = {};
         const scopes: string[] = [];
@@ -1568,10 +1576,23 @@ function createOAPIEmitter(
             scopes: Object.fromEntries(flow.scopes.map((x) => [x.value, x.description ?? ""])),
           };
         }
-        return [{ type: "oauth2", flows, description: auth.description }, scopes];
+        return { scheme: { type: "oauth2", flows, description: auth.description }, scopes };
+      case "openIdConnect":
+        return {
+          scheme: {
+            type: "openIdConnect",
+            openIdConnectUrl: auth.openIdConnectUrl,
+            description: auth.description,
+          },
+          scopes: [],
+        };
       default:
-        const _assertNever: never = auth;
-        compilerAssert(false, "Unreachable");
+        reportDiagnostic(program, {
+          code: "unsupported-auth",
+          format: { authType: (auth as any).type },
+          target: currentService.type,
+        });
+        return undefined;
     }
   }
 }

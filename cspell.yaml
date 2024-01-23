@@ -45,6 +45,7 @@ words:
   - noreferrer
   - nostdlib
   - oapi
+  - OIDC
   - oneof
   - onig
   - onigasm
