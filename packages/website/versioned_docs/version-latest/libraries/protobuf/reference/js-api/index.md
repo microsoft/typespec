@@ -3,23 +3,21 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Exports
-
-### Interfaces
+## Interfaces
 
 - [PackageDetails](interfaces/PackageDetails.md)
 
-### Type Aliases
+## Type Aliases
 
 - [Reservation](type-aliases/Reservation.md)
 
-### Variables
+## Variables
 
 - [$lib](variables/$lib.md)
 - [PROTO\_FULL\_IDENT](variables/PROTO_FULL_IDENT.md)
 - [namespace](variables/namespace.md)
 
-### Functions
+## Functions
 
 - [$externRef](functions/$externRef.md)
 - [$field](functions/$field.md)

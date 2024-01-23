@@ -1,6 +1,15 @@
 # Change Log - @typespec/internal-build-utils
 
-This log was last generated on Wed, 06 Dec 2023 19:40:58 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Jan 2024 23:46:25 GMT and should not be manually modified.
+
+## 0.52.0
+Tue, 23 Jan 2024 23:46:25 GMT
+
+### Updates
+
+- Fix third party generation when there is invalid sourcemaps
+- Add `runOrExit` helper to have a cleaner script runner without caring about the failure
+- Update dependencies
 
 ## 0.51.0
 Wed, 06 Dec 2023 19:40:58 GMT

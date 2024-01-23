@@ -49,15 +49,15 @@ The key type of a Protobuf `map` must be any integral type or `string`. The valu
 another `Map`.
 
 ```typespec
-model TypeSpec.Protobuf.Map<K, V>
+model TypeSpec.Protobuf.Map<Key, Value>
 ```
 
 #### Template Parameters
 
-| Name | Description                                      |
-| ---- | ------------------------------------------------ |
-| K    | the key type (any integral type or string)       |
-| V    | the value type (any type other than another map) |
+| Name  | Description                                      |
+| ----- | ------------------------------------------------ |
+| Key   | the key type (any integral type or string)       |
+| Value | the value type (any type other than another map) |
 
 ### `PackageDetails` {#TypeSpec.Protobuf.PackageDetails}
 

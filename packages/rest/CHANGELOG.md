@@ -1,6 +1,15 @@
 # Change Log - @typespec/rest
 
-This log was last generated on Wed, 06 Dec 2023 19:40:58 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Jan 2024 23:46:25 GMT and should not be manually modified.
+
+## 0.52.0
+Tue, 23 Jan 2024 23:46:25 GMT
+
+### Updates
+
+- Handle custom @path name in the building of the route
+- Rename template parameters in preparation for named template argument instantiation.
+- Update dependencies
 
 ## 0.51.0
 Wed, 06 Dec 2023 19:40:58 GMT

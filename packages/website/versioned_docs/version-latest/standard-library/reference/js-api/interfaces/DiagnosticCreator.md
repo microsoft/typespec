@@ -7,7 +7,7 @@ title: "[I] DiagnosticCreator"
 
 | Parameter |
 | :------ |
-| `T` extends `object` |
+| `T` extends `Object` |
 
 ## Properties
 
@@ -26,7 +26,7 @@ createDiagnostic<C, M>(diag): Diagnostic
 
 #### Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
 | `C` extends `string` \| `number` \| `symbol` | - |
 | `M` extends `string` \| `number` \| `symbol` | `"default"` |
@@ -51,7 +51,7 @@ reportDiagnostic<C, M>(program, diag): void
 
 #### Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
 | `C` extends `string` \| `number` \| `symbol` | - |
 | `M` extends `string` \| `number` \| `symbol` | `"default"` |

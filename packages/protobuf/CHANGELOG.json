@@ -2,6 +2,21 @@
   "name": "@typespec/protobuf",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/protobuf_v0.52.0",
+      "date": "Tue, 23 Jan 2024 23:46:25 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Rename template parameters in preparation for named template argument instantiation."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.51.0",
       "tag": "@typespec/protobuf_v0.51.0",
       "date": "Wed, 06 Dec 2023 19:40:58 GMT",

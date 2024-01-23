@@ -7,4 +7,4 @@ title: "[I] TracerOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `filter`? | `string`[] | - |
+| `filter?` | `string`[] | - |

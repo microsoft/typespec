@@ -4,7 +4,7 @@ title: "[T] DiagnosticReport"
 
 ---
 ```ts
-type DiagnosticReport<T, C, M>: DiagnosticReportWithoutTarget<T, C, M> & object;
+type DiagnosticReport<T, C, M>: DiagnosticReportWithoutTarget<T, C, M> & Object;
 ```
 
 ## Type declaration
@@ -15,8 +15,8 @@ type DiagnosticReport<T, C, M>: DiagnosticReportWithoutTarget<T, C, M> & object;
 
 ## Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
-| `T` extends `object` | - |
+| `T` extends `Object` | - |
 | `C` extends keyof `T` | - |
 | `M` extends keyof `T`\[`C`\] | `"default"` |

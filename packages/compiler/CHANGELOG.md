@@ -1,6 +1,27 @@
 # Change Log - @typespec/compiler
 
-This log was last generated on Wed, 06 Dec 2023 19:40:58 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Jan 2024 23:46:25 GMT and should not be manually modified.
+
+## 0.52.0
+Tue, 23 Jan 2024 23:46:25 GMT
+
+### Updates
+
+- add bytes encode to the general encode type
+- Added support for named template arguments (#2340)
+- Feature: Added encoded name decorator
+- Add a new init template for creating a new emitter
+- Added new `--template` option to `tsp init` command line action which lets user specify which template to choose from in the template list.
+- IDE: Performance improvements to the language server.
+- Fix: Compiler couldn't resolve files at a long path(256+) on windows
+- Stop warning user when `tsp init` a template without `compilerVersion` specified
+- Library declaration: Deprecated linter property on `$lib` in favor of a new `$linter` variable that can be exported. This was done to prevent circular reference caused by referencing linter rules in $lib.
+- Library declaration: State symbols can now be declared in the library declaration(Prefereably internal declaration added above) to have a central place to define state symbols used in your libraries.
+- Add a new `tsp init` template for setting up a library
+- Rename template parameters in preparation for named template argument instantiation.
+- Add ability to use another template parameter as a constraint. e.g. `model Foo<A, B extends A>`
+- Add new helper function to change casing to the init templates
+- Update dependencies
 
 ## 0.51.0
 Wed, 06 Dec 2023 19:40:58 GMT

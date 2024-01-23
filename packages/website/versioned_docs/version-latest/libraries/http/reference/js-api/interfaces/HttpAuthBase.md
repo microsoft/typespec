@@ -14,5 +14,5 @@ title: "[I] HttpAuthBase"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `description`? | `string` | Optional description. |
+| `description?` | `string` | Optional description. |
 | `id` | `string` | Id of the authentication scheme. |
