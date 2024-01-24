@@ -1,4 +1,4 @@
-# Use TypeSpec via docker
+# Use TypeSpec via Docker
 
 Image: `azsdkengsys.azurecr.io/typespec`
 
@@ -15,7 +15,7 @@ docker run \
   # ... TypeSpec args ...
 ```
 
-**For usage in powershell replace `\` with `` ` ``**
+**For usage in PowerShell replace `\` with `` ` ``**
 
 ### Install dependencies
 

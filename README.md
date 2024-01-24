@@ -27,7 +27,7 @@ For documentation on the TypeSpec language, see https://microsoft.github.io/type
 
 ### Using Docker
 
-[See docker documentation](./docker)
+[See Docker documentation](./docker)
 
 ### Using Node & Npm
 

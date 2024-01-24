@@ -7,7 +7,7 @@ export const opReferenceContainerRouteRule = createRule({
   severity: "warning",
   description:
     "Check for referenced (`op is`) operations which have a @route on one of their containers.",
-  url: "https://microsoft.github.io/typespec/libraries/http/rules/op-reference-container-route",
+  url: "https://typespec.io/docs/libraries/http/rules/op-reference-container-route",
   messages: {
     default: paramMessage`Operation ${"opName"} references an operation which has a @route prefix on its namespace or interface: "${"routePrefix"}".  This operation will not carry forward the route prefix so the final route may be different than the referenced operation.`,
   },
