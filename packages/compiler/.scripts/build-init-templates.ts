@@ -16,8 +16,8 @@ const builtInTemplates: Record<string, InitTemplate> = {
     compilerVersion: minCompilerVersion,
   },
   rest: {
-    title: "Generic Rest API",
-    description: "Create a project representing a generic Rest API",
+    title: "Generic REST API",
+    description: "Create a project representing a generic REST API",
     compilerVersion: minCompilerVersion,
     libraries: ["@typespec/http", "@typespec/rest", "@typespec/openapi3"],
     config: {

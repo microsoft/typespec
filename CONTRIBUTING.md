@@ -296,7 +296,7 @@ that gets produced.
 ## Trigger TypeSpec Playground Try It build
 
 For contributors of the repo the build will trigger automatically but for other's forks it will need a manual trigger from a contributor.
-As a contributor you can run the following command to trigger the build and create a typespec playground link for this PR.
+As a contributor you can run the following command to trigger the build and create a TypeSpec playground link for this PR.
 
 ```
 /azp run TypeSpec Pull Request Try It

@@ -15,6 +15,6 @@ To change the default configuration add a `.env.local` file in the root of this 
 The following environment variables are available:
 
 ```.env
-# Bundle and use local version of typespec libraries
+# Bundle and use local version of TypeSpec libraries
 VITE_USE_LOCAL_LIBRARIES=true
 ```

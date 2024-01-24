@@ -204,7 +204,7 @@ extern dec server(
 /**
  * Specify this service authentication. See the [documentation in the Http library](https://microsoft.github.io/typespec/libraries/http/authentication) for full details.
  *
- * @param auth Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together)
+ * @param auth Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple (must use all authentication together)
  * @example
  *
  * ```typespec

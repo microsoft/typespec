@@ -13,7 +13,7 @@ TypeSpec comes with a built-in formatter. The formatter can be used in different
 
 ## Via the cli
 
-Format all typespec files:
+Format all TypeSpec files:
 
 ```bash
 tsp format "**/*.tsp"
@@ -33,7 +33,7 @@ Using the keyboard shortcut for formatting the document (`alt+shift+F` by defaul
 
 ## Via prettier
 
-Underneath the tsp formatter is a prettier plugin. If you already have a prettier configuration for formatting other languages it can be convenient to just have typespec plug in into this existing pipeline.
+Underneath the tsp formatter is a prettier plugin. If you already have a prettier configuration for formatting other languages it can be convenient to just have TypeSpec plug in into this existing pipeline.
 
 In your prettier config file, add:
 

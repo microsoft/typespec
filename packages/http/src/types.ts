@@ -336,7 +336,7 @@ export interface HttpOperationResponse {
   statusCodes: HttpStatusCodeRange | number | "*";
 
   /**
-   * Response typespec type.
+   * Response TypeSpec type.
    */
   type: Type;
 

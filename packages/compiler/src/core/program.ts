@@ -990,7 +990,7 @@ export async function compile(
   // It's important that we use the compiler version that resolves locally
   // from the input TypeSpec source location. Otherwise, there will be undefined
   // runtime behavior when decorators and handlers expect a
-  // different version of typespec than the current one. Abort the compilation
+  // different version of TypeSpec than the current one. Abort the compilation
   // with an error if the TypeSpec entry point resolves to a different local
   // compiler.
   async function checkForCompilerVersionMismatch(mainPath: string): Promise<boolean> {

@@ -23,7 +23,7 @@ You can try TypeSpec on the web without installing anything.
 
 ## Getting Started
 
-For documentation for TypeSpec language, see https://microsoft.github.io/typespec.
+For documentation on the TypeSpec language, see https://microsoft.github.io/typespec.
 
 ### Using Docker
 
@@ -41,7 +41,7 @@ For documentation for TypeSpec language, see https://microsoft.github.io/typespe
 
    It is recommended to have npm 7+. To update npm run `npm install -g npm`
 
-2. Install TypeSpec compiler and libraries:
+2. Install the TypeSpec compiler and libraries:
 
 ```bash
    npm init -y
@@ -66,8 +66,8 @@ If you do not wish to install the compiler globally with `-g` flag, you will nee
 
 2. Initialize a TypeSpec project.
 
-   - Run `tsp init` > Select `Generic Rest API` template with `@typespec/rest` and `@typespec/openapi3` libraries checked.
-   - Run `tsp install` to install node package dependencies.
+   - Run `tsp init` > Select `Generic REST API` template with `@typespec/rest` and `@typespec/openapi3` libraries checked.
+   - Run `tsp install` to install Node package dependencies.
 
 3. Open the folder in your editor and edit `main.tsp`
 
@@ -132,7 +132,7 @@ TypeSpec provides an auto-formatter to keep your specs clean and organized.
 ```bash
 tsp format <patterns...>
 
-# Format all the files in the current directory with the typespec extension.
+# Format all the files in the current directory with the TypeSpec extension.
 tsp format **/*.tsp
 
 # Exclude certain patterns. Either use `!` prefix or pass it via the `--exclude` or `-x` option.

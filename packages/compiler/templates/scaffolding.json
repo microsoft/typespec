@@ -6,8 +6,8 @@
     "compilerVersion": "0.51.0"
   },
   "rest": {
-    "title": "Generic Rest API",
-    "description": "Create a project representing a generic Rest API",
+    "title": "Generic REST API",
+    "description": "Create a project representing a generic REST API",
     "compilerVersion": "0.51.0",
     "libraries": [
       "@typespec/http",

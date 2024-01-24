@@ -26,12 +26,12 @@ export type TypeSpecValue = Type | string | number | boolean;
 export type InferredCadlValue<K extends TypeKind> = InferredTypeSpecValue<K>;
 
 // prettier-ignore
-export type InferredTypeSpecValue<K extends TypeKind> = 
+export type InferredTypeSpecValue<K extends TypeKind> =
   K extends "Any" ? TypeSpecValue
   : K extends (infer T extends Type["kind"])[] ? InferredTypeSpecValue<T>
-  : K extends "String" ? string 
-  : K extends "Number" ? number 
-  : K extends "Boolean" ? boolean 
+  : K extends "String" ? string
+  : K extends "Number" ? number
+  : K extends "Boolean" ? boolean
   : Type & { kind: K };
 
 /**
@@ -79,7 +79,7 @@ export function isIntrinsicType(
 }
 
 /**
- * @deprecated this function is deprecated use decorator definition in typespec instead or check assignability directly.
+ * @deprecated this function is deprecated use decorator definition in TypeSpec instead or check assignability directly.
  */
 export function validateDecoratorTargetIntrinsic(
   context: DecoratorContext,
@@ -113,9 +113,9 @@ export function validateDecoratorTargetIntrinsic(
 export const isCadlValueTypeOf = isTypeSpecValueTypeOf;
 
 /**
- * Check if the given target is of any of the typespec types.
+ * Check if the given target is of any of the TypeSpec types.
  * @param target Target to validate.
- * @param expectedType One or multiple allowed typespec types.
+ * @param expectedType One or multiple allowed TypeSpec types.
  * @returns boolean if the target is of one of the allowed types.
  */
 export function isTypeSpecValueTypeOf<K extends TypeKind>(
@@ -234,7 +234,7 @@ type InferParameter<P extends DecoratorParamDefinition<TypeKind>> = P["optional"
 
 // prettier-ignore
 type InferParameterKind<P extends TypeKind | readonly TypeKind[]> =
-  P extends readonly (infer T extends TypeKind)[] ? InferredTypeSpecValue<T> 
+  P extends readonly (infer T extends TypeKind)[] ? InferredTypeSpecValue<T>
   : P extends TypeKind ? InferredTypeSpecValue<P> : never
 
 export interface DecoratorValidator<
@@ -252,7 +252,7 @@ export interface DecoratorValidator<
 export type TypeKind = Type["kind"] | "Any";
 
 /**
- * @deprecated use extern dec definition in typespec instead.
+ * @deprecated use extern dec definition in TypeSpec instead.
  */
 export function createDecoratorDefinition<
   T extends TypeKind,
@@ -362,7 +362,7 @@ function prettyValue(program: Program, value: any) {
 export const cadlTypeToJson = typespecTypeToJson;
 
 /**
- * Convert a typespec type to a serializable Json object.
+ * Convert a TypeSpec type to a serializable Json object.
  * Emits diagnostics if the given type is invalid
  * @param typespecType The type to convert to Json data
  * @param target The diagnostic target in case of errors.

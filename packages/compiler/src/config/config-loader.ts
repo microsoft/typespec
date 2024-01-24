@@ -75,7 +75,7 @@ export async function findTypeSpecConfigPath(
 }
 
 /**
- * Load the typespec configuration for the provided path or directory
+ * Load the TypeSpec configuration for the provided path or directory
  * @param host
  * @param path
  */

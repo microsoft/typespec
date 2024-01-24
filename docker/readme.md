@@ -1,4 +1,4 @@
-# Use typespec via docker
+# Use TypeSpec via docker
 
 Image: `azsdkengsys.azurecr.io/typespec`
 
@@ -12,7 +12,7 @@ Tags:
 docker run \
   -v "${pwd}:/wd" --workdir="/wd" \
   -t azsdkengsys.azurecr.io/typespec \
-  # ... typespec args ...
+  # ... TypeSpec args ...
 ```
 
 **For usage in powershell replace `\` with `` ` ``**
