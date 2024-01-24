@@ -32,4 +32,4 @@ jobs:
         displayName: Publish
         workingDirectory: packages/typespec-vscode
         env:
-          VSCE_PAT: $(VSCE_PAT)
+          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
