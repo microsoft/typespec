@@ -5,6 +5,10 @@ title: Projected names
 
 # Projected Names
 
+:::warning
+Projected names is a legacy feature and will be phased out. Please use [Encoded Names](encoded-names.md) instead for changing the name over the wire.
+:::
+
 There is some cases where the name you have in TypeSpec might differ from the name over the wire or for a certain language.
 
 ## Known targets

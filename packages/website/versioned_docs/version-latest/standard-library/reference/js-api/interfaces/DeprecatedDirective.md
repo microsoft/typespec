@@ -13,4 +13,4 @@ title: "[I] DeprecatedDirective"
 | :------ | :------ | :------ | :------ |
 | `message` | `string` | - | - |
 | `name` | `"deprecated"` | - | - |
-| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | - | [`DirectiveBase`](DirectiveBase.md).`node` |
+| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | - | [`DirectiveBase.node`](DirectiveBase.md) |

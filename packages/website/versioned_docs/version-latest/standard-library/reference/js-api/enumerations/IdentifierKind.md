@@ -7,9 +7,10 @@ title: "[E] IdentifierKind"
 
 | Member | Value |
 | :------ | :------ |
-| `Declaration` | `4` |
-| `Decorator` | `1` |
-| `Function` | `2` |
-| `Other` | `5` |
+| `Declaration` | `5` |
+| `Decorator` | `2` |
+| `Function` | `3` |
+| `Other` | `6` |
+| `TemplateArgument` | `1` |
 | `TypeReference` | `0` |
-| `Using` | `3` |
+| `Using` | `4` |

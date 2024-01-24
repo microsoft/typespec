@@ -11,6 +11,6 @@ title: "[I] Service"
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `title`? | `string` | - | [`ServiceDetails`](ServiceDetails.md).`title` |
+| `title?` | `string` | - | [`ServiceDetails.title`](ServiceDetails.md) |
 | `type` | [`Namespace`](Namespace.md) | - | - |
-| `version`? | `string` | - | [`ServiceDetails`](ServiceDetails.md).`version` |
+| `version?` | `string` | - | [`ServiceDetails.version`](ServiceDetails.md) |

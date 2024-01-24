@@ -5,7 +5,7 @@ title: "[I] DecoratorValidator"
 ---
 ## Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
 | `T` extends [`TypeKind`](../type-aliases/TypeKind.md) | - |
 | `P` extends readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] | - |

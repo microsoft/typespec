@@ -2,6 +2,21 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/openapi3_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for `@encodedName` decorator"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.51.1",
       "tag": "@typespec/openapi3_v0.51.1",
       "date": "Wed, 13 Dec 2023 23:28:17 GMT",

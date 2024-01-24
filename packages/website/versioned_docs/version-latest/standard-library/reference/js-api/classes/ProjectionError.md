@@ -29,17 +29,17 @@ new ProjectionError(message): ProjectionError
 
 #### Overrides
 
-Error.constructor
+`Error.constructor`
 
 ## Properties
 
 | Modifier | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ | :------ |
-| `public` | `message` | `string` | - | Error.message |
-| `public` | `name` | `string` | - | Error.name |
-| `public` | `stack`? | `string` | - | Error.stack |
-| `static` | `prepareStackTrace`? | (`err`, `stackTraces`) => `any` | - | Error.prepareStackTrace |
-| `static` | `stackTraceLimit` | `number` | - | Error.stackTraceLimit |
+| `public` | `message` | `string` | - | `Error.message` |
+| `public` | `name` | `string` | - | `Error.name` |
+| `public` | `stack?` | `string` | - | `Error.stack` |
+| `static` | `prepareStackTrace?` | (`err`, `stackTraces`) => `any` | - | `Error.prepareStackTrace` |
+| `static` | `stackTraceLimit` | `number` | - | `Error.stackTraceLimit` |
 
 ## Methods
 
@@ -64,4 +64,4 @@ Create .stack property on a target object
 
 #### Inherited from
 
-Error.captureStackTrace
+`Error.captureStackTrace`

@@ -7,5 +7,5 @@ title: "[I] DocData"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `source` | `"decorator"` \| `"comment"` | How was the doc set.<br />- `@doc` means the `@doc` decorator was used<br />- `comment` means it was set from a `/** comment * /` |
+| `source` | `"comment"` \| `"decorator"` | How was the doc set.<br />- `@doc` means the `@doc` decorator was used<br />- `comment` means it was set from a `/** comment * /` |
 | `value` | `string` | Doc value. |
