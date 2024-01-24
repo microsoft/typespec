@@ -2,7 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
-import type { Config, Plugin } from "@docusaurus/types";
+import type { Config, Plugin, ReportingSeverity } from "@docusaurus/types";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import { resolve } from "path";
 import { themes } from "prism-react-renderer";
@@ -16,6 +16,18 @@ function getMajorMinorVersion(pkgJsonPath): string {
 const latestVersion = getMajorMinorVersion("../compiler/package.json");
 const latestPretty = `Latest (${latestVersion})`;
 
+function getBrokenLinkSeverity(): ReportingSeverity {
+  switch (process.env.TYPESPEC_WEBSITE_LINK_ACTION) {
+    case "warn":
+      return "warn";
+    case "ignore":
+      return "ignore";
+    case "log":
+      return "log";
+    default:
+      return "throw";
+  }
+}
 function getVersionLabels(): Record<string, VersionOptions> {
   const labels: Record<string, VersionOptions> = {
     current: {
@@ -39,7 +51,7 @@ const config: Config = {
   tagline: "API first with TypeSpec for Azure services",
   url: "https://microsoft.github.io",
   baseUrl,
-  onBrokenLinks: "throw",
+  onBrokenLinks: getBrokenLinkSeverity(),
   onBrokenMarkdownLinks: "warn",
   favicon: "img/azure.svg",
 
