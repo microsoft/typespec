@@ -7,5 +7,5 @@ title: "[I] ExternalDocs"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `description`? | `string` | - |
+| `description?` | `string` | - |
 | `url` | `string` | - |

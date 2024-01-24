@@ -220,7 +220,7 @@ Verify that you have the following in your `package.json`:
 Also add a `vitest.config.ts` file at the root of your project.
 
 ```ts
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
 
 export default defineConfig({
   test: {

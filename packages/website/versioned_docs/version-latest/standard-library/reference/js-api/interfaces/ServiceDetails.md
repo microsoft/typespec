@@ -11,5 +11,5 @@ title: "[I] ServiceDetails"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `title`? | `string` | - |
-| `version`? | `string` | - |
+| `title?` | `string` | - |
+| `version?` | `string` | - |

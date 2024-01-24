@@ -52,4 +52,9 @@ await renderReactPlayground({
     useShim: true,
   },
   footer: <PlaygroundFooter />,
+  onFileBug: () => {
+    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
+    const url = `https://github.com/microsoft/typespec/issues/new?body=${bodyPayload}`;
+    window.open(url, "_blank");
+  },
 });

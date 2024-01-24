@@ -4,7 +4,7 @@ title: "[T] NeverIndexer"
 
 ---
 ```ts
-type NeverIndexer: object;
+type NeverIndexer: Object;
 ```
 
 ## Type declaration

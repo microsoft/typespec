@@ -8,7 +8,7 @@ resolvePathAndParameters(
    program, 
    operation, 
    overloadBase, 
-options): DiagnosticResult<object>
+options): DiagnosticResult<Object>
 ```
 
 ## Parameters
@@ -22,4 +22,11 @@ options): DiagnosticResult<object>
 
 ## Returns
 
-`DiagnosticResult`<`object`\>
+`DiagnosticResult`<`Object`\>
+
+> | Member | Type | Description |
+> | :------ | :------ | :------ |
+> | `parameters` | [`HttpOperationParameters`](../interfaces/HttpOperationParameters.md) | - |
+> | `path` | `string` | - |
+> | `pathSegments` | `string`[] | - |
+>

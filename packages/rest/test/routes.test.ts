@@ -510,4 +510,17 @@ describe("rest: routes", () => {
       },
     ]);
   });
+
+  it("respect @path custom name", async () => {
+    const routes = await getRoutesFor(
+      `
+      @autoRoute 
+      op test(@path("custom-name") @segment("params") myParam: string): void;
+      `
+    );
+
+    deepStrictEqual(routes, [
+      { verb: "get", path: "/params/{custom-name}", params: ["custom-name"] },
+    ]);
+  });
 });

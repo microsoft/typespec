@@ -40,6 +40,7 @@ words:
   - multis
   - munge
   - mylib
+  - noformat
   - noopener
   - noreferrer
   - nostdlib
@@ -80,6 +81,7 @@ words:
   - vsix
   - vswhere
   - westus
+  - xlarge
   - xplat
   - syncpack
 ignorePaths:

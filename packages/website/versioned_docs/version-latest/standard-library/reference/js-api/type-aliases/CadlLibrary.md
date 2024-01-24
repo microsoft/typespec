@@ -13,7 +13,7 @@ Use TypeSpecLibrary
 
 ## Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
-| `T` extends `object` | - |
+| `T` extends `Object` | - |
 | `E` extends `Record`<`string`, `any`\> | `Record`<`string`, `never`\> |

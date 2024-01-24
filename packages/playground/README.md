@@ -31,7 +31,6 @@ const config = definePlaygroundViteConfig({
     },
   },
   links: {
-    githubIssueUrl: `<link to your website>`,
     documentationUrl: "<link to your website>",
   },
 });

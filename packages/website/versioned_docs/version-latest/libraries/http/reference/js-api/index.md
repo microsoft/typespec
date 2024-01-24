@@ -3,13 +3,11 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Exports
-
-### Enumerations
+## Enumerations
 
 - [Visibility](enumerations/Visibility.md)
 
-### Interfaces
+## Interfaces
 
 - [ApiKeyAuth](interfaces/ApiKeyAuth.md)
 - [AuthenticationOption](interfaces/AuthenticationOption.md)
@@ -43,7 +41,7 @@ title: "[P] JS Api"
 - [RouteResolutionOptions](interfaces/RouteResolutionOptions.md)
 - [ServiceAuthentication](interfaces/ServiceAuthentication.md)
 
-### Type Aliases
+## Type Aliases
 
 - [HttpAuth](type-aliases/HttpAuth.md)
 - [HttpOperationParameter](type-aliases/HttpOperationParameter.md)
@@ -58,12 +56,13 @@ title: "[P] JS Api"
 - [RouteProducer](type-aliases/RouteProducer.md)
 - [StatusCode](type-aliases/StatusCode.md)
 
-### Variables
+## Variables
 
 - [$lib](variables/$lib.md)
+- [$linter](variables/$linter.md)
 - [namespace](variables/namespace.md)
 
-### Functions
+## Functions
 
 - [$body](functions/$body.md)
 - [$delete](functions/$delete.md)

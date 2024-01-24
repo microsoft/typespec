@@ -4,7 +4,7 @@ title: "[T] ModelIndexer"
 
 ---
 ```ts
-type ModelIndexer: object;
+type ModelIndexer: Object;
 ```
 
 ## Type declaration

@@ -2,6 +2,7 @@
 **/dist-dev/
 **/test/output/
 **/bin/
+**/out/
 **/obj/
 **/.vs/
 **/.docusaurus/
@@ -53,3 +54,7 @@ packages/compiler/templates/__snapshots__/
 
 #.tsp init template
 eng/feeds/
+
+# Skip formatting tsp files
+
+*.noformat.tsp

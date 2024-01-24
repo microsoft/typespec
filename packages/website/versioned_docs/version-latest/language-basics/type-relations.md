@@ -9,9 +9,9 @@ title: Type relations
 
 ```mermaid
 graph RL
-    record["Record<T>"] --> unknown
+    record["Record<Element>"] --> unknown
     customModel["Custom model with properties"] --> record["Record<T>"]
-    array["Array<T>"] --> unknown
+    array["Array<Element>"] --> unknown
     tuple["Tuple"] --> array
     numeric --> unknown
     subgraph numerics[For numeric types, a narrower type can be assigned to a wider one]

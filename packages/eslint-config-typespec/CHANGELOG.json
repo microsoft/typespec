@@ -2,6 +2,21 @@
   "name": "@typespec/eslint-config-typespec",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/eslint-config-typespec_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "Migrate test rules to vitest"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.51.0",
       "tag": "@typespec/eslint-config-typespec_v0.51.0",
       "date": "Wed, 06 Dec 2023 19:40:58 GMT",

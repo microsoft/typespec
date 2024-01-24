@@ -14,14 +14,14 @@ Specify that the provided template argument should be emitted as raw JSON or YAM
 as opposed to a schema. Use in combination with the
 
 ```typespec
-model TypeSpec.JsonSchema.Json<T>
+model TypeSpec.JsonSchema.Json<Data>
 ```
 
 #### Template Parameters
 
 | Name | Description                     |
 | ---- | ------------------------------- |
-| T    | the type to convert to raw JSON |
+| Data | the type to convert to raw JSON |
 
 ### `Format` {#TypeSpec.JsonSchema.Format}
 

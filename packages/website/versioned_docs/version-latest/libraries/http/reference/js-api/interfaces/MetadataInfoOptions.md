@@ -7,11 +7,11 @@ title: "[I] MetadataInfoOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `canonicalVisibility`? | [`Visibility`](../enumerations/Visibility.md) | The visibility to be used as the baseline against which<br />[MetadataInfo.isEmptied](MetadataInfo.md#isemptied) and [MetadataInfo.isTransformed](MetadataInfo.md#istransformed)<br />are computed. If not specified, [Visibility.None](../enumerations/Visibility.md) is used, which<br />will consider that any model that has fields that are only visible to<br />some visibilities as transformed. |
+| `canonicalVisibility?` | [`Visibility`](../enumerations/Visibility.md) | The visibility to be used as the baseline against which<br />[MetadataInfo.isEmptied](MetadataInfo.md#isemptied) and [MetadataInfo.isTransformed](MetadataInfo.md#istransformed)<br />are computed. If not specified, [Visibility.None](../enumerations/Visibility.md) is used, which<br />will consider that any model that has fields that are only visible to<br />some visibilities as transformed. |
 
 ## Methods
 
-### canShareProperty()
+### canShareProperty()?
 
 ```ts
 optional canShareProperty(property): boolean

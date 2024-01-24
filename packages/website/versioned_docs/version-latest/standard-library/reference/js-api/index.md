@@ -3,9 +3,7 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Exports
-
-### Enumerations
+## Enumerations
 
 - [IdentifierKind](enumerations/IdentifierKind.md)
 - [ListenerFlow](enumerations/ListenerFlow.md)
@@ -18,16 +16,15 @@ title: "[P] JS Api"
 - [TokenFlags](enumerations/TokenFlags.md)
 - [UsageFlags](enumerations/UsageFlags.md)
 
-### Classes
+## Classes
 
 - [DuplicateTracker](classes/DuplicateTracker.md)
 - [EventEmitter](classes/EventEmitter.md)
-- [InvalidEncodingError](classes/InvalidEncodingError.md)
 - [ProjectionError](classes/ProjectionError.md)
 - [Queue](classes/Queue.md)
 - [ResolveModuleError](classes/ResolveModuleError.md)
 
-### Interfaces
+## Interfaces
 
 - [AliasStatementNode](interfaces/AliasStatementNode.md)
 - [AnyKeywordNode](interfaces/AnyKeywordNode.md)
@@ -41,6 +38,7 @@ title: "[P] JS Api"
 - [BooleanLiteralNode](interfaces/BooleanLiteralNode.md)
 - [CallableMessage](interfaces/CallableMessage.md)
 - [Checker](interfaces/Checker.md)
+- [CompileResult](interfaces/CompileResult.md)
 - [CompilerHost](interfaces/CompilerHost.md)
 - [CompilerLocationContext](interfaces/CompilerLocationContext.md)
 - [CompilerOptions](interfaces/CompilerOptions.md)
@@ -199,6 +197,7 @@ title: "[P] JS Api"
 - [SourceFile](interfaces/SourceFile.md)
 - [SourceLocation](interfaces/SourceLocation.md)
 - [SourceLocationOptions](interfaces/SourceLocationOptions.md)
+- [StateDef](interfaces/StateDef.md)
 - [StringLiteral](interfaces/StringLiteral.md)
 - [StringLiteralNode](interfaces/StringLiteralNode.md)
 - [StringTemplate](interfaces/StringTemplate.md)
@@ -214,6 +213,7 @@ title: "[P] JS Api"
 - [Sym](interfaces/Sym.md)
 - [SymbolLinks](interfaces/SymbolLinks.md)
 - [SyntheticLocationContext](interfaces/SyntheticLocationContext.md)
+- [TemplateArgumentNode](interfaces/TemplateArgumentNode.md)
 - [TemplateDeclarationNode](interfaces/TemplateDeclarationNode.md)
 - [TemplateParameter](interfaces/TemplateParameter.md)
 - [TemplateParameterDeclarationNode](interfaces/TemplateParameterDeclarationNode.md)
@@ -245,7 +245,7 @@ title: "[P] JS Api"
 - [VoidKeywordNode](interfaces/VoidKeywordNode.md)
 - [VoidType](interfaces/VoidType.md)
 
-### Type Aliases
+## Type Aliases
 
 - [BytesKnownEncoding](type-aliases/BytesKnownEncoding.md)
 - [CadlCompletionItem](type-aliases/CadlCompletionItem.md)
@@ -326,7 +326,7 @@ title: "[P] JS Api"
 - [TypeSpecValue](type-aliases/TypeSpecValue.md)
 - [WriteLine](type-aliases/WriteLine.md)
 
-### Variables
+## Variables
 
 - [CadlPrettierPlugin](variables/CadlPrettierPlugin.md)
 - [MANIFEST](variables/MANIFEST.md)
@@ -339,12 +339,13 @@ title: "[P] JS Api"
 - [namespace](variables/namespace.md)
 - [typespecVersion](variables/typespecVersion.md)
 
-### Functions
+## Functions
 
 - [$deprecated](functions/$deprecated.md)
 - [$discriminator](functions/$discriminator.md)
 - [$doc](functions/$doc.md)
 - [$encode](functions/$encode.md)
+- [$encodedName](functions/$encodedName.md)
 - [$error](functions/$error.md)
 - [$errorsDoc](functions/$errorsDoc.md)
 - [$format](functions/$format.md)
@@ -391,7 +392,6 @@ title: "[P] JS Api"
 - [createChecker](functions/createChecker.md)
 - [createDecoratorDefinition](functions/createDecoratorDefinition.md)
 - [createDiagnosticCollector](functions/createDiagnosticCollector.md)
-- [createDiagnosticCreator](functions/createDiagnosticCreator.md)
 - [createProjectedNameProgram](functions/createProjectedNameProgram.md)
 - [createRekeyableMap](functions/createRekeyableMap.md)
 - [createRule](functions/createRule.md)
@@ -400,8 +400,10 @@ title: "[P] JS Api"
 - [createSourceFile](functions/createSourceFile.md)
 - [createStateAccessors](functions/createStateAccessors.md)
 - [createTypeSpecLibrary](functions/createTypeSpecLibrary.md)
+- [defineLinter](functions/defineLinter.md)
 - [emitFile](functions/emitFile.md)
 - [ensureTrailingDirectorySeparator](functions/ensureTrailingDirectorySeparator.md)
+- [exprIsBareIdentifier](functions/exprIsBareIdentifier.md)
 - [filterModelProperties](functions/filterModelProperties.md)
 - [finishTypeForProgram](functions/finishTypeForProgram.md)
 - [formatDiagnostic](functions/formatDiagnostic.md)
@@ -532,6 +534,7 @@ title: "[P] JS Api"
 - [removeTrailingDirectorySeparator](functions/removeTrailingDirectorySeparator.md)
 - [reportDeprecated](functions/reportDeprecated.md)
 - [resolveCompilerOptions](functions/resolveCompilerOptions.md)
+- [resolveEncodedName](functions/resolveEncodedName.md)
 - [resolveModule](functions/resolveModule.md)
 - [resolvePath](functions/resolvePath.md)
 - [resolveUsages](functions/resolveUsages.md)

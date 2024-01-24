@@ -1,4 +1,5 @@
-import { mkdir, readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
+import { realpath } from "fs";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
 import { createSourceFile } from "./diagnostics.js";
 import { fetch } from "./fetch.js";
@@ -33,7 +34,17 @@ export const NodeHost: CompilerHost = {
     return stat(path);
   },
   realpath(path) {
-    return realpath(path);
+    // BUG in the promise version of realpath https://github.com/microsoft/typespec/issues/2783
+    // Fix was only made to node 21.6 at this time. https://github.com/nodejs/node/issues/51031
+    return new Promise((resolve, reject) => {
+      realpath(path, (err, resolvedPath) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(resolvedPath);
+        }
+      });
+    });
   },
   getSourceFileKind: getSourceFileKindFromExt,
   mkdirp: (path: string) => mkdir(path, { recursive: true }),

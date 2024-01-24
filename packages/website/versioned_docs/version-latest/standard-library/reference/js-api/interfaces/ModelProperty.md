@@ -11,19 +11,19 @@ title: "[I] ModelProperty"
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` |
-| `default`? | [`Type`](../type-aliases/Type.md) | - | - |
-| `instantiationParameters`? | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` |
-| `kind` | `"ModelProperty"` | - | [`BaseType`](BaseType.md).`kind` |
-| `model`? | [`Model`](Model.md) | - | - |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType.decorators`](DecoratedType.md) |
+| `default?` | [`Type`](../type-aliases/Type.md) | - | - |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType.instantiationParameters`](BaseType.md) |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType.isFinished`](BaseType.md) |
+| `kind` | `"ModelProperty"` | - | [`BaseType.kind`](BaseType.md) |
+| `model?` | [`Model`](Model.md) | - | - |
 | `name` | `string` | - | - |
-| `node` | [`ModelPropertyNode`](ModelPropertyNode.md) \| [`ModelSpreadPropertyNode`](ModelSpreadPropertyNode.md) \| [`ProjectionModelPropertyNode`](ProjectionModelPropertyNode.md) \| [`ProjectionModelSpreadPropertyNode`](ProjectionModelSpreadPropertyNode.md) | - | [`BaseType`](BaseType.md).`node` |
+| `node` | [`ModelPropertyNode`](ModelPropertyNode.md) \| [`ModelSpreadPropertyNode`](ModelSpreadPropertyNode.md) \| [`ProjectionModelPropertyNode`](ProjectionModelPropertyNode.md) \| [`ProjectionModelSpreadPropertyNode`](ProjectionModelSpreadPropertyNode.md) | - | [`BaseType.node`](BaseType.md) |
 | `optional` | `boolean` | - | - |
-| `projectionBase`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector`? | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
-| `sourceProperty`? | [`ModelProperty`](ModelProperty.md) | - | - |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType.projectionBase`](BaseType.md) |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType.projectionSource`](BaseType.md) |
+| `projector?` | [`Projector`](Projector.md) | - | [`BaseType.projector`](BaseType.md) |
+| `sourceProperty?` | [`ModelProperty`](ModelProperty.md) | - | - |
 | `type` | [`Type`](../type-aliases/Type.md) | - | - |
 
 ## Accessors
@@ -58,4 +58,4 @@ projectionsByName(name): ProjectionStatementNode[]
 
 #### Inherited from
 
-[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)
+[`BaseType.projectionsByName`](BaseType.md#projectionsbyname)

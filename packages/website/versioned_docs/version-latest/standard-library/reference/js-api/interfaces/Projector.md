@@ -7,9 +7,9 @@ title: "[I] Projector"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `parentProjector`? | [`Projector`](Projector.md) | - |
-| `projectedGlobalNamespace`? | [`Namespace`](Namespace.md) | - |
-| `projectedStartNode`? | [`Type`](../type-aliases/Type.md) | - |
+| `parentProjector?` | [`Projector`](Projector.md) | - |
+| `projectedGlobalNamespace?` | [`Namespace`](Namespace.md) | - |
+| `projectedStartNode?` | [`Type`](../type-aliases/Type.md) | - |
 | `projectedTypes` | `Map`<[`Type`](../type-aliases/Type.md), [`Type`](../type-aliases/Type.md)\> | - |
 | `projections` | [`ProjectionApplication`](ProjectionApplication.md)[] | - |
 

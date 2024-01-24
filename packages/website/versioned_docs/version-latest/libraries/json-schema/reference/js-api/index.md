@@ -3,32 +3,30 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Exports
-
-### Namespaces
+## Namespaces
 
 - [$validatesRawJson](namespaces/$validatesRawJson/index.md)
 
-### Classes
+## Classes
 
 - [JsonSchemaEmitter](classes/JsonSchemaEmitter.md)
 
-### Interfaces
+## Interfaces
 
 - [ExtensionRecord](interfaces/ExtensionRecord.md)
 - [JSONSchemaEmitterOptions](interfaces/JSONSchemaEmitterOptions.md)
 
-### Type Aliases
+## Type Aliases
 
 - [JsonSchemaDeclaration](type-aliases/JsonSchemaDeclaration.md)
 
-### Variables
+## Variables
 
 - [$lib](variables/$lib.md)
 - [EmitterOptionsSchema](variables/EmitterOptionsSchema.md)
 - [namespace](variables/namespace.md)
 
-### Functions
+## Functions
 
 - [$baseUri](functions/$baseUri.md)
 - [$contains](functions/$contains.md)

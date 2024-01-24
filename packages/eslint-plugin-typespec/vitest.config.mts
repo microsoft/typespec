@@ -1,15 +1,11 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, mergeConfig } from "vitest/config";
+import { defaultTypeSpecVitestConfig } from "../../vitest.workspace.js";
 
-export default defineConfig({
-  test: {
-    environment: "node",
-    isolate: false,
-    coverage: {
-      reporter: ["cobertura", "json", "text"],
+export default mergeConfig(
+  defaultTypeSpecVitestConfig,
+  defineConfig({
+    test: {
+      setupFiles: ["./test/global-setup.ts"],
     },
-    outputFile: {
-      junit: "./test-results.xml",
-    },
-    setupFiles: ["./test/global-setup.ts"],
-  },
-});
+  })
+);

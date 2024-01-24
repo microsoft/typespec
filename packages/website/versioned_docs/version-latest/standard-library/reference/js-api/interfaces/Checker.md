@@ -204,7 +204,7 @@ createLiteralType(value, node?): StringLiteral | NumericLiteral | BooleanLiteral
 ### createType()
 
 ```ts
-createType<T>(typeDef): T & TypePrototype & object
+createType<T>(typeDef): T & TypePrototype & Object
 ```
 
 #### Type parameters
@@ -221,7 +221,7 @@ createType<T>(typeDef): T & TypePrototype & object
 
 #### Returns
 
-`T` & `TypePrototype` & `object`
+`T` & `TypePrototype` & `Object`
 
 ***
 
@@ -382,7 +382,7 @@ getMergedSymbol(sym): undefined | Sym
 
 ***
 
-### getNamespaceString()
+### ~~getNamespaceString()~~
 
 ```ts
 getNamespaceString(type, options?): string
@@ -408,7 +408,7 @@ use `import { getNamespaceFullName } from "@typespec/compiler";`
 ### getStdType()
 
 ```ts
-getStdType<T>(name): StdTypes\[T\]
+getStdType<T>(name): StdTypes[T]
 ```
 
 Std type
@@ -449,7 +449,7 @@ getTypeForNode(node): Type
 
 ***
 
-### getTypeName()
+### ~~getTypeName()~~
 
 ```ts
 getTypeName(type, options?): string
