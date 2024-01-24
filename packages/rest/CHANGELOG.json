@@ -2,6 +2,24 @@
   "name": "@typespec/rest",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/rest_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle custom @path name in the building of the route"
+          },
+          {
+            "comment": "Rename template parameters in preparation for named template argument instantiation."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.51.0",
       "tag": "@typespec/rest_v0.51.0",
       "date": "Wed, 06 Dec 2023 19:40:58 GMT",

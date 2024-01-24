@@ -7,4 +7,4 @@ title: "[I] PackageDetails"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `name`? | `string` | - |
+| `name?` | `string` | - |

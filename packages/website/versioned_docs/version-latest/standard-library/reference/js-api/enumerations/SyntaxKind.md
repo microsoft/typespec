@@ -14,7 +14,7 @@ AST types
 | `AugmentDecoratorStatement` | `4` | - |
 | `BlockComment` | `51` | - |
 | `BooleanLiteral` | `34` | - |
-| `CadlScript` | `0` | **Deprecated**<br /><br />Use TypeSpecScript |
+| `CadlScript` | `0` | **Deprecated**<br />Use TypeSpecScript |
 | `DecoratorDeclarationStatement` | `25` | - |
 | `DecoratorExpression` | `5` | - |
 | `DirectiveExpression` | `6` | - |
@@ -89,6 +89,7 @@ AST types
 | `StringTemplateMiddle` | `37` | - |
 | `StringTemplateSpan` | `39` | - |
 | `StringTemplateTail` | `38` | - |
+| `TemplateArgument` | `90` | - |
 | `TemplateParameterDeclaration` | `47` | - |
 | `TupleExpression` | `30` | - |
 | `TypeReference` | `45` | - |

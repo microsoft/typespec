@@ -14,4 +14,4 @@ title: "[I] SuppressDirective"
 | `code` | `string` | - | - |
 | `message` | `string` | - | - |
 | `name` | `"suppress"` | - | - |
-| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | - | [`DirectiveBase`](DirectiveBase.md).`node` |
+| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) | - | [`DirectiveBase.node`](DirectiveBase.md) |

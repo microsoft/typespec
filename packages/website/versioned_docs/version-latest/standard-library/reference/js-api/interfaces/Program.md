@@ -18,7 +18,7 @@ title: "[I] Program"
 | `public` | `host` | [`CompilerHost`](CompilerHost.md) | - |
 | `public` | `jsSourceFiles` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - |
 | `public` | `literalTypes` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - |
-| `public` | `mainFile`? | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
+| `public` | `mainFile?` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
 | `readonly` | `projectRoot` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. |
 | `public` | `sourceFiles` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. |
 | `public` | `stateMaps` | `Map`<`symbol`, `StateMap`\> | - |

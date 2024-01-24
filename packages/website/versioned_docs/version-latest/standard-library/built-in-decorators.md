@@ -30,7 +30,7 @@ Use the `#deprecated` directive instead:
 
 ```typespec
 #deprecated "Use ActionV2"
-op Action<T>(): T;
+op Action<Result>(): Result;
 ```
 
 
@@ -129,6 +129,43 @@ scalar myDateTime extends offsetDateTime;
 ```tsp
 @encode("unixTimestamp", int32)
 scalar myDateTime extends unixTimestamp;
+```
+
+
+### `@encodedName` {#@encodedName}
+
+Provide an alternative name for this type when serialized to the given mime type.
+
+```typespec
+@encodedName(mimeType: valueof string, name: valueof string)
+```
+
+#### Target
+
+`(intrinsic) unknown`
+
+#### Parameters
+| Name | Type | Description |
+|------|------|-------------|
+| mimeType | `valueof scalar string` | Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`) |
+| name | `valueof scalar string` | Alternative name |
+
+#### Examples
+
+```typespec
+model Certificate {
+@encodedName("application/json", "exp")
+@encodedName("application/xml", "expiry")
+expireAt: int32;
+}
+```
+
+##### Invalid values
+
+
+```typespec
+@encodedName("application/merge-patch+json", "exp")
+^ error cannot use subtype
 ```
 
 
@@ -233,8 +270,8 @@ Specifies how a templated type should name their instances.
 
 ```typespec
 @friendlyName("{name}List", T)
-model List<T> {
-value: T[];
+model List<Item> {
+value: Item[];
 nextLink: string;
 }
 ```
@@ -630,6 +667,8 @@ scalar LowerAlpha extends string;
 
 
 ### `@projectedName` {#@projectedName}
+
+DEPRECATED: Use `@encodedName` instead.
 
 Provide an alternative name for this type.
 

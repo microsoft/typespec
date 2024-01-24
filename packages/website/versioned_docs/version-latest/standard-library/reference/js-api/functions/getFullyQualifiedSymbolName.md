@@ -12,7 +12,7 @@ getFullyQualifiedSymbolName(sym, options?): string
 | Parameter | Type |
 | :------ | :------ |
 | `sym` | `undefined` \| [`Sym`](../interfaces/Sym.md) |
-| `options`? | `object` |
+| `options`? | `Object` |
 | `options.useGlobalPrefixAtTopLevel`? | `boolean` |
 
 ## Returns

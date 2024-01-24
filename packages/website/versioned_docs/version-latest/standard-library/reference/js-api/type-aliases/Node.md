@@ -8,6 +8,7 @@ type Node:
   | TypeSpecScriptNode
   | JsSourceFileNode
   | JsNamespaceDeclarationNode
+  | TemplateArgumentNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode

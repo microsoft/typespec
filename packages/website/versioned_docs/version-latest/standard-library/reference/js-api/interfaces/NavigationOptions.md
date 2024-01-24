@@ -7,4 +7,4 @@ title: "[I] NavigationOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `includeTemplateDeclaration`? | `boolean` | Skip non instantiated templates. |
+| `includeTemplateDeclaration?` | `boolean` | Skip non instantiated templates. |

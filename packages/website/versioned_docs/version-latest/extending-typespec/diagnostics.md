@@ -23,8 +23,10 @@ TypeSpec compiler report errors and warnings in the spec using the diagnostic AP
 ### Declare the diagnostics you are reporting
 
 ```ts
+import { createTypeSpecLibrary } from "@typespec/compiler";
+
 // in lib.js
-export const { reportDiagnostic, createDiagnostic, createStateSymbol } = createTypeSpecLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/my-lib",
   diagnostics: {
     // Basic diagnostic with a fixed message
@@ -53,6 +55,9 @@ export const { reportDiagnostic, createDiagnostic, createStateSymbol } = createT
     },
   },
 } as const);
+
+// Rexport the helper functions to be able to just call them directly.
+export const { reportDiagnostic, createDiagnostic };
 ```
 
 This will represent 3 different diagnostics with full name of

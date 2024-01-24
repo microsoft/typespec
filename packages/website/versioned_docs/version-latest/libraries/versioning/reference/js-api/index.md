@@ -3,26 +3,24 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Exports
-
-### Enumerations
+## Enumerations
 
 - [Availability](enumerations/Availability.md)
 
-### Classes
+## Classes
 
 - [VersionMap](classes/VersionMap.md)
 
-### Interfaces
+## Interfaces
 
 - [Version](interfaces/Version.md)
 - [VersionResolution](interfaces/VersionResolution.md)
 
-### Variables
+## Variables
 
 - [namespace](variables/namespace.md)
 
-### Functions
+## Functions
 
 - [$added](functions/$added.md)
 - [$madeOptional](functions/$madeOptional.md)

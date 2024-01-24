@@ -11,4 +11,4 @@ type DiagnosticMap<T>: { readonly [code in keyof T]: DiagnosticDefinition<T[code
 
 | Parameter |
 | :------ |
-| `T` extends `object` |
+| `T` extends `Object` |

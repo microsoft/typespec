@@ -25,6 +25,6 @@ scalar Password extends string;
 Scalar support template parameters. Note: the only use for those template are decorators.
 
 ```typespec
-@doc(T)
-scalar Unreal<T extends string>;
+@doc(Type)
+scalar Unreal<Type extends string>;
 ```

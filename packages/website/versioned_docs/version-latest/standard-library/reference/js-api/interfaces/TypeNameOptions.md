@@ -7,5 +7,5 @@ title: "[I] TypeNameOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `namespaceFilter`? | (`ns`) => `boolean` | - |
-| `printable`? | `boolean` | - |
+| `namespaceFilter?` | (`ns`) => `boolean` | - |
+| `printable?` | `boolean` | - |
