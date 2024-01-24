@@ -1,7 +1,7 @@
 // @ts-check
-import { runOrExit } from "../../packages/internal-build-utils/dist/src/common.js";
+import { run } from "./legacy-helpers.js";
 
-const proc = await runOrExit("git", ["status", "--porcelain"], {
+const proc = run("git", ["status", "--porcelain"], {
   encoding: "utf-8",
   stdio: [null, "pipe", "pipe"],
 });
