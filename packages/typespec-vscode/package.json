@@ -114,7 +114,8 @@
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
-    "package-vsix": "vsce package"
+    "package-vsix": "vsce package",
+    "deploy": "vsce publish"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~25.0.4",
