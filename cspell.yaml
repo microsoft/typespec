@@ -83,6 +83,7 @@ words:
   - westus
   - xlarge
   - xplat
+  - syncpack
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

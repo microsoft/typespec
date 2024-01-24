@@ -80,7 +80,7 @@ async function formatMarkdown(
     });
   } catch (e) {
     // eslint-disable-next-line no-console
-    console.error(`Cannot format with prettier ${filename}`);
+    console.error(`Cannot format with prettier ${filename}`, e);
     return content;
   }
 }

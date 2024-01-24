@@ -56,8 +56,6 @@
     "copy-css": "copyfiles -u 1 src/**/*.module.css dist/src",
     "preview": "npm run build && vite preview",
     "start": "vite",
-    "e2e": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e ",
-    "e2e:headed": "cross-env PW_EXPERIMENTAL_TS_ESM=1 playwright test -c e2e --headed",
     "test": "echo 'no tests'",
     "test-official": "echo 'no tests'",
     "lint": "eslint . --max-warnings=0",
