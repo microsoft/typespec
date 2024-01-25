@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/bundler",
+      "comment": "Clean up docs",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/bundler"
+}

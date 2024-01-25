@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vscode",
+      "comment": "Clean up docs",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vscode"
+}

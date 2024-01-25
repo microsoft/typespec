@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/compiler",
+      "comment": "Clean up docs",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/compiler"
+}

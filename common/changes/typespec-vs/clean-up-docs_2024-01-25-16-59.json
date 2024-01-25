@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "typespec-vs",
+      "comment": "Clean up docs",
+      "type": "none"
+    }
+  ],
+  "packageName": "typespec-vs"
+}
