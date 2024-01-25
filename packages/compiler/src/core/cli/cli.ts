@@ -213,13 +213,13 @@ async function main() {
     )
     .command(
       "install",
-      "Install typespec dependencies",
+      "Install TypeSpec dependencies",
       () => {},
       withCliHost((host) => installTypeSpecDependencies(host, process.cwd()))
     )
     .command(
       "info",
-      "Show information about current TypeSpec compiler.",
+      "Show information about the current TypeSpec compiler.",
       () => {},
       withCliHostAndDiagnostics((host) => printInfoAction(host))
     )

@@ -348,7 +348,7 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
-  // Need to handle bigint in typespec. https://github.com/Azure/typespec-azure/issues/506
+  // Need to handle bigint in TypeSpec. https://github.com/Azure/typespec-azure/issues/506
   describe.skip("int64 target", () => {
     it("can assign int64", async () => {
       await expectTypeAssignable({ source: "int64", target: "int64" });
@@ -889,7 +889,7 @@ describe("compiler: checker: type relations", () => {
         model Test<T extends TypeSpec.Reflection.EnumMember> {
           t: Target<T>;
         }
-        
+
         model Target<T extends TypeSpec.Reflection.EnumMember> {
           t: T;
         }
@@ -905,7 +905,7 @@ describe("compiler: checker: type relations", () => {
             a: A;
             b: B;
           }
-          
+
           model Test {
             t: Template<{a: string}, {a: string}>;
           }
@@ -921,7 +921,7 @@ describe("compiler: checker: type relations", () => {
             b: B;
             c: C;
           }
-          
+
           model Test {
             t: Template<{a: string}, {a: string, b: string}, {a: string, b: string}>;
           }
@@ -936,7 +936,7 @@ describe("compiler: checker: type relations", () => {
             a: A;
             b: B;
           }
-          
+
           model Test {
             t: Template<{a: string}, {b: string}>;
           }
@@ -953,7 +953,7 @@ describe("compiler: checker: type relations", () => {
           model Other<T extends {a: string}> {
             t: T
           }
-          
+
           model Template<A extends {a: string}, B extends A> {
             t: Other<B>;
           }

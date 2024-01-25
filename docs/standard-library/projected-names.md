@@ -19,12 +19,12 @@ List of known targets.
   - `json`: Configure JSON representation of data
   - `xml`: Configure XML representation of data
 - Language:
-  - `csharp`: Configure C# generated code
-  - `java`: Configure Java generated code
-  - `python`: Configure python generated code
-  - `javascript`: Configure javascript generated code
-  - `swift` : Configure swift generated code
-  - `c` : Configure C generated code
+  - `csharp`: Configure C# code generation
+  - `java`: Configure Java code generation
+  - `python`: Configure Python code generation
+  - `javascript`: Configure JavaScript code generation
+  - `swift` : Configure Swift code generation
+  - `c` : Configure C code generation
 - Type:
   - `client`: Configure output for the client
   - `server`: Configure output for the server

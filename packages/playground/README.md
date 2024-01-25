@@ -61,8 +61,8 @@ await renderReactPlayground({
 
 ### Individual components
 
-Playground react components can be used individually. The things to watch out for is for the TypeSpec compiler to be working correctly it needs:
+Playground react components can be used individually. For the TypeSpec compiler to be working correctly, the following conditions need to be met:
 
-- The libraries to be loaded and registered
+- The libraries **MUST** be loaded and registered
 - The libraries **MUST** be importable by their name this means an import map must be setup. https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap
 - The libraries **MUST** have been bundled using `@typespec/bundler`
