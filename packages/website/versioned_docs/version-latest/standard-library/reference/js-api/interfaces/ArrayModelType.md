@@ -11,26 +11,26 @@ title: "[I] ArrayModelType"
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `baseModel`? | [`Model`](Model.md) | Model this model extends. This represent inheritance. | [`Model`](Model.md).`baseModel` |
-| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`Model`](Model.md).`decorators` |
-| `derivedModels` | [`Model`](Model.md)[] | Direct children. This is the reverse relation of [baseModel](ArrayModelType.md) | [`Model`](Model.md).`derivedModels` |
-| `indexer` | `object` | - | [`Model`](Model.md).`indexer` |
+| `baseModel?` | [`Model`](Model.md) | Model this model extends. This represent inheritance. | [`Model.baseModel`](Model.md) |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`Model.decorators`](Model.md) |
+| `derivedModels` | [`Model`](Model.md)[] | Direct children. This is the reverse relation of [baseModel](ArrayModelType.md) | [`Model.derivedModels`](Model.md) |
+| `indexer` | `Object` | - | [`Model.indexer`](Model.md) |
 | `indexer.key` | [`Scalar`](Scalar.md) | - | - |
 | `indexer.value` | [`Type`](../type-aliases/Type.md) | - | - |
-| `instantiationParameters`? | [`Type`](../type-aliases/Type.md)[] | - | [`Model`](Model.md).`instantiationParameters` |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`Model`](Model.md).`isFinished` |
-| `kind` | `"Model"` | - | [`Model`](Model.md).`kind` |
-| `name` | `string` | - | [`Model`](Model.md).`name` |
-| `namespace`? | [`Namespace`](Namespace.md) | - | [`Model`](Model.md).`namespace` |
-| `node`? | [`ModelStatementNode`](ModelStatementNode.md) \| [`ModelExpressionNode`](ModelExpressionNode.md) \| [`IntersectionExpressionNode`](IntersectionExpressionNode.md) \| [`ProjectionModelExpressionNode`](ProjectionModelExpressionNode.md) | - | [`Model`](Model.md).`node` |
-| `projectionBase`? | [`Type`](../type-aliases/Type.md) | - | [`Model`](Model.md).`projectionBase` |
-| `projectionSource`? | [`Type`](../type-aliases/Type.md) | - | [`Model`](Model.md).`projectionSource` |
-| `projector`? | [`Projector`](Projector.md) | - | [`Model`](Model.md).`projector` |
-| `properties` | `RekeyableMap`<`string`, [`ModelProperty`](ModelProperty.md)\> | The properties of the model.<br /><br />Properties are ordered in the order that they appear in source.<br />Properties obtained via `model is` appear before properties defined in<br />the model body. Properties obtained via `...` are inserted where the<br />spread appears in source.<br /><br />Properties inherited via `model extends` are not included. Use<br />[walkPropertiesInherited](../functions/walkPropertiesInherited.md) to enumerate all properties in the<br />inheritance hierarchy. | [`Model`](Model.md).`properties` |
-| `sourceModel`? | [`Model`](Model.md) | The model that is referenced via `model is`. | [`Model`](Model.md).`sourceModel` |
-| `templateArguments`? | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br /><br />use templateMapper instead. | [`Model`](Model.md).`templateArguments` |
-| `templateMapper`? | [`TypeMapper`](TypeMapper.md) | - | [`Model`](Model.md).`templateMapper` |
-| `templateNode`? | [`Node`](../type-aliases/Node.md) | - | [`Model`](Model.md).`templateNode` |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`Model.instantiationParameters`](Model.md) |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`Model.isFinished`](Model.md) |
+| `kind` | `"Model"` | - | [`Model.kind`](Model.md) |
+| `name` | `string` | - | [`Model.name`](Model.md) |
+| `namespace?` | [`Namespace`](Namespace.md) | - | [`Model.namespace`](Model.md) |
+| `node?` | [`ModelExpressionNode`](ModelExpressionNode.md) \| [`IntersectionExpressionNode`](IntersectionExpressionNode.md) \| [`ModelStatementNode`](ModelStatementNode.md) \| [`ProjectionModelExpressionNode`](ProjectionModelExpressionNode.md) | - | [`Model.node`](Model.md) |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`Model.projectionBase`](Model.md) |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`Model.projectionSource`](Model.md) |
+| `projector?` | [`Projector`](Projector.md) | - | [`Model.projector`](Model.md) |
+| `properties` | `RekeyableMap`<`string`, [`ModelProperty`](ModelProperty.md)\> | The properties of the model.<br /><br />Properties are ordered in the order that they appear in source.<br />Properties obtained via `model is` appear before properties defined in<br />the model body. Properties obtained via `...` are inserted where the<br />spread appears in source.<br /><br />Properties inherited via `model extends` are not included. Use<br />[walkPropertiesInherited](../functions/walkPropertiesInherited.md) to enumerate all properties in the<br />inheritance hierarchy. | [`Model.properties`](Model.md) |
+| `sourceModel?` | [`Model`](Model.md) | The model that is referenced via `model is`. | [`Model.sourceModel`](Model.md) |
+| ~~`templateArguments?`~~ | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. | [`Model.templateArguments`](Model.md) |
+| `templateMapper?` | [`TypeMapper`](TypeMapper.md) | - | [`Model.templateMapper`](Model.md) |
+| `templateNode?` | [`Node`](../type-aliases/Node.md) | - | [`Model.templateNode`](Model.md) |
 
 ## Accessors
 
@@ -64,4 +64,4 @@ projectionsByName(name): ProjectionStatementNode[]
 
 #### Inherited from
 
-[`Model`](Model.md).[`projectionsByName`](Model.md#projectionsbyname)
+[`Model.projectionsByName`](Model.md#projectionsbyname)

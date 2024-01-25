@@ -11,9 +11,9 @@ title: "[I] ServerSourceFile"
 
 | Modifier | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ | :------ |
-| `readonly` | `document`? | `TextDocument` | - | - |
-| `readonly` | `path` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. | [`SourceFile`](SourceFile.md).`path` |
-| `readonly` | `text` | `string` | The source code text. | [`SourceFile`](SourceFile.md).`text` |
+| `readonly` | `document?` | `TextDocument` | - | - |
+| `readonly` | `path` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. | [`SourceFile.path`](SourceFile.md) |
+| `readonly` | `text` | `string` | The source code text. | [`SourceFile.text`](SourceFile.md) |
 
 ## Methods
 
@@ -38,7 +38,7 @@ code units) to line number and offset from line start.
 
 #### Inherited from
 
-[`SourceFile`](SourceFile.md).[`getLineAndCharacterOfPosition`](SourceFile.md#getlineandcharacterofposition)
+[`SourceFile.getLineAndCharacterOfPosition`](SourceFile.md#getlineandcharacterofposition)
 
 ***
 
@@ -58,4 +58,4 @@ readonly `number`[]
 
 #### Inherited from
 
-[`SourceFile`](SourceFile.md).[`getLineStarts`](SourceFile.md#getlinestarts)
+[`SourceFile.getLineStarts`](SourceFile.md#getlinestarts)

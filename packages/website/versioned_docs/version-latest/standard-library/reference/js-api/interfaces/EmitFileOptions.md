@@ -8,5 +8,5 @@ title: "[I] EmitFileOptions"
 | Property | Type | Description |
 | :------ | :------ | :------ |
 | `content` | `string` | - |
-| `newLine`? | [`NewLine`](../type-aliases/NewLine.md) | - |
+| `newLine?` | [`NewLine`](../type-aliases/NewLine.md) | - |
 | `path` | `string` | - |

@@ -7,4 +7,4 @@ title: "[I] OperationParameterOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `verbSelector`? | [`OperationVerbSelector`](../type-aliases/OperationVerbSelector.md) | - |
+| `verbSelector?` | [`OperationVerbSelector`](../type-aliases/OperationVerbSelector.md) | - |

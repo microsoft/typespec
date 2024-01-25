@@ -4,7 +4,7 @@ title: "[T] LinterRuleDiagnosticReportWithoutTarget"
 
 ---
 ```ts
-type LinterRuleDiagnosticReportWithoutTarget<T, M>: object & LinterRuleDiagnosticFormat<T, M>;
+type LinterRuleDiagnosticReportWithoutTarget<T, M>: Object & LinterRuleDiagnosticFormat<T, M>;
 ```
 
 ## Type declaration
@@ -15,7 +15,7 @@ type LinterRuleDiagnosticReportWithoutTarget<T, M>: object & LinterRuleDiagnosti
 
 ## Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
 | `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
 | `M` extends keyof `T` | `"default"` |

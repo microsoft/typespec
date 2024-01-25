@@ -5,7 +5,7 @@ title: "[I] EmitContext"
 ---
 ## Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
 | `TOptions` extends `object` | `Record`<`string`, `never`\> |
 

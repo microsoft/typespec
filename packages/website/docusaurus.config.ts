@@ -212,7 +212,7 @@ const config: Config = {
           },
           {
             label: "Getting started",
-            to: "/docs/introduction/installation",
+            to: "/docs",
           },
           {
             type: "docsVersionDropdown",

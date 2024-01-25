@@ -164,9 +164,9 @@ model StringThing {
 [See templates](./templates.md) for details on templates
 
 ```typespec
-model Page<T> {
+model Page<Item> {
   size: number;
-  item: T[];
+  item: Item[];
 }
 
 model DogPage {

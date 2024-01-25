@@ -172,12 +172,12 @@ Decorators can be used to register some metadata. For this you can use the `cont
 
 ❌ Do not save the data in a global variable.
 
-```ts
+```ts file=decorators.ts
 import type { DecoratorContext, Type } from "@typespec/compiler";
-import type { createStateSymbol } from "./lib.js";
+import type { StateKeys } from "./lib.js";
 
 // Create a unique key
-const key = createStateSymbol("customName");
+const key = StateKeys.customName;
 export function $customName(context: DecoratorContext, target: Type, name: string) {
   // Keep a mapping between the target and a value.
   context.program.stateMap(key).set(target, name);
@@ -185,6 +185,17 @@ export function $customName(context: DecoratorContext, target: Type, name: strin
   // Keep an index of a type.
   context.program.stateSet(key).add(target);
 }
+```
+
+```ts file=lib.ts
+export const $lib = createTypeSpecLibrary({
+  // ...
+  state: {
+    customName: { description: "State for the @customName decorator" },
+  },
+});
+
+export const StateKeys = $lib.stateKeys;
 ```
 
 ### Reporting diagnostic on decorator or arguments

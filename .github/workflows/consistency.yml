@@ -1,0 +1,32 @@
+name: Consistency
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  check-changes:
+    name: Check Changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 ## Needed for Changesets to find `main` branch
+
+      - run: git pull --force --no-tags origin main:main
+        name: Get main ref
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      - run: npx -p @changesets/cli changeset status --since=main
+        name: Check changelog
+        if: ${{ !startsWith(github.head_ref, 'publish/') && !startsWith(github.head_ref, 'dependabot/') && !startsWith(github.head_ref, 'backmerge/') }}

@@ -7,7 +7,7 @@ title: "[F] createStateAccessors"
 createStateAccessors(
    stateMaps, 
    stateSets, 
-   projector?): object
+   projector?): Object
 ```
 
 ## Parameters
@@ -20,7 +20,7 @@ createStateAccessors(
 
 ## Returns
 
-`object`
+`Object`
 
 > | Member | Type | Description |
 > | :------ | :------ | :------ |

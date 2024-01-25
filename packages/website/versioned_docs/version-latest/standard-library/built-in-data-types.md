@@ -11,13 +11,13 @@ toc_max_heading_level: 3
 
 
 ```typespec
-model Array<T>
+model Array<Element>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| T | The type of the array elements |
+| Element | The type of the array elements |
 
 
 
@@ -26,13 +26,13 @@ model Array<T>
 Applies a visibility setting to a collection of properties.
 
 ```typespec
-model DefaultKeyVisibility<T, Visibility>
+model DefaultKeyVisibility<Source, Visibility>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| T | An object whose properties are spread. |
+| Source | An object whose properties are spread. |
 | Visibility | The visibility to apply to all properties. |
 
 
@@ -52,13 +52,13 @@ model object
 Represents a collection of properties with default values omitted.
 
 ```typespec
-model OmitDefaults<T>
+model OmitDefaults<Source>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| T | An object whose spread property defaults are all omitted. |
+| Source | An object whose spread property defaults are all omitted. |
 
 
 
@@ -67,14 +67,14 @@ model OmitDefaults<T>
 Represents a collection of omitted properties.
 
 ```typespec
-model OmitProperties<T, TKeys>
+model OmitProperties<Source, Keys>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| T | An object whose properties are spread. |
-| TKeys | The property keys to omit. |
+| Source | An object whose properties are spread. |
+| Keys | The property keys to omit. |
 
 
 
@@ -83,13 +83,13 @@ model OmitProperties<T, TKeys>
 Represents a collection of optional properties.
 
 ```typespec
-model OptionalProperties<T>
+model OptionalProperties<Source>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| T | An object whose spread properties are all optional. |
+| Source | An object whose spread properties are all optional. |
 
 
 
@@ -99,13 +99,13 @@ model OptionalProperties<T>
 
 
 ```typespec
-model Record<T>
+model Record<Element>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| T | The type of the properties |
+| Element | The type of the properties |
 
 
 
@@ -124,13 +124,13 @@ model ServiceOptions
 Represents a collection of updateable properties.
 
 ```typespec
-model UpdateableProperties<T>
+model UpdateableProperties<Source>
 ```
 
 #### Template Parameters
 | Name | Description |
 |------|-------------|
-| T | An object whose spread properties are all updateable. |
+| Source | An object whose spread properties are all updateable. |
 
 
 

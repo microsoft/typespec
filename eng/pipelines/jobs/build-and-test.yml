@@ -15,16 +15,16 @@ steps:
 
   - template: ../templates/build.yml
 
-  - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
+  - script: pnpm run test-official
     displayName: Test
 
   - template: ../templates/upload-coverage.yml
 
-  - script: node common/scripts/install-run-rush.js check-format
+  - script: pnpm run check-format
     displayName: Check Formatting
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: node common/scripts/install-run-rush.js lint --parallelism max --verbose
+  - script: pnpm run lint
     displayName: Lint
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
@@ -35,16 +35,16 @@ steps:
     displayName: Check docs
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: node common/scripts/install-run-rush.js cspell
+  - script: pnpm run cspell
     displayName: Spell check
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-  - script: node common/scripts/install-run-rush.js e2e
+  - script: pnpm run test:e2e
     displayName: E2E Tests
 
   # Unlink node_modules folders to significantly improve performance of subsequent tasks
   # which need to walk the directory tree (and are hardcoded to follow symlinks).
-  - script: node common/scripts/install-run-rush.js purge
+  - script: pnpm run purge
     displayName: "Purge dependencies"
     condition: always()
 

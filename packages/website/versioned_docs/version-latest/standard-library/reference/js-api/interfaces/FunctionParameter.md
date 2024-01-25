@@ -11,15 +11,15 @@ title: "[I] FunctionParameter"
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `instantiationParameters`? | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` |
-| `kind` | `"FunctionParameter"` | - | [`BaseType`](BaseType.md).`kind` |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType.instantiationParameters`](BaseType.md) |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType.isFinished`](BaseType.md) |
+| `kind` | `"FunctionParameter"` | - | [`BaseType.kind`](BaseType.md) |
 | `name` | `string` | - | - |
-| `node` | [`FunctionParameterNode`](FunctionParameterNode.md) | - | [`BaseType`](BaseType.md).`node` |
+| `node` | [`FunctionParameterNode`](FunctionParameterNode.md) | - | [`BaseType.node`](BaseType.md) |
 | `optional` | `boolean` | - | - |
-| `projectionBase`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` |
-| `projectionSource`? | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` |
-| `projector`? | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType.projectionBase`](BaseType.md) |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType.projectionSource`](BaseType.md) |
+| `projector?` | [`Projector`](Projector.md) | - | [`BaseType.projector`](BaseType.md) |
 | `rest` | `boolean` | - | - |
 | `type` | [`Type`](../type-aliases/Type.md) \| [`ValueType`](ValueType.md) | - | - |
 
@@ -55,4 +55,4 @@ projectionsByName(name): ProjectionStatementNode[]
 
 #### Inherited from
 
-[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)
+[`BaseType.projectionsByName`](BaseType.md#projectionsbyname)

@@ -11,7 +11,7 @@ isOverloadSameEndpoint(overload): boolean
 
 | Parameter | Type |
 | :------ | :------ |
-| `overload` | [`HttpOperation`](../interfaces/HttpOperation.md) & `object` |
+| `overload` | [`HttpOperation`](../interfaces/HttpOperation.md) & `Object` |
 
 ## Returns
 

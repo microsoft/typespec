@@ -3,29 +3,30 @@ jsApi: true
 title: "[I] TypeSpecLibrary"
 
 ---
-Definition of a TypeSpec library
-
 ## Extends
 
-- [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md)<`T`, `E`\>
+- [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md)<`T`, `E`, `State`\>
 
 ## Type parameters
 
-| Parameter | Default |
+| Parameter | Value |
 | :------ | :------ |
-| `T` extends `object` | - |
+| `T` extends `Object` | - |
 | `E` extends `Record`<`string`, `any`\> | `Record`<`string`, `never`\> |
+| `State` extends `string` | `never` |
 
 ## Properties
 
 | Modifier | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ | :------ |
-| `readonly` | `diagnostics` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> | Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`diagnostics` |
-| `readonly` | `emitter`? | `object` | Emitter configuration if library is an emitter. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`emitter` |
-| `readonly` | `emitter.options`? | [`JSONSchemaType`](../type-aliases/JSONSchemaType.md)<`E`\> | - | - |
-| `readonly` | `linter`? | [`LinterDefinition`](LinterDefinition.md) | Configuration if library is providing linting rules/rulesets. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`linter` |
-| `readonly` | `name` | `string` | Name of the library. Must match the package.json name. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`name` |
-| `public` | `requireImports`? | readonly `string`[] | List of other library that should be imported when this is used as an emitter.<br />Compiler will emit an error if the libraries are not explicitly imported. | [`TypeSpecLibraryDef`](TypeSpecLibraryDef.md).`requireImports` |
+| `readonly` | `diagnostics` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> | Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code. | [`TypeSpecLibraryDef.diagnostics`](TypeSpecLibraryDef.md) |
+| `readonly` | `emitter?` | `Object` | Emitter configuration if library is an emitter. | [`TypeSpecLibraryDef.emitter`](TypeSpecLibraryDef.md) |
+| `readonly` | `emitter.options?` | [`JSONSchemaType`](../type-aliases/JSONSchemaType.md)<`E`\> | - | - |
+| `readonly` | ~~`linter?`~~ | [`LinterDefinition`](LinterDefinition.md) | Configuration if library is providing linting rules/rulesets.<br /><br />**Deprecated**<br />Use `export const $linter` instead. This will cause circular reference with linters. | [`TypeSpecLibraryDef.linter`](TypeSpecLibraryDef.md) |
+| `readonly` | `name` | `string` | Library name | [`TypeSpecLibraryDef.name`](TypeSpecLibraryDef.md) |
+| `readonly` | `requireImports?` | readonly `string`[] | List of other library that should be imported when this is used as an emitter.<br />Compiler will emit an error if the libraries are not explicitly imported. | [`TypeSpecLibraryDef.requireImports`](TypeSpecLibraryDef.md) |
+| `readonly` | `state?` | `Record`<`State`, [`StateDef`](StateDef.md)\> | - | [`TypeSpecLibraryDef.state`](TypeSpecLibraryDef.md) |
+| `public` | `stateKeys` | `Record`<`State`, `symbol`\> | - | - |
 
 ## Methods
 

@@ -14,4 +14,4 @@ title: "[I] DecoratorParamDefinition"
 | Modifier | Property | Type | Description |
 | :------ | :------ | :------ | :------ |
 | `readonly` | `kind` | `K` \| readonly `K`[] | Kind of the parameter |
-| `readonly` | `optional`? | `boolean` | Is the parameter optional. |
+| `readonly` | `optional?` | `boolean` | Is the parameter optional. |

@@ -9,7 +9,7 @@
   "tabWidth": 2,
   "plugins": [
     "./packages/prettier-plugin-typespec/dist/index.js",
-    "./packages/compiler/node_modules/prettier-plugin-organize-imports/index.js"
+    "./node_modules/prettier-plugin-organize-imports/index.js"
   ],
   "overrides": [
     {

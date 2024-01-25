@@ -4,5 +4,5 @@ title: "[T] OAuth2FlowType"
 
 ---
 ```ts
-type OAuth2FlowType: OAuth2Flow\["type"\];
+type OAuth2FlowType: OAuth2Flow["type"];
 ```
