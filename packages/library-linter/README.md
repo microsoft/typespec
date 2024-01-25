@@ -20,5 +20,5 @@ tsp compile . --import @typespec/library-linter
 ## TypeSpec Library Best rules and best practices
 
 | Rule name           | Description                                                                                                       |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------  |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `missing-namespace` | Validate that every exported element from the library (models, JS functions, operations, etc.) is in a namespace. |
