@@ -17,6 +17,6 @@ the `type` must be a `Model` if the content type is multipart.
 
 | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ |
-| `contentTypes` | `string`[] | Content types. | [`HttpOperationBody`](HttpOperationBody.md).`contentTypes` |
-| `parameter`? | `ModelProperty` | If the body was explicitly set as a property. Correspond to the property with `@body` | - |
-| `type` | `Type` | Type of the operation body. | [`HttpOperationBody`](HttpOperationBody.md).`type` |
+| `contentTypes` | `string`[] | Content types. | [`HttpOperationBody.contentTypes`](HttpOperationBody.md) |
+| `parameter?` | `ModelProperty` | If the body was explicitly set as a property. Correspond to the property with `@body` | - |
+| `type` | `Type` | Type of the operation body. | [`HttpOperationBody.type`](HttpOperationBody.md) |

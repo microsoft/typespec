@@ -7,9 +7,9 @@ title: Linters
 
 ## Linter vs `onValidate`
 
-TypeSpec library can probide a `$onValidate` hook which can be used to validate the typespec program is valid in the eye of your library.
+TypeSpec library can probide a `$onValidate` hook which can be used to validate the TypeSpec program is valid in the eye of your library.
 
-A linter on the other hand might be a validation that is optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the typespec program but without it the end user experience might suffer.
+A linter on the other hand might be a validation that is optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the TypeSpec program but without it the end user experience might suffer.
 Linters need to be explicitly enabled. `$onValidate` will be run automatically if that library is imported.
 
 ## Writing a linter

@@ -21,102 +21,103 @@ scalar TypeSpec.Rest.ResourceLocation
 ### `CollectionWithNextLink` {#TypeSpec.Rest.Resource.CollectionWithNextLink}
 
 Structure for a paging response using `value` and `nextLink` to represent pagination.
-This only provides the model structure and not actual pagination support.
-See https://github.com/microsoft/typespec/issues/705 for general paging support.
+
+This only provides the model structure and not actual pagination support. See
+https://github.com/microsoft/typespec/issues/705 for general paging support.
 
 ```typespec
-model TypeSpec.Rest.Resource.CollectionWithNextLink<T>
+model TypeSpec.Rest.Resource.CollectionWithNextLink<Resource>
 ```
 
 #### Template Parameters
 
-| Name | Description                          |
-| ---- | ------------------------------------ |
-| T    | The resource type of the collection. |
+| Name     | Description                          |
+| -------- | ------------------------------------ |
+| Resource | The resource type of the collection. |
 
 ### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
 
-Dynamically gathers keys of the model type T.
+Dynamically gathers keys of the model type `Resource`.
 
 ```typespec
-model TypeSpec.Rest.Resource.KeysOf<T>
+model TypeSpec.Rest.Resource.KeysOf<Resource>
 ```
 
 #### Template Parameters
 
-| Name | Description       |
-| ---- | ----------------- |
-| T    | The target model. |
+| Name     | Description                |
+| -------- | -------------------------- |
+| Resource | The target resource model. |
 
 ### `ParentKeysOf` {#TypeSpec.Rest.Resource.ParentKeysOf}
 
-Dynamically gathers parent keys of the model type T.
+Dynamically gathers parent keys of the model type `Resource`.
 
 ```typespec
-model TypeSpec.Rest.Resource.ParentKeysOf<T>
+model TypeSpec.Rest.Resource.ParentKeysOf<Resource>
 ```
 
 #### Template Parameters
 
-| Name | Description       |
-| ---- | ----------------- |
-| T    | The target model. |
+| Name     | Description                |
+| -------- | -------------------------- |
+| Resource | The target resource model. |
 
 ### `ResourceCollectionParameters` {#TypeSpec.Rest.Resource.ResourceCollectionParameters}
 
-Represents collection operation parameters for resource TResource.
+Represents collection operation parameters for the resource of type `Resource`.
 
 ```typespec
-model TypeSpec.Rest.Resource.ResourceCollectionParameters<TResource>
+model TypeSpec.Rest.Resource.ResourceCollectionParameters<Resource>
 ```
 
 #### Template Parameters
 
-| Name      | Description         |
-| --------- | ------------------- |
-| TResource | The resource model. |
+| Name     | Description         |
+| -------- | ------------------- |
+| Resource | The resource model. |
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
 Resource create operation completed successfully.
 
 ```typespec
-model TypeSpec.Rest.Resource.ResourceCreatedResponse<T>
+model TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource>
 ```
 
 #### Template Parameters
 
-| Name | Description                          |
-| ---- | ------------------------------------ |
-| T    | The resource model that was created. |
+| Name     | Description                          |
+| -------- | ------------------------------------ |
+| Resource | The resource model that was created. |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
 Resource create operation model.
 
 ```typespec
-model TypeSpec.Rest.Resource.ResourceCreateModel<TResource>
+model TypeSpec.Rest.Resource.ResourceCreateModel<Resource>
 ```
 
 #### Template Parameters
 
-| Name      | Description                   |
-| --------- | ----------------------------- |
-| TResource | The resource model to create. |
+| Name     | Description                   |
+| -------- | ----------------------------- |
+| Resource | The resource model to create. |
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
 Resource create or update operation model.
 
 ```typespec
-model TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<TResource>
+model TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>
 ```
 
 #### Template Parameters
 
-| Name      | Description                             |
-| --------- | --------------------------------------- |
-| TResource | The resource model to create or update. |
+| Name     | Description                             |
+| -------- | --------------------------------------- |
+| Resource | The resource model to create or update. |
 
 ### `ResourceDeletedResponse` {#TypeSpec.Rest.Resource.ResourceDeletedResponse}
 
@@ -136,14 +137,14 @@ model TypeSpec.Rest.Resource.ResourceError
 
 ### `ResourceParameters` {#TypeSpec.Rest.Resource.ResourceParameters}
 
-Represents operation parameters for resource TResource.
+Represents operation parameters for the resource of type `Resource`.
 
 ```typespec
-model TypeSpec.Rest.Resource.ResourceParameters<TResource>
+model TypeSpec.Rest.Resource.ResourceParameters<Resource>
 ```
 
 #### Template Parameters
 
-| Name      | Description         |
-| --------- | ------------------- |
-| TResource | The resource model. |
+| Name     | Description         |
+| -------- | ------------------- |
+| Resource | The resource model. |

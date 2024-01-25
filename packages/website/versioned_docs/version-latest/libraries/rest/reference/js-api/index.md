@@ -3,9 +3,7 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Exports
-
-### Interfaces
+## Interfaces
 
 - [ActionDetails](interfaces/ActionDetails.md)
 - [AutoRouteOptions](interfaces/AutoRouteOptions.md)
@@ -13,15 +11,15 @@ title: "[P] JS Api"
 - [ResourceKey](interfaces/ResourceKey.md)
 - [ResourceOperation](interfaces/ResourceOperation.md)
 
-### Type Aliases
+## Type Aliases
 
 - [ResourceOperations](type-aliases/ResourceOperations.md)
 
-### Variables
+## Variables
 
 - [namespace](variables/namespace.md)
 
-### Functions
+## Functions
 
 - [$action](functions/$action.md)
 - [$actionSegment](functions/$actionSegment.md)

@@ -18,7 +18,7 @@ Check if the given type is declared in the specified namespace or, optionally, i
 | :------ | :------ | :------ |
 | `type` |    \| [`Model`](../interfaces/Model.md)   \| [`Interface`](../interfaces/Interface.md)   \| [`Enum`](../interfaces/Enum.md)   \| [`Namespace`](../interfaces/Namespace.md)   \| [`Operation`](../interfaces/Operation.md) | Type |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) | Namespace |
-| `options` | `object` | - |
+| `options` | `Object` | - |
 | `options.recursive`? | `boolean` | - |
 
 ## Returns

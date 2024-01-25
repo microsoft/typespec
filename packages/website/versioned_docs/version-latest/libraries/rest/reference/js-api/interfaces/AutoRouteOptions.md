@@ -7,4 +7,4 @@ title: "[I] AutoRouteOptions"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `routeParamFilter`? | (`op`, `param`) => `undefined` \| [`FilteredRouteParam`](FilteredRouteParam.md) | - |
+| `routeParamFilter?` | (`op`, `param`) => `undefined` \| [`FilteredRouteParam`](FilteredRouteParam.md) | - |

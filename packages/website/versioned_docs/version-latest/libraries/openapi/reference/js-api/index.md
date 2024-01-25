@@ -3,24 +3,22 @@ jsApi: true
 title: "[P] JS Api"
 
 ---
-## Exports
-
-### Interfaces
+## Interfaces
 
 - [AdditionalInfo](interfaces/AdditionalInfo.md)
 - [Contact](interfaces/Contact.md)
 - [ExternalDocs](interfaces/ExternalDocs.md)
 - [License](interfaces/License.md)
 
-### Type Aliases
+## Type Aliases
 
 - [ExtensionKey](type-aliases/ExtensionKey.md)
 
-### Variables
+## Variables
 
 - [namespace](variables/namespace.md)
 
-### Functions
+## Functions
 
 - [$defaultResponse](functions/$defaultResponse.md)
 - [$extension](functions/$extension.md)

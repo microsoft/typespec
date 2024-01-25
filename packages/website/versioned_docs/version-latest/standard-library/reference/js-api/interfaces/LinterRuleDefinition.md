@@ -22,7 +22,7 @@ title: "[I] LinterRuleDefinition"
 | `messages` | `DM` | Messages that can be reported with the diagnostic. |
 | `name` | `N` | Rule name (without the library name) |
 | `severity` | `"warning"` | Rule default severity. |
-| `url`? | `string` | Specifies the URL at which the full documentation can be accessed. |
+| `url?` | `string` | Specifies the URL at which the full documentation can be accessed. |
 
 ## Methods
 

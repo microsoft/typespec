@@ -4,7 +4,7 @@ import { OpenAPI3Schema } from "../src/types.js";
 import { oapiForModel } from "./test-host.js";
 
 describe("openapi3: primitives", () => {
-  describe("handle typespec intrinsic types", () => {
+  describe("handle TypeSpec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
       ["numeric", { type: "number" }],

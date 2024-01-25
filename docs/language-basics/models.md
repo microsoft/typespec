@@ -142,7 +142,7 @@ model Dog extends Animal {}
 
 ### Is
 
-Sometimes you want to create a new type that is an exact copy of an existing type but with some additional properties or metadata without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It copies all the properties(like spread), but copies [decorators](./decorators.md) as well. One common use case is to give a better name to a [template](#Templates) instantiation:
+Sometimes you want to create a new type that is an exact copy of an existing type but with some additional properties or metadata without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It copies all the properties (like spread), but copies [decorators](./decorators.md) as well. One common use case is to give a better name to a [template](#Templates) instantiation:
 
 ```typespec
 @decorator

@@ -15,7 +15,7 @@ navigateTypesInNamespace(
 | Parameter | Type |
 | :------ | :------ |
 | `namespace` | [`Namespace`](../interfaces/Namespace.md) |
-| `listeners` | `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` & `object` |
+| `listeners` | `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` & `Object` |
 | `options` | [`NamespaceNavigationOptions`](../interfaces/NamespaceNavigationOptions.md) & [`NavigationOptions`](../interfaces/NavigationOptions.md) |
 
 ## Returns

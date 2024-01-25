@@ -34,13 +34,13 @@ title: "[I] BaseType"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `instantiationParameters`? | [`Type`](../type-aliases/Type.md)[] | - |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - |
 | `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) |
 | `kind` | `string` | - |
-| `node`? | [`Node`](../type-aliases/Node.md) | - |
-| `projectionBase`? | [`Type`](../type-aliases/Type.md) | - |
-| `projectionSource`? | [`Type`](../type-aliases/Type.md) | - |
-| `projector`? | [`Projector`](Projector.md) | - |
+| `node?` | [`Node`](../type-aliases/Node.md) | - |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - |
+| `projector?` | [`Projector`](Projector.md) | - |
 
 ## Accessors
 

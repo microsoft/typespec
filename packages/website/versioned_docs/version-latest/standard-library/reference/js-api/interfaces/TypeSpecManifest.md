@@ -8,5 +8,5 @@ title: "[I] TypeSpecManifest"
 | Property | Type | Description |
 | :------ | :------ | :------ |
 | `commit` | `string` | Full commit sha. |
-| `pr`? | `number` | Number of the pull request, if the build was from a pull request. |
+| `pr?` | `number` | Number of the pull request, if the build was from a pull request. |
 | `version` | `string` | Version of the tsp compiler. |

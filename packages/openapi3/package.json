@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "0.51.1",
+  "version": "0.52.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
   "homepage": "https://microsoft.github.io/typespec",
@@ -54,21 +54,21 @@
     "yaml": "~2.3.4"
   },
   "peerDependencies": {
-    "@typespec/versioning": "workspace:~0.51.0",
-    "@typespec/compiler": "workspace:~0.51.0",
-    "@typespec/http": "workspace:~0.51.0",
-    "@typespec/openapi": "workspace:~0.51.0"
+    "@typespec/versioning": "workspace:~0.52.0",
+    "@typespec/compiler": "workspace:~0.52.0",
+    "@typespec/http": "workspace:~0.52.0",
+    "@typespec/openapi": "workspace:~0.52.0"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
-    "@typespec/compiler": "workspace:~0.51.0",
-    "@typespec/http": "workspace:~0.51.0",
-    "@typespec/rest": "workspace:~0.51.0",
-    "@typespec/openapi": "workspace:~0.51.0",
-    "@typespec/versioning": "workspace:~0.51.0",
-    "@typespec/eslint-config-typespec": "workspace:~0.51.0",
-    "@typespec/library-linter": "workspace:~0.51.0",
-    "@typespec/eslint-plugin": "workspace:~0.51.0",
+    "@typespec/compiler": "workspace:~0.52.0",
+    "@typespec/http": "workspace:~0.52.0",
+    "@typespec/rest": "workspace:~0.52.0",
+    "@typespec/openapi": "workspace:~0.52.0",
+    "@typespec/versioning": "workspace:~0.52.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.52.0",
+    "@typespec/library-linter": "workspace:~0.52.0",
+    "@typespec/eslint-plugin": "workspace:~0.52.0",
     "@typespec/tspd": "workspace:~0.46.0",
     "eslint": "^8.55.0",
     "vitest": "^1.2.0",

@@ -1,7 +1,7 @@
 export default ["packages/*/vitest.config.ts", "packages/*/vitest.config.mts"];
 
 /**
- * Default Config For all typespec projects using vitest.
+ * Default Config For all TypeSpec projects using vitest.
  */
 export const defaultTypeSpecVitestConfig = {
   test: {

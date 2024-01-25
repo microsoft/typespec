@@ -1,0 +1,52 @@
+{
+  "name": "@typespec/monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@8.13.1",
+  "scripts": {
+    "build": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build ",
+    "check-format": "pnpm run prettier --check",
+    "check-version-mismatch": "syncpack list-mismatches",
+    "clean": "pnpm -r run clean",
+    "cspell": "cspell --no-progress \"**/*.{md,ts,tsx}\" ",
+    "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
+    "fix-version-mismatch": "syncpack fix-mismatches",
+    "format": "pnpm run prettier --write",
+    "lint": "pnpm -r --parallel --aggregate-output --reporter=append-only run lint",
+    "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
+    "pack:all": "node ./eng/scripts/pack-all.js",
+    "preinstall": "npx only-allow pnpm",
+    "prepare-publish": "pnpm changeset version",
+    "prettier": "prettier .",
+    "purge": "rimraf --glob \"packages/*/node_modules/\"",
+    "regen-docs": "pnpm -r --parallel --aggregate-output --reporter=append-only run regen-docs",
+    "regen-samples": "pnpm -r run regen-samples",
+    "test-official": "pnpm -r --aggregate-output --reporter=append-only test-official",
+    "test:e2e": "pnpm -r run e2e",
+    "test": "pnpm -r --aggregate-output --reporter=append-only run test",
+    "update-latest-docs": "pnpm -r run update-latest-docs",
+    "watch": "tsc --build ./tsconfig.ws.json --watch"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.26.2",
+    "@pnpm/find-workspace-packages": "^6.0.9",
+    "c8": "^8.0.1",
+    "cspell": "^6.31.1",
+    "prettier-plugin-organize-imports": "~3.2.4",
+    "prettier": "~3.1.1",
+    "rimraf": "~5.0.1",
+    "syncpack": "^11.2.1",
+    "typescript": "~5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "syncpack": {
+    "dependencyTypes": [
+      "dev",
+      "overrides",
+      "peer",
+      "pnpmOverrides",
+      "prod",
+      "resolutions"
+    ]
+  }
+}

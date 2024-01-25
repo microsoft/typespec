@@ -55,7 +55,7 @@
       "shouldPublish": false
     },
     {
-      // TMLanguage generator not in an @scope because it is neither typespec nor azure-specific.
+      // TMLanguage generator not in an @scope because it is neither TypeSpec nor azure-specific.
       // Eventually, it should be split off into its own repo
       "packageName": "tmlanguage-generator",
       "projectFolder": "packages/tmlanguage-generator",
