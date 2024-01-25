@@ -9,7 +9,15 @@ TypeSpec emitters are libraries that use various TypeSpec compiler APIs to refle
 
 ## Getting started
 
-TypeSpec emitters are a special kind of TypeSpec library and so have the same getting started instructions. Follow [these steps](./basics.md) to initialize a typespec library.
+TypeSpec emitters are a special kind of TypeSpec library and so have the same getting started instructions.
+
+Setup the boilerplate for an emitter using our template:
+
+```bash
+tsp init --template emitter-ts
+```
+
+or follow [these steps](./basics.md) to initialize a typespec library.
 
 ## $onEmit
 
@@ -21,12 +29,15 @@ A TypeSpec emitter exports a function named `$onEmit` from its main entrypoint. 
 For example, the following will write a text file to the output directory:
 
 ```typescript
-import { EmitContext } from "@typespec/compiler";
-import Path from "path";
+import { EmitContext, emitFile, resolvePath } from "@typespec/compiler";
 
 export async function $onEmit(context: EmitContext) {
-  const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
-  await context.program.host.writeFile(outputDir, "hello world!");
+  if (!context.program.compilerOptions.noEmit) {
+    await emitFile(context.program, {
+      path: resolvePath(context.emitterOutputDir, "hello.txt"),
+      content: "Hello world\n",
+    });
+  }
 }
 ```
 
@@ -40,9 +51,26 @@ To pass your emitter custom options, the options must be registered with the com
 
 The following example extends the hello world emitter to be configured with a name:
 
-```typescript
-import { JSONSchemaType, createTypeSpecLibrary } from "@typespec/compiler";
-import Path from "path";
+```ts file=src/internal-lib.ts
+export const $lib = createTypeSpecLibrary({
+  name: "MyEmitter",
+  diagnostics: {
+    // Add diagnostics here.
+  },
+  state: {
+    // Add state keys here for decorators.
+  },
+});
+```
+
+```ts file=src/lib.ts
+import {
+  JSONSchemaType,
+  createTypeSpecLibrary,
+  EmitContext,
+  resolvePath,
+} from "@typespec/compiler";
+import { internalLib } from "./lib.js";
 
 export interface EmitterOptions {
   "target-name": string;
@@ -58,15 +86,14 @@ const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
 };
 
 export const $lib = createTypeSpecLibrary({
-  name: "MyEmitter",
-  diagnostics: {},
+  internal: internalLib,
   emitter: {
     options: EmitterOptionsSchema,
   },
 });
 
 export async function $onEmit(context: EmitContext<EmitterOptions>) {
-  const outputDir = Path.join(context.emitterOutputDir, "hello.txt");
+  const outputDir = resolvePath(context.emitterOutputDir, "hello.txt");
   const name = context.options.targetName;
   await context.program.host.writeFile(outputDir, `hello ${name}!`);
 }
@@ -138,15 +165,14 @@ The following example will emit models with the `@emitThis` decorator and also a
 [See creating decorator documentation for more details](./create-decorators.md)
 
 ```typescript
-import { DecoratorContext, Model, createStateSymbol } from "@typespec/compiler";
+import { DecoratorContext, Model } from "@typespec/compiler";
+import { StateKeys } from "./lib.js";
 
 // Decorator Setup Code
 
-const emitThisKey = createStateSymbol("emitThis");
-
 // @emitThis decorator
 export function $emitThis(context: DecoratorContext, target: Model) {
-  context.program.stateSet(emitThisKey).add(target);
+  context.program.stateSet(StateKeys.emitThis).add(target);
 }
 
 export async function $onEmit(context: EmitContext) {

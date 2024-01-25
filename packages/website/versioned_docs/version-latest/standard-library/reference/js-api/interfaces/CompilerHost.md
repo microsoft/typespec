@@ -8,7 +8,7 @@ title: "[I] CompilerHost"
 | Property | Type | Description |
 | :------ | :------ | :------ |
 | `logSink` | [`LogSink`](LogSink.md) | - |
-| `parseCache`? | `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | Optional cache to reuse the results of parsing and binding across programs. |
+| `parseCache?` | `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | Optional cache to reuse the results of parsing and binding across programs. |
 
 ## Methods
 
@@ -232,7 +232,7 @@ Deletes a directory or file.
 ### stat()
 
 ```ts
-stat(path): Promise<object>
+stat(path): Promise<Object>
 ```
 
 #### Parameters
@@ -243,7 +243,13 @@ stat(path): Promise<object>
 
 #### Returns
 
-`Promise`<`object`\>
+`Promise`<`Object`\>
+
+> | Member | Type | Description |
+> | :------ | :------ | :------ |
+> | `isDirectory` | `boolean` | - |
+> | `isFile` | `boolean` | - |
+>
 
 ***
 

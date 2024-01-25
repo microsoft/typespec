@@ -51,7 +51,7 @@ checkChange(change): Promise<void>
 ### compile()
 
 ```ts
-compile(document): Promise<undefined | Program>
+compile(document): Promise<undefined | CompileResult>
 ```
 
 #### Parameters
@@ -62,7 +62,7 @@ compile(document): Promise<undefined | Program>
 
 #### Returns
 
-`Promise`<`undefined` \| [`Program`](Program.md)\>
+`Promise`<`undefined` \| [`CompileResult`](CompileResult.md)\>
 
 ***
 

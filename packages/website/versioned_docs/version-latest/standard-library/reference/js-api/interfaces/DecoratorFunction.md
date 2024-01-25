@@ -26,4 +26,4 @@ DecoratorFunction(
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `namespace`? | `string` | - |
+| `namespace?` | `string` | - |

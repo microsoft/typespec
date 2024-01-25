@@ -7,7 +7,7 @@ title: "[I] ProcessedLog"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `code`? | `string` | - |
+| `code?` | `string` | - |
 | `level` | [`LogLevel`](../type-aliases/LogLevel.md) | - |
 | `message` | `string` | - |
-| `sourceLocation`? | [`SourceLocation`](SourceLocation.md) | - |
+| `sourceLocation?` | [`SourceLocation`](SourceLocation.md) | - |

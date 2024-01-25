@@ -30,7 +30,7 @@ call `createAssetEmitter` on the emitter context object.
 
 #### Inherited from
 
-TypeEmitter<Record<string, any\>, JSONSchemaEmitterOptions\>.constructor
+`TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions>.constructor`
 
 ## Properties
 
@@ -39,7 +39,7 @@ TypeEmitter<Record<string, any\>, JSONSchemaEmitterOptions\>.constructor
 | `private` | `#idDuplicateTracker` | `DuplicateTracker`<`string`, `DiagnosticTarget`\> | - | - |
 | `private` | `#refToDecl` | `Map`<`string`, `Declaration`<`Record`<`string`, `unknown`\>\>\> | - | - |
 | `private` | `#typeForSourceFile` | `Map`<`SourceFile`<`any`\>, [`JsonSchemaDeclaration`](../type-aliases/JsonSchemaDeclaration.md)\> | - | - |
-| `public` | `emitter` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | - | TypeEmitter.emitter |
+| `public` | `emitter` | `AssetEmitter`<`Record`<`string`, `any`\>, [`JSONSchemaEmitterOptions`](../interfaces/JSONSchemaEmitterOptions.md)\> | - | `TypeEmitter.emitter` |
 
 ## Methods
 
@@ -150,7 +150,7 @@ private #getDefaultValue(type, defaultType): any
 ### #getSchemaForScalar()
 
 ```ts
-private #getSchemaForScalar(scalar): object
+private #getSchemaForScalar(scalar): Object
 ```
 
 #### Parameters
@@ -161,14 +161,14 @@ private #getSchemaForScalar(scalar): object
 
 #### Returns
 
-`object`
+`Object`
 
 ***
 
 ### #getSchemaForStdScalars()
 
 ```ts
-private #getSchemaForStdScalars(baseBuiltIn): object | object | object | object
+private #getSchemaForStdScalars(baseBuiltIn): Object | Object | Object | Object
 ```
 
 #### Parameters
@@ -179,7 +179,7 @@ private #getSchemaForStdScalars(baseBuiltIn): object | object | object | object
 
 #### Returns
 
-`object` \| `object` \| `object` \| `object`
+`Object` \| `Object` \| `Object` \| `Object`
 
 ***
 
@@ -204,7 +204,7 @@ private #isStdType(type): boolean
 ### #newFileScope()
 
 ```ts
-private #newFileScope(type): object
+private #newFileScope(type): Object
 ```
 
 #### Parameters
@@ -215,7 +215,7 @@ private #newFileScope(type): object
 
 #### Returns
 
-`object`
+`Object`
 
 > | Member | Type | Description |
 > | :------ | :------ | :------ |
@@ -296,7 +296,7 @@ elementType): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.arrayDeclaration
+`TypeEmitter.arrayDeclaration`
 
 ***
 
@@ -318,7 +318,7 @@ arrayDeclarationContext(array): Context
 
 #### Overrides
 
-TypeEmitter.arrayDeclarationContext
+`TypeEmitter.arrayDeclarationContext`
 
 ***
 
@@ -345,7 +345,7 @@ arrayDeclarationReferenceContext(
 
 #### Inherited from
 
-TypeEmitter.arrayDeclarationReferenceContext
+`TypeEmitter.arrayDeclarationReferenceContext`
 
 ***
 
@@ -368,7 +368,7 @@ arrayLiteral(array, elementType): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.arrayLiteral
+`TypeEmitter.arrayLiteral`
 
 ***
 
@@ -391,7 +391,7 @@ arrayLiteralContext(array, elementType): Context
 
 #### Inherited from
 
-TypeEmitter.arrayLiteralContext
+`TypeEmitter.arrayLiteralContext`
 
 ***
 
@@ -414,7 +414,7 @@ arrayLiteralReferenceContext(array, elementType): Context
 
 #### Inherited from
 
-TypeEmitter.arrayLiteralReferenceContext
+`TypeEmitter.arrayLiteralReferenceContext`
 
 ***
 
@@ -436,7 +436,7 @@ booleanLiteral(boolean): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.booleanLiteral
+`TypeEmitter.booleanLiteral`
 
 ***
 
@@ -458,7 +458,7 @@ booleanLiteralContext(boolean): Context
 
 #### Inherited from
 
-TypeEmitter.booleanLiteralContext
+`TypeEmitter.booleanLiteralContext`
 
 ***
 
@@ -490,7 +490,7 @@ Resolved reference entity.
 
 #### Inherited from
 
-TypeEmitter.circularReference
+`TypeEmitter.circularReference`
 
 ***
 
@@ -512,7 +512,7 @@ declarationName(declarationType): undefined | string
 
 #### Inherited from
 
-TypeEmitter.declarationName
+`TypeEmitter.declarationName`
 
 ***
 
@@ -535,7 +535,7 @@ enumDeclaration(en, name): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.enumDeclaration
+`TypeEmitter.enumDeclaration`
 
 ***
 
@@ -557,7 +557,7 @@ enumDeclarationContext(en): Context
 
 #### Overrides
 
-TypeEmitter.enumDeclarationContext
+`TypeEmitter.enumDeclarationContext`
 
 ***
 
@@ -580,7 +580,7 @@ enumDeclarationReferenceContext(en, name): Context
 
 #### Inherited from
 
-TypeEmitter.enumDeclarationReferenceContext
+`TypeEmitter.enumDeclarationReferenceContext`
 
 ***
 
@@ -602,14 +602,14 @@ enumMember(member): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.enumMember
+`TypeEmitter.enumMember`
 
 ***
 
 ### enumMemberContext()
 
 ```ts
-enumMemberContext(member): object
+enumMemberContext(member): Object
 ```
 
 #### Parameters
@@ -620,11 +620,11 @@ enumMemberContext(member): object
 
 #### Returns
 
-`object`
+`Object`
 
 #### Inherited from
 
-TypeEmitter.enumMemberContext
+`TypeEmitter.enumMemberContext`
 
 ***
 
@@ -646,7 +646,7 @@ enumMemberReference(member): EmitterOutput<Record<string, any>>
 
 #### Overrides
 
-TypeEmitter.enumMemberReference
+`TypeEmitter.enumMemberReference`
 
 ***
 
@@ -668,7 +668,7 @@ enumMembers(en): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.enumMembers
+`TypeEmitter.enumMembers`
 
 ***
 
@@ -690,7 +690,7 @@ enumMembersContext(en): Context
 
 #### Inherited from
 
-TypeEmitter.enumMembersContext
+`TypeEmitter.enumMembersContext`
 
 ***
 
@@ -713,7 +713,7 @@ interfaceDeclaration(iface, name): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.interfaceDeclaration
+`TypeEmitter.interfaceDeclaration`
 
 ***
 
@@ -736,7 +736,7 @@ interfaceDeclarationContext(iface, name): Context
 
 #### Inherited from
 
-TypeEmitter.interfaceDeclarationContext
+`TypeEmitter.interfaceDeclarationContext`
 
 ***
 
@@ -758,7 +758,7 @@ interfaceDeclarationOperations(iface): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.interfaceDeclarationOperations
+`TypeEmitter.interfaceDeclarationOperations`
 
 ***
 
@@ -780,7 +780,7 @@ interfaceDeclarationOperationsContext(iface): Context
 
 #### Inherited from
 
-TypeEmitter.interfaceDeclarationOperationsContext
+`TypeEmitter.interfaceDeclarationOperationsContext`
 
 ***
 
@@ -802,7 +802,7 @@ interfaceDeclarationOperationsReferenceContext(iface): Context
 
 #### Inherited from
 
-TypeEmitter.interfaceDeclarationOperationsReferenceContext
+`TypeEmitter.interfaceDeclarationOperationsReferenceContext`
 
 ***
 
@@ -825,7 +825,7 @@ interfaceDeclarationReferenceContext(iface, name): Context
 
 #### Inherited from
 
-TypeEmitter.interfaceDeclarationReferenceContext
+`TypeEmitter.interfaceDeclarationReferenceContext`
 
 ***
 
@@ -848,7 +848,7 @@ interfaceOperationDeclaration(operation, name): EmitterOutput<Record<string, any
 
 #### Inherited from
 
-TypeEmitter.interfaceOperationDeclaration
+`TypeEmitter.interfaceOperationDeclaration`
 
 ***
 
@@ -871,7 +871,7 @@ interfaceOperationDeclarationContext(operation, name): Context
 
 #### Inherited from
 
-TypeEmitter.interfaceOperationDeclarationContext
+`TypeEmitter.interfaceOperationDeclarationContext`
 
 ***
 
@@ -894,7 +894,7 @@ interfaceOperationDeclarationReferenceContext(operation, name): Context
 
 #### Inherited from
 
-TypeEmitter.interfaceOperationDeclarationReferenceContext
+`TypeEmitter.interfaceOperationDeclarationReferenceContext`
 
 ***
 
@@ -917,7 +917,7 @@ intrinsic(intrinsic, name): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.intrinsic
+`TypeEmitter.intrinsic`
 
 ***
 
@@ -940,7 +940,7 @@ intrinsicContext(intrinsic, name): Context
 
 #### Inherited from
 
-TypeEmitter.intrinsicContext
+`TypeEmitter.intrinsicContext`
 
 ***
 
@@ -963,7 +963,7 @@ modelDeclaration(model, name): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.modelDeclaration
+`TypeEmitter.modelDeclaration`
 
 ***
 
@@ -986,7 +986,7 @@ modelDeclarationContext(model, name): Context
 
 #### Overrides
 
-TypeEmitter.modelDeclarationContext
+`TypeEmitter.modelDeclarationContext`
 
 ***
 
@@ -1011,7 +1011,7 @@ Set reference context for a model declaration.
 
 #### Inherited from
 
-TypeEmitter.modelDeclarationReferenceContext
+`TypeEmitter.modelDeclarationReferenceContext`
 
 ***
 
@@ -1034,7 +1034,7 @@ modelInstantiation(model, name): EmitterOutput<Record<string, any>>
 
 #### Overrides
 
-TypeEmitter.modelInstantiation
+`TypeEmitter.modelInstantiation`
 
 ***
 
@@ -1057,7 +1057,7 @@ modelInstantiationContext(model, name): Context
 
 #### Overrides
 
-TypeEmitter.modelInstantiationContext
+`TypeEmitter.modelInstantiationContext`
 
 ***
 
@@ -1082,7 +1082,7 @@ Set reference context for a model declaration.
 
 #### Inherited from
 
-TypeEmitter.modelInstantiationReferenceContext
+`TypeEmitter.modelInstantiationReferenceContext`
 
 ***
 
@@ -1104,7 +1104,7 @@ modelLiteral(model): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.modelLiteral
+`TypeEmitter.modelLiteral`
 
 ***
 
@@ -1128,7 +1128,7 @@ Set lexical context for a model literal.
 
 #### Inherited from
 
-TypeEmitter.modelLiteralContext
+`TypeEmitter.modelLiteralContext`
 
 ***
 
@@ -1152,7 +1152,7 @@ Set reference context for a model literal.
 
 #### Inherited from
 
-TypeEmitter.modelLiteralReferenceContext
+`TypeEmitter.modelLiteralReferenceContext`
 
 ***
 
@@ -1174,7 +1174,7 @@ modelProperties(model): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.modelProperties
+`TypeEmitter.modelProperties`
 
 ***
 
@@ -1196,7 +1196,7 @@ modelPropertiesContext(model): Context
 
 #### Inherited from
 
-TypeEmitter.modelPropertiesContext
+`TypeEmitter.modelPropertiesContext`
 
 ***
 
@@ -1218,7 +1218,7 @@ modelPropertiesReferenceContext(model): Context
 
 #### Inherited from
 
-TypeEmitter.modelPropertiesReferenceContext
+`TypeEmitter.modelPropertiesReferenceContext`
 
 ***
 
@@ -1240,7 +1240,7 @@ modelPropertyLiteral(property): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.modelPropertyLiteral
+`TypeEmitter.modelPropertyLiteral`
 
 ***
 
@@ -1264,7 +1264,7 @@ Set lexical context for a property of a model.
 
 #### Inherited from
 
-TypeEmitter.modelPropertyLiteralContext
+`TypeEmitter.modelPropertyLiteralContext`
 
 ***
 
@@ -1288,7 +1288,7 @@ Set reference context for a property of a model.
 
 #### Inherited from
 
-TypeEmitter.modelPropertyLiteralReferenceContext
+`TypeEmitter.modelPropertyLiteralReferenceContext`
 
 ***
 
@@ -1310,7 +1310,7 @@ modelPropertyReference(property): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.modelPropertyReference
+`TypeEmitter.modelPropertyReference`
 
 ***
 
@@ -1336,7 +1336,7 @@ Emitter output
 
 #### Inherited from
 
-TypeEmitter.namespace
+`TypeEmitter.namespace`
 
 ***
 
@@ -1360,7 +1360,7 @@ Set lexical context for a namespace
 
 #### Inherited from
 
-TypeEmitter.namespaceContext
+`TypeEmitter.namespaceContext`
 
 ***
 
@@ -1384,7 +1384,7 @@ Set reference context for a namespace.
 
 #### Inherited from
 
-TypeEmitter.namespaceReferenceContext
+`TypeEmitter.namespaceReferenceContext`
 
 ***
 
@@ -1406,7 +1406,7 @@ numericLiteral(number): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.numericLiteral
+`TypeEmitter.numericLiteral`
 
 ***
 
@@ -1428,7 +1428,7 @@ numericLiteralContext(number): Context
 
 #### Inherited from
 
-TypeEmitter.numericLiteralContext
+`TypeEmitter.numericLiteralContext`
 
 ***
 
@@ -1451,7 +1451,7 @@ operationDeclaration(operation, name): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.operationDeclaration
+`TypeEmitter.operationDeclaration`
 
 ***
 
@@ -1474,7 +1474,7 @@ operationDeclarationContext(operation, name): Context
 
 #### Inherited from
 
-TypeEmitter.operationDeclarationContext
+`TypeEmitter.operationDeclarationContext`
 
 ***
 
@@ -1497,7 +1497,7 @@ operationDeclarationReferenceContext(operation, name): Context
 
 #### Inherited from
 
-TypeEmitter.operationDeclarationReferenceContext
+`TypeEmitter.operationDeclarationReferenceContext`
 
 ***
 
@@ -1520,7 +1520,7 @@ operationParameters(operation, parameters): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.operationParameters
+`TypeEmitter.operationParameters`
 
 ***
 
@@ -1543,7 +1543,7 @@ operationParametersContext(operation, parameters): Context
 
 #### Inherited from
 
-TypeEmitter.operationParametersContext
+`TypeEmitter.operationParametersContext`
 
 ***
 
@@ -1566,7 +1566,7 @@ operationParametersReferenceContext(operation, parameters): Context
 
 #### Inherited from
 
-TypeEmitter.operationParametersReferenceContext
+`TypeEmitter.operationParametersReferenceContext`
 
 ***
 
@@ -1589,7 +1589,7 @@ operationReturnType(operation, returnType): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.operationReturnType
+`TypeEmitter.operationReturnType`
 
 ***
 
@@ -1612,7 +1612,7 @@ operationReturnTypeContext(operation, returnType): Context
 
 #### Inherited from
 
-TypeEmitter.operationReturnTypeContext
+`TypeEmitter.operationReturnTypeContext`
 
 ***
 
@@ -1635,7 +1635,7 @@ operationReturnTypeReferenceContext(operation, returnType): Context
 
 #### Inherited from
 
-TypeEmitter.operationReturnTypeReferenceContext
+`TypeEmitter.operationReturnTypeReferenceContext`
 
 ***
 
@@ -1657,7 +1657,7 @@ programContext(program): Context
 
 #### Overrides
 
-TypeEmitter.programContext
+`TypeEmitter.programContext`
 
 ***
 
@@ -1686,7 +1686,7 @@ commonScope): object | EmitEntity<Record<string, unknown>>
 
 #### Overrides
 
-TypeEmitter.reference
+`TypeEmitter.reference`
 
 ***
 
@@ -1709,7 +1709,7 @@ scalarDeclaration(scalar, name): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.scalarDeclaration
+`TypeEmitter.scalarDeclaration`
 
 ***
 
@@ -1731,7 +1731,7 @@ scalarDeclarationContext(scalar): Context
 
 #### Overrides
 
-TypeEmitter.scalarDeclarationContext
+`TypeEmitter.scalarDeclarationContext`
 
 ***
 
@@ -1754,7 +1754,7 @@ scalarDeclarationReferenceContext(scalar, name): Context
 
 #### Inherited from
 
-TypeEmitter.scalarDeclarationReferenceContext
+`TypeEmitter.scalarDeclarationReferenceContext`
 
 ***
 
@@ -1777,7 +1777,7 @@ scalarInstantiation(scalar, name): EmitterOutput<Record<string, any>>
 
 #### Overrides
 
-TypeEmitter.scalarInstantiation
+`TypeEmitter.scalarInstantiation`
 
 ***
 
@@ -1800,7 +1800,7 @@ scalarInstantiationContext(scalar, name): Context
 
 #### Overrides
 
-TypeEmitter.scalarInstantiationContext
+`TypeEmitter.scalarInstantiationContext`
 
 ***
 
@@ -1822,7 +1822,7 @@ sourceFile(sourceFile): EmittedSourceFile
 
 #### Overrides
 
-TypeEmitter.sourceFile
+`TypeEmitter.sourceFile`
 
 ***
 
@@ -1844,7 +1844,7 @@ stringLiteral(string): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.stringLiteral
+`TypeEmitter.stringLiteral`
 
 ***
 
@@ -1866,7 +1866,7 @@ stringLiteralContext(string): Context
 
 #### Inherited from
 
-TypeEmitter.stringLiteralContext
+`TypeEmitter.stringLiteralContext`
 
 ***
 
@@ -1888,7 +1888,7 @@ stringTemplate(string): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.stringTemplate
+`TypeEmitter.stringTemplate`
 
 ***
 
@@ -1910,7 +1910,7 @@ stringTemplateContext(string): Context
 
 #### Inherited from
 
-TypeEmitter.stringTemplateContext
+`TypeEmitter.stringTemplateContext`
 
 ***
 
@@ -1932,7 +1932,7 @@ tupleLiteral(tuple): EmitterOutput<Record<string, any>>
 
 #### Overrides
 
-TypeEmitter.tupleLiteral
+`TypeEmitter.tupleLiteral`
 
 ***
 
@@ -1954,7 +1954,7 @@ tupleLiteralContext(tuple): Context
 
 #### Inherited from
 
-TypeEmitter.tupleLiteralContext
+`TypeEmitter.tupleLiteralContext`
 
 ***
 
@@ -1976,7 +1976,7 @@ tupleLiteralReferenceContext(tuple): Context
 
 #### Inherited from
 
-TypeEmitter.tupleLiteralReferenceContext
+`TypeEmitter.tupleLiteralReferenceContext`
 
 ***
 
@@ -1998,7 +1998,7 @@ tupleLiteralValues(tuple): EmitterOutput<Record<string, any>>
 
 #### Overrides
 
-TypeEmitter.tupleLiteralValues
+`TypeEmitter.tupleLiteralValues`
 
 ***
 
@@ -2020,7 +2020,7 @@ tupleLiteralValuesContext(tuple): Context
 
 #### Inherited from
 
-TypeEmitter.tupleLiteralValuesContext
+`TypeEmitter.tupleLiteralValuesContext`
 
 ***
 
@@ -2042,7 +2042,7 @@ tupleLiteralValuesReferenceContext(tuple): Context
 
 #### Inherited from
 
-TypeEmitter.tupleLiteralValuesReferenceContext
+`TypeEmitter.tupleLiteralValuesReferenceContext`
 
 ***
 
@@ -2065,7 +2065,7 @@ unionDeclaration(union, name): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.unionDeclaration
+`TypeEmitter.unionDeclaration`
 
 ***
 
@@ -2087,7 +2087,7 @@ unionDeclarationContext(union): Context
 
 #### Overrides
 
-TypeEmitter.unionDeclarationContext
+`TypeEmitter.unionDeclarationContext`
 
 ***
 
@@ -2109,7 +2109,7 @@ unionDeclarationReferenceContext(union): Context
 
 #### Inherited from
 
-TypeEmitter.unionDeclarationReferenceContext
+`TypeEmitter.unionDeclarationReferenceContext`
 
 ***
 
@@ -2132,7 +2132,7 @@ unionInstantiation(union, name): EmitterOutput<Record<string, any>>
 
 #### Inherited from
 
-TypeEmitter.unionInstantiation
+`TypeEmitter.unionInstantiation`
 
 ***
 
@@ -2155,7 +2155,7 @@ unionInstantiationContext(union, name): Context
 
 #### Inherited from
 
-TypeEmitter.unionInstantiationContext
+`TypeEmitter.unionInstantiationContext`
 
 ***
 
@@ -2178,7 +2178,7 @@ unionInstantiationReferenceContext(union, name): Context
 
 #### Inherited from
 
-TypeEmitter.unionInstantiationReferenceContext
+`TypeEmitter.unionInstantiationReferenceContext`
 
 ***
 
@@ -2200,7 +2200,7 @@ unionLiteral(union): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.unionLiteral
+`TypeEmitter.unionLiteral`
 
 ***
 
@@ -2222,7 +2222,7 @@ unionLiteralContext(union): Context
 
 #### Inherited from
 
-TypeEmitter.unionLiteralContext
+`TypeEmitter.unionLiteralContext`
 
 ***
 
@@ -2244,7 +2244,7 @@ unionLiteralReferenceContext(union): Context
 
 #### Inherited from
 
-TypeEmitter.unionLiteralReferenceContext
+`TypeEmitter.unionLiteralReferenceContext`
 
 ***
 
@@ -2266,7 +2266,7 @@ unionVariant(variant): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.unionVariant
+`TypeEmitter.unionVariant`
 
 ***
 
@@ -2288,7 +2288,7 @@ unionVariantContext(union): Context
 
 #### Inherited from
 
-TypeEmitter.unionVariantContext
+`TypeEmitter.unionVariantContext`
 
 ***
 
@@ -2310,7 +2310,7 @@ unionVariantReferenceContext(union): Context
 
 #### Inherited from
 
-TypeEmitter.unionVariantReferenceContext
+`TypeEmitter.unionVariantReferenceContext`
 
 ***
 
@@ -2332,7 +2332,7 @@ unionVariants(union): EmitterOutput<object>
 
 #### Overrides
 
-TypeEmitter.unionVariants
+`TypeEmitter.unionVariants`
 
 ***
 
@@ -2348,7 +2348,7 @@ unionVariantsContext(): Context
 
 #### Inherited from
 
-TypeEmitter.unionVariantsContext
+`TypeEmitter.unionVariantsContext`
 
 ***
 
@@ -2364,7 +2364,7 @@ unionVariantsReferenceContext(): Context
 
 #### Inherited from
 
-TypeEmitter.unionVariantsReferenceContext
+`TypeEmitter.unionVariantsReferenceContext`
 
 ***
 
@@ -2386,4 +2386,4 @@ writeOutput(sourceFiles): Promise<void>
 
 #### Overrides
 
-TypeEmitter.writeOutput
+`TypeEmitter.writeOutput`

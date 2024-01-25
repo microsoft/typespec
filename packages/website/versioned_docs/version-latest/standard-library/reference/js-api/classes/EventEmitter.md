@@ -7,7 +7,7 @@ title: "[C] EventEmitter"
 
 | Parameter |
 | :------ |
-| `T` extends `object` |
+| `T` extends `Object` |
 
 ## Constructors
 

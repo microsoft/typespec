@@ -24,11 +24,11 @@ Let's walk through each of these types in turn.
 
 The asset emitter is responsible for driving the emit process. It has methods for taking TypeSpec types to emit, and maintains the state of your current emit process including the declarations you've accumulated, current emit context, and converting your emitted content into files on disk.
 
-To create your asset emitter, call `createAssetEmitter` on your emit context in `$onEmit`. It takes the TypeEmitter which is covered in the next section. Once created, you can call `emitProgram()` to emit every type in the TypeSpec graph. Otherwise, you can call `emitType(someType)` to emit specific types instead.
+To create your asset emitter, call `getAssetEmitter` on your emit context in `$onEmit`. It takes the TypeEmitter which is covered in the next section. Once created, you can call `emitProgram()` to emit every type in the TypeSpec graph. Otherwise, you can call `emitType(someType)` to emit specific types instead.
 
 ```typescript
 export async function $onEmit(context: EmitContext) {
-  const assetEmitter = context.createAssetEmitter(MyTypeEmitter);
+  const assetEmitter = context.getAssetEmitter(MyTypeEmitter);
 
   // emit my entire typespec program
   assetEmitter.emitProgram();
@@ -59,7 +59,7 @@ class MyCodeEmitter extends CodeTypeEmitter {
 }
 ```
 
-Passing this to `createAssetEmitter` and calling `assetEmitter.emitProgram()` will console.log all the models in the program.
+Passing this to `getAssetEmitter` and calling `assetEmitter.emitProgram()` will console.log all the models in the program.
 
 #### EmitterOutput
 

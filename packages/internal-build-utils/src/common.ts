@@ -48,7 +48,7 @@ export async function exitOnFailedCommand<T>(cb: () => Promise<T>): Promise<T> {
   }
 }
 
-const isCmdOnWindows = ["rush", "npm", "code", "code-insiders", "docusaurus", "tsc", "prettier"];
+const isCmdOnWindows = ["pnpm", "npm", "code", "code-insiders", "docusaurus", "tsc", "prettier"];
 
 /** Run the given command or throw CommandFailedError if the command returns non zero exit code. */
 export async function run(

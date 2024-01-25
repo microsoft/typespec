@@ -13,7 +13,6 @@ type Expression:
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
-  | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode

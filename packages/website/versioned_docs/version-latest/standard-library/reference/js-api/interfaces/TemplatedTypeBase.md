@@ -15,6 +15,6 @@ title: "[I] TemplatedTypeBase"
 
 | Property | Type | Description |
 | :------ | :------ | :------ |
-| `templateArguments`? | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br /><br />use templateMapper instead. |
-| `templateMapper`? | [`TypeMapper`](TypeMapper.md) | - |
-| `templateNode`? | [`Node`](../type-aliases/Node.md) | - |
+| ~~`templateArguments?`~~ | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. |
+| `templateMapper?` | [`TypeMapper`](TypeMapper.md) | - |
+| `templateNode?` | [`Node`](../type-aliases/Node.md) | - |

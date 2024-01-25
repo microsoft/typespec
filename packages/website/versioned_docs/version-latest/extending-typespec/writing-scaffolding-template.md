@@ -10,6 +10,18 @@ typespec provides scaffolding functionality via the `tsp init` command.
 tsp init <templateUrl>
 ```
 
+## Specifying a minimum typespec version
+
+If your template needs a functionality that was only added in a newer version of TypeSpec you might want to specify that in the template. This will warn the user that the template might not work as expected and prompt them to confirm that they want to continue.
+
+To do so you can set `compilerVersion` in the each template configuration. The value is the minimum semver version required.
+
+```json
+{
+  "compilerVersion": "0.51.0"
+}
+```
+
 ## Basic
 
 A scaffolding template is a `json` document that can be hosted locally or online.
@@ -96,6 +108,9 @@ Additionally the following values and functions are available:
 | Functions                             |                                                                 |
 | `toLowerCase(value: string)`          | Convert string to lower case                                    |
 | `normalizePackageName(value: string)` | Normalize package name. It replaces `.` with`-` and toLowerCase |
+| `casing.pascalCase(value: string)`    | Convert string to PascalCase                                    |
+| `casing.camelCase(value: string)`     | Convert string to camelCase                                     |
+| `casing.kebabCase(value: string)`     | Convert string to kebab-case                                    |
 
 ## Demanding additional input from the user
 

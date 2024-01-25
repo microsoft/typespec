@@ -11,7 +11,7 @@ title: "[I] SourceLocation"
 
 | Modifier | Property | Type | Description | Inheritance |
 | :------ | :------ | :------ | :------ | :------ |
-| `readonly` | `end` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`TextRange`](TextRange.md).`end` |
+| `readonly` | `end` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`TextRange.end`](TextRange.md) |
 | `public` | `file` | [`SourceFile`](SourceFile.md) | - | - |
-| `public` | `isSynthetic`? | `boolean` | - | - |
-| `readonly` | `pos` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`TextRange`](TextRange.md).`pos` |
+| `public` | `isSynthetic?` | `boolean` | - | - |
+| `readonly` | `pos` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`TextRange.pos`](TextRange.md) |

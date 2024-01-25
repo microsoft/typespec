@@ -27,9 +27,9 @@ jobs:
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
-      - script: node common/scripts/install-run-rush.js publish --publish --pack --include-all
+      - script: pnpm run pack:all
         displayName: Pack packages
 
-      - publish: $(Build.SourcesDirectory)/common/temp/artifacts/packages
+      - publish: $(Build.SourcesDirectory)/temp/artifacts
         artifact: packages
         displayName: Publish packages(.tgz) as pipeline artifacts

@@ -4,7 +4,7 @@ title: "[T] SemanticNodeListener"
 
 ---
 ```ts
-type SemanticNodeListener: object & TypeListeners;
+type SemanticNodeListener: Object & TypeListeners;
 ```
 
 ## Type declaration
