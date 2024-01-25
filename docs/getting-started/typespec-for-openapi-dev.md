@@ -140,7 +140,7 @@ In OpenAPI v3, the top-level `servers` field specifies an array of `server` obje
 [v3-server]: https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.3.md#server-object
 
 In TypeSpec, the `host` in OpenAPI v2 or `servers` in OpenAPI v3 can be specified with the `@server` decorator
-on the namespace(From `@typespec/http` library). You can use this decorator multiple times to specify multiple servers.
+on the namespace (from `@typespec/http` library). You can use this decorator multiple times to specify multiple servers.
 
 ## Paths Object
 

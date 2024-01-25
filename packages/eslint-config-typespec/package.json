@@ -1,7 +1,7 @@
 {
   "name": "@typespec/eslint-config-typespec",
   "version": "0.52.0",
-  "description": "ESLint config for typespec packages",
+  "description": "ESLint config for TypeSpec packages",
   "main": "index.js",
   "repository": {
     "type": "git",

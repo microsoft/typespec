@@ -402,7 +402,7 @@ op create(): {@statusCode: 201 | 202}
 
 ### `@useAuth` {#@TypeSpec.Http.useAuth}
 
-Specify this service authentication. See the [documentation in the Http library](https://microsoft.github.io/typespec/libraries/http/authentication) for full details.
+Specify this service authentication. See the [documentation in the Http library](https://typespec.io/docs/libraries/http/authentication) for full details.
 
 ```typespec
 @TypeSpec.Http.useAuth(auth: {} | Union | {}[])
@@ -414,9 +414,9 @@ Specify this service authentication. See the [documentation in the Http library]
 
 #### Parameters
 
-| Name | Type                        | Description                                                                                                                                                    |
-| ---- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple(Must use all authentication together) |
+| Name | Type                        | Description                                                                                                                                                     |
+| ---- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple (must use all authentication together) |
 
 #### Examples
 

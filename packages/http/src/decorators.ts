@@ -359,7 +359,7 @@ export interface HttpServer {
 /**
  * Configure the server url for the service.
  * @param context Decorator context
- * @param target Decorator target(Must be a namespace)
+ * @param target Decorator target (must be a namespace)
  * @param description Description for this server.
  * @param parameters @optional Parameters to interpolate in the server url.
  */
