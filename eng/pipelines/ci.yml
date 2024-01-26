@@ -41,9 +41,9 @@ jobs:
         artifact: packages
         displayName: Publish packages(.tgz) as pipeline artifacts
 
-      - publish: $(Build.SourcesDirectory)/packages/typespec-vscode/*.visx
+      - publish: $(Build.SourcesDirectory)/packages/typespec-vscode/*.vsix
         artifact: vscode-extension
-        displayName: Publish VSCode extension(.visx) as pipeline artifacts
+        displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
@@ -75,7 +75,7 @@ jobs:
     steps:
       - download: current
         artifact: vscode-extension
-        displayName: Download VSCode extension(.visx) from pipeline artifacts
+        displayName: Download VSCode extension(.vsix) from pipeline artifacts
 
       - script: |
           vsix="$(find $(Pipeline.Workspace)/vscode-extension -type f -iname "typespec-vscode-*.vsix" )"
