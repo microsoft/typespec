@@ -1,6 +1,6 @@
 name: Publish VSCode extension
 trigger:
-  - vscode-publish
+  # - vscode-publish
 #   - main
 #   # For patch releases
 #   - release/*
@@ -33,4 +33,7 @@ jobs:
         workingDirectory: packages/typespec-vscode
         env:
           VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
+
       - script: npx vsce unpublish ms-azuretools.typespec-vscode
+        env:
+          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
