@@ -1,5 +1,5 @@
 steps:
-  - script: node common/scripts/install-run-rush.js merge-coverage
+  - script: pnpm run merge-coverage
     displayName: Merge code coverage
 
   - task: PublishCodeCoverageResults@1

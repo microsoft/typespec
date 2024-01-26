@@ -13,7 +13,7 @@ async function main() {
   const packages = await packPackages();
 
   console.log("Check packages exists");
-  await runOrExit("ls", [`${repoRoot}/common/temp/artifacts/packages`]);
+  await runOrExit("ls", [`${repoRoot}/temp/artifacts`]);
 
   console.log("Check cli is working");
   await runTypeSpec(packages["@typespec/compiler"], ["--help"], { cwd: e2eTestDir });
@@ -36,8 +36,8 @@ async function cleanE2EDirectory() {
 }
 
 async function packPackages() {
-  await runOrExit("rush", ["publish", "--publish", "--pack", "--include-all"]);
-  const outputFolder = join(repoRoot, "common/temp/artifacts/packages");
+  await runOrExit("pnpm", ["-w", "pack:all"], { cwd: repoRoot });
+  const outputFolder = join(repoRoot, "/temp/artifacts");
   const files = readdirSync(outputFolder);
   console.log("Built packages:", files);
 

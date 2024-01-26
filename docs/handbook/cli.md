@@ -19,8 +19,8 @@ Commands:
   tsp vs                   Manage Visual Studio Extension.
   tsp format <include...>  Format given list of TypeSpec files.
   tsp init [templatesUrl]  Create a new TypeSpec project.
-  tsp install              Install typespec dependencies
-  tsp info                 Show information about current TypeSpec compiler.
+  tsp install              Install TypeSpec dependencies
+  tsp info                 Show information about the current TypeSpec compiler.
 
 Options:
   --help     Show help                                                 [boolean]

@@ -4,7 +4,7 @@ title: Scalars
 
 # Scalars
 
-These are types without any fields(For example `string`, `int32`, `boolean`, etc.)
+These are types without any fields (for example `string`, `int32`, `boolean`, etc.)
 
 Scalar can be declared using the `scalar` keyword
 

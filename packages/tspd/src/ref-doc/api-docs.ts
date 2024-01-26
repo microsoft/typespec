@@ -27,7 +27,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   load(app);
 
   setOptions(app, {
-    name: "JS Api",
+    name: "JS API",
     githubPages: false,
     readme: "none",
     hideGenerator: true,
@@ -47,7 +47,7 @@ export async function generateJsApiDocs(libraryPath: string, outputDir: string) 
   await writeFile(
     joinPaths(outputDir, "_category_.json"),
     JSON.stringify({
-      label: "JS Api",
+      label: "JS API",
       link: {
         type: "doc",
         id: "index",

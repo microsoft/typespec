@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- **Using node 14 and above**
+- **Using Node 14 and above**
 - For use in **VSCode**, use version `VSCode 1.56` and above.
 
 ## Getting Started

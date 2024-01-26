@@ -1,8 +1,8 @@
-import openapiTsp from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/main.tsp";
-import openapiYaml from "!!raw-loader!@site/static/tsp-samples/openapi3/hero/out/openapi.yaml";
+import openapiTsp from "!!raw-loader!@site/static/tsp-samples/homepage/hero/http/main.tsp";
+import openapiYaml from "!!raw-loader!@site/static/tsp-samples/homepage/hero/http/out/openapi.yaml";
 
-import jsonSchemaTsp from "!!raw-loader!@site/static/tsp-samples/json-schema/hero/main.tsp";
-import jsonSchemaOutput from "!!raw-loader!@site/static/tsp-samples/json-schema/hero/out/schema.yaml";
+import jsonSchemaTsp from "!!raw-loader!@site/static/tsp-samples/homepage/hero/json-schema/main.tsp";
+import jsonSchemaOutput from "!!raw-loader!@site/static/tsp-samples/homepage/hero/json-schema/out/schema.yaml";
 
 import protobufTsp from "!!raw-loader!@site/static/tsp-samples/protobuf/hero/main.tsp";
 import protobufOutput from "!!raw-loader!@site/static/tsp-samples/protobuf/hero/out/addressbook.proto";

@@ -91,7 +91,7 @@ export async function formatTypeSpecFile(filename: string) {
 }
 
 /**
- * Check the given typespec file is correctly formatted.
+ * Check the given TypeSpec file is correctly formatted.
  * @returns true if code is formatted correctly.
  */
 export async function checkFormatTypeSpecFile(filename: string): Promise<boolean> {

@@ -2,7 +2,7 @@
   "name": "@typespec/bundler",
   "version": "0.1.0-alpha.5",
   "author": "Microsoft Corporation",
-  "description": "Package to bundle a typespec library.",
+  "description": "Package to bundle a TypeSpec library.",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
@@ -66,7 +66,7 @@
     "c8": "~8.0.1",
     "rimraf": "~5.0.1",
     "typescript": "~5.3.3",
-    "vite": "^5.0.8",
+    "vite": "^5.0.12",
     "@types/yargs": "~17.0.32"
   }
 }

@@ -9,7 +9,12 @@
 common/temp/
 common/scripts/
 common/changes/
-common/config/rush/pnpm-lock.yaml
+
+# Pnpm lock file
+pnpm-lock.yaml
+
+# Emu spec file, formatting is wrong
+packages/spec/src/spec.emu.html
 
 # Coverage report directory
 **/coverage/

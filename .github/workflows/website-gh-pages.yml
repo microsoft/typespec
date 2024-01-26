@@ -31,11 +31,13 @@ jobs:
         with:
           node-version: 18.x
 
+      - uses: pnpm/action-setup@v2
+
       - name: Install dependencies
-        run: node common/scripts/install-run-rush.js install --max-install-attempts 3
+        run: pnpm install
 
       - name: Build
-        run: node common/scripts/install-run-rush.js build --to @typespec/website -v
+        run: pnpm --filter "@typespec/website..." run build
         env:
           # Only when deploying to microsoft.github.io/typespec. For typespec.io use the default value.
           # TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
