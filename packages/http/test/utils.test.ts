@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { extractParamsFromPath } from "../src/utils.js";
 
-describe.only("utils", () => {
+describe("utils", () => {
   describe("extractParamsFromPath", () => {
     it("parse single param", () => {
       expect(extractParamsFromPath("foo/{name}/bar")).toEqual(["name"]);
