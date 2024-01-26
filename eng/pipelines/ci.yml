@@ -44,7 +44,7 @@ jobs:
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
-          Contents: "*.visx"
+          Contents: "*.vsix"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
       - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
