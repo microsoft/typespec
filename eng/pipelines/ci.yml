@@ -36,12 +36,24 @@ jobs:
           pnpm -r publish --access public --no-git-checks
         displayName: Publish packages
 
+      - script: pnpm run pack:all
+        displayName: Pack packages
+
+      - publish: $(Build.SourcesDirectory)/temp/artifacts
+        artifact: packages
+        displayName: Publish packages(.tgz) as pipeline artifacts
+
+      - publish: $(Build.SourcesDirectory)/packages/typespec-vscode/*.visx
+        artifact: vscode-extension
+        displayName: Publish VSCode extension(.visx) as pipeline artifacts
+
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
         inputs:
           azureSubscription: "Azure SDK Engineering System"
           scriptLocation: inlineScript
           inlineScript: node ./eng/scripts/upload-bundler-packages.js
+      - publish:
 
       - task: AzureCLI@1
         displayName: "Publish playground"
@@ -55,6 +67,26 @@ jobs:
               --destination-path / ^
               --source "./packages/playground-website/dist/" ^
               --overwrite
+
+  - job: publish_vscode
+    displayName: Publish VSCode extension
+    pool:
+      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
+
+    variables:
+      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+
+    steps:
+      - template: ./templates/install.yml
+        parameters:
+          nodeVersion: "20.x"
+
+      - script: npm run deploy -- --skip-duplicate
+        displayName: Publish
+        workingDirectory: packages/typespec-vscode
+        env:
+          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
 
   - job: npm_dev
     dependsOn: npm_stable
