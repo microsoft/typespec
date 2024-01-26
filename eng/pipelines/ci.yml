@@ -22,8 +22,6 @@ jobs:
 
     steps:
       - template: ./templates/install.yml
-        parameters:
-          nodeVersion: "20.x"
       - template: ./templates/build.yml
 
       - script: pnpm run test-official
@@ -53,7 +51,6 @@ jobs:
           azureSubscription: "Azure SDK Engineering System"
           scriptLocation: inlineScript
           inlineScript: node ./eng/scripts/upload-bundler-packages.js
-      - publish:
 
       - task: AzureCLI@1
         displayName: "Publish playground"
@@ -70,19 +67,28 @@ jobs:
 
   - job: publish_vscode
     displayName: Publish VSCode extension
+    dependsOn: npm_stable
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
       vmImage: ubuntu-20.04
 
-    variables:
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
-
     steps:
-      - template: ./templates/install.yml
-        parameters:
-          nodeVersion: "20.x"
+      - download: current
+        artifact: vscode-extension
+        displayName: Download VSCode extension(.visx) from pipeline artifacts
 
-      - script: npm run deploy -- --skip-duplicate
+      - script: |
+          vsix="$(find $(Pipeline.Workspace)/vscode-extension -type f -iname "typespec-vscode-*.vsix" )"
+
+          [ -z "$vsix" ] && echo "Error: Couldn't find vsix" && exit 1
+
+          echo "Found core package $vsix"
+          echo "Found modelerfour package $modelerfourPkg"
+        displayName: Find packages path
+
+      - template: ./templates/install.yml
+
+      - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
         displayName: Publish
         workingDirectory: packages/typespec-vscode
         env:
@@ -100,8 +106,6 @@ jobs:
 
     steps:
       - template: ./templates/install.yml
-        parameters:
-          nodeVersion: "20.x"
       - template: ./templates/build.yml
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
