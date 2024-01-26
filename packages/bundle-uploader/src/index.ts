@@ -1,7 +1,6 @@
 import { AzureCliCredential } from "@azure/identity";
+import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
 import { createTypeSpecBundle } from "@typespec/bundler";
-import { readFile } from "fs/promises";
-import JSON5 from "json5";
 import { resolve } from "path";
 import { join as joinUnix } from "path/posix";
 import pc from "picocolors";
@@ -37,16 +36,17 @@ export interface BundleAndUploadPackagesOptions {
 
 /** Return the version of the package in major.minor.x format */
 export async function getPackageVersion(repoRoot: string, pkgName: string) {
-  const rushJson = await loadRushJson(repoRoot);
-  const project = rushJson.projects.find((x) => x.packageName === pkgName);
+  const projects = await findWorkspacePackagesNoCheck(repoRoot);
+
+  const project = projects.find((x) => x.manifest.name === pkgName);
   if (project === undefined) {
-    throw new Error(`Cannot get version for package: "${pkgName}", it is not found in rush.json`);
+    throw new Error(
+      `Cannot get version for package: "${pkgName}", pnpm couldn't find a package with that name in the workspace`
+    );
   }
-  const content = await readFile(resolve(repoRoot, project.projectFolder, "package.json"));
-  const pkg = JSON.parse(content.toString());
-  const version = parse(pkg.version);
+  const version = parse(project.manifest.version);
   if (version === null) {
-    throw new Error(`Couldn't resolve version from "${pkgName}": "${pkg.version}"`);
+    throw new Error(`Couldn't resolve version from "${pkgName}": "${project.manifest.version}"`);
   }
   return `${version.major}.${version.minor}.x`;
 }
@@ -57,8 +57,7 @@ export async function bundleAndUploadPackages({
   indexName,
   indexVersion,
 }: BundleAndUploadPackagesOptions) {
-  const rushJson = await loadRushJson(repoRoot);
-  const projects = rushJson.projects.filter((x) => packages.includes(x.packageName));
+  const projects = await findWorkspacePackagesNoCheck(repoRoot);
   logInfo("Current index version:", indexVersion);
 
   const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
@@ -66,7 +65,7 @@ export async function bundleAndUploadPackages({
 
   const importMap: Record<string, string> = {};
   for (const project of projects) {
-    const bundle = await createTypeSpecBundle(resolve(repoRoot, project.projectFolder));
+    const bundle = await createTypeSpecBundle(resolve(repoRoot, project.dir));
     const manifest = bundle.manifest;
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {
@@ -75,7 +74,7 @@ export async function bundleAndUploadPackages({
       logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);
     }
     for (const [key, value] of Object.entries(result.imports)) {
-      importMap[joinUnix(project.packageName, key)] = value;
+      importMap[joinUnix(project.manifest.name!, key)] = value;
     }
   }
   logInfo(`Import map for ${indexVersion}:`, importMap);
@@ -84,19 +83,4 @@ export async function bundleAndUploadPackages({
     imports: importMap,
   });
   logSuccess(`Updated index for version ${indexVersion}.`);
-}
-
-interface RushJson {
-  projects: RushProject[];
-}
-
-interface RushProject {
-  packageName: string;
-  projectFolder: string;
-  versionPolicyName?: string;
-  shouldPublish?: boolean;
-}
-async function loadRushJson(repoRoot: string): Promise<RushJson> {
-  const content = await readFile(resolve(repoRoot, "rush.json"));
-  return JSON5.parse(content.toString());
 }
