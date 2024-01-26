@@ -28,7 +28,7 @@ jobs:
       - script: pnpm --filter "typespec-vscode..." run build
         displayName: Build
 
-      - script: npm run deploy --skip-duplicate
+      - script: npm run deploy -- --skip-duplicate
         displayName: Publish
         workingDirectory: packages/typespec-vscode
         env:
