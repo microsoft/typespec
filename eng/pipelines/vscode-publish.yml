@@ -1,6 +1,7 @@
 # Continuous Integration
 
-trigger: []
+trigger:
+  - vscode-publish
 #   - main
 #   # For patch releases
 #   - release/*
