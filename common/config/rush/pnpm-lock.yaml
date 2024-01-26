@@ -609,7 +609,7 @@ importers:
         specifier: workspace:~0.52.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~0.52.0
+        specifier: workspace:~0.52.1
         version: link:../http
       '@typespec/library-linter':
         specifier: workspace:~0.52.0
@@ -661,7 +661,7 @@ importers:
         specifier: workspace:~0.52.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~0.52.0
+        specifier: workspace:~0.52.1
         version: link:../http
       '@typespec/library-linter':
         specifier: workspace:~0.52.0
@@ -718,7 +718,7 @@ importers:
         specifier: workspace:~0.52.0
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~0.52.0
+        specifier: workspace:~0.52.1
         version: link:../http
       '@typespec/openapi':
         specifier: workspace:~0.52.0
@@ -848,7 +848,7 @@ importers:
         specifier: workspace:~0.52.0
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~0.52.0
+        specifier: workspace:~0.52.1
         version: link:../http
       '@typespec/json-schema':
         specifier: workspace:~0.52.0
@@ -1027,7 +1027,7 @@ importers:
         specifier: workspace:~0.52.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~0.52.0
+        specifier: workspace:~0.52.1
         version: link:../http
       '@typespec/library-linter':
         specifier: workspace:~0.52.0
@@ -1069,7 +1069,7 @@ importers:
         specifier: workspace:~0.52.0
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~0.52.0
+        specifier: workspace:~0.52.1
         version: link:../http
       '@typespec/json-schema':
         specifier: workspace:~0.52.0
@@ -1406,7 +1406,7 @@ importers:
         specifier: workspace:~0.52.0
         version: link:../eslint-config-typespec
       '@typespec/http':
-        specifier: workspace:~0.52.0
+        specifier: workspace:~0.52.1
         version: link:../http
       '@typespec/internal-build-utils':
         specifier: workspace:~0.52.0

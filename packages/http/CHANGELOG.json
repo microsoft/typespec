@@ -2,6 +2,18 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.52.1",
+      "tag": "@typespec/http_v0.52.1",
+      "date": "Fri, 26 Jan 2024 20:12:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Parsing of path parameter works with OData style params"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.52.0",
       "tag": "@typespec/http_v0.52.0",
       "date": "Wed, 24 Jan 2024 05:46:53 GMT",
