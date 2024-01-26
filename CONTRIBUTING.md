@@ -1,26 +1,23 @@
 # Prerequisites
 
 - Install [Node.js](https://nodejs.org/) 20 LTS
-- Install [Rush](https://rushjs.io/)
+- Install [pnpm](https://pnpm.io/)
 
 ```bash
-npm install -g @microsoft/rush
+npm install -g pnpm
 ```
 
 # Installing NPM dependencies
 
 ```bash
-rush update
-
-# To force rush to refetch the correct version of the packages
-rush update --recheck
+pnpm install
 ```
 
 This will install all of the npm dependencies of all projects in the
 repo. Do this whenever you `git pull` or your workspace is freshly
 cleaned/cloned.
 
-Note that `rush update` must be done before building in VS Code or
+Note that `pnpm install` must be done before building in VS Code or
 using the command line.
 
 # Install playwright browsers for UI testing
@@ -31,10 +28,12 @@ npx playwright install
 
 # Using command line
 
+**If you are not at the root of the repo you have to use `-w` option to specify you want to run the command for the workspace. `pnpm -w <command>`.**
+
 ## Rebuild the whole repo
 
 ```bash
-rush rebuild
+pnpm build
 ```
 
 This will build all projects in the correct dependency order.
@@ -42,23 +41,23 @@ This will build all projects in the correct dependency order.
 ## Build the whole repo incrementally
 
 ```bash
-rush build
+pnpm build
 ```
 
-This will build all projects that have changed since the last `rush build` in
+This will build all projects that have changed since the last `pnpm build` in
 dependency order.
 
 ## Build an individual package on the command line
 
 ```bash
 cd packages/<project>
-rushx build
+pnpm build
 ```
 
 ## Run all tests for the whole repo
 
 ```bash
-rush test
+pnpm test
 ```
 
 ## Start compile on save
@@ -66,7 +65,7 @@ rush test
 Starting this command will rebuild the typescript files on save.
 
 ```bash
-rush watch
+pnpm watch
 ```
 
 ## Cleanup
@@ -74,14 +73,14 @@ rush watch
 Sometimes there are ghost files left in the dist folder (common when renaming or deleting a TypeScript file), running this will get a clean state.
 
 ```bash
-rush clean
+pnpm clean
 ```
 
 ## Run tests for an individual package
 
 ```bash
 cd packages/<project>
-rushx test
+pnpm test
 ```
 
 ## Verbose test logging
@@ -93,14 +92,14 @@ TYPESPEC_VERBOSE_TEST_OUTPUT=true.
 ## Reformat source code
 
 ```bash
-rush format
+pnpm format
 ```
 
 PR validation enforces code formatting style rules for the repo. This
 command will reformat code automatically so that it passes.
 
 You can also check if your code is formatted correctly without
-reformatting anything using `rush check-format`.
+reformatting anything using `pnpm check-format`.
 
 See also below for having this happen automatically in VS Code
 whenever you save.
@@ -108,24 +107,13 @@ whenever you save.
 ## Generate changelogs
 
 ```bash
-rush change
+pnpm change
 ```
-
-PR validation enforces every changes to packages have a changelog entry.
-
-Rush change will ask for the following questions for each modified packages:
-
-- message: This should be a good description of what the changes are to this package
-- type:
-  - `major`: For a breaking change. **DO NOT USE All versions remain in 0.x stage until GA.**
-  - `minor`: A new functionality.
-  - `patch`: A bug fix.
-  - `none`: Not relevant to the consumer of the packages. For example some added tests.
 
 ## Linting
 
 ```bash
-rush lint
+pnpm lint
 ```
 
 PR validation enforces linting rules for the repo. This
@@ -134,7 +122,7 @@ command will run the linter on all packages.
 ## Regenerate Samples
 
 ```bash
-rush regen-samples
+pnpm regen-samples
 ```
 
 PR validation runs OpenAPI emitters on samples and compares them to known,
@@ -145,7 +133,7 @@ your PR. Carefully review whether the changes are intentional.
 ## Regenerate Reference Docs
 
 ```bash
-rush regen-docs
+pnpm regen-docs
 ```
 
 PR validation will ensure that reference docs are up to date.
@@ -193,7 +181,7 @@ Terminal pane will have three parallel watch tasks running:
 
 ```bash
 # Run all the tests
-rush test
+pnpm test
 
 # Run in a specific package tests in watch mode
 npm run test:watch
@@ -269,7 +257,7 @@ VS Code.
 # Installing your build
 
 ```
-rush dogfood
+pnpm dogfood
 ```
 
 This will globally install the @typespec/compiler package, putting your
