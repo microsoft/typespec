@@ -51,12 +51,12 @@
   ],
   "peerDependencies": {
     "@typespec/compiler": "workspace:~0.52.0",
-    "@typespec/http": "workspace:~0.52.0"
+    "@typespec/http": "workspace:~0.52.1"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
     "@typespec/compiler": "workspace:~0.52.0",
-    "@typespec/http": "workspace:~0.52.0",
+    "@typespec/http": "workspace:~0.52.1",
     "@typespec/rest": "workspace:~0.52.0",
     "@typespec/eslint-config-typespec": "workspace:~0.52.0",
     "@typespec/library-linter": "workspace:~0.52.0",

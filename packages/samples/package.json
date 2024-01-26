@@ -46,7 +46,7 @@
     "@typespec/best-practices": "workspace:~0.45.0",
     "@typespec/compiler": "workspace:~0.52.0",
     "@typespec/html-program-viewer": "workspace:~0.52.0",
-    "@typespec/http": "workspace:~0.52.0",
+    "@typespec/http": "workspace:~0.52.1",
     "@typespec/json-schema": "workspace:~0.52.0",
     "@typespec/openapi": "workspace:~0.52.0",
     "@typespec/openapi3": "workspace:~0.52.0",

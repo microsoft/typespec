@@ -1,6 +1,13 @@
 # Change Log - @typespec/http
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
+This log was last generated on Fri, 26 Jan 2024 20:12:35 GMT and should not be manually modified.
+
+## 0.52.1
+Fri, 26 Jan 2024 20:12:35 GMT
+
+### Patches
+
+- Fix: Parsing of path parameter works with OData style params
 
 ## 0.52.0
 Wed, 24 Jan 2024 05:46:53 GMT

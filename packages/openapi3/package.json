@@ -55,13 +55,13 @@
   "peerDependencies": {
     "@typespec/versioning": "workspace:~0.52.0",
     "@typespec/compiler": "workspace:~0.52.0",
-    "@typespec/http": "workspace:~0.52.0",
+    "@typespec/http": "workspace:~0.52.1",
     "@typespec/openapi": "workspace:~0.52.0"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
     "@typespec/compiler": "workspace:~0.52.0",
-    "@typespec/http": "workspace:~0.52.0",
+    "@typespec/http": "workspace:~0.52.1",
     "@typespec/rest": "workspace:~0.52.0",
     "@typespec/openapi": "workspace:~0.52.0",
     "@typespec/versioning": "workspace:~0.52.0",

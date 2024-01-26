@@ -54,7 +54,7 @@
     "@typespec/playground": "workspace:~0.1.0-alpha.5",
     "@typespec/versioning": "workspace:~0.52.0",
     "@typespec/compiler": "workspace:~0.52.0",
-    "@typespec/http": "workspace:~0.52.0",
+    "@typespec/http": "workspace:~0.52.1",
     "@typespec/rest": "workspace:~0.52.0",
     "@typespec/openapi3": "workspace:~0.52.0",
     "@typespec/json-schema": "workspace:~0.52.0",
