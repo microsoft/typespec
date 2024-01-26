@@ -85,6 +85,9 @@ importers:
       '@azure/storage-blob':
         specifier: ~12.17.0
         version: 12.17.0
+      '@pnpm/find-workspace-packages':
+        specifier: ^6.0.9
+        version: 6.0.9(@pnpm/logger@5.0.0)
       '@typespec/bundler':
         specifier: workspace:~0.1.0-alpha.5
         version: link:../bundler

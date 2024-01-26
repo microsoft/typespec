@@ -11,7 +11,7 @@ This document assumes you will be using [TypeScript](https://typescriptlang.org)
 
 ## Prerequisites
 
-You will need both Node and npm installed. Additionally, if you intend to develop multiple libraries together, you will likely want to establish a monorepo as this will make developing the libraries in tandem much easier. TypeSpec itself uses [rush.js](https://rushjs.io/).
+You will need both Node and npm installed. Additionally, if you intend to develop multiple libraries together, you will likely want to establish a monorepo as this will make developing the libraries in tandem much easier. TypeSpec itself uses [pnpm](https://pnpm.io/).
 
 ## Setup with templates
 
