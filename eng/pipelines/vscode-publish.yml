@@ -1,6 +1,6 @@
 # Continuous Integration
 
-# trigger:
+trigger: []
 #   - main
 #   # For patch releases
 #   - release/*
@@ -25,7 +25,7 @@ jobs:
         parameters:
           nodeVersion: "20.x"
 
-      - script: pnpm --filter "typespec-vscode..." run build 
+      - script: pnpm --filter "typespec-vscode..." run build
         displayName: Build
 
       - script: npm run deploy

@@ -16,7 +16,8 @@
   "keywords": [
     "typespec"
   ],
-  "publisher": "Microsoft",
+  "preview": true,
+  "publisher": "ms-azuretools",
   "displayName": "TypeSpec Language Support for VS Code",
   "categories": [
     "Programming Languages"
