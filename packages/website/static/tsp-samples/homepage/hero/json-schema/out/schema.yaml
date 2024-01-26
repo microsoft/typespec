@@ -16,7 +16,6 @@ $defs:
       - street
       - city
       - country
-    description: Respresent an address
   Car:
     $schema: https://json-schema.org/draft/2020-12/schema
     $id: Car

@@ -50,7 +50,6 @@ components:
           type: string
         city:
           type: string
-      description: Store address
     Store:
       type: object
       required:

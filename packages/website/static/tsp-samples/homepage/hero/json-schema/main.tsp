@@ -12,7 +12,6 @@ model Person {
   cars?: Car[];
 }
 
-/** Respresent an address */
 model Address {
   street: string;
   city: string;

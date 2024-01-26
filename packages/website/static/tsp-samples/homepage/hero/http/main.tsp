@@ -7,7 +7,6 @@ model Store {
   address: Address;
 }
 
-/** Store address */
 model Address {
   street: string;
   city: string;
