@@ -41,7 +41,13 @@ jobs:
         artifact: packages
         displayName: Publish packages(.tgz) as pipeline artifacts
 
-      - publish: $(Build.SourcesDirectory)/packages/typespec-vscode/*.vsix
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+          Contents: "*.visx"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+
+      - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
         artifact: vscode-extension
         displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
