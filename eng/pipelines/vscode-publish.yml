@@ -1,5 +1,4 @@
-# Continuous Integration
-
+name: Publish VSCode extension
 trigger: []
 #   - main
 #   # For patch releases
