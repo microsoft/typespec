@@ -502,7 +502,7 @@ extern dec encode(
  * - "update": input to operations that update data.
  * - "delete": input to operations that delete data.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/libraries/http/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
  *
  * @param visibilities List of visibilities which apply to this property.
  *
@@ -527,7 +527,7 @@ extern dec visibility(target: ModelProperty, ...visibilities: valueof string[]);
  * together with spread to effectively spread only visible properties into
  * a new model.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/libraries/http/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
  *
  * When using an emitter that applies visibility automatically, it is generally
  * not necessary to use this decorator.

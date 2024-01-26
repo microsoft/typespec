@@ -354,9 +354,9 @@ export function createChecker(program: Program): Checker {
 
   const typespecNamespaceBinding = globalNamespaceNode.symbol.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
-    // the typespec namespace binding will be absent if we've passed
+    // the TypeSpec namespace binding will be absent if we've passed
     // the no-std-lib option.
-    // the first declaration here is the JS file for the typespec script.
+    // the first declaration here is the JS file for the TypeSpec script.
     initializeTypeSpecIntrinsics();
     for (const file of program.sourceFiles.values()) {
       addUsingSymbols(typespecNamespaceBinding.exports!, file.locals);
@@ -1682,7 +1682,7 @@ export function createChecker(program: Program): Checker {
 
       symbolLinks.type = type;
       for (const sourceNode of mergedSymbol.declarations) {
-        // namespaces created from typespec scripts don't have decorators
+        // namespaces created from TypeSpec scripts don't have decorators
         if (sourceNode.kind !== SyntaxKind.NamespaceStatement) continue;
         type.decorators = type.decorators.concat(checkDecorators(type, sourceNode, undefined));
       }
@@ -6268,7 +6268,7 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
 }
 
 /**
- * Convert typespec argument to JS argument.
+ * Convert TypeSpec argument to JS argument.
  */
 function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] {
   return args.map((arg) => {

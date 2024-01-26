@@ -3,14 +3,14 @@ title: Getting Started with TypeSpec For Http
 ---
 
 Let's create a REST API definition with TypeSpec. TypeSpec has an official HTTP API "binding" called `@typespec/http`. It's a set of TypeSpec declarations and decorators that describe HTTP APIs and can be used by code generators to generate OpenAPI descriptions, implementation code, and the like.
-Built on top of the http library there is the rest library `@typespec/rest` which provide some REST concept like resources.
+Built on top of the HTTP library, there is the REST library `@typespec/rest` which provide some REST concepts like resources.
 
 TypeSpec also has an official OpenAPI emitter called `@typespec/openapi3` that consumes the HTTP API bindings and emits standard [OpenAPI 3.0](https://spec.openapis.org/oas/v3.0.3) descriptions. This can then be fed in to any OpenAPI code generation pipeline.
 
 References:
 
-- [Http library](../libraries/http/reference)
-- [Rest library](../libraries/rest/reference)
+- [HTTP library](../libraries/http/reference)
+- [REST library](../libraries/rest/reference)
 - [OpenAPI 3 emitter](../libraries/openapi3/reference)
 
 ## Setup
@@ -20,7 +20,7 @@ Make sure to have installed the [editor extension](../introduction/installation.
 :::
 
 1. Make a new folder somewhere
-2. Run `npx --package=@typespec/compiler tsp init` and select the `Generic Rest API` template
+2. Run `npx --package=@typespec/compiler tsp init` and select the `Generic REST API` template
 3. Run `npm install` to install dependencies
 4. Run `npx tsp compile .` to compile the initial file
    You can either run `npx tsp compile . --watch` to automatically compile change on save or keep running the command manually after that.

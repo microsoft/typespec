@@ -48,5 +48,5 @@ _Details: [Authentication](./authentication.md)_
 | --------------- | ------------------------------------------- |
 | Basic auth      | `@useAuth(BasicAuth)`                       |
 | Bearer auth     | `@useAuth(BearerAuth)`                      |
-| Api key auth    | `@useAuth(ApiKeyAuth<"header", "Api-Key">)` |
+| API key auth    | `@useAuth(ApiKeyAuth<"header", "Api-Key">)` |
 | OAuth2 key auth | `@useAuth(OAuth2Flow<[MyScope]>)`           |

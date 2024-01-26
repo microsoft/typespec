@@ -454,7 +454,7 @@ export function createAssetEmitter<T, TOptions extends object>(
       const name = typeEmitter.declarationName(operation);
       if (name === undefined) {
         // the general approach of invoking the expression form doesn't work here
-        // because typespec doesn't have operation expressions.
+        // because TypeSpec doesn't have operation expressions.
         compilerAssert(false, "Unnamed operations are not supported");
       }
       return invokeTypeEmitter("interfaceOperationDeclaration", operation, name);

@@ -19,7 +19,7 @@ function getServiceMap(program: Program): Map<Namespace, Service> {
 }
 
 /**
- * List all the services defined in the typespec program
+ * List all the services defined in the TypeSpec program
  * @param program Program
  * @returns List of service.
  */

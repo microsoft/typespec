@@ -35,6 +35,7 @@
     "typespec-vscode-*.vsix",
     "ThirdPartyNotices.txt"
   ],
+  "icon": "./icons/logo.png",
   "contributes": {
     "languages": [
       {
@@ -46,6 +47,10 @@
         "extensions": [
           ".tsp"
         ],
+        "icon": {
+          "light": "./icons/tsp-file.light.svg",
+          "dark": "./icons/tsp-file.dark.svg"
+        },
         "configuration": "./dist/language-configuration.json"
       },
       {

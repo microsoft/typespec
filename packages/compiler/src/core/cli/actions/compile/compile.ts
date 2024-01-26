@@ -154,7 +154,7 @@ function logProgramResult(
   if (program.emitters.length === 0 && !program.compilerOptions.noEmit) {
     // eslint-disable-next-line no-console
     log(
-      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the typespec config."
+      "No emitter was configured, no output was generated. Use `--emit <emitterName>` to pick emitter or specify it in the TypeSpec config."
     );
   }
 }
