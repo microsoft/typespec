@@ -1,23 +1,10 @@
 /* eslint-disable no-console */
-import { lstat, readdir, readFile, stat, writeFile } from "fs/promises";
+import getAllChanges from "@changesets/read";
+import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
+import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { parse } from "semver";
 import stripJsonComments from "strip-json-comments";
-
-interface RushChangeFile {
-  packageName: string;
-  changes: RushChange[];
-}
-
-interface RushChange {
-  packageName: string;
-  comment: string;
-  type: "major" | "minor" | "patch" | "none";
-}
-
-interface RushWorkspace {
-  projects: any[];
-}
 
 interface PackageJson {
   name: string;
@@ -45,26 +32,21 @@ interface BumpManifest {
   manifest: PackageJson;
 }
 
-async function getAllChanges(workspaceRoot: string): Promise<RushChangeFile[]> {
-  const changeDir = join(workspaceRoot, "common", "changes");
-  const files = await findAllFiles(changeDir);
-  return await Promise.all(files.map((x) => readJsonFile<RushChangeFile>(x)));
-}
-
 /**
  * @returns map of package to number of changes.
  */
 async function getChangeCountPerPackage(workspaceRoot: string) {
-  const changes = await getAllChanges(workspaceRoot);
-  console.log("Changes", changes);
+  const changesets = await getAllChanges(workspaceRoot);
   const changeCounts: Record<string, number> = {};
 
-  for (const change of changes) {
-    if (!(change.packageName in changeCounts)) {
-      // Count all changes that are not "none"
-      changeCounts[change.packageName] = 0;
+  for (const changeset of changesets) {
+    for (const change of changeset.releases) {
+      if (!(change.name in changeCounts)) {
+        // Count all changes that are not "none"
+        changeCounts[change.name] = 0;
+      }
+      changeCounts[change.name] += 1;
     }
-    changeCounts[change.packageName] += change.changes.length;
   }
 
   return changeCounts;
@@ -73,15 +55,15 @@ async function getChangeCountPerPackage(workspaceRoot: string) {
 async function getPackages(
   workspaceRoot: string
 ): Promise<Record<string, { path: string; version: string }>> {
-  const rushJson = await readJsonFile<RushWorkspace>(join(workspaceRoot, "rush.json"));
-
   const paths: Record<string, { path: string; version: string }> = {};
-  for (const project of rushJson.projects) {
-    const packagePath = join(workspaceRoot, project.projectFolder);
-    const pkg = await readJsonFile<PackageJson>(join(packagePath, "package.json"));
-    paths[project.packageName] = {
+  for (const project of await findWorkspacePackagesNoCheck(workspaceRoot)) {
+    if (project.manifest.private) {
+      continue;
+    }
+    const packagePath = join(workspaceRoot, project.dir);
+    paths[project.manifest.name!] = {
       path: packagePath,
-      version: pkg.version,
+      version: project.manifest.version!,
     };
   }
   return paths;
@@ -190,44 +172,13 @@ export async function bumpVersionsForPrerelease(workspaceRoots: string[]) {
   console.log("Change counts: ", changeCounts);
   console.log("Packages", packages);
 
-  // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
   console.log("Adding prerelease number");
   await addPrereleaseNumber(changeCounts, packages);
-}
-
-async function findAllFiles(dir: string): Promise<string[]> {
-  const files = [];
-  if (!(await isDirectory(dir))) {
-    return [];
-  }
-
-  for (const file of await readdir(dir)) {
-    const path = join(dir, file);
-    const stat = await lstat(path);
-    if (stat.isDirectory()) {
-      files.push(...(await findAllFiles(path)));
-    } else {
-      files.push(path);
-    }
-  }
-  return files;
 }
 
 async function readJsonFile<T>(filename: string): Promise<T> {
   const content = await readFile(filename);
   return JSON.parse(stripJsonComments(content.toString()));
-}
-
-async function isDirectory(path: string) {
-  try {
-    const stats = await stat(path);
-    return stats.isDirectory();
-  } catch (e: any) {
-    if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-      return false;
-    }
-    throw e;
-  }
 }
 
 export async function bumpVersionsForPR(
