@@ -189,8 +189,6 @@ export async function bumpVersionsForPR(
   const packages = await getPackages(workspaceRoot);
   console.log("Packages", packages);
 
-  // Bumping with rush publish so rush computes from the changes what will be the next non prerelease version.
-
   const updatedManifests: Record<string, BumpManifest> = {};
   for (const [packageName, packageInfo] of Object.entries(packages)) {
     const packageJsonPath = join(packageInfo.path, "package.json");
