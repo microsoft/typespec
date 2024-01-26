@@ -7,6 +7,7 @@
     "build": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build ",
     "check-format": "pnpm run prettier --check",
     "check-version-mismatch": "syncpack list-mismatches",
+    "change": "changeset",
     "clean": "pnpm -r run clean",
     "cspell": "cspell --no-progress \"**/*.{md,ts,tsx}\" ",
     "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",

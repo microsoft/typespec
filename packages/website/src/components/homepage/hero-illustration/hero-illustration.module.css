@@ -8,7 +8,7 @@
 }
 
 .split-windows {
-  height: 700px;
+  height: 600px;
   display: flex;
   flex-direction: row;
   align-items: stretch;

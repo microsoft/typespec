@@ -80,15 +80,7 @@ paths:
           in: path
           required: true
           schema:
-            type: object
-            required:
-              - name
-              - address
-            properties:
-              name:
-                type: string
-              address:
-                $ref: '#/components/schemas/Address'
+            $ref: '#/components/schemas/Store'
       responses:
         '200':
           description: The request has succeeded.
