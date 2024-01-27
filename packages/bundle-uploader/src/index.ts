@@ -57,7 +57,8 @@ export async function bundleAndUploadPackages({
   indexName,
   indexVersion,
 }: BundleAndUploadPackagesOptions) {
-  const projects = await findWorkspacePackagesNoCheck(repoRoot);
+  const allProjects = await findWorkspacePackagesNoCheck(repoRoot);
+  const projects = allProjects.filter((x) => packages.includes(x.manifest.name!));
   logInfo("Current index version:", indexVersion);
 
   const uploader = new TypeSpecBundledPackageUploader(new AzureCliCredential());
