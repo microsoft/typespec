@@ -8,6 +8,8 @@ TypeSpec HTTP protocol binding
 npm install @typespec/http
 ```
 
+TEST
+
 ## Linter
 
 ### Usage
