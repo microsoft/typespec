@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/http",
+      "comment": "Fix: Parsing of path parameter works with OData style params",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/http"
+}
