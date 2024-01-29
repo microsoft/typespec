@@ -86,14 +86,6 @@ jobs:
   #       artifact: vscode-extension
   #       displayName: Download VSCode extension(.vsix) from pipeline artifacts
 
-  #     - script: |
-  #         vsix="$(find $(Pipeline.Workspace)/vscode-extension -type f -iname "typespec-vscode-*.vsix" )"
-
-  #         [ -z "$vsix" ] && echo "Error: Couldn't find vsix" && exit 1
-
-  #         echo "Found core package $vsix"
-  #       displayName: Find packages path
-
   #     - template: ./templates/install.yml
 
   #     - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
@@ -113,14 +105,6 @@ jobs:
       - download: current
         artifact: vs-extension
         displayName: Download VS extension(.vsix) from pipeline artifacts
-
-      - script: |
-          vsix="$(find $(Pipeline.Workspace)/vs-extension -type f -iname "typespec-vs-*.vsix" )"
-
-          [ -z "$vsix" ] && echo "Error: Couldn't find vsix" && exit 1
-
-          echo "Found core package $vsix"
-        displayName: Find packages path
 
       - template: ./templates/install.yml
 
