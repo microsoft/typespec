@@ -105,8 +105,8 @@ jobs:
     displayName: Publish VS extension
     dependsOn: npm_stable
     pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
+      name: azsdk-pool-mms-win-2022-general
+      vmImage: windows-2022
 
     steps:
       - download: current
@@ -123,9 +123,12 @@ jobs:
 
       - template: ./templates/install.yml
 
-      - script: |
-          VsixPublisher.exe login -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat) -publisherName typespec
-          VsixPublisher.exe publish -publisher "typespec" -payload "$(Pipeline.Workspace)/vs-extension/typespec-vs-*.vsix" -publishManifest "publish-manifest.json"
+      - pwsh: |
+          Install-Module VSSetup -Force
+          $vsixPublisher = Join-Path -Path (Get-VSSetupInstance -All | Select-VSSetupInstance -Latest).installationPath -ChildPath "VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe" -Resolve
+          $vsixPath = Resolve-Path "$(Pipeline.Workspace)/vs-extension/typespec-vs-*.vsix"
+          echo "Path to visx: $vsixPath"
+          & $vsixPublisher publish -publisher "typespec" -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
         displayName: Publish
         workingDirectory: packages/typespec-vs
         env:
