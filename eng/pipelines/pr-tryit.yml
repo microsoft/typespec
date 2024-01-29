@@ -1,3 +1,4 @@
+name: PR Tools
 trigger: none
 pr:
   - main
