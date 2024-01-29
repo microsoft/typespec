@@ -1,101 +1,39 @@
 # TypeSpec
 
+[Official Docs](https://typespec.io/)
 [Try TypeSpec Online](https://aka.ms/trytypespec)
+[Getting Started](https://typespec.io/docs)
+[Language Overview](https://typespec.io/docs/language-basics/overview)
 
-TypeSpec is a language for describing cloud service APIs and generating other API
-description languages, client and service code, documentation, and other assets.
-TypeSpec provides highly extensible core language primitives that can describe API
-shapes common among REST, OpenAPI, GraphQL, gRPC, and other protocols.
+TypeSpec is a language for defining cloud service APIs and shapes. TypeSpec is a highly extensible language with primitives that can describe API shapes common among REST, OpenAPI, GraphQL, gRPC, and other protocols.
 
-Using TypeSpec, you can create reusable patterns for all aspects of an API, along with the ability to check for and flag known anti-patterns. These patterns establish "guardrails" for API designers and make it easier to follow best practices than deviate from them. TypeSpec promotes highly regular API designs that adhere to best practices by construction.
+TypeSpec is excellent for generating many different API description formats, client and service code, documentation, and many other assets. All this while keeping your TypeSpec definition as a single source of truth.
 
-You can try a work-in-progress build of the compiler by following the steps in
-the Getting Started section below. Please feel free to [file
-issues](https://github.com/microsoft/typespec/issues) for any issues you encounter while
-using the preview.
+Using TypeSpec, you can create reusable patterns for all aspects of an API using TypeSpec libraries. It has a rich linter framework with the ability to check for and flag known anti-patterns as well as an emitter framework that lets you be in control of the output to ensure it follows the patterns you want. Enabling the use of patterns establishes "guardrails" for API designers and makes it easier to follow best practices than to deviate from them. TypeSpec promotes highly quality and regular API designs that adhere to best practices by construction.
 
-## Try TypeSpec without installing anything
+## Installation
 
-You can try TypeSpec on the web without installing anything.
-
-- [TypeSpec playground](https://microsoft.github.io/typespec/playground)
-- [TypeSpec playground for Azure services](https://azure.github.io/typespec-azure/playground)
-
-## Getting Started
-
-For documentation on the TypeSpec language, see https://microsoft.github.io/typespec.
-
-### Using Docker
-
-[See Docker documentation](./docker)
-
-### Using Node & Npm
-
-#### One-time Setup
-
-1. Install [Node.js 16 LTS](https://nodejs.org/en/download/) and ensure you are able to run the `npm` command in a command prompt:
-
-   ```bash
-   npm --version
-   ```
-
-   It is recommended to have npm 7+. To update npm run `npm install -g npm`
-
-2. Install the TypeSpec compiler and libraries:
-
-```bash
-   npm init -y
-   npm install -g @typespec/compiler
+```
+npm install -g @typespec/compiler
 ```
 
-If you do not wish to install the compiler globally with `-g` flag, you will need to install it locally once in every TypeSpec project folder. You would also need to prefix every TypeSpec run command with `npx`. See [npx documentation](https://docs.npmjs.com/cli/v7/commands/npx)
+#### Tools
 
-```bash
-    npx tsp init
-    npx tsp compile
+[VSCode](https://typespec.io/docs/introduction/editor/vscode) 
+```
+tsp code install
 ```
 
-3. Install the TypeSpec extension for your editor of choice:
-
-   - [Instructions for Visual Studio](#installing-visual-studio-extension)
-   - [Instructions for Visual Studio Code](#installing-vs-code-extension)
-
-### Creating TypeSpec project
-
-1. Create a folder for your new TypeSpec project
-
-2. Initialize a TypeSpec project.
-
-   - Run `tsp init` > Select `Generic REST API` template with `@typespec/rest` and `@typespec/openapi3` libraries checked.
-   - Run `tsp install` to install Node package dependencies.
-
-3. Open the folder in your editor and edit `main.tsp`
-
-4. Follow our [documentation](https://microsoft.github.io/typespec) to get started writing TypeSpec!
-
-5. Once you're ready to compile your TypeSpec to Swagger, save the file and type this at the command prompt in your project folder:
-
-   ```bash
-   tsp compile .
-   ```
-
-   This will compile the TypeSpec files in the project folder into one output file: `.\tsp-output\openapi.json`.
-
-## Troubleshooting
-
-[See common issues here](./troubleshooting.md)
+[VS](https://typespec.io/docs/introduction/editor/vs)
+```
+tsp vs install
+```
 
 ## Usage
 
-See full usage documentation by typing:
+### TypeSpec to OpenAPI 3.0 Example
 
-```
-tsp --help
-```
-
-### Compiling TypeSpec source to an OpenAPI 3.0 specification
-
-Here is a very small TypeSpec example that uses the `@typespec/openapi3` library to generate OpenAPI 3.0 from TypeSpec.
+This example uses the `@typespec/openapi3` library to generate OpenAPI 3.0 from TypeSpec.
 
 #### sample.tsp
 
@@ -113,60 +51,17 @@ namespace Example {
 }
 ```
 
-You can compile it to OpenAPI 3.0 by using the following command:
+Compile it to OpenAPI 3.0 using the following command:
 
 ```
 tsp compile sample.tsp --emit @typespec/openapi3
 ```
 
-Once it compiles, you can find the emitted OpenAPI document in `./tsp-output/openapi.json`.
+You can find the emitted OpenAPI output in `./tsp-output/openapi.json`.
 
-You can also pass in a directory instead of a file to `tsp compile`. That's
-equivalent to passing `main.tsp` in that directory.
+## Troubleshooting
 
-### Formatting TypeSpec files
-
-TypeSpec provides an auto-formatter to keep your specs clean and organized.
-`node_modules` folders are automatically excluded by default
-
-```bash
-tsp format <patterns...>
-
-# Format all the files in the current directory with the TypeSpec extension.
-tsp format **/*.tsp
-
-# Exclude certain patterns. Either use `!` prefix or pass it via the `--exclude` or `-x` option.
-tsp format **/*.tsp "!my-test-folder/**/*"
-tsp format **/*.tsp --exclude "my-test-folder/**/*"
-```
-
-### Installing VS Code Extension
-
-```
-tsp code install
-```
-
-This will download and install the latest VS Code extension. Use `tsp code uninstall` to remove it. Pass `--insiders` if you use VS Code Insiders edition.
-
-If `tsp-server` cannot be found on PATH by VS Code in your setup, you can
-configure its location in VS Code settings. Search for "TypeSpec" in File ->
-Preferences -> Settings, and adjust `typespec.tsp-server.path` accordingly. You may
-need to restart VS Code after changing this. This should be the path to the `@typespec/compiler` package. (e.g. `./node_modules/@typespec/compiler`)
-
-You can also configure a project to use a local npm install of
-`@typespec/compiler`. See [local-typespec sample](packages/samples/local-typespec).
-
-### Installing Visual Studio Extension
-
-```
-tsp vs install
-```
-
-This will download and install the latest Visual Studio extension. Use `tsp vs uninstall` to remove it.
-
-If `tsp-server` cannot be found on PATH by Visual Studio in your setup, you can
-configure its location by setting up the `typespec.tsp-server.path` entry in `.vs/VSWorkspaceSettings.json`. You may need to restart Visual Studio after changing this.
-This should be the path to the `@typespec/compiler` package. (e.g. `./node_modules/@typespec/compiler`)
+[See common issues here](./troubleshooting.md)
 
 ### Installing nightly version
 
