@@ -20,9 +20,6 @@ jobs:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
 
       - run: |
-          echo "Rev parse:"
-          git rev-parse --symbolic-full-name main
-
           echo "Branch:"
           git branch
           echo "Show refs:"
