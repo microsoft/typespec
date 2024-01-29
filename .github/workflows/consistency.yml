@@ -33,12 +33,6 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: npx -p @chronus/github-pr-commenter chronus-github-pr-commenter verify
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        name: Create/update comment
-        if: ${{ !startsWith(github.head_ref, 'publish/') && !startsWith(github.head_ref, 'dependabot/') && !startsWith(github.head_ref, 'backmerge/') }}
-
       - run: npx chronus verify
         name: Check changelog
         if: ${{ !startsWith(github.head_ref, 'publish/') && !startsWith(github.head_ref, 'dependabot/') && !startsWith(github.head_ref, 'backmerge/') }}

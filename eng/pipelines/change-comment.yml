@@ -1,0 +1,21 @@
+trigger: none
+pr:
+  - main
+  - release/*
+
+variables:
+  - template: templates/variables/globals.yml
+
+jobs:
+  - job: change_comment
+    displayName: Describe changes on PR
+    pool:
+      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
+    steps:
+      - checkout: self
+
+      - script: npx -p @chronus/github-pr-commenter chronus-github-pr-commenter verify
+        displayName: Make comment about changes
+        env:
+          GITHUB_TOKEN: $(azuresdk-github-pat)
