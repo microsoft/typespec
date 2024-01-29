@@ -32,7 +32,7 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: node ./packages/github-pr-commenter/cmd/cli.mjs verify
+      - run: npx -p @chronus/github-pr-commenter chronus-github-pr-commenter verify
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         name: Create/update comment
