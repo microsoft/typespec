@@ -35,6 +35,7 @@ tsp vs install
 
 This example uses the `@typespec/openapi3` library to generate OpenAPI 3.0 from TypeSpec.
 
+Create a file named sample.tsp in an empty folder:
 #### sample.tsp
 
 ```typespec
@@ -51,7 +52,13 @@ namespace Example {
 }
 ```
 
-Compile it to OpenAPI 3.0 using the following command:
+Install the dependencies of sample.tsp:
+
+```
+tsp install
+```
+
+Compile it to OpenAPI 3.0:
 
 ```
 tsp compile sample.tsp --emit @typespec/openapi3
