@@ -99,7 +99,6 @@ jobs:
   #         [ -z "$vsix" ] && echo "Error: Couldn't find vsix" && exit 1
 
   #         echo "Found core package $vsix"
-  #         echo "Found modelerfour package $modelerfourPkg"
   #       displayName: Find packages path
 
   #     - template: ./templates/install.yml
@@ -128,14 +127,15 @@ jobs:
           [ -z "$vsix" ] && echo "Error: Couldn't find vsix" && exit 1
 
           echo "Found core package $vsix"
-          echo "Found modelerfour package $modelerfourPkg"
         displayName: Find packages path
 
       - template: ./templates/install.yml
 
-      - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
+      - script: |
+          VsixPublisher.exe login -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat) -publisherName typespec
+          VsixPublisher.exe publish -publisher "typespec" -payload "$(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix" -publishManifest "publish-manifest.json"
         displayName: Publish
-        workingDirectory: packages/typespec-vscode
+        workingDirectory: packages/typespec-vs
         env:
           VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
 
