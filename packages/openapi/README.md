@@ -10,8 +10,6 @@ npm install @typespec/openapi
 
 ## Decorators
 
-TEST
-
 ### TypeSpec.OpenAPI
 
 - [`@defaultResponse`](#@defaultresponse)

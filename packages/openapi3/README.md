@@ -8,8 +8,6 @@ TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol bindin
 npm install @typespec/openapi3
 ```
 
-TEST
-
 ## Emitter
 
 ### Usage
