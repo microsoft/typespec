@@ -19,27 +19,6 @@ jobs:
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
 
-      - run: |
-          echo "Branch:"
-          git branch
-          echo "Show refs:"
-          git show-ref
-
-      - run: git pull --force --no-tags origin main:main
-        name: Get main ref
-
-      - run: |
-          echo "Rev parse:"
-          git rev-parse --symbolic-full-name main
-
-          echo "find upstream:"
-          git for-each-ref --format "%(upstream:short)" "refs/heads/main"
-
-          echo "Branch:"
-          git branch
-          echo "Show refs:"
-          git show-ref
-
       - name: Use Node.js 20.x
         uses: actions/setup-node@v3
         with:
