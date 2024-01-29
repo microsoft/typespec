@@ -26,8 +26,8 @@ jobs:
 
       # - script: /blish packages
 
-      - script: pnpm run pack:all
-        displayName: Pack packages
+      # - script: pnpm run pack:all
+      #   displayName: Pack packages
 
       - publish: $(Build.SourcesDirectory)/temp/artifacts
         artifact: packages
@@ -43,15 +43,15 @@ jobs:
         artifact: vscode-extension
         displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
-          Contents: "*.vsix"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+      #     Contents: "*.vsix"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
 
-      - publish: $(Build.ArtifactStagingDirectory)/vs-extension
-        artifact: vs-extension
-        displayName: Publish VS extension(.vsix) as pipeline artifacts
+      # - publish: $(Build.ArtifactStagingDirectory)/vs-extension
+      #   artifact: vs-extension
+      #   displayName: Publish VS extension(.vsix) as pipeline artifacts
 
       # - task: AzureCLI@1
       #   displayName: "Publish bundled packages to package storage"
