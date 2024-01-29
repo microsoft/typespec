@@ -22,36 +22,37 @@ jobs:
 
     steps:
       - template: ./templates/install.yml
-      - template: ./templates/build.yml
+      - script: pnpm --filter="typespec-vs..." run build
+        displayName: Build
 
       # - script: /blish packages
 
       # - script: pnpm run pack:all
       #   displayName: Pack packages
 
-      - publish: $(Build.SourcesDirectory)/temp/artifacts
-        artifact: packages
-        displayName: Publish packages(.tgz) as pipeline artifacts
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
-          Contents: "*.vsix"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
-
-      - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
-        artifact: vscode-extension
-        displayName: Publish VSCode extension(.vsix) as pipeline artifacts
+      # - publish: $(Build.SourcesDirectory)/temp/artifacts
+      #   artifact: packages
+      #   displayName: Publish packages(.tgz) as pipeline artifacts
 
       # - task: CopyFiles@2
       #   inputs:
-      #     SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+      #     SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
       #     Contents: "*.vsix"
-      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
-      # - publish: $(Build.ArtifactStagingDirectory)/vs-extension
-      #   artifact: vs-extension
-      #   displayName: Publish VS extension(.vsix) as pipeline artifacts
+      # - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
+      #   artifact: vscode-extension
+      #   displayName: Publish VSCode extension(.vsix) as pipeline artifacts
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+
+      - publish: $(Build.ArtifactStagingDirectory)/vs-extension
+        artifact: vs-extension
+        displayName: Publish VS extension(.vsix) as pipeline artifacts
 
       # - task: AzureCLI@1
       #   displayName: "Publish bundled packages to package storage"
