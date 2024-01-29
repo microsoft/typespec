@@ -27,6 +27,17 @@ jobs:
         with:
           node-version: 20.x
 
-      - run: npx -p @changesets/cli changeset status --since=main
+      - uses: pnpm/action-setup@v2
+
+      - run: pnpm install
+        name: Install dependencies
+
+      - run: node ./packages/github-pr-commenter/cmd/cli.mjs verify
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        name: Create/update comment
+        if: ${{ !startsWith(github.head_ref, 'publish/') && !startsWith(github.head_ref, 'dependabot/') && !startsWith(github.head_ref, 'backmerge/') }}
+
+      - run: npx chronus verify
         name: Check changelog
         if: ${{ !startsWith(github.head_ref, 'publish/') && !startsWith(github.head_ref, 'dependabot/') && !startsWith(github.head_ref, 'backmerge/') }}
