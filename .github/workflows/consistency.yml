@@ -32,6 +32,9 @@ jobs:
           echo "Rev parse:"
           git rev-parse --symbolic-full-name main
 
+          echo "find upstream:"
+          git for-each-ref --format "%(upstream:short)" "refs/heads/main"
+
           echo "Branch:"
           git branch
           echo "Show refs:"
