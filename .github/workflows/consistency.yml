@@ -15,12 +15,30 @@ jobs:
     name: Check Changes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 ## Needed for Changesets to find `main` branch
 
+      - run: |
+          echo "Rev parse:"
+          git rev-parse --symbolic-full-name main
+
+          echo "Branch:"
+          git branch
+          echo "Show refs:"
+          git show-ref
+
       - run: git pull --force --no-tags origin main:main
         name: Get main ref
+
+      - run: |
+          echo "Rev parse:"
+          git rev-parse --symbolic-full-name main
+
+          echo "Branch:"
+          git branch
+          echo "Show refs:"
+          git show-ref
 
       - name: Use Node.js 20.x
         uses: actions/setup-node@v3
