@@ -11,7 +11,7 @@ TypeSpec is excellent for generating many different API description formats, cli
 
 Using TypeSpec, you can create reusable patterns for all aspects of an API using TypeSpec libraries. It has a rich linter framework with the ability to check for and flag known anti-patterns as well as an emitter framework that lets you be in control of the output to ensure it follows the patterns you want. Enabling the use of patterns establishes "guardrails" for API designers and makes it easier to follow best practices than to deviate from them. TypeSpec promotes highly quality and regular API designs that adhere to best practices by construction.
 
-## Installation
+## [Installation](https://typespec.io/docs)
 
 ```
 npm install -g @typespec/compiler
@@ -29,7 +29,7 @@ tsp code install
 tsp vs install
 ```
 
-## Usage
+## [Usage](https://typespec.io/docs#create-first-typespec-project)
 
 ### TypeSpec to OpenAPI 3.0 Example
 
@@ -59,9 +59,9 @@ tsp compile sample.tsp --emit @typespec/openapi3
 
 You can find the emitted OpenAPI output in `./tsp-output/openapi.json`.
 
-## Troubleshooting
+## [Troubleshooting](./troubleshooting.md)
 
-[See common issues here](./troubleshooting.md)
+## Advanced Scenarios
 
 ### Installing nightly version
 
