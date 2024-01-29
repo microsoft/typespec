@@ -51,6 +51,16 @@ jobs:
         artifact: vscode-extension
         displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+
+      - publish: $(Build.ArtifactStagingDirectory)/vs-extension
+        artifact: vs-extension
+        displayName: Publish VS extension(.vsix) as pipeline artifacts
+
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
         inputs:
@@ -71,8 +81,37 @@ jobs:
               --source "./packages/playground-website/dist/" ^
               --overwrite
 
-  - job: publish_vscode
-    displayName: Publish VSCode extension
+  # - job: publish_vscode
+  #   displayName: Publish VSCode extension
+  #   dependsOn: npm_stable
+  #   pool:
+  #     name: azsdk-pool-mms-ubuntu-2004-general
+  #     vmImage: ubuntu-20.04
+
+  #   steps:
+  #     - download: current
+  #       artifact: vscode-extension
+  #       displayName: Download VSCode extension(.vsix) from pipeline artifacts
+
+  #     - script: |
+  #         vsix="$(find $(Pipeline.Workspace)/vscode-extension -type f -iname "typespec-vscode-*.vsix" )"
+
+  #         [ -z "$vsix" ] && echo "Error: Couldn't find vsix" && exit 1
+
+  #         echo "Found core package $vsix"
+  #         echo "Found modelerfour package $modelerfourPkg"
+  #       displayName: Find packages path
+
+  #     - template: ./templates/install.yml
+
+  #     - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
+  #       displayName: Publish
+  #       workingDirectory: packages/typespec-vscode
+  #       env:
+  #         VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
+
+  - job: publish_vs
+    displayName: Publish VS extension
     dependsOn: npm_stable
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
@@ -100,53 +139,53 @@ jobs:
         env:
           VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
 
-  - job: npm_dev
-    dependsOn: npm_stable
-    displayName: Npm publish dev version
-    pool:
-      name: azsdk-pool-mms-win-2022-general
-      vmImage: windows-2022
+  # - job: npm_dev
+  #   dependsOn: npm_stable
+  #   displayName: Npm publish dev version
+  #   pool:
+  #     name: azsdk-pool-mms-win-2022-general
+  #     vmImage: windows-2022
 
-    variables:
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+  #   variables:
+  #     TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
-    steps:
-      - template: ./templates/install.yml
-      - template: ./templates/build.yml
+  #   steps:
+  #     - template: ./templates/install.yml
+  #     - template: ./templates/build.yml
 
-      - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
-        displayName: Bump version to prerelease targets
+  #     - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+  #       displayName: Bump version to prerelease targets
 
-      - script: npm run gen-manifest
-        displayName: Regen manifest for compiler
-        workingDirectory: ./packages/compiler
+  #     - script: npm run gen-manifest
+  #       displayName: Regen manifest for compiler
+  #       workingDirectory: ./packages/compiler
 
-      - script: |
-          pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
-          pnpm -r publish --access public --no-git-checks --tag next
-        displayName: Publish packages
+  #     - script: |
+  #         pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
+  #         pnpm -r publish --access public --no-git-checks --tag next
+  #       displayName: Publish packages
 
-  - job: docker
-    displayName: Docker build and publish
-    variables:
-      imageName: "azsdkengsys.azurecr.io/typespec"
-    pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
-    steps:
-      - task: Docker@1
-        displayName: login
-        inputs:
-          azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
-          azureContainerRegistry: azsdkengsys.azurecr.io
-          command: login
+  # - job: docker
+  #   displayName: Docker build and publish
+  #   variables:
+  #     imageName: "azsdkengsys.azurecr.io/typespec"
+  #   pool:
+  #     name: azsdk-pool-mms-ubuntu-2004-general
+  #     vmImage: ubuntu-20.04
+  #   steps:
+  #     - task: Docker@1
+  #       displayName: login
+  #       inputs:
+  #         azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+  #         azureContainerRegistry: azsdkengsys.azurecr.io
+  #         command: login
 
-      - script: |
-          docker build -f ./docker/Dockerfile \
-            -t $(imageName):latest \
-            -t $(imageName):alpine \
-            .
-        displayName: "Build"
+  #     - script: |
+  #         docker build -f ./docker/Dockerfile \
+  #           -t $(imageName):latest \
+  #           -t $(imageName):alpine \
+  #           .
+  #       displayName: "Build"
 
-      - script: docker push $(imageName) --all-tags
-        displayName: "Push"
+  #     - script: docker push $(imageName) --all-tags
+  #       displayName: "Push"
