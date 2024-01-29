@@ -12,11 +12,11 @@ importers:
         specifier: ^2.26.2
         version: 2.27.1
       '@chronus/chronus':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       '@chronus/github-pr-commenter':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
@@ -3350,8 +3350,8 @@ packages:
       prettier: 2.8.7
     dev: true
 
-  /@chronus/chronus@0.1.0:
-    resolution: {integrity: sha512-gLcLIpeW7xd5mrhFWFrCbEwsW7i1H07+RSUGg20+nOlZztjIgocG20+t0vGdI8WRiE7SY86xE43JNsYS+myTzw==}
+  /@chronus/chronus@0.2.0:
+    resolution: {integrity: sha512-vj7qh0M6+EUy1LK8BdwCqh4fcBJnBgcLpB0v9jLkHFWZM6RfQpWEGyYuYO34S3O8WAE6JRGbKZlcbIgSEWv6fA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dependencies:
@@ -3384,13 +3384,13 @@ packages:
       - terser
     dev: true
 
-  /@chronus/github-pr-commenter@0.1.0:
-    resolution: {integrity: sha512-mhh/qjMd83HU/YTdWMkxLxbErYzVBpFas2Q1Y3NRkWsltXI1tyeTJRODGmyrIjV+QsR89EUK9cu9p0tFnZ8PBQ==}
+  /@chronus/github-pr-commenter@0.1.1:
+    resolution: {integrity: sha512-Io8APDLjtXxVkuDjmwribp53vYK1D/U86pnsWXkcfyHE/itVugomCPOWUVT+VQdzQdN01Wt7kwgauMmRpIs6Mw==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dependencies:
       '@actions/github': 6.0.0
-      '@chronus/chronus': 0.1.0
+      '@chronus/chronus': 0.2.0
       '@octokit/auth-action': 4.0.1
       human-id: 4.1.0
       octokit: 3.1.2

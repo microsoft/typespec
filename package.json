@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
-    "@chronus/chronus": "^0.1.0",
-    "@chronus/github-pr-commenter": "^0.1.0",
+    "@chronus/chronus": "^0.2.0",
+    "@chronus/github-pr-commenter": "^0.1.1",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^8.0.1",
     "cspell": "^6.31.1",
