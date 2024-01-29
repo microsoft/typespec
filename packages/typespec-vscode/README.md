@@ -1,5 +1,7 @@
 # TypeSpec Language Support for VS Code
 
+[Repository](https://github.com/microsoft/typespec) | [Documentation](https://typespec.io/docs) | [Issues](https://github.com/microsoft/typespec/issues) | [Samples](https://github.com/microsoft/typespec/tree/main/packages/samples/specs)
+
 This provides provides [TypeSpec](https://github.com/microsoft/typespec) language support for VS Code.
 
 ## Features
