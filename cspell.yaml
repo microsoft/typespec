@@ -8,6 +8,7 @@ words:
   - autorest
   - azsdkengsys
   - azurecr
+  - azuresdk
   - blockful
   - blockless
   - cadl
@@ -21,6 +22,7 @@ words:
   - createsorupdatesresource
   - CRUDL
   - debouncer
+  - devdiv
   - dogfood
   - eastus
   - ecmarkup
@@ -65,6 +67,7 @@ words:
   - sint
   - ssvs
   - strs
+  - syncpack
   - TRYIT
   - TSES
   - tspd
@@ -83,7 +86,6 @@ words:
   - westus
   - xlarge
   - xplat
-  - syncpack
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"
