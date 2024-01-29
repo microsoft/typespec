@@ -1,3 +1,4 @@
+baseBranch: main
 versionPolicies:
   - name: typespec
     type: lockstep
