@@ -106,7 +106,7 @@ jobs:
         artifact: vs-extension
         displayName: Download VS extension(.vsix) from pipeline artifacts
 
-      - template: ./templates/install.yml
+      # - template: ./templates/install.yml
 
       - pwsh: |
           Install-Module VSSetup -Force
