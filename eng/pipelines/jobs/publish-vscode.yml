@@ -1,0 +1,20 @@
+jobs:
+  - job: publish_vscode
+    displayName: Publish VSCode extension
+    dependsOn: npm_stable
+    pool:
+      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
+
+    steps:
+      - download: current
+        artifact: vscode-extension
+        displayName: Download VSCode extension(.vsix) from pipeline artifacts
+
+      - template: ../templates/install.yml
+
+      - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
+        displayName: Publish
+        workingDirectory: packages/typespec-vscode
+        env:
+          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
