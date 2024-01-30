@@ -2,7 +2,7 @@
   "$schema": "http://json.schemastore.org/vsix-publish",
   "categories": ["build", "coding"], // The categories of the extension. Between 1 and 3 categories are required.
   "identity": {
-    "internalName": "TypeSpec" // If not specified, we try to generate the name from the display name of the extension in the vsixmanifest file.
+    "internalName": "typespec-vs" // If not specified, we try to generate the name from the display name of the extension in the vsixmanifest file.
     // Required if the display name is not the actual name of the extension.
   },
   "overview": "README.md", // Path to the "readme" file that gets uploaded to the Marketplace. Required.
