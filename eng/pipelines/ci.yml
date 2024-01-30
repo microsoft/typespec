@@ -113,9 +113,11 @@ jobs:
           $vsixPublisher = Join-Path -Path (Get-VSSetupInstance -All | Select-VSSetupInstance -Latest).installationPath -ChildPath "VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe" -Resolve
           $vsixPath = Resolve-Path "$(Pipeline.Workspace)/vs-extension/Microsoft.Typespec.VS.vsix"  
           echo "Path to vsix: $vsixPath"
-          $stdout = & $vsixPublisher publish -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)  -ignoreWarnings "VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08"
+          $stdout = (& $vsixPublisher publish -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)  -ignoreWarnings "VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08")
           Write-Output $stdout
-          if($stdout -match "^VSSDK: error VsixPub0029 :")
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output "Successfully published VSIX"
+          } elseif ($stdout -match "^VSSDK: error VsixPub0029 :")
           {
             Write-Output "Version already exists, skipping publish"
           } else {
