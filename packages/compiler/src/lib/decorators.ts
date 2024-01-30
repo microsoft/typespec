@@ -404,11 +404,13 @@ export function getFormat(program: Program, target: Type): string | undefined {
 // -- @pattern decorator ---------------------
 
 const patternValuesKey = createStateSymbol("patternValues");
+const patternValidationMessageKey = createStateSymbol("patternValidationMessage");
 
 export function $pattern(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  pattern: string
+  pattern: string,
+  validationMessage?: string
 ) {
   validateDecoratorUniqueOnNode(context, target, $pattern);
 
@@ -417,10 +419,18 @@ export function $pattern(
   }
 
   context.program.stateMap(patternValuesKey).set(target, pattern);
+
+  if (validationMessage) {
+    context.program.stateMap(patternValidationMessageKey).set(target, validationMessage);
+  }
 }
 
 export function getPattern(program: Program, target: Type): string | undefined {
   return program.stateMap(patternValuesKey).get(target);
+}
+
+export function getPatternValidationMessage(program: Program, target: Type): string | undefined {
+  return program.stateMap(patternValidationMessageKey).get(target);
 }
 
 // -- @minLength decorator ---------------------
