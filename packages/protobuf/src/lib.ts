@@ -194,21 +194,12 @@ function getAppliedCodesForTarget(program: Program, target: DiagnosticTarget) {
   return codes;
 }
 
-export interface ReportDiagnostic {
-  /**
-   * Report a TypeSpec protobuf diagnostic.
-   */
-  (program: Program, diagnostic: Diagnostic): void;
-
+export const reportDiagnostic = Object.assign(TypeSpecProtobufLibrary.reportDiagnostic, {
   /**
    * Report a TypeSpec protobuf diagnostic, but only once per target per diagnostic code.
    *
    * This is useful in situations where a function that reports a recoverable diagnostic may be called multiple times.
    */
-  once(program: Program, diagnostic: Diagnostic & { target: DiagnosticTarget }): void;
-}
-
-export const reportDiagnostic = Object.assign(TypeSpecProtobufLibrary.reportDiagnostic, {
   once: function (program: Program, diagnostic: Diagnostic & { target: DiagnosticTarget }) {
     const codes = getAppliedCodesForTarget(program, diagnostic.target);
 
