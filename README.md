@@ -51,14 +51,13 @@ using TypeSpec.Rest;
  * This is a sample Pet Store service.
  */
 @service({
-  title: "Pet Store Service",
-  version: "2021-03-25",
+  title: "Pet Store Service"
 })
 @server("https://example.com", "The service endpoint")
 namespace PetStore;
 
 @route("/pets")
-namespace Pets {
+interface Pets {
   op list(): Pet[];
 }
 
