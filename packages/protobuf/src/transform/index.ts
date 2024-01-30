@@ -7,10 +7,12 @@ import {
   formatDiagnostic,
   getDoc,
   getEffectiveModelType,
+  getFriendlyName,
   getTypeName,
   Interface,
   IntrinsicType,
   isDeclaredInNamespace,
+  isTemplateInstance,
   Model,
   ModelProperty,
   Namespace,
@@ -346,7 +348,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       return ref(extern[1]);
     }
 
-    return ref(model.name);
+    return ref(getModelName(model));
   }
 
   /**
@@ -460,7 +462,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     const effectiveModel = computeEffectiveModel(m, capitalize(operation.name) + "Response");
     if (effectiveModel) {
-      return ref(effectiveModel.name);
+      return ref(getModelName(effectiveModel));
     }
 
     reportDiagnostic(program, {
@@ -507,8 +509,10 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
           });
           return unreachable("anonymous model");
         }
+
         visitModel(t, relativeSource);
-        return ref(t.name);
+
+        return ref(getModelName(t));
       case "Enum":
         visitEnum(t);
         return ref(t.name);
@@ -683,11 +687,41 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function toMessage(model: Model): ProtoMessageDeclaration {
     return {
       kind: "message",
-      name: model.name,
+      name: getModelName(model),
       reservations: program.stateMap(state.reserve).get(model),
       declarations: [...model.properties.values()].map((f) => toMessageBodyDeclaration(f, model)),
       doc: getDoc(program, model),
     };
+  }
+
+  function getModelName(model: Model): string {
+    const friendlyName = getFriendlyName(program, model);
+
+    if (friendlyName) return capitalize(friendlyName);
+
+    const templateArguments = isTemplateInstance(model) ? model.templateMapper!.args : [];
+
+    const prefix = templateArguments
+      .map(function getTypePrefixName(arg, idx) {
+        if ("name" in arg && typeof arg.name === "string" && arg.name !== "")
+          return capitalize(arg.name!);
+        else {
+          reportDiagnostic.once(program, {
+            code: "unspeakable-template-argument",
+            // TODO/witemple - I'd rather attach the diagnostic to the template argument, but it's the best I can do for
+            // now to attach it to the model itself.
+            target: model,
+            format: {
+              name: model.name,
+            },
+          });
+
+          return `T${idx}`;
+        }
+      })
+      .join("");
+
+    return prefix + capitalize(model.name);
   }
 
   /**
