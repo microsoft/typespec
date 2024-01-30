@@ -2,7 +2,8 @@
   "$schema": "http://json.schemastore.org/vsix-publish",
   "categories": ["build", "coding"], // The categories of the extension. Between 1 and 3 categories are required.
   "identity": {
-    "internalName": "typespecvs"
+    "internalName": "typespecvs",
+    "vsixId": "typespecvs"
   },
   "overview": "README.md", // Path to the "readme" file that gets uploaded to the Marketplace. Required.
   "priceCategory": "free", // Either "free", "trial", or "paid". Defaults to "free".
