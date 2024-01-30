@@ -21,7 +21,7 @@ The [TypeSpec VS Code extension](https://marketplace.visualstudio.com/items?item
 tsp code install
 ```
 
-The [TypeSpec VS Extension](https://marketplace.visualstudio.com/items?itemName=typespec.TypeSpec) can be installed from the [VS Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.TypeSpec) or directly on the command line:
+The [TypeSpec VS Extension](https://marketplace.visualstudio.com/items?itemName=typespec.typespecvs) can be installed from the [VS Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespecvs) or directly on the command line:
 ```
 tsp vs install
 ```
