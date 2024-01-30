@@ -3,7 +3,7 @@
   <Metadata>
     <Identity Id="typespec.typespecvs" Version="|%CurrentProject%;GetPackageVersionForVsixManifest|" Language="en-US" Publisher="typespec" />
     <DisplayName>TypeSpec for Visual Studio</DisplayName>
-    <Description>TypeSpec Language Support for Visual Studio</Description>
+    <Description>TypeSpec language support for Visual Studio</Description>
     <MoreInfo>https://github.com/microsoft/typespec</MoreInfo>
     <License>LICENSE</License>
     <Icon>Icons/logo.png</Icon>

@@ -2,7 +2,7 @@
   "name": "typespec-vscode",
   "version": "0.52.0",
   "author": "Microsoft Corporation",
-  "description": "TypeSpec Language Support for VS Code",
+  "description": "TypeSpec language support for VS Code",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
