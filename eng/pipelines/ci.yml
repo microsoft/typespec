@@ -117,11 +117,11 @@ jobs:
           Write-Output $stdout
           if ($LASTEXITCODE -eq 0) {
             Write-Output "Successfully published VSIX"
-          } elseif ($stdout -match "^VSSDK: error VsixPub0029 :")
-          {
+          } elseif ($stdout -match "^VSSDK: error VsixPub0029 :") {
             Write-Output "Version already exists, skipping publish"
+            exit 0
           } else {
-            throw "Error publishing VSIX: $stdout"
+            exit 1
           }
         displayName: Publish
         workingDirectory: packages/typespec-vs
