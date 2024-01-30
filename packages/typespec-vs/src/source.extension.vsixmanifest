@@ -2,7 +2,7 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="typespec.typespecvs" Version="|%CurrentProject%;GetPackageVersionForVsixManifest|" Language="en-US" Publisher="typespec" />
-    <DisplayName>TypeSpec Language Support</DisplayName>
+    <DisplayName>TypeSpec for Visual Studio</DisplayName>
     <Description>TypeSpec Language Support for Visual Studio</Description>
     <MoreInfo>https://github.com/microsoft/typespec</MoreInfo>
     <License>LICENSE</License>
