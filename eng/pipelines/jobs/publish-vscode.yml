@@ -11,7 +11,7 @@ jobs:
         artifact: vscode-extension
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
 
-      - template: ./templates/install.yml
+      - template: ../templates/install.yml
 
       - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
         displayName: Publish
