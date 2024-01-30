@@ -58,6 +58,7 @@ words:
   - proto
   - protobuf
   - protoc
+  - pwsh
   - regen
   - rpaas
   - rushx
