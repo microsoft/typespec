@@ -3,7 +3,7 @@
   "version": "0.52.0",
   "author": "Microsoft Corporation",
   "description": "Eslint plugin providing set of rules to be used in the JS/TS code of TypeSpec libraries",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {

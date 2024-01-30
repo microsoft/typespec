@@ -51,6 +51,16 @@ jobs:
         artifact: vscode-extension
         displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+
+      - publish: $(Build.ArtifactStagingDirectory)/vs-extension
+        artifact: vs-extension
+        displayName: Publish VS extension(.vsix) as pipeline artifacts
+
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
         inputs:
@@ -71,34 +81,8 @@ jobs:
               --source "./packages/playground-website/dist/" ^
               --overwrite
 
-  - job: publish_vscode
-    displayName: Publish VSCode extension
-    dependsOn: npm_stable
-    pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
-
-    steps:
-      - download: current
-        artifact: vscode-extension
-        displayName: Download VSCode extension(.vsix) from pipeline artifacts
-
-      - script: |
-          vsix="$(find $(Pipeline.Workspace)/vscode-extension -type f -iname "typespec-vscode-*.vsix" )"
-
-          [ -z "$vsix" ] && echo "Error: Couldn't find vsix" && exit 1
-
-          echo "Found core package $vsix"
-          echo "Found modelerfour package $modelerfourPkg"
-        displayName: Find packages path
-
-      - template: ./templates/install.yml
-
-      - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
-        displayName: Publish
-        workingDirectory: packages/typespec-vscode
-        env:
-          VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
+  - template: ./jobs/publish-vscode.yml
+  - template: ./jobs/publish-vs.yml
 
   - job: npm_dev
     dependsOn: npm_stable
