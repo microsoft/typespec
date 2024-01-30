@@ -113,7 +113,7 @@ jobs:
           $vsixPublisher = Join-Path -Path (Get-VSSetupInstance -All | Select-VSSetupInstance -Latest).installationPath -ChildPath "VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe" -Resolve
           $vsixPath = Resolve-Path "$(Pipeline.Workspace)/vs-extension/Microsoft.Typespec.VS.vsix"  
           echo "Path to vsix: $vsixPath"
-          $stdout = (& $vsixPublisher publish -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)  -ignoreWarnings "VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08")
+          $stdout = (& $vsixPublisher publish -payload $vsixPath -publishManifest "publishManifest.json" -personalAccessToken $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)  -ignoreWarnings "VSIXValidatorWarning01,VSIXValidatorWarning02,VSIXValidatorWarning08"  2>&1)
           Write-Output $stdout
           if ($LASTEXITCODE -eq 0) {
             Write-Output "Successfully published VSIX"
