@@ -29,15 +29,11 @@
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
     <Reference Include="System.ComponentModel.Composition" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
-    <Content Include="Resources\logo.png">
+    <Content Include="Icons\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Resource Include="Resources\tsp-file.png" />
-    <Content Include="FileIcons.pkgdef">
-      <IncludeInVSIX>true</IncludeInVSIX>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Resource Include="Icons\tsp-file.png" />
     <Content Include="Monikers.imagemanifest">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

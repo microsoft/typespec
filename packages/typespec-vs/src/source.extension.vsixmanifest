@@ -6,7 +6,7 @@
     <Description>TypeSpec Language Support for Visual Studio</Description>
     <MoreInfo>https://github.com/microsoft/typespec</MoreInfo>
     <License>LICENSE</License>
-    <Icon>Resources/logo.png</Icon>
+    <Icon>Icons/logo.png</Icon>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)">
