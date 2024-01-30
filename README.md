@@ -6,7 +6,7 @@ TypeSpec is a language for defining cloud service APIs and shapes. TypeSpec is a
 
 TypeSpec is excellent for generating many different API description formats, client and service code, documentation, and many other assets. All this while keeping your TypeSpec definition as a single source of truth.
 
-Using TypeSpec, you can create reusable patterns for all aspects of an API using TypeSpec libraries. It has a rich linter framework with the ability to check for and flag known anti-patterns as well as an emitter framework that lets you be in control of the output to ensure it follows the patterns you want. Enabling the use of patterns establishes "guardrails" for API designers and makes it easier to follow best practices than to deviate from them. TypeSpec promotes highly quality and regular API designs that adhere to best practices by construction.
+Using TypeSpec, you can create reusable patterns for all aspects of an API and package those reusable patterns into libraries. These patterns establish "guardrails" for API designers and makes it easier to follow best practices than to deviate from them. TypeSpec also has a rich linter framework with the ability to flag anti-patterns as well as an emitter framework that lets you control of the output to ensure it follows the patterns you want. 
 
 ## [Installation](https://typespec.io/docs)
 
