@@ -2,7 +2,7 @@
 
 [Repository](https://github.com/microsoft/typespec) | [Documentation](https://typespec.io/docs) | [Issues](https://github.com/microsoft/typespec/issues) | [Samples](https://github.com/microsoft/typespec/tree/main/packages/samples/specs)
 
-This provides provides [TypeSpec](https://github.com/microsoft/typespec) language support for VS Code.
+This provides provides [TypeSpec](https://github.com/microsoft/typespec) language support for Visual Studio.
 
 ## Features
 
@@ -15,7 +15,7 @@ This provides provides [TypeSpec](https://github.com/microsoft/typespec) languag
 - Rename refactoring
 - Go to definition
 
-## Configure TYPESPEC Visual Studio Extension
+## Configure TypeSpec Visual Studio Extension
 
 1. Create a file `.vs/VSWorkspaceSettings.json` at the root of the project.
 2. Add configuration as key value pair in this file. Example:
