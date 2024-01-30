@@ -2,7 +2,7 @@
 
 [Official Docs](https://typespec.io/) | [Try TypeSpec Online](https://aka.ms/trytypespec) | [Getting Started](https://typespec.io/docs) | [Language Overview](https://typespec.io/docs/language-basics/overview)
 
-TypeSpec is a language for defining cloud service APIs and shapes. TypeSpec is a highly extensible language with primitives that can describe API shapes common among REST, OpenAPI, GraphQL, gRPC, and other protocols.
+TypeSpec is a language for defining cloud service APIs and shapes. TypeSpec is a highly extensible language with primitives that can describe API shapes common among REST, OpenAPI, gRPC, and other protocols.
 
 TypeSpec is excellent for generating many different API description formats, client and service code, documentation, and many other assets. All this while keeping your TypeSpec definition as a single source of truth.
 
