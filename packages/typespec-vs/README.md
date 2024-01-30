@@ -1,12 +1,21 @@
 # TypeSpec Language Support for Visual Studio
 
-This package provides [TypeSpec](https://github.com/microsoft/typespec) language support for Visual Studio 2019 and 2022.
+[Repository](https://github.com/microsoft/typespec) | [Documentation](https://typespec.io/docs) | [Issues](https://github.com/microsoft/typespec/issues) | [Samples](https://github.com/microsoft/typespec/tree/main/packages/samples/specs)
 
-See https://github.com/microsoft/typespec#installing-visual-studio-extension for installation instructions.
+This provides provides [TypeSpec](https://github.com/microsoft/typespec) language support for Visual Studio.
 
-**NOTE**: The npm package is used as an implementation detail of the `tsp vs` command that installs the Visual Studio TypeSpec extension, and not intended to be used for other purposes.
+## Features
 
-## Configure TYPESPEC Visual Studio Extension
+- Live diagnostic reporting
+- Syntax highlighting
+- Code completion
+- Code folding
+- Formatting
+- Hover info
+- Rename refactoring
+- Go to definition
+
+## Configure TypeSpec Visual Studio Extension
 
 1. Create a file `.vs/VSWorkspaceSettings.json` at the root of the project.
 2. Add configuration as key value pair in this file. Example:
