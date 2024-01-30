@@ -4,7 +4,7 @@
   "private": true,
   "author": "Microsoft Corporation",
   "description": "Internal library that manage bundle uploading.",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
