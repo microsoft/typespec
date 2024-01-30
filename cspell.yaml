@@ -6,6 +6,7 @@ dictionaries:
   - typescript
 words:
   - autorest
+  - azsdk
   - azsdkengsys
   - azurecr
   - azuresdk
@@ -46,6 +47,7 @@ words:
   - noopener
   - noreferrer
   - nostdlib
+  - npmjs
   - oapi
   - oneof
   - onig
