@@ -9,7 +9,7 @@
 	</Symbols>
 	<Images>
 		<Image Guid="$(AssetsGuid)" ID="$(typespec)">
-			<Source Uri="$(Resources)/tsp-file.light.svg">
+			<Source Uri="$(Resources)/tsp-file.png">
 				<Size Value="16" />
 			</Source>
 		</Image>
