@@ -37,7 +37,7 @@ const baseUrl = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 const config: Config = {
   title: "TypeSpec",
   tagline: "API first with TypeSpec for Azure services",
-  url: "https://microsoft.github.io",
+  url: "https://typespec.io",
   baseUrl,
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
