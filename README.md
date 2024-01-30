@@ -30,26 +30,51 @@ tsp vs install
 
 ### TypeSpec to OpenAPI 3.0 Example
 
-This example uses the `@typespec/openapi3` library to generate OpenAPI 3.0 from TypeSpec.
+This example uses the `@typespec/http`, `@typespec/rest`, and `@typespec/openapi3` libraries to define a basic REST service and generate an OpenAPI 3.0 document from it.
 
-Create a file named sample.tsp in an empty folder:
-#### sample.tsp
+Run the following command and select "Generic REST API":
+```
+tsp init
+```
+Hit enter a few times to confirm the defaults.
 
+Copy the contents below into your **main.tsp**:
 ```typespec
 import "@typespec/http";
+import "@typespec/rest";
+import "@typespec/openapi3";
 
 using TypeSpec.Http;
+using TypeSpec.Rest;
 
-@server("https://example.com", "Single server endpoint")
-@route("/example")
-namespace Example {
-  @get
-  @route("/message")
-  op getMessage(): string;
+/**
+ * This is a sample Pet Store service.
+ */
+@service({
+  title: "Pet Store Service",
+  version: "2021-03-25",
+})
+@server("https://example.com", "The service endpoint")
+namespace PetStore;
+
+@route("/pets")
+namespace Pets {
+  op list(): Pet[];
+}
+
+model Pet {
+  @minLength(100)
+  name: string;
+
+  @minValue(0)
+  @maxValue(100)
+  age: int32;
+
+  kind: "dog" | "cat" | "fish";
 }
 ```
 
-Install the dependencies of sample.tsp:
+Install the dependencies of main.tsp:
 
 ```
 tsp install
@@ -58,7 +83,7 @@ tsp install
 Compile it to OpenAPI 3.0:
 
 ```
-tsp compile sample.tsp --emit @typespec/openapi3
+tsp compile main.tsp --emit @typespec/openapi3
 ```
 
 You can find the emitted OpenAPI output in `./tsp-output/openapi.json`.
