@@ -3,7 +3,7 @@
   "version": "0.45.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec linter rules to enforce best practices.",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
