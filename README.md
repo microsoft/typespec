@@ -16,12 +16,12 @@ npm install -g @typespec/compiler
 
 #### Tools
 
-[VSCode](https://typespec.io/docs/introduction/editor/vscode) 
+The [TypeSpec VS Code extension](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode) can be installed from the VS Code [marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode) or directly on the command line:
 ```
 tsp code install
 ```
 
-[VS](https://typespec.io/docs/introduction/editor/vs)
+The [TypeSpec VS Extension](https://marketplace.visualstudio.com/items?itemName=typespec.TypeSpec) can be installed from the [VS Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.TypeSpec) or directly on the command line:
 ```
 tsp vs install
 ```
@@ -47,9 +47,7 @@ import "@typespec/openapi3";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 
-/**
- * This is a sample Pet Store service.
- */
+/** This is a pet store service. */
 @service({
   title: "Pet Store Service"
 })
