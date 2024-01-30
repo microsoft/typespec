@@ -708,7 +708,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         else {
           reportDiagnostic.once(program, {
             code: "unspeakable-template-argument",
-            // TODO/witemple - I'd rather attach the diagnostic to the template argument, but it's the best I can do for
+            // TODO-WILL - I'd rather attach the diagnostic to the template argument, but it's the best I can do for
             // now to attach it to the model itself.
             target: model,
             format: {
