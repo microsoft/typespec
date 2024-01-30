@@ -63,8 +63,6 @@ tsp compile sample.tsp --emit @typespec/openapi3
 
 You can find the emitted OpenAPI output in `./tsp-output/openapi.json`.
 
-## [Troubleshooting](./troubleshooting.md)
-
 ## Advanced Scenarios
 
 ### Installing nightly version
