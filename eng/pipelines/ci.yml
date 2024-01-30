@@ -22,8 +22,7 @@ jobs:
 
     steps:
       - template: ./templates/install.yml
-      - script: pnpm --filter="typespec-vs..." run build
-        displayName: Build
+      - template: ./templates/build.yml
 
       - script: pnpm run test-official
         displayName: Test
