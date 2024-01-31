@@ -2,6 +2,7 @@
 
 trigger:
   - main
+  - split-publish
   # For patch releases
   - release/*
 
