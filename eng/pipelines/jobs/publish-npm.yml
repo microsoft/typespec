@@ -5,7 +5,7 @@ parameters:
     type: string
 
 jobs:
-  - job: ${{ parameters.artifactName }}
+  - job: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
     pool:
       name: azsdk-pool-mms-ubuntu-2204-general
