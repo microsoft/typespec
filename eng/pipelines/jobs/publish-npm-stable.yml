@@ -7,7 +7,7 @@ jobs:
 
     steps:
       - download: current
-        artifact: npm-packages
+        artifact: npm-packages-stable
         displayName: Download VS extension(.vsix) from pipeline artifacts
 
       - task: EsrpRelease@4

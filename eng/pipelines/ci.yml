@@ -37,7 +37,7 @@ stages:
             displayName: Pack packages
 
           - publish: $(Build.SourcesDirectory)/temp/artifacts
-            artifact: npm-packages
+            artifact: npm-packages-stable
             displayName: Publish packages(.tgz) as pipeline artifacts
 
           - task: CopyFiles@2
@@ -88,7 +88,7 @@ stages:
             displayName: Pack packages
 
           - publish: $(Build.SourcesDirectory)/temp/artifacts
-            artifact: npm-packages
+            artifact: npm-packages-dev
             displayName: Publish packages(.tgz) as pipeline artifacts
 
   - stage: publish
