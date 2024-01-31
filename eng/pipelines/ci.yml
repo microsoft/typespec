@@ -29,10 +29,14 @@ jobs:
 
       - template: ./templates/upload-coverage.yml
 
-      - script: |
-          pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
+      - pwsh: |
+          echo "Updating config"
+          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+          echo "Publishing"
           pnpm -r publish --access public --no-git-checks
-        displayName: Publish packages
+        name: Publish
+        env:
+          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
       - script: pnpm run pack:all
         displayName: Pack packages
@@ -105,10 +109,14 @@ jobs:
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
-      - script: |
-          pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
+      - pwsh: |
+          echo "Updating config"
+          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+          echo "Publishing"
           pnpm -r publish --access public --no-git-checks --tag next
-        displayName: Publish packages
+        name: Publish
+        env:
+          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
   - job: docker
     displayName: Docker build and publish
