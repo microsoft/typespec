@@ -1,7 +1,6 @@
 jobs:
   - job: publish_vs
     displayName: Publish VS extension
-    dependsOn: npm_stable
     pool:
       name: azsdk-pool-mms-win-2022-general
       vmImage: windows-2022

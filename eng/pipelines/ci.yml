@@ -100,7 +100,6 @@ stages:
       - template: ./jobs/publish-npm-stable.yml
 
       - job: npm_dev
-        dependsOn: npm_stable
         displayName: Npm publish dev version
         pool:
           name: azsdk-pool-mms-win-2022-general

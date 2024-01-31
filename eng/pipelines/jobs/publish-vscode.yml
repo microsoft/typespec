@@ -1,7 +1,6 @@
 jobs:
   - job: publish_vscode
     displayName: Publish VSCode extension
-    dependsOn: npm_stable
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
       vmImage: ubuntu-20.04
