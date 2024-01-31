@@ -1,9 +1,9 @@
 {
   "name": "typespec-vscode",
-  "version": "0.52.0",
+  "version": "0.52.1",
   "author": "Microsoft Corporation",
-  "description": "TypeSpec Language Support for VS Code",
-  "homepage": "https://microsoft.github.io/typespec",
+  "description": "TypeSpec language support for VS Code",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
@@ -16,8 +16,9 @@
   "keywords": [
     "typespec"
   ],
-  "publisher": "Microsoft",
-  "displayName": "TypeSpec Language Support for VS Code",
+  "preview": true,
+  "publisher": "typespec",
+  "displayName": "TypeSpec for VS Code",
   "categories": [
     "Programming Languages"
   ],
@@ -34,6 +35,7 @@
     "typespec-vscode-*.vsix",
     "ThirdPartyNotices.txt"
   ],
+  "icon": "./icons/logo.png",
   "contributes": {
     "languages": [
       {
@@ -45,6 +47,10 @@
         "extensions": [
           ".tsp"
         ],
+        "icon": {
+          "light": "./icons/tsp-file.light.svg",
+          "dark": "./icons/tsp-file.dark.svg"
+        },
         "configuration": "./dist/language-configuration.json"
       },
       {
@@ -114,7 +120,8 @@
     "copy-tmlanguage": "node scripts/copy-tmlanguage.js",
     "generate-language-configuration": "node scripts/generate-language-configuration.js",
     "generate-third-party-notices": "typespec-build-tool generate-third-party-notices",
-    "package-vsix": "vsce package"
+    "package-vsix": "vsce package",
+    "deploy": "vsce publish"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "~25.0.4",

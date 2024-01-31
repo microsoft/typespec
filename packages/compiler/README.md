@@ -6,4 +6,4 @@ compiler and its command-line interface.
 ## See also
 
 - [TypeSpec Getting Started](https://github.com/microsoft/typespec#getting-started)
-- [TypeSpec Website](https://microsoft.github.io/typespec)
+- [TypeSpec Website](https://typespec.io)
