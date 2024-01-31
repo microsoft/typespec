@@ -98,7 +98,7 @@ stages:
       - template: ./jobs/publish-vscode.yml
       - template: ./jobs/publish-vs.yml
       - template: ./jobs/publish-npm-stable.yml
-        inputs:
+        parameters:
           artifactName: npm-packages-stable
           tag: latest
 
