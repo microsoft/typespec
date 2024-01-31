@@ -2,6 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
+import { Options, ThemeConfig } from "@docusaurus/preset-classic";
 import type { Config, Plugin } from "@docusaurus/types";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 import { resolve } from "path";
@@ -94,7 +95,6 @@ const config: Config = {
   presets: [
     [
       "classic",
-      /** @type {import('@docusaurus/preset-classic').Options} */
       {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
@@ -103,12 +103,13 @@ const config: Config = {
         },
 
         blog: {
+          path: "../../blog",
           showReadingTime: true,
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
-      },
+      } satisfies Options,
     ],
   ],
   staticDirectories: [
@@ -175,89 +176,91 @@ const config: Config = {
       },
     }),
   },
-  themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    {
-      navbar: {
-        title: "TypeSpec",
-        items: [
-          {
-            type: "dropdown",
-            label: "Use cases",
-            items: [
-              {
-                label: "OpenAPI",
-                to: "/openapi",
-              },
-              {
-                label: "Data validation and type consistency",
-                to: "/data-validation",
-              },
-              {
-                label: "Tooling support",
-                to: "/tooling",
-              },
-            ],
-          },
-          {
-            type: "doc",
-            docId: "introduction/installation",
-            position: "left",
-            label: "Docs",
-          },
-          { to: "/playground", label: "Playground", position: "left" },
-          {
-            label: "Community",
-            to: "/community",
-          },
-          {
-            label: "Getting started",
-            to: "/docs",
-          },
-          {
-            type: "docsVersionDropdown",
-            position: "right",
-          },
-          {
-            href: "https://github.com/microsoft/typespec",
-            position: "right",
-            className: "header-github-link",
-            "aria-label": "Github repository",
-          },
-        ],
-      },
-      footer: {
-        style: "dark",
-        links: [
-          {
-            title: "Docs",
-            items: [
-              {
-                label: "Introduction",
-                to: "/docs",
-              },
-              {
-                label: "Language basics",
-                to: "/docs/language-basics/overview",
-              },
-            ],
-          },
-        ],
-        copyright: `© ${new Date().getFullYear()} Microsoft`,
-      },
-      prism: {
-        theme: themes.oneLight,
-        darkTheme: themes.oneDark,
-        additionalLanguages: ["http", "shell-session", "protobuf"],
-      },
-      mermaid: {},
-      algolia: {
-        // cspell:disable-next-line
-        appId: "V3T9EUVLJR",
-        apiKey: "bae16ae67ddbe24e700ac20d192ad20f",
-        indexName: "typespec",
-      },
+  themeConfig: {
+    navbar: {
+      title: "TypeSpec",
+      items: [
+        {
+          type: "dropdown",
+          label: "Use cases",
+          items: [
+            {
+              label: "OpenAPI",
+              to: "/openapi",
+            },
+            {
+              label: "Data validation and type consistency",
+              to: "/data-validation",
+            },
+            {
+              label: "Tooling support",
+              to: "/tooling",
+            },
+          ],
+        },
+        {
+          type: "doc",
+          docId: "introduction/installation",
+          position: "left",
+          label: "Docs",
+        },
+        { to: "/playground", label: "Playground", position: "left" },
+        {
+          label: "Blog",
+          to: "/blog",
+        },
+        {
+          label: "Community",
+          to: "/community",
+        },
+        {
+          label: "Getting started",
+          to: "/docs",
+        },
+        {
+          type: "docsVersionDropdown",
+          position: "right",
+        },
+        {
+          href: "https://github.com/microsoft/typespec",
+          position: "right",
+          className: "header-github-link",
+          "aria-label": "Github repository",
+        },
+      ],
+    } satisfies ThemeConfig,
+    footer: {
+      style: "dark",
+      links: [
+        {
+          title: "Docs",
+          items: [
+            {
+              label: "Introduction",
+              to: "/docs",
+            },
+            {
+              label: "Language basics",
+              to: "/docs/language-basics/overview",
+            },
+          ],
+        },
+      ],
+      copyright: `© ${new Date().getFullYear()} Microsoft`,
     },
+    prism: {
+      theme: themes.oneLight,
+      darkTheme: themes.oneDark,
+      additionalLanguages: ["http", "shell-session", "protobuf"],
+    },
+    mermaid: {},
+    algolia: {
+      // cspell:disable-next-line
+      appId: "V3T9EUVLJR",
+      apiKey: "bae16ae67ddbe24e700ac20d192ad20f",
+      indexName: "typespec",
+    },
+  },
 };
 
 export default config;

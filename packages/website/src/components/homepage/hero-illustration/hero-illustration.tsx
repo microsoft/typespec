@@ -29,7 +29,7 @@ export const HeroIllustration = () => {
   );
 };
 
-const OpenAPI3Illustration = () => {
+export const OpenAPI3Illustration = () => {
   return (
     <Window className={style["hero-illustration"]}>
       <div className={style["split-windows"]}>
