@@ -16,10 +16,10 @@ jobs:
           Intent: "PackageDistribution"
           ContentType: "npm"
           ContentSource: "Blobs"
-          Blobs: "$(Pipeline.Workspace)/**/*.tgz"
+          Blobs: "$(Pipeline.Workspace)/packages/**/*.tgz"
           WaitForReleaseCompletion: true
-          Owners: "xyz@microsoft.com"
-          Approvers: "abc@microsoft.com"
+          Owners: "Allen.Zhang@microsoft.com"
+          Approvers: "tiguerin@microsoft.com"
           ServiceEndpointUrl: "https://api.esrp.microsoft.com"
           MainPublisher: "ESRPRELPACMAN"
           DomainTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
