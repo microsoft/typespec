@@ -1,0 +1,25 @@
+jobs:
+  - job: publish_npm_stable
+    displayName: Publish Npm Stable
+    pool:
+      name: azsdk-pool-mms-win-2022-general
+      vmImage: windows-2022
+
+    steps:
+      - download: current
+        artifact: npm-packages
+        displayName: Download VS extension(.vsix) from pipeline artifacts
+
+      - task: EsrpRelease@4
+        inputs:
+          ConnectedServiceName: "ESRP Release Service"
+          Intent: "PackageDistribution"
+          ContentType: "npm"
+          ContentSource: "Blobs"
+          Blobs: "$(Pipeline.Workspace)/**/*.tgz"
+          WaitForReleaseCompletion: true
+          Owners: "xyz@microsoft.com"
+          Approvers: "abc@microsoft.com"
+          ServiceEndpointUrl: "https://api.esrp.microsoft.com"
+          MainPublisher: "ESRPRELPACMAN"
+          DomainTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"

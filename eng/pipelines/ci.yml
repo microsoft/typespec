@@ -10,135 +10,145 @@ pr: none
 variables:
   - template: templates/variables/globals.yml
 
-jobs:
-  - job: npm_stable
-    displayName: Npm publish
-    pool:
-      name: azsdk-pool-mms-win-2022-general
-      vmImage: windows-2022
+stages:
+  - stage: build
+    displayName: Build
+    jobs:
+      - job: build
+        displayName: Npm publish
+        pool:
+          name: azsdk-pool-mms-win-2022-general
+          vmImage: windows-2022
 
-    variables:
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+        variables:
+          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
-    steps:
-      - template: ./templates/install.yml
-      - template: ./templates/build.yml
+        steps:
+          - template: ./templates/install.yml
+          - template: ./templates/build.yml
 
-      - script: pnpm run test-official
-        displayName: Test
+          - script: pnpm run test-official
+            displayName: Test
 
-      - template: ./templates/upload-coverage.yml
+          - template: ./templates/upload-coverage.yml
 
-      - pwsh: |
-          echo "Updating config"
-          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
-          echo "Publishing"
-          pnpm -r publish --access public --no-git-checks
-        name: Publish
-        env:
-          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+          - script: pnpm run pack:all
+            displayName: Pack packages
 
-      - script: pnpm run pack:all
-        displayName: Pack packages
+          - publish: $(Build.SourcesDirectory)/temp/artifacts
+            artifact: npm-packages
+            displayName: Publish packages(.tgz) as pipeline artifacts
 
-      - publish: $(Build.SourcesDirectory)/temp/artifacts
-        artifact: packages
-        displayName: Publish packages(.tgz) as pipeline artifacts
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+              Contents: "*.vsix"
+              TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
-          Contents: "*.vsix"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+          - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
+            artifact: vscode-extension
+            displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
-      - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
-        artifact: vscode-extension
-        displayName: Publish VSCode extension(.vsix) as pipeline artifacts
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+              Contents: "*.vsix"
+              TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
-          Contents: "*.vsix"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+          - publish: $(Build.ArtifactStagingDirectory)/vs-extension
+            artifact: vs-extension
+            displayName: Publish VS extension(.vsix) as pipeline artifacts
 
-      - publish: $(Build.ArtifactStagingDirectory)/vs-extension
-        artifact: vs-extension
-        displayName: Publish VS extension(.vsix) as pipeline artifacts
+          - task: AzureCLI@1
+            displayName: "Publish bundled packages to package storage"
+            inputs:
+              azureSubscription: "Azure SDK Engineering System"
+              scriptLocation: inlineScript
+              inlineScript: node ./eng/scripts/upload-bundler-packages.js
 
-      - task: AzureCLI@1
-        displayName: "Publish bundled packages to package storage"
-        inputs:
-          azureSubscription: "Azure SDK Engineering System"
-          scriptLocation: inlineScript
-          inlineScript: node ./eng/scripts/upload-bundler-packages.js
+          - task: AzureCLI@1
+            displayName: "Publish playground"
+            inputs:
+              azureSubscription: "Azure SDK Engineering System"
+              scriptLocation: inlineScript
+              inlineScript: |
+                az storage blob upload-batch ^
+                  --destination $web ^
+                  --account-name "cadlplayground" ^
+                  --destination-path / ^
+                  --source "./packages/playground-website/dist/" ^
+                  --overwrite
 
-      - task: AzureCLI@1
-        displayName: "Publish playground"
-        inputs:
-          azureSubscription: "Azure SDK Engineering System"
-          scriptLocation: inlineScript
-          inlineScript: |
-            az storage blob upload-batch ^
-              --destination $web ^
-              --account-name "cadlplayground" ^
-              --destination-path / ^
-              --source "./packages/playground-website/dist/" ^
-              --overwrite
+          # Bump for prerelease
+          - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+            displayName: Bump version to prerelease targets
 
-  - template: ./jobs/publish-vscode.yml
-  - template: ./jobs/publish-vs.yml
+          - script: pnpm run pack:all
+            displayName: Pack packages
 
-  - job: npm_dev
-    dependsOn: npm_stable
-    displayName: Npm publish dev version
-    pool:
-      name: azsdk-pool-mms-win-2022-general
-      vmImage: windows-2022
+          - publish: $(Build.SourcesDirectory)/temp/artifacts
+            artifact: npm-packages
+            displayName: Publish packages(.tgz) as pipeline artifacts
 
-    variables:
-      TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
+  - stage: publish
+    displayName: Publish
+    dependsOn: build
+    jobs:
+      - template: ./jobs/publish-vscode.yml
+      - template: ./jobs/publish-vs.yml
+      - template: ./jobs/publish-npm-stable.yml
 
-    steps:
-      - template: ./templates/install.yml
-      - template: ./templates/build.yml
+      - job: npm_dev
+        dependsOn: npm_stable
+        displayName: Npm publish dev version
+        pool:
+          name: azsdk-pool-mms-win-2022-general
+          vmImage: windows-2022
 
-      - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
-        displayName: Bump version to prerelease targets
+        variables:
+          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
-      - script: npm run gen-manifest
-        displayName: Regen manifest for compiler
-        workingDirectory: ./packages/compiler
+        steps:
+          - template: ./templates/install.yml
+          - template: ./templates/build.yml
 
-      - pwsh: |
-          echo "Updating config"
-          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
-          echo "Publishing"
-          pnpm -r publish --access public --no-git-checks --tag next
-        name: Publish
-        env:
-          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+          - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+            displayName: Bump version to prerelease targets
 
-  - job: docker
-    displayName: Docker build and publish
-    variables:
-      imageName: "azsdkengsys.azurecr.io/typespec"
-    pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
-    steps:
-      - task: Docker@1
-        displayName: login
-        inputs:
-          azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
-          azureContainerRegistry: azsdkengsys.azurecr.io
-          command: login
+          - script: npm run gen-manifest
+            displayName: Regen manifest for compiler
+            workingDirectory: ./packages/compiler
 
-      - script: |
-          docker build -f ./docker/Dockerfile \
-            -t $(imageName):latest \
-            -t $(imageName):alpine \
-            .
-        displayName: "Build"
+          - pwsh: |
+              echo "Updating config"
+              pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+              echo "Publishing"
+              pnpm -r publish --access public --no-git-checks --tag next
+            name: Publish
+            env:
+              NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
-      - script: docker push $(imageName) --all-tags
-        displayName: "Push"
+      - job: docker
+        displayName: Docker build and publish
+        variables:
+          imageName: "azsdkengsys.azurecr.io/typespec"
+        pool:
+          name: azsdk-pool-mms-ubuntu-2004-general
+          vmImage: ubuntu-20.04
+        steps:
+          - task: Docker@1
+            displayName: login
+            inputs:
+              azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+              azureContainerRegistry: azsdkengsys.azurecr.io
+              command: login
+
+          - script: |
+              docker build -f ./docker/Dockerfile \
+                -t $(imageName):latest \
+                -t $(imageName):alpine \
+                .
+            displayName: "Build"
+
+          - script: docker push $(imageName) --all-tags
+            displayName: "Push"
