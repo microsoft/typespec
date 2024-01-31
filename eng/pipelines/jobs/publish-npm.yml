@@ -16,6 +16,8 @@ jobs:
         artifact: ${{ parameters.artifactName }}
         displayName: Download Npm Packages
 
+      - template: ../templates/install.yml
+
       - script: |
           echo "Updating config"
           pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'

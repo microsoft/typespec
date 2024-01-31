@@ -88,7 +88,7 @@ stages:
             displayName: Pack packages
 
           - publish: $(Build.SourcesDirectory)/temp/artifacts
-            artifact: npm-packages-dev
+            artifact: npm-packages-next
             displayName: Publish packages(.tgz) as pipeline artifacts
 
   - stage: publish
@@ -97,39 +97,15 @@ stages:
     jobs:
       - template: ./jobs/publish-vscode.yml
       - template: ./jobs/publish-vs.yml
-      - template: ./jobs/publish-npm-stable.yml
+      - template: ./jobs/publish-npm.yml
         parameters:
           artifactName: npm-packages-stable
           tag: latest
 
-      - job: npm_dev
-        displayName: Npm publish dev version
-        pool:
-          name: azsdk-pool-mms-win-2022-general
-          vmImage: windows-2022
-
-        variables:
-          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
-
-        steps:
-          - template: ./templates/install.yml
-          - template: ./templates/build.yml
-
-          - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
-            displayName: Bump version to prerelease targets
-
-          - script: npm run gen-manifest
-            displayName: Regen manifest for compiler
-            workingDirectory: ./packages/compiler
-
-          - pwsh: |
-              echo "Updating config"
-              pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
-              echo "Publishing"
-              pnpm -r publish --access public --no-git-checks --tag next
-            name: Publish
-            env:
-              NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+      - template: ./jobs/publish-npm.yml
+        parameters:
+          artifactName: npm-packages-next
+          tag: next
 
   - stage: docker
     displayName: Docker
