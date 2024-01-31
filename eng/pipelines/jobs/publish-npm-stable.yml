@@ -1,25 +1,40 @@
+parameters:
+  - name: artifactName
+    type: string
+  - name: tag
+    type: string
+
 jobs:
   - job: publish_npm_stable
     displayName: Publish Npm (Stable)
     pool:
-      name: azsdk-pool-mms-win-2022-general
-      vmImage: windows-2022
+      name: azsdk-pool-mms-ubuntu-2204-general
+      vmImage: ubuntu-22.04
 
     steps:
       - download: current
-        artifact: npm-packages-stable
+        artifact: ${{ parameters.artifactName }}
         displayName: Download Npm Packages
 
-      - task: EsrpRelease@4
-        inputs:
-          ConnectedServiceName: "ESRP Release Service"
-          Intent: "PackageDistribution"
-          ContentType: "npm"
-          ContentSource: "Blobs"
-          Blobs: "$(Pipeline.Workspace)/npm-packages-stable/**/*.tgz"
-          WaitForReleaseCompletion: true
-          Owners: "Allen.Zhang@microsoft.com"
-          Approvers: "tiguerin@microsoft.com"
-          ServiceEndpointUrl: "https://api.esrp.microsoft.com"
-          MainPublisher: "ESRPRELPACMAN"
-          DomainTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
+      - script: |
+          echo "Updating config"
+          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+          echo "Publishing"
+          pnpm publish "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz"  --access public --no-git-checks --tag ${{ parameters.tag }}
+        name: Publish
+        env:
+          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+
+      # - task: EsrpRelease@4
+      #   inputs:
+      #     ConnectedServiceName: "ESRP Release Service"
+      #     Intent: "PackageDistribution"
+      #     ContentType: "npm"
+      #     ContentSource: "Blobs"
+      #     FolderLocation: "$(Pipeline.Workspace)/npm-packages-stable"
+      #     WaitForReleaseCompletion: true
+      #     Owners: "Allen.Zhang@microsoft.com"
+      #     Approvers: "tiguerin@microsoft.com"
+      #     ServiceEndpointUrl: "https://api.esrp.microsoft.com"
+      #     MainPublisher: "ESRPRELPACMAN"
+      #     DomainTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
