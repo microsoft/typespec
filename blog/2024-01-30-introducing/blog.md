@@ -8,6 +8,8 @@ TypeSpec is a language built for this environment. TypeSpec describes APIs using
 
 ![hero](./hero.png)
 
+<!-- truncate -->
+
 ## Key Features
 
 ### Interoperability
