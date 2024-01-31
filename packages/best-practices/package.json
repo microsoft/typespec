@@ -1,6 +1,7 @@
 {
   "name": "@typespec/best-practices",
   "version": "0.45.0",
+  "private": true,
   "author": "Microsoft Corporation",
   "description": "TypeSpec linter rules to enforce best practices.",
   "homepage": "https://typespec.io",
