@@ -22,7 +22,7 @@ jobs:
           echo "Updating config"
           pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
           echo "Publishing"
-          pnpm publish "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz"  --access public --no-git-checks --tag ${{ parameters.tag }}
+          node ./eng/scripts/publish-folder.js $(Pipeline.Workspace)/${{ parameters.artifactName }} ${{ parameters.tag }}
         name: Publish
         env:
           NPM_AUTH_TOKEN: $(azure-sdk-npm-token)

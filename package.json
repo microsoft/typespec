@@ -31,10 +31,12 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@pnpm/find-workspace-packages": "^6.0.9",
+    "@pnpm/sort-packages": "^5.0.9",
+    "@pnpm/workspace.pkgs-graph": "^2.0.14",
     "c8": "^8.0.1",
     "cspell": "^6.31.1",
-    "prettier-plugin-organize-imports": "~3.2.4",
     "prettier": "~3.1.1",
+    "prettier-plugin-organize-imports": "~3.2.4",
     "rimraf": "~5.0.1",
     "syncpack": "^11.2.1",
     "typescript": "~5.3.3",
