@@ -16,7 +16,7 @@ stages:
     displayName: Build
     jobs:
       - job: build
-        displayName: Npm publish
+        displayName: Build packages
         pool:
           name: azsdk-pool-mms-win-2022-general
           vmImage: windows-2022
@@ -128,8 +128,11 @@ stages:
             env:
               NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
+  - stage: docker
+    displayName: Docker
+    jobs:
       - job: docker
-        displayName: Docker build and publish
+        displayName: Build and publish
         variables:
           imageName: "azsdkengsys.azurecr.io/typespec"
         pool:

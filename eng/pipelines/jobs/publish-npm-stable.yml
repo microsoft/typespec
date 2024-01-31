@@ -1,6 +1,6 @@
 jobs:
   - job: publish_npm_stable
-    displayName: Publish Npm Stable
+    displayName: Publish Npm (Stable)
     pool:
       name: azsdk-pool-mms-win-2022-general
       vmImage: windows-2022
@@ -8,7 +8,7 @@ jobs:
     steps:
       - download: current
         artifact: npm-packages-stable
-        displayName: Download VS extension(.vsix) from pipeline artifacts
+        displayName: Download Npm Packages
 
       - task: EsrpRelease@4
         inputs:
@@ -16,7 +16,7 @@ jobs:
           Intent: "PackageDistribution"
           ContentType: "npm"
           ContentSource: "Blobs"
-          Blobs: "$(Pipeline.Workspace)/packages/**/*.tgz"
+          Blobs: "$(Pipeline.Workspace)/npm-packages-stable/**/*.tgz"
           WaitForReleaseCompletion: true
           Owners: "Allen.Zhang@microsoft.com"
           Approvers: "tiguerin@microsoft.com"
