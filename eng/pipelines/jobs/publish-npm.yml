@@ -1,0 +1,36 @@
+parameters:
+  - name: artifactName
+    type: string
+  - name: tag
+    type: string
+
+jobs:
+  - job: publish_npm_${{ parameters.tag }}
+    displayName: Publish Npm (${{ parameters.tag }})
+    pool:
+      name: azsdk-pool-mms-ubuntu-2204-general
+      vmImage: ubuntu-22.04
+
+    steps:
+      - download: current
+        artifact: ${{ parameters.artifactName }}
+        displayName: Download Npm Packages
+
+      - template: ../templates/install.yml
+
+      - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
+        displayName: List files in artifact
+
+      - task: EsrpRelease@4
+        inputs:
+          ConnectedServiceName: "ESRP Release Service"
+          Intent: "PackageDistribution"
+          ContentType: "npm"
+          ContentSource: "Blobs"
+          FolderLocation: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
+          WaitForReleaseCompletion: true
+          Owners: "Allen.Zhang@microsoft.com"
+          Approvers: "tiguerin@microsoft.com"
+          ServiceEndpointUrl: "https://api.esrp.microsoft.com"
+          MainPublisher: "ESRPRELPACMAN"
+          DomainTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
