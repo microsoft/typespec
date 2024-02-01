@@ -3,7 +3,7 @@
   "version": "0.52.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
@@ -38,6 +38,7 @@
     "watch": "tsc -p . --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
+    "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",

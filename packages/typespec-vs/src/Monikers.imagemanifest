@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
+	<Symbols>
+		<String Name="Resources" Value="/Microsoft.TypeSpec.VS;Component/Icons" />
+		<Guid Name="AssetsGuid" Value="{f8befe9f-7d8c-4ff8-ba68-c12bacb40658}" />
+		<ID Name="typespec" Value="0" />
+	</Symbols>
+	<Images>
+		<Image Guid="$(AssetsGuid)" ID="$(typespec)">
+			<Source Uri="$(Resources)/tsp-file.png">
+				<Size Value="16" />
+			</Source>
+		</Image>
+	</Images>
+	<ImageLists />
+</ImageManifest>
