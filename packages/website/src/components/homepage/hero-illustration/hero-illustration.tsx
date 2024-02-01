@@ -22,7 +22,7 @@ export const HeroIllustration = () => {
           value: "Http",
           content: <OpenAPI3Illustration />,
         },
-        { value: "Json Schema", content: <JsonSchemaIllustration /> },
+        { value: "JSON Schema", content: <JsonSchemaIllustration /> },
         { value: "Protobuf", content: <ProtobufIllustration /> },
       ]}
     ></HeroTabs>
