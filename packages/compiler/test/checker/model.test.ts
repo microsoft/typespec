@@ -663,6 +663,38 @@ describe("compiler: models", () => {
       strictEqual(A.indexer.value.kind, "Union");
     });
 
+    it("model is array cannot have properties", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A is string[] {
+          prop: string;
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "no-array-properties",
+        message: "Array models cannot have any properties.",
+      });
+    });
+
+    it("model extends array cannot have properties", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A extends Array<string> {
+          prop: string;
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "no-array-properties",
+        message: "Array models cannot have any properties.",
+      });
+    });
+
     it("doesn't allow duplicate properties", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
