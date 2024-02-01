@@ -18,25 +18,19 @@ jobs:
 
       - template: ../templates/install.yml
 
-      - script: |
-          echo "Updating config"
-          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
-          echo "Publishing"
-          node ./eng/scripts/publish-folder.js $(Pipeline.Workspace)/${{ parameters.artifactName }} ${{ parameters.tag }}
-        name: Publish
-        env:
-          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+      - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
+        displayName: List files in artifact
 
-      # - task: EsrpRelease@4
-      #   inputs:
-      #     ConnectedServiceName: "ESRP Release Service"
-      #     Intent: "PackageDistribution"
-      #     ContentType: "npm"
-      #     ContentSource: "Blobs"
-      #     FolderLocation: "$(Pipeline.Workspace)/npm-packages-stable"
-      #     WaitForReleaseCompletion: true
-      #     Owners: "Allen.Zhang@microsoft.com"
-      #     Approvers: "tiguerin@microsoft.com"
-      #     ServiceEndpointUrl: "https://api.esrp.microsoft.com"
-      #     MainPublisher: "ESRPRELPACMAN"
-      #     DomainTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
+      - task: EsrpRelease@4
+        inputs:
+          ConnectedServiceName: "ESRP Release Service"
+          Intent: "PackageDistribution"
+          ContentType: "npm"
+          ContentSource: "Blobs"
+          Blobs: "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz"
+          WaitForReleaseCompletion: true
+          Owners: "Allen.Zhang@microsoft.com"
+          Approvers: "tiguerin@microsoft.com"
+          ServiceEndpointUrl: "https://api.esrp.microsoft.com"
+          MainPublisher: "ESRPRELPACMAN"
+          DomainTenantId: "72f988bf-86f1-41af-91ab-2d7cd011db47"
