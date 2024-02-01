@@ -2,6 +2,7 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 import type { VersionOptions } from "@docusaurus/plugin-content-docs";
+import { NormalizedSidebar } from "@docusaurus/plugin-content-docs/src/sidebars/types.js";
 import { Options, ThemeConfig } from "@docusaurus/preset-classic";
 import type { Config, Plugin } from "@docusaurus/types";
 import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
@@ -32,6 +33,20 @@ function getVersionLabels(): Record<string, VersionOptions> {
     };
   }
   return labels;
+}
+
+// Reverse the sidebar items ordering (including nested category items)
+function reverseSidebarItems(items: NormalizedSidebar) {
+  // Reverse items in categories
+  const result = items.map((item) => {
+    if (item.type === "category") {
+      return { ...item, items: reverseSidebarItems(item.items) };
+    }
+    return item;
+  });
+  // Reverse items at current level
+  result.reverse();
+  return result;
 }
 
 const baseUrl = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
@@ -100,6 +115,12 @@ const config: Config = {
           sidebarPath: require.resolve("./sidebars.js"),
           path: "../../docs",
           versions: getVersionLabels(),
+          async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
+            const sidebarItems = await defaultSidebarItemsGenerator(args);
+            return args.item.dirName === "release-notes"
+              ? reverseSidebarItems(sidebarItems)
+              : sidebarItems;
+          },
         },
 
         blog: {
