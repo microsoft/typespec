@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { oapiForModel } from "./test-host.js";
+import { oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: Array", () => {
   it("defines array inline", async () => {
@@ -16,6 +16,37 @@ describe("openapi3: Array", () => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: { type: "string" },
+    });
+  });
+
+  it("keeps array inline in circular reference with extra properties", async () => {
+    const res = await openApiFor(
+      `
+      model Root {
+        value: Parent[];
+      }
+
+      model Parent {
+        @OpenAPI.extension("x-someFieldAttr", true)
+        children?: Child[];
+      }
+
+      model Child {
+        @OpenAPI.extension("x-someFieldAttr", true)
+        parents?: Parent[];
+      }
+      `
+    );
+
+    deepStrictEqual(res.components.schemas.Parent.properties.children, {
+      type: "array",
+      items: { $ref: "#/components/schemas/Child" },
+      "x-someFieldAttr": true,
+    });
+    deepStrictEqual(res.components.schemas.Child.properties.parents, {
+      type: "array",
+      items: { $ref: "#/components/schemas/Parent" },
+      "x-someFieldAttr": true,
     });
   });
 
