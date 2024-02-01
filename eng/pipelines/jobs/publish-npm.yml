@@ -27,7 +27,7 @@ jobs:
           Intent: "PackageDistribution"
           ContentType: "npm"
           ContentSource: "Blobs"
-          Blobs: "$(Pipeline.Workspace)/${{ parameters.artifactName }}/*.tgz"
+          FolderLocation: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
           WaitForReleaseCompletion: true
           Owners: "Allen.Zhang@microsoft.com"
           Approvers: "tiguerin@microsoft.com"
