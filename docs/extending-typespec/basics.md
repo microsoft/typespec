@@ -11,14 +11,14 @@ This document assumes you will be using [TypeScript](https://typescriptlang.org)
 
 ## Prerequisites
 
-You will need both node and npm installed. Additionally, if you intend to develop multiple libraries together, you will likely want to establish a monorepo as this will make developing the libraries in tandem much easier. TypeSpec itself uses [rush.js](https://rushjs.io/).
+You will need both Node and npm installed. Additionally, if you intend to develop multiple libraries together, you will likely want to establish a monorepo as this will make developing the libraries in tandem much easier. TypeSpec itself uses [pnpm](https://pnpm.io/).
 
 ## Setup with templates
 
 Available templates:
 
 ```bash
-# Create a TypeSpec library(Decorators & Linters) with TypeScript enabled.
+# Create a TypeSpec library (Decorators & Linters) with TypeScript enabled.
 tsp init --template library-ts
 
 # Create a TypeSpec emitter with TypeScript enabled.
@@ -29,9 +29,9 @@ tsp init --template emitter-ts
 
 The following is a high level overview of the contents of a TypeSpec package. These files are explained in more detail in the subsequent sections.
 
-- **dist/index.js** - the main file for your node library
+- **dist/index.js** - the main file for your Node library
 - **lib/main.tsp** - the main file for your TypeSpec types (optional)
-- **src/index.ts** - the main file for your node library in TypeScript
+- **src/index.ts** - the main file for your Node library in TypeScript
 - **src/lib.ts** - the TypeSpec library definition file
 - **package.json** - metadata about your TypeSpec package
 
@@ -49,9 +49,9 @@ Run the following commands:
 > npm init
 ```
 
-After filling out the wizard, you will have a package.json file that defines your typespec library.
+After filling out the wizard, you will have a package.json file that defines your TypeSpec library.
 
-Unlike node libraries which support CommonJS (cjs), TypeSpec libraries must be Ecmascript Modules. Open your `package.json` and add the following top-level configuration key:
+Unlike Node libraries which support CommonJS (cjs), TypeSpec libraries must be ECMAScript Modules. Open your `package.json` and add the following top-level configuration key:
 
 ```jsonc
   "type": "module"
@@ -71,7 +71,7 @@ See [dependency section](#defining-dependencies) for information on how to defin
 
 ### c. Define your main files
 
-Your package.json needs to refer to two main files: your node module main file, and your TypeSpec main. The node module main file is the `"main"` key in your package.json file, and defines the entrypoint for your library when consumed as a node library, and must reference a js file. The TypeSpec main defines the entrypoint for your library when consumed from a TypeSpec program, and may reference either a js file (when your library doesn't contain any typespec types) or a TypeSpec file.
+Your package.json needs to refer to two main files: your Node module main file, and your TypeSpec main. The Node module main file is the `"main"` key in your package.json file, and defines the entrypoint for your library when consumed as a Node library, and must reference a JS file. The TypeSpec main defines the entrypoint for your library when consumed from a TypeSpec program, and may reference either a JS file (when your library doesn't contain any TypeSpec types) or a TypeSpec file.
 
 ```jsonc
   "main": "dist/src/index.js",
@@ -150,7 +150,7 @@ You can then run `npm run build` or `npm run watch` to build or watch your libra
 
 ### h. Add your main TypeSpec file
 
-Open `./lib/main.tsp` and import your JS entrypoint. This ensures that when typespec imports your library, the code to define the library is run. In later topics when we add decorators, this import will ensure those get exposed as well.
+Open `./lib/main.tsp` and import your JS entrypoint. This ensures that when TypeSpec imports your library, the code to define the library is run. In later topics when we add decorators, this import will ensure those get exposed as well.
 
 ```typespec
 import "../dist/index.js";
@@ -174,8 +174,8 @@ model Person {
 
 Defining dependencies in a TypeSpec library should be following these rules:
 
-- use `peerDependencies` for all TypeSpec libraries(+ compiler) that you use in your own library/emitter
-- use `devDependencies` for the other typespec libraries used only in tests
+- use `peerDependencies` for all TypeSpec libraries (+ compiler) that you use in your own library/emitter
+- use `devDependencies` for the other TypeSpec libraries used only in tests
 - use `dependencies`/`devDependencies` for any other packages depending if using in library code or in test/dev scripts
 
 TypeSpec libraries are defined using `peerDependencies` so we don't end-up with multiple versions of the compiler/library running at the same time.
@@ -204,7 +204,7 @@ TypeSpec libraries are defined using `peerDependencies` so we don't end-up with 
 
 ## 4. Testing your TypeSpec library
 
-TypeSpec provides a testing framework to help testing libraries. Examples here are shown using node built-in test framework(Available node 20+) but any other JS test framework can be used that will provide more advanced features like vitest which is used in this project.
+TypeSpec provides a testing framework to help testing libraries. Examples here are shown using Node.js's built-in test framework (available in Node 20+) but any other JS test framework can be used that will provide more advanced features like vitest which is used in this project.
 
 ### a. Add devDependencies
 
@@ -233,7 +233,7 @@ export default defineConfig({
 
 ### b. Define the testing library
 
-The first step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library test.
+The first step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library tests.
 
 1. Create a new file `./src/testing/index.ts` with the following content
 

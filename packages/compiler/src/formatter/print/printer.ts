@@ -114,7 +114,7 @@ export function printTypeSpec(
   const value = needsParens(path, options) ? ["(", printedNode, ")"] : printedNode;
   const parts: Doc[] = [docs, directives, value];
   if (node.kind === SyntaxKind.TypeSpecScript) {
-    // For TypeSpecScript(root of typespec document) we had a new line at the end.
+    // For TypeSpecScript(root of TypeSpec document) we had a new line at the end.
     // This must be done here so the hardline entry can be the last item of the doc array returned by the printer
     // so the markdown(and other embedded formatter) can omit that extra line.
     parts.push(hardline);

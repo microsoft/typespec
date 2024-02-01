@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "author": "Microsoft Corporation",
   "description": "An app to play with TypeSpec in the browser",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {

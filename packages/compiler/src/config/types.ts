@@ -24,7 +24,7 @@ export interface TypeSpecConfig {
   diagnostics: Diagnostic[];
 
   /**
-   * Path to another typespec config to extend.
+   * Path to another TypeSpec config to extend.
    */
   extends?: string;
 

@@ -2,6 +2,7 @@
   "name": "@typespec/website",
   "version": "1.0.0",
   "description": "",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "docusaurus": "docusaurus",

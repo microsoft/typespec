@@ -6,8 +6,10 @@ dictionaries:
   - typescript
 words:
   - autorest
+  - azsdk
   - azsdkengsys
   - azurecr
+  - azuresdk
   - blockful
   - blockless
   - cadl
@@ -21,6 +23,7 @@ words:
   - createsorupdatesresource
   - CRUDL
   - debouncer
+  - devdiv
   - dogfood
   - eastus
   - ecmarkup
@@ -44,6 +47,7 @@ words:
   - noopener
   - noreferrer
   - nostdlib
+  - npmjs
   - oapi
   - OIDC
   - oneof
@@ -57,6 +61,7 @@ words:
   - proto
   - protobuf
   - protoc
+  - pwsh
   - regen
   - rpaas
   - rushx
@@ -66,10 +71,12 @@ words:
   - sint
   - ssvs
   - strs
+  - syncpack
   - TRYIT
   - TSES
   - tspd
   - tsvs
+  - typespecvs
   - Uhoh
   - unassignable
   - Uncapitalize
@@ -80,11 +87,11 @@ words:
   - unsourced
   - unversioned
   - vsix
+  - VSSDK
   - vswhere
   - westus
   - xlarge
   - xplat
-  - syncpack
 ignorePaths:
   - "**/node_modules/**"
   - "**/dist/**"

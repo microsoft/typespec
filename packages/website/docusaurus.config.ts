@@ -37,11 +37,11 @@ const baseUrl = process.env.TYPESPEC_WEBSITE_BASE_PATH ?? "/";
 const config: Config = {
   title: "TypeSpec",
   tagline: "API first with TypeSpec for Azure services",
-  url: "https://microsoft.github.io",
+  url: "https://typespec.io",
   baseUrl,
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/azure.svg",
+  favicon: "img/favicon.svg",
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.

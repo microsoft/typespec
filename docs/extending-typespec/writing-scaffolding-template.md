@@ -10,7 +10,7 @@ typespec provides scaffolding functionality via the `tsp init` command.
 tsp init <templateUrl>
 ```
 
-## Specifying a minimum typespec version
+## Specifying a minimum TypeSpec version
 
 If your template needs a functionality that was only added in a newer version of TypeSpec you might want to specify that in the template. This will warn the user that the template might not work as expected and prompt them to confirm that they want to continue.
 
@@ -50,12 +50,12 @@ Example:
 
 ## Adding libraries
 
-You can add a list of typespec libraries to include. This will automatically add those libraries to the `package.json` and imported in `main.tsp`.
+You can add a list of TypeSpec libraries to include. This will automatically add those libraries to the `package.json` and imported in `main.tsp`.
 
 ```json
 {
   "rest": {
-    "title": "Rest API",
+    "title": "REST API",
     "description": "Create a new project representing a REST API",
     "libraries": ["@typespec/rest", "@typespec/openapi3"]
   }
@@ -73,7 +73,7 @@ Each file need the following properties:
 ```json
 {
   "rest": {
-    "title": "Rest API",
+    "title": "REST API",
     "description": "Create a new project representing a REST API",
     "files": [{ "path": "./models.tsp", "destination": "./models.tsp" }]
   }
@@ -120,7 +120,7 @@ The template takes in a map of inputs that will get prompted to the user during 
 ```json
 {
   "rest": {
-    "title": "Rest API",
+    "title": "REST API",
     "description": "Create a new project representing a REST API",
     "inputs": {
       "modelName": {

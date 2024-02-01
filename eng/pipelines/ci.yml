@@ -22,8 +22,6 @@ jobs:
 
     steps:
       - template: ./templates/install.yml
-        parameters:
-          nodeVersion: "20.x"
       - template: ./templates/build.yml
 
       - script: pnpm run test-official
@@ -31,10 +29,41 @@ jobs:
 
       - template: ./templates/upload-coverage.yml
 
-      - script: |
-          pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
+      - pwsh: |
+          echo "Updating config"
+          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+          echo "Publishing"
           pnpm -r publish --access public --no-git-checks
-        displayName: Publish packages
+        name: Publish
+        env:
+          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+
+      - script: pnpm run pack:all
+        displayName: Pack packages
+
+      - publish: $(Build.SourcesDirectory)/temp/artifacts
+        artifact: packages
+        displayName: Publish packages(.tgz) as pipeline artifacts
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
+
+      - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
+        artifact: vscode-extension
+        displayName: Publish VSCode extension(.vsix) as pipeline artifacts
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+          Contents: "*.vsix"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
+
+      - publish: $(Build.ArtifactStagingDirectory)/vs-extension
+        artifact: vs-extension
+        displayName: Publish VS extension(.vsix) as pipeline artifacts
 
       - task: AzureCLI@1
         displayName: "Publish bundled packages to package storage"
@@ -56,6 +85,9 @@ jobs:
               --source "./packages/playground-website/dist/" ^
               --overwrite
 
+  - template: ./jobs/publish-vscode.yml
+  - template: ./jobs/publish-vs.yml
+
   - job: npm_dev
     dependsOn: npm_stable
     displayName: Npm publish dev version
@@ -68,8 +100,6 @@ jobs:
 
     steps:
       - template: ./templates/install.yml
-        parameters:
-          nodeVersion: "20.x"
       - template: ./templates/build.yml
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
@@ -79,10 +109,14 @@ jobs:
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
-      - script: |
-          pnpm config set //registry.npmjs.org/:_authToken=$(azure-sdk-npm-token)
+      - pwsh: |
+          echo "Updating config"
+          pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+          echo "Publishing"
           pnpm -r publish --access public --no-git-checks --tag next
-        displayName: Publish packages
+        name: Publish
+        env:
+          NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
   - job: docker
     displayName: Docker build and publish
