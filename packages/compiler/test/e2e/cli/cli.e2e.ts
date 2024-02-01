@@ -157,4 +157,29 @@ describe("cli", () => {
       );
     });
   });
+
+  it("can provide emitter options", async () => {
+    const { stdout } = await execCliSuccess(
+      ["compile", ".", "--emit", "./emitter.js", "--option", "test-emitter.text=foo"],
+      {
+        cwd: getScenarioDir("with-emitter"),
+      }
+    );
+    expect(stdout).toContain("Compilation completed successfully.");
+    const file = await readFile(resolvePath(getScenarioDir("with-emitter"), "tsp-output/out.txt"));
+    expect(file.toString()).toEqual("foo");
+  });
+
+  it("set config parmaeter with --arg", async () => {
+    await cleanOutputDir("with-config");
+
+    const { stdout } = await execCliSuccess(
+      ["compile", ".", "--emit", "./emitter.js", "--arg", "custom-dir=custom-dir-name"],
+      {
+        cwd: getScenarioDir("with-config"),
+      }
+    );
+    expect(stdout).toContain("Compilation completed successfully.");
+    await access(resolvePath(getScenarioDir("with-config"), "tsp-output/custom-dir-name/out.txt"));
+  });
 });
