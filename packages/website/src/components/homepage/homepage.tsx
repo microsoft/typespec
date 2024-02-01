@@ -140,7 +140,7 @@ const EditorSection = () => {
     <Section
       header="Tooling"
       title="First party support for code editor"
-      description="Typespec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
+      description="TypeSpec provides built-in support for many common editor features such as syntax highlighting, code completion, and more."
       illustration={<LightDarkImg src="illustrations/ide-hero" />}
     >
       <LearnMoreCard
@@ -157,7 +157,7 @@ const ExtensibilitySection = () => {
     <Section
       header="Extensibility"
       title="Generate assets in many formats"
-      description="Typespec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
+      description="TypeSpec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
       illustration={<ExtensibilityIllustration />}
     >
       <LearnMoreCard
