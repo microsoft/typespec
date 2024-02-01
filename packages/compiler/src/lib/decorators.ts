@@ -406,8 +406,8 @@ export function getFormat(program: Program, target: Type): string | undefined {
 const patternValuesKey = createStateSymbol("patternValues");
 
 export interface PatternData {
-  pattern: string;
-  validationMessage?: string;
+  readonly pattern: string;
+  readonly validationMessage?: string;
 }
 
 export function $pattern(
