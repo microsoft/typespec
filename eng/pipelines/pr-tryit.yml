@@ -1,3 +1,4 @@
+name: PR Tools
 trigger: none
 pr:
   - main
@@ -52,3 +53,18 @@ jobs:
         displayName: Check already commented
         env:
           GH_TOKEN: $(azuresdk-github-pat)
+
+  - job: change_comment
+    displayName: Describe changes on PR
+    pool:
+      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
+    steps:
+      - checkout: self
+
+      - script: node -e "console.log(process.env)"
+
+      - script: npx -p @chronus/github-pr-commenter chronus-github-pr-commenter verify
+        displayName: Make comment about changes
+        env:
+          GITHUB_TOKEN: $(azuresdk-github-pat)
