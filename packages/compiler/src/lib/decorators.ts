@@ -404,7 +404,11 @@ export function getFormat(program: Program, target: Type): string | undefined {
 // -- @pattern decorator ---------------------
 
 const patternValuesKey = createStateSymbol("patternValues");
-const patternValidationMessageKey = createStateSymbol("patternValidationMessage");
+
+export interface PatternData {
+  pattern: string;
+  validationMessage?: string;
+}
 
 export function $pattern(
   context: DecoratorContext,
@@ -418,19 +422,37 @@ export function $pattern(
     return;
   }
 
-  context.program.stateMap(patternValuesKey).set(target, pattern);
+  const patternData: PatternData = {
+    pattern,
+    validationMessage,
+  };
 
-  if (validationMessage) {
-    context.program.stateMap(patternValidationMessageKey).set(target, validationMessage);
-  }
+  context.program.stateMap(patternValuesKey).set(target, patternData);
 }
 
+/**
+ * Gets the pattern regular expression associated with a given type, if one has been set.
+ *
+ * @see getPatternData
+ *
+ * @param program - the Program containing the target Type
+ * @param target - the type to get the pattern for
+ * @returns the pattern string, if one was set
+ */
 export function getPattern(program: Program, target: Type): string | undefined {
-  return program.stateMap(patternValuesKey).get(target);
+  return getPatternData(program, target)?.pattern;
 }
 
-export function getPatternValidationMessage(program: Program, target: Type): string | undefined {
-  return program.stateMap(patternValidationMessageKey).get(target);
+/**
+ * Gets the associated pattern data, including the pattern regular expression and optional validation message, if any
+ * has been set.
+ *
+ * @param program - the Program containing the target Type
+ * @param target - the type to get the pattern data for
+ * @returns the pattern data, if any was set
+ */
+export function getPatternData(program: Program, target: Type): PatternData | undefined {
+  return program.stateMap(patternValuesKey).get(target);
 }
 
 // -- @minLength decorator ---------------------

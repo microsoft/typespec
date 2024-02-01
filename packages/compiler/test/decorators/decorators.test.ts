@@ -19,7 +19,7 @@ import {
   getOverloadedOperation,
   getOverloads,
   getPattern,
-  getPatternValidationMessage,
+  getPatternData,
   getReturnsDoc,
   isErrorModel,
   resolveEncodedName,
@@ -286,13 +286,15 @@ describe("compiler: built-in decorators", () => {
 
       const pattern = getPattern(runner.program, A);
       strictEqual(pattern, "^[a-z]+$");
-      const message = getPatternValidationMessage(runner.program, A);
-      strictEqual(message, "Must be all lowercase.");
+      const data = getPatternData(runner.program, A);
+      strictEqual(data?.pattern, pattern);
+      strictEqual(data?.validationMessage, "Must be all lowercase.");
 
       const pattern2 = getPattern(runner.program, B);
       strictEqual(pattern2, "^[a-z]+$");
-      const message2 = getPatternValidationMessage(runner.program, B);
-      strictEqual(message2, undefined);
+      const data2 = getPatternData(runner.program, B);
+      strictEqual(data2?.pattern, pattern2);
+      strictEqual(data2?.validationMessage, undefined);
     });
   });
 
