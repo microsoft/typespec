@@ -26,7 +26,6 @@ jobs:
           ConnectedServiceName: "ESRP Release Service"
           Intent: "PackageDistribution"
           ContentType: "npm"
-          ContentSource: "Blobs"
           FolderLocation: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
           WaitForReleaseCompletion: true
           Owners: "Allen.Zhang@microsoft.com"
