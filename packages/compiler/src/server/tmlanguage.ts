@@ -903,6 +903,11 @@ export async function main() {
   const plist = await tm.emitPList(grammar, {
     errorSourceFilePath: resolve("./src/tmlanguage.ts"),
   });
+  const json = await tm.emitJSON(grammar, {
+    errorSourceFilePath: resolve("./src/tmlanguage.ts"),
+  });
   await mkdir("./dist", { recursive: true });
   await writeFile("./dist/typespec.tmLanguage", plist);
+  await mkdir("../../grammars", { recursive: true });
+  await writeFile("../../grammars/typespec.json", json);
 }
