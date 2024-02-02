@@ -3,7 +3,7 @@ import "@typespec/rest";
 using TypeSpec.Http;
 
 @service({
-  title: "Documentaion sample",
+  title: "Documentation sample",
 })
 namespace DocSample;
 

@@ -1,5 +1,5 @@
 /**
- * This example showcase propviding a different name over the wire.
+ * This example showcase providing a different name over the wire.
  * In this example the `WithEncodedNames` model has a `notBefore` property that should get serialized as `nbf` when serialized as json.
  */
 @service({
