@@ -62,8 +62,6 @@ jobs:
     steps:
       - checkout: self
 
-      - script: node -e "console.log(process.env)"
-
       - script: npx -p @chronus/github-pr-commenter chronus-github-pr-commenter verify
         displayName: Make comment about changes
         env:
