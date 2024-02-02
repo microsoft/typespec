@@ -29,14 +29,14 @@ paths:
         '200':
           description: The request has succeeded.
           content:
-            application/octect-stream:
+            application/octet-stream:
               schema:
                 type: string
                 format: binary
       requestBody:
         required: true
         content:
-          application/octect-stream:
+          application/octet-stream:
             schema:
               type: string
               format: binary
