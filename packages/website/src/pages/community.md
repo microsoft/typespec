@@ -2,7 +2,7 @@
 
 Welcome to the TypeSpec community! We're glad you're here.
 
-## Github
+## GitHub
 
 We love stars so make sure you [star us on GitHub](https://github.com/microsoft/typespec).
 
