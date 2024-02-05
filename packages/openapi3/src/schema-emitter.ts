@@ -335,6 +335,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const refSchema = this.emitter.emitTypeReference(prop.type, {
       referenceContext: isMultipart ? { contentType: "application/json" } : {},
     });
+
     if (refSchema.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
@@ -342,6 +343,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
 
     const schema = this.#applyEncoding(prop, refSchema.value as any);
+
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
     if (prop.default) {
@@ -370,10 +372,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         delete schema.anyOf;
       }
 
-      const merged = ensureObjectBuilder(schema);
+      const merged = new ObjectBuilder(schema);
       for (const [key, value] of Object.entries(additionalProps)) {
         merged.set(key, value);
       }
+
       return merged;
     }
   }
@@ -510,7 +513,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           // but we can't make a ref "nullable", so wrap in an allOf (for models)
           // or oneOf (for all other types)
           if (type && type.kind === "Model") {
-            return B.object({ type: "object", allOf: B.array([schema]), nullable: true });
+            if (shouldInline(program, type)) {
+              const merged = new ObjectBuilder(schema);
+              merged.set("nullable", true);
+              return merged;
+            } else {
+              return B.object({ type: "object", allOf: B.array([schema]), nullable: true });
+            }
           } else {
             return B.object({ oneOf: B.array([schema]), nullable: true });
           }
@@ -820,7 +829,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       });
     }
 
-    return new ObjectBuilder(schema);
+    return new ObjectBuilder<OpenAPI3Schema>(schema);
   }
 
   #inlineType(type: Type, schema: ObjectBuilder<any>) {
@@ -886,7 +895,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       );
       return newTarget;
     }
-    return new ObjectBuilder(target);
+    const result = new ObjectBuilder(target);
+    return result;
   }
   #mergeFormatAndEncoding(
     format: string | undefined,
@@ -945,16 +955,6 @@ function includeDerivedModel(model: Model): boolean {
       model.templateMapper.args?.length === 0 ||
       model.derivedModels.length > 0)
   );
-}
-
-function ensureObjectBuilder<
-  T extends Record<string, unknown> | Placeholder<Record<string, unknown>> | undefined,
->(type: T | ObjectBuilder<T>): ObjectBuilder<T> {
-  if (type instanceof ObjectBuilder) {
-    return type;
-  } else {
-    return new ObjectBuilder(type);
-  }
 }
 
 const B = {
