@@ -790,12 +790,12 @@ export function createServer(host: ServerHost): Server {
       const [documentUri, id] = params.arguments ?? [];
       if (documentUri && id) {
         const codeFix = currentCodeActions.get(documentUri)?.get(id)?.[1];
+        console.log("Will apply ", documentUri, id, currentCodeActions.get(documentUri), codeFix);
         if (codeFix) {
           const edits = await resolveCodeFix(codeFix);
           const vsEdits = convertCodeFixEdits(edits);
           await host.applyEdit({ changes: { [documentUri]: vsEdits } });
         }
-        // return applyCodeFix(fix);
       }
     }
   }

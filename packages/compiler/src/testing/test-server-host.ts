@@ -81,6 +81,9 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       }
       return pathToFileURL(resolveVirtualPath(path)).href;
     },
+    applyEdit(paramOrEdit) {
+      return Promise.resolve({ applied: false });
+    },
   };
 
   const workspaceDir = options?.workspaceDir ?? "./";

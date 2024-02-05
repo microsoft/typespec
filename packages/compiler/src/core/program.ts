@@ -4,7 +4,7 @@ import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { createSuppressCodeFix } from "./compiler-code-fixes.js";
+import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
