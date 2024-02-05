@@ -1,7 +1,7 @@
 import { FSWatcher, WatchEventType, watch } from "fs";
 import { pathToFileURL } from "url";
-import { NodeHost } from "../../../node-host.js";
 import { CompilerHost } from "../../../types.js";
+import { CliCompilerHost } from "../../types.js";
 
 export interface ProjectWatcher {
   /** Set the files to watch. */
@@ -54,10 +54,10 @@ export function createWatcher(
   }
 }
 
-export function createWatchHost(): WatchHost {
+export function createWatchHost(host: CliCompilerHost): WatchHost {
   let count = 0;
   return {
-    ...NodeHost,
+    ...host,
     forceJSReload,
     getJsImport: (path: string) => import(pathToFileURL(path).href + `?=${count}`),
   };
