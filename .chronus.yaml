@@ -1,0 +1,23 @@
+baseBranch: main
+versionPolicies:
+  - name: typespec
+    type: lockstep
+    step: minor
+    packages:
+      - "@typespec/compiler"
+      - "@typespec/http"
+      - "@typespec/versioning"
+      - "@typespec/rest"
+      - "@typespec/openapi"
+      - "@typespec/openapi3"
+      - "@typespec/protobuf"
+      - "@typespec/prettier-plugin-typespec"
+      - "@typespec/eslint-config-typespec"
+      - "@typespec/eslint-plugin"
+      - "@typespec/html-program-viewer"
+      - "@typespec/json-schema"
+      - "@typespec/internal-build-utils"
+      - "typespec-vs"
+      - "typespec-vscode"
+      - "@typespec/library-linter"
+      - "@typespec/best-practices"

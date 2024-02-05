@@ -18,6 +18,8 @@ import {
   getKnownValues,
   getOverloadedOperation,
   getOverloads,
+  getPattern,
+  getPatternData,
   getReturnsDoc,
   isErrorModel,
   resolveEncodedName,
@@ -222,6 +224,77 @@ describe("compiler: built-in decorators", () => {
         code: "invalid-argument",
         message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
       });
+    });
+  });
+
+  describe("@pattern", () => {
+    it("applies @pattern to scalar", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @pattern("^[a-z]+$")
+        scalar A extends string;
+        `
+      )) as { A: Scalar };
+
+      strictEqual(getPattern(runner.program, A), "^[a-z]+$");
+    });
+
+    it("applies @pattern to model property", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        model A {
+          @test
+          @pattern("^[a-z]+$")
+          prop: string;
+        }
+        `
+      )) as { A: Model };
+
+      const prop = A.properties.get("prop") as ModelProperty;
+      strictEqual(prop.kind, "ModelProperty");
+      strictEqual(getPattern(runner.program, prop), "^[a-z]+$");
+    });
+
+    it("emit diagnostic if pattern is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @pattern(123)
+          prop: string;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+      });
+    });
+
+    it("optionally allows specifying a pattern validation message", async () => {
+      const { A, B } = (await runner.compile(
+        `
+        @test
+        @pattern("^[a-z]+$", "Must be all lowercase.")
+        scalar A extends string;
+
+        @test
+        @pattern("^[a-z]+$")
+        scalar B extends string;
+        `
+      )) as { A: Scalar; B: Scalar };
+
+      const pattern = getPattern(runner.program, A);
+      strictEqual(pattern, "^[a-z]+$");
+      const data = getPatternData(runner.program, A);
+      strictEqual(data?.pattern, pattern);
+      strictEqual(data?.validationMessage, "Must be all lowercase.");
+
+      const pattern2 = getPattern(runner.program, B);
+      strictEqual(pattern2, "^[a-z]+$");
+      const data2 = getPatternData(runner.program, B);
+      strictEqual(data2?.pattern, pattern2);
+      strictEqual(data2?.validationMessage, undefined);
     });
   });
 
