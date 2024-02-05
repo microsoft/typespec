@@ -1,5 +1,6 @@
 import { deepStrictEqual, ok } from "assert";
 import { describe, expect, it } from "vitest";
+import { OpenAPI3SchemaProperty } from "../src/types.js";
 import { oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: nullable properties", () => {
@@ -42,36 +43,30 @@ describe("openapi3: nullable properties", () => {
   });
 
   describe("when used in circular references", () => {
-    it("nullable array keeps it inline", async () => {
+    async function expectInCircularReference(ref: string, value: OpenAPI3SchemaProperty) {
       const res = await openApiFor(
         `
-        model FilterNode {
-          childNodes: FilterNode[] | null; // note e.g. that the ' | null ' here affects, and the post op further down.
+        model Test {
+          children: ${ref} | null;
         }
         
-        op TheSearch(filters: FilterNode[]): {}[];
+        op test(filters: ${ref}): {}[];
         `
       );
-      expect(res.components.schemas.FilterNode.properties.childNodes).toEqual({
+      expect(res.components.schemas.Test.properties.children).toEqual(value);
+    }
+    it("keep nullable array inline", async () => {
+      await expectInCircularReference("Test[]", {
         type: "array",
-        items: { $ref: "#/components/schemas/FilterNode" },
+        items: { $ref: "#/components/schemas/Test" },
         nullable: true,
       });
     });
 
-    it("nullable Record<T> keeps it inline", async () => {
-      const res = await openApiFor(
-        `
-        model FilterNode {
-          childNodes: Record<FilterNode> | null; // note e.g. that the ' | null ' here affects, and the post op further down.
-        }
-        
-        op TheSearch(filters: Record<FilterNode>[]): {}[];
-        `
-      );
-      expect(res.components.schemas.FilterNode.properties.childNodes).toEqual({
+    it("keep nullable Record<T> inline", async () => {
+      await expectInCircularReference("Record<Test>", {
         type: "object",
-        additionalProperties: { $ref: "#/components/schemas/FilterNode" },
+        additionalProperties: { $ref: "#/components/schemas/Test" },
         nullable: true,
       });
     });
