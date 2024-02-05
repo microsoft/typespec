@@ -174,6 +174,10 @@ export interface OAuth2Scope {
  * It defines a sign-in flow that enables a client application to authenticate a user, and to obtain information (or "claims") about that user, such as the user name, email, and so on.
  * User identity information is encoded in a secure JSON Web Token (JWT), called ID token.
  * OpenID Connect defines a discovery mechanism, called OpenID Connect Discovery, where an OpenID server publishes its metadata at a well-known URL, typically
+ *
+ * ```http
+ * https://server.com/.well-known/openid-configuration
+ * ```
  */
 export interface OpenIDConnectAuth extends HttpAuthBase {
   type: "openIdConnect";
