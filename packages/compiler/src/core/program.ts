@@ -4,6 +4,7 @@ import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
+import { createSuppressCodeFix } from "./compiler-code-fixes.js";
 import { compilerAssert, createSourceFile } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
@@ -1045,6 +1046,11 @@ export async function compile(
   function reportDiagnostic(diagnostic: Diagnostic): void {
     if (shouldSuppress(diagnostic)) {
       return;
+    }
+
+    if (diagnostic.severity === "warning" && diagnostic.target !== NoTarget) {
+      mutate(diagnostic).codefixes ??= [];
+      mutate(diagnostic.codefixes).push(createSuppressCodeFix(diagnostic.target, diagnostic.code));
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {

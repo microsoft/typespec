@@ -2,6 +2,7 @@ import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger/index.js";
 import type { Program } from "./program.js";
 import {
+  CodeFix,
   Diagnostic,
   DiagnosticResult,
   DiagnosticTarget,
@@ -385,4 +386,8 @@ export function createDiagnosticCollector(): DiagnosticCollector {
  */
 export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
   return result[0];
+}
+
+export function defineCodeFix(fix: CodeFix): CodeFix {
+  return fix;
 }

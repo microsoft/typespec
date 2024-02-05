@@ -1849,6 +1849,33 @@ export interface Diagnostic {
   severity: DiagnosticSeverity;
   message: string;
   target: DiagnosticTarget | typeof NoTarget;
+  readonly codefixes?: readonly CodeFix[];
+}
+
+export interface CodeFix {
+  readonly id: string;
+  readonly label: string;
+  readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
+}
+
+export interface CodeFixContext {
+  readonly prependText: (location: SourceLocation, text: string) => PrependTextCodeFixEdit;
+  readonly replaceText: (location: SourceLocation, newText: string) => ReplaceTextCodeFixEdit;
+}
+
+export type CodeFixEdit = PrependTextCodeFixEdit | ReplaceTextCodeFixEdit;
+
+export interface PrependTextCodeFixEdit {
+  readonly kind: "prepend-text";
+  readonly text: string;
+  readonly pos: number;
+  readonly file: SourceFile;
+}
+
+export interface ReplaceTextCodeFixEdit extends TextRange {
+  readonly kind: "replace-text";
+  readonly text: string;
+  readonly file: SourceFile;
 }
 
 /**
