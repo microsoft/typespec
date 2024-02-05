@@ -645,8 +645,13 @@ Specify the the pattern this string should respect using simple regular expressi
 The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
 Advanced features like look-around, capture groups, and references are not supported.
 
+This decorator may optionally provide a custom validation _message_. Emitters may choose to use the message to provide
+context when pattern validation fails. For the sake of consistency, the message should be a phrase that describes in
+plain language what sort of content the pattern attempts to validate. For example, a complex regular expression that
+validates a GUID string might have a message like "Must be a valid GUID."
+
 ```typespec
-@pattern(pattern: valueof string)
+@pattern(pattern: valueof string, validationMessage?: valueof string)
 ```
 
 #### Target
@@ -657,11 +662,12 @@ Advanced features like look-around, capture groups, and references are not suppo
 | Name | Type | Description |
 |------|------|-------------|
 | pattern | `valueof scalar string` | Regular expression. |
+| validationMessage | `valueof scalar string` | Optional validation message that may provide context when validation fails. |
 
 #### Examples
 
 ```typespec
-@pattern("[a-z]+")
+@pattern("[a-z]+", "Must be a string consisting of only lower case letters and of at least one character.")
 scalar LowerAlpha extends string;
 ```
 
