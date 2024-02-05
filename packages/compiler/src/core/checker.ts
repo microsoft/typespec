@@ -2829,6 +2829,15 @@ export function createChecker(program: Program): Checker {
     if (indexer === undefined) {
       return;
     }
+    if (indexer.key.name === "integer") {
+      reportCheckerDiagnostics([
+        createDiagnostic({
+          code: "no-array-properties",
+          target: diagnosticTarget,
+        }),
+      ]);
+      return;
+    }
 
     const [valid, diagnostics] = isTypeAssignableTo(
       property.type,

@@ -298,6 +298,12 @@ const diagnostics = {
       array: "Cannot intersect an array model.",
     },
   },
+  "no-array-properties": {
+    severity: "error",
+    messages: {
+      default: "Array models cannot have any properties.",
+    },
+  },
   "intersect-duplicate-property": {
     severity: "error",
     messages: {
