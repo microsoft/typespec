@@ -156,7 +156,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Internal: Reorganize sources inside `src/` folder
 - Fix: Doc comment `/** */` should override base type doc in `model is` or `op is`
 - Emitter Framework: add support for emitting enum member references.
-- **Feature** New built-in linter system. Typespec libraries are able to define linting rules which can be configured in `tspconfig.yaml`. See documentation for configuring a [linter](https://microsoft.github.io/typespec/introduction/configuration#linter---configuring-linters) and [writing a linter](https://microsoft.github.io/typespec/extending-typespec/linters)
+- **Feature** New built-in linter system. Typespec libraries are able to define linting rules which can be configured in `tspconfig.yaml`. See documentation for configuring a [linter](https://typespec.io/docs/handbook/configuration#linter---configuring-linters) and [writing a linter](https://typespec.io/docs/extending-typespec/linters)
 - **Breaking** Minimum version of TypeScript updated to 5.0. TypeSpec is using new features available in TypeScript 5.0 which result in a definition file not parsable by older version. Note that this only affect compiling TypeScript code and is not breaking any JS or TypeSpec code. [See more information on typescript 5.0](https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/)
 - Remove `mkdirp` dependencies and replace with built-in `mkdir({recursive: true})`.
 - Compiler keeps track of the scope where a file is declared(User project, a library or the compiler)

@@ -355,7 +355,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Attach any additional OpenAPI extensions
     this.#attachExtensions(program, prop, additionalProps);
 
-    if (schema && isRef) {
+    if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(program, prop.type))) {
       if (Object.keys(additionalProps).length === 0) {
         return schema;
       } else {
@@ -370,7 +370,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         delete schema.anyOf;
       }
 
-      const merged = new ObjectBuilder(schema);
+      const merged = ensureObjectBuilder(schema);
       for (const [key, value] of Object.entries(additionalProps)) {
         merged.set(key, value);
       }
@@ -945,6 +945,16 @@ function includeDerivedModel(model: Model): boolean {
       model.templateMapper.args?.length === 0 ||
       model.derivedModels.length > 0)
   );
+}
+
+function ensureObjectBuilder<
+  T extends Record<string, unknown> | Placeholder<Record<string, unknown>> | undefined,
+>(type: T | ObjectBuilder<T>): ObjectBuilder<T> {
+  if (type instanceof ObjectBuilder) {
+    return type;
+  } else {
+    return new ObjectBuilder(type);
+  }
 }
 
 const B = {

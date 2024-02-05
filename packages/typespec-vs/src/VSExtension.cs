@@ -26,6 +26,7 @@ namespace Microsoft.TypeSpec.VisualStudio
 {
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid("88b9492f-c019-492c-8aeb-f325a7e4cf23")]
+    [ProvideBindingPath()]
     public sealed class Package : AsyncPackage { }
 
     public sealed class ContentDefinition

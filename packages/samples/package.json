@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "Microsoft Corporation",
   "description": "Samples for TypeSpec",
-  "homepage": "https://microsoft.github.io/typespec",
+  "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/readme.md",
   "license": "MIT",
   "repository": {
