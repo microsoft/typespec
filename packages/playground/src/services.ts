@@ -9,7 +9,6 @@ import * as lsp from "vscode-languageserver";
 import { DocumentHighlightKind, FormattingOptions } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { LspToMonaco } from "./lsp/lsp-to-monaco.js";
-import { MonacoToLsp } from "./lsp/monaco-to-lsp.js";
 import { BrowserHost } from "./types.js";
 
 function getIndentAction(
@@ -266,17 +265,17 @@ export async function registerMonacoLanguage(host: BrowserHost) {
     },
   });
 
-  monaco.languages.registerCodeActionProvider("typespec", {
-    async provideCodeActions(model, range, context, token) {
-      console.log("Get code actions", range, context, token);
-      const result = await serverLib.getCodeActions({
-        range: MonacoToLsp.range(range),
-        context: MonacoToLsp.codeActionContext(context),
-        textDocument: textDocumentForModel(model),
-      });
-      return { actions: result.map(LspToMonaco.codeAction), dispose: () => {} };
-    },
-  });
+  // This doesn't actually work because the lsp is not aware of the diagnostics here as we make our own compilation in the playground.
+  // monaco.languages.registerCodeActionProvider("typespec", {
+  //   async provideCodeActions(model, range, context, token) {
+  //     const result = await serverLib.getCodeActions({
+  //       range: MonacoToLsp.range(range),
+  //       context: MonacoToLsp.codeActionContext(context),
+  //       textDocument: textDocumentForModel(model),
+  //     });
+  //     return { actions: result.map(LspToMonaco.codeAction), dispose: () => {} };
+  //   },
+  // });
 
   monaco.editor.defineTheme("typespec", {
     base: "vs",
