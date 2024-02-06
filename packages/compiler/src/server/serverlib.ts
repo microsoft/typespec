@@ -759,13 +759,10 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
-    console.log("Params", params.context.diagnostics);
-
     currentCodeFixesIndex.clear();
     const actions = [];
     for (const vsDiag of params.context.diagnostics) {
       const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
-      console.log("TSP", tspDiag, vsDiag.data?.id, currentDiagnosticIndex);
       if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
 
       for (const fix of tspDiag.codefixes ?? []) {
@@ -787,7 +784,6 @@ export function createServer(host: ServerHost): Server {
       }
     }
 
-    console.log("Actions", actions);
     return actions;
   }
 
