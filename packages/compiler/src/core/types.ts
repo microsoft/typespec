@@ -2021,6 +2021,7 @@ export type DiagnosticReportWithoutTarget<
 > = {
   code: C;
   messageId?: M;
+  readonly codefixes?: readonly CodeFix[];
 } & DiagnosticFormat<T, C, M>;
 
 export type DiagnosticReport<
