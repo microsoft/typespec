@@ -1,8 +1,21 @@
 # Change Log - @typespec/compiler
 
+## 0.53.0
+
+### Minor Changes
+
+- 15f6dbe: Added an optional validation message to the @pattern decorator.
+- 9726b3d: Emitter framework: `ObjectBuilder` will keep track when built using a `Placeholder` allowing data to be carried over when chaining `ObjectBuilder`
+
+### Patch Changes
+
+- cc2723a: Template instantiated with ErrorType will get the arg changed to unknown
+- fd4fdfb: Fix: Error out when using properties in array model
+
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
+
 Wed, 24 Jan 2024 05:46:53 GMT
 
 ### Updates
@@ -24,6 +37,7 @@ Wed, 24 Jan 2024 05:46:53 GMT
 - Update dependencies
 
 ## 0.51.0
+
 Wed, 06 Dec 2023 19:40:58 GMT
 
 ### Updates
@@ -35,16 +49,17 @@ Wed, 06 Dec 2023 19:40:58 GMT
 - Formatter: Fix: `valueof` expression with parentheses around will preserve them when they are meaningful(For example inside a union or array expression)
 - Emitter framework: allows scalar and enum declaration to provide a reference context.
 - Fix: Union variant are now assignable to the parent union
-- Emitter framework: Allow passing a custom context when calling `emitType` 
+- Emitter framework: Allow passing a custom context when calling `emitType`
 - Upgrade formatter to prettier 3.1
 
 ## 0.50.0
+
 Wed, 08 Nov 2023 00:07:17 GMT
 
 ### Updates
 
 - Add new `unixTimestamp32` scalar to standard library
-- Fixing @doc and /** */ disappears from multi-segment or nested namespaces. #2642
+- Fixing @doc and /\*\* \*/ disappears from multi-segment or nested namespaces. #2642
 - Fix issue where using `@overload` could result in incorrect `unassignable` type errors.
 - Add new hook for handling circular references
 - Fix: Issue where referencing a template in an alias might cause augment decorators to not be applied on types referenced in the aliased type.
@@ -57,6 +72,7 @@ Wed, 08 Nov 2023 00:07:17 GMT
 - **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
 
 ## 0.49.0
+
 Wed, 11 Oct 2023 23:31:35 GMT
 
 ### Updates
@@ -83,6 +99,7 @@ Wed, 11 Oct 2023 23:31:35 GMT
 - Remove `decorators` export, import decorators individually
 
 ## 0.48.1
+
 Tue, 19 Sep 2023 19:28:32 GMT
 
 ### Patches
@@ -94,12 +111,13 @@ Tue, 19 Sep 2023 19:28:32 GMT
 - Add typesVersions metadata for the emitter framework to package.json
 
 ## 0.48.0
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 ### Updates
 
-- **Breaking Change** A semicolon is now required after augment decorator  statements.
-- Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`. 
+- **Breaking Change** A semicolon is now required after augment decorator statements.
+- Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`.
 - Fix issue where --config would search the folder hierarchy looking for `tspconfig.yaml`.
 - **Deprecation** `@deprecated` decorator has been marked as deprecated. Use `#deprecated` directive instead.
 - **IDE** Add coloring for doc comment
@@ -116,6 +134,7 @@ Tue, 12 Sep 2023 21:47:11 GMT
 - Diagnostics reported on nodes with an `id` will see the diagnostic highlight the id instead of the whole node. For example it will show the error on the model name instead of highlighting the entire model.
 
 ## 0.47.1
+
 Thu, 10 Aug 2023 20:18:00 GMT
 
 ### Patches
@@ -123,6 +142,7 @@ Thu, 10 Aug 2023 20:18:00 GMT
 - **Fix**: `--config` flag was being ignored.
 
 ## 0.47.0
+
 Tue, 08 Aug 2023 22:32:10 GMT
 
 ### Updates
@@ -148,6 +168,7 @@ Tue, 08 Aug 2023 22:32:10 GMT
 - Update init template version compare to be greaterThanAndEqual instead of greaterThan.
 
 ## 0.46.0
+
 Tue, 11 Jul 2023 22:06:00 GMT
 
 ### Updates
@@ -165,7 +186,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Fix: `entrypoints` folder wasn't included in package causing failure to resolve cli.js
 - Fix: Formatter incorrectly formatting `::` to `.`
 - Fix formatting issue with comment between decorator and scalar or interface
-- Fix: Stack overflow crash when having circular reference with `op is` inside an interface. 
+- Fix: Stack overflow crash when having circular reference with `op is` inside an interface.
 - Fix IDE issue with squiggles in library code if the library had an entry point named something other than `main.tsp` and a library document was opened after another document that imported the library.
 - Fix: Referencing decorator target in argument cause stack overflow for enum and union in checker and interface and operations in projection.
 - **Fix** `getTypeName` include namespace prefix for unions as well
@@ -186,6 +207,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Update dependencies
 
 ## 0.45.2
+
 Thu, 15 Jun 2023 17:00:33 GMT
 
 ### Patches
@@ -193,6 +215,7 @@ Thu, 15 Jun 2023 17:00:33 GMT
 - Fix: Formatter crash when using comment in empty statement, after an augment decorator or in an empty file
 
 ## 0.45.1
+
 Wed, 14 Jun 2023 17:05:12 GMT
 
 ### Patches
@@ -200,6 +223,7 @@ Wed, 14 Jun 2023 17:05:12 GMT
 - Fix: Formatter moves all comments in flattened namespace to the top
 
 ## 0.45.0
+
 Tue, 06 Jun 2023 22:44:16 GMT
 
 ### Updates
@@ -231,6 +255,7 @@ Tue, 06 Jun 2023 22:44:16 GMT
 - Show alias doc comments in IDE
 
 ## 0.44.0
+
 Wed, 10 May 2023 21:24:00 GMT
 
 ### Patches
@@ -263,6 +288,7 @@ Wed, 10 May 2023 21:24:00 GMT
 - Update dependencies
 
 ## 0.43.0
+
 Tue, 11 Apr 2023 18:49:17 GMT
 
 ### Updates
@@ -286,6 +312,7 @@ Tue, 11 Apr 2023 18:49:17 GMT
 - Replaced zonedDateTime with utcDateTime and offsetDateTime
 
 ## 0.42.0
+
 Mon, 13 Mar 2023 21:30:44 GMT
 
 ### Updates
@@ -295,6 +322,7 @@ Mon, 13 Mar 2023 21:30:44 GMT
 - Add `--config` option to `tsp compile`.
 
 ## 0.41.0
+
 Fri, 03 Mar 2023 19:59:17 GMT
 
 ### Updates
@@ -316,6 +344,7 @@ Fri, 03 Mar 2023 19:59:17 GMT
 - Fixing cli help message, package homepage link
 
 ## 0.40.0
+
 Tue, 07 Feb 2023 21:56:17 GMT
 
 ### Updates
@@ -325,9 +354,10 @@ Tue, 07 Feb 2023 21:56:17 GMT
 - Add `arrayDeclaration` and `arrayLiteral` methods to emitter framework's TypeEmitter
 - Bug: properly parse logical and (`&&`) expressions in projections
 - Support --option=path/to/emitter.js.option=value in cli args
-- Removed all *Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions.
+- Removed all \*Type aliases (ModelType for Model, etc.). Removed `uri` scalar. Removed `Map<K, V>` model. Removed `@serviceTitle` and `@serviceVersion` decorators. Removed `getServiceNamespace`, `getServiceTitle`, `getServiceVersion`, `getServiceNamespaceString` and `setServiceNamespace` functions.
 
 ## 0.39.0
+
 Fri, 13 Jan 2023 00:05:26 GMT
 
 ### Updates
@@ -356,6 +386,7 @@ Fri, 13 Jan 2023 00:05:26 GMT
 - Improve visibility decorator documentation
 
 ## 0.38.5
+
 Fri, 16 Dec 2022 22:02:45 GMT
 
 ### Patches
@@ -363,6 +394,7 @@ Fri, 16 Dec 2022 22:02:45 GMT
 - emitter not found validation in emitter options is a warning
 
 ## 0.38.4
+
 Thu, 15 Dec 2022 02:21:08 GMT
 
 ### Patches
@@ -370,6 +402,7 @@ Thu, 15 Dec 2022 02:21:08 GMT
 - Fix: `--arg` wasn't being picked up
 
 ## 0.38.3
+
 Fri, 09 Dec 2022 22:03:04 GMT
 
 ### Patches
@@ -377,6 +410,7 @@ Fri, 09 Dec 2022 22:03:04 GMT
 - Fix: `constants` not available in `fs/promise`
 
 ## 0.38.2
+
 Fri, 09 Dec 2022 20:43:01 GMT
 
 ### Patches
@@ -384,6 +418,7 @@ Fri, 09 Dec 2022 20:43:01 GMT
 - Fix: Revert breaking change to global cli usage
 
 ## 0.38.1
+
 Thu, 08 Dec 2022 22:04:15 GMT
 
 ### Patches
@@ -391,6 +426,7 @@ Thu, 08 Dec 2022 22:04:15 GMT
 - Fix: `scalar` can be used inside of namespace block
 
 ## 0.38.0
+
 Wed, 07 Dec 2022 17:21:52 GMT
 
 ### Minor changes
@@ -400,7 +436,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Show developer docs in IDE features
 - Doc: Add Doc comments to built-in types and decorators
 - **Deprecation** Split `emitters` in cadl-project.yaml and compiler in 2 option `emit` and `options` that makes it consistent with the CLI
-- Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function 
+- Extract `getTypeName` and `getNamespaceString` outside of the checker into standalone helper function
 - Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node
 - Add variable interpolation functionality in the cadl-project.yaml
 - Add built-in `emitter-output-dir` options for all emitter.
@@ -428,6 +464,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Update dependencies
 
 ## 0.37.0
+
 Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
@@ -444,6 +481,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 - Add `isDeclaredInNamespace` utility function that checks if a definable type exists under a namespace or its children
 
 ## 0.36.1
+
 Wed, 19 Oct 2022 19:36:13 GMT
 
 ### Patches
@@ -451,6 +489,7 @@ Wed, 19 Oct 2022 19:36:13 GMT
 - **Fix** augment decorators can be applied on namespace
 
 ## 0.36.0
+
 Wed, 12 Oct 2022 21:12:35 GMT
 
 ### Minor changes
@@ -461,7 +500,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Expose module resolver
 - Add support for augment decorators.
 - Language server provide document formatting using Cadl formatter
-- **Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator. 
+- **Deprecation** Replace `@serviceTitle` and `@serviceVersion` with a single `@service` decorator.
 - `API` Replaced logger (now internal) with new tracer module. Where trace have to be explicity enabled with `--trace`.
 - Add `uri` built-in type
 - Allow referencing global namespace as `global` for disambiguation
@@ -490,6 +529,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Minor improvemens to decorator definitions
 
 ## 0.35.0
+
 Thu, 08 Sep 2022 01:04:53 GMT
 
 ### Minor changes
@@ -522,6 +562,7 @@ Thu, 08 Sep 2022 01:04:53 GMT
 - Internal: Make scanner capable of scanning future keywords that are longer than 10 characters.
 
 ## 0.34.0
+
 Thu, 11 Aug 2022 19:05:23 GMT
 
 ### Minor changes
@@ -569,6 +610,7 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Fix error location of duplicate property from spread
 
 ## 0.33.0
+
 Fri, 08 Jul 2022 23:22:57 GMT
 
 ### Minor changes
@@ -588,6 +630,7 @@ Fri, 08 Jul 2022 23:22:57 GMT
 - Improved the error message shown when an `onEmit` function is not found in the requested emitter package
 
 ## 0.32.0
+
 Mon, 13 Jun 2022 23:42:28 GMT
 
 ### Minor changes
@@ -627,6 +670,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Upgrade to TS4.7
 
 ## 0.31.0
+
 Fri, 06 May 2022 17:19:57 GMT
 
 ### Minor changes
@@ -672,6 +716,7 @@ Fri, 06 May 2022 17:19:57 GMT
 - Add `CadlLanguageConfiguration` containing the configuration used by editor (vscode, monaco)
 
 ## 0.30.0
+
 Thu, 31 Mar 2022 17:10:49 GMT
 
 ### Minor changes
@@ -696,13 +741,14 @@ Thu, 31 Mar 2022 17:10:49 GMT
 - Fix cascade of error when having unexpected token in directive
 
 ## 0.29.0
+
 Wed, 09 Mar 2022 17:42:09 GMT
 
 ### Minor changes
 
 - Move @key decorator to core
 - Replace findChildModels with mapChildModels
-- **Exports** `NodeHost` for programmatic usage of Cadl 
+- **Exports** `NodeHost` for programmatic usage of Cadl
 - **Added** `@knownValues` decorator providing set of known options for a string type
 - Using `extends` with intrinsic types will emit diagnostic.
 - Allow `op` in interfaces
@@ -720,6 +766,7 @@ Wed, 09 Mar 2022 17:42:09 GMT
 - refactor symbols and other improvements
 
 ## 0.28.0
+
 Tue, 15 Feb 2022 22:35:02 GMT
 
 ### Minor changes
@@ -734,6 +781,7 @@ Tue, 15 Feb 2022 22:35:02 GMT
 - Add support for separate `@summary` from `@doc`
 
 ## 0.27.0
+
 Mon, 14 Feb 2022 03:01:07 GMT
 
 ### Minor changes
@@ -749,6 +797,7 @@ Mon, 14 Feb 2022 03:01:07 GMT
 - Bump dependency versions
 
 ## 0.26.0
+
 Fri, 04 Feb 2022 18:00:18 GMT
 
 ### Minor changes
@@ -779,6 +828,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - Fix completion icon for symbols pulled in via using
 
 ## 0.25.0
+
 Thu, 16 Dec 2021 08:02:20 GMT
 
 ### Minor changes
@@ -806,6 +856,7 @@ Thu, 16 Dec 2021 08:02:20 GMT
 - Improve getTypeName support for Unions and UnionVariants
 
 ## 0.24.1
+
 Wed, 01 Dec 2021 22:56:11 GMT
 
 ### Patches
@@ -818,6 +869,7 @@ Wed, 01 Dec 2021 22:56:11 GMT
 - Update README
 
 ## 0.24.0
+
 Thu, 18 Nov 2021 13:58:15 GMT
 
 ### Minor changes
@@ -833,6 +885,7 @@ Thu, 18 Nov 2021 13:58:15 GMT
 - Add setDecoratorNamespace helper function
 
 ## 0.23.0
+
 Thu, 11 Nov 2021 21:46:21 GMT
 
 ### Minor changes
@@ -850,6 +903,7 @@ Thu, 11 Nov 2021 21:46:21 GMT
 - Add new --import CLI parameter to add a global import via the command line
 
 ## 0.22.0
+
 Thu, 28 Oct 2021 21:17:50 GMT
 
 ### Minor changes
@@ -866,6 +920,7 @@ Thu, 28 Oct 2021 21:17:50 GMT
 - **Improve** decorator formatting
 
 ## 0.21.0
+
 Fri, 15 Oct 2021 21:33:37 GMT
 
 ### Minor changes
@@ -890,10 +945,11 @@ Fri, 15 Oct 2021 21:33:37 GMT
 - fix using a namespace merged after current namespace
 - Fix namespace synthesis in certain contexts
 - Make nextLink optional in pageable response
-- Stop running decorators and emitters in language server again, fix language server crash. 
+- Stop running decorators and emitters in language server again, fix language server crash.
 - regenerate samples
 
 ## 0.20.0
+
 Fri, 17 Sep 2021 00:49:37 GMT
 
 ### Minor changes
@@ -915,6 +971,7 @@ Fri, 17 Sep 2021 00:49:37 GMT
 - Update sample generation
 
 ## 0.19.0
+
 Sat, 21 Aug 2021 00:04:02 GMT
 
 ### Minor changes
@@ -926,6 +983,7 @@ Sat, 21 Aug 2021 00:04:02 GMT
 - Update test output
 
 ## 0.18.0
+
 Fri, 13 Aug 2021 19:10:21 GMT
 
 ### Minor changes
@@ -938,6 +996,7 @@ Fri, 13 Aug 2021 19:10:21 GMT
 - Fix error in `cadl vs uninstall` command
 
 ## 0.17.0
+
 Tue, 10 Aug 2021 20:23:04 GMT
 
 ### Minor changes
@@ -945,6 +1004,7 @@ Tue, 10 Aug 2021 20:23:04 GMT
 - Rename package to @cadl-lang/compiler
 
 ## 0.16.0
+
 Mon, 09 Aug 2021 21:14:12 GMT
 
 ### Minor changes
@@ -958,6 +1018,7 @@ Mon, 09 Aug 2021 21:14:12 GMT
 - Report errors for duplicate model and enum members
 
 ## 0.15.0
+
 Mon, 02 Aug 2021 18:17:00 GMT
 
 ### Minor changes
@@ -965,6 +1026,7 @@ Mon, 02 Aug 2021 18:17:00 GMT
 - Rename ADL to Cadl
 
 ## 0.14.0
+
 Wed, 28 Jul 2021 19:40:06 GMT
 
 ### Minor changes
@@ -978,6 +1040,7 @@ Wed, 28 Jul 2021 19:40:06 GMT
 - Use newer version of autorest from `adl generate`
 
 ## 0.13.0
+
 Fri, 09 Jul 2021 20:21:06 GMT
 
 ### Minor changes
@@ -992,6 +1055,7 @@ Fri, 09 Jul 2021 20:21:06 GMT
 - Use LSP to log messages from client to server
 
 ## 0.12.0
+
 Thu, 24 Jun 2021 03:57:43 GMT
 
 ### Minor changes
@@ -1009,6 +1073,7 @@ Thu, 24 Jun 2021 03:57:43 GMT
 - Add support for Visual Studio 2022
 
 ## 0.11.0
+
 Tue, 18 May 2021 23:43:31 GMT
 
 ### Minor changes
@@ -1026,6 +1091,7 @@ Tue, 18 May 2021 23:43:31 GMT
 - Prefer local install of adl package when running global `adl`
 
 ## 0.10.0
+
 Thu, 06 May 2021 14:56:02 GMT
 
 ### Minor changes
@@ -1046,6 +1112,7 @@ Thu, 06 May 2021 14:56:02 GMT
 - Fix parsing edge cases and optimize parsing slightly
 
 ## 0.9.0
+
 Tue, 20 Apr 2021 15:23:29 GMT
 
 ### Minor changes
@@ -1058,6 +1125,7 @@ Tue, 20 Apr 2021 15:23:29 GMT
 - Virtualize writting to filesystem to enable programtic usage of adl
 
 ## 0.8.0
+
 Tue, 06 Apr 2021 01:23:07 GMT
 
 ### Minor changes
@@ -1076,6 +1144,7 @@ Tue, 06 Apr 2021 01:23:07 GMT
 - remove parenless decorators
 
 ## 0.7.0
+
 Wed, 31 Mar 2021 22:00:43 GMT
 
 ### Minor changes
@@ -1090,6 +1159,7 @@ Wed, 31 Mar 2021 22:00:43 GMT
 - Add support for OpenAPI operation overloads using x-ms-paths
 
 ## 0.6.0
+
 Fri, 26 Mar 2021 17:06:33 GMT
 
 ### Minor changes
@@ -1100,12 +1170,12 @@ Fri, 26 Mar 2021 17:06:33 GMT
 
 - Emit `readOnly: true` for model properties marked with `@visibility("read")`
 - The `visibility` decorator now accepts multiple values; the Swagger emitter will write these out as an `x-ms-mutability` field.
-- Adding sample generated controller for _____ service
+- Adding sample generated controller for **\_** service
 - Add back post operation
 - Add standard ARM operation and error model types
 - Fix id lookup bug
-- Initial check-in of adl spec and generated swagger for _____
-- Update _____ spec with user comments.
+- Initial check-in of adl spec and generated swagger for **\_**
+- Update **\_** spec with user comments.
 - Fixing formatting to match repo prettier config
 - Add `@minValue` and `@maxValue` decorators for specifying the value range of numeric types
 - Allow the use of recursive type references in model definitions
@@ -1113,6 +1183,7 @@ Fri, 26 Mar 2021 17:06:33 GMT
 - Add missing metadata for ARM library types
 
 ## 0.5.0
+
 Tue, 23 Mar 2021 01:06:29 GMT
 
 ### Minor changes
@@ -1126,6 +1197,7 @@ Tue, 23 Mar 2021 01:06:29 GMT
 - Automatically mark named enum types with `x-ms-enum` and `modelAsString: true`
 
 ## 0.4.0
+
 Tue, 16 Mar 2021 23:13:42 GMT
 
 ### Minor changes
@@ -1133,6 +1205,7 @@ Tue, 16 Mar 2021 23:13:42 GMT
 - Introduce language server and add live parse errors to VS Code
 
 ## 0.3.0
+
 Thu, 11 Mar 2021 19:14:29 GMT
 
 ### Minor changes
@@ -1171,6 +1244,7 @@ Thu, 11 Mar 2021 19:14:29 GMT
 - Implement nostdlib option
 
 ## 0.2.1
+
 Thu, 28 Jan 2021 21:30:01 GMT
 
 ### Patches
@@ -1178,9 +1252,9 @@ Thu, 28 Jan 2021 21:30:01 GMT
 - Fixed standard library decorator module resolution
 
 ## 0.2.0
+
 Wed, 27 Jan 2021 21:48:34 GMT
 
 ### Minor changes
 
 - Initial ADL compiler preview release
-

@@ -39,6 +39,8 @@ const $lib: TypeSpecLibrary<Object, ProtobufEmitterOptions, never> = TypeSpecPro
 | `unconvertible-enum` | `Object` | - |
 | `unconvertible-enum.default` | `string` | - |
 | `unconvertible-enum.no-zero-first` | `string` | - |
+| `unspeakable-template-argument` | `Object` | - |
+| `unspeakable-template-argument.default` | `CallableMessage`<[`string`]\> | - |
 | `unsupported-field-type` | `Object` | - |
 | `unsupported-field-type.recursive-map` | `string` | - |
 | `unsupported-field-type.unconvertible` | `CallableMessage`<[`string`]\> | - |

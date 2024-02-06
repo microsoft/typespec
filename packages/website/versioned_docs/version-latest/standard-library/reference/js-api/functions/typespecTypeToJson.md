@@ -7,7 +7,7 @@ title: "[F] typespecTypeToJson"
 typespecTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
 ```
 
-Convert a typespec type to a serializable Json object.
+Convert a TypeSpec type to a serializable Json object.
 Emits diagnostics if the given type is invalid
 
 ## Type parameters

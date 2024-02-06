@@ -30,7 +30,7 @@ To create your asset emitter, call `getAssetEmitter` on your emit context in `$o
 export async function $onEmit(context: EmitContext) {
   const assetEmitter = context.getAssetEmitter(MyTypeEmitter);
 
-  // emit my entire typespec program
+  // emit my entire TypeSpec program
   assetEmitter.emitProgram();
   // or, maybe emit types just in a specific namespace
   const ns = context.program.resolveTypeReference("MyNamespace")!;
@@ -93,7 +93,7 @@ class MyCodeEmitter extends CodeTypeEmitter {
 }
 ```
 
-If we have a typespec program that looks like:
+If we have a TypeSpec program that looks like:
 
 ```typespec
 model Pet {}
@@ -148,7 +148,7 @@ class MyCodeEmitter extends CodeTypeEmitter {
 }
 ```
 
-Now given a typespec program like:
+Now given a TypeSpec program like:
 
 ```typespec
 model Pet {
