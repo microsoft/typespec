@@ -113,7 +113,9 @@ export function createServer(host: ServerHost): Server {
     serverHost: host,
     log,
   });
-  const currentCodeActions = new Map<string, Map<string, [CodeAction, CodeFix]>>();
+  const currentDiagnosticIndex = new Map<number, Diagnostic>();
+  let diagnosticIdCounter = 0;
+  const currentCodeFixesIndex = new Map<number, CodeFix>();
   let codeFixCounter = 0;
   compileService.on("compileEnd", (result) => reportDiagnostics(result));
 
@@ -352,13 +354,14 @@ export function createServer(host: ServerHost): Server {
     compileService.notifyChange(change.document);
   }
   async function reportDiagnostics({ program, document }: CompileResult) {
+    currentDiagnosticIndex.clear();
     // Group diagnostics by file.
     //
     // Initialize diagnostics for all source files in program to empty array
     // as we must send an empty array when a file has no diagnostics or else
     // stale diagnostics from a previous run will stick around in the IDE.
     //
-    const diagnosticMap: Map<TextDocument, [VSDiagnostic, Diagnostic][]> = new Map();
+    const diagnosticMap: Map<TextDocument, VSDiagnostic[]> = new Map();
     diagnosticMap.set(document, []);
     for (const each of program.sourceFiles.values()) {
       const document = (each.file as ServerSourceFile)?.document;
@@ -394,39 +397,18 @@ export function createServer(host: ServerHost): Server {
       if (each.code === "deprecated") {
         diagnostic.tags = [DiagnosticTag.Deprecated];
       }
+      diagnostic.data = { id: diagnosticIdCounter++ };
       const diagnostics = diagnosticMap.get(diagDocument);
       compilerAssert(
         diagnostics,
         "Diagnostic reported against a source file that was not added to the program."
       );
-      diagnostics.push([diagnostic, each]);
+      diagnostics.push(diagnostic);
+      currentDiagnosticIndex.set(diagnostic.data.id, each);
     }
 
     for (const [document, diagnostics] of diagnosticMap) {
-      const documentCodeActions = new Map<string, [CodeAction, CodeFix]>();
-
-      for (const [vsDiag, tspDiag] of diagnostics) {
-        if (tspDiag.codefixes === undefined) {
-          continue;
-        }
-        for (const fix of tspDiag.codefixes) {
-          const id = `${fix.id}-${codeFixCounter++}`;
-          const codeAction: CodeAction = {
-            ...CodeAction.create(
-              fix.label,
-              { title: fix.label, command: Commands.APPLY_CODE_FIX, arguments: [document.uri, id] },
-              CodeActionKind.QuickFix
-            ),
-            diagnostics: [vsDiag],
-          };
-          documentCodeActions.set(id, [codeAction, fix]);
-        }
-      }
-      currentCodeActions.set(document.uri, documentCodeActions);
-      sendDiagnostics(
-        document,
-        diagnostics.map((x) => x[0])
-      );
+      sendDiagnostics(document, diagnostics);
     }
   }
 
@@ -777,20 +759,43 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
-    const existing = currentCodeActions.get(params.textDocument.uri);
-    if (!existing) {
-      return [];
+    console.log("Params", params.context.diagnostics);
+
+    currentCodeFixesIndex.clear();
+    const actions = [];
+    for (const vsDiag of params.context.diagnostics) {
+      const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
+      console.log("TSP", tspDiag, vsDiag.data?.id, currentDiagnosticIndex);
+      if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
+
+      for (const fix of tspDiag.codefixes ?? []) {
+        const id = codeFixCounter++;
+        const codeAction: CodeAction = {
+          ...CodeAction.create(
+            fix.label,
+            {
+              title: fix.label,
+              command: Commands.APPLY_CODE_FIX,
+              arguments: [params.textDocument.uri, id],
+            },
+            CodeActionKind.QuickFix
+          ),
+          diagnostics: [vsDiag],
+        };
+        actions.push(codeAction);
+        currentCodeFixesIndex.set(id, fix);
+      }
     }
 
-    return [...existing.values()].map((x) => x[0]);
+    console.log("Actions", actions);
+    return actions;
   }
 
   async function executeCommand(params: ExecuteCommandParams) {
     if (params.command === Commands.APPLY_CODE_FIX) {
       const [documentUri, id] = params.arguments ?? [];
       if (documentUri && id) {
-        const codeFix = currentCodeActions.get(documentUri)?.get(id)?.[1];
-        console.log("Will apply ", documentUri, id, currentCodeActions.get(documentUri), codeFix);
+        const codeFix = currentCodeFixesIndex.get(id);
         if (codeFix) {
           const edits = await resolveCodeFix(codeFix);
           const vsEdits = convertCodeFixEdits(edits);
