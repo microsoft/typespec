@@ -4,24 +4,6 @@
 
 ### Patch Changes
 
-- Updated dependencies [15f6dbe]
-- Updated dependencies [9726b3d]
-- Updated dependencies [9726b3d]
-- Updated dependencies [cc2723a]
-- Updated dependencies [8ed1d82]
-- Updated dependencies [fd4fdfb]
-- Updated dependencies [a3d6acf]
-- Updated dependencies [05c8597]
-- Updated dependencies [8ed1d82]
-  - @typespec/compiler@0.53.0
-  - @typespec/http@0.53.0
-  - @typespec/versioning@0.53.0
-  - @typespec/rest@0.53.0
-  - @typespec/openapi@0.53.0
-  - @typespec/openapi3@0.53.0
-  - @typespec/protobuf@0.53.0
-  - @typespec/html-program-viewer@0.53.0
-  - @typespec/bundler@0.1.0
 
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 

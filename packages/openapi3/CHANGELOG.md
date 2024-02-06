@@ -7,15 +7,6 @@
 - 9726b3d: Fix issues with `nullable` properties used in a cycle being wrapped in `allOf` when not needed
 - 05c8597: Fix circular reference would not always inline array properties
 - 8ed1d82: Add support for OpenIdConnect auth scheme
-- Updated dependencies [15f6dbe]
-- Updated dependencies [9726b3d]
-- Updated dependencies [cc2723a]
-- Updated dependencies [8ed1d82]
-- Updated dependencies [fd4fdfb]
-  - @typespec/compiler@0.53.0
-  - @typespec/http@0.53.0
-  - @typespec/versioning@0.53.0
-  - @typespec/openapi@0.53.0
 
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
