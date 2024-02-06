@@ -56,7 +56,7 @@ jobs:
 
   - job: change_comment
     displayName: Describe changes on PR
-    condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), true))
+    condition: and(succeeded(), eq(startsWith(variables['System.PullRequest.SourceBranch'], 'publish/'), false))
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
       vmImage: ubuntu-20.04
