@@ -438,7 +438,7 @@ enum DateTimeKnownEncoding {
 
   /**
    * Encode a datetime to a unix timestamp.
-   * Unix timestamp are represented as a number of seconds since the Unix epoch usually as an int32.
+   * Unix timestamps are represented as an integer number of seconds since the Unix epoch and usually encoded as an int32.
    */
   unixTimestamp: "unixTimestamp",
 }
