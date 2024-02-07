@@ -13,9 +13,9 @@ Built in types are related to each other according to the rules described in [ty
 
 | Type         | Range                                                                                                        | Description                               |
 | ------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
-| `numeric`    | [\*](#theoretical-types)                                                                                     | Parent type for all numeric types         |
-| `integer`    | [\*](#theoretical-types)                                                                                     | A whole-number                            |
-| `float`      | [\*](#theoretical-types)                                                                                     | A binary number                           |
+| `numeric`    | [\*](#numeric-supertypes)                                                                                    | Parent type for all numeric types         |
+| `integer`    | [\*](#numeric-supertypes)                                                                                    | A whole-number                            |
+| `float`      | [\*](#numeric-supertypes)                                                                                    | A binary number                           |
 | `int64`      | `-9,223,372,036,854,775,808` to `9,223,372,036,854,775,807`                                                  | A 64-bit integer                          |
 | `int32`      | `-2,147,483,648` to `2,147,483,647`                                                                          | A 32-bit integer                          |
 | `int16`      | `-32,768` to `32,767`                                                                                        | A 16-bit integer                          |
@@ -27,10 +27,10 @@ Built in types are related to each other according to the rules described in [ty
 | `uint8`      | `0` to `255 `                                                                                                | Unsigned 8-bit integer                    |
 | `float32`    | <code> ±1.5 x 10<sup>45</sup></code> to <code>±3.4 x 10<sup>38</sup></code>                                  | A 32 bit floating point number            |
 | `float64`    | <code>±5.0 × 10<sup>−324</sup></code> to <code>±1.7 × 10<sup>308</sup></code>                                | A 64 bit floating point number            |
-| `decimal`    | [\*](#theoretical-types)                                                                                     | A decimal number                          |
+| `decimal`    | [\*](#numeric-supertypes)                                                                                    | A decimal number                          |
 | `decimal128` | 34 decimal digits with an exponent range from `-6143` to `6144`                                              | A 128 bit decimal number                  |
 
-### Theoretical types
+### Numeric supertypes
 
 `numeric`, `integer`, `float` and `decimal` are all types that represent their category of numbers. This means that in theory using this type means you can represent any possible number in that category. In practice, the actual range of numbers that can be represented is limited by the platform and the language. It can be represented as `bigInt` and `bigDecimal` in languages that support those types(or equivalent).
 
