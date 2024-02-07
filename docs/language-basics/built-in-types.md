@@ -32,7 +32,7 @@ Built in types are related to each other according to the rules described in [ty
 
 ### Numeric supertypes
 
-`numeric`, `integer`, `float` and `decimal` are all types that represent their category of numbers. This means using this type means you can represent any possible number in that category. In practice, the actual range of numbers that can be represented is limited by the platform and the language. It can be represented as `bigInt` and `bigDecimal` in languages that support those types(or equivalent).
+`numeric`, `integer`, `float` and `decimal` are types that represent any possible number in their category. For some emit targets, `BigInt` or `BigDecimal` might be an analogous type satisfying the TypeSpec types `integer` and `decimal` respectively. For other targets where the language, serialization format, or protocol does not support an analogous type, emitters may decide on a policy for emitting the numeric supertypes. This might involve picking the closest analogous type or reporting an error when they are encountered, depending on the situation.
 
 ## Date and time types
 
