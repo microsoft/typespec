@@ -32,7 +32,7 @@ Built in types are related to each other according to the rules described in [ty
 
 ### Theoretical types
 
-`numeric`, `integer`, `float` and `decimal` are all types that represent their category of numbers. This means that in theory using this type means you can represent any possible number in that category. In practice, the actual range of numbers that can be represented is limited by the platform and the language. This means it is recommended to not use those numbers to describe apis as they are not accurately representing the actual limitation.
+`numeric`, `integer`, `float` and `decimal` are all types that represent their category of numbers. This means that in theory using this type means you can represent any possible number in that category. In practice, the actual range of numbers that can be represented is limited by the platform and the language. It can be represented as `bigInt` and `bigDecimal` in languages that support those types(or equivalent).
 
 ## Date and time types
 
