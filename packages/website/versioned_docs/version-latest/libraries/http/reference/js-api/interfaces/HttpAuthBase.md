@@ -9,6 +9,7 @@ title: "[I] HttpAuthBase"
 - [`BearerAuth`](BearerAuth.md)
 - [`ApiKeyAuth`](ApiKeyAuth.md)
 - [`Oauth2Auth`](Oauth2Auth.md)
+- [`OpenIDConnectAuth`](OpenIDConnectAuth.md)
 
 ## Properties
 

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.52.0",
+  "version": "0.53.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -98,8 +98,8 @@
     "@types/prompts": "~2.4.9",
     "@types/semver": "^7.5.6",
     "@types/yargs": "~17.0.32",
-    "@typespec/eslint-config-typespec": "workspace:~0.52.0",
-    "@typespec/internal-build-utils": "workspace:~0.52.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.53.0",
+    "@typespec/internal-build-utils": "workspace:~0.53.0",
     "eslint": "^8.55.0",
     "grammarkdown": "~3.3.2",
     "vitest": "^1.2.0",

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/bundler",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0",
   "author": "Microsoft Corporation",
   "description": "Package to bundle a TypeSpec library.",
   "homepage": "https://typespec.io",
@@ -45,7 +45,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.52.0",
+    "@typespec/compiler": "workspace:~0.53.0",
     "@rollup/plugin-virtual": "~3.0.1",
     "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-json": "~6.1.0",
@@ -58,7 +58,7 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
-    "@typespec/eslint-config-typespec": "workspace:~0.52.0",
+    "@typespec/eslint-config-typespec": "workspace:~0.53.0",
     "eslint": "^8.55.0",
     "vitest": "^1.2.0",
     "@vitest/coverage-v8": "^1.1.0",

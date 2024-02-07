@@ -25,7 +25,7 @@ extern dec logType(target: unknown, name: string);
 
 ## Decorator target
 
-The first parameter of the decorator represents the typespec type(s) that the decorator can be applied on.
+The first parameter of the decorator represents the TypeSpec type(s) that the decorator can be applied on.
 
 You can specify multiple potential target type using an `union expression`
 
@@ -43,7 +43,7 @@ A decorator parameter can be marked optional using `?`
 extern dec track(target: Model | Enum, name?: valueof string);
 ```
 
-### Rest parameters
+### REST parameters
 
 A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
@@ -114,7 +114,7 @@ model Dog {
 
 ### Decorator parameter marshalling
 
-For certain TypeSpec types(Literal types) the decorator do not receive the actual type but a marshalled value if the decorator parmaeter type is a `valueof`. This is to simplify the most common cases.
+For certain TypeSpec types (Literal types) the decorator do not receive the actual type but a marshalled value if the decorator parmaeter type is a `valueof`. This is to simplify the most common cases.
 
 | TypeSpec Type     | Marshalled value in JS |
 | ----------------- | ---------------------- |
@@ -209,11 +209,11 @@ import type { reportDiagnostic } from "./lib.js";
 export function $customName(context: DecoratorContext, target: Type, name: string) {
   reportDiagnostic({
     code: "custom-name-invalid",
-    target: context.decoratorTarget, // Get location of @customName decorator in typespec document.
+    target: context.decoratorTarget, // Get location of @customName decorator in TypeSpec document.
   });
   reportDiagnostic({
     code: "bad-name",
-    target: context.getArgumentTarget(0), // Get location of {name} argument in typespec document.
+    target: context.getArgumentTarget(0), // Get location of {name} argument in TypeSpec document.
   });
 }
 ```
