@@ -437,7 +437,8 @@ enum DateTimeKnownEncoding {
   rfc7231: "rfc7231",
 
   /**
-   * Encode to integer
+   * Encode a datetime to a unix timestamp.
+   * Unix timestamp are represented as a number of seconds since the Unix epoch usually as an int32.
    */
   unixTimestamp: "unixTimestamp",
 }

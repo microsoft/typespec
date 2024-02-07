@@ -13,9 +13,9 @@ Built in types are related to each other according to the rules described in [ty
 
 | Type         | Range                                                                                                        | Description                               |
 | ------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
-| `numeric`    |                                                                                                              | Parent type for all numeric types         |
-| `integer`    |                                                                                                              | A whole-number                            |
-| `float`      |                                                                                                              | A binary number                           |
+| `numeric`    | [\*](#theoretical-types)                                                                                     | Parent type for all numeric types         |
+| `integer`    | [\*](#theoretical-types)                                                                                     | A whole-number                            |
+| `float`      | [\*](#theoretical-types)                                                                                     | A binary number                           |
 | `int64`      | `-9,223,372,036,854,775,808` to `9,223,372,036,854,775,807`                                                  | A 64-bit integer                          |
 | `int32`      | `-2,147,483,648` to `2,147,483,647`                                                                          | A 32-bit integer                          |
 | `int16`      | `-32,768` to `32,767`                                                                                        | A 16-bit integer                          |
@@ -27,8 +27,12 @@ Built in types are related to each other according to the rules described in [ty
 | `uint8`      | `0` to `255 `                                                                                                | Unsigned 8-bit integer                    |
 | `float32`    | <code> ±1.5 x 10<sup>45</sup></code> to <code>±3.4 x 10<sup>38</sup></code>                                  | A 32 bit floating point number            |
 | `float64`    | <code>±5.0 × 10<sup>−324</sup></code> to <code>±1.7 × 10<sup>308</sup></code>                                | A 64 bit floating point number            |
-| `decimal`    |                                                                                                              | A decimal number                          |
+| `decimal`    | [\*](#theoretical-types)                                                                                     | A decimal number                          |
 | `decimal128` | 34 decimal digits with an exponent range from `-6143` to `6144`                                              | A 128 bit decimal number                  |
+
+### Theoretical types
+
+`numeric`, `integer`, `float` and `decimal` are all types that represent their category of numbers. This means that in theory using this type means you can represent any possible number in that category. In practice, the actual range of numbers that can be represented is limited by the platform and the language. This means it is recommended to not use those numbers to describe apis as they are not accurately representing the actual limitation.
 
 ## Date and time types
 
