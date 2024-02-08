@@ -453,11 +453,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#createDeclaration(union, name, schema);
   }
 
-  #unionSchema(union: Union) {
+  #unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
     const program = this.emitter.getProgram();
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
-      return {};
+      return new ObjectBuilder({});
     }
     const variants = Array.from(union.variants.values());
     const literalVariantEnumByType: Record<string, any> = {};
@@ -496,7 +496,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // This union is equivalent to just `null` but OA3 has no way to specify
         // null as a value, so we throw an error.
         reportDiagnostic(program, { code: "union-null", target: union });
-        return {};
+        return new ObjectBuilder({});
       } else {
         // completely empty union can maybe only happen with bugs?
         compilerAssert(false, "Attempting to emit an empty union");
@@ -505,37 +505,37 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     if (schemaMembers.length === 1) {
       // we can just return the single schema member after applying nullable
-      let schema = schemaMembers[0].schema;
+      const schema = schemaMembers[0].schema;
       const type = schemaMembers[0].type;
       const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(union, {});
 
       if (nullable) {
-        if (schema instanceof Placeholder || "$ref" in schema) {
-          // but we can't make a ref "nullable", so wrap in an allOf (for models)
-          // or oneOf (for all other types)
-          if (type && type.kind === "Model") {
-            if (shouldInline(program, type)) {
-              const merged = new ObjectBuilder(schema);
-              merged.set("nullable", true);
-              return merged;
-            } else {
-              return B.object({ type: "object", allOf: B.array([schema]), nullable: true });
-            }
-          } else {
-            return B.object({ oneOf: B.array([schema]), nullable: true });
-          }
-        } else {
-          schema = { ...schema, nullable: true };
-        }
+        additionalProps.nullable = true;
       }
 
       if (Object.keys(additionalProps).length === 0) {
-        return schema;
+        return new ObjectBuilder(schema);
       } else {
-        return new ObjectBuilder({
-          allOf: [schema],
-          ...additionalProps,
-        });
+        if (
+          (schema instanceof Placeholder || "$ref" in schema) &&
+          !(type && shouldInline(program, type))
+        ) {
+          if (type && type.kind === "Model") {
+            return new ObjectBuilder({
+              type: "object",
+              allOf: B.array([schema]),
+              ...additionalProps,
+            });
+          } else {
+            return new ObjectBuilder({ oneOf: B.array([schema]), ...additionalProps });
+          }
+        } else {
+          const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
+          for (const [key, value] of Object.entries(additionalProps)) {
+            merged.set(key, value);
+          }
+          return merged;
+        }
       }
     }
 
