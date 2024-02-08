@@ -347,7 +347,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
     if (prop.default) {
-      additionalProps.default = this.#getDefaultValue(prop.type, prop.default);
+      additionalProps.default = getDefaultValue(program, prop.type, prop.default);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -590,51 +590,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       for (const key of extensions.keys()) {
         emitObject[key] = extensions.get(key);
       }
-    }
-  }
-
-  #getDefaultValue(type: Type, defaultType: Type): any {
-    const program = this.emitter.getProgram();
-
-    switch (defaultType.kind) {
-      case "String":
-        return defaultType.value;
-      case "Number":
-        return defaultType.value;
-      case "Boolean":
-        return defaultType.value;
-      case "Tuple":
-        compilerAssert(
-          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value"
-        );
-
-        if (type.kind === "Tuple") {
-          return defaultType.values.map((defaultTupleValue, index) =>
-            this.#getDefaultValue(type.values[index], defaultTupleValue)
-          );
-        } else {
-          return defaultType.values.map((defaultTuplevalue) =>
-            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue)
-          );
-        }
-
-      case "Intrinsic":
-        return isNullType(defaultType)
-          ? null
-          : reportDiagnostic(program, {
-              code: "invalid-default",
-              format: { type: defaultType.kind },
-              target: defaultType,
-            });
-      case "EnumMember":
-        return defaultType.value ?? defaultType.name;
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-default",
-          format: { type: defaultType.kind },
-          target: defaultType,
-        });
     }
   }
 
@@ -973,3 +928,48 @@ const B = {
     return builder;
   },
 } as const;
+
+export function getDefaultValue(program: Program, type: Type, defaultType: Type): any {
+  switch (defaultType.kind) {
+    case "String":
+      return defaultType.value;
+    case "Number":
+      return defaultType.value;
+    case "Boolean":
+      return defaultType.value;
+    case "Tuple":
+      compilerAssert(
+        type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+        "setting tuple default to non-tuple value"
+      );
+
+      if (type.kind === "Tuple") {
+        return defaultType.values.map((defaultTupleValue, index) =>
+          getDefaultValue(program, type.values[index], defaultTupleValue)
+        );
+      } else {
+        return defaultType.values.map((defaultTuplevalue) =>
+          getDefaultValue(program, type.indexer!.value, defaultTuplevalue)
+        );
+      }
+
+    case "Intrinsic":
+      return isNullType(defaultType)
+        ? null
+        : reportDiagnostic(program, {
+            code: "invalid-default",
+            format: { type: defaultType.kind },
+            target: defaultType,
+          });
+    case "EnumMember":
+      return defaultType.value ?? defaultType.name;
+    case "UnionVariant":
+      return getDefaultValue(program, type, defaultType.type);
+    default:
+      reportDiagnostic(program, {
+        code: "invalid-default",
+        format: { type: defaultType.kind },
+        target: defaultType,
+      });
+  }
+}
