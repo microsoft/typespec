@@ -323,5 +323,25 @@ describe("emitting models", () => {
         default: true,
       });
     });
+
+    it("specify default value on union with variant", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optionalUnion?: MyUnion = MyUnion.a;
+        };
+        
+        union MyUnion {
+          a: "a-value",
+          b: "b-value",
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optionalUnion, {
+        $ref: "MyUnion.json",
+        default: "a-value",
+      });
+    });
   });
 });

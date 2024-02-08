@@ -1,7 +1,8 @@
-import { deepStrictEqual, fail, strictEqual } from "assert";
+import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
 import { Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
+import { isUnknownType } from "../../src/index.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -242,6 +243,30 @@ describe("compiler: templates", () => {
         message: "Type 'unknown' is not assignable to type '{}'",
         pos,
       });
+    });
+
+    it("an error type should revert to unknown", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model Test<T> {
+            @test prop: T;
+          }
+          
+          model Bar {
+            a: Test<notExists>;
+          }
+        `
+      );
+      const [{ prop }, diagnostics] = await testHost.compileAndDiagnose("main.tsp");
+      // Only one error
+      expectDiagnostics(diagnostics, {
+        code: "unknown-identifier",
+        message: "Unknown identifier notExists",
+      });
+
+      strictEqual(prop.kind, "ModelProperty");
+      ok(isUnknownType(prop.type), "Prop type should be unknown");
     });
 
     it("operation should still be able to be used(no extra diagnostic)", async () => {

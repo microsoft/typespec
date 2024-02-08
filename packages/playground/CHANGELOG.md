@@ -1,8 +1,14 @@
 # Change Log - @typespec/playground
 
+## 0.1.0
+
+### Patch Changes
+
+
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.1.0-alpha.5
+
 Wed, 24 Jan 2024 05:46:53 GMT
 
 ### Updates
@@ -13,6 +19,7 @@ Wed, 24 Jan 2024 05:46:53 GMT
 - Fix: Wrong css exports `style.css` was provided instead of `styles.css`. Both are now available for backward compatibility but `styles.css` is the recommended name.
 
 ## 0.1.0-alpha.4
+
 Wed, 06 Dec 2023 19:40:58 GMT
 
 ### Updates
@@ -25,6 +32,7 @@ Wed, 06 Dec 2023 19:40:58 GMT
 - Allow standalone playground to show a loading fallback
 
 ## 0.1.0-alpha.3
+
 Wed, 08 Nov 2023 00:07:17 GMT
 
 ### Updates
@@ -36,6 +44,7 @@ Wed, 08 Nov 2023 00:07:17 GMT
 - **BREAKING CHANGE** Styles must be imported seperately with `import \"@typespec/playground/styles.css\";`
 
 ## 0.1.0-alpha.2
+
 Wed, 03 Oct 2023 18:00:18 GMT
 
 ### Updates
@@ -43,10 +52,10 @@ Wed, 03 Oct 2023 18:00:18 GMT
 - Upgrade swagger-ui
 
 ## 0.1.0-alpha.1
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 ### Updates
 
 - Fix: Usage of the package in vite dev mode was broken. Some errors due to the loading of the manifest as well as monaco editor workers.
-**BREAKING CHANGE:** Changed `import { PlaygroundManifest } from "@typespec/playground/manifest";` to`import PlaygroundManifest from "@typespec/playground/manifest";`
-
+  **BREAKING CHANGE:** Changed `import { PlaygroundManifest } from "@typespec/playground/manifest";` to`import PlaygroundManifest from "@typespec/playground/manifest";`

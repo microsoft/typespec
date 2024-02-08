@@ -1,6 +1,6 @@
 ---
 jsApi: true
-title: "[P] JS Api"
+title: "[P] JS API"
 
 ---
 ## Enumerations
