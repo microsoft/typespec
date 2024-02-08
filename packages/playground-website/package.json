@@ -49,16 +49,16 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/html-program-viewer": "workspace:~",
-    "@typespec/http": "workspace:~",
+    "@typespec/http": "workspace:~0.53.0",
     "@typespec/json-schema": "workspace:~",
-    "@typespec/openapi": "workspace:~",
+    "@typespec/openapi": "workspace:~0.53.0",
     "@typespec/openapi3": "workspace:~",
     "@typespec/playground": "workspace:~",
     "@typespec/protobuf": "workspace:~",
     "@typespec/rest": "workspace:~",
-    "@typespec/versioning": "workspace:~",
+    "@typespec/versioning": "workspace:~0.53.0",
     "es-module-shims": "~1.8.2",
     "react": "~18.2.0",
     "react-dom": "~18.2.0"

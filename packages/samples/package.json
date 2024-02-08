@@ -44,14 +44,14 @@
   ],
   "dependencies": {
     "@typespec/best-practices": "workspace:~",
-    "@typespec/compiler": "workspace:~",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/html-program-viewer": "workspace:~",
-    "@typespec/http": "workspace:~",
+    "@typespec/http": "workspace:~0.53.0",
     "@typespec/json-schema": "workspace:~",
-    "@typespec/openapi": "workspace:~",
+    "@typespec/openapi": "workspace:~0.53.0",
     "@typespec/openapi3": "workspace:~",
     "@typespec/rest": "workspace:~",
-    "@typespec/versioning": "workspace:~"
+    "@typespec/versioning": "workspace:~0.53.0"
   },
   "devDependencies": {
     "@types/node": "~18.11.19",

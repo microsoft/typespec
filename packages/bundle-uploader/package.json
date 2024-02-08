@@ -40,7 +40,7 @@
     "@azure/identity": "~4.0.1",
     "@azure/storage-blob": "~12.17.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
-    "@typespec/bundler": "workspace:~",
+    "@typespec/bundler": "workspace:~0.1.0",
     "json5": "^2.2.3",
     "picocolors": "~1.0.0",
     "semver": "^7.6.0"

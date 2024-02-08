@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typespec/compiler": "workspace:~",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/eslint-plugin": "workspace:~",
     "@vitest/coverage-v8": "^1.2.2",

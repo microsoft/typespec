@@ -48,7 +48,7 @@
     "@rollup/plugin-multi-entry": "~6.0.1",
     "@rollup/plugin-node-resolve": "~15.2.3",
     "@rollup/plugin-virtual": "~3.0.2",
-    "@typespec/compiler": "workspace:~",
+    "@typespec/compiler": "workspace:~0.53.1",
     "picocolors": "~1.0.0",
     "rollup": "~4.9.6",
     "yargs": "~17.7.2"

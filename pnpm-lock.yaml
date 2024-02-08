@@ -33,8 +33,8 @@ importers:
         specifier: ~5.0.5
         version: 5.0.5
       syncpack:
-        specifier: ^11.2.1
-        version: 11.2.1
+        specifier: ^12.3.0
+        version: 12.3.0(typescript@5.3.3)
       typescript:
         specifier: ~5.3.3
         version: 5.3.3
@@ -50,7 +50,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -92,7 +92,7 @@ importers:
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
       '@typespec/bundler':
-        specifier: workspace:~
+        specifier: workspace:~0.1.0
         version: link:../bundler
       json5:
         specifier: ^2.2.3
@@ -156,7 +156,7 @@ importers:
         specifier: ~3.0.2
         version: 3.0.2(rollup@4.9.6)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       picocolors:
         specifier: ~1.0.0
@@ -418,7 +418,7 @@ importers:
         specifier: ~18.2.19
         version: 18.2.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -451,7 +451,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -555,7 +555,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -606,7 +606,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -639,7 +639,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -648,7 +648,7 @@ importers:
         specifier: workspace:~
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/library-linter':
         specifier: workspace:~
@@ -691,7 +691,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -700,13 +700,13 @@ importers:
         specifier: workspace:~
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/library-linter':
         specifier: workspace:~
         version: link:../library-linter
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/rest':
         specifier: workspace:~
@@ -715,7 +715,7 @@ importers:
         specifier: workspace:~
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../versioning
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -748,19 +748,19 @@ importers:
         specifier: ^2.0.226
         version: 2.0.226(react@18.2.0)
       '@typespec/bundler':
-        specifier: workspace:~
+        specifier: workspace:~0.1.0
         version: link:../bundler
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/html-program-viewer':
         specifier: workspace:~
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
         specifier: workspace:~
@@ -772,7 +772,7 @@ importers:
         specifier: workspace:~
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../versioning
       clsx:
         specifier: ^2.1.0
@@ -881,19 +881,19 @@ importers:
   packages/playground-website:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/html-program-viewer':
         specifier: workspace:~
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/json-schema':
         specifier: workspace:~
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
         specifier: workspace:~
@@ -908,7 +908,7 @@ importers:
         specifier: workspace:~
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../versioning
       es-module-shims:
         specifier: ~1.8.2
@@ -991,7 +991,7 @@ importers:
         specifier: ~5.0.5
         version: 5.0.5(rollup@4.9.6)
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/internal-build-utils':
         specifier: workspace:~
@@ -1015,7 +1015,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -1057,7 +1057,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -1066,7 +1066,7 @@ importers:
         specifier: workspace:~
         version: link:../eslint-plugin-typespec
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/library-linter':
         specifier: workspace:~
@@ -1102,19 +1102,19 @@ importers:
         specifier: workspace:~
         version: link:../best-practices
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/html-program-viewer':
         specifier: workspace:~
         version: link:../html-program-viewer
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/json-schema':
         specifier: workspace:~
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
         specifier: workspace:~
@@ -1123,7 +1123,7 @@ importers:
         specifier: workspace:~
         version: link:../rest
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../versioning
     devDependencies:
       '@types/node':
@@ -1203,7 +1203,7 @@ importers:
   packages/tspd:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       picocolors:
         specifier: ~1.0.0
@@ -1288,7 +1288,7 @@ importers:
         specifier: ~1.85.0
         version: 1.85.0
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -1333,7 +1333,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
@@ -1439,13 +1439,13 @@ importers:
         specifier: ~18.2.55
         version: 18.2.55
       '@typespec/compiler':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~
         version: link:../eslint-config-typespec
       '@typespec/http':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/internal-build-utils':
         specifier: workspace:~
@@ -1454,7 +1454,7 @@ importers:
         specifier: workspace:~
         version: link:../json-schema
       '@typespec/openapi':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
         specifier: workspace:~
@@ -1475,7 +1475,7 @@ importers:
         specifier: workspace:~
         version: link:../tspd
       '@typespec/versioning':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../versioning
       dotenv:
         specifier: ~16.3.2
@@ -5113,37 +5113,14 @@ packages:
       - webpack-cli
     dev: false
 
-  /@effect/data@0.17.1:
-    resolution: {integrity: sha512-QCYkLE5Y5Dm5Yax5R3GmW4ZIgTx7W+kSZ7yq5eqQ/mFWa8i4yxbLuu8cudqzdeZtRtTGZKlhDxfFfgVtMywXJg==}
-    dev: true
-
-  /@effect/io@0.38.0(@effect/data@0.17.1):
-    resolution: {integrity: sha512-qlVC9ASxNC+L2NKX5qOV9672CE5wWizfwBSFaX2XLI7CC118WRvohCTIPQ52n50Bj5TmR20+na+U9C7e4VkqzA==}
+  /@effect/schema@0.56.1(effect@2.0.0-next.62)(fast-check@3.15.0):
+    resolution: {integrity: sha512-cfEyHLXPdzSKzJU/yYrPjFd0iVHPydh+NT0sgTe4bzXbcvOsKZuvQ86cAAwXN7lxY0N5cPes9ACxUxTdkEaNlw==}
     peerDependencies:
-      '@effect/data': ^0.17.1
+      effect: 2.0.0-next.62
+      fast-check: ^3.13.2
     dependencies:
-      '@effect/data': 0.17.1
-    dev: true
-
-  /@effect/match@0.32.0(@effect/data@0.17.1)(@effect/schema@0.33.1):
-    resolution: {integrity: sha512-04QfnIgCcMnnNbGxTv2xa9/7q1c5kgpsBodqTUZ8eX86A/EdE8Czz+JkVarG00/xE+nYhQLXOXCN9Zj+dtqVkQ==}
-    peerDependencies:
-      '@effect/data': ^0.17.1
-      '@effect/schema': ^0.33.0
-    dependencies:
-      '@effect/data': 0.17.1
-      '@effect/schema': 0.33.1(@effect/data@0.17.1)(@effect/io@0.38.0)
-    dev: true
-
-  /@effect/schema@0.33.1(@effect/data@0.17.1)(@effect/io@0.38.0):
-    resolution: {integrity: sha512-h+fQInui4q3we8fegAygL0Cs5B2DD/+oC3JWthOh8eLcbKkbYM9smCD/PsHuyQ+BaeWiSP5JdvREGlP4Sg+Ysw==}
-    peerDependencies:
-      '@effect/data': ^0.17.1
-      '@effect/io': ^0.38.0
-    dependencies:
-      '@effect/data': 0.17.1
-      '@effect/io': 0.38.0(@effect/data@0.17.1)
-      fast-check: 3.15.1
+      effect: 2.0.0-next.62
+      fast-check: 3.15.0
     dev: true
 
   /@emotion/babel-plugin@11.11.0:
@@ -10314,8 +10291,8 @@ packages:
     resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
     engines: {node: '>=14'}
 
-  /commander@11.0.0:
-    resolution: {integrity: sha512-9HMlXtt/BNoYr8ooyjjNRdIilOTkVJXB+GhxMTtOKwk0R4j4lS4NpjuqmRxroBfnfTSHQIHQB7wryHhXarNjmQ==}
+  /commander@11.1.0:
+    resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
     dev: true
 
@@ -10562,16 +10539,6 @@ packages:
       parse-json: 5.2.0
       path-type: 4.0.0
 
-  /cosmiconfig@8.2.0:
-    resolution: {integrity: sha512-3rTMnFJA1tCOPwRxtgF4wd7Ab2qvDbL8jX+3smjIbS4HlZBagTlpERbdN7iAbWlrfxE3M8c27kTwTawQ7st+OQ==}
-    engines: {node: '>=14'}
-    dependencies:
-      import-fresh: 3.3.0
-      js-yaml: 4.1.0
-      parse-json: 5.2.0
-      path-type: 4.0.0
-    dev: true
-
   /cosmiconfig@8.3.6(typescript@5.3.3):
     resolution: {integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==}
     engines: {node: '>=14'}
@@ -10587,6 +10554,22 @@ packages:
       path-type: 4.0.0
       typescript: 5.3.3
     dev: false
+
+  /cosmiconfig@9.0.0(typescript@5.3.3):
+    resolution: {integrity: sha512-itvL5h8RETACmOTFc4UfIyB2RfEHi71Ax6E/PivVxq9NseKbOWpeyHEOIbmAw1rs8Ak0VursQNww7lf7YtUwzg==}
+    engines: {node: '>=14'}
+    peerDependencies:
+      typescript: '>=4.9.5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      env-paths: 2.2.1
+      import-fresh: 3.3.0
+      js-yaml: 4.1.0
+      parse-json: 5.2.0
+      typescript: 5.3.3
+    dev: true
 
   /create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
@@ -11615,6 +11598,10 @@ packages:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
 
+  /effect@2.0.0-next.62:
+    resolution: {integrity: sha512-fJhLzf5oouL4WZP314ZJgZz5Bel7OHTY+YFxO06sW1mSvqJz0s28y7jDHr5zhtTNM1YRvzbeLYUYfNaJYKqx1A==}
+    dev: true
+
   /electron-to-chromium@1.4.662:
     resolution: {integrity: sha512-gfl1XVWTQmPHhqEG0kN77SpUxaqPpMb9r83PT4gvKhg7P3irSxru3lW85RxvK1uI1j2CAcTWPjG/HbE0IP/Rtg==}
 
@@ -11676,6 +11663,11 @@ packages:
   /entities@4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
     engines: {node: '>=0.12'}
+
+  /env-paths@2.2.1:
+    resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
+    engines: {node: '>=6'}
+    dev: true
 
   /error-ex@1.3.2:
     resolution: {integrity: sha512-7dFHNmqeFSEt2ZBsCriorKnn3Z2pj+fd9kmI6QoWw4//DL+icEBfc0U7qJCisqrTsKTjw4fNFy2pW9OqStD84g==}
@@ -12204,8 +12196,8 @@ packages:
       tmp: 0.0.33
     dev: true
 
-  /fast-check@3.15.1:
-    resolution: {integrity: sha512-GutOXZ+SCxGaFWfHe0Pbeq8PrkpGtPxA9/hdkI3s9YzqeMlrq5RdJ+QfYZ/S93jMX+tAyqgW0z5c9ppD+vkGUw==}
+  /fast-check@3.15.0:
+    resolution: {integrity: sha512-iBz6c+EXL6+nI931x/sbZs1JYTZtLG6Cko0ouS8LRTikhDR7+wZk4TYzdRavlnByBs2G6+nuuJ7NYL9QplNt8Q==}
     engines: {node: '>=8.0.0'}
     dependencies:
       pure-rand: 6.0.4
@@ -13062,11 +13054,11 @@ packages:
       lru-cache: 6.0.0
     dev: true
 
-  /hosted-git-info@6.1.1:
-    resolution: {integrity: sha512-r0EI+HBMcXadMrugk0GCQ+6BQV39PiWAZVfq7oIckeGiN7sjRGyQxPdft3nQekFTCQbYxLBH+/axZMeH8UX6+w==}
-    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+  /hosted-git-info@7.0.1:
+    resolution: {integrity: sha512-+K84LB1DYwMHoHSgaOY/Jfhw3ucPmSET5v98Ke/HdNSw4a0UktWzyW1mjhjpuxxTqOOsfWT/7iVshHmVZ4IpOA==}
+    engines: {node: ^16.14.0 || >=18.0.0}
     dependencies:
-      lru-cache: 7.18.3
+      lru-cache: 10.2.0
     dev: true
 
   /hpack.js@2.1.6:
@@ -14292,11 +14284,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
-
-  /lru-cache@7.18.3:
-    resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
-    engines: {node: '>=12'}
-    dev: true
 
   /lunr@2.3.9:
     resolution: {integrity: sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==}
@@ -15541,11 +15528,11 @@ packages:
     engines: {node: '>=14.16'}
     dev: false
 
-  /npm-package-arg@10.1.0:
-    resolution: {integrity: sha512-uFyyCEmgBfZTtrKk/5xDfHp6+MdrqGotX/VoOyEEl3mBwiEE5FlBaePanazJSVMPT7vKepcjYBY2ztg9A3yPIA==}
-    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+  /npm-package-arg@11.0.1:
+    resolution: {integrity: sha512-M7s1BD4NxdAvBKUPqqRW957Xwcl/4Zvo8Aj+ANrzvIPzGJZElrH7Z//rSaec2ORcND6FHHLnZeY8qgTpXDMFQQ==}
+    engines: {node: ^16.14.0 || >=18.0.0}
     dependencies:
-      hosted-git-info: 6.1.1
+      hosted-git-info: 7.0.1
       proc-log: 3.0.0
       semver: 7.6.0
       validate-npm-package-name: 5.0.0
@@ -18582,28 +18569,29 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /syncpack@11.2.1:
-    resolution: {integrity: sha512-WoUtm+ZLmWUvy0cLJy8ds/smVRH3ivI6iANcGTPrsvareCc4SmRVMvr+TwjZyFm0FDGmEfMVsAX7z16+yxL6bQ==}
+  /syncpack@12.3.0(typescript@5.3.3):
+    resolution: {integrity: sha512-Gz2uGn96OmGfVVlKztvFac1EJYjP+WptQ2ohA6Uf48C6qLkhSayhkdujKQ6q7bGOTy8HSGI0iDfwfCJu6wvRig==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
-      '@effect/data': 0.17.1
-      '@effect/io': 0.38.0(@effect/data@0.17.1)
-      '@effect/match': 0.32.0(@effect/data@0.17.1)(@effect/schema@0.33.1)
-      '@effect/schema': 0.33.1(@effect/data@0.17.1)(@effect/io@0.38.0)
+      '@effect/schema': 0.56.1(effect@2.0.0-next.62)(fast-check@3.15.0)
       chalk: 4.1.2
-      commander: 11.0.0
-      cosmiconfig: 8.2.0
+      commander: 11.1.0
+      cosmiconfig: 9.0.0(typescript@5.3.3)
+      effect: 2.0.0-next.62
       enquirer: 2.4.1
+      fast-check: 3.15.0
       globby: 11.1.0
       minimatch: 9.0.3
-      npm-package-arg: 10.1.0
+      npm-package-arg: 11.0.1
       ora: 5.4.1
       prompts: 2.4.2
       read-yaml-file: 2.1.0
       semver: 7.5.4
       tightrope: 0.1.0
       ts-toolbelt: 9.6.0
+    transitivePeerDependencies:
+      - typescript
     dev: true
 
   /table-layout@1.0.2:

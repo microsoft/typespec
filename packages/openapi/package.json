@@ -55,10 +55,10 @@
   },
   "devDependencies": {
     "@types/node": "~18.11.19",
-    "@typespec/compiler": "workspace:~",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/eslint-plugin": "workspace:~",
-    "@typespec/http": "workspace:~",
+    "@typespec/http": "workspace:~0.53.0",
     "@typespec/library-linter": "workspace:~",
     "@typespec/rest": "workspace:~",
     "@typespec/tspd": "workspace:~",
