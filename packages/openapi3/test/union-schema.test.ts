@@ -338,6 +338,21 @@ describe("openapi3: union type", () => {
     });
   });
 
+  it("supports description on unions that reduce to enums", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @doc("FooUnion")
+      union Foo {
+        "a";
+        "b";
+      }
+
+      `
+    );
+    strictEqual(res.schemas.Foo.description, "FooUnion");
+  });
+
   it("supports summary on unions and union variants", async () => {
     const res = await oapiForModel(
       "Foo",

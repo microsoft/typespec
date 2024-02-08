@@ -23,11 +23,9 @@ import {
   getSummary,
   ignoreDiagnostics,
   interpolatePath,
-  isArrayModelType,
   isDeprecated,
   isGlobalNamespace,
   isNeverType,
-  isNullType,
   isSecret,
   isVoidType,
   listServices,
@@ -89,7 +87,7 @@ import { buildVersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
-import { OpenAPI3SchemaEmitter } from "./schema-emitter.js";
+import { getDefaultValue, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
   OpenAPI3Header,
@@ -302,7 +300,7 @@ function createOAPIEmitter(
         }
 
         const variable: OpenAPI3ServerVariable = {
-          default: prop.default ? getDefaultValue(prop.type, prop.default) : "",
+          default: prop.default ? getDefaultValue(program, prop.type, prop.default) : "",
           description: getDoc(program, prop),
         };
 
@@ -1129,7 +1127,7 @@ function createOAPIEmitter(
     }
     const schema = applyEncoding(param, applyIntrinsicDecorators(param, typeSchema));
     if (param.default) {
-      schema.default = getDefaultValue(param.type, param.default);
+      schema.default = getDefaultValue(program, param.type, param.default);
     }
     // Description is already provided in the parameter itself.
     delete schema.description;
@@ -1321,49 +1319,6 @@ function createOAPIEmitter(
 
   function getSchemaForType(type: Type, visibility: Visibility): OpenAPI3Schema | undefined {
     return callSchemaEmitter(type, visibility) as any;
-  }
-
-  function getDefaultValue(type: Type, defaultType: Type): any {
-    switch (defaultType.kind) {
-      case "String":
-        return defaultType.value;
-      case "Number":
-        return defaultType.value;
-      case "Boolean":
-        return defaultType.value;
-      case "Tuple":
-        compilerAssert(
-          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value"
-        );
-
-        if (type.kind === "Tuple") {
-          return defaultType.values.map((defaultTupleValue, index) =>
-            getDefaultValue(type.values[index], defaultTupleValue)
-          );
-        } else {
-          return defaultType.values.map((defaultTuplevalue) =>
-            getDefaultValue(type.indexer!.value, defaultTuplevalue)
-          );
-        }
-
-      case "Intrinsic":
-        return isNullType(defaultType)
-          ? null
-          : reportDiagnostic(program, {
-              code: "invalid-default",
-              format: { type: defaultType.kind },
-              target: defaultType,
-            });
-      case "EnumMember":
-        return defaultType.value ?? defaultType.name;
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-default",
-          format: { type: defaultType.kind },
-          target: defaultType,
-        });
-    }
   }
 
   function attachExtensions(program: Program, type: Type, emitObject: any) {
