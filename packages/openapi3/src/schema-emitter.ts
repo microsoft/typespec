@@ -491,7 +491,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
-    console.log("literalVariantEnumByType", literalVariantEnumByType, schemaMembers);
     if (schemaMembers.length === 0) {
       if (nullable) {
         // This union is equivalent to just `null` but OA3 has no way to specify
