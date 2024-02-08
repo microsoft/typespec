@@ -56,7 +56,7 @@
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@types/yargs": "~17.0.32",
-    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typespec/eslint-config-typespec": "workspace:~0.53.0",
     "@vitest/coverage-v8": "^1.2.2",
     "@vitest/ui": "^1.1.3",
     "c8": "^8.0.1",
