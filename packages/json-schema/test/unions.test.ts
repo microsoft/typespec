@@ -17,6 +17,18 @@ describe("emitting unions", () => {
     assert.deepStrictEqual(Foo.anyOf, [{ type: "string" }, { type: "boolean" }]);
   });
 
+  it("union description carries over", async () => {
+    const schemas = await emitSchema(`
+      /** Foo doc */
+      union Foo {
+        x: string;
+        y: boolean;
+      }
+    `);
+
+    assert.strictEqual(schemas["Foo.json"].description, "Foo doc");
+  });
+
   it("works with declarations with anonymous variants", async () => {
     const schemas = await emitSchema(`
       union Foo {

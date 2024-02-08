@@ -491,6 +491,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
     }
 
+    console.log("literalVariantEnumByType", literalVariantEnumByType, schemaMembers);
     if (schemaMembers.length === 0) {
       if (nullable) {
         // This union is equivalent to just `null` but OA3 has no way to specify
@@ -507,6 +508,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       // we can just return the single schema member after applying nullable
       let schema = schemaMembers[0].schema;
       const type = schemaMembers[0].type;
+      const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(union, {});
 
       if (nullable) {
         if (schema instanceof Placeholder || "$ref" in schema) {
@@ -528,10 +530,17 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         }
       }
 
-      return schema;
+      if (Object.keys(additionalProps).length === 0) {
+        return schema;
+      } else {
+        return new ObjectBuilder({
+          allOf: [schema],
+          ...additionalProps,
+        });
+      }
     }
 
-    const schema: any = {
+    const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) => m.schema),
     };
 
