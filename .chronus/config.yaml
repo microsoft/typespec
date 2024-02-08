@@ -1,4 +1,31 @@
 baseBranch: main
+
+changeKinds:
+  internal:
+    versionType: none
+    title: Internal
+    description: Internal changes that are not user facing
+
+  fix:
+    versionType: patch
+    title: Bug Fix
+    description: Fixes to existing features
+
+  feature:
+    versionType: minor
+    title: Feature
+    description: Adds new features
+
+  deprecation:
+    versionType: minor
+    title: Deprecation
+    description: Change that deprecate an existing feature but is not breaking.
+
+  breaking:
+    versionType: major
+    title: Breaking Change
+    description: Changes that break existing features
+    
 versionPolicies:
   - name: typespec
     type: lockstep
