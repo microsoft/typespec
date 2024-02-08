@@ -185,20 +185,20 @@ TypeSpec libraries are defined using `peerDependencies` so we don't end-up with 
 ```jsonc
 {
   "dependencies": {
-    "yaml": "~2.3.1" // This is a regular package this library/emitter will use
+    "yaml": "~2.3.1", // This is a regular package this library/emitter will use
   },
   "peerDependencies": {
     // Those are all TypeSpec libraries this library/emitter depend on
     "@typespec/compiler": "~0.43.0",
     "@typespec/http": "~0.43.1",
-    "@typespec/openapi": "~0.43.0"
+    "@typespec/openapi": "~0.43.0",
   },
   "devDependencies": {
     // This TypeSpec library is only used in the tests but is not required to use this library.
     "@typespec/versioning": "~0.43.0",
     // Typescript is only used during development
-    "typescript": "~5.0.2"
-  }
+    "typescript": "~5.0.2",
+  },
 }
 ```
 
@@ -258,13 +258,13 @@ export const MyTestLibrary = createTestLibrary({
   "exports": {
     ".": {
       "default": "./dist/src/index.js",
-      "types": "./dist/src/index.d.ts"
+      "types": "./dist/src/index.d.ts",
     },
     "./testing": {
       "default": "./dist/src/testing/index.js",
-      "types": "./dist/src/testing/index.d.ts"
-    }
-  }
+      "types": "./dist/src/testing/index.d.ts",
+    },
+  },
 }
 ```
 
