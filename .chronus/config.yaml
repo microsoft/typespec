@@ -11,6 +11,11 @@ changeKinds:
     title: Bug Fix
     description: Fixes to existing features
 
+  dependencies:
+    versionType: patch
+    title: Bump dependencies
+    description: Bumps dependencies
+
   feature:
     versionType: minor
     title: Feature
