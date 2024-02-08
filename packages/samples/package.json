@@ -43,27 +43,27 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/best-practices": "workspace:~0.46.0",
-    "@typespec/compiler": "workspace:~0.53.1",
-    "@typespec/html-program-viewer": "workspace:~0.53.0",
-    "@typespec/http": "workspace:~0.53.0",
-    "@typespec/json-schema": "workspace:~0.53.1",
-    "@typespec/openapi": "workspace:~0.53.0",
-    "@typespec/openapi3": "workspace:~0.53.1",
-    "@typespec/rest": "workspace:~0.53.0",
-    "@typespec/versioning": "workspace:~0.53.0"
+    "@typespec/best-practices": "workspace:~",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/html-program-viewer": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/json-schema": "workspace:~",
+    "@typespec/openapi": "workspace:~",
+    "@typespec/openapi3": "workspace:~",
+    "@typespec/rest": "workspace:~",
+    "@typespec/versioning": "workspace:~"
   },
   "devDependencies": {
-    "@types/node": "~18.11.9",
-    "@typespec/eslint-config-typespec": "workspace:~0.53.0",
-    "@typespec/internal-build-utils": "workspace:~0.53.0",
-    "autorest": "~3.3.2",
+    "@types/node": "~18.11.19",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typespec/internal-build-utils": "workspace:~",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "autorest": "~3.7.1",
     "cross-env": "~7.0.3",
-    "eslint": "^8.55.0",
-    "vitest": "^1.2.0",
-    "@vitest/coverage-v8": "^1.1.0",
-    "@vitest/ui": "~1.1.3",
-    "rimraf": "~5.0.1",
-    "typescript": "~5.3.3"
+    "eslint": "^8.56.0",
+    "rimraf": "~5.0.5",
+    "typescript": "~5.3.3",
+    "vitest": "^1.2.2"
   }
 }
