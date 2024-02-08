@@ -1,6 +1,6 @@
 {
   "name": "@typespec/internal-build-utils",
-  "version": "0.52.0",
+  "version": "0.53.0",
   "author": "Microsoft Corporation",
   "description": "Internal library to TypeSpec providing helpers to build.",
   "homepage": "https://typespec.io",
@@ -42,23 +42,23 @@
   "dependencies": {
     "@changesets/read": "^0.6.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
-    "cspell": "~6.31.1",
-    "semver": "^7.5.4",
-    "strip-json-comments": "~5.0.0",
+    "cspell": "^8.3.2",
+    "semver": "^7.6.0",
+    "strip-json-comments": "~5.0.1",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@types/node": "~18.11.9",
+    "@types/node": "~18.11.19",
     "@types/semver": "^7.5.6",
     "@types/yargs": "~17.0.32",
-    "@typespec/eslint-config-typespec": "workspace:~0.52.0",
-    "@vitest/coverage-v8": "^1.1.0",
-    "@vitest/ui": "~1.1.3",
-    "c8": "~8.0.1",
-    "chokidar": "~3.5.3",
-    "eslint": "^8.55.0",
-    "rimraf": "~5.0.1",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "c8": "^9.1.0",
+    "chokidar": "~3.6.0",
+    "eslint": "^8.56.0",
+    "rimraf": "~5.0.5",
     "typescript": "~5.3.3",
-    "vitest": "^1.2.0"
+    "vitest": "^1.2.2"
   }
 }

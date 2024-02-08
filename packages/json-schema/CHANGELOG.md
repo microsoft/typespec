@@ -1,8 +1,21 @@
 # Change Log - @typespec/json-schema
 
+## 0.53.1
+
+### Patch Changes
+
+- e6a045b: Allow using default values for union property types
+- Updated dependencies [e6a045b]
+  - @typespec/compiler@0.53.1
+
+## 0.53.0
+
+### Patch Changes
+
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
+
 Wed, 24 Jan 2024 05:46:53 GMT
 
 ### Updates
@@ -11,6 +24,7 @@ Wed, 24 Jan 2024 05:46:53 GMT
 - Update dependencies
 
 ## 0.51.0
+
 Wed, 06 Dec 2023 19:40:58 GMT
 
 ### Updates
@@ -24,6 +38,7 @@ Wed, 06 Dec 2023 19:40:58 GMT
 - Add support for templated scalars.
 
 ## 0.50.0
+
 Wed, 08 Nov 2023 00:07:17 GMT
 
 ### Updates
@@ -33,6 +48,7 @@ Wed, 08 Nov 2023 00:07:17 GMT
 - **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
 
 ## 0.49.0
+
 Wed, 11 Oct 2023 23:31:35 GMT
 
 ### Updates
@@ -41,6 +57,7 @@ Wed, 11 Oct 2023 23:31:35 GMT
 - Disable folding of serialized yaml if line is above 80 characters
 
 ## 0.48.0
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 ### Updates
@@ -49,6 +66,7 @@ Tue, 12 Sep 2023 21:47:11 GMT
 - Support decimal scalar types.
 
 ## 0.47.0
+
 Tue, 08 Aug 2023 22:32:10 GMT
 
 ### Updates
@@ -57,6 +75,7 @@ Tue, 08 Aug 2023 22:32:10 GMT
 - Fix: Crash when using interfaces inside a `@jsonSchema` namespace
 
 ## 0.46.0
+
 Tue, 11 Jul 2023 22:06:00 GMT
 
 ### Updates
@@ -73,9 +92,9 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Update dependencies
 
 ## 0.45.0
+
 Tue, 06 Jun 2023 22:44:16 GMT
 
 ### Minor changes
 
 - Add @typespec/json-schema for defining and emitting TypeSpec to standard JSON Schema
-

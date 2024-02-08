@@ -5,7 +5,7 @@ title: Emitters
 
 # Writing emitters
 
-TypeSpec emitters are libraries that use various TypeSpec compiler APIs to reflect on the typespec compilation and produce generated artifacts. The typespec standard library includes an emitter for OpenAPI version 3.0, but odds are good you will want to emit TypeSpec to another output format. In fact, one of TypeSpec's main benefits is how easy it is to use TypeSpec as a source of truth for all data shapes, and the ease of writing an emitter is a big part of that story.
+TypeSpec emitters are libraries that use various TypeSpec compiler APIs to reflect on the TypeSpec compilation and produce generated artifacts. The TypeSpec standard library includes an emitter for OpenAPI version 3.0, but odds are good you will want to emit TypeSpec to another output format. In fact, one of TypeSpec's main benefits is how easy it is to use TypeSpec as a source of truth for all data shapes, and the ease of writing an emitter is a big part of that story.
 
 ## Getting started
 
@@ -17,7 +17,7 @@ Setup the boilerplate for an emitter using our template:
 tsp init --template emitter-ts
 ```
 
-or follow [these steps](./basics.md) to initialize a typespec library.
+or follow [these steps](./basics.md) to initialize a TypeSpec library.
 
 ## $onEmit
 
@@ -106,7 +106,7 @@ export async function $onEmit(context: EmitContext<EmitterOptions>) {
 Specify that the value for this option should resolve to an absolute path. e.g. `"{project-root}/dir"`.
 
 :::important
-It is recommended that all options that involve path use this. Using relative path can be confusing for users on as it is not clear what the relative path is relative to. And more importantly relative path if not careful are resolved relative to the `cwd` in node file system which result in spec only compiling from the the project root.
+It is recommended that all options that involve path use this. Using relative path can be confusing for users on as it is not clear what the relative path is relative to. And more importantly relative path if not careful are resolved relative to the `cwd` in Node file system which result in spec only compiling from the the project root.
 :::
 
 Example:
@@ -152,7 +152,7 @@ navigateProgram(program, {
 
 You can provide a callback for every kind of TypeSpec type. The walker will call your callback pre-order, i.e. as soon as it sees a type for the first time it will invoke your callback. You can invoke callback post-order instead by prefixing the type name with `exit`, for example `exitModel(m)`.
 
-Note that the semantic walker will visit all types in the program including built-in TypeSpec types and typespec types defined by any libraries you're using. Care must be taken to filter out any types you do not intend to emit. Sometimes this is quite difficult, so a custom traversal may be easier.
+Note that the semantic walker will visit all types in the program including built-in TypeSpec types and TypeSpec types defined by any libraries you're using. Care must be taken to filter out any types you do not intend to emit. Sometimes this is quite difficult, so a custom traversal may be easier.
 
 ### Custom traversal
 
@@ -190,7 +190,7 @@ function emitModel(model: Model) {
 }
 ```
 
-### Resolving a typespec type
+### Resolving a TypeSpec type
 
 Sometimes you might want to get access to a known TypeSpec type in the type graph, for example a model that you have defined in your library.
 
@@ -200,12 +200,12 @@ A helper is provided on the program to do that.
 program.resolveTypeReference(reference: string): Type | undefined;
 ```
 
-The reference must be a valid typespec reference(Like you would have it in a typespec document)
+The reference must be a valid TypeSpec reference (like you would have it in a TypeSpec document)
 
 **Example**
 
 ```ts
-program.resolveTypeReference("TypeSpec.string"); // Resolve typespec string intrinsic type
+program.resolveTypeReference("TypeSpec.string"); // Resolve TypeSpec string intrinsic type
 program.resolveTypeReference("MyOrg.MyLibrary.MyEnum"); // Resolve `MyEnum` defined in `MyOrg.MyLibrary` namespace.
 ```
 
@@ -218,9 +218,9 @@ program.resolveTypeReference("model Foo {}"); // Resolve `[undefined, diagnostic
 
 ## Emitting files to disk
 
-Since an emitter is a node library, you could use standard `fs` APIs to write files. However, this approach has a drawback - your emitter will not work in the browser, and will not work with the test framework that depends on storing emitted files in an in-memory file system.
+Since an emitter is a Node library, you could use standard `fs` APIs to write files. However, this approach has a drawback - your emitter will not work in the browser, and will not work with the test framework that depends on storing emitted files in an in-memory file system.
 
-Instead, use the compiler [`host` interface](#todo) to access the file system. The API is equivalent to the node API but works in a wider range of scenarios.
+Instead, use the compiler [`host` interface](#todo) to access the file system. The API is equivalent to the Node API but works in a wider range of scenarios.
 
 In order to know where to emit files, the emitter context has a `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. This is set to `{cwd}/tsp-output/{emitter-name}` by default, but can be overridden by the user. Do not use the `compilerOptions.outputDir`
 
@@ -230,7 +230,7 @@ Scalars are types in TypeSpec that most likely have a primitive or built-in data
 
 Recommended logic for emitting scalar is to:
 
-1. If scalar is a known scalar(e.g. `int32`), emit the known mapping.
+1. If scalar is a known scalar (e.g. `int32`), emit the known mapping.
 2. Otherwise check scalar `baseScalar` and go back to `1.`
    2.1 After resolving which scalar apply any decorators
 

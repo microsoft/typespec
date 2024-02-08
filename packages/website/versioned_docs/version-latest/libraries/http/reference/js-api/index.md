@@ -1,6 +1,6 @@
 ---
 jsApi: true
-title: "[P] JS Api"
+title: "[P] JS API"
 
 ---
 ## Enumerations
@@ -31,6 +31,7 @@ title: "[P] JS Api"
 - [MetadataInfoOptions](interfaces/MetadataInfoOptions.md)
 - [OAuth2Scope](interfaces/OAuth2Scope.md)
 - [Oauth2Auth](interfaces/Oauth2Auth.md)
+- [OpenIDConnectAuth](interfaces/OpenIDConnectAuth.md)
 - [OperationParameterOptions](interfaces/OperationParameterOptions.md)
 - [PasswordFlow](interfaces/PasswordFlow.md)
 - [PathParameterOptions](interfaces/PathParameterOptions.md)
