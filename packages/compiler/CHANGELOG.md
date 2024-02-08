@@ -1,5 +1,11 @@
 # Change Log - @typespec/compiler
 
+## 0.53.1
+
+### Patch Changes
+
+- e6a045b: Allow using default values for union property types
+
 ## 0.53.0
 
 ### Minor Changes

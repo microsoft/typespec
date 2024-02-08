@@ -50,7 +50,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -156,7 +156,7 @@ importers:
         specifier: ~3.0.1
         version: 3.0.2(rollup@4.9.1)
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       picocolors:
         specifier: ~1.0.0
@@ -418,7 +418,7 @@ importers:
         specifier: ~18.2.7
         version: 18.2.18
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -451,7 +451,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -555,7 +555,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -606,7 +606,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -639,7 +639,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -691,7 +691,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -751,7 +751,7 @@ importers:
         specifier: workspace:~0.1.0
         version: link:../bundler
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/html-program-viewer':
         specifier: workspace:~0.53.0
@@ -763,7 +763,7 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/protobuf':
         specifier: workspace:~0.53.0
@@ -881,7 +881,7 @@ importers:
   packages/playground-website:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/html-program-viewer':
         specifier: workspace:~0.53.0
@@ -890,13 +890,13 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/playground':
         specifier: workspace:~0.1.0
@@ -991,7 +991,7 @@ importers:
         specifier: ~5.0.2
         version: 5.0.5(rollup@4.9.1)
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/internal-build-utils':
         specifier: workspace:~0.53.0
@@ -1015,7 +1015,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -1057,7 +1057,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -1102,7 +1102,7 @@ importers:
         specifier: workspace:~0.46.0
         version: link:../best-practices
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/html-program-viewer':
         specifier: workspace:~0.53.0
@@ -1111,13 +1111,13 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/rest':
         specifier: workspace:~0.53.0
@@ -1203,7 +1203,7 @@ importers:
   packages/tspd:
     dependencies:
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       picocolors:
         specifier: ~1.0.0
@@ -1288,7 +1288,7 @@ importers:
         specifier: ~1.85.0
         version: 1.85.0
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -1333,7 +1333,7 @@ importers:
         specifier: ~18.11.9
         version: 18.11.19
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -1439,7 +1439,7 @@ importers:
         specifier: ~18.2.22
         version: 18.2.45
       '@typespec/compiler':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
         specifier: workspace:~0.53.0
@@ -1451,13 +1451,13 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       '@typespec/json-schema':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.0
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/playground-website':
         specifier: workspace:*

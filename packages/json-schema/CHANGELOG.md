@@ -1,9 +1,16 @@
 # Change Log - @typespec/json-schema
 
-## 0.53.0
+## 0.53.1
 
 ### Patch Changes
 
+- e6a045b: Allow using default values for union property types
+- Updated dependencies [e6a045b]
+  - @typespec/compiler@0.53.1
+
+## 0.53.0
+
+### Patch Changes
 
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
