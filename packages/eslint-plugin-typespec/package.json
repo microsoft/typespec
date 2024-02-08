@@ -43,7 +43,7 @@
     "@types/node": "~18.11.19",
     "@typescript-eslint/parser": "^6.21.0",
     "@typescript-eslint/rule-tester": "~6.14.0",
-    "@typespec/eslint-config-typespec": "workspace:~0.53.0",
+    "@typespec/eslint-config-typespec": "workspace:~",
     "@vitest/coverage-v8": "^1.2.2",
     "@vitest/ui": "^1.1.3",
     "c8": "^8.0.1",

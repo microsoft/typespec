@@ -55,7 +55,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.53.1",
+    "@typespec/compiler": "workspace:~",
     "picocolors": "~1.0.0",
     "prettier": "~3.1.1",
     "yaml": "~2.3.4",
@@ -64,9 +64,9 @@
   "devDependencies": {
     "@types/node": "~18.11.19",
     "@types/yargs": "~17.0.32",
-    "@typespec/compiler": "workspace:~0.53.1",
-    "@typespec/eslint-config-typespec": "workspace:~0.53.0",
-    "@typespec/prettier-plugin-typespec": "workspace:~0.53.0",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typespec/prettier-plugin-typespec": "workspace:~",
     "@vitest/coverage-v8": "^1.2.2",
     "@vitest/ui": "^1.1.3",
     "c8": "^8.0.1",

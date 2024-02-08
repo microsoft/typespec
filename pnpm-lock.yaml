@@ -18,17 +18,17 @@ importers:
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
       c8:
-        specifier: ^8.0.1
-        version: 8.0.1
+        specifier: ^9.1.0
+        version: 9.1.0
       cspell:
-        specifier: ^6.31.3
-        version: 6.31.3
+        specifier: ^8.3.2
+        version: 8.3.2
       prettier:
-        specifier: ~3.1.1
-        version: 3.1.1
+        specifier: ~3.2.5
+        version: 3.2.5
       prettier-plugin-organize-imports:
         specifier: ~3.2.4
-        version: 3.2.4(prettier@3.1.1)(typescript@5.3.3)
+        version: 3.2.4(prettier@3.2.5)(typescript@5.3.3)
       rimraf:
         specifier: ~5.0.5
         version: 5.0.5
@@ -53,10 +53,10 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -111,7 +111,7 @@ importers:
         specifier: ^7.5.6
         version: 7.5.6
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -175,7 +175,7 @@ importers:
         specifier: ~17.0.32
         version: 17.0.32
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -266,10 +266,10 @@ importers:
         specifier: ~17.0.32
         version: 17.0.32
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -296,7 +296,7 @@ importers:
         specifier: ~0.5.21
         version: 0.5.21
       tmlanguage-generator:
-        specifier: workspace:~
+        specifier: workspace:~0.5.2
         version: link:../tmlanguage-generator
       ts-node:
         specifier: ~10.9.2
@@ -336,7 +336,7 @@ importers:
         version: 2.0.0(eslint@8.56.0)(typescript@5.3.3)
       eslint-plugin-prettier:
         specifier: ^5.1.3
-        version: 5.1.3(eslint-config-prettier@8.10.0)(eslint@8.56.0)(prettier@3.1.1)
+        version: 5.1.3(eslint-config-prettier@8.10.0)(eslint@8.56.0)(prettier@3.2.5)
       eslint-plugin-unicorn:
         specifier: ^47.0.0
         version: 47.0.0(eslint@8.56.0)
@@ -363,7 +363,7 @@ importers:
         specifier: ~6.14.0
         version: 6.14.0(@eslint/eslintrc@3.0.0)(eslint@8.56.0)(typescript@5.3.3)
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -421,7 +421,7 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -454,16 +454,16 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -518,7 +518,7 @@ importers:
         specifier: ~17.0.32
         version: 17.0.32
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -558,19 +558,19 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -609,7 +609,7 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -642,22 +642,22 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../library-linter
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -694,25 +694,25 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../library-linter
       '@typespec/openapi':
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../rest
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@typespec/versioning':
         specifier: workspace:~0.53.0
@@ -754,7 +754,7 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/html-program-viewer':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../html-program-viewer
       '@typespec/http':
         specifier: workspace:~0.53.0
@@ -763,13 +763,13 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/protobuf':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../rest
       '@typespec/versioning':
         specifier: workspace:~0.53.0
@@ -839,7 +839,7 @@ importers:
         specifier: ^4.18.3
         version: 4.18.3
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitejs/plugin-react':
         specifier: ~4.2.1
@@ -890,22 +890,22 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:~0.1.0
         version: link:../playground
       '@typespec/protobuf':
         specifier: workspace:~
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../rest
       '@typespec/versioning':
         specifier: workspace:~0.53.0
@@ -945,7 +945,7 @@ importers:
         specifier: ^4.18.3
         version: 4.18.3
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@vitejs/plugin-react':
         specifier: ~4.2.1
@@ -994,7 +994,7 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       prettier_2:
         specifier: npm:prettier@2.8.7
@@ -1018,13 +1018,13 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -1060,19 +1060,19 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@typespec/http':
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -1111,16 +1111,16 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../rest
       '@typespec/versioning':
         specifier: workspace:~0.53.0
@@ -1130,10 +1130,10 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -1166,7 +1166,7 @@ importers:
         specifier: ~18.11.19
         version: 18.11.19
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       ecmarkup:
         specifier: ~18.1.3
@@ -1188,7 +1188,7 @@ importers:
         specifier: ~3.0.5
         version: 3.0.5
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       eslint:
         specifier: ^8.56.0
@@ -1225,10 +1225,10 @@ importers:
         specifier: ~17.0.32
         version: 17.0.32
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/prettier-plugin-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -1264,7 +1264,7 @@ importers:
   packages/typespec-vs:
     devDependencies:
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       typespec-vscode:
         specifier: workspace:~
@@ -1291,10 +1291,10 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -1336,16 +1336,16 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/eslint-plugin':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-plugin-typespec
       '@typespec/library-linter':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../library-linter
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^1.2.2
@@ -1399,7 +1399,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0(@types/react@18.2.55)(react@18.2.0)
       '@typespec/playground':
-        specifier: workspace:~
+        specifier: workspace:~0.1.0
         version: link:../playground
       clsx:
         specifier: ^2.1.0
@@ -1442,22 +1442,22 @@ importers:
         specifier: workspace:~0.53.1
         version: link:../compiler
       '@typespec/eslint-config-typespec':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../eslint-config-typespec
       '@typespec/http':
         specifier: workspace:~0.53.0
         version: link:../http
       '@typespec/internal-build-utils':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../internal-build-utils
       '@typespec/json-schema':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../json-schema
       '@typespec/openapi':
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~
+        specifier: workspace:~0.53.1
         version: link:../openapi3
       '@typespec/playground-website':
         specifier: workspace:*
@@ -1466,13 +1466,13 @@ importers:
         specifier: workspace:~
         version: link:../protobuf
       '@typespec/rest':
-        specifier: workspace:~
+        specifier: workspace:~0.53.0
         version: link:../rest
       '@typespec/spec':
         specifier: workspace:*
         version: link:../spec
       '@typespec/tspd':
-        specifier: workspace:~
+        specifier: workspace:~0.46.0
         version: link:../tspd
       '@typespec/versioning':
         specifier: workspace:~0.53.0
@@ -1491,7 +1491,7 @@ importers:
         version: 10.4.0
       monaco-editor-webpack-plugin:
         specifier: ~7.1.0
-        version: 7.1.0(monaco-editor@0.45.0)(webpack@5.90.1)
+        version: 7.1.0(monaco-editor@0.46.0)(webpack@5.90.1)
       playwright:
         specifier: ^1.41.2
         version: 1.41.2
@@ -3427,30 +3427,123 @@ packages:
       '@cspell/dict-swift': 2.0.1
       '@cspell/dict-typescript': 3.1.2
       '@cspell/dict-vue': 3.0.0
+    dev: false
+
+  /@cspell/cspell-bundled-dicts@8.3.2:
+    resolution: {integrity: sha512-3ubOgz1/MDixJbq//0rQ2omB3cSdhVJDviERZeiREGz4HOq84aaK1Fqbw5SjNZHvhpoq+AYXm6kJbIAH8YhKgg==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@cspell/dict-ada': 4.0.2
+      '@cspell/dict-aws': 4.0.1
+      '@cspell/dict-bash': 4.1.3
+      '@cspell/dict-companies': 3.0.31
+      '@cspell/dict-cpp': 5.1.3
+      '@cspell/dict-cryptocurrencies': 5.0.0
+      '@cspell/dict-csharp': 4.0.2
+      '@cspell/dict-css': 4.0.12
+      '@cspell/dict-dart': 2.0.3
+      '@cspell/dict-django': 4.1.0
+      '@cspell/dict-docker': 1.1.7
+      '@cspell/dict-dotnet': 5.0.0
+      '@cspell/dict-elixir': 4.0.3
+      '@cspell/dict-en-common-misspellings': 2.0.0
+      '@cspell/dict-en-gb': 1.1.33
+      '@cspell/dict-en_us': 4.3.15
+      '@cspell/dict-filetypes': 3.0.3
+      '@cspell/dict-fonts': 4.0.0
+      '@cspell/dict-fsharp': 1.0.1
+      '@cspell/dict-fullstack': 3.1.5
+      '@cspell/dict-gaming-terms': 1.0.5
+      '@cspell/dict-git': 3.0.0
+      '@cspell/dict-golang': 6.0.5
+      '@cspell/dict-haskell': 4.0.1
+      '@cspell/dict-html': 4.0.5
+      '@cspell/dict-html-symbol-entities': 4.0.0
+      '@cspell/dict-java': 5.0.6
+      '@cspell/dict-k8s': 1.0.2
+      '@cspell/dict-latex': 4.0.0
+      '@cspell/dict-lorem-ipsum': 4.0.0
+      '@cspell/dict-lua': 4.0.3
+      '@cspell/dict-makefile': 1.0.0
+      '@cspell/dict-node': 4.0.3
+      '@cspell/dict-npm': 5.0.15
+      '@cspell/dict-php': 4.0.5
+      '@cspell/dict-powershell': 5.0.3
+      '@cspell/dict-public-licenses': 2.0.5
+      '@cspell/dict-python': 4.1.11
+      '@cspell/dict-r': 2.0.1
+      '@cspell/dict-ruby': 5.0.2
+      '@cspell/dict-rust': 4.0.2
+      '@cspell/dict-scala': 5.0.0
+      '@cspell/dict-software-terms': 3.3.17
+      '@cspell/dict-sql': 2.1.3
+      '@cspell/dict-svelte': 1.0.2
+      '@cspell/dict-swift': 2.0.1
+      '@cspell/dict-typescript': 3.1.2
+      '@cspell/dict-vue': 3.0.0
+    dev: true
 
   /@cspell/cspell-json-reporter@6.31.3:
     resolution: {integrity: sha512-ZJwj2vT4lxncYxduXcxy0dCvjjMvXIfphbLSCN5CXvufrtupB4KlcjZUnOofCi4pfpp8qocCSn1lf2DU9xgUXA==}
     engines: {node: '>=14'}
     dependencies:
       '@cspell/cspell-types': 6.31.3
+    dev: false
+
+  /@cspell/cspell-json-reporter@8.3.2:
+    resolution: {integrity: sha512-gHSz4jXMJPcxx+lOGfXhHuoyenAWQ8PVA/atHFrWYKo1LzKTbpkEkrsDnlX8QNJubc3EMH63Uy+lOIaFDVyHiQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@cspell/cspell-types': 8.3.2
+    dev: true
 
   /@cspell/cspell-pipe@6.31.3:
     resolution: {integrity: sha512-Lv/y4Ya/TJyU1pf66yl1te7LneFZd3lZg1bN5oe1cPrKSmfWdiX48v7plTRecWd/OWyLGd0yN807v79A+/0W7A==}
     engines: {node: '>=14'}
+    dev: false
+
+  /@cspell/cspell-pipe@8.3.2:
+    resolution: {integrity: sha512-GZmDwvQGOjQi3IjD4k9xXeVTDANczksOsgVKb3v2QZk9mR4Qj8c6Uarjd4AgSiIhu/wBliJfzr5rWFJu4X2VfQ==}
+    engines: {node: '>=18'}
+    dev: true
+
+  /@cspell/cspell-resolver@8.3.2:
+    resolution: {integrity: sha512-w2Tmb95bzdEz9L4W5qvsP5raZbyEzKL7N2ksU/+yh8NEJcTuExmAl/nMnb3aIk7m2b+kPHnMOcJuwfUMLmyv4A==}
+    engines: {node: '>=18'}
+    dependencies:
+      global-directory: 4.0.1
+    dev: true
 
   /@cspell/cspell-service-bus@6.31.3:
     resolution: {integrity: sha512-x5j8j3n39KN8EXOAlv75CpircdpF5WEMCC5pcO916o6GBmJBy8SrdzdsBGJhVcYGGilqy6pf8R9RCZ3yAmG8gQ==}
     engines: {node: '>=14'}
+    dev: false
+
+  /@cspell/cspell-service-bus@8.3.2:
+    resolution: {integrity: sha512-skTHNyVi74//W/O+f4IauDhm6twA9S2whkylonsIzPxEl4Pn3y2ZEMXNki/MWUwZfDIzKKSxlcREH61g7zCvhg==}
+    engines: {node: '>=18'}
+    dev: true
 
   /@cspell/cspell-types@6.31.3:
     resolution: {integrity: sha512-wZ+t+lUsQJB65M31btZM4fH3K1CkRgE8pSeTiCwxYcnCL19pi4TMcEEMKdO8yFZMdocW4B7VRwzxNoQMw2ewBg==}
     engines: {node: '>=14'}
+    dev: false
+
+  /@cspell/cspell-types@8.3.2:
+    resolution: {integrity: sha512-qS/gWd9ItOrN6ZX5pwC9lJjnBoyiAyhxYq0GUXuV892LQvwrBmECGk6KhsA1lPW7JJS7o57YTAS1jmXnmXMEpg==}
+    engines: {node: '>=18'}
+    dev: true
 
   /@cspell/dict-ada@4.0.2:
     resolution: {integrity: sha512-0kENOWQeHjUlfyId/aCM/mKXtkEgV0Zu2RhUXCBr4hHo9F9vph+Uu8Ww2b0i5a4ZixoIkudGA+eJvyxrG1jUpA==}
 
   /@cspell/dict-aws@3.0.0:
     resolution: {integrity: sha512-O1W6nd5y3Z00AMXQMzfiYrIJ1sTd9fB1oLr+xf/UD7b3xeHeMeYE2OtcWbt9uyeHim4tk+vkSTcmYEBKJgS5bQ==}
+    dev: false
+
+  /@cspell/dict-aws@4.0.1:
+    resolution: {integrity: sha512-NXO+kTPQGqaaJKa4kO92NAXoqS+i99dQzf3/L1BxxWVSBS3/k1f3uhmqIh7Crb/n22W793lOm0D9x952BFga3Q==}
+    dev: true
 
   /@cspell/dict-bash@4.1.3:
     resolution: {integrity: sha512-tOdI3QVJDbQSwPjUkOiQFhYcu2eedmX/PtEpVWg0aFps/r6AyjUQINtTgpqMYnYuq8O1QUIQqnpx21aovcgZCw==}
@@ -3463,6 +3556,11 @@ packages:
 
   /@cspell/dict-cryptocurrencies@3.0.1:
     resolution: {integrity: sha512-Tdlr0Ahpp5yxtwM0ukC13V6+uYCI0p9fCRGMGZt36rWv8JQZHIuHfehNl7FB/Qc09NCF7p5ep0GXbL+sVTd/+w==}
+    dev: false
+
+  /@cspell/dict-cryptocurrencies@5.0.0:
+    resolution: {integrity: sha512-Z4ARIw5+bvmShL+4ZrhDzGhnc9znaAGHOEMaB/GURdS/jdoreEDY34wdN0NtdLHDO5KO7GduZnZyqGdRoiSmYA==}
+    dev: true
 
   /@cspell/dict-csharp@4.0.2:
     resolution: {integrity: sha512-1JMofhLK+4p4KairF75D3A924m5ERMgd1GvzhwK2geuYgd2ZKuGW72gvXpIV7aGf52E3Uu1kDXxxGAiZ5uVG7g==}
@@ -3490,6 +3588,11 @@ packages:
 
   /@cspell/dict-en-common-misspellings@1.0.2:
     resolution: {integrity: sha512-jg7ZQZpZH7+aAxNBlcAG4tGhYF6Ksy+QS5Df73Oo+XyckBjC9QS+PrRwLTeYoFIgXy5j3ICParK5r3MSSoL4gw==}
+    dev: false
+
+  /@cspell/dict-en-common-misspellings@2.0.0:
+    resolution: {integrity: sha512-NOg8dlv37/YqLkCfBs5OXeJm/Wcfb/CzeOmOZJ2ZXRuxwsNuolb4TREUce0yAXRqMhawahY5TSDRJJBgKjBOdw==}
+    dev: true
 
   /@cspell/dict-en-gb@1.1.33:
     resolution: {integrity: sha512-tKSSUf9BJEV+GJQAYGw5e+ouhEe2ZXE620S7BLKe3ZmpnjlNG9JqlnaBhkIMxKnNFkLY2BP/EARzw31AZnOv4g==}
@@ -3502,6 +3605,15 @@ packages:
 
   /@cspell/dict-fonts@3.0.2:
     resolution: {integrity: sha512-Z5QdbgEI7DV+KPXrAeDA6dDm/vTzyaW53SGlKqz6PI5VhkOjgkBXv3YtZjnxMZ4dY2ZIqq+RUK6qa9Pi8rQdGQ==}
+    dev: false
+
+  /@cspell/dict-fonts@4.0.0:
+    resolution: {integrity: sha512-t9V4GeN/m517UZn63kZPUYP3OQg5f0OBLSd3Md5CU3eH1IFogSvTzHHnz4Wqqbv8NNRiBZ3HfdY/pqREZ6br3Q==}
+    dev: true
+
+  /@cspell/dict-fsharp@1.0.1:
+    resolution: {integrity: sha512-23xyPcD+j+NnqOjRHgW3IU7Li912SX9wmeefcY0QxukbAxJ/vAN4rBpjSwwYZeQPAn3fxdfdNZs03fg+UM+4yQ==}
+    dev: true
 
   /@cspell/dict-fullstack@3.1.5:
     resolution: {integrity: sha512-6ppvo1dkXUZ3fbYn/wwzERxCa76RtDDl5Afzv2lijLoijGGUw5yYdLBKJnx8PJBGNLh829X352ftE7BElG4leA==}
@@ -3511,6 +3623,11 @@ packages:
 
   /@cspell/dict-git@2.0.0:
     resolution: {integrity: sha512-n1AxyX5Kgxij/sZFkxFJlzn3K9y/sCcgVPg/vz4WNJ4K9YeTsUmyGLA2OQI7d10GJeiuAo2AP1iZf2A8j9aj2w==}
+    dev: false
+
+  /@cspell/dict-git@3.0.0:
+    resolution: {integrity: sha512-simGS/lIiXbEaqJu9E2VPoYW1OTC2xrwPPXNXFMa2uo/50av56qOuaxDrZ5eH1LidFXwoc8HROCHYeKoNrDLSw==}
+    dev: true
 
   /@cspell/dict-golang@6.0.5:
     resolution: {integrity: sha512-w4mEqGz4/wV+BBljLxduFNkMrd3rstBNDXmoX5kD4UTzIb4Sy0QybWCtg2iVT+R0KWiRRA56QKOvBsgXiddksA==}
@@ -3535,9 +3652,18 @@ packages:
 
   /@cspell/dict-lorem-ipsum@3.0.0:
     resolution: {integrity: sha512-msEV24qEpzWZs2kcEicqYlhyBpR0amfDkJOs+iffC07si9ftqtQ+yP3lf1VFLpgqw3SQh1M1vtU7RD4sPrNlcQ==}
+    dev: false
+
+  /@cspell/dict-lorem-ipsum@4.0.0:
+    resolution: {integrity: sha512-1l3yjfNvMzZPibW8A7mQU4kTozwVZVw0AvFEdy+NcqtbxH+TvbSkNMqROOFWrkD2PjnKG0+Ea0tHI2Pi6Gchnw==}
+    dev: true
 
   /@cspell/dict-lua@4.0.3:
     resolution: {integrity: sha512-lDHKjsrrbqPaea13+G9s0rtXjMO06gPXPYRjRYawbNmo4E/e3XFfVzeci3OQDQNDmf2cPOwt9Ef5lu2lDmwfJg==}
+
+  /@cspell/dict-makefile@1.0.0:
+    resolution: {integrity: sha512-3W9tHPcSbJa6s0bcqWo6VisEDTSN5zOtDbnPabF7rbyjRpNo0uHXHRJQF8gAbFzoTzBBhgkTmrfSiuyQm7vBUQ==}
+    dev: true
 
   /@cspell/dict-node@4.0.3:
     resolution: {integrity: sha512-sFlUNI5kOogy49KtPg8SMQYirDGIAoKBO3+cDLIwD4MLdsWy1q0upc7pzGht3mrjuyMiPRUV14Bb0rkVLrxOhg==}
@@ -3594,10 +3720,24 @@ packages:
     engines: {node: '>=14'}
     dependencies:
       import-meta-resolve: 2.2.2
+    dev: false
+
+  /@cspell/dynamic-import@8.3.2:
+    resolution: {integrity: sha512-4t0xM5luA3yQhar2xWvYK4wQSDB2r0u8XkpzzJqd57MnJXd7uIAxI0awGUrDXukadRaCo0tDIlMUBemH48SNVg==}
+    engines: {node: '>=18.0'}
+    dependencies:
+      import-meta-resolve: 4.0.0
+    dev: true
 
   /@cspell/strong-weak-map@6.31.3:
     resolution: {integrity: sha512-znwc9IlgGUPioHGshP/zyM8HsuYg1OY5S7HSiVXARh5H8RqcyBsnyn8abc0PPhqPrfDy9Fh5xHsAEPZ55dl1vQ==}
     engines: {node: '>=14.6'}
+    dev: false
+
+  /@cspell/strong-weak-map@8.3.2:
+    resolution: {integrity: sha512-Mte/2000ap278kRYOUhiGWI7MNr1+A7WSWJmlcdP4CAH5SO20sZI3/cyZLjJJEyapdhK5vaP1L5J9sUcVDHd3A==}
+    engines: {node: '>=18'}
+    dev: true
 
   /@cspotcode/source-map-support@0.8.1:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -9860,7 +10000,7 @@ packages:
   /builtins@5.0.1:
     resolution: {integrity: sha512-qwVpFEHNfhYJIzNRBvd2C1kyo6jz3ZSMPyyuR47OPdiKWlbYnZNyDWuyR175qDnAJLiCo5fBBqPb3RiXgWlkOQ==}
     dependencies:
-      semver: 7.6.0
+      semver: 7.5.4
     dev: true
 
   /bytes@3.0.0:
@@ -9886,6 +10026,24 @@ packages:
       istanbul-lib-report: 3.0.1
       istanbul-reports: 3.1.6
       rimraf: 3.0.2
+      test-exclude: 6.0.0
+      v8-to-istanbul: 9.2.0
+      yargs: 17.7.2
+      yargs-parser: 21.1.1
+    dev: true
+
+  /c8@9.1.0:
+    resolution: {integrity: sha512-mBWcT5iqNir1zIkzSPyI3NCR9EZCVI3WUD+AVO17MVWTSFNyUueXE82qTeampNtTr+ilN/5Ua3j24LgbCKjDVg==}
+    engines: {node: '>=14.14.0'}
+    hasBin: true
+    dependencies:
+      '@bcoe/v8-coverage': 0.2.3
+      '@istanbuljs/schema': 0.1.3
+      find-up: 5.0.0
+      foreground-child: 3.1.1
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-reports: 3.1.6
       test-exclude: 6.0.0
       v8-to-istanbul: 9.2.0
       yargs: 17.7.2
@@ -9987,6 +10145,13 @@ packages:
       pathval: 1.1.1
       type-detect: 4.0.8
 
+  /chalk-template@1.1.0:
+    resolution: {integrity: sha512-T2VJbcDuZQ0Tb2EWwSotMPJjgpy1/tGee1BTpUNsGZ/qgNjV2t7Mvu+d4600U564nbLesN1x2dPL+xii174Ekg==}
+    engines: {node: '>=14.16'}
+    dependencies:
+      chalk: 5.3.0
+    dev: true
+
   /chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
     engines: {node: '>=4'}
@@ -10005,7 +10170,6 @@ packages:
   /chalk@5.3.0:
     resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
-    dev: false
 
   /change-case@5.3.0:
     resolution: {integrity: sha512-Eykca0fGS/xYlx2fG5NqnGSnsWauhSGiSXYhB1kO6E909GUfo8S54u4UZNS7lMJmgZumZ2SUpWaoLgAcfQRICg==}
@@ -10290,6 +10454,7 @@ packages:
   /commander@10.0.1:
     resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
     engines: {node: '>=14'}
+    dev: false
 
   /commander@11.1.0:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
@@ -10381,6 +10546,7 @@ packages:
       unique-string: 2.0.0
       write-file-atomic: 3.0.3
       xdg-basedir: 4.0.0
+    dev: false
 
   /configstore@6.0.0:
     resolution: {integrity: sha512-cD31W1v3GqUlQvbBCGcXmd2Nj9SvLDOP1oQ0YFuLETufzSPaKp11rYBsSOm7rCsW3OnIRAFM3OxRhceaXNYHkA==}
@@ -10391,7 +10557,6 @@ packages:
       unique-string: 3.0.0
       write-file-atomic: 3.0.3
       xdg-basedir: 5.1.0
-    dev: false
 
   /connect-history-api-fallback@2.0.0:
     resolution: {integrity: sha512-U73+6lQFmfiNPrYbXqr6kZ1i1wiRqXnp2nhMsINseWXO8lDau0LGEffJ8kQi4EjLZympVgRdvqjAgiZ1tgzDDA==}
@@ -10538,6 +10703,7 @@ packages:
       js-yaml: 4.1.0
       parse-json: 5.2.0
       path-type: 4.0.0
+    dev: false
 
   /cosmiconfig@8.3.6(typescript@5.3.3):
     resolution: {integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==}
@@ -10607,7 +10773,15 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       type-fest: 1.4.0
-    dev: false
+
+  /cspell-config-lib@8.3.2:
+    resolution: {integrity: sha512-Wc98XhBNLwDxnxCzMtgRJALI9a69cu3C5Gf1rGjNTKSFo9JYiQmju0Ur3z25Pkx9Sa86f+2IjvNCf33rUDSoBQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@cspell/cspell-types': 8.3.2
+      comment-json: 4.2.3
+      yaml: 2.3.4
+    dev: true
 
   /cspell-dictionary@6.31.3:
     resolution: {integrity: sha512-3w5P3Md/tbHLVGPKVL0ePl1ObmNwhdDiEuZ2TXfm2oAIwg4aqeIrw42A2qmhaKLcuAIywpqGZsrGg8TviNNhig==}
@@ -10618,6 +10792,18 @@ packages:
       cspell-trie-lib: 6.31.3
       fast-equals: 4.0.3
       gensequence: 5.0.2
+    dev: false
+
+  /cspell-dictionary@8.3.2:
+    resolution: {integrity: sha512-xyK95hO2BMPFxIo8zBwGml8035qOxSBdga1BMhwW/p2wDrQP8S4Cdm/54//tCDmKn6uRkFQvyOfWGaX2l8WMEg==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@cspell/cspell-pipe': 8.3.2
+      '@cspell/cspell-types': 8.3.2
+      cspell-trie-lib: 8.3.2
+      fast-equals: 5.0.1
+      gensequence: 6.0.0
+    dev: true
 
   /cspell-gitignore@6.31.3:
     resolution: {integrity: sha512-vCfVG4ZrdwJnsZHl/cdp8AY+YNPL3Ga+0KR9XJsaz69EkQpgI6porEqehuwle7hiXw5e3L7xFwNEbpCBlxgLRA==}
@@ -10626,12 +10812,30 @@ packages:
     dependencies:
       cspell-glob: 6.31.3
       find-up: 5.0.0
+    dev: false
+
+  /cspell-gitignore@8.3.2:
+    resolution: {integrity: sha512-3Qc9P5BVvl/cg//s2s+zIMGKcoH5v7oOtRgwn4UQry8yiyo19h0tiTKkSR574FMhF5NtcShTnwIwPSIXVBPFHA==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      cspell-glob: 8.3.2
+      find-up-simple: 1.0.0
+    dev: true
 
   /cspell-glob@6.31.3:
     resolution: {integrity: sha512-+koUJPSCOittQwhR0T1mj4xXT3N+ZnY2qQ53W6Gz9HY3hVfEEy0NpbwE/Uy7sIvFMbc426fK0tGXjXyIj72uhQ==}
     engines: {node: '>=14'}
     dependencies:
       micromatch: 4.0.5
+    dev: false
+
+  /cspell-glob@8.3.2:
+    resolution: {integrity: sha512-KtIFxE+3l5dGEofND4/CdZffXP8XN1+XGQKxJ96lIzWsc01mkotfhxTkla6mgvfH039t7BsY/SWv0460KyGslQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      micromatch: 4.0.5
+    dev: true
 
   /cspell-grammar@6.31.3:
     resolution: {integrity: sha512-TZYaOLIGAumyHlm4w7HYKKKcR1ZgEMKt7WNjCFqq7yGVW7U+qyjQqR8jqnLiUTZl7c2Tque4mca7n0CFsjVv5A==}
@@ -10640,6 +10844,16 @@ packages:
     dependencies:
       '@cspell/cspell-pipe': 6.31.3
       '@cspell/cspell-types': 6.31.3
+    dev: false
+
+  /cspell-grammar@8.3.2:
+    resolution: {integrity: sha512-tYCkOmRzJe1a6/R+8QGSwG7TwTgznLPqsHtepKzLmnS4YX54VXjKRI9zMARxXDzUVfyCSVdW5MyiY/0WTNoy+A==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      '@cspell/cspell-pipe': 8.3.2
+      '@cspell/cspell-types': 8.3.2
+    dev: true
 
   /cspell-io@6.31.3:
     resolution: {integrity: sha512-yCnnQ5bTbngUuIAaT5yNSdI1P0Kc38uvC8aynNi7tfrCYOQbDu1F9/DcTpbdhrsCv+xUn2TB1YjuCmm0STfJlA==}
@@ -10649,6 +10863,14 @@ packages:
       node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /cspell-io@8.3.2:
+    resolution: {integrity: sha512-WYpKsyBCQP0SY4gXnhW5fPuxcYchKYKG1PIXVV3ezFU4muSgW6GuLNbGuSfwv/8YNXRgFSN0e3hYH0rdBK2Aow==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@cspell/cspell-service-bus': 8.3.2
+    dev: true
 
   /cspell-lib@6.31.3:
     resolution: {integrity: sha512-Dv55aecaMvT/5VbNryKo0Zos8dtHon7e1K0z8DR4/kGZdQVT0bOFWeotSLhuaIqoNFdEt8ypfKbrIHIdbgt1Hg==}
@@ -10677,6 +10899,34 @@ packages:
       vscode-uri: 3.0.8
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /cspell-lib@8.3.2:
+    resolution: {integrity: sha512-wTvdaev/TyGB/ln6CVD1QbVs2D7/+QiajQ67S7yj1suLHM6YcNQQb/5sPAM8VPtj0E7PgwgPXf3bq18OtPvnFg==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@cspell/cspell-bundled-dicts': 8.3.2
+      '@cspell/cspell-pipe': 8.3.2
+      '@cspell/cspell-resolver': 8.3.2
+      '@cspell/cspell-types': 8.3.2
+      '@cspell/dynamic-import': 8.3.2
+      '@cspell/strong-weak-map': 8.3.2
+      clear-module: 4.1.2
+      comment-json: 4.2.3
+      configstore: 6.0.0
+      cspell-config-lib: 8.3.2
+      cspell-dictionary: 8.3.2
+      cspell-glob: 8.3.2
+      cspell-grammar: 8.3.2
+      cspell-io: 8.3.2
+      cspell-trie-lib: 8.3.2
+      fast-equals: 5.0.1
+      gensequence: 6.0.0
+      import-fresh: 3.3.0
+      resolve-from: 5.0.0
+      vscode-languageserver-textdocument: 1.0.11
+      vscode-uri: 3.0.8
+    dev: true
 
   /cspell-trie-lib@6.31.3:
     resolution: {integrity: sha512-HNUcLWOZAvtM3E34U+7/mSSpO0F6nLd/kFlRIcvSvPb9taqKe8bnSa0Yyb3dsdMq9rMxUmuDQtF+J6arZK343g==}
@@ -10685,6 +10935,16 @@ packages:
       '@cspell/cspell-pipe': 6.31.3
       '@cspell/cspell-types': 6.31.3
       gensequence: 5.0.2
+    dev: false
+
+  /cspell-trie-lib@8.3.2:
+    resolution: {integrity: sha512-8qh2FqzkLMwzlTlvO/5Z+89fhi30rrfekocpight/BmqKbE2XFJQD7wS2ml24e7q/rdHJLXVpJbY/V5mByucCA==}
+    engines: {node: '>=18'}
+    dependencies:
+      '@cspell/cspell-pipe': 8.3.2
+      '@cspell/cspell-types': 8.3.2
+      gensequence: 6.0.0
+    dev: true
 
   /cspell@6.31.3:
     resolution: {integrity: sha512-VeeShDLWVM6YPiU/imeGy0lmg6ki63tbLEa6hz20BExhzzpmINOP5nSTYtpY0H9zX9TrF/dLbI38TuuYnyG3Uw==}
@@ -10711,6 +10971,32 @@ packages:
       vscode-uri: 3.0.8
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /cspell@8.3.2:
+    resolution: {integrity: sha512-V8Ub3RO/a5lwSsltW/ib3Z3G/sczKtSpBBN1JChzbSCfEgaY2mJY8JW0BpkSV+Ug6uJitpXNOOaxa3Xr489i7g==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dependencies:
+      '@cspell/cspell-json-reporter': 8.3.2
+      '@cspell/cspell-pipe': 8.3.2
+      '@cspell/cspell-types': 8.3.2
+      '@cspell/dynamic-import': 8.3.2
+      chalk: 5.3.0
+      chalk-template: 1.1.0
+      commander: 11.1.0
+      cspell-gitignore: 8.3.2
+      cspell-glob: 8.3.2
+      cspell-io: 8.3.2
+      cspell-lib: 8.3.2
+      fast-glob: 3.3.2
+      fast-json-stable-stringify: 2.1.0
+      file-entry-cache: 8.0.0
+      get-stdin: 9.0.0
+      semver: 7.6.0
+      strip-ansi: 7.1.0
+      vscode-uri: 3.0.8
+    dev: true
 
   /css-declaration-sorter@6.4.1(postcss@8.4.35):
     resolution: {integrity: sha512-rtdthzxKuyq6IzqX6jEcIzQF/YqccluefyCYheovBOLhFT/drQA9zj/UbRAa9J7C0o6EG6u3E6g+vKkay7/k3g==}
@@ -11529,13 +11815,13 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       is-obj: 2.0.0
+    dev: false
 
   /dot-prop@6.0.1:
     resolution: {integrity: sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==}
     engines: {node: '>=10'}
     dependencies:
       is-obj: 2.0.0
-    dev: false
 
   /dotenv@16.3.2:
     resolution: {integrity: sha512-HTlk5nmhkm8F6JcdXvHIzaorzCoziNQT9mGxLPVXW8wJF1TiGSL60ZGB4gHWabHOaMmWmhvk2/lPHfnBiT78AQ==}
@@ -11853,7 +12139,7 @@ packages:
       - supports-color
     dev: false
 
-  /eslint-plugin-prettier@5.1.3(eslint-config-prettier@8.10.0)(eslint@8.56.0)(prettier@3.1.1):
+  /eslint-plugin-prettier@5.1.3(eslint-config-prettier@8.10.0)(eslint@8.56.0)(prettier@3.2.5):
     resolution: {integrity: sha512-C9GCVAs4Eq7ZC/XFQHITLiHJxQngdtraXaM+LoUFoFp/lHNl2Zn8f3WQbe9HvTBBQ9YnKFB0/2Ajdqwo5D1EAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -11869,7 +12155,7 @@ packages:
     dependencies:
       eslint: 8.56.0
       eslint-config-prettier: 8.10.0(eslint@8.56.0)
-      prettier: 3.1.1
+      prettier: 3.2.5
       prettier-linter-helpers: 1.0.0
       synckit: 0.8.8
     dev: false
@@ -12212,6 +12498,12 @@ packages:
 
   /fast-equals@4.0.3:
     resolution: {integrity: sha512-G3BSX9cfKttjr+2o1O22tYMLq0DPluZnYtq1rXumE1SpL/F/SLIfHx08WYQoWSIpeMYf8sRbJ8++71+v6Pnxfg==}
+    dev: false
+
+  /fast-equals@5.0.1:
+    resolution: {integrity: sha512-WF1Wi8PwwSY7/6Kx0vKXtw8RwuSGoM1bvDaJbu7MxDlR1vovZjIAKrnzyrThgAjm6JDTu0fVgWXDlMGspodfoQ==}
+    engines: {node: '>=6.0.0'}
+    dev: true
 
   /fast-glob@3.3.2:
     resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
@@ -12288,6 +12580,13 @@ packages:
     dependencies:
       flat-cache: 3.2.0
 
+  /file-entry-cache@8.0.0:
+    resolution: {integrity: sha512-XXTUwCvisa5oacNGRP9SfNtYBNAMi+RPwBFmblZEF7N7swHYQS6/Zfk7SRwx4D5j3CH211YNRco1DEMNVfZCnQ==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      flat-cache: 4.0.0
+    dev: true
+
   /file-loader@6.2.0(webpack@5.90.1):
     resolution: {integrity: sha512-qo3glqyTa61Ytg4u73GultjHGjdRyig3tG6lPtyX/jOEJvHif9uB0/OCI2Kif6ctF3caQTW2G5gym21oAsI4pw==}
     engines: {node: '>= 10.13.0'}
@@ -12343,6 +12642,11 @@ packages:
     resolution: {integrity: sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==}
     dev: false
 
+  /find-up-simple@1.0.0:
+    resolution: {integrity: sha512-q7Us7kcjj2VMePAa02hDAF6d+MzsdsAWEwYyOpwUtlerRBkOEPBCRZrAV4XfcSN8fHAgaD0hP7miwoay6DCprw==}
+    engines: {node: '>=18'}
+    dev: true
+
   /find-up@3.0.0:
     resolution: {integrity: sha512-1yD6RmLI1XBfxugvORwlck6f75tYL+iR0jqwsOrOxMZyGYqUuDhJ0l4AXdO1iX/FTs9cBAMEk1gWSEx1kSbylg==}
     engines: {node: '>=6'}
@@ -12392,6 +12696,15 @@ packages:
       flatted: 3.2.9
       keyv: 4.5.4
       rimraf: 3.0.2
+
+  /flat-cache@4.0.0:
+    resolution: {integrity: sha512-EryKbCE/wxpxKniQlyas6PY1I9vwtF3uCBweX+N8KYTCn3Y12RTGtQAJ/bd5pl7kxUAc8v/R3Ake/N17OZiFqA==}
+    engines: {node: '>=16'}
+    dependencies:
+      flatted: 3.2.9
+      keyv: 4.5.4
+      rimraf: 5.0.5
+    dev: true
 
   /flat@5.0.2:
     resolution: {integrity: sha512-b6suED+5/3rTpUBdG1gupIl8MPFCAMA0QXwmljLhvCUKcUvdE4gWky9zpuGCcXHOsz4J9wPGNWq6OKpmIzz3hQ==}
@@ -12584,6 +12897,12 @@ packages:
   /gensequence@5.0.2:
     resolution: {integrity: sha512-JlKEZnFc6neaeSVlkzBGGgkIoIaSxMgvdamRoPN8r3ozm2r9dusqxeKqYQ7lhzmj2UhFQP8nkyfCaiLQxiLrDA==}
     engines: {node: '>=14'}
+    dev: false
+
+  /gensequence@6.0.0:
+    resolution: {integrity: sha512-8WwuywE9pokJRAcg2QFR/plk3cVPebSUqRPzpGQh3WQ0wIiHAw+HyOQj5IuHyUTQBHpBKFoB2JUMu9zT3vJ16Q==}
+    engines: {node: '>=16'}
+    dev: true
 
   /gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -12619,6 +12938,12 @@ packages:
   /get-stdin@8.0.0:
     resolution: {integrity: sha512-sY22aA6xchAzprjyqmSEQv4UbAAzRN0L2dQB0NlN5acTTK9Don6nhoc3eAbUnpZiCANAMfd/+40kVdKfFygohg==}
     engines: {node: '>=10'}
+    dev: false
+
+  /get-stdin@9.0.0:
+    resolution: {integrity: sha512-dVKBjfWisLAicarI2Sf+JuBE/DghV4UzNAVe9yhEJuzeREd3JhOTE9cUaJTeSa77fsbQUK3pcOpJfM59+VKZaA==}
+    engines: {node: '>=12'}
+    dev: true
 
   /get-stream@6.0.1:
     resolution: {integrity: sha512-ts6Wi+2j3jQjqi70w5AlN8DFnkSwC+MqmxEzdEALB2qXZYV3X/b1CTfgPLGJNMeAWxdPfU8FO1ms3NUfaHCPYg==}
@@ -12693,11 +13018,19 @@ packages:
       minimatch: 5.1.6
       once: 1.4.0
 
+  /global-directory@4.0.1:
+    resolution: {integrity: sha512-wHTUcDUoZ1H5/0iVqEudYW4/kAlN5cZ3j/bXn0Dpbizl9iaUVeWSHqiOjsgk6OW2bkLclbBjzewBz6weQ1zA2Q==}
+    engines: {node: '>=18'}
+    dependencies:
+      ini: 4.1.1
+    dev: true
+
   /global-dirs@0.1.1:
     resolution: {integrity: sha512-NknMLn7F2J7aflwFOlGdNIuCDpN3VGoSoB+aap3KABFWbHVn1TCgFC+np23J8W2BiZbjfEw3BFBycSMv1AFblg==}
     engines: {node: '>=4'}
     dependencies:
       ini: 1.3.8
+    dev: false
 
   /global-dirs@3.0.1:
     resolution: {integrity: sha512-NBcGGFbBA9s1VzD41QXDG+3++t9Mn5t1FpLdhESY6oKY4gYTFpX4wO3sqGUa0Srjtbfj3szX0RnemmrVRUdULA==}
@@ -13340,6 +13673,11 @@ packages:
 
   /import-meta-resolve@2.2.2:
     resolution: {integrity: sha512-f8KcQ1D80V7RnqVm+/lirO9zkOxjGxhaTC1IPrBGd3MEfNgmNG67tSUO9gTi2F3Blr2Az6g1vocaxzkVnWl9MA==}
+    dev: false
+
+  /import-meta-resolve@4.0.0:
+    resolution: {integrity: sha512-okYUR7ZQPH+efeuMJGlq4f8ubUgO50kByRPyt/Cy1Io4PSRsPjxME+YlVaCOx+NIToW7hCsZNFJyTPFFKepRSA==}
+    dev: true
 
   /imurmurhash@0.1.4:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
@@ -13381,6 +13719,11 @@ packages:
   /ini@3.0.1:
     resolution: {integrity: sha512-it4HyVAUTKBc6m8e1iXWvXSTdndF7HbdN713+kvLrymxTaU4AUBWrJ4vEooP+V7fexnVD3LKcBshjGGPefSMUQ==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
+
+  /ini@4.1.1:
+    resolution: {integrity: sha512-QQnnxNyfvmHFIsj7gkPcYymR8Jdw/o7mp5ZFihxn6h8Ci6fh3Dx4E1gPjpQEpIuPo9XVNY/ZUwh4BPMjGyL01g==}
+    engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
+    dev: true
 
   /inline-style-parser@0.1.1:
     resolution: {integrity: sha512-7NXolsK4CAS5+xvdj5OMMbI962hU/wvwoxk+LWR9Ek9bVtyuuYScDN6eS0rUm6TxApFpw7CX1o4uJzcd4AyD3Q==}
@@ -14314,6 +14657,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       semver: 6.3.1
+    dev: false
 
   /make-dir@4.0.0:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
@@ -15324,19 +15668,24 @@ packages:
       pkg-types: 1.0.3
       ufo: 1.4.0
 
-  /monaco-editor-webpack-plugin@7.1.0(monaco-editor@0.45.0)(webpack@5.90.1):
+  /monaco-editor-webpack-plugin@7.1.0(monaco-editor@0.46.0)(webpack@5.90.1):
     resolution: {integrity: sha512-ZjnGINHN963JQkFqjjcBtn1XBtUATDZBMgNQhDQwd78w2ukRhFXAPNgWuacaQiDZsUr4h1rWv5Mv6eriKuOSzA==}
     peerDependencies:
       monaco-editor: '>= 0.31.0'
       webpack: ^4.5.0 || 5.x
     dependencies:
       loader-utils: 2.0.4
-      monaco-editor: 0.45.0
+      monaco-editor: 0.46.0
       webpack: 5.90.1(@swc/core@1.4.0)
     dev: true
 
   /monaco-editor@0.45.0:
     resolution: {integrity: sha512-mjv1G1ZzfEE3k9HZN0dQ2olMdwIfaeAAjFiwNprLfYNRSz7ctv9XuCT7gPtBGrMUeV1/iZzYKj17Khu1hxoHOA==}
+    dev: false
+
+  /monaco-editor@0.46.0:
+    resolution: {integrity: sha512-ADwtLIIww+9FKybWscd7OCfm9odsFYHImBRI1v9AviGce55QY8raT+9ihH8jX/E/e6QVSGM+pKj4jSUSRmALNQ==}
+    dev: true
 
   /mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -15480,6 +15829,7 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
+    dev: false
 
   /node-forge@1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
@@ -15534,7 +15884,7 @@ packages:
     dependencies:
       hosted-git-info: 7.0.1
       proc-log: 3.0.0
-      semver: 7.6.0
+      semver: 7.5.4
       validate-npm-package-name: 5.0.0
     dev: true
 
@@ -16531,7 +16881,7 @@ packages:
       fast-diff: 1.3.0
     dev: false
 
-  /prettier-plugin-organize-imports@3.2.4(prettier@3.1.1)(typescript@5.3.3):
+  /prettier-plugin-organize-imports@3.2.4(prettier@3.2.5)(typescript@5.3.3):
     resolution: {integrity: sha512-6m8WBhIp0dfwu0SkgfOxJqh+HpdyfqSSLfKKRZSFbDuEQXDDndb8fTpRWkUrX/uBenkex3MgnVk0J3b3Y5byog==}
     peerDependencies:
       '@volar/vue-language-plugin-pug': ^1.0.4
@@ -16544,7 +16894,7 @@ packages:
       '@volar/vue-typescript':
         optional: true
     dependencies:
-      prettier: 3.1.1
+      prettier: 3.2.5
       typescript: 5.3.3
     dev: true
 
@@ -16564,12 +16914,12 @@ packages:
     resolution: {integrity: sha512-22UbSzg8luF4UuZtzgiUOfcGM8s4tjBv6dJRT7j275NXsy2jb4aJa4NNveul5x4eqlF1wuhuR2RElK71RvmVaw==}
     engines: {node: '>=14'}
     hasBin: true
+    dev: false
 
   /prettier@3.2.5:
     resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
     engines: {node: '>=14'}
     hasBin: true
-    dev: true
 
   /pretty-bytes@5.6.0:
     resolution: {integrity: sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg==}
@@ -17493,6 +17843,7 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       global-dirs: 0.1.1
+    dev: false
 
   /resolve-pathname@3.0.0:
     resolution: {integrity: sha512-C7rARubxI8bXFNB/hqcp/4iUeIXJhJZvFPFPiSPRnhU5UPxzMFIl+2E6yY6c4k9giDJAhtV+enfA+G89N6Csng==}
@@ -18781,6 +19132,7 @@ packages:
 
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+    dev: false
 
   /tr46@3.0.0:
     resolution: {integrity: sha512-l7FvfAHlcmulp8kr+flpQZmVwtu7nfRV7NZujtN0OqES8EL4O4e0qqzL0DC5gAvx/ZC/9lk6rhcUwYvkBnBnYA==}
@@ -18952,7 +19304,6 @@ packages:
   /type-fest@1.4.0:
     resolution: {integrity: sha512-yGSza74xk0UG8k+pLh5oeoYirvIiWo5t0/o3zHHAO2tRDiZcxWP7fywNlXhqb6/r6sWvwi+RsyQMWhVLe4BVuA==}
     engines: {node: '>=10'}
-    dev: false
 
   /type-fest@2.19.0:
     resolution: {integrity: sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==}
@@ -19142,7 +19493,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       crypto-random-string: 4.0.0
-    dev: false
 
   /unist-util-is@6.0.0:
     resolution: {integrity: sha512-2qCTHimwdxLfz+YzdGfkqNlH0tLi9xjTnHddPmJwtIG9MGsdbutfTc4P+haPD7l7Cjxf/WZj+we5qfVPvvxfYw==}
@@ -19606,6 +19956,7 @@ packages:
 
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
+    dev: false
 
   /webidl-conversions@7.0.0:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
@@ -19811,6 +20162,7 @@ packages:
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
+    dev: false
 
   /which-boxed-primitive@1.0.2:
     resolution: {integrity: sha512-bwZdv0AKLpplFY2KZRX6TvyuN7ojjr7lwkg6ml0roIy9YeuSr7JS372qlNW18UQYzgYK9ziGcerWqZOmEn9VNg==}
@@ -19975,11 +20327,11 @@ packages:
   /xdg-basedir@4.0.0:
     resolution: {integrity: sha512-PSNhEJDejZYV7h50BohL09Er9VaIefr2LMAf3OEmpCkjOi34eYyQYAXUTjEQtZJTKcF0E2UKTh+osDLsgNim9Q==}
     engines: {node: '>=8'}
+    dev: false
 
   /xdg-basedir@5.1.0:
     resolution: {integrity: sha512-GCPAHLvrIH13+c0SuacwvRYj2SxJXQ4kaVTT5xgL3kPrz56XxkF21IGhjSE1+W0aw7gpBWRGXLCPnPby6lSpmQ==}
     engines: {node: '>=12'}
-    dev: false
 
   /xml-but-prettier@1.0.1:
     resolution: {integrity: sha512-C2CJaadHrZTqESlH03WOyw0oZTtoy2uEg6dSDF6YRg+9GnYNub53RRemLpnvtbHDFelxMx4LajiFsYeR6XJHgQ==}
@@ -20050,7 +20402,6 @@ packages:
   /yaml@2.3.4:
     resolution: {integrity: sha512-8aAvwVUSHpfEqTQ4w/KMlf3HcRdt50E5ODIQJBw1fQ5RL34xabzxtUlzTXVqc4rkZsPbvrXKWnABCD7kWSmocA==}
     engines: {node: '>= 14'}
-    dev: false
 
   /yargs-parser@18.1.3:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
