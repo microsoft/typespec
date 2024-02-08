@@ -17,9 +17,6 @@
     "typespec"
   ],
   "type": "module",
-  "bin": {
-    "typespec-bundler": "./dist/src/cli.js"
-  },
   "main": "dist/src/index.js",
   "exports": {
     ".": "./dist/src/index.js",
