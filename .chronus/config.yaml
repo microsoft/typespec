@@ -30,7 +30,7 @@ changeKinds:
     versionType: major
     title: Breaking Change
     description: Changes that break existing features
-    
+
 versionPolicies:
   - name: typespec
     type: lockstep

@@ -23,4 +23,4 @@ packages:
   - "@typespec/versioning"
 ---
 
-Update dependencies 
+Update dependencies
