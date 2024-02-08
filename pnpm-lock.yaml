@@ -997,8 +997,8 @@ importers:
         specifier: workspace:~
         version: link:../internal-build-utils
       prettier_2:
-        specifier: npm:prettier@3.2.5
-        version: /prettier@3.2.5
+        specifier: npm:prettier@2.8.7
+        version: /prettier@2.8.7
       rollup:
         specifier: ~4.9.6
         version: 4.9.6
@@ -15784,6 +15784,12 @@ packages:
     dependencies:
       prettier: 3.2.5
       typescript: 5.3.3
+    dev: true
+
+  /prettier@2.8.7:
+    resolution: {integrity: sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
     dev: true
 
   /prettier@2.8.8:
