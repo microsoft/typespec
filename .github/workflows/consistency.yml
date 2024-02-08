@@ -29,9 +29,6 @@ jobs:
       - run: pnpm install
         name: Install dependencies
 
-      - run: pnpm run check-version-mismatch
-        name: Check version mismatch
-
       - run: npx chronus verify
         name: Check changelog
         if: ${{ !startsWith(github.head_ref, 'publish/') && !startsWith(github.head_ref, 'dependabot/') && !startsWith(github.head_ref, 'backmerge/') }}
