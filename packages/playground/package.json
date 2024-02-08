@@ -67,7 +67,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.42.0",
+    "@fluentui/react-components": "~9.46.4",
     "@fluentui/react-icons": "^2.0.226",
     "@typespec/bundler": "workspace:~",
     "@typespec/compiler": "workspace:~",
@@ -81,10 +81,10 @@
     "clsx": "^2.1.0",
     "debounce": "~2.0.0",
     "lzutf8": "0.6.3",
-    "monaco-editor": "~0.45.0",
+    "monaco-editor": "~0.46.0",
     "react": "~18.2.0",
     "react-dom": "~18.2.0",
-    "swagger-ui-react": "~5.10.5",
+    "swagger-ui-react": "~5.11.3",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.11"
   },
@@ -112,7 +112,7 @@
     "rollup": "~4.9.6",
     "rollup-plugin-dts": "~6.1.0",
     "rollup-plugin-postcss": "~4.0.2",
-    "rollup-plugin-visualizer": "~5.11.0",
+    "rollup-plugin-visualizer": "~5.12.0",
     "typescript": "~5.3.3",
     "vite": "^5.1.0"
   }
