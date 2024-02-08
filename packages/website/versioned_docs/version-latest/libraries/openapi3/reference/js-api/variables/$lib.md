@@ -43,5 +43,7 @@ const $lib: TypeSpecLibrary<Object, OpenAPI3EmitterOptions, never>;
 | `status-code-in-default-response.default` | `"a default response should not have an explicit status code"` | - |
 | `union-null` | `Object` | - |
 | `union-null.default` | `"Cannot have a union containing only null types."` | - |
+| `unsupported-auth` | `Object` | - |
+| `unsupported-auth.default` | `CallableMessage`<[`"authType"`]\> | - |
 | `unsupported-status-code-range` | `Object` | - |
 | `unsupported-status-code-range.default` | `CallableMessage`<[`"start"`, `"end"`]\> | - |

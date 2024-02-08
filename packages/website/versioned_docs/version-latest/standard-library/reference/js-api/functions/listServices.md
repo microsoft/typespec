@@ -7,7 +7,7 @@ title: "[F] listServices"
 listServices(program): Service[]
 ```
 
-List all the services defined in the typespec program
+List all the services defined in the TypeSpec program
 
 ## Parameters
 

@@ -55,6 +55,7 @@ words:
   - nostdlib
   - npmjs
   - oapi
+  - OIDC
   - oneof
   - onig
   - onigasm

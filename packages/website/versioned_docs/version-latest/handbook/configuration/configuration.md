@@ -4,7 +4,7 @@ title: Configuration
 
 # Compiler and Libraries configurations
 
-TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
+The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
 
 ## Configuration file
 
@@ -12,9 +12,9 @@ TypeSpec configuration can be provided via the `tspconfig.yaml` configuration fi
 
 ### Discovery
 
-TypeSpec compiler will look for the closest `tspconfig.yaml` file located in the same directory or closest parent directory from the typespec entrypoint.
+The TypeSpec compiler will look for the closest `tspconfig.yaml` file located in the same directory or closest parent directory from the TypeSpec entrypoint.
 
-For example if running `tsp compile /dev/foo/bar/main.tsp`, the compiler will lookup the file at the folllowing paths(In this order):
+For example if running `tsp compile /dev/foo/bar/main.tsp`, the compiler will lookup the file at the folllowing paths (in order):
 
 - `/dev/foo/bar/tspconfig.yaml`
 - `/dev/foo/tspconfig.yaml`
@@ -48,7 +48,7 @@ model LinterConfig {
 
 ### Extending project files
 
-There is cases where you might want to build different folders with different options(for example different emitters) but want to share some configuration for both as well.
+There is cases where you might want to build different folders with different options (for example different emitters) but want to share some configuration for both as well.
 
 For that you can use the `extends` property of the configuration file
 
@@ -72,7 +72,7 @@ emit:
 
 ### Variable interpolation
 
-The typespec project file provide variable interpolation using:
+The TypeSpec project file provide variable interpolation using:
 
 - built-in variables
 - environment variables
@@ -113,7 +113,7 @@ The following would get produced
 
 #### Project parameters
 
-A typespec project file can specify some parameters that can then be specified via the CLI.
+A TypeSpec project file can specify some parameters that can then be specified via the CLI.
 
 `{cwd}` and `{project-root}` variables can be used in the default value of those parmeters.
 
@@ -138,7 +138,7 @@ tsp compile . --arg "base-dir=/path/to/base"
 
 #### Environment variables
 
-A typespec project file can define which environment variables it can interpolate.
+A TypeSpec project file can define which environment variables it can interpolate.
 
 `{cwd}` and `{project-root}` variables can be used in the default value of the environment variables.
 
@@ -252,7 +252,7 @@ imports:
   - sidecar.tsp
 ```
 
-Specify additional typespec files to import
+Specify additional TypeSpec files to import
 
 ```bash
 tsp compile . --import "sidecar.tsp"
@@ -356,7 +356,7 @@ tsp compile . --watch
 ```
 
 :::caution
-Known issue: the watch mode does not pickup changes in JS files that are indirectly included(Only imported via another JS file.)
+Known issue: the watch mode does not pickup changes in JS files that are indirectly included (only imported via another JS file.)
 :::
 
 ### `--nostdlib`
@@ -379,7 +379,7 @@ tsp compile . --version
 
 **Default: `true`**
 
-Enable/Disable pretty logging(Colors, diagnostic preview, etc.).
+Enable/Disable pretty logging (colors, diagnostic preview, etc.).
 
 ```bash
 tsp compile . --pretty=false
@@ -397,7 +397,7 @@ By default the output-dir of an emitter is set to this value:
 where
 
 - `output-dir` is the compiler common `output-dir` that can be configured via `--output-dir`
-- `emitter-name` is the name of the emitter package(for example `@typespec/openapi3`)
+- `emitter-name` is the name of the emitter package (for example `@typespec/openapi3`)
 
 Example:
 Given the following emitters: `@typespec/openapi3` and `@typespec/jsonschema`, the default output folder structure would be
