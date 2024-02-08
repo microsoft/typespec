@@ -204,6 +204,33 @@ describe("openapi3: models", () => {
       },
     });
   });
+
+  it("specify default value on union with variant", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optionalUnion?: MyUnion = MyUnion.a;
+      };
+      
+      union MyUnion {
+        a: "a-value",
+        b: "b-value",
+      }
+      `
+    );
+
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optionalUnion: {
+          allOf: [{ $ref: "#/components/schemas/MyUnion" }],
+          default: "a-value",
+        },
+      },
+    });
+  });
+
   it("specify default value on nullable property", async () => {
     const res = await oapiForModel(
       "Foo",

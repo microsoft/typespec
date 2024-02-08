@@ -45,7 +45,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@typespec/compiler": "workspace:~0.53.0",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@rollup/plugin-virtual": "~3.0.1",
     "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-json": "~6.1.0",

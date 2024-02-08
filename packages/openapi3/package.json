@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "0.53.0",
+  "version": "0.53.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 from the TypeSpec REST protocol binding",
   "homepage": "https://typespec.io",
@@ -55,13 +55,13 @@
   },
   "peerDependencies": {
     "@typespec/versioning": "workspace:~0.53.0",
-    "@typespec/compiler": "workspace:~0.53.0",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/http": "workspace:~0.53.0",
     "@typespec/openapi": "workspace:~0.53.0"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
-    "@typespec/compiler": "workspace:~0.53.0",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/http": "workspace:~0.53.0",
     "@typespec/rest": "workspace:~0.53.0",
     "@typespec/openapi": "workspace:~0.53.0",

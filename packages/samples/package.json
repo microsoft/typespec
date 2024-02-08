@@ -44,12 +44,12 @@
   ],
   "dependencies": {
     "@typespec/best-practices": "workspace:~0.46.0",
-    "@typespec/compiler": "workspace:~0.53.0",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/html-program-viewer": "workspace:~0.53.0",
     "@typespec/http": "workspace:~0.53.0",
-    "@typespec/json-schema": "workspace:~0.53.0",
+    "@typespec/json-schema": "workspace:~0.53.1",
     "@typespec/openapi": "workspace:~0.53.0",
-    "@typespec/openapi3": "workspace:~0.53.0",
+    "@typespec/openapi3": "workspace:~0.53.1",
     "@typespec/rest": "workspace:~0.53.0",
     "@typespec/versioning": "workspace:~0.53.0"
   },
