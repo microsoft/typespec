@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi3
 
+## 0.53.1
+
+### Patch Changes
+
+- e6a045b: Allow using default values for union property types
+- e6a045b: Fix: union of primitive types that gets emitted as an `enum` keeps the description
+
 ## 0.53.0
 
 ### Patch Changes

@@ -50,11 +50,11 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.53.0"
+    "@typespec/compiler": "workspace:~0.53.1"
   },
   "devDependencies": {
     "@types/node": "~18.11.9",
-    "@typespec/compiler": "workspace:~0.53.0",
+    "@typespec/compiler": "workspace:~0.53.1",
     "@typespec/eslint-config-typespec": "workspace:~0.53.0",
     "@typespec/library-linter": "workspace:~0.53.0",
     "@typespec/eslint-plugin": "workspace:~0.53.0",
