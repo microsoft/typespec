@@ -2,14 +2,14 @@
 title: Diagnostics
 ---
 
-TypeSpec compiler report errors and warnings in the spec using the diagnostic API.
+The TypeSpec compiler reports errors and warnings in the spec using the diagnostic API.
 
 ## Best practices
 
 - ❌ Do not use `throw` to report errors. Any exception thrown like this will be presented as a bug in your library to the user.
 - ✅ Use diagnostic API to report expected errors and warnings.
   - ✅ Use `reportDiagnostic` in a decorator, `$onValidate` or `$onEmit`
-  - ❌ Do not use `reportDiagnostic` in an accessor(A function meant to be consumed in another library or emitter). See [collect diagnostics section](#collect-diagnostics)
+  - ❌ Do not use `reportDiagnostic` in an accessor (A function meant to be consumed in another library or emitter). See [collect diagnostics section](#collect-diagnostics)
 
 ## Diagnostic specification
 

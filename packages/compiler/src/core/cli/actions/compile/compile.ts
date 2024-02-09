@@ -73,10 +73,12 @@ async function compileOnce(
 }
 
 function compileWatch(
-  host: CompilerHost,
+  cliHost: CliCompilerHost,
   path: string,
   compilerOptions: CompilerOptions
 ): Promise<void> {
+  const watchHost: WatchHost = createWatchHost(cliHost);
+
   let compileRequested: boolean = false;
   let currentCompilePromise: Promise<Program> | undefined = undefined;
 
@@ -88,7 +90,7 @@ function compileWatch(
       console.clear();
 
       watchHost?.forceJSReload();
-      currentCompilePromise = compileProgram(host, resolve(path), compilerOptions)
+      currentCompilePromise = compileProgram(watchHost, resolve(path), compilerOptions)
         .then(onCompileFinished)
         .catch(handleInternalCompilerError);
     } else {
@@ -103,11 +105,10 @@ function compileWatch(
   const watcher: ProjectWatcher = createWatcher((_name: string) => {
     scheduleCompile();
   });
-  const watchHost: WatchHost = (host = createWatchHost());
 
   const onCompileFinished = (program: Program) => {
     watcher?.updateWatchedFiles([...program.sourceFiles.keys(), ...program.jsSourceFiles.keys()]);
-    logProgramResult(host, program, { showTimestamp: true });
+    logProgramResult(watchHost, program, { showTimestamp: true });
 
     currentCompilePromise = undefined;
     if (compileRequested) {

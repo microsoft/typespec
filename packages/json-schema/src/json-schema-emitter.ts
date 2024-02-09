@@ -217,6 +217,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
             });
       case "EnumMember":
         return defaultType.value ?? defaultType.name;
+      case "UnionVariant":
+        return this.#getDefaultValue(type, defaultType.type);
       default:
         reportDiagnostic(program, {
           code: "invalid-default",

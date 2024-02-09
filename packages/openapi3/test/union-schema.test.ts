@@ -4,23 +4,6 @@ import { describe, it } from "vitest";
 import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
-  it("makes nullable schema when union with null", async () => {
-    const res = await openApiFor(
-      `
-      model Thing {
-        id: string;
-        properties: Thing | null;
-      }
-      op doStuff(): Thing;
-      `
-    );
-    deepStrictEqual(res.components.schemas.Thing.properties.properties, {
-      type: "object",
-      allOf: [{ $ref: "#/components/schemas/Thing" }],
-      nullable: true,
-    });
-  });
-
   it("handles discriminated unions", async () => {
     const res = await openApiFor(
       `
@@ -277,28 +260,6 @@ describe("openapi3: union type", () => {
     ]);
   });
 
-  it("handles a nullable enum", async () => {
-    const res = await oapiForModel(
-      "X",
-      `
-      enum A {
-        a: 1
-      }
-      
-      model X {
-        prop: A | null
-      }
-      `
-    );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.X.properties.prop.oneOf, [
-      {
-        $ref: "#/components/schemas/A",
-      },
-    ]);
-    ok(res.schemas.X.properties.prop.nullable);
-  });
-
   it("handles discriminated union mapping with multiple visibilities", async () => {
     const res = await openApiFor(`
       model A {
@@ -375,6 +336,21 @@ describe("openapi3: union type", () => {
       message:
         "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
     });
+  });
+
+  it("supports description on unions that reduce to enums", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @doc("FooUnion")
+      union Foo {
+        "a";
+        "b";
+      }
+
+      `
+    );
+    strictEqual(res.schemas.Foo.description, "FooUnion");
   });
 
   it("supports summary on unions and union variants", async () => {

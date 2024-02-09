@@ -1,8 +1,24 @@
 # Change Log - @typespec/openapi3
 
+## 0.53.1
+
+### Patch Changes
+
+- e6a045b: Allow using default values for union property types
+- e6a045b: Fix: union of primitive types that gets emitted as an `enum` keeps the description
+
+## 0.53.0
+
+### Patch Changes
+
+- 9726b3d: Fix issues with `nullable` properties used in a cycle being wrapped in `allOf` when not needed
+- 05c8597: Fix circular reference would not always inline array properties
+- 8ed1d82: Add support for OpenIdConnect auth scheme
+
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
+
 Wed, 24 Jan 2024 05:46:53 GMT
 
 ### Updates
@@ -11,6 +27,7 @@ Wed, 24 Jan 2024 05:46:53 GMT
 - Update dependencies
 
 ## 0.51.1
+
 Wed, 13 Dec 2023 23:28:17 GMT
 
 ### Patches
@@ -19,6 +36,7 @@ Wed, 13 Dec 2023 23:28:17 GMT
 - Fix: OpenAPI3 creating conflicting type declaration when type was used in multipart implicit body and json body
 
 ## 0.51.0
+
 Wed, 06 Dec 2023 19:40:58 GMT
 
 ### Updates
@@ -30,6 +48,7 @@ Wed, 06 Dec 2023 19:40:58 GMT
 - Emitter will now emit all properties on unreferenced schemas.
 
 ## 0.50.0
+
 Wed, 08 Nov 2023 00:07:17 GMT
 
 ### Updates
@@ -41,6 +60,7 @@ Wed, 08 Nov 2023 00:07:17 GMT
 - **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
 
 ## 0.49.0
+
 Wed, 11 Oct 2023 23:31:35 GMT
 
 ### Updates
@@ -61,6 +81,7 @@ Wed, 11 Oct 2023 23:31:35 GMT
 - Disable folding of serialized yaml if line is above 80 characters
 
 ## 0.48.1
+
 Tue, 19 Sep 2023 19:28:32 GMT
 
 ### Patches
@@ -68,6 +89,7 @@ Tue, 19 Sep 2023 19:28:32 GMT
 - Fix: Correctly generate discriminated union mapping property with multiple visibilities involved
 
 ## 0.48.0
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 ### Updates
@@ -79,18 +101,20 @@ Tue, 12 Sep 2023 21:47:11 GMT
 - Fix handling of `Record<T>` in `model is` and `model extends`
 
 ## 0.47.0
+
 Tue, 08 Aug 2023 22:32:10 GMT
 
 ### Updates
 
 - Handle general encodings for utcDateTime
-- Add support for  `@info` decorator providing the ability to specify the additional fields from openapi info object.
+- Add support for `@info` decorator providing the ability to specify the additional fields from openapi info object.
 - Emit diagnostic for empty unions
 - Fix: Apply `@minItems` and `@maxItems` decorators on model array.
 - Fix `@useRef` decorator serializing `$ref` as an object.
 - Support collection formats: simple, form, ssv and pipes.
 
 ## 0.46.0
+
 Tue, 11 Jul 2023 22:06:00 GMT
 
 ### Updates
@@ -99,6 +123,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Update dependencies
 
 ## 0.45.0
+
 Tue, 06 Jun 2023 22:44:16 GMT
 
 ### Updates
@@ -115,6 +140,7 @@ Tue, 06 Jun 2023 22:44:16 GMT
 - Add handling of `integer`, `float` and `numeric`
 
 ## 0.44.0
+
 Wed, 10 May 2023 21:24:00 GMT
 
 ### Updates
@@ -127,6 +153,7 @@ Wed, 10 May 2023 21:24:00 GMT
 - Update dependencies
 
 ## 0.43.0
+
 Tue, 11 Apr 2023 18:49:17 GMT
 
 ### Updates
@@ -137,6 +164,7 @@ Tue, 11 Apr 2023 18:49:17 GMT
 - Support new datetime types
 
 ## 0.42.0
+
 Mon, 13 Mar 2023 21:30:44 GMT
 
 ### Updates
@@ -144,6 +172,7 @@ Mon, 13 Mar 2023 21:30:44 GMT
 - Avoid Read suffix in schemas split by visibility.
 
 ## 0.41.0
+
 Fri, 03 Mar 2023 19:59:17 GMT
 
 ### Updates
@@ -157,6 +186,7 @@ Fri, 03 Mar 2023 19:59:17 GMT
 - Update homepage link
 
 ## 0.40.0
+
 Tue, 07 Feb 2023 21:56:17 GMT
 
 ### Patches
@@ -170,6 +200,7 @@ Tue, 07 Feb 2023 21:56:17 GMT
 - Don't emit extra "canonical" model when always impacted by visibility
 
 ## 0.39.0
+
 Fri, 13 Jan 2023 00:05:26 GMT
 
 ### Patches
@@ -183,6 +214,7 @@ Fri, 13 Jan 2023 00:05:26 GMT
 - **Breaking Change** Add yaml serialization for openapi output. Default has been changed to yaml. Use `file-type: json` or `output-file: myfile.json` to use json
 
 ## 0.38.0
+
 Wed, 07 Dec 2022 17:21:52 GMT
 
 ### Minor changes
@@ -208,6 +240,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Remove undocumented use of atVersion projection
 
 ## 0.17.0
+
 Sat, 12 Nov 2022 00:14:04 GMT
 
 ### Minor changes
@@ -220,6 +253,7 @@ Sat, 12 Nov 2022 00:14:04 GMT
 - Fix: @extension on a model is intrinsic types are being applied
 
 ## 0.16.0
+
 Wed, 12 Oct 2022 21:12:35 GMT
 
 ### Minor changes
@@ -230,7 +264,7 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Add support for `@minItems` and `@maxItems` decorators
 - Add support for referencing model properties.
 - Emitted openapi3 document include all types under the service namespace
-- Uptake move of  `@discriminator` into compiler
+- Uptake move of `@discriminator` into compiler
 - Add `output-dir` emitter option
 - Add support for overloads(Using `@overload` decorator)
 - Uptake changes to rest library
@@ -242,11 +276,12 @@ Wed, 12 Oct 2022 21:12:35 GMT
 - Exclude properties of type `never` when emitting model schemas
 
 ## 0.15.0
+
 Thu, 08 Sep 2022 01:04:53 GMT
 
 ### Minor changes
 
-- Uptake change to enum members map type 
+- Uptake change to enum members map type
 - Use projectedName projection for `json` to get the real over the wire properties.
 - Uptake changes to compiler with current projection
 - Update decororator state key to allow multiple instance of library to work together.
@@ -259,6 +294,7 @@ Thu, 08 Sep 2022 01:04:53 GMT
 - Add support for `@extension` on Server variables
 
 ## 0.14.0
+
 Thu, 11 Aug 2022 19:05:23 GMT
 
 ### Minor changes
@@ -287,6 +323,7 @@ Thu, 11 Aug 2022 19:05:23 GMT
 - Update Readme.md for new decorators.
 
 ## 0.13.0
+
 Fri, 08 Jul 2022 23:22:57 GMT
 
 ### Minor changes
@@ -299,6 +336,7 @@ Fri, 08 Jul 2022 23:22:57 GMT
 - Inline parameters spread from anonymous model
 
 ## 0.12.0
+
 Mon, 13 Jun 2022 23:42:28 GMT
 
 ### Minor changes
@@ -314,6 +352,7 @@ Mon, 13 Jun 2022 23:42:28 GMT
 - Upgrade to TS4.7
 
 ## 0.11.0
+
 Fri, 06 May 2022 17:19:57 GMT
 
 ### Minor changes
@@ -331,6 +370,7 @@ Fri, 06 May 2022 17:19:57 GMT
 - URI-encode refs
 
 ## 0.10.0
+
 Thu, 31 Mar 2022 17:10:49 GMT
 
 ### Minor changes
@@ -348,6 +388,7 @@ Thu, 31 Mar 2022 17:10:49 GMT
 - Support browser builds
 
 ## 0.9.0
+
 Wed, 09 Mar 2022 17:42:09 GMT
 
 ### Minor changes
@@ -365,6 +406,7 @@ Wed, 09 Mar 2022 17:42:09 GMT
 - Fix duplicate parameter type definitions in OpenAPI 3 output
 
 ## 0.8.0
+
 Tue, 15 Feb 2022 22:35:02 GMT
 
 ### Minor changes
@@ -376,6 +418,7 @@ Tue, 15 Feb 2022 22:35:02 GMT
 - Add support for separate `@summary` from `@doc`
 
 ## 0.7.0
+
 Mon, 14 Feb 2022 03:01:07 GMT
 
 ### Minor changes
@@ -389,6 +432,7 @@ Mon, 14 Feb 2022 03:01:07 GMT
 - Bump dependency versions
 
 ## 0.6.0
+
 Fri, 04 Feb 2022 18:00:18 GMT
 
 ### Minor changes
@@ -416,6 +460,7 @@ Fri, 04 Feb 2022 18:00:18 GMT
 - Renaming @format decorator to @pattern.
 
 ## 0.5.0
+
 Thu, 16 Dec 2021 08:02:20 GMT
 
 ### Minor changes
@@ -427,6 +472,7 @@ Thu, 16 Dec 2021 08:02:20 GMT
 - Update openapi3 emitter to consume new Cadl.Rest route generation API
 
 ## 0.4.2
+
 Wed, 01 Dec 2021 22:56:11 GMT
 
 ### Patches
@@ -436,6 +482,7 @@ Wed, 01 Dec 2021 22:56:11 GMT
 - Add README
 
 ## 0.4.1
+
 Thu, 18 Nov 2021 13:58:15 GMT
 
 ### Patches
@@ -443,6 +490,7 @@ Thu, 18 Nov 2021 13:58:15 GMT
 - Enable operation generation from interfaces
 
 ## 0.4.0
+
 Thu, 11 Nov 2021 21:46:21 GMT
 
 ### Minor changes
@@ -450,6 +498,7 @@ Thu, 11 Nov 2021 21:46:21 GMT
 - **Added** Support for duration type
 
 ## 0.3.1
+
 Thu, 28 Oct 2021 21:17:50 GMT
 
 ### Patches
@@ -464,6 +513,7 @@ Thu, 28 Oct 2021 21:17:50 GMT
 - Remove management.azure.com service host default
 
 ## 0.3.0
+
 Fri, 15 Oct 2021 21:33:37 GMT
 
 ### Minor changes
@@ -471,6 +521,7 @@ Fri, 15 Oct 2021 21:33:37 GMT
 - **Added** Support for server default
 
 ## 0.2.0
+
 Fri, 17 Sep 2021 00:49:37 GMT
 
 ### Minor changes
@@ -484,4 +535,3 @@ Fri, 17 Sep 2021 00:49:37 GMT
 - Updates for cadl namespace addition
 - This is a test
 - Support for emitting `bytes` and new number types
-

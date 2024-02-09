@@ -9,7 +9,7 @@
     "check-version-mismatch": "syncpack list-mismatches",
     "change": "chronus",
     "clean": "pnpm -r run clean",
-    "cspell": "cspell --no-progress \"**/*.{md,ts,tsx}\" ",
+    "cspell": "cspell --no-progress .",
     "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
     "fix-version-mismatch": "syncpack fix-mismatches",
     "format": "pnpm run prettier --write",
@@ -29,17 +29,17 @@
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.26.2",
-    "@chronus/chronus": "^0.5.1",
+    "@changesets/cli": "^2.27.1",
+    "@chronus/chronus": "^0.6.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
-    "c8": "^8.0.1",
-    "cspell": "^6.31.1",
-    "prettier": "~3.1.1",
+    "c8": "^9.1.0",
+    "cspell": "^8.3.2",
+    "prettier": "~3.2.5",
     "prettier-plugin-organize-imports": "~3.2.4",
-    "rimraf": "~5.0.1",
-    "syncpack": "^11.2.1",
+    "rimraf": "~5.0.5",
+    "syncpack": "^12.3.0",
     "typescript": "~5.3.3",
-    "vitest": "^1.1.0"
+    "vitest": "^1.2.2"
   },
   "syncpack": {
     "dependencyTypes": [

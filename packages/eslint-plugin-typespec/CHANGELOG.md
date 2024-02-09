@@ -1,8 +1,11 @@
 # Change Log - @typespec/eslint-plugin
 
+## 0.53.0
+
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
+
 Wed, 24 Jan 2024 05:46:53 GMT
 
 ### Updates
@@ -10,11 +13,13 @@ Wed, 24 Jan 2024 05:46:53 GMT
 - Update dependencies
 
 ## 0.51.0
+
 Wed, 06 Dec 2023 19:40:58 GMT
 
 _Version update only_
 
 ## 0.50.0
+
 Wed, 08 Nov 2023 00:07:17 GMT
 
 ### Updates
@@ -22,6 +27,7 @@ Wed, 08 Nov 2023 00:07:17 GMT
 - Update deprecated features preping for eslint 9
 
 ## 0.49.0
+
 Wed, 11 Oct 2023 23:31:35 GMT
 
 ### Updates
@@ -29,11 +35,13 @@ Wed, 11 Oct 2023 23:31:35 GMT
 - Update dependencies
 
 ## 0.48.0
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 _Version update only_
 
 ## 0.47.0
+
 Tue, 08 Aug 2023 22:32:10 GMT
 
 ### Updates
@@ -41,6 +49,7 @@ Tue, 08 Aug 2023 22:32:10 GMT
 - Update dependencies
 
 ## 0.46.0
+
 Tue, 11 Jul 2023 22:06:00 GMT
 
 ### Updates
@@ -48,11 +57,13 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Update dependencies
 
 ## 0.45.0
+
 Tue, 06 Jun 2023 22:44:16 GMT
 
 _Version update only_
 
 ## 0.44.0
+
 Wed, 10 May 2023 21:24:00 GMT
 
 ### Updates
@@ -60,16 +71,19 @@ Wed, 10 May 2023 21:24:00 GMT
 - Update dependencies
 
 ## 0.43.0
+
 Tue, 11 Apr 2023 18:49:17 GMT
 
 _Version update only_
 
 ## 0.42.0
+
 Mon, 13 Mar 2023 21:30:44 GMT
 
 _Version update only_
 
 ## 0.41.0
+
 Fri, 03 Mar 2023 19:59:17 GMT
 
 ### Updates
@@ -79,16 +93,19 @@ Fri, 03 Mar 2023 19:59:17 GMT
 - Update homepage link
 
 ## 0.40.0
+
 Tue, 07 Feb 2023 21:56:17 GMT
 
 _Version update only_
 
 ## 0.39.0
+
 Fri, 13 Jan 2023 00:05:26 GMT
 
 _Version update only_
 
 ## 0.38.0
+
 Wed, 07 Dec 2022 17:21:52 GMT
 
 ### Patches
@@ -96,12 +113,13 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Update dependencies
 
 ## 0.1.1
+
 Thu, 11 Aug 2022 19:05:23 GMT
 
 _Version update only_
 
 ## 0.1.0
+
 Mon, 13 Jun 2022 23:42:28 GMT
 
 _Initial release_
-
