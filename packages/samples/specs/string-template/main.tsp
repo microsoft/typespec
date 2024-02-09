@@ -1,4 +1,4 @@
-alias myconst = "foobar";
+alias myConst = "foobar";
 
 model Person {
   simple: "Simple ${123} end";
@@ -8,7 +8,7 @@ model Person {
     ${true}
   line
   """;
-  ref: "Ref this alias ${myconst} end";
+  ref: "Ref this alias ${myConst} end";
   template: Template<"custom">;
 }
 
