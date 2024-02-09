@@ -1,5 +1,7 @@
 import {
   DecoratorContext,
+  getService,
+  getSummary,
   Model,
   Namespace,
   Operation,
@@ -128,11 +130,29 @@ export function getExternalDocs(program: Program, entity: Type): ExternalDocs | 
 
 const infoKey = createStateSymbol("info");
 export function $info(context: DecoratorContext, entity: Namespace, model: Model) {
-  const [data, diagnostics] = typespecTypeToJson(model, context.getArgumentTarget(0)!);
+  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo>(
+    model,
+    context.getArgumentTarget(0)!
+  );
   context.program.reportDiagnostics(diagnostics);
+  if (data === undefined) {
+    return;
+  }
   context.program.stateMap(infoKey).set(entity, data);
 }
 
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   return program.stateMap(infoKey).get(entity);
+}
+
+/** Resolve the info entry by merging data specified with `@service`, `@summary` and `@info`. */
+export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
+  const info = getInfo(program, entity);
+  const service = getService(program, entity);
+  return {
+    ...info,
+    title: info?.title ?? service?.title,
+    version: info?.version ?? service?.version,
+    summary: info?.summary ?? getSummary(program, entity),
+  };
 }
