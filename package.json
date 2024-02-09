@@ -9,7 +9,7 @@
     "check-version-mismatch": "syncpack list-mismatches",
     "change": "chronus",
     "clean": "pnpm -r run clean",
-    "cspell": "cspell --no-progress \"**/*.{md,ts,tsx}\" ",
+    "cspell": "cspell --no-progress .",
     "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
     "fix-version-mismatch": "syncpack fix-mismatches",
     "format": "pnpm run prettier --write",
