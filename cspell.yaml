@@ -107,6 +107,7 @@ ignorePaths:
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
   - "**/coverage/**"
+  - "grammars/**"
   - packages/website/build/**
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"
