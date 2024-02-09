@@ -11,4 +11,4 @@ title: "[I] HttpOperationResponse"
 | `responses` | [`HttpOperationResponseContent`](HttpOperationResponseContent.md)[] | Responses contents. |
 | ~~`statusCode`~~ | [`StatusCode`](../type-aliases/StatusCode.md) | **Deprecated**<br />use [statusCodes](HttpOperationResponse.md) |
 | `statusCodes` | `number` \| `"*"` \| [`HttpStatusCodeRange`](HttpStatusCodeRange.md) | Status code or range of status code for the response. |
-| `type` | `Type` | Response typespec type. |
+| `type` | `Type` | Response TypeSpec type. |

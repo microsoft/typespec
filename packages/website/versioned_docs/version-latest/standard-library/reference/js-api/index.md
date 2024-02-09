@@ -1,6 +1,6 @@
 ---
 jsApi: true
-title: "[P] JS Api"
+title: "[P] JS API"
 
 ---
 ## Enumerations
@@ -138,6 +138,7 @@ title: "[P] JS Api"
 - [OperationSignatureReferenceNode](interfaces/OperationSignatureReferenceNode.md)
 - [OperationStatementNode](interfaces/OperationStatementNode.md)
 - [ParseOptions](interfaces/ParseOptions.md)
+- [PatternData](interfaces/PatternData.md)
 - [ProcessedLog](interfaces/ProcessedLog.md)
 - [Program](interfaces/Program.md)
 - [ProjectLocationContext](interfaces/ProjectLocationContext.md)
@@ -456,6 +457,7 @@ title: "[P] JS Api"
 - [getPathComponents](functions/getPathComponents.md)
 - [getPathFromPathComponents](functions/getPathFromPathComponents.md)
 - [getPattern](functions/getPattern.md)
+- [getPatternData](functions/getPatternData.md)
 - [getProjectedName](functions/getProjectedName.md)
 - [getProjectedNames](functions/getProjectedNames.md)
 - [getProperty](functions/getProperty.md)

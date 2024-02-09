@@ -7,7 +7,8 @@ title: "[F] $pattern"
 $pattern(
    context, 
    target, 
-   pattern): void
+   pattern, 
+   validationMessage?): void
 ```
 
 ## Parameters
@@ -17,6 +18,7 @@ $pattern(
 | `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |
 | `target` | [`ModelProperty`](../interfaces/ModelProperty.md) \| [`Scalar`](../interfaces/Scalar.md) |
 | `pattern` | `string` |
+| `validationMessage`? | `string` |
 
 ## Returns
 

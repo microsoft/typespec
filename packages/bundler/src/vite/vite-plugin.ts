@@ -40,7 +40,7 @@ export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plug
         await watchBundleLibrary(config.root, library, (bundle) => {
           bundles[library] = bundle;
           definitions[library] = bundle.definition;
-          server.ws.send({ type: "full-reload" });
+          server.hot.send({ type: "full-reload" });
         });
       }
 

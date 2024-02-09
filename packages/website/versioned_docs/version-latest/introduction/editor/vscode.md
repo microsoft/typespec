@@ -4,16 +4,7 @@ title: TypeSpec VSCode extension
 
 ## Installation
 
-:::note
-Extension is not available yet in the marketplace and must be installed via the command line.
-:::
-
-```bash
-tsp code install
-
-# For VSCode insiders
-tsp code install --insiders
-```
+Install the extension via the Visual Studio Code extension manager https://marketplace.visualstudio.com/items?itemName=typespec.typespec-vscode
 
 ## Configure
 

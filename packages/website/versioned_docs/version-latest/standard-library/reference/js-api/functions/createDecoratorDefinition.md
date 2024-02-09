@@ -27,4 +27,4 @@ createDecoratorDefinition<T, P, S>(definition): DecoratorValidator<T, P, S>
 
 ## Deprecated
 
-use extern dec definition in typespec instead.
+use extern dec definition in TypeSpec instead.

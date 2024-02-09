@@ -7,7 +7,7 @@ title: Releases
 
 ## Package versioning strategy
 
-TypeSpec is not stable yet, all packages are released with `0.` major version. Each minor version might have some breaking changes to the typespec language, library API or both. Those are documented [here](../release-notes).
+TypeSpec is not stable yet, all packages are released with `0.` major version. Each minor version might have some breaking changes to the TypeSpec language, library API or both. Those are documented [here](../release-notes).
 
 Every change to the `main` branch is automatically published under the npm `@next` tag.
 
