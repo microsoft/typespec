@@ -56,6 +56,10 @@ export async function getCompilerOptions(
       }),
     })
   );
+  if (args["no-emit"]) {
+    resolvedOptions.noEmit = true;
+  }
+
   return diagnostics.wrap(
     omitUndefined({
       ...resolvedOptions,
