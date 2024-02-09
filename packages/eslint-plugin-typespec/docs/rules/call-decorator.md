@@ -10,7 +10,7 @@ Calling the decorator function directly can result in diagnostics with incorrect
 
 ```jsonc
 {
-  "@typespec/call-decorator": "warn"
+  "@typespec/call-decorator": "warn",
 }
 ```
 
