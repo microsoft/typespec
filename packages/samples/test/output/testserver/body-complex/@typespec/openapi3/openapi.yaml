@@ -512,7 +512,7 @@ components:
           type: string
           description: Name property with a very long description that does not fit on a single line and a line break.
         color:
-          $ref: '#/components/schemas/CMYKColors'
+          $ref: '#/components/schemas/Colors'
     BooleanWrapper:
       type: object
       required:
@@ -531,7 +531,7 @@ components:
         field:
           type: string
           format: byte
-    CMYKColors:
+    Colors:
       type: string
       enum:
         - cyan

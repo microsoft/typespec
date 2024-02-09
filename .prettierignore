@@ -8,7 +8,7 @@
 **/.docusaurus/
 common/temp/
 common/scripts/
-common/changes/
+.chronus/changes/
 
 # Pnpm lock file
 pnpm-lock.yaml

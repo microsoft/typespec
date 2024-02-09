@@ -120,7 +120,7 @@ enum OAuth2FlowType {
   @doc("authorization code flow")
   authorizationCode,
 
-  @doc("implcit flow")
+  @doc("implicit flow")
   implicit,
 
   @doc("password flow")
