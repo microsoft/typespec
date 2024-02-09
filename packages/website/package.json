@@ -34,6 +34,8 @@
     "@fluentui/react-components": "~9.46.4",
     "@fluentui/react-icons": "^2.0.226",
     "@mdx-js/react": "^3.0.0",
+    "@microsoft/1ds-core-js": "^3.2.16",
+    "@microsoft/1ds-post-js": "^3.2.16",
     "@typespec/playground": "workspace:~",
     "clsx": "^2.1.0",
     "es-module-shims": "~1.8.2",

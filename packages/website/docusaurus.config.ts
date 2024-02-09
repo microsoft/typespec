@@ -82,7 +82,13 @@ const config: Config = {
       type: "module",
       async: true,
     },
+    {
+      src: "1ds-test.js",
+      type: "module",
+      async: true,
+    },
   ],
+  clientModules: [require.resolve("./src/1ds")],
   headTags: [
     {
       tagName: "script",
