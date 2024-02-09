@@ -150,12 +150,16 @@ export function getInfo(program: Program, entity: Namespace): AdditionalInfo | u
 export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   const info = getInfo(program, entity);
   const service = getService(program, entity);
-  return {
+  return omitUndefined({
     ...info,
     title: info?.title ?? service?.title,
     // eslint-disable-next-line deprecation/deprecation
     version: info?.version ?? service?.version,
     summary: info?.summary ?? getSummary(program, entity),
     description: info?.description ?? getDoc(program, entity),
-  };
+  });
+}
+
+function omitUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }

@@ -220,12 +220,13 @@ function createOAPIEmitter(
 
     const auth = processAuth(service.type);
 
+    const info = resolveInfo(program, service.type);
     root = {
       openapi: "3.0.0",
       info: {
         title: "(title)",
-        version: "0000-00-00",
-        ...resolveInfo(program, service.type),
+        ...info,
+        version: version ?? info?.version ?? "0.0.0",
       },
       externalDocs: getExternalDocs(program, service.type),
       tags: [],
