@@ -92,7 +92,7 @@ describe("cli", () => {
 
   describe("compiling spec with warning", () => {
     it("logs warning and succeed", async () => {
-      const { stdout } = await execCliSuccess(["compile", "."], {
+      const { stdout } = await execCliSuccess(["compile", ".", "--pretty", "false"], {
         cwd: getScenarioDir("warn"),
       });
 
@@ -103,9 +103,12 @@ describe("cli", () => {
     });
 
     it("logs warning as error(and fail) when using --warn-as-error", async () => {
-      const { stdout } = await execCliFail(["compile", ".", "--warn-as-error"], {
-        cwd: getScenarioDir("warn"),
-      });
+      const { stdout } = await execCliFail(
+        ["compile", ".", "--warn-as-error", "--pretty", "false"],
+        {
+          cwd: getScenarioDir("warn"),
+        }
+      );
       // eslint-disable-next-line no-console
       console.log("Stdout", stdout);
       expect(stdout).toContain("main.tsp:5:8 - error deprecated: Deprecated: Deprecated");
