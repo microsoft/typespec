@@ -75,11 +75,11 @@ import {
 import {
   getExtensions,
   getExternalDocs,
-  getInfo,
   getOpenAPITypeName,
   getParameterKey,
   isDefaultResponse,
   isReadonlyProperty,
+  resolveInfo,
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
@@ -223,10 +223,9 @@ function createOAPIEmitter(
     root = {
       openapi: "3.0.0",
       info: {
-        title: service.title ?? "(title)",
-        version: version ?? service.version ?? "0000-00-00",
-        description: getDoc(program, service.type),
-        ...getInfo(program, service.type),
+        title: "(title)",
+        version: "0000-00-00",
+        ...resolveInfo(program, service.type),
       },
       externalDocs: getExternalDocs(program, service.type),
       tags: [],

@@ -10,6 +10,9 @@ export interface AdditionalInfo {
   /** A short summary of the API. Overrides the `@summary` provided on the service namespace. */
   summary?: string;
 
+  /** A description of the API. Overrides the `@doc` provided on the service namespace. */
+  description?: string;
+
   /** The version of the OpenAPI document (which is distinct from the OpenAPI Specification version or the API implementation version). */
   version?: string;
 
