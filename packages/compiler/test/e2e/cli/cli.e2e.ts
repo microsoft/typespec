@@ -95,6 +95,9 @@ describe("cli", () => {
       const { stdout } = await execCliSuccess(["compile", "."], {
         cwd: getScenarioDir("warn"),
       });
+
+      // eslint-disable-next-line no-console
+      console.log("Stdout", stdout);
       expect(stdout).toContain("main.tsp:5:8 - warning deprecated: Deprecated: Deprecated");
       expect(stdout).toContain("Found 1 warning.");
     });
@@ -103,6 +106,8 @@ describe("cli", () => {
       const { stdout } = await execCliFail(["compile", ".", "--warn-as-error"], {
         cwd: getScenarioDir("warn"),
       });
+      // eslint-disable-next-line no-console
+      console.log("Stdout", stdout);
       expect(stdout).toContain("main.tsp:5:8 - error deprecated: Deprecated: Deprecated");
       expect(stdout).toContain("Found 1 error.");
     });
