@@ -5,10 +5,6 @@
 ### Patch Changes
 
 - 4915d5b: Fix: `required` array on schema wasn't using the value provided by `@encodedName`
-  - @typespec/compiler@0.53.1
-  - @typespec/http@0.53.0
-  - @typespec/openapi@0.53.0
-  - @typespec/versioning@0.53.0
 
 ## 0.53.1
 

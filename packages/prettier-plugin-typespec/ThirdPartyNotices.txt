@@ -8,7 +8,7 @@ original copyright notices and the licenses under which Microsoft received such
 components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
-1. prettier version 3.1.1 (prettier/prettier)
+1. prettier version 3.2.5 (prettier/prettier)
 
 
 %% prettier NOTICES AND INFORMATION BEGIN HERE
@@ -32,7 +32,7 @@ MIT, ISC, BSD-2-Clause, BSD-3-Clause, Apache-2.0
 
 ## Bundled dependencies
 
-### @angular/compiler@v17.0.2
+### @angular/compiler@v17.1.2
 
 > Angular - the compiler library
 
@@ -143,7 +143,7 @@ Author: The Babel Team (https://babel.dev/team)
 
 ----------------------------------------
 
-### @babel/parser@v7.23.5
+### @babel/parser@v7.23.9
 
 > A JavaScript parser
 
@@ -202,7 +202,7 @@ License: MIT
 
 ----------------------------------------
 
-### @glimmer/syntax@v0.85.13
+### @glimmer/syntax@v0.88.1
 
 > Copyright (c) 2015 Tilde, Inc.
 >
@@ -226,7 +226,7 @@ License: MIT
 
 ----------------------------------------
 
-### @glimmer/util@v0.85.13
+### @glimmer/util@v0.88.1
 
 > Common utilities used in Glimmer
 
@@ -254,7 +254,7 @@ License: MIT
 
 ----------------------------------------
 
-### @glimmer/wire-format@v0.85.13
+### @glimmer/wire-format@v0.88.1
 
 License: MIT
 
@@ -469,7 +469,7 @@ Author: Alex Bell <alex@bellandwhistle.net>
 
 ----------------------------------------
 
-### @typescript-eslint/types@v6.13.2
+### @typescript-eslint/types@v6.20.0
 
 > Types for the TypeScript-ESTree AST spec
 
@@ -500,7 +500,7 @@ Repository: <https://github.com/typescript-eslint/typescript-eslint.git>
 
 ----------------------------------------
 
-### @typescript-eslint/typescript-estree@v6.13.2
+### @typescript-eslint/typescript-estree@v6.20.0
 
 > A parser that converts TypeScript source code into an ESTree compatible form
 
@@ -536,7 +536,7 @@ Repository: <https://github.com/typescript-eslint/typescript-eslint.git>
 
 ----------------------------------------
 
-### acorn@v8.11.2
+### acorn@v8.11.3
 
 > ECMAScript parser
 
@@ -630,7 +630,7 @@ Author: Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 ----------------------------------------
 
-### angular-html-parser@v5.0.2
+### angular-html-parser@v5.2.0
 
 > A HTML parser extracted from Angular with some modifications
 
@@ -639,19 +639,19 @@ Homepage: <https://github.com/prettier/angular-html-parser/blob/master/packages/
 Author: Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 > MIT License
-> 
+>
 > Copyright (c) Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
-> 
+>
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
 > in the Software without restriction, including without limitation the rights
 > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 > copies of the Software, and to permit persons to whom the Software is
 > furnished to do so, subject to the following conditions:
-> 
+>
 > The above copyright notice and this permission notice shall be included in all
 > copies or substantial portions of the Software.
-> 
+>
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1043,52 +1043,6 @@ Author: Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)
 
 ----------------------------------------
 
-### clone@v1.0.4
-
-> deep cloning of objects and arrays
-
-License: MIT
-Repository: <git://github.com/pvorb/node-clone.git>
-Author: Paul Vorbach <paul@vorba.ch> (http://paul.vorba.ch/)
-Contributors:
- - Blake Miner <miner.blake@gmail.com> (http://www.blakeminer.com/)
- - Tian You <axqd001@gmail.com> (http://blog.axqd.net/)
- - George Stagas <gstagas@gmail.com> (http://stagas.com/)
- - Tobiasz Cudnik <tobiasz.cudnik@gmail.com> (https://github.com/TobiaszCudnik)
- - Pavel Lang <langpavel@phpskelet.org> (https://github.com/langpavel)
- - Dan MacTough (http://yabfog.com/)
- - w1nk (https://github.com/w1nk)
- - Hugh Kennedy (http://twitter.com/hughskennedy)
- - Dustin Diaz (http://dustindiaz.com)
- - Ilya Shaisultanov (https://github.com/diversario)
- - Nathan MacInnes <nathan@macinn.es> (http://macinn.es/)
- - Benjamin E. Coe <ben@npmjs.com> (https://twitter.com/benjamincoe)
- - Nathan Zadoks (https://github.com/nathan7)
- - Róbert Oroszi <robert+gh@oroszi.net> (https://github.com/oroce)
- - Aurélio A. Heckert (http://softwarelivre.org/aurium)
- - Guy Ellis (http://www.guyellisrocks.com/)
-
-> Copyright © 2011-2015 Paul Vorbach <paul@vorba.ch>
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy of
-> this software and associated documentation files (the “Software”), to deal in
-> the Software without restriction, including without limitation the rights to
-> use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-> the Software, and to permit persons to whom the Software is furnished to do so,
-> subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all
-> copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-> FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-> COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-> IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, OUT OF OR IN CONNECTION WITH THE
-> SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----------------------------------------
-
 ### collapse-white-space@v1.0.6
 
 > Replace multiple white-space characters with a single space
@@ -1243,39 +1197,6 @@ Contributors:
 > The MIT License (MIT)
 >
 > Copyright (c) 2015-present, Jon Schlinkert.
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in
-> all copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-> THE SOFTWARE.
-
-----------------------------------------
-
-### defaults@v1.0.4
-
-> merge single level defaults over a config object
-
-License: MIT
-Repository: <git://github.com/sindresorhus/node-defaults.git>
-Author: Elijah Insua <tmpvar@gmail.com>
-
-> The MIT License (MIT)
->
-> Copyright (c) 2022 Sindre Sorhus
-> Copyright (c) 2015 Elijah Insua
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
@@ -1454,7 +1375,7 @@ Author: Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
 
 ----------------------------------------
 
-### espree@v9.6.1
+### espree@v10.0.0
 
 > An Esprima-compatible JavaScript parser built on Acorn
 
@@ -1815,7 +1736,7 @@ Contributors:
 
 ----------------------------------------
 
-### flow-parser@v0.223.3
+### flow-parser@v0.226.0
 
 > JavaScript parser written in OCaml. Produces ESTree AST
 
@@ -2029,7 +1950,7 @@ Author: Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
 
 ----------------------------------------
 
-### ignore@v5.3.0
+### ignore@v5.3.1
 
 > Ignore is a manager and filter for .gitignore rules, the one used by eslint, gitbook and many others.
 
@@ -2917,25 +2838,6 @@ Author: Isaac Z. Schlueter <i@izs.me>
 
 ----------------------------------------
 
-### map-age-cleaner@v0.1.3
-
-> Automatically cleanup expired items in a Map
-
-License: MIT
-Author: Sam Verschueren <sam.verschueren@gmail.com> (github.com/SamVerschueren)
-
-> MIT License
->
-> Copyright (c) Sam Verschueren <sam.verschueren@gmail.com> (github.com/SamVerschueren)
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----------------------------------------
-
 ### markdown-escapes@v1.0.4
 
 > List of escapable characters in markdown
@@ -2967,25 +2869,6 @@ Contributors:
 > CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 > TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-----------------------------------------
-
-### mem@v9.0.2
-
-> Memoize functions - An optimization used to speed up consecutive function calls by caching the result of calls with identical input
-
-License: MIT
-Author: Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-
-> MIT License
->
-> Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----------------------------------------
 
@@ -3087,25 +2970,6 @@ Contributors:
 > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 > THE SOFTWARE.
-
-----------------------------------------
-
-### mimic-fn@v4.0.0
-
-> Make a function mimic another one
-
-License: MIT
-Author: Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
-
-> MIT License
->
-> Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com)
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ----------------------------------------
 
@@ -3249,37 +3113,6 @@ Author: Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
 > WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 > ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 > IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-
-----------------------------------------
-
-### p-defer@v1.0.0
-
-> Create a deferred promise
-
-License: MIT
-Author: Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
-
-> The MIT License (MIT)
->
-> Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
->
-> Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
-> in the Software without restriction, including without limitation the rights
-> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-> copies of the Software, and to permit persons to whom the Software is
-> furnished to do so, subject to the following conditions:
->
-> The above copyright notice and this permission notice shall be included in
-> all copies or substantial portions of the Software.
->
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-> THE SOFTWARE.
 
 ----------------------------------------
 
@@ -3533,7 +3366,7 @@ Author: typicode
 
 ----------------------------------------
 
-### postcss@v8.4.32
+### postcss@v8.4.33
 
 > Tool for transforming styles with JS plugins
 
@@ -4319,7 +4152,7 @@ Author: Josh Goldberg <npm@joshuakgoldberg.com>
 
 ----------------------------------------
 
-### typescript@v5.3.2
+### typescript@v5.3.3
 
 > TypeScript is a language for application scale JavaScript development
 
@@ -4835,23 +4668,23 @@ Author: Ika <ikatyang@gmail.com> (https://github.com/ikatyang)
 
 ----------------------------------------
 
-### wcwidth@v1.0.1
+### wcwidth.js@v1.1.2
 
-> Port of C's wcwidth() and wcswidth()
+> a javascript porting of C's wcwidth()
 
 License: MIT
-Homepage: <https://github.com/timoxley/wcwidth#readme>
-Repository: <git+https://github.com/timoxley/wcwidth.git>
-Author: Tim Oxley
+Homepage: <http://code.woong.org/wcwidth.js>
+Repository: <https://github.com/mycoboco/wcwidth.js.git>
+Author: Woong Jun <woong.jun@gmail.com> (http://code.woong.org/)
 Contributors:
- - Woong Jun <woong.jun@gmail.com> (http://code.woong.org/)
+ - Tim Oxley <secoif@gmail.com> (http://campjs.com/)
 
-> wcwidth.js: JavaScript Portng of Markus Kuhn's wcwidth() Implementation
-> =======================================================================
+> wcwidth.js: a javascript portng of C's wcwidth()
+> ================================================
 >
-> Copyright (C) 2012 by Jun Woong.
+> Copyright (C) 2012-2014 by Woong Jun and Tim Oxley.
 >
-> This package is a JavaScript porting of `wcwidth()` implementation
+> This package is a javascript porting of `wcwidth()` implementation
 > [by Markus Kuhn](http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c).
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -4869,12 +4702,12 @@ Contributors:
 > INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
 > FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR
 > OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-> EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-> PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-> BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-> IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-> ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-> POSSIBILITY OF SUCH DAMAGE.
+> EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+> OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+> INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+> CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+> IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+> OF SUCH DAMAGE.
 
 ----------------------------------------
 

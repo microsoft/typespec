@@ -87,7 +87,8 @@ describe("Init templates e2e tests", () => {
     return {
       directory: targetFolder,
       checkCommand: async (command: string, args: string[] = [], options: SpawnOptions = {}) => {
-        const result = await execAsync(command, args, {
+        const xplatCmd = process.platform === "win32" ? `${command}.cmd` : command;
+        const result = await execAsync(xplatCmd, args, {
           ...options,
           cwd: targetFolder,
         });

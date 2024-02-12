@@ -21,10 +21,10 @@ model Basic {
   @doc("Name property with a very long description that does not fit on a single line and a line break.")
   name: string;
 
-  color: CMYKColors;
+  color: Colors;
 }
 
-enum CMYKColors {
+enum Colors {
   cyan,
   Magenta,
   YELLOW,
