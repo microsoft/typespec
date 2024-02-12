@@ -763,7 +763,7 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.1
+        specifier: workspace:~0.53.2
         version: link:../openapi3
       '@typespec/protobuf':
         specifier: workspace:~0.53.0
@@ -896,7 +896,7 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.1
+        specifier: workspace:~0.53.2
         version: link:../openapi3
       '@typespec/playground':
         specifier: workspace:~0.1.0
@@ -1117,7 +1117,7 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.1
+        specifier: workspace:~0.53.2
         version: link:../openapi3
       '@typespec/rest':
         specifier: workspace:~0.53.0
@@ -1457,7 +1457,7 @@ importers:
         specifier: workspace:~0.53.0
         version: link:../openapi
       '@typespec/openapi3':
-        specifier: workspace:~0.53.1
+        specifier: workspace:~0.53.2
         version: link:../openapi3
       '@typespec/playground-website':
         specifier: workspace:*
