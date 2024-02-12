@@ -4,6 +4,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "e2e": "node ./e2e-tests.js"
+    "test:e2e": "node ./e2e-tests.js"
   }
 }

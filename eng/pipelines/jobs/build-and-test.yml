@@ -13,6 +13,9 @@ steps:
   - ${{ if ne(variables['Agent.OS'], 'Windows_NT') }}:
       - template: ../templates/install-browsers.yml
 
+  - script: pnpm run check-version-mismatch
+    displayName: Check version mismatch
+
   - template: ../templates/build.yml
 
   - script: pnpm run test-official

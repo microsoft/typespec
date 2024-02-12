@@ -1,8 +1,18 @@
 # Change Log - @typespec/protobuf
 
+## 0.53.0
+
+### Minor Changes
+
+- a3d6acf: Added support for template name expansion to the protobuf emitter.
+
+### Patch Changes
+
+
 This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
+
 Wed, 24 Jan 2024 05:46:53 GMT
 
 ### Updates
@@ -11,16 +21,19 @@ Wed, 24 Jan 2024 05:46:53 GMT
 - Update dependencies
 
 ## 0.51.0
+
 Wed, 06 Dec 2023 19:40:58 GMT
 
 _Version update only_
 
 ## 0.50.0
+
 Wed, 08 Nov 2023 00:07:17 GMT
 
 _Version update only_
 
 ## 0.49.0
+
 Wed, 11 Oct 2023 23:31:35 GMT
 
 ### Updates
@@ -29,6 +42,7 @@ Wed, 11 Oct 2023 23:31:35 GMT
 - Update dependencies
 
 ## 0.48.0
+
 Tue, 12 Sep 2023 21:47:11 GMT
 
 ### Updates
@@ -37,11 +51,13 @@ Tue, 12 Sep 2023 21:47:11 GMT
 - Automatically convert empty operation parameters into a reference to 'google.protobuf.Empty' instead of synthesizing an empty model.
 
 ## 0.47.0
+
 Tue, 08 Aug 2023 22:32:10 GMT
 
 _Version update only_
 
 ## 0.46.0
+
 Tue, 11 Jul 2023 22:06:00 GMT
 
 ### Updates
@@ -49,6 +65,7 @@ Tue, 11 Jul 2023 22:06:00 GMT
 - Update dependencies
 
 ## 0.44.0
+
 Tue, 06 Jun 2023 22:44:16 GMT
 
 ### Minor changes
@@ -65,9 +82,9 @@ Tue, 06 Jun 2023 22:44:16 GMT
 - Fixed a test harness issue requiring unnecessary re-recording of protobuf tests.
 
 ## 0.43.1
+
 Wed, 10 May 2023 21:24:00 GMT
 
 ### Patches
 
 - Update compiler to be a peer dependency
-

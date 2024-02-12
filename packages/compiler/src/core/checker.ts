@@ -3486,6 +3486,9 @@ export function createChecker(program: Program): Checker {
       const [valid] = isStringTemplateSerializable(type);
       return valid;
     }
+    if (type.kind === "UnionVariant") {
+      return isValueType(type.type);
+    }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
   }

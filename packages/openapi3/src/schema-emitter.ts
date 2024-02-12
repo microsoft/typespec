@@ -268,7 +268,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
 
       if (!this.#metadataInfo.isOptional(prop, visibility)) {
-        requiredProps.push(prop.name);
+        const encodedName = resolveEncodedName(
+          this.emitter.getProgram(),
+          prop,
+          this.#getContentType()
+        );
+
+        requiredProps.push(encodedName);
       }
     }
 
@@ -335,6 +341,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const refSchema = this.emitter.emitTypeReference(prop.type, {
       referenceContext: isMultipart ? { contentType: "application/json" } : {},
     });
+
     if (refSchema.kind !== "code") {
       throw new Error("Unexpected non-code result from emit reference");
     }
@@ -342,10 +349,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const isRef = refSchema.value instanceof Placeholder || "$ref" in refSchema.value;
 
     const schema = this.#applyEncoding(prop, refSchema.value as any);
+
     // Apply decorators on the property to the type's schema
     const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(prop, {});
     if (prop.default) {
-      additionalProps.default = this.#getDefaultValue(prop.type, prop.default);
+      additionalProps.default = getDefaultValue(program, prop.type, prop.default);
     }
 
     if (isReadonlyProperty(program, prop)) {
@@ -370,10 +378,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         delete schema.anyOf;
       }
 
-      const merged = ensureObjectBuilder(schema);
+      const merged = new ObjectBuilder(schema);
       for (const [key, value] of Object.entries(additionalProps)) {
         merged.set(key, value);
       }
+
       return merged;
     }
   }
@@ -450,11 +459,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.#createDeclaration(union, name, schema);
   }
 
-  #unionSchema(union: Union) {
+  #unionSchema(union: Union): ObjectBuilder<OpenAPI3Schema> {
     const program = this.emitter.getProgram();
     if (union.variants.size === 0) {
       reportDiagnostic(program, { code: "empty-union", target: union });
-      return {};
+      return new ObjectBuilder({});
     }
     const variants = Array.from(union.variants.values());
     const literalVariantEnumByType: Record<string, any> = {};
@@ -493,7 +502,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // This union is equivalent to just `null` but OA3 has no way to specify
         // null as a value, so we throw an error.
         reportDiagnostic(program, { code: "union-null", target: union });
-        return {};
+        return new ObjectBuilder({});
       } else {
         // completely empty union can maybe only happen with bugs?
         compilerAssert(false, "Attempting to emit an empty union");
@@ -502,27 +511,41 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     if (schemaMembers.length === 1) {
       // we can just return the single schema member after applying nullable
-      let schema = schemaMembers[0].schema;
+      const schema = schemaMembers[0].schema;
       const type = schemaMembers[0].type;
+      const additionalProps: Partial<OpenAPI3Schema> = this.#applyConstraints(union, {});
 
       if (nullable) {
-        if (schema instanceof Placeholder || "$ref" in schema) {
-          // but we can't make a ref "nullable", so wrap in an allOf (for models)
-          // or oneOf (for all other types)
-          if (type && type.kind === "Model") {
-            return B.object({ type: "object", allOf: B.array([schema]), nullable: true });
-          } else {
-            return B.object({ oneOf: B.array([schema]), nullable: true });
-          }
-        } else {
-          schema = { ...schema, nullable: true };
-        }
+        additionalProps.nullable = true;
       }
 
-      return schema;
+      if (Object.keys(additionalProps).length === 0) {
+        return new ObjectBuilder(schema);
+      } else {
+        if (
+          (schema instanceof Placeholder || "$ref" in schema) &&
+          !(type && shouldInline(program, type))
+        ) {
+          if (type && type.kind === "Model") {
+            return new ObjectBuilder({
+              type: "object",
+              allOf: B.array([schema]),
+              ...additionalProps,
+            });
+          } else {
+            return new ObjectBuilder({ oneOf: B.array([schema]), ...additionalProps });
+          }
+        } else {
+          const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
+          for (const [key, value] of Object.entries(additionalProps)) {
+            merged.set(key, value);
+          }
+          return merged;
+        }
+      }
     }
 
-    const schema: any = {
+    const schema: OpenAPI3Schema = {
       [ofType]: schemaMembers.map((m) => m.schema),
     };
 
@@ -581,51 +604,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       for (const key of extensions.keys()) {
         emitObject[key] = extensions.get(key);
       }
-    }
-  }
-
-  #getDefaultValue(type: Type, defaultType: Type): any {
-    const program = this.emitter.getProgram();
-
-    switch (defaultType.kind) {
-      case "String":
-        return defaultType.value;
-      case "Number":
-        return defaultType.value;
-      case "Boolean":
-        return defaultType.value;
-      case "Tuple":
-        compilerAssert(
-          type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
-          "setting tuple default to non-tuple value"
-        );
-
-        if (type.kind === "Tuple") {
-          return defaultType.values.map((defaultTupleValue, index) =>
-            this.#getDefaultValue(type.values[index], defaultTupleValue)
-          );
-        } else {
-          return defaultType.values.map((defaultTuplevalue) =>
-            this.#getDefaultValue(type.indexer!.value, defaultTuplevalue)
-          );
-        }
-
-      case "Intrinsic":
-        return isNullType(defaultType)
-          ? null
-          : reportDiagnostic(program, {
-              code: "invalid-default",
-              format: { type: defaultType.kind },
-              target: defaultType,
-            });
-      case "EnumMember":
-        return defaultType.value ?? defaultType.name;
-      default:
-        reportDiagnostic(program, {
-          code: "invalid-default",
-          format: { type: defaultType.kind },
-          target: defaultType,
-        });
     }
   }
 
@@ -820,7 +798,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       });
     }
 
-    return new ObjectBuilder(schema);
+    return new ObjectBuilder<OpenAPI3Schema>(schema);
   }
 
   #inlineType(type: Type, schema: ObjectBuilder<any>) {
@@ -886,7 +864,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       );
       return newTarget;
     }
-    return new ObjectBuilder(target);
+    const result = new ObjectBuilder(target);
+    return result;
   }
   #mergeFormatAndEncoding(
     format: string | undefined,
@@ -947,16 +926,6 @@ function includeDerivedModel(model: Model): boolean {
   );
 }
 
-function ensureObjectBuilder<
-  T extends Record<string, unknown> | Placeholder<Record<string, unknown>> | undefined,
->(type: T | ObjectBuilder<T>): ObjectBuilder<T> {
-  if (type instanceof ObjectBuilder) {
-    return type;
-  } else {
-    return new ObjectBuilder(type);
-  }
-}
-
 const B = {
   array: <T>(items: T[]): ArrayBuilder<T> => {
     const builder = new ArrayBuilder<T>();
@@ -973,3 +942,48 @@ const B = {
     return builder;
   },
 } as const;
+
+export function getDefaultValue(program: Program, type: Type, defaultType: Type): any {
+  switch (defaultType.kind) {
+    case "String":
+      return defaultType.value;
+    case "Number":
+      return defaultType.value;
+    case "Boolean":
+      return defaultType.value;
+    case "Tuple":
+      compilerAssert(
+        type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
+        "setting tuple default to non-tuple value"
+      );
+
+      if (type.kind === "Tuple") {
+        return defaultType.values.map((defaultTupleValue, index) =>
+          getDefaultValue(program, type.values[index], defaultTupleValue)
+        );
+      } else {
+        return defaultType.values.map((defaultTuplevalue) =>
+          getDefaultValue(program, type.indexer!.value, defaultTuplevalue)
+        );
+      }
+
+    case "Intrinsic":
+      return isNullType(defaultType)
+        ? null
+        : reportDiagnostic(program, {
+            code: "invalid-default",
+            format: { type: defaultType.kind },
+            target: defaultType,
+          });
+    case "EnumMember":
+      return defaultType.value ?? defaultType.name;
+    case "UnionVariant":
+      return getDefaultValue(program, type, defaultType.type);
+    default:
+      reportDiagnostic(program, {
+        code: "invalid-default",
+        format: { type: defaultType.kind },
+        target: defaultType,
+      });
+  }
+}

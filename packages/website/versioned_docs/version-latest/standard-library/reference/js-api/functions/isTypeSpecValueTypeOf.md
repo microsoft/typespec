@@ -7,7 +7,7 @@ title: "[F] isTypeSpecValueTypeOf"
 isTypeSpecValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 ```
 
-Check if the given target is of any of the typespec types.
+Check if the given target is of any of the TypeSpec types.
 
 ## Type parameters
 
@@ -20,7 +20,7 @@ Check if the given target is of any of the typespec types.
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `target` | [`TypeSpecValue`](../type-aliases/TypeSpecValue.md) | Target to validate. |
-| `expectedType` | `K` \| readonly `K`[] | One or multiple allowed typespec types. |
+| `expectedType` | `K` \| readonly `K`[] | One or multiple allowed TypeSpec types. |
 
 ## Returns
 
