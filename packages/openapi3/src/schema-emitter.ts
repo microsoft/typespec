@@ -268,7 +268,13 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       }
 
       if (!this.#metadataInfo.isOptional(prop, visibility)) {
-        requiredProps.push(prop.name);
+        const encodedName = resolveEncodedName(
+          this.emitter.getProgram(),
+          prop,
+          this.#getContentType()
+        );
+
+        requiredProps.push(encodedName);
       }
     }
 
