@@ -2197,6 +2197,7 @@ export type LinterRuleDiagnosticReportWithoutTarget<
   M extends keyof T = "default",
 > = {
   messageId?: M;
+  codefixes?: CodeFix[];
 } & LinterRuleDiagnosticFormat<T, M>;
 
 export type LinterRuleDiagnosticReport<
