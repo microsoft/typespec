@@ -36,8 +36,6 @@ export function getCommentAtPosition(script: TypeSpecScriptNode, pos: number): C
 
 /**
  * Adjust the given postion backwards before any trivia.
- *
- * @internal
  */
 export function getPositionBeforeTrivia(script: TypeSpecScriptNode, pos: number): number {
   if (!script.parseOptions.comments) {
