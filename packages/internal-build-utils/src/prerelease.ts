@@ -76,7 +76,8 @@ async function getPackages(
  */
 function updateDependencyVersions(
   packageManifest: PackageJson,
-  updatedPackages: Record<string, BumpManifest>
+  updatedPackages: Record<string, BumpManifest>,
+  prereleaseTag: string = "dev"
 ) {
   const clone: PackageJson = {
     ...packageManifest,
@@ -89,7 +90,7 @@ function updateDependencyVersions(
         const updatedPackage = updatedPackages[name];
         if (updatedPackage) {
           // Loose dependency accept anything above the last release. This make sure that preview release of only one package need to be bumped without needing all the other as well.
-          dependencies[name] = getDevVersionRange(updatedPackage);
+          dependencies[name] = getPrereleaseVersionRange(updatedPackage, prereleaseTag);
           // change to this line to have strict dependency for preview versions
           // dependencies[name] = `~${updatedPackage.newVersion}`;
         } else {
@@ -103,8 +104,8 @@ function updateDependencyVersions(
   return clone;
 }
 
-function getDevVersionRange(manifest: BumpManifest) {
-  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-dev <${manifest.nextVersion}`;
+function getPrereleaseVersionRange(manifest: BumpManifest, prereleaseTag: string) {
+  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
 }
 
 function getDevVersion(version: string, changeCount: number) {
@@ -209,7 +210,8 @@ export async function bumpVersionsForPR(
   }
 
   for (const { packageJsonPath, manifest } of Object.values(updatedManifests)) {
-    await writeFile(packageJsonPath, JSON.stringify(manifest, null, 2));
+    const newManifest = updateDependencyVersions(manifest, updatedManifests, "0");
+    await writeFile(packageJsonPath, JSON.stringify(newManifest, null, 2));
   }
 }
 
