@@ -118,13 +118,13 @@ stages:
             env:
               NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
-  - stage: publish-vscode
+  - stage: publish_vscode
     displayName: Publish VSCode extension
     dependsOn: build
     jobs:
       - template: ./jobs/publish-vscode.yml
 
-  - stage: publish-vs
+  - stage: publish_vs
     displayName: Publish VS extension
     dependsOn: build
     jobs:
