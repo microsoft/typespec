@@ -33,11 +33,6 @@ jobs:
 
       - template: ../templates/install.yml
 
-      - template: ../templates/sign-vsix.yml
-        parameters:
-          path: $(Pipeline.Workspace)/vs-extension
-          pattern: Microsoft.Typespec.VS.vsix
-
       - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
         displayName: Publish
         workingDirectory: packages/typespec-vscode
