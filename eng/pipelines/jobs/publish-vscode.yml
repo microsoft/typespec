@@ -6,6 +6,7 @@ jobs:
       vmImage: ubuntu-20.04
 
     steps:
+      - checkout: none
       - download: current
         artifact: vscode-extension-unsigned
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
