@@ -1,7 +1,29 @@
 jobs:
+  - job: sign_vs
+    displayName: Sign VS extension
+    dependsOn: npm_stable
+    pool:
+      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
+
+    steps:
+      - download: current
+        artifact: vs-extension-unsigned
+        displayName: Download VS extension(.vsix) from pipeline artifacts
+
+
+      - template: ../templates/sign-vsix.yml
+        parameters:
+          path: $(Pipeline.Workspace)/vs-extension-unsigned
+          pattern: *.vsix
+
+      - publish: vs-extension-unsigned
+        artifact: vs-extension-signed
+        displayName: Publish signed VS extension
+
   - job: publish_vs
     displayName: Publish VS extension
-    dependsOn: npm_stable
+    dependsOn: sign_vs
     pool:
       name: azsdk-pool-mms-win-2022-general
       vmImage: windows-2022
@@ -10,6 +32,11 @@ jobs:
       - download: current
         artifact: vs-extension
         displayName: Download VS extension(.vsix) from pipeline artifacts
+
+      - template: ../templates/sign-vsix.yml
+        parameters:
+          path: $(Pipeline.Workspace)/vs-extension
+          pattern: Microsoft.Typespec.VS.vsix
 
       - pwsh: |
           Install-Module VSSetup -Force

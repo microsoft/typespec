@@ -1,6 +1,6 @@
 jobs:
-  - job: publish_vscode
-    displayName: Publish VSCode extension
+  - job: sign_vscode
+    displayName: Sign VSCode extension
     dependsOn: npm_stable
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
@@ -8,10 +8,37 @@ jobs:
 
     steps:
       - download: current
-        artifact: vscode-extension
+        artifact: vscode-extension-unsigned
+        displayName: Download VSCode extension(.vsix) from pipeline artifacts
+
+
+      - template: ../templates/sign-vsix.yml
+        parameters:
+          path: $(Pipeline.Workspace)/vs-extension-unsigned
+          pattern: *.vsix
+
+      - publish: vscode-extension-unsigned
+        artifact: vscode-extension-signed
+        displayName: Publish signed VSCode extension
+
+  - job: publish_vscode
+    displayName: Publish VSCode extension
+    dependsOn: sign_vscode
+    pool:
+      name: azsdk-pool-mms-ubuntu-2004-general
+      vmImage: ubuntu-20.04
+
+    steps:
+      - download: current
+        artifact: vscode-extension-signed
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
 
       - template: ../templates/install.yml
+
+      - template: ../templates/sign-vsix.yml
+        parameters:
+          path: $(Pipeline.Workspace)/vs-extension
+          pattern: Microsoft.Typespec.VS.vsix
 
       - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension/typespec-vscode-*.vsix
         displayName: Publish

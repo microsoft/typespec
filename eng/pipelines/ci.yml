@@ -52,7 +52,7 @@ jobs:
           TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
       - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
-        artifact: vscode-extension
+        artifact: vscode-extension-unsigned
         displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
       - task: CopyFiles@2
@@ -62,7 +62,7 @@ jobs:
           TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
 
       - publish: $(Build.ArtifactStagingDirectory)/vs-extension
-        artifact: vs-extension
+        artifact: vs-extension-unsigned
         displayName: Publish VS extension(.vsix) as pipeline artifacts
 
       - task: AzureCLI@1
