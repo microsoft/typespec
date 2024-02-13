@@ -50,6 +50,5 @@ jobs:
             exit 1
           }
         displayName: Publish
-        workingDirectory: packages/typespec-vs
         env:
           VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
