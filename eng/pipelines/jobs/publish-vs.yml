@@ -28,8 +28,6 @@ jobs:
       vmImage: windows-2022
 
     steps:
-      - checkout: none
-
       - download: current
         artifact: vs-extension-signed
         displayName: Download VS extension(.vsix) from pipeline artifacts
@@ -50,5 +48,6 @@ jobs:
             exit 1
           }
         displayName: Publish
+        workingDirectory: packages/typespec-vs
         env:
           VSCE_PAT: $(azuresdk-devdiv-openapi-extension-marketplace-devops-pat)
