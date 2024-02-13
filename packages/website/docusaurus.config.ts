@@ -83,7 +83,7 @@ const config: Config = {
       async: true,
     },
     {
-      src: "1ds-test.js",
+      src: "1ds-init.js",
       type: "module",
       async: true,
     },

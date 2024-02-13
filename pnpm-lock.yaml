@@ -1398,12 +1398,6 @@ importers:
       '@mdx-js/react':
         specifier: ^3.0.0
         version: 3.0.0(@types/react@18.2.55)(react@18.2.0)
-      '@microsoft/1ds-core-js':
-        specifier: ^3.2.16
-        version: 3.2.16(tslib@2.6.2)
-      '@microsoft/1ds-post-js':
-        specifier: ^3.2.16
-        version: 3.2.16(tslib@2.6.2)
       '@typespec/playground':
         specifier: workspace:~
         version: link:../playground
@@ -6368,44 +6362,6 @@ packages:
       '@types/mdx': 2.0.11
       '@types/react': 18.2.55
       react: 18.2.0
-    dev: false
-
-  /@microsoft/1ds-core-js@3.2.16(tslib@2.6.2):
-    resolution: {integrity: sha512-bOpnU+64hFFqfYtP31ORX+WM1JXnhBIjrJbG9aklbk9lNlZ/v2ODC4xevSYhgrclXdK5XqqVcdv9S1i4OWsb2g==}
-    dependencies:
-      '@microsoft/applicationinsights-core-js': 2.8.17(tslib@2.6.2)
-      '@microsoft/applicationinsights-shims': 2.0.2
-      '@microsoft/dynamicproto-js': 1.1.11
-    transitivePeerDependencies:
-      - tslib
-    dev: false
-
-  /@microsoft/1ds-post-js@3.2.16(tslib@2.6.2):
-    resolution: {integrity: sha512-y5B9hlHKQFKKS/858rrFhjj5SgF8NYioD7cJcDvP4OHwj7HN61VFrou2tlBOLnNbht3uwxX05NejYdEVW472Ww==}
-    dependencies:
-      '@microsoft/1ds-core-js': 3.2.16(tslib@2.6.2)
-      '@microsoft/applicationinsights-shims': 2.0.2
-      '@microsoft/dynamicproto-js': 1.1.11
-    transitivePeerDependencies:
-      - tslib
-    dev: false
-
-  /@microsoft/applicationinsights-core-js@2.8.17(tslib@2.6.2):
-    resolution: {integrity: sha512-v1UMRkV1dW1ezQqhIcMz4L7TyAvWi5vQ333uKO93UY+UmCZW8frYqmqgxV9uaJjs3IBgr0T7ddp4IkvOTjy1/w==}
-    peerDependencies:
-      tslib: '*'
-    dependencies:
-      '@microsoft/applicationinsights-shims': 2.0.2
-      '@microsoft/dynamicproto-js': 1.1.11
-      tslib: 2.6.2
-    dev: false
-
-  /@microsoft/applicationinsights-shims@2.0.2:
-    resolution: {integrity: sha512-PoHEgsnmcqruLNHZ/amACqdJ6YYQpED0KSRe6J7gIJTtpZC1FfFU9b1fmDKDKtFoUSrPzEh1qzO3kmRZP0betg==}
-    dev: false
-
-  /@microsoft/dynamicproto-js@1.1.11:
-    resolution: {integrity: sha512-gNw9z9LbqLV+WadZ6/MMrWwO3e0LuoUH1wve/1iPsBNbgqeVCiB0EZFNNj2lysxS2gkqoF9hmyVaG3MoM1BkxA==}
     dev: false
 
   /@nodelib/fs.scandir@2.1.5:

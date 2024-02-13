@@ -8,7 +8,7 @@
     // disableReport: true, // Disable reporting when the SDK cannot be downloaded
     // onInit: null, // Once the application insights instance has loaded and initialized this callback function will be called with 1 argument -- the sdk instance (DO NOT ADD anything to the sdk.queue -- As they won't get called)
     cfg:{
-        instrumentationKey:"81dcd948-a4f2-48f3-985c-ed3942c3433c",
+        instrumentationKey:"typespec_io",
         webAnalyticsConfiguration:{}
     },
     ext:[]
