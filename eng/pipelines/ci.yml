@@ -89,7 +89,7 @@ stages:
                   --overwrite
 
   - stage: publish_dev_npm
-    displayName: Publish Dev Version
+    displayName: Publish Dev Packages
     dependsOn: build
     jobs:
       - job: npm_dev
