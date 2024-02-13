@@ -88,8 +88,11 @@ stages:
                   --source "./packages/playground-website/dist/" ^
                   --overwrite
 
+    - stage: publish_dev_npm
+      displayName: Publish Dev Version
+      dependsOn: build
+      jobs:
       - job: npm_dev
-        dependsOn: npm_stable
         displayName: Npm publish dev version
         pool:
           name: azsdk-pool-mms-win-2022-general
