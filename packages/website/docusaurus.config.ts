@@ -88,7 +88,6 @@ const config: Config = {
       async: true,
     },
   ],
-  clientModules: [require.resolve("./src/1ds")],
   headTags: [
     {
       tagName: "script",
