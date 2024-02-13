@@ -88,10 +88,10 @@ stages:
                   --source "./packages/playground-website/dist/" ^
                   --overwrite
 
-    - stage: publish_dev_npm
-      displayName: Publish Dev Version
-      dependsOn: build
-      jobs:
+  - stage: publish_dev_npm
+    displayName: Publish Dev Version
+    dependsOn: build
+    jobs:
       - job: npm_dev
         displayName: Npm publish dev version
         pool:
