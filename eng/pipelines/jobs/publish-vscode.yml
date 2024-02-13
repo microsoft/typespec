@@ -11,11 +11,10 @@ jobs:
         artifact: vscode-extension-unsigned
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
 
-
       - template: ../templates/sign-vsix.yml
         parameters:
           path: $(Pipeline.Workspace)/vs-extension-unsigned
-          pattern: *.vsix
+          pattern: "*.vsix"
 
       - publish: vscode-extension-unsigned
         artifact: vscode-extension-signed
