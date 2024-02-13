@@ -130,7 +130,7 @@ stages:
     jobs:
       - template: ./jobs/publish-vs.yml
 
- - stage: docker
+  - stage: docker
     displayName: Docker
     dependsOn: []
     jobs:
