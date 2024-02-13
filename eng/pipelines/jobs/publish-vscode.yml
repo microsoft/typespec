@@ -15,7 +15,7 @@ jobs:
           path: $(Pipeline.Workspace)/vscode-extension-unsigned
           pattern: "*.vsix"
 
-      - publish: vscode-extension-unsigned
+      - publish: $(Pipeline.Workspace)/vscode-extension-unsigned
         artifact: vscode-extension-signed
         displayName: Publish signed VSCode extension
 
