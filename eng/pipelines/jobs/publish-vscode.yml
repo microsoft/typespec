@@ -1,7 +1,6 @@
 jobs:
   - job: sign_vscode
-    displayName: Sign VSCode extension
-    dependsOn: npm_stable
+    displayName: Sign
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
       vmImage: ubuntu-20.04
@@ -13,7 +12,7 @@ jobs:
 
       - template: ../templates/sign-vsix.yml
         parameters:
-          path: $(Pipeline.Workspace)/vs-extension-unsigned
+          path: $(Pipeline.Workspace)/vscode-extension-unsigned
           pattern: "*.vsix"
 
       - publish: vscode-extension-unsigned
@@ -21,7 +20,7 @@ jobs:
         displayName: Publish signed VSCode extension
 
   - job: publish_vscode
-    displayName: Publish VSCode extension
+    displayName: Publish
     dependsOn: sign_vscode
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
