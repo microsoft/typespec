@@ -30,21 +30,6 @@ export interface AuthenticationOption {
   schemes: HttpAuth[];
 }
 
-export interface HttpServiceAuthentication {
-  /** All the authentication schemes used in this service. Some might only be used in certain operations. */
-  schemes: HttpAuth[]; // Not sure we need `all` prefix
-
-  /** Represent the default authentication */
-  defaultAuth: HttpAuthReference[];
-}
-
-export interface HttpAuthReference {
-  scheme: HttpAuth;
-
-  /** in the case of oauth2  */
-  scopes?: string[];
-}
-
 export type HttpAuth =
   | BasicAuth
   | BearerAuth
