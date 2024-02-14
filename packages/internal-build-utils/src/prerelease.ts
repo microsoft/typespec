@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { NodeChronusHost, loadChronusWorkspace } from "@chronus/chronus";
-import { readChangeDescription, resolveChangeRelativePath } from "@chronus/chronus/change";
+import { readChangeDescriptions } from "@chronus/chronus/change";
 import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
@@ -38,12 +38,7 @@ interface BumpManifest {
  */
 async function getChangeCountPerPackage(workspaceRoot: string) {
   const ws = await loadChronusWorkspace(NodeChronusHost, workspaceRoot);
-  const changelogs = await NodeChronusHost.glob(resolveChangeRelativePath("*"), {
-    baseDir: ws.path,
-  });
-  const changesets = await Promise.all(
-    changelogs.map((x) => readChangeDescription(NodeChronusHost, ws, x))
-  );
+  const changesets = await readChangeDescriptions(NodeChronusHost, ws);
   const changeCounts: Record<string, number> = {};
 
   for (const changeset of changesets) {
