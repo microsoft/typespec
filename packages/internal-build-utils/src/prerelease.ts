@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import getAllChanges from "@changesets/read";
+import { NodeChronusHost, loadChronusWorkspace } from "@chronus/chronus";
+import { readChangeDescriptions } from "@chronus/chronus/change";
 import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
@@ -36,16 +37,17 @@ interface BumpManifest {
  * @returns map of package to number of changes.
  */
 async function getChangeCountPerPackage(workspaceRoot: string) {
-  const changesets = await getAllChanges(workspaceRoot);
+  const ws = await loadChronusWorkspace(NodeChronusHost, workspaceRoot);
+  const changesets = await readChangeDescriptions(NodeChronusHost, ws);
   const changeCounts: Record<string, number> = {};
 
   for (const changeset of changesets) {
-    for (const change of changeset.releases) {
-      if (!(change.name in changeCounts)) {
+    for (const pkgName of changeset.packages) {
+      if (!(pkgName in changeCounts)) {
         // Count all changes that are not "none"
-        changeCounts[change.name] = 0;
+        changeCounts[pkgName] = 0;
       }
-      changeCounts[change.name] += 1;
+      changeCounts[pkgName] += 1;
     }
   }
 
