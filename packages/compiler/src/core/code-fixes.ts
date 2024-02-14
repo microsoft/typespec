@@ -1,8 +1,10 @@
 import type {
+  AppendTextCodeFixEdit,
   CodeFix,
   CodeFixContext,
   CodeFixEdit,
   CompilerHost,
+  FilePos,
   PrependTextCodeFixEdit,
   ReplaceTextCodeFixEdit,
   SourceFile,
@@ -62,10 +64,11 @@ function applyCodeFixEditsOnText(content: string, edits: CodeFixEdit[]): string 
 function createCodeFixContext(): CodeFixContext {
   return {
     prependText,
+    appendText,
     replaceText,
   };
 
-  function prependText(node: SourceLocation, text: string): PrependTextCodeFixEdit {
+  function prependText(node: SourceLocation | FilePos, text: string): PrependTextCodeFixEdit {
     return {
       kind: "prepend-text",
       pos: node.pos,
@@ -73,6 +76,16 @@ function createCodeFixContext(): CodeFixContext {
       file: node.file,
     };
   }
+
+  function appendText(node: SourceLocation | FilePos, text: string): AppendTextCodeFixEdit {
+    return {
+      kind: "append-text",
+      pos: "end" in node ? node.end : node.pos,
+      text,
+      file: node.file,
+    };
+  }
+
   function replaceText(node: SourceLocation, text: string): ReplaceTextCodeFixEdit {
     return {
       kind: "replace-text",

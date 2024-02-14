@@ -1858,15 +1858,34 @@ export interface CodeFix {
   readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
 }
 
+export interface FilePos {
+  readonly pos: number;
+  readonly file: SourceFile;
+}
+
 export interface CodeFixContext {
-  readonly prependText: (location: SourceLocation, text: string) => PrependTextCodeFixEdit;
+  /** Add the given text before the range or pos given. */
+  readonly prependText: (
+    location: SourceLocation | FilePos,
+    text: string
+  ) => PrependTextCodeFixEdit;
+  /** Add the given text after the range or pos given. */
+  readonly appendText: (location: SourceLocation | FilePos, text: string) => AppendTextCodeFixEdit;
+  /** Replace the text at the given range. */
   readonly replaceText: (location: SourceLocation, newText: string) => ReplaceTextCodeFixEdit;
 }
 
-export type CodeFixEdit = PrependTextCodeFixEdit | ReplaceTextCodeFixEdit;
+export type CodeFixEdit = PrependTextCodeFixEdit | AppendTextCodeFixEdit | ReplaceTextCodeFixEdit;
 
 export interface PrependTextCodeFixEdit {
   readonly kind: "prepend-text";
+  readonly text: string;
+  readonly pos: number;
+  readonly file: SourceFile;
+}
+
+export interface AppendTextCodeFixEdit {
+  readonly kind: "append-text";
   readonly text: string;
   readonly pos: number;
   readonly file: SourceFile;
@@ -2034,10 +2053,9 @@ export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default",
-> =
-  T[C][M] extends CallableMessage<infer A>
-    ? { format: Record<A[number], string> }
-    : Record<string, unknown>;
+> = T[C][M] extends CallableMessage<infer A>
+  ? { format: Record<A[number], string> }
+  : Record<string, unknown>;
 
 export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly severity: "warning" | "error";
@@ -2069,8 +2087,9 @@ export interface DiagnosticCreator<T extends { [code: string]: DiagnosticMessage
   ): void;
 }
 
-export type TypeOfDiagnostics<T extends DiagnosticMap<any>> =
-  T extends DiagnosticMap<infer D> ? D : never;
+export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends DiagnosticMap<infer D>
+  ? D
+  : never;
 
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 
@@ -2188,10 +2207,9 @@ export interface LinterRuleContext<DM extends DiagnosticMessages> {
 export type LinterRuleDiagnosticFormat<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
-> =
-  T[M] extends CallableMessage<infer A>
-    ? { format: Record<A[number], string> }
-    : Record<string, unknown>;
+> = T[M] extends CallableMessage<infer A>
+  ? { format: Record<A[number], string> }
+  : Record<string, unknown>;
 
 export type LinterRuleDiagnosticReportWithoutTarget<
   T extends DiagnosticMessages,
