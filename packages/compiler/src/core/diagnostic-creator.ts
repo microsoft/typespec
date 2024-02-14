@@ -6,6 +6,7 @@ import type {
   DiagnosticMessages,
   DiagnosticReport,
 } from "./types.js";
+import { mutate } from "./util.js";
 
 /**
  * Create a new diagnostics creator.
@@ -50,13 +51,16 @@ export function createDiagnosticCreator<T extends { [code: string]: DiagnosticMe
 
     const messageStr = typeof message === "string" ? message : message((diagnostic as any).format);
 
-    return {
+    const result: Diagnostic = {
       code: libraryName ? `${libraryName}/${String(diagnostic.code)}` : diagnostic.code.toString(),
       severity: diagnosticDef.severity,
       message: messageStr,
       target: diagnostic.target,
-      codefixes: diagnostic.codefixes,
     };
+    if (diagnostic.codefixes) {
+      mutate(result).codefixes = diagnostic.codefixes;
+    }
+    return result;
   }
 
   function reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
