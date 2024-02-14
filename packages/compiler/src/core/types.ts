@@ -1865,27 +1865,17 @@ export interface FilePos {
 
 export interface CodeFixContext {
   /** Add the given text before the range or pos given. */
-  readonly prependText: (
-    location: SourceLocation | FilePos,
-    text: string
-  ) => PrependTextCodeFixEdit;
+  readonly prependText: (location: SourceLocation | FilePos, text: string) => InsertTextCodeFixEdit;
   /** Add the given text after the range or pos given. */
-  readonly appendText: (location: SourceLocation | FilePos, text: string) => AppendTextCodeFixEdit;
+  readonly appendText: (location: SourceLocation | FilePos, text: string) => InsertTextCodeFixEdit;
   /** Replace the text at the given range. */
   readonly replaceText: (location: SourceLocation, newText: string) => ReplaceTextCodeFixEdit;
 }
 
-export type CodeFixEdit = PrependTextCodeFixEdit | AppendTextCodeFixEdit | ReplaceTextCodeFixEdit;
+export type CodeFixEdit = InsertTextCodeFixEdit | ReplaceTextCodeFixEdit;
 
-export interface PrependTextCodeFixEdit {
-  readonly kind: "prepend-text";
-  readonly text: string;
-  readonly pos: number;
-  readonly file: SourceFile;
-}
-
-export interface AppendTextCodeFixEdit {
-  readonly kind: "append-text";
+export interface InsertTextCodeFixEdit {
+  readonly kind: "insert-text";
   readonly text: string;
   readonly pos: number;
   readonly file: SourceFile;

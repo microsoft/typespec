@@ -50,6 +50,7 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, createSourceFile, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator } from "../core/path-utils.js";
 import { Program } from "../core/program.js";
@@ -78,7 +79,6 @@ import { resolveCompletion } from "./completion.js";
 import { Commands } from "./constants.js";
 import { createFileService } from "./file-service.js";
 import { createFileSystemCache } from "./file-system-cache.js";
-import { getPositionBeforeTrivia } from "./server-utils.js";
 import { getSymbolStructure } from "./symbol-structure.js";
 import {
   getParameterDocumentation,
@@ -805,7 +805,7 @@ export function createServer(host: ServerHost): Server {
   }
   function convertCodeFixEdit(edit: CodeFixEdit): TextEdit {
     switch (edit.kind) {
-      case "prepend-text":
+      case "insert-text":
         return TextEdit.insert(edit.file.getLineAndCharacterOfPosition(edit.pos), edit.text);
       case "replace-text":
         return TextEdit.replace(getRange(edit, edit.file), edit.text);

@@ -1,5 +1,5 @@
-import { isWhiteSpace } from "../core/charcode.js";
-import { Comment, TypeSpecScriptNode } from "../core/index.js";
+import { isWhiteSpace } from "./charcode.js";
+import type { Comment, TypeSpecScriptNode } from "./types.js";
 
 /**
  * Find the comment that is at given position, if any.

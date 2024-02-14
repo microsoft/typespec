@@ -1,11 +1,10 @@
 import type {
-  AppendTextCodeFixEdit,
   CodeFix,
   CodeFixContext,
   CodeFixEdit,
   CompilerHost,
   FilePos,
-  PrependTextCodeFixEdit,
+  InsertTextCodeFixEdit,
   ReplaceTextCodeFixEdit,
   SourceFile,
   SourceLocation,
@@ -46,7 +45,7 @@ function applyCodeFixEditsOnText(content: string, edits: CodeFixEdit[]): string 
   let last = 0;
   for (const edit of edits) {
     switch (edit.kind) {
-      case "prepend-text":
+      case "insert-text":
         segments.push(content.slice(last, edit.pos));
         segments.push(edit.text);
         last = edit.pos;
@@ -68,18 +67,18 @@ function createCodeFixContext(): CodeFixContext {
     replaceText,
   };
 
-  function prependText(node: SourceLocation | FilePos, text: string): PrependTextCodeFixEdit {
+  function prependText(node: SourceLocation | FilePos, text: string): InsertTextCodeFixEdit {
     return {
-      kind: "prepend-text",
+      kind: "insert-text",
       pos: node.pos,
       text,
       file: node.file,
     };
   }
 
-  function appendText(node: SourceLocation | FilePos, text: string): AppendTextCodeFixEdit {
+  function appendText(node: SourceLocation | FilePos, text: string): InsertTextCodeFixEdit {
     return {
-      kind: "append-text",
+      kind: "insert-text",
       pos: "end" in node ? node.end : node.pos,
       text,
       file: node.file,
