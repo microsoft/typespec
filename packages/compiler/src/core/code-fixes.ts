@@ -56,7 +56,7 @@ function applyCodeFixEditsOnText(content: string, edits: CodeFixEdit[]): string 
         last = edit.end;
     }
   }
-  segments.push(content.slice(last, -1));
+  segments.push(content.slice(last));
   return segments.join("");
 }
 
