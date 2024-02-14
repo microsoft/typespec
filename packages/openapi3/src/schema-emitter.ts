@@ -141,6 +141,12 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
       properties: this.emitter.emitModelProperties(model),
     });
 
+    // return [
+    //   `class ${model.name} {`,
+    //   ...[...model.properties.values()].map((x) => this.emitter.emitModelProperty(x)),
+    //   `}`,
+    // ];
+
     if (model.indexer) {
       schema.set("additionalProperties", this.emitter.emitTypeReference(model.indexer.value));
     }

@@ -47,6 +47,7 @@ function applyCodeFixEditsOnText(content: string, edits: CodeFixEdit[]): string 
       case "prepend-text":
         segments.push(content.slice(last, edit.pos));
         segments.push(edit.text);
+        last = edit.pos;
         break;
       case "replace-text":
         segments.push(content.slice(last, edit.pos));
