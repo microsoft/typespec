@@ -12,8 +12,8 @@ importers:
         specifier: ^2.27.1
         version: 2.27.1
       '@chronus/chronus':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.6.1
+        version: 0.6.1
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
@@ -3341,8 +3341,8 @@ packages:
       prettier: 2.8.8
     dev: true
 
-  /@chronus/chronus@0.6.0:
-    resolution: {integrity: sha512-Pzqw+45LxYqmjXYE0SyB8BFimUJ5I9N4x45A/G1WWGcTmXoNG+ibtDDESbcpUOx362Dd59vgG4/XaulCo3zFnw==}
+  /@chronus/chronus@0.6.1:
+    resolution: {integrity: sha512-ByT1mIYPjmedGDIq0uJn2JEOdMi750kp4q7bW1lhhDfMyvdiPvGbKTR1jS9v6WazJ3L6lZ2t3OAj7hZynmjNvA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dependencies:

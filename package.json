@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
-    "@chronus/chronus": "^0.6.0",
+    "@chronus/chronus": "^0.6.1",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^9.1.0",
     "cspell": "^8.3.2",
