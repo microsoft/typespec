@@ -135,6 +135,35 @@ describe("compiler: checker: type relations", () => {
         message: "Cannot intersect an array model.",
       });
     });
+
+    it("spread Record<string> lets other property be non string", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          age: int32;
+          enabled: boolean;
+          ...Record<string>;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("model is a model that spread record does need to respect indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          age: int32;
+          enabled: boolean;
+          ...Record<string>;
+        }
+
+        model Bar is Foo {
+          thisNeedsToBeString: int32;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'int32' is not assignable to type 'string'",
+      });
+    });
   });
 
   describe("unknown target", () => {

@@ -1,4 +1,4 @@
-import { $docFromComment, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
@@ -2855,6 +2855,7 @@ export function createChecker(program: Program): Checker {
     parentModel: Model,
     mapper: TypeMapper | undefined
   ) {
+    let spreadIndexers: ModelIndexer[] | undefined;
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const newProp = checkModelProperty(prop, mapper);
@@ -2863,8 +2864,19 @@ export function createChecker(program: Program): Checker {
         defineProperty(properties, newProp);
       } else {
         // spread property
-        const newProperties = checkSpreadProperty(node.symbol, prop.target, parentModel, mapper);
-
+        const [newProperties, additionalIndexer] = checkSpreadProperty(
+          node.symbol,
+          prop.target,
+          parentModel,
+          mapper
+        );
+        if (additionalIndexer) {
+          if (spreadIndexers) {
+            spreadIndexers.push(additionalIndexer);
+          } else {
+            spreadIndexers = [additionalIndexer];
+          }
+        }
         for (const newProp of newProperties) {
           linkIndirectMember(node, newProp, mapper);
           checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
@@ -2872,6 +2884,44 @@ export function createChecker(program: Program): Checker {
         }
       }
     }
+
+    if (spreadIndexers) {
+      const value =
+        spreadIndexers.length === 1
+          ? spreadIndexers[0].value
+          : createUnion(spreadIndexers.map((i) => i.value));
+      parentModel.indexer = {
+        key: spreadIndexers[0].key,
+        value: value,
+      };
+    }
+  }
+
+  function createUnion(options: Type[]): Union {
+    const variants = createRekeyableMap<string | symbol, UnionVariant>();
+    const union: Union = createAndFinishType({
+      kind: "Union",
+      node: undefined!,
+      options,
+      decorators: [],
+      variants,
+      expression: true,
+    });
+
+    for (const option of options) {
+      variants.set(
+        Symbol("indexer-union-variant"),
+        createAndFinishType({
+          kind: "UnionVariant",
+          node: undefined!,
+          type: option,
+          name: "",
+          union,
+          decorators: [],
+        })
+      );
+    }
+    return union;
   }
 
   function defineProperty(
@@ -3326,16 +3376,21 @@ export function createChecker(program: Program): Checker {
     targetNode: TypeReferenceNode,
     parentModel: Model,
     mapper: TypeMapper | undefined
-  ): ModelProperty[] {
+  ): [ModelProperty[], ModelIndexer | undefined] {
     const targetType = getTypeForNode(targetNode, mapper);
 
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
-      return [];
+      return [[], undefined];
     }
     if (targetType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
-      return [];
+      return [[], undefined];
     }
+    if (isArrayModelType(program, targetType)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
+      return [[], undefined];
+    }
+
     if (parentModel === targetType) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -3357,7 +3412,8 @@ export function createChecker(program: Program): Checker {
         })
       );
     }
-    return props;
+
+    return [props, targetType.indexer];
   }
 
   /**
