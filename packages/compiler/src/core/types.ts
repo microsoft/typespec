@@ -2043,9 +2043,10 @@ export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default",
-> = T[C][M] extends CallableMessage<infer A>
-  ? { format: Record<A[number], string> }
-  : Record<string, unknown>;
+> =
+  T[C][M] extends CallableMessage<infer A>
+    ? { format: Record<A[number], string> }
+    : Record<string, unknown>;
 
 export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly severity: "warning" | "error";
@@ -2077,9 +2078,8 @@ export interface DiagnosticCreator<T extends { [code: string]: DiagnosticMessage
   ): void;
 }
 
-export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends DiagnosticMap<infer D>
-  ? D
-  : never;
+export type TypeOfDiagnostics<T extends DiagnosticMap<any>> =
+  T extends DiagnosticMap<infer D> ? D : never;
 
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 
@@ -2197,9 +2197,10 @@ export interface LinterRuleContext<DM extends DiagnosticMessages> {
 export type LinterRuleDiagnosticFormat<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
-> = T[M] extends CallableMessage<infer A>
-  ? { format: Record<A[number], string> }
-  : Record<string, unknown>;
+> =
+  T[M] extends CallableMessage<infer A>
+    ? { format: Record<A[number], string> }
+    : Record<string, unknown>;
 
 export type LinterRuleDiagnosticReportWithoutTarget<
   T extends DiagnosticMessages,
