@@ -25,8 +25,8 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { findProjectRoot, loadFile, resolveTspMain } from "../core/util.js";
 import { printId } from "../formatter/print/printer.js";
+import { findProjectRoot, loadFile, resolveTspMain } from "../utils/util.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {

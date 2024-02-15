@@ -20,7 +20,7 @@ import {
   parse,
 } from "../core/index.js";
 import { compile as compileProgram } from "../core/program.js";
-import { doIO, loadFile, resolveTspMain } from "../core/util.js";
+import { doIO, loadFile, resolveTspMain } from "../utils/util.js";
 import { serverOptions } from "./constants.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";

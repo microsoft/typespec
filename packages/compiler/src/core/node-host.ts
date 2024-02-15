@@ -1,12 +1,12 @@
 import { realpath } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
-import { createSourceFile } from "./diagnostics.js";
+import { findProjectRoot } from "../utils/util.js";
 import { fetch } from "./fetch.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths } from "./path-utils.js";
+import { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
 import { CompilerHost, RmOptions } from "./types.js";
-import { findProjectRoot, getSourceFileKindFromExt } from "./util.js";
 
 export const CompilerPackageRoot = (await findProjectRoot(stat, fileURLToPath(import.meta.url)))!;
 

@@ -1,7 +1,7 @@
+import { doIO, loadFile, resolveTspMain } from "../utils/util.js";
 import { DiagnosticHandler } from "./diagnostics.js";
 import { resolvePath } from "./path-utils.js";
 import { CompilerHost } from "./types.js";
-import { doIO, loadFile, resolveTspMain } from "./util.js";
 
 /**
  * Resolve the path to the main file

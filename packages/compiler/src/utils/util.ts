@@ -1,14 +1,14 @@
-import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
-import { createDiagnostic } from "./messages.js";
+import { DiagnosticHandler } from "../core/diagnostics.js";
+import { createDiagnostic } from "../core/messages.js";
 import {
-  getAnyExtensionFromPath,
   getDirectoryPath,
   isPathAbsolute,
   isUrl,
   joinPaths,
   normalizePath,
   resolvePath,
-} from "./path-utils.js";
+} from "../core/path-utils.js";
+import { createSourceFile } from "../core/source-file.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -16,10 +16,9 @@ import {
   NoTarget,
   RekeyableMap,
   SourceFile,
-  SourceFileKind,
   Sym,
   SymbolTable,
-} from "./types.js";
+} from "../core/types.js";
 
 export { typespecVersion } from "../manifest.js";
 
@@ -428,17 +427,6 @@ export type Mutable<T> =
  */
 export function mutate<T>(value: T): Mutable<T> {
   return value as Mutable<T>;
-}
-
-export function getSourceFileKindFromExt(path: string): SourceFileKind | undefined {
-  const ext = getAnyExtensionFromPath(path);
-  if (ext === ".js" || ext === ".mjs") {
-    return "js";
-  } else if (ext === ".tsp" || ext === ".cadl") {
-    return "typespec";
-  } else {
-    return undefined;
-  }
 }
 
 export function createStringMap<T>(caseInsensitive: boolean): Map<string, T> {

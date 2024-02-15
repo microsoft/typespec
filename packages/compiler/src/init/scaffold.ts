@@ -4,7 +4,7 @@ import { formatTypeSpec } from "../core/formatter.js";
 import { NodePackage } from "../core/module-resolver.js";
 import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
 import { CompilerHost } from "../core/types.js";
-import { readUrlOrPath, resolveRelativeUrlOrPath } from "../core/util.js";
+import { readUrlOrPath, resolveRelativeUrlOrPath } from "../utils/util.js";
 import { FileTemplatingContext, createFileTemplatingContext, render } from "./file-templating.js";
 import {
   InitTemplate,

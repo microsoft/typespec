@@ -2,9 +2,18 @@ import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
+import {
+  deepEquals,
+  doIO,
+  findProjectRoot,
+  isDefined,
+  mapEquals,
+  mutate,
+  resolveTspMain,
+} from "../utils/util.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { compilerAssert, createSourceFile } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
   resolveTypeSpecEntrypointForDir,
@@ -26,6 +35,7 @@ import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths } from "./path-utils.js";
 import { createProjector } from "./projector.js";
+import { createSourceFile } from "./source-file.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -56,15 +66,6 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-import {
-  deepEquals,
-  doIO,
-  findProjectRoot,
-  isDefined,
-  mapEquals,
-  mutate,
-  resolveTspMain,
-} from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;

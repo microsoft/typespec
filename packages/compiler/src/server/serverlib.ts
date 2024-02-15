@@ -42,13 +42,14 @@ import {
   WorkspaceFoldersChangeEvent,
 } from "vscode-languageserver/node.js";
 import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
-import { compilerAssert, createSourceFile, getSourceLocation } from "../core/diagnostics.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator } from "../core/path-utils.js";
 import { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
+import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import {
   AugmentDecoratorStatementNode,
   CompilerHost,
@@ -63,7 +64,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath, getSourceFileKindFromExt } from "../core/util.js";
+import { getNormalizedRealPath } from "../utils/util.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";

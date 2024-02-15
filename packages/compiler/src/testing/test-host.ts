@@ -3,14 +3,15 @@ import { RmOptions } from "fs";
 import { readFile } from "fs/promises";
 import { globby } from "globby";
 import { fileURLToPath, pathToFileURL } from "url";
-import { createSourceFile, logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
+import { logDiagnostics, logVerboseTestOutput } from "../core/diagnostics.js";
 import { createLogger } from "../core/logger/logger.js";
 import { NodeHost } from "../core/node-host.js";
 import { CompilerOptions } from "../core/options.js";
 import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { Program, compile as compileProgram } from "../core/program.js";
 import { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
-import { createStringMap, getSourceFileKindFromExt } from "../core/util.js";
+import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
+import { createStringMap } from "../utils/util.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { createTestWrapper, findTestPackageRoot } from "./test-utils.js";
 import {

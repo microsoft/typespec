@@ -1,3 +1,4 @@
+import { mutate } from "../utils/util.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/index.js";
 import { visitChildren } from "./parser.js";
@@ -35,7 +36,6 @@ import {
   UnionStatementNode,
   UsingStatementNode,
 } from "./types.js";
-import { mutate } from "./util.js";
 
 // Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules

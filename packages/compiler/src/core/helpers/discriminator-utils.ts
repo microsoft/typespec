@@ -1,9 +1,9 @@
 import { Discriminator, getDiscriminatedTypes } from "../../lib/decorators.js";
+import { DuplicateTracker, isDefined } from "../../utils/util.js";
 import { createDiagnostic } from "../messages.js";
 import { Program } from "../program.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
 import { Diagnostic, Model, Type, Union } from "../types.js";
-import { DuplicateTracker, isDefined } from "../util.js";
 
 export interface DiscriminatedUnion {
   propertyName: string;
