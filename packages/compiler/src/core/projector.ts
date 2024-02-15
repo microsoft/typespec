@@ -284,9 +284,10 @@ export function createProjector(
     }
 
     if (model.indexer) {
+      const projectedValue = projectType(model.indexer.value);
       projectedModel.indexer = {
         key: projectType(model.indexer.key) as Scalar,
-        value: projectType(model.indexer.value),
+        value: projectedValue,
       };
     }
 
@@ -368,7 +369,7 @@ export function createProjector(
    * a template type, because we don't want to run decorators for templates.
    */
   function shouldFinishType(type: Type) {
-    const parentTemplate = getParentTemplateNode(type.node!);
+    const parentTemplate = type.node && getParentTemplateNode(type.node);
     return !parentTemplate || isTemplateInstance(type);
   }
 

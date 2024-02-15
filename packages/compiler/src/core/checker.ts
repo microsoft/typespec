@@ -2909,13 +2909,14 @@ export function createChecker(program: Program): Checker {
     });
 
     for (const option of options) {
+      const name = Symbol("indexer-union-variant");
       variants.set(
-        Symbol("indexer-union-variant"),
+        name,
         createAndFinishType({
           kind: "UnionVariant",
           node: undefined!,
           type: option,
-          name: "",
+          name,
           union,
           decorators: [],
         })
