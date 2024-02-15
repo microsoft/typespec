@@ -1,5 +1,5 @@
 import { resolveCompilerOptions } from "../../../../config/config-to-options.js";
-import { omitUndefined } from "../../../../utils/util.js";
+import { omitUndefined } from "../../../../utils/misc.js";
 import { createDiagnosticCollector } from "../../../diagnostics.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";

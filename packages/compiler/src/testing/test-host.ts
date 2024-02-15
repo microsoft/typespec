@@ -11,7 +11,7 @@ import { getAnyExtensionFromPath, resolvePath } from "../core/path-utils.js";
 import { Program, compile as compileProgram } from "../core/program.js";
 import { CompilerHost, Diagnostic, StringLiteral, Type } from "../core/types.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../index.js";
-import { createStringMap } from "../utils/util.js";
+import { createStringMap } from "../utils/misc.js";
 import { expectDiagnosticEmpty } from "./expect.js";
 import { createTestWrapper, findTestPackageRoot } from "./test-utils.js";
 import {

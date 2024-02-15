@@ -1,7 +1,7 @@
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { RekeyableMap } from "../src/core/index.js";
-import { createRekeyableMap } from "../src/utils/util.js";
+import { createRekeyableMap } from "../src/utils/misc.js";
 
 describe("compiler: util", () => {
   describe("RekeyableMap", () => {

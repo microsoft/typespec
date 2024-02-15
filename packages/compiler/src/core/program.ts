@@ -10,7 +10,7 @@ import {
   mapEquals,
   mutate,
   resolveTspMain,
-} from "../utils/util.js";
+} from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";

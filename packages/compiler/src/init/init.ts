@@ -7,7 +7,7 @@ import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import { createJSONSchemaValidator } from "../core/schema-validator.js";
 import { CompilerHost, Diagnostic, NoTarget, SourceFile } from "../core/types.js";
 import { MANIFEST } from "../manifest.js";
-import { readUrlOrPath } from "../utils/util.js";
+import { readUrlOrPath } from "../utils/misc.js";
 import { TypeSpecCoreTemplates } from "./core-templates.js";
 import { InitTemplate, InitTemplateLibrarySpec, InitTemplateSchema } from "./init-template.js";
 import { makeScaffoldingConfig, normalizeLibrary, scaffoldNewProject } from "./scaffold.js";

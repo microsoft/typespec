@@ -1,5 +1,5 @@
 import { $docFromComment, getIndexer } from "../lib/decorators.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/util.js";
+import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";

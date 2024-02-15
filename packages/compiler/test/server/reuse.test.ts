@@ -6,7 +6,7 @@ import {
   expectDiagnosticEmpty,
   resolveVirtualPath,
 } from "../../src/testing/index.js";
-import { mutate } from "../../src/utils/util.js";
+import { mutate } from "../../src/utils/misc.js";
 
 describe("compiler: server: reuse", () => {
   it("reuses unchanged programs", async () => {

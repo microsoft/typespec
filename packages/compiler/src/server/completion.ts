@@ -26,7 +26,7 @@ import {
   resolvePath,
 } from "../core/path-utils.js";
 import { printId } from "../formatter/print/printer.js";
-import { findProjectRoot, loadFile, resolveTspMain } from "../utils/util.js";
+import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {

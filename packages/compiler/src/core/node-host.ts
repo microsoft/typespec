@@ -1,7 +1,7 @@
 import { realpath } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
-import { findProjectRoot } from "../utils/util.js";
+import { findProjectRoot } from "../utils/misc.js";
 import { fetch } from "./fetch.js";
 import { createConsoleSink } from "./logger/index.js";
 import { joinPaths } from "./path-utils.js";

@@ -64,7 +64,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath } from "../utils/util.js";
+import { getNormalizedRealPath } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";

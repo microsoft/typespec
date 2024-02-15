@@ -3,7 +3,7 @@ import { beforeEach, describe, it } from "vitest";
 import { Program } from "../../src/core/program.js";
 import { DecoratorContext, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
-import { createRekeyableMap } from "../../src/utils/util.js";
+import { createRekeyableMap } from "../../src/utils/misc.js";
 
 describe("compiler: type cloning", () => {
   let testHost: TestHost;

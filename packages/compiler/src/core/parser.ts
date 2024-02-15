@@ -1,4 +1,4 @@
-import { isArray, mutate } from "../utils/util.js";
+import { isArray, mutate } from "../utils/misc.js";
 import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";

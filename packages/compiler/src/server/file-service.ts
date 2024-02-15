@@ -1,6 +1,6 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { getNormalizedRealPath } from "../utils/util.js";
+import { getNormalizedRealPath } from "../utils/misc.js";
 import { ServerHost } from "./types.js";
 
 /**

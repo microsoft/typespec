@@ -1,4 +1,4 @@
-import { mutate } from "../utils/util.js";
+import { mutate } from "../utils/misc.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/index.js";
 import { visitChildren } from "./parser.js";
