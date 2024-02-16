@@ -78,8 +78,11 @@ describe("compiler: checker: type relations", () => {
           prop1: string;
         }`);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'string' is not assignable to type 'int32'",
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
       });
     });
 
@@ -89,8 +92,11 @@ describe("compiler: checker: type relations", () => {
           prop1: string;
         }`);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'string' is not assignable to type 'int32'",
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
       });
     });
 
@@ -104,6 +110,19 @@ describe("compiler: checker: type relations", () => {
       const indexValue = Foo.indexer.value;
       strictEqual(indexValue.kind, "Model" as const);
       deepStrictEqual([...indexValue.properties.keys()], ["foo", "bar"]);
+    });
+
+    it("cannot intersect model with property incompatible with record", async () => {
+      const diagnostics = await runner.diagnose(`
+        alias A = Record<int32> & {prop1: string};
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
+      });
     });
 
     it("cannot intersect model with a scalar", async () => {
@@ -160,8 +179,11 @@ describe("compiler: checker: type relations", () => {
         }
       `);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'int32' is not assignable to type 'string'",
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'int32' is not assignable to type 'string'",
+        ].join("\n"),
       });
     });
   });

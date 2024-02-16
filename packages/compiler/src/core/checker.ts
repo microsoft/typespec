@@ -74,7 +74,6 @@ import {
   ModelIndexer,
   ModelProperty,
   ModelPropertyNode,
-  ModelSpreadPropertyNode,
   ModelStatementNode,
   ModifierFlags,
   Namespace,
@@ -1572,17 +1571,20 @@ export function createChecker(program: Program): Checker {
     });
 
     const indexers: ModelIndexer[] = [];
-    for (const [optionNode, option] of options) {
+    const modelOptions: [Node, Model][] = options.filter((entry): entry is [Node, Model] => {
+      const [optionNode, option] = entry;
       if (option.kind === "TemplateParameter") {
-        continue;
+        return false;
       }
       if (option.kind !== "Model") {
         reportCheckerDiagnostic(
           createDiagnostic({ code: "intersect-non-model", target: optionNode })
         );
-        continue;
+        return false;
       }
-
+      return true;
+    });
+    for (const [optionNode, option] of modelOptions) {
       if (option.indexer) {
         if (option.indexer.key.name === "integer") {
           reportCheckerDiagnostic(
@@ -1596,19 +1598,8 @@ export function createChecker(program: Program): Checker {
           indexers.push(option.indexer);
         }
       }
-      if (indexers.length === 1) {
-        intersection.indexer = indexers[0];
-      } else if (indexers.length > 1) {
-        intersection.indexer = {
-          key: indexers[0].key,
-          value: mergeModelTypes(
-            node,
-            indexers.map((x) => [x.value.node!, x.value]),
-            mapper
-          ),
-        };
-      }
-
+    }
+    for (const [_, option] of modelOptions) {
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -1627,7 +1618,23 @@ export function createChecker(program: Program): Checker {
           model: intersection,
         });
         properties.set(prop.name, newPropType);
+        for (const indexer of indexers.filter((x) => x !== option.indexer)) {
+          checkPropertyCompatibleWithIndexer(indexer, prop, node);
+        }
       }
+    }
+
+    if (indexers.length === 1) {
+      intersection.indexer = indexers[0];
+    } else if (indexers.length > 1) {
+      intersection.indexer = {
+        key: indexers[0].key,
+        value: mergeModelTypes(
+          node,
+          indexers.map((x) => [x.value.node!, x.value]),
+          mapper
+        ),
+      };
     }
     linkMapper(intersection, mapper);
     return finishType(intersection);
@@ -2820,15 +2827,23 @@ export function createChecker(program: Program): Checker {
     return undefined;
   }
 
-  function checkPropertyCompatibleWithIndexer(
+  function checkPropertyCompatibleWithModelIndexer(
     parentModel: Model,
     property: ModelProperty,
-    diagnosticTarget: ModelPropertyNode | ModelSpreadPropertyNode
+    diagnosticTarget: Node
   ) {
     const indexer = findIndexer(parentModel);
     if (indexer === undefined) {
       return;
     }
+    return checkPropertyCompatibleWithIndexer(indexer, property, diagnosticTarget);
+  }
+
+  function checkPropertyCompatibleWithIndexer(
+    indexer: ModelIndexer,
+    property: ModelProperty,
+    diagnosticTarget: Node
+  ) {
     if (indexer.key.name === "integer") {
       reportCheckerDiagnostics([
         createDiagnostic({
@@ -2839,14 +2854,18 @@ export function createChecker(program: Program): Checker {
       return;
     }
 
-    const [valid, diagnostics] = isTypeAssignableTo(
-      property.type,
-      indexer.value,
-      diagnosticTarget.kind === SyntaxKind.ModelSpreadProperty
-        ? diagnosticTarget
-        : diagnosticTarget.value
-    );
-    if (!valid) reportCheckerDiagnostics(diagnostics);
+    const [valid, diagnostics] = isTypeAssignableTo(property.type, indexer.value, diagnosticTarget);
+    if (!valid)
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "incompatible-indexer",
+          format: { message: diagnostics.map((x) => `  ${x.message}`).join("\n") },
+          target:
+            diagnosticTarget.kind === SyntaxKind.ModelProperty
+              ? diagnosticTarget.value
+              : diagnosticTarget,
+        })
+      );
   }
 
   function checkModelProperties(
@@ -2860,7 +2879,7 @@ export function createChecker(program: Program): Checker {
       if ("id" in prop) {
         const newProp = checkModelProperty(prop, mapper);
         newProp.model = parentModel;
-        checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
+        checkPropertyCompatibleWithModelIndexer(parentModel, newProp, prop);
         defineProperty(properties, newProp);
       } else {
         // spread property
@@ -2879,7 +2898,7 @@ export function createChecker(program: Program): Checker {
         }
         for (const newProp of newProperties) {
           linkIndirectMember(node, newProp, mapper);
-          checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
+          checkPropertyCompatibleWithModelIndexer(parentModel, newProp, prop);
           defineProperty(properties, newProp, prop);
         }
       }
