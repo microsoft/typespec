@@ -139,8 +139,8 @@ const EditorSection = () => {
   return (
     <Section
       header="Tooling"
-      title="First party support for code editor"
-      description="TypeSpec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
+      title="Full language support in VS Code and Visual Studio"
+      description="TypeSpec provides built-in support for many common editor features such as syntax highlighting, code completion, and more."
       illustration={<LightDarkImg src="illustrations/ide-hero" />}
     >
       <LearnMoreCard
