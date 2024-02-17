@@ -12,6 +12,7 @@ import {
   CompilerHost,
   IdentifierNode,
   Node,
+  NodePackage,
   Program,
   StringLiteralNode,
   SymbolFlags,
@@ -114,6 +115,17 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
   }
 }
 
+async function loadPackageJson(host: CompilerHost, path: string): Promise<NodePackage> {
+  const [libPackageJson] = await loadFile(host, path, JSON.parse, () => {});
+  return libPackageJson;
+}
+/** Check if the folder given has a package.json which has a tspMain. */
+async function isTspLibraryPackage(host: CompilerHost, dir: string) {
+  const libPackageJson = await loadPackageJson(host, resolvePath(dir, "package.json"));
+
+  return resolveTspMain(libPackageJson) !== undefined;
+}
+
 async function addLibraryImportCompletion(
   { program, file, completions }: CompletionContext,
   node: StringLiteralNode
@@ -121,11 +133,9 @@ async function addLibraryImportCompletion(
   const documentPath = file.file.path;
   const projectRoot = await findProjectRoot(program.host.stat, documentPath);
   if (projectRoot !== undefined) {
-    const [packagejson] = await loadFile(
+    const packagejson = await loadPackageJson(
       program.host,
-      resolvePath(projectRoot, "package.json"),
-      JSON.parse,
-      program.reportDiagnostic
+      resolvePath(projectRoot, "package.json")
     );
     let dependencies: string[] = [];
     if (packagejson.dependencies !== undefined) {
@@ -135,15 +145,8 @@ async function addLibraryImportCompletion(
       dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
     }
     for (const dependency of dependencies) {
-      const nodeProjectRoot = resolvePath(projectRoot, "node_modules", dependency);
-      const [libPackageJson] = await loadFile(
-        program.host,
-        resolvePath(nodeProjectRoot, "package.json"),
-        JSON.parse,
-        program.reportDiagnostic
-      );
-
-      if (resolveTspMain(libPackageJson) !== undefined) {
+      const dependencyDir = resolvePath(projectRoot, "node_modules", dependency);
+      if (await isTspLibraryPackage(program.host, dependencyDir)) {
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
           end: file.file.getLineAndCharacterOfPosition(node.end - 1),
@@ -191,23 +194,31 @@ async function addRelativePathCompletion(
   const files = (await tryListItemInDir(program.host, currentAbsolutePath)).filter(
     (x) => x !== documentFile && x !== "node_modules"
   );
+
+  const lastSlash = node.value.lastIndexOf("/");
+  const offset = lastSlash === -1 ? 0 : lastSlash + 1;
+  const range = {
+    start: file.file.getLineAndCharacterOfPosition(node.pos + 1 + offset),
+    end: file.file.getLineAndCharacterOfPosition(node.end - 1),
+  };
   for (const file of files) {
     const extension = getAnyExtensionFromPath(file);
+
     switch (extension) {
       case ".tsp":
       case ".js":
       case ".mjs":
         completions.items.push({
           label: file,
-          commitCharacters: [],
           kind: CompletionItemKind.File,
+          textEdit: TextEdit.replace(range, file),
         });
         break;
       case "":
         completions.items.push({
           label: file,
-          commitCharacters: [],
           kind: CompletionItemKind.Folder,
+          textEdit: TextEdit.replace(range, file),
         });
         break;
     }
