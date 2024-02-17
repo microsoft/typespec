@@ -129,25 +129,35 @@ describe("compiler: server: completion", () => {
       const completions = await complete(` import "./┆ `, undefined, {
         "test/bar.tsp": "",
         "test/foo.tsp": "",
-        "test/foo/test.tsp": "",
+        "test/dir/test.tsp": "",
       });
+      const range = { start: { line: 0, character: 11 }, end: { line: 0, character: 11 } };
       check(
         completions,
         [
           {
             label: "bar.tsp",
-            commitCharacters: [],
             kind: CompletionItemKind.File,
+            textEdit: {
+              newText: "bar.tsp",
+              range,
+            },
           },
           {
             label: "foo.tsp",
-            commitCharacters: [],
             kind: CompletionItemKind.File,
+            textEdit: {
+              newText: "foo.tsp",
+              range,
+            },
           },
           {
-            label: "foo",
-            commitCharacters: [],
+            label: "dir",
             kind: CompletionItemKind.Folder,
+            textEdit: {
+              newText: "dir",
+              range,
+            },
           },
         ],
         {
@@ -166,9 +176,12 @@ describe("compiler: server: completion", () => {
         completions,
         [
           {
-            commitCharacters: [],
             kind: 19,
             label: "main",
+            textEdit: {
+              newText: "main",
+              range: { start: { line: 0, character: 11 }, end: { line: 0, character: 11 } },
+            },
           },
         ],
         {
@@ -185,9 +198,12 @@ describe("compiler: server: completion", () => {
         completions,
         [
           {
-            commitCharacters: [],
             kind: 17,
             label: "foo.tsp",
+            textEdit: {
+              newText: "foo.tsp",
+              range: { start: { line: 0, character: 24 }, end: { line: 0, character: 24 } },
+            },
           },
         ],
         {
@@ -204,9 +220,12 @@ describe("compiler: server: completion", () => {
         completions,
         [
           {
-            commitCharacters: [],
             kind: 17,
             label: "foo.tsp",
+            textEdit: {
+              newText: "foo.tsp",
+              range: { start: { line: 0, character: 15 }, end: { line: 0, character: 15 } },
+            },
           },
         ],
         {
