@@ -9,6 +9,7 @@ import {
 } from "vscode-languageserver";
 import { getDeprecationDetails } from "../core/deprecation.js";
 import {
+  CompilerHost,
   IdentifierNode,
   Node,
   Program,
@@ -165,6 +166,17 @@ async function addImportCompletion(context: CompletionContext, node: StringLiter
   }
 }
 
+async function tryListItemInDir(host: CompilerHost, path: string): Promise<string[]> {
+  try {
+    return await host.readDir(path);
+  } catch (e: any) {
+    if (e.code === "ENOENT") {
+      return [];
+    }
+    throw e;
+  }
+}
+
 async function addRelativePathCompletion(
   { program, completions, file }: CompletionContext,
   node: StringLiteralNode
@@ -172,11 +184,11 @@ async function addRelativePathCompletion(
   const documentPath = file.file.path;
   const documentFile = getBaseFileName(documentPath);
   const documentDir = getDirectoryPath(documentPath);
-  const nodevalueDir = hasTrailingDirectorySeparator(node.value)
+  const currentRelativePath = hasTrailingDirectorySeparator(node.value)
     ? node.value
     : getDirectoryPath(node.value);
-  const mainTypeSpec = resolvePath(documentDir, nodevalueDir);
-  const files = (await program.host.readDir(mainTypeSpec)).filter(
+  const currentAbsolutePath = resolvePath(documentDir, currentRelativePath);
+  const files = (await tryListItemInDir(program.host, currentAbsolutePath)).filter(
     (x) => x !== documentFile && x !== "node_modules"
   );
   for (const file of files) {
