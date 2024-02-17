@@ -981,6 +981,39 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  describe("directives", () => {
+    it("complete directives when starting with `#`", async () => {
+      const completions = await complete(
+        `
+        #┆
+        model Bar {}
+        `
+      );
+
+      check(completions, [
+        {
+          label: "suppress",
+          kind: CompletionItemKind.Keyword,
+        },
+        {
+          label: "deprecated",
+          kind: CompletionItemKind.Keyword,
+        },
+      ]);
+    });
+
+    it("doesn't complete when in the argument section", async () => {
+      const completions = await complete(
+        `
+        #suppress s┆
+        model Bar {}
+        `
+      );
+
+      check(completions, []);
+    });
+  });
+
   function check(
     list: CompletionList,
     expectedItems: CompletionItem[],

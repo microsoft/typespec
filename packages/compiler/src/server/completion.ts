@@ -54,6 +54,7 @@ export async function resolveCompletion(
         addKeywordCompletion("namespace", completions);
         break;
       case SyntaxKind.Identifier:
+        addDirectiveCompletion(context, node);
         addIdentifierCompletion(context, node);
         break;
       case SyntaxKind.StringLiteral:
@@ -274,6 +275,19 @@ function addIdentifierCompletion(
 
   if (node.parent?.kind === SyntaxKind.TypeReference) {
     addKeywordCompletion("identifier", completions);
+  }
+}
+
+const directiveNames = ["suppress", "deprecated"];
+function addDirectiveCompletion({ completions }: CompletionContext, node: IdentifierNode) {
+  if (!(node.parent?.kind === SyntaxKind.DirectiveExpression && node.parent.target === node)) {
+    return;
+  }
+  for (const directive of directiveNames) {
+    completions.items.push({
+      label: directive,
+      kind: CompletionItemKind.Keyword,
+    });
   }
 }
 
