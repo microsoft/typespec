@@ -854,6 +854,12 @@ const diagnostics = {
       default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
+  "circular-constraint": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type parameter '${"typeName"}' has a circular constraint.`,
+    },
+  },
   "circular-op-signature": {
     severity: "error",
     messages: {
