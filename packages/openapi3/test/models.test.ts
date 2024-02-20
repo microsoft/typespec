@@ -32,6 +32,7 @@ describe("openapi3: models", () => {
     );
 
     expect(res.schemas.Foo).toMatchObject({
+      required: ["xJson"],
       properties: {
         xJson: { type: "integer", format: "int32" },
       },
@@ -48,6 +49,7 @@ describe("openapi3: models", () => {
     );
 
     expect(res.schemas.Foo).toMatchObject({
+      required: ["xJson"],
       properties: {
         xJson: { type: "integer", format: "int32" },
       },
@@ -65,6 +67,7 @@ describe("openapi3: models", () => {
     );
 
     expect(res.schemas.Foo).toMatchObject({
+      required: ["xJson"],
       properties: {
         xJson: { type: "integer", format: "int32" },
       },

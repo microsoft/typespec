@@ -137,7 +137,15 @@ export function mapEquals<K, V>(
 }
 
 export async function getNormalizedRealPath(host: CompilerHost, path: string) {
-  return normalizePath(await host.realpath(path));
+  try {
+    return normalizePath(await host.realpath(path));
+  } catch (error: any) {
+    // This could mean the file got deleted but VSCode still has it in memory. So keep the original path.
+    if (error.code === "ENOENT") {
+      return normalizePath(path);
+    }
+    throw error;
+  }
 }
 
 export interface FileHandlingOptions {

@@ -1,5 +1,11 @@
 # Change Log - @typespec/openapi3
 
+## 0.53.2
+
+### Patch Changes
+
+- 4915d5b: Fix: `required` array on schema wasn't using the value provided by `@encodedName`
+
 ## 0.53.1
 
 ### Patch Changes

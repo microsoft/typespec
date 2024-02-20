@@ -23,14 +23,13 @@
     "regen-docs": "pnpm -r --parallel --aggregate-output --reporter=append-only run regen-docs",
     "regen-samples": "pnpm -r run regen-samples",
     "test-official": "pnpm -r --aggregate-output --reporter=append-only test-official",
-    "test:e2e": "pnpm -r run e2e",
+    "test:e2e": "pnpm -r run test:e2e",
     "test": "pnpm -r --aggregate-output --reporter=append-only run test",
     "update-latest-docs": "pnpm -r run update-latest-docs",
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
-    "@chronus/chronus": "^0.6.0",
+    "@chronus/chronus": "^0.7.0",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^9.1.0",
     "cspell": "^8.3.2",

@@ -23,8 +23,8 @@ components:
     WithEncodedNames:
       type: object
       required:
-        - notBefore
-        - expires
+        - nbf
+        - exp
         - created
         - updated
       properties:

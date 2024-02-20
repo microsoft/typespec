@@ -58,3 +58,6 @@ eng/feeds/
 # Skip formatting tsp files
 
 *.noformat.tsp
+
+# Tm Grammars generated files
+grammars/
