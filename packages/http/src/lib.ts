@@ -136,6 +136,8 @@ export const $lib = createTypeSpecLibrary({
     query: { description: "State for the @query decorator" },
     path: { description: "State for the @path decorator" },
     body: { description: "State for the @body decorator" },
+    bodyRoot: { description: "State for the @bodyRoot decorator" },
+    bodyIgnore: { description: "State for the @bodyIgnore decorator" },
     statusCode: { description: "State for the @statusCode decorator" },
     verbs: { description: "State for the verb decorators (@get, @post, @put, etc.)" },
     servers: { description: "State for the @server decorator" },

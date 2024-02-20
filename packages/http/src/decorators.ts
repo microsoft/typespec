@@ -170,8 +170,24 @@ export function $body(context: DecoratorContext, entity: ModelProperty) {
   context.program.stateSet(HttpStateKeys.body).add(entity);
 }
 
+export function $bodyRoot(context: DecoratorContext, entity: ModelProperty) {
+  context.program.stateSet(HttpStateKeys.bodyRoot).add(entity);
+}
+
+export function $bodyIgnore(context: DecoratorContext, entity: ModelProperty) {
+  context.program.stateSet(HttpStateKeys.bodyIgnore).add(entity);
+}
+
 export function isBody(program: Program, entity: Type): boolean {
   return program.stateSet(HttpStateKeys.body).has(entity);
+}
+
+export function isBodyRoot(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyRoot).has(entity);
+}
+
+export function isBodyIgnore(program: Program, entity: ModelProperty): boolean {
+  return program.stateSet(HttpStateKeys.bodyIgnore).has(entity);
 }
 
 export function $statusCode(context: DecoratorContext, entity: ModelProperty) {
