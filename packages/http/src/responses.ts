@@ -22,6 +22,7 @@ import {
   getStatusCodeDescription,
   getStatusCodesWithDiagnostics,
   isBody,
+  isBodyRoot,
   isHeader,
   isStatusCode,
 } from "./decorators.js";
@@ -241,7 +242,7 @@ function getResponseBody(
   // look for explicit body
   let bodyProperty: ModelProperty | undefined;
   for (const property of metadata) {
-    if (isBody(program, property)) {
+    if (isBody(program, property) || isBodyRoot(program, property)) {
       if (bodyProperty) {
         diagnostics.add(createDiagnostic({ code: "duplicate-body", target: property }));
       } else {

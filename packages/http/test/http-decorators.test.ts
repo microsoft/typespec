@@ -18,6 +18,8 @@ import {
   getStatusCodes,
   includeInapplicableMetadataInPayload,
   isBody,
+  isBodyIgnore,
+  isBodyRoot,
   isHeader,
   isPathParam,
   isQueryParam,
@@ -400,6 +402,68 @@ describe("http: decorators", () => {
         `);
 
       ok(isBody(runner.program, body));
+    });
+  });
+
+  describe("@bodyRoot", () => {
+    it("emit diagnostics when @body is not used on model property", async () => {
+      const diagnostics = await runner.diagnose(`
+          @bodyRoot op test(): string;
+
+          @bodyRoot model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyRoot decorator to test since it is not assignable to ModelProperty",
+        },
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyRoot decorator to Foo since it is not assignable to ModelProperty",
+        },
+      ]);
+    });
+
+    it("set the body root with @bodyRoot", async () => {
+      const { body } = (await runner.compile(`
+          @post op test(@test @bodyRoot body: string): string;
+        `)) as { body: ModelProperty };
+
+      ok(isBodyRoot(runner.program, body));
+    });
+  });
+
+  describe("@bodyIgnore", () => {
+    it("emit diagnostics when @body is not used on model property", async () => {
+      const diagnostics = await runner.diagnose(`
+          @bodyIgnore op test(): string;
+
+          @bodyIgnore model Foo {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyIgnore decorator to test since it is not assignable to ModelProperty",
+        },
+        {
+          code: "decorator-wrong-target",
+          message:
+            "Cannot apply @bodyIgnore decorator to Foo since it is not assignable to ModelProperty",
+        },
+      ]);
+    });
+
+    it("isBodyIgnore returns true on property decorated", async () => {
+      const { body } = await runner.compile(`
+          @post op test(@test @bodyIgnore body: string): string;
+        `);
+
+      ok(isBodyIgnore(runner.program, body as ModelProperty));
     });
   });
 
