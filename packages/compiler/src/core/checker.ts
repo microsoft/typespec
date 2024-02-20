@@ -711,6 +711,7 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
+      | TemplateParameterDeclarationNode
       | UnionStatementNode
   ): number {
     const symbol =
@@ -750,6 +751,19 @@ export function createChecker(program: Program): Checker {
     const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
 
+    if (pendingResolutions.has(getNodeSymId(node), ResolutionKind.Constraint)) {
+      if (mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-constraint",
+            format: { typeName: node.id.sv },
+            target: node.constraint!,
+          })
+        );
+      }
+      return errorType;
+    }
+
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
     if (type === undefined) {
       if (grandParentNode) {
@@ -770,7 +784,9 @@ export function createChecker(program: Program): Checker {
       });
 
       if (node.constraint) {
+        pendingResolutions.start(getNodeSymId(node), ResolutionKind.Constraint);
         type.constraint = getTypeOrValueTypeForNode(node.constraint);
+        pendingResolutions.finish(getNodeSymId(node), ResolutionKind.Constraint);
       }
       if (node.default) {
         type.default = checkTemplateParameterDefault(
@@ -6330,6 +6346,7 @@ const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionName
 enum ResolutionKind {
   Type,
   BaseType,
+  Constraint,
 }
 
 class PendingResolutions {
