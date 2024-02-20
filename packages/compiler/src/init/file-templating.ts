@@ -17,7 +17,7 @@ export type FileTemplatingContext = Omit<InitTemplate, "libraries"> &
     toLowerCase: () => (text: string, render: any) => string;
 
     /**
-     * Normalize package name for langauges other than C#. It replaces `.` with `-` and toLowerCase
+     * Normalize package name for languages other than C#. It replaces `.` with `-` and toLowerCase
      */
     normalizePackageName: () => (text: string, render: any) => string;
   };
