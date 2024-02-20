@@ -428,6 +428,36 @@ describe("compiler: templates", () => {
       `);
     });
 
+    it("emits diagnostic when constraint reference itself", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends A> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
+    });
+
+    it("emits diagnostic when constraint reference other parameter in circular constraint", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends B, B extends A> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
+    });
+
+    it("emits diagnostic when constraint reference itself inside an expression", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends {name: A}> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
+    });
+
     it("emit diagnostics if template default is not assignable to constraint", async () => {
       const { source, pos, end } = extractSquiggles(`
         model A<T extends string = ~~~123~~~> { a: T }
