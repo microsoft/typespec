@@ -3548,6 +3548,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.TemplateArgument:
       kind = IdentifierKind.TemplateArgument;
       break;
+    case SyntaxKind.ModelProperty:
+      kind = IdentifierKind.ModelProperty;
+      break;
     default:
       kind =
         (id.parent as DeclarationNode).id === id

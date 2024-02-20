@@ -612,6 +612,7 @@ export function createServer(host: ServerHost): Server {
     if (result) {
       const { script, document, program } = result;
       const node = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
+      const data = getSignatureHelpNodeAtPosition(script, document.offsetAt(params.position));
 
       await resolveCompletion(
         {

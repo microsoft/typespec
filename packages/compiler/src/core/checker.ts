@@ -2032,6 +2032,7 @@ export function createChecker(program: Program): Checker {
     const { node, kind } = getIdentifierContext(id);
 
     switch (kind) {
+      case IdentifierKind.ModelProperty:
       case IdentifierKind.Declaration:
         if (node.symbol && (!isTemplatedNode(node) || mapper === undefined)) {
           sym = getMergedSymbol(node.symbol);
@@ -2110,6 +2111,31 @@ export function createChecker(program: Program): Checker {
     return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
   }
 
+  function getModelContext(model: ModelExpressionNode | ModelStatementNode) {
+    let current: Node | undefined = model.parent;
+    while (current !== undefined) {
+      if (current.kind === SyntaxKind.DecoratorExpression) {
+        console.log("Curr", current);
+        const sym = resolveTypeReferenceSym(current.target, undefined, true);
+        if (sym) {
+          const links = getSymbolLinks(sym);
+          const type = links.declaredType;
+          if (type) {
+            return;
+          }
+          return;
+        }
+        return;
+      }
+      current = current.parent;
+    }
+  }
+  function getCompletionForModelProperty(
+    model: ModelExpressionNode | ModelStatementNode
+  ): string[] {
+    const context = getModelContext(model);
+    return [];
+  }
   function resolveCompletions(identifier: IdentifierNode): Map<string, TypeSpecCompletionItem> {
     const completions = new Map<string, TypeSpecCompletionItem>();
     const { kind, node: ancestor } = getIdentifierContext(identifier);
@@ -2124,6 +2150,12 @@ export function createChecker(program: Program): Checker {
         return completions; // not implemented
       case IdentifierKind.Declaration:
         return completions; // cannot complete, name can be chosen arbitrarily
+      case IdentifierKind.ModelProperty: {
+        const props = getCompletionForModelProperty(ancestor.parent! as any);
+        console.log("Props", props);
+        return completions;
+      }
+
       case IdentifierKind.TemplateArgument: {
         const templates = getTemplateDeclarationsForArgument(
           ancestor as TemplateArgumentNode,

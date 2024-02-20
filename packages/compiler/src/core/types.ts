@@ -1624,6 +1624,7 @@ export enum IdentifierKind {
   Decorator,
   Function,
   Using,
+  ModelProperty,
   Declaration,
   Other,
 }
