@@ -7,6 +7,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
+import { validateBodyProperty } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldOptions,
@@ -14,9 +15,10 @@ import {
   getPathParamOptions,
   getQueryParamOptions,
   isBody,
+  isBodyRoot,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { gatherMetadata, isMetadata, resolveRequestVisibility } from "./metadata.js";
+import { gatherMetadata, isMetadata, isVisible, resolveRequestVisibility } from "./metadata.js";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -76,8 +78,7 @@ function getOperationParametersForVerb(
   }
 
   const parameters: HttpOperationParameter[] = [];
-  let bodyType: Type | undefined;
-  let bodyParameter: ModelProperty | undefined;
+  let resolvedBody: ResolvedRequestBody | undefined;
   let contentTypes: string[] | undefined;
 
   for (const param of metadata) {
@@ -86,12 +87,13 @@ function getOperationParametersForVerb(
       getPathParamOptions(program, param) ??
       (isImplicitPathParam(param) && { type: "path", name: param.name });
     const headerOptions = getHeaderFieldOptions(program, param);
-    const bodyParam = isBody(program, param);
+    const isBodyVal = isBody(program, param);
+    const isBodyRootVal = isBodyRoot(program, param);
     const defined = [
       ["query", queryOptions],
       ["path", pathOptions],
       ["header", headerOptions],
-      ["body", bodyParam],
+      ["body", isBodyVal || isBodyRootVal],
     ].filter((x) => !!x[1]);
     if (defined.length >= 2) {
       diagnostics.add(
@@ -130,26 +132,30 @@ function getOperationParametersForVerb(
         ...headerOptions,
         param,
       });
-    } else if (bodyParam) {
-      if (bodyType === undefined) {
-        bodyParameter = param;
-        bodyType = param.type;
+    } else if (isBodyVal || isBodyRootVal) {
+      if (resolvedBody === undefined) {
+        if (isBodyVal) {
+          diagnostics.pipe(validateBodyProperty(program, param));
+        }
+        resolvedBody = { parameter: param, type: param.type, isExplicit: isBodyVal };
       } else {
         diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
       }
     }
   }
 
-  const bodyRoot = bodyParameter ? rootPropertyMap.get(bodyParameter) : undefined;
+  const bodyRoot = resolvedBody?.parameter
+    ? rootPropertyMap.get(resolvedBody.parameter)
+    : undefined;
   const unannotatedProperties = filterModelProperties(
     program,
     operation.parameters,
-    (p) => !metadata.has(p) && p !== bodyRoot
+    (p) => !metadata.has(p) && p !== bodyRoot && isVisible(program, p, visibility)
   );
 
   if (unannotatedProperties.properties.size > 0) {
-    if (bodyType === undefined) {
-      bodyType = unannotatedProperties;
+    if (resolvedBody === undefined) {
+      resolvedBody = { type: unannotatedProperties, isExplicit: false };
     } else {
       diagnostics.add(
         createDiagnostic({
@@ -160,9 +166,7 @@ function getOperationParametersForVerb(
       );
     }
   }
-  const body = diagnostics.pipe(
-    computeHttpOperationBody(operation, bodyType, bodyParameter, contentTypes)
-  );
+  const body = diagnostics.pipe(computeHttpOperationBody(operation, resolvedBody, contentTypes));
 
   return diagnostics.wrap({
     parameters,
@@ -177,15 +181,20 @@ function getOperationParametersForVerb(
   });
 }
 
+interface ResolvedRequestBody {
+  readonly type: Type;
+  readonly isExplicit: boolean;
+  readonly parameter?: ModelProperty;
+}
+
 function computeHttpOperationBody(
   operation: Operation,
-  bodyType: Type | undefined,
-  bodyProperty: ModelProperty | undefined,
+  resolvedBody: ResolvedRequestBody | undefined,
   contentTypes: string[] | undefined
 ): [HttpOperationRequestBody | undefined, readonly Diagnostic[]] {
   contentTypes ??= [];
   const diagnostics: Diagnostic[] = [];
-  if (bodyType === undefined) {
+  if (resolvedBody === undefined) {
     if (contentTypes.length > 0) {
       diagnostics.push(
         createDiagnostic({
@@ -197,20 +206,18 @@ function computeHttpOperationBody(
     return [undefined, diagnostics];
   }
 
-  if (contentTypes.includes("multipart/form-data") && bodyType.kind !== "Model") {
+  if (contentTypes.includes("multipart/form-data") && resolvedBody.type.kind !== "Model") {
     diagnostics.push(
       createDiagnostic({
         code: "multipart-model",
-        target: bodyProperty ?? operation.parameters,
+        target: resolvedBody.parameter ?? operation.parameters,
       })
     );
     return [undefined, diagnostics];
   }
 
   const body: HttpOperationRequestBody = {
-    type: bodyType,
-    isExplicit: false,
-    parameter: bodyProperty,
+    ...resolvedBody,
     contentTypes,
   };
   return [body, diagnostics];

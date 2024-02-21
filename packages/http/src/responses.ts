@@ -240,7 +240,7 @@ function getResponseHeaders(
   return responseHeaders;
 }
 
-interface ResolvedBody {
+interface ResolvedResponseBody {
   readonly type: Type;
   readonly isExplicit: boolean;
 }
@@ -249,7 +249,7 @@ function getResponseBody(
   diagnostics: DiagnosticCollector,
   responseType: Type,
   metadata: Set<ModelProperty>
-): ResolvedBody | undefined {
+): ResolvedResponseBody | undefined {
   // non-model or intrinsic/array model -> response body is response type
   if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
     return { type: responseType, isExplicit: false };
@@ -258,7 +258,7 @@ function getResponseBody(
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
   // look for explicit body
-  let resolvedBody: ResolvedBody | undefined;
+  let resolvedBody: ResolvedResponseBody | undefined;
   for (const property of metadata) {
     const isBodyVal = isBody(program, property);
     const isBodyRootVal = isBodyRoot(program, property);

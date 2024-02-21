@@ -513,7 +513,7 @@ describe("http: decorators", () => {
         `      
         model CustomUnauthorizedResponse {
           @statusCode _: 401;
-          @body body: UnauthorizedResponse;
+          @bodyRoot body: UnauthorizedResponse;
         }
   
         model Pet {
