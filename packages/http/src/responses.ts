@@ -3,6 +3,7 @@ import {
   Diagnostic,
   DiagnosticCollector,
   DuplicateTracker,
+  getDiscriminator,
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
@@ -29,7 +30,7 @@ import {
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
-import { gatherMetadata, isApplicableMetadata, Visibility } from "./metadata.js";
+import { gatherMetadata, isApplicableMetadata, isVisible, Visibility } from "./metadata.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -109,11 +110,14 @@ function processResponseType(
 
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
-    if (bodyType === undefined || isVoidType(bodyType)) {
-      bodyType = undefined;
-      statusCodes.push(204);
-    } else if (isErrorModel(program, responseType)) {
+    if (isErrorModel(program, responseType)) {
       statusCodes.push("*");
+    } else if (isVoidType(responseType)) {
+      bodyType = undefined;
+      statusCodes.push(204); // Only special case for 204 is op test(): void;
+    } else if (bodyType === undefined || isVoidType(bodyType)) {
+      bodyType = undefined;
+      statusCodes.push(200);
     } else {
       statusCodes.push(200);
     }
@@ -270,14 +274,20 @@ function getResponseBody(
     return bodyProperty.type;
   }
 
-  // Without an explicit body, response type is response model itself if
-  // there it has at least one non-metadata property, if it is an empty object or if it has derived
-  // models
-  if (responseType.derivedModels.length > 0 || responseType.properties.size === 0) {
+  // Special case for legacy purposes if the return type is an empty model with only @discriminator("xyz")
+  // Then we still want to return that object as it technically always has a body with that implicit property.
+  if (responseType.derivedModels.length > 0 && getDiscriminator(program, responseType)) {
     return responseType;
   }
+  if (responseType.indexer) {
+    return responseType;
+  }
+
   for (const property of walkPropertiesInherited(responseType)) {
-    if (!isApplicableMetadata(program, property, Visibility.Read)) {
+    if (
+      !isApplicableMetadata(program, property, Visibility.Read) &&
+      isVisible(program, property, Visibility.Read)
+    ) {
       return responseType;
     }
   }

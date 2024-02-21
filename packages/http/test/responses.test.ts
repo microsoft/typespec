@@ -107,8 +107,9 @@ it("supports any casing for string literal 'Content-Type' header properties.", a
 it("empty response model becomes body if it has children", async () => {
   const [routes, diagnostics] = await getOperationsWithServiceNamespace(
     `
-      @route("/") op read(): A;
+      op read(): A;
 
+      @discriminator("foo")
       model A {}
 
       model B extends A {

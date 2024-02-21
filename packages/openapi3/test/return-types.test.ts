@@ -89,9 +89,9 @@ describe("openapi3: return types", () => {
       @put op create(): {@header eTag: string};
       `
     );
-    ok(res.paths["/"].put.responses["204"]);
-    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
-    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, true);
+    ok(res.paths["/"].put.responses["200"]);
+    ok(res.paths["/"].put.responses["200"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["200"].headers["e-tag"].required, true);
   });
 
   it("optional response header are marked required: false", async () => {
@@ -100,9 +100,9 @@ describe("openapi3: return types", () => {
       @put op create(): {@header eTag?: string};
       `
     );
-    ok(res.paths["/"].put.responses["204"]);
-    ok(res.paths["/"].put.responses["204"].headers["e-tag"]);
-    strictEqual(res.paths["/"].put.responses["204"].headers["e-tag"].required, false);
+    ok(res.paths["/"].put.responses["200"]);
+    ok(res.paths["/"].put.responses["200"].headers["e-tag"]);
+    strictEqual(res.paths["/"].put.responses["200"].headers["e-tag"].required, false);
   });
 
   it("defines responses with headers and status codes in base model", async () => {
@@ -258,40 +258,14 @@ describe("openapi3: return types", () => {
     );
   });
 
-  it("return type with no properties should be 200 with empty object as type", async () => {
-    const res = await openApiFor(
-      `
-      @get op test(): {};
-      `
+  describe("response model resolving to no property in the body produce no body", () => {
+    it.each(["{}", "{@header prop: string}", `{@visibility("none") prop: string}`])(
+      "%s",
+      async (body) => {
+        const res = await openApiFor(`op test(): ${body};`);
+        strictEqual(res.paths["/"].get.responses["200"].content, undefined);
+      }
     );
-
-    const responses = res.paths["/"].get.responses;
-    ok(responses["200"]);
-    deepStrictEqual(responses["200"].content, {
-      "application/json": {
-        schema: {
-          type: "object",
-        },
-      },
-    });
-  });
-
-  it("{} return type should produce 200 ", async () => {
-    const res = await openApiFor(
-      `
-      @get op test(): {};
-      `
-    );
-
-    const responses = res.paths["/"].get.responses;
-    ok(responses["200"]);
-    deepStrictEqual(responses["200"].content, {
-      "application/json": {
-        schema: {
-          type: "object",
-        },
-      },
-    });
   });
 
   it("produce additionalProperties schema if response is Record<T>", async () => {
@@ -321,20 +295,9 @@ describe("openapi3: return types", () => {
     `);
 
     const responses = res.paths["/"].get.responses;
-    ok(responses["204"]);
-    ok(responses["204"].content === undefined, "response should have no content");
-    ok(responses["200"] === undefined);
-  });
-
-  it("defaults status code to 204 when implicit body has no content", async () => {
-    const res = await openApiFor(`
-      @delete op delete(): { @header date: string };
-      `);
-    const responses = res.paths["/"].delete.responses;
-    ok(responses["200"] === undefined);
-    ok(responses["204"]);
-    ok(responses["204"].headers["date"]);
-    ok(responses["204"].content === undefined);
+    ok(responses["200"]);
+    ok(responses["200"].content === undefined, "response should have no content");
+    ok(responses["204"] === undefined);
   });
 
   it("defaults status code to default when model has @error decorator", async () => {
@@ -453,9 +416,9 @@ describe("openapi3: return types", () => {
     ok(res.paths["/"].get.responses["204"]);
   });
 
-  it("defaults to 204 no content with void @body", async () => {
+  it("defaults to 200 no content with void @body", async () => {
     const res = await openApiFor(`@get op read(): {@body body: void};`);
-    ok(res.paths["/"].get.responses["204"]);
+    ok(res.paths["/"].get.responses["200"]);
   });
 
   describe("multiple content types", () => {
