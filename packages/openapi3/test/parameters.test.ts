@@ -338,6 +338,41 @@ describe("openapi3: parameters", () => {
     );
   });
 
+  it("property in body with only metadata properties should still be included", async () => {
+    const res = await openApiFor(`op read(
+        headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+      ): void;`);
+    expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        headers: { type: "object" },
+        name: { type: "string" },
+      },
+      required: ["headers", "name"],
+    });
+  });
+
+  it("property in body with only metadata properties and @bodyIgnore should not be included", async () => {
+    const res = await openApiFor(`op read(
+        @bodyIgnore headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+    ): void;`);
+    expect(res.paths["/"].post.requestBody.content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        name: { type: "string" },
+      },
+      required: ["name"],
+    });
+  });
+
   describe("content type parameter", () => {
     it("header named with 'Content-Type' gets resolved as content type for operation.", async () => {
       const res = await openApiFor(

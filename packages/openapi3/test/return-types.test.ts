@@ -443,6 +443,41 @@ describe("openapi3: return types", () => {
     );
   });
 
+  it("property in body with only metadata properties should still be included", async () => {
+    const res = await openApiFor(`op read(): {
+        headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+      };`);
+    expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        headers: { type: "object" },
+        name: { type: "string" },
+      },
+      required: ["headers", "name"],
+    });
+  });
+
+  it("property in body with only metadata properties and @bodyIgnore should not be included", async () => {
+    const res = await openApiFor(`op read(): {
+        @bodyIgnore headers: {
+          @header header1: string;
+          @header header2: string;
+        };
+        name: string;
+    };`);
+    expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        name: { type: "string" },
+      },
+      required: ["name"],
+    });
+  });
+
   describe("multiple content types", () => {
     it("handles multiple content types for the same status code", async () => {
       const res = await openApiFor(

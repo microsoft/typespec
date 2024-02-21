@@ -17,6 +17,7 @@ import {
 import {
   includeInapplicableMetadataInPayload,
   isBody,
+  isBodyIgnore,
   isBodyRoot,
   isHeader,
   isPathParam,
@@ -382,6 +383,7 @@ export interface MetadataInfo {
    *
    * When the type of a property is emptied by visibility, the property
    * itself is also removed.
+   * @deprecated This produce inconsistent behaviors and should be avoided.
    */
   isEmptied(type: Type | undefined, visibility: Visibility): boolean;
 
@@ -572,7 +574,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   ): boolean {
     if (
       !inExplicitBody &&
-      (isEmptied(property.type, visibility) ||
+      (isBodyIgnore(program, property) ||
         isApplicableMetadata(program, property, visibility) ||
         (isMetadata(program, property) && !includeInapplicableMetadataInPayload(program, property)))
     ) {
