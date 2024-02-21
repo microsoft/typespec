@@ -69,7 +69,7 @@ export const TypeSpecProgramViewer: FunctionComponent<TypeSpecProgramViewerProps
 };
 
 export interface ItemListProps<T> {
-  items: Map<string, T> | T[];
+  items: Map<string | symbol, T> | T[];
   render: (t: T) => ReactElement<any, any> | null;
 }
 
@@ -85,8 +85,8 @@ export const ItemList = <T extends object>(props: ItemListProps<T>) => {
   }
   return (
     <KeyValueSection>
-      {[...props.items.entries()].map(([k, v]) => (
-        <li key={k}>{props.render(v)}</li>
+      {[...props.items.entries()].map(([k, v], i) => (
+        <li key={typeof k === "symbol" ? i : k}>{props.render(v)}</li>
       ))}
     </KeyValueSection>
   );

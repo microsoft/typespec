@@ -1,3 +1,0 @@
----
-"@typespec/compiler": none
----

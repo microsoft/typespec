@@ -30,6 +30,7 @@ words:
   - eastus
   - ecmarkup
   - esbuild
+  - ESRP
   - fluentui
   - genproto
   - globby
@@ -107,7 +108,7 @@ ignorePaths:
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
   - "**/coverage/**"
-  - "grammars/**"
+  - grammars/**
   - packages/website/build/**
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"

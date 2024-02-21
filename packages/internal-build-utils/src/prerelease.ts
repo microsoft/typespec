@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
-import getAllChanges from "@changesets/read";
+import { NodeChronusHost, loadChronusWorkspace } from "@chronus/chronus";
+import { readChangeDescriptions } from "@chronus/chronus/change";
 import { findWorkspacePackagesNoCheck } from "@pnpm/find-workspace-packages";
 import { readFile, writeFile } from "fs/promises";
 import { join } from "path";
@@ -36,16 +37,17 @@ interface BumpManifest {
  * @returns map of package to number of changes.
  */
 async function getChangeCountPerPackage(workspaceRoot: string) {
-  const changesets = await getAllChanges(workspaceRoot);
+  const ws = await loadChronusWorkspace(NodeChronusHost, workspaceRoot);
+  const changesets = await readChangeDescriptions(NodeChronusHost, ws);
   const changeCounts: Record<string, number> = {};
 
   for (const changeset of changesets) {
-    for (const change of changeset.releases) {
-      if (!(change.name in changeCounts)) {
+    for (const pkgName of changeset.packages) {
+      if (!(pkgName in changeCounts)) {
         // Count all changes that are not "none"
-        changeCounts[change.name] = 0;
+        changeCounts[pkgName] = 0;
       }
-      changeCounts[change.name] += 1;
+      changeCounts[pkgName] += 1;
     }
   }
 
@@ -76,7 +78,8 @@ async function getPackages(
  */
 function updateDependencyVersions(
   packageManifest: PackageJson,
-  updatedPackages: Record<string, BumpManifest>
+  updatedPackages: Record<string, BumpManifest>,
+  prereleaseTag: string = "dev"
 ) {
   const clone: PackageJson = {
     ...packageManifest,
@@ -89,7 +92,7 @@ function updateDependencyVersions(
         const updatedPackage = updatedPackages[name];
         if (updatedPackage) {
           // Loose dependency accept anything above the last release. This make sure that preview release of only one package need to be bumped without needing all the other as well.
-          dependencies[name] = getDevVersionRange(updatedPackage);
+          dependencies[name] = getPrereleaseVersionRange(updatedPackage, prereleaseTag);
           // change to this line to have strict dependency for preview versions
           // dependencies[name] = `~${updatedPackage.newVersion}`;
         } else {
@@ -103,8 +106,8 @@ function updateDependencyVersions(
   return clone;
 }
 
-function getDevVersionRange(manifest: BumpManifest) {
-  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-dev <${manifest.nextVersion}`;
+function getPrereleaseVersionRange(manifest: BumpManifest, prereleaseTag: string) {
+  return `~${manifest.oldVersion} || >=${manifest.nextVersion}-${prereleaseTag} <${manifest.nextVersion}`;
 }
 
 function getDevVersion(version: string, changeCount: number) {
@@ -209,7 +212,8 @@ export async function bumpVersionsForPR(
   }
 
   for (const { packageJsonPath, manifest } of Object.values(updatedManifests)) {
-    await writeFile(packageJsonPath, JSON.stringify(manifest, null, 2));
+    const newManifest = updateDependencyVersions(manifest, updatedManifests, "0");
+    await writeFile(packageJsonPath, JSON.stringify(newManifest, null, 2));
   }
 }
 
