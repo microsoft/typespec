@@ -836,7 +836,6 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const visibility = this.#getVisibilityContext();
     const fullName =
       name + (shouldAddSuffix ? getVisibilitySuffix(visibility, Visibility.Read) : "");
-    console.log("Create model decl", name, this.#getVisibilityContext(), shouldAddSuffix, fullName);
 
     const decl = this.emitter.result.declaration(fullName, schema);
 
