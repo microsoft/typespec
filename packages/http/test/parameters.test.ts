@@ -1,7 +1,7 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import { compileOperations } from "./test-host.js";
+import { compileOperations, getRoutesFor } from "./test-host.js";
 
 it("emit diagnostic for parameters with multiple http request annotations", async () => {
   const [_, diagnostics] = await compileOperations(`
@@ -12,6 +12,21 @@ it("emit diagnostic for parameters with multiple http request annotations", asyn
     code: "@typespec/http/operation-param-duplicate-type",
     message: "Param multiParam has multiple types: [query, path]",
   });
+});
+
+it("allows a deeply nested @body", async () => {
+  const routes = await getRoutesFor(`
+      op get(data: {nested: { @body param2: string }}): string;
+    `);
+
+  deepStrictEqual(routes, [{ verb: "post", params: [], path: "/" }]);
+});
+it("allows a deeply nested @bodyRoot", async () => {
+  const routes = await getRoutesFor(`
+      op get(data: {nested: { @bodyRoot param2: string }}): string;
+    `);
+
+  deepStrictEqual(routes, [{ verb: "post", params: [], path: "/" }]);
 });
 
 it("emit diagnostic when there is an unannotated parameter and a @body param", async () => {
@@ -31,10 +46,16 @@ it("emit diagnostic when there are multiple @body param", async () => {
       @get op get(@query select: string, @body param1: string, @body param2: string): string;
     `);
 
-  expectDiagnostics(diagnostics, {
-    code: "@typespec/http/duplicate-body",
-    message: "Operation has multiple @body parameters declared",
-  });
+  expectDiagnostics(diagnostics, [
+    {
+      code: "@typespec/http/duplicate-body",
+      message: "Operation has multiple @body parameters declared",
+    },
+    {
+      code: "@typespec/http/duplicate-body",
+      message: "Operation has multiple @body parameters declared",
+    },
+  ]);
 });
 
 it("emit error if using multipart/form-data contentType parameter with a body not being a model", async () => {

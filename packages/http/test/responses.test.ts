@@ -35,6 +35,22 @@ describe("body resolution", () => {
     ]);
   });
 
+  it("allows a deeply nested @body", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        op get(): {data: {nested: { @body param2: string }}};
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("allows a deeply nested @bodyRoot", async () => {
+    const [_, diagnostics] = await compileOperations(`
+        op get(): {data: {nested: { @bodyRoot param2: string }}};
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   describe("emit diagnostics when using metadata decorator in @body", () => {
     it.each([
       ["@header", "id: string"],

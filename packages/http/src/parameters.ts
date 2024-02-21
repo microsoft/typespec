@@ -1,13 +1,11 @@
 import {
   createDiagnosticCollector,
   Diagnostic,
-  filterModelProperties,
   ModelProperty,
   Operation,
   Program,
-  Type,
 } from "@typespec/compiler";
-import { validateBodyProperty } from "./body.js";
+import { resolveBody, ResolvedBody } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldOptions,
@@ -18,7 +16,7 @@ import {
   isBodyRoot,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { gatherMetadata, isMetadata, isVisible, resolveRequestVisibility } from "./metadata.js";
+import { gatherMetadata, isMetadata, resolveRequestVisibility } from "./metadata.js";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -78,7 +76,9 @@ function getOperationParametersForVerb(
   }
 
   const parameters: HttpOperationParameter[] = [];
-  let resolvedBody: ResolvedRequestBody | undefined;
+  const resolvedBody = diagnostics.pipe(
+    resolveBody(program, operation.parameters, metadata, rootPropertyMap, visibility)
+  );
   let contentTypes: string[] | undefined;
 
   for (const param of metadata) {
@@ -132,40 +132,9 @@ function getOperationParametersForVerb(
         ...headerOptions,
         param,
       });
-    } else if (isBodyVal || isBodyRootVal) {
-      if (resolvedBody === undefined) {
-        if (isBodyVal) {
-          diagnostics.pipe(validateBodyProperty(program, param));
-        }
-        resolvedBody = { parameter: param, type: param.type, isExplicit: isBodyVal };
-      } else {
-        diagnostics.add(createDiagnostic({ code: "duplicate-body", target: param }));
-      }
     }
   }
 
-  const bodyRoot = resolvedBody?.parameter
-    ? rootPropertyMap.get(resolvedBody.parameter)
-    : undefined;
-  const unannotatedProperties = filterModelProperties(
-    program,
-    operation.parameters,
-    (p) => !metadata.has(p) && p !== bodyRoot && isVisible(program, p, visibility)
-  );
-
-  if (unannotatedProperties.properties.size > 0) {
-    if (resolvedBody === undefined) {
-      resolvedBody = { type: unannotatedProperties, isExplicit: false };
-    } else {
-      diagnostics.add(
-        createDiagnostic({
-          code: "duplicate-body",
-          messageId: "bodyAndUnannotated",
-          target: operation,
-        })
-      );
-    }
-  }
   const body = diagnostics.pipe(computeHttpOperationBody(operation, resolvedBody, contentTypes));
 
   return diagnostics.wrap({
@@ -181,15 +150,9 @@ function getOperationParametersForVerb(
   });
 }
 
-interface ResolvedRequestBody {
-  readonly type: Type;
-  readonly isExplicit: boolean;
-  readonly parameter?: ModelProperty;
-}
-
 function computeHttpOperationBody(
   operation: Operation,
-  resolvedBody: ResolvedRequestBody | undefined,
+  resolvedBody: ResolvedBody | undefined,
   contentTypes: string[] | undefined
 ): [HttpOperationRequestBody | undefined, readonly Diagnostic[]] {
   contentTypes ??= [];
@@ -210,15 +173,19 @@ function computeHttpOperationBody(
     diagnostics.push(
       createDiagnostic({
         code: "multipart-model",
-        target: resolvedBody.parameter ?? operation.parameters,
+        target: resolvedBody.property ?? operation.parameters,
       })
     );
     return [undefined, diagnostics];
   }
 
   const body: HttpOperationRequestBody = {
-    ...resolvedBody,
+    type: resolvedBody.type,
+    isExplicit: resolvedBody.isExplicit,
     contentTypes,
   };
+  if (resolvedBody.property) {
+    body.parameter = resolvedBody.property;
+  }
   return [body, diagnostics];
 }

@@ -2,12 +2,9 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
-  DuplicateTracker,
-  getDiscriminator,
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
-  isArrayModelType,
   isErrorModel,
   isNullType,
   isVoidType,
@@ -16,21 +13,18 @@ import {
   Operation,
   Program,
   Type,
-  walkPropertiesInherited,
 } from "@typespec/compiler";
-import { validateBodyProperty } from "./body.js";
+import { resolveBody } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
   getStatusCodeDescription,
   getStatusCodesWithDiagnostics,
-  isBody,
-  isBodyRoot,
   isHeader,
   isStatusCode,
 } from "./decorators.js";
 import { createDiagnostic, HttpStateKeys, reportDiagnostic } from "./lib.js";
-import { gatherMetadata, isApplicableMetadata, isVisible, Visibility } from "./metadata.js";
+import { gatherMetadata, Visibility } from "./metadata.js";
 import { HttpOperationResponse, HttpStatusCodes, HttpStatusCodesEntry } from "./types.js";
 
 /**
@@ -92,7 +86,15 @@ function processResponseType(
   responses: ResponseIndex,
   responseType: Type
 ) {
-  const metadata = gatherMetadata(program, diagnostics, responseType, Visibility.Read);
+  const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
+  const metadata = gatherMetadata(
+    program,
+    diagnostics,
+    responseType,
+    Visibility.Read,
+    undefined,
+    rootPropertyMap
+  );
 
   // Get explicity defined status codes
   const statusCodes: HttpStatusCodes = diagnostics.pipe(
@@ -106,7 +108,9 @@ function processResponseType(
   const headers = getResponseHeaders(program, metadata);
 
   // Get body
-  let resolvedBody = getResponseBody(program, diagnostics, responseType, metadata);
+  let resolvedBody = diagnostics.pipe(
+    resolveBody(program, responseType, metadata, rootPropertyMap, Visibility.Read)
+  );
 
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
@@ -147,7 +151,14 @@ function processResponseType(
     };
 
     if (resolvedBody !== undefined) {
-      response.responses.push({ body: { contentTypes: contentTypes, ...resolvedBody }, headers });
+      response.responses.push({
+        body: {
+          contentTypes: contentTypes,
+          type: resolvedBody.type,
+          isExplicit: resolvedBody.isExplicit,
+        },
+        headers,
+      });
     } else if (contentTypes.length > 0) {
       diagnostics.add(
         createDiagnostic({
@@ -238,74 +249,6 @@ function getResponseHeaders(
     }
   }
   return responseHeaders;
-}
-
-interface ResolvedResponseBody {
-  readonly type: Type;
-  readonly isExplicit: boolean;
-}
-function getResponseBody(
-  program: Program,
-  diagnostics: DiagnosticCollector,
-  responseType: Type,
-  metadata: Set<ModelProperty>
-): ResolvedResponseBody | undefined {
-  // non-model or intrinsic/array model -> response body is response type
-  if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
-    return { type: responseType, isExplicit: false };
-  }
-
-  const duplicateTracker = new DuplicateTracker<string, Type>();
-
-  // look for explicit body
-  let resolvedBody: ResolvedResponseBody | undefined;
-  for (const property of metadata) {
-    const isBodyVal = isBody(program, property);
-    const isBodyRootVal = isBodyRoot(program, property);
-    if (isBodyVal || isBodyRootVal) {
-      duplicateTracker.track("body", property);
-      if (resolvedBody === undefined) {
-        resolvedBody = { type: property.type, isExplicit: isBodyVal };
-        if (isBodyVal) {
-          diagnostics.pipe(validateBodyProperty(program, property));
-        }
-      }
-    }
-  }
-  for (const [_, items] of duplicateTracker.entries()) {
-    for (const prop of items) {
-      diagnostics.add(
-        createDiagnostic({
-          code: "duplicate-body",
-          target: prop,
-        })
-      );
-    }
-  }
-  if (resolvedBody) {
-    return resolvedBody;
-  }
-
-  // Special case for legacy purposes if the return type is an empty model with only @discriminator("xyz")
-  // Then we still want to return that object as it technically always has a body with that implicit property.
-  if (responseType.derivedModels.length > 0 && getDiscriminator(program, responseType)) {
-    return { type: responseType, isExplicit: false };
-  }
-  if (responseType.indexer) {
-    return { type: responseType, isExplicit: false };
-  }
-
-  for (const property of walkPropertiesInherited(responseType)) {
-    if (
-      !isApplicableMetadata(program, property, Visibility.Read) &&
-      isVisible(program, property, Visibility.Read)
-    ) {
-      return { type: responseType, isExplicit: false };
-    }
-  }
-
-  // Otherwise, there is no body
-  return undefined;
 }
 
 function getResponseDescription(
