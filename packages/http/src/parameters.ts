@@ -209,6 +209,7 @@ function computeHttpOperationBody(
 
   const body: HttpOperationRequestBody = {
     type: bodyType,
+    isExplicit: false,
     parameter: bodyProperty,
     contentTypes,
   };

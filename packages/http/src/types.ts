@@ -382,6 +382,9 @@ export interface HttpOperationBody {
    * Type of the operation body.
    */
   type: Type;
+
+  /** If the body was explicitly set with `@body`. */
+  readonly isExplicit: boolean;
 }
 
 export interface HttpStatusCodeRange {

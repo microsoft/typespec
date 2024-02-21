@@ -197,6 +197,10 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     return this.emitter.getContext().visibility ?? Visibility.Read;
   }
 
+  #isInExplicitBody(): boolean {
+    return this.emitter.getContext().isInExplicitBody;
+  }
+
   #getContentType(): string {
     return this.emitter.getContext().contentType ?? "application/json";
   }
@@ -263,7 +267,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // If the property has a type of 'never', don't include it in the schema
         continue;
       }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+
+      if (!this.#metadataInfo.isPayloadProperty(prop, visibility, this.#isInExplicitBody())) {
         continue;
       }
 
@@ -292,7 +297,7 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         // If the property has a type of 'never', don't include it in the schema
         continue;
       }
-      if (!this.#metadataInfo.isPayloadProperty(prop, visibility)) {
+      if (!this.#metadataInfo.isPayloadProperty(prop, visibility, this.#isInExplicitBody())) {
         continue;
       }
       const result = this.emitter.emitModelProperty(prop);

@@ -873,7 +873,7 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(data.body.type, contentType);
         const schema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaForBody(data.body.type, Visibility.Read, undefined);
+          : getSchemaForBody(data.body.type, Visibility.Read, data.body.isExplicit, undefined);
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(schema);
         } else {
@@ -906,9 +906,10 @@ function createOAPIEmitter(
   function callSchemaEmitter(
     type: Type,
     visibility: Visibility,
+    isInExplicitBody?: boolean,
     contentType?: string
   ): Refable<OpenAPI3Schema> {
-    const result = emitTypeWithSchemaEmitter(type, visibility, contentType);
+    const result = emitTypeWithSchemaEmitter(type, visibility, isInExplicitBody, contentType);
 
     switch (result.kind) {
       case "code":
@@ -928,7 +929,7 @@ function createOAPIEmitter(
   }
 
   function getSchemaValue(type: Type, visibility: Visibility, contentType: string): OpenAPI3Schema {
-    const result = emitTypeWithSchemaEmitter(type, visibility, contentType);
+    const result = emitTypeWithSchemaEmitter(type, visibility, false, contentType);
 
     switch (result.kind) {
       case "code":
@@ -949,6 +950,7 @@ function createOAPIEmitter(
   function emitTypeWithSchemaEmitter(
     type: Type,
     visibility: Visibility,
+    isInExplicitBody?: boolean,
     contentType?: string
   ): EmitEntity<OpenAPI3Schema> {
     if (!metadataInfo.isTransformed(type, visibility)) {
@@ -956,17 +958,28 @@ function createOAPIEmitter(
     }
     contentType = contentType === "application/json" ? undefined : contentType;
     return schemaEmitter.emitType(type, {
-      referenceContext: { visibility, serviceNamespaceName: serviceNamespaceName, contentType },
+      referenceContext: {
+        visibility,
+        serviceNamespaceName: serviceNamespaceName,
+        isInExplicitBody,
+        contentType,
+      },
     }) as any;
   }
 
   function getSchemaForBody(
     type: Type,
     visibility: Visibility,
+    isExplicit: boolean,
     multipart: string | undefined
   ): any {
     const effectiveType = metadataInfo.getEffectivePayloadType(type, visibility);
-    return callSchemaEmitter(effectiveType, visibility, multipart ?? "application/json");
+    return callSchemaEmitter(
+      effectiveType,
+      visibility,
+      isExplicit,
+      multipart ?? "application/json"
+    );
   }
 
   function getParamPlaceholder(property: ModelProperty) {
@@ -1044,6 +1057,7 @@ function createOAPIEmitter(
           : getSchemaForBody(
               body.type,
               visibility,
+              body.isExplicit,
               contentType.startsWith("multipart/") ? contentType : undefined
             );
         if (schemaMap.has(contentType)) {
@@ -1086,6 +1100,7 @@ function createOAPIEmitter(
         : getSchemaForBody(
             body.type,
             visibility,
+            body.isExplicit,
             contentType.startsWith("multipart/") ? contentType : undefined
           );
       const contentEntry: any = {
@@ -1402,7 +1417,7 @@ function createOAPIEmitter(
     const values = getKnownValues(program, typespecType as any);
     if (values) {
       return {
-        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, "application/json")],
+        oneOf: [newTarget, callSchemaEmitter(values, Visibility.Read, false, "application/json")],
       };
     }
 
@@ -1421,6 +1436,7 @@ function createOAPIEmitter(
       const newType = callSchemaEmitter(
         encodeData.type,
         Visibility.Read,
+        false,
         "application/json"
       ) as OpenAPI3Schema;
       newTarget.type = newType.type;

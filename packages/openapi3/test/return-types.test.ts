@@ -1,6 +1,6 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { checkFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: return types", () => {
@@ -258,16 +258,6 @@ describe("openapi3: return types", () => {
     );
   });
 
-  describe("response model resolving to no property in the body produce no body", () => {
-    it.each(["{}", "{@header prop: string}", `{@visibility("none") prop: string}`])(
-      "%s",
-      async (body) => {
-        const res = await openApiFor(`op test(): ${body};`);
-        strictEqual(res.paths["/"].get.responses["200"].content, undefined);
-      }
-    );
-  });
-
   it("produce additionalProperties schema if response is Record<T>", async () => {
     const res = await openApiFor(
       `
@@ -419,6 +409,38 @@ describe("openapi3: return types", () => {
   it("defaults to 200 no content with void @body", async () => {
     const res = await openApiFor(`@get op read(): {@body body: void};`);
     ok(res.paths["/"].get.responses["200"]);
+  });
+
+  it("using @body ignore any metadata property underneath", async () => {
+    const res = await openApiFor(`@get op read(): {
+      @body body: {
+        #suppress "@typespec/http/metadata-ignored"
+        @header header: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @query query: string,
+        #suppress "@typespec/http/metadata-ignored"
+        @statusCode code: 201,
+      }
+    };`);
+    expect(res.paths["/"].get.responses["200"].content["application/json"].schema).toEqual({
+      type: "object",
+      properties: {
+        header: { type: "string" },
+        query: { type: "string" },
+        code: { type: "number", enum: [201] },
+      },
+      required: ["header", "query", "code"],
+    });
+  });
+
+  describe("response model resolving to no property in the body produce no body", () => {
+    it.each(["{}", "{@header prop: string}", `{@visibility("none") prop: string}`])(
+      "%s",
+      async (body) => {
+        const res = await openApiFor(`op test(): ${body};`);
+        strictEqual(res.paths["/"].get.responses["200"].content, undefined);
+      }
+    );
   });
 
   describe("multiple content types", () => {

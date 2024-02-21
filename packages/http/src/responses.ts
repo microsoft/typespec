@@ -106,17 +106,17 @@ function processResponseType(
   const headers = getResponseHeaders(program, metadata);
 
   // Get body
-  let bodyType = getResponseBody(program, diagnostics, responseType, metadata);
+  let resolvedBody = getResponseBody(program, diagnostics, responseType, metadata);
 
   // If there is no explicit status code, check if it should be 204
   if (statusCodes.length === 0) {
     if (isErrorModel(program, responseType)) {
       statusCodes.push("*");
     } else if (isVoidType(responseType)) {
-      bodyType = undefined;
+      resolvedBody = undefined;
       statusCodes.push(204); // Only special case for 204 is op test(): void;
-    } else if (bodyType === undefined || isVoidType(bodyType)) {
-      bodyType = undefined;
+    } else if (resolvedBody === undefined || isVoidType(resolvedBody.type)) {
+      resolvedBody = undefined;
       statusCodes.push(200);
     } else {
       statusCodes.push(200);
@@ -124,7 +124,7 @@ function processResponseType(
   }
 
   // If there is a body but no explicit content types, use application/json
-  if (bodyType && contentTypes.length === 0) {
+  if (resolvedBody && contentTypes.length === 0) {
     contentTypes.push("application/json");
   }
 
@@ -136,12 +136,18 @@ function processResponseType(
       statusCode: typeof statusCode === "object" ? "*" : (String(statusCode) as any),
       statusCodes: statusCode,
       type: responseType,
-      description: getResponseDescription(program, operation, responseType, statusCode, bodyType),
+      description: getResponseDescription(
+        program,
+        operation,
+        responseType,
+        statusCode,
+        resolvedBody?.type
+      ),
       responses: [],
     };
 
-    if (bodyType !== undefined) {
-      response.responses.push({ body: { contentTypes: contentTypes, type: bodyType }, headers });
+    if (resolvedBody !== undefined) {
+      response.responses.push({ body: { contentTypes: contentTypes, ...resolvedBody }, headers });
     } else if (contentTypes.length > 0) {
       diagnostics.add(
         createDiagnostic({
@@ -234,27 +240,33 @@ function getResponseHeaders(
   return responseHeaders;
 }
 
+interface ResolvedBody {
+  readonly type: Type;
+  readonly isExplicit: boolean;
+}
 function getResponseBody(
   program: Program,
   diagnostics: DiagnosticCollector,
   responseType: Type,
   metadata: Set<ModelProperty>
-): Type | undefined {
+): ResolvedBody | undefined {
   // non-model or intrinsic/array model -> response body is response type
   if (responseType.kind !== "Model" || isArrayModelType(program, responseType)) {
-    return responseType;
+    return { type: responseType, isExplicit: false };
   }
 
   const duplicateTracker = new DuplicateTracker<string, Type>();
 
   // look for explicit body
-  let bodyProperty: ModelProperty | undefined;
+  let resolvedBody: ResolvedBody | undefined;
   for (const property of metadata) {
-    if (isBody(program, property) || isBodyRoot(program, property)) {
+    const isBodyVal = isBody(program, property);
+    const isBodyRootVal = isBodyRoot(program, property);
+    if (isBodyVal || isBodyRootVal) {
       duplicateTracker.track("body", property);
-      if (bodyProperty === undefined) {
-        bodyProperty = property;
-        if (isBody(program, property)) {
+      if (resolvedBody === undefined) {
+        resolvedBody = { type: property.type, isExplicit: isBodyVal };
+        if (isBodyVal) {
           diagnostics.pipe(validateBodyProperty(program, property));
         }
       }
@@ -270,17 +282,17 @@ function getResponseBody(
       );
     }
   }
-  if (bodyProperty) {
-    return bodyProperty.type;
+  if (resolvedBody) {
+    return resolvedBody;
   }
 
   // Special case for legacy purposes if the return type is an empty model with only @discriminator("xyz")
   // Then we still want to return that object as it technically always has a body with that implicit property.
   if (responseType.derivedModels.length > 0 && getDiscriminator(program, responseType)) {
-    return responseType;
+    return { type: responseType, isExplicit: false };
   }
   if (responseType.indexer) {
-    return responseType;
+    return { type: responseType, isExplicit: false };
   }
 
   for (const property of walkPropertiesInherited(responseType)) {
@@ -288,7 +300,7 @@ function getResponseBody(
       !isApplicableMetadata(program, property, Visibility.Read) &&
       isVisible(program, property, Visibility.Read)
     ) {
-      return responseType;
+      return { type: responseType, isExplicit: false };
     }
   }
 

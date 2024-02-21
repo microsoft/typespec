@@ -265,6 +265,9 @@ export function gatherMetadata(
       if (isApplicableMetadataOrBody(program, property, visibility, isMetadataCallback)) {
         metadata.set(property.name, property);
         rootMapOut?.set(property, root);
+        if (isBody(program, property)) {
+          continue; // We ignore any properties under `@body`
+        }
       }
 
       if (
@@ -394,7 +397,11 @@ export interface MetadataInfo {
    * payload and not applicable metadata {@link isApplicableMetadata} or
    * filtered out by the given visibility.
    */
-  isPayloadProperty(property: ModelProperty, visibility: Visibility): boolean;
+  isPayloadProperty(
+    property: ModelProperty,
+    visibility: Visibility,
+    inExplicitBody?: boolean
+  ): boolean;
 
   /**
    * Determines if the given property is optional in the request or
@@ -560,12 +567,14 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   function isPayloadProperty(
     property: ModelProperty,
     visibility: Visibility,
+    inExplicitBody?: boolean,
     keepShareableProperties?: boolean
   ): boolean {
     if (
-      isEmptied(property.type, visibility) ||
-      isApplicableMetadata(program, property, visibility) ||
-      (isMetadata(program, property) && !includeInapplicableMetadataInPayload(program, property))
+      !inExplicitBody &&
+      (isEmptied(property.type, visibility) ||
+        isApplicableMetadata(program, property, visibility) ||
+        (isMetadata(program, property) && !includeInapplicableMetadataInPayload(program, property)))
     ) {
       return false;
     }
