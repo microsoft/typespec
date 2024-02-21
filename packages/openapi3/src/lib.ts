@@ -161,12 +161,6 @@ export const libDef = {
         default: `OpenAPI does not allow paths containing a query string.`,
       },
     },
-    "duplicate-body": {
-      severity: "error",
-      messages: {
-        default: "Duplicate @body declarations on response type",
-      },
-    },
     "duplicate-header": {
       severity: "error",
       messages: {

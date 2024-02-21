@@ -2,6 +2,7 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
+  DuplicateTracker,
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
@@ -16,6 +17,7 @@ import {
   Type,
   walkPropertiesInherited,
 } from "@typespec/compiler";
+import { validateBodyProperty } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
@@ -239,15 +241,29 @@ function getResponseBody(
     return responseType;
   }
 
+  const duplicateTracker = new DuplicateTracker<string, Type>();
+
   // look for explicit body
   let bodyProperty: ModelProperty | undefined;
   for (const property of metadata) {
     if (isBody(program, property) || isBodyRoot(program, property)) {
-      if (bodyProperty) {
-        diagnostics.add(createDiagnostic({ code: "duplicate-body", target: property }));
-      } else {
+      duplicateTracker.track("body", property);
+      if (bodyProperty === undefined) {
         bodyProperty = property;
+        if (isBody(program, property)) {
+          diagnostics.pipe(validateBodyProperty(program, property));
+        }
       }
+    }
+  }
+  for (const [_, items] of duplicateTracker.entries()) {
+    for (const prop of items) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "duplicate-body",
+          target: prop,
+        })
+      );
     }
   }
   if (bodyProperty) {

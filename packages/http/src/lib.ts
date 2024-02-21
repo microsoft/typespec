@@ -87,6 +87,12 @@ export const $lib = createTypeSpecLibrary({
         default: "`Content-Type` header ignored because there is no body.",
       },
     },
+    "metadata-ignored": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`${"kind"} property will be ignored as it is inside of a @body property. Use @bodyRoot instead if wanting to mix.`,
+      },
+    },
     "no-service-found": {
       severity: "warning",
       messages: {
