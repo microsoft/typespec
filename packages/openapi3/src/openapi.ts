@@ -957,6 +957,7 @@ function createOAPIEmitter(
       visibility = Visibility.Read;
     }
     contentType = contentType === "application/json" ? undefined : contentType;
+    console.log("IS in ", (type as any).name, visibility, isInExplicitBody);
     return schemaEmitter.emitType(type, {
       referenceContext: {
         visibility,

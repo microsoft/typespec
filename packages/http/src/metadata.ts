@@ -537,8 +537,8 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       return true;
     }
     return (
-      isPayloadProperty(property, visibility, /* keep shared */ true) !==
-      isPayloadProperty(property, canonicalVisibility, /*keep shared*/ true)
+      isPayloadProperty(property, visibility, undefined, /* keep shared */ true) !==
+      isPayloadProperty(property, canonicalVisibility, undefined, /*keep shared*/ true)
     );
   }
 
@@ -547,7 +547,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       return false;
     }
     for (const property of model.properties.values()) {
-      if (isPayloadProperty(property, visibility, /* keep shared */ true)) {
+      if (isPayloadProperty(property, visibility, undefined, /* keep shared */ true)) {
         return false;
       }
     }
