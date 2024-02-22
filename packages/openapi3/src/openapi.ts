@@ -64,6 +64,7 @@ import {
   HttpStatusCodesEntry,
   HttpVerb,
   isContentTypeHeader,
+  isExplicitBodyValid,
   isOverloadSameEndpoint,
   MetadataInfo,
   QueryParameterOptions,
@@ -873,7 +874,12 @@ function createOAPIEmitter(
         const isBinary = isBinaryPayload(data.body.type, contentType);
         const schema = isBinary
           ? { type: "string", format: "binary" }
-          : getSchemaForBody(data.body.type, Visibility.Read, data.body.isExplicit, undefined);
+          : getSchemaForBody(
+              data.body.type,
+              Visibility.Read,
+              data.body.isExplicit && !isExplicitBodyValid(program, data.body.property!),
+              undefined
+            );
         if (schemaMap.has(contentType)) {
           schemaMap.get(contentType)!.push(schema);
         } else {
@@ -906,10 +912,15 @@ function createOAPIEmitter(
   function callSchemaEmitter(
     type: Type,
     visibility: Visibility,
-    isInExplicitBody?: boolean,
+    ignoreMetadataAnnotations?: boolean,
     contentType?: string
   ): Refable<OpenAPI3Schema> {
-    const result = emitTypeWithSchemaEmitter(type, visibility, isInExplicitBody, contentType);
+    const result = emitTypeWithSchemaEmitter(
+      type,
+      visibility,
+      ignoreMetadataAnnotations,
+      contentType
+    );
 
     switch (result.kind) {
       case "code":
@@ -950,7 +961,7 @@ function createOAPIEmitter(
   function emitTypeWithSchemaEmitter(
     type: Type,
     visibility: Visibility,
-    isInExplicitBody?: boolean,
+    ignoreMetadataAnnotations?: boolean,
     contentType?: string
   ): EmitEntity<OpenAPI3Schema> {
     if (!metadataInfo.isTransformed(type, visibility)) {
@@ -961,7 +972,7 @@ function createOAPIEmitter(
       referenceContext: {
         visibility,
         serviceNamespaceName: serviceNamespaceName,
-        isInExplicitBody,
+        ignoreMetadataAnnotations: ignoreMetadataAnnotations ?? false,
         contentType,
       },
     }) as any;
@@ -1057,7 +1068,7 @@ function createOAPIEmitter(
           : getSchemaForBody(
               body.type,
               visibility,
-              body.isExplicit,
+              body.isExplicit && !isExplicitBodyValid(program, body.parameter!),
               contentType.startsWith("multipart/") ? contentType : undefined
             );
         if (schemaMap.has(contentType)) {
@@ -1100,7 +1111,7 @@ function createOAPIEmitter(
         : getSchemaForBody(
             body.type,
             visibility,
-            body.isExplicit,
+            body.isExplicit && !isExplicitBodyValid(program, body.parameter!),
             contentType.startsWith("multipart/") ? contentType : undefined
           );
       const contentEntry: any = {

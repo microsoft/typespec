@@ -53,9 +53,6 @@ export function resolveBody(
       duplicateTracker.track("body", property);
       if (resolvedBody === undefined) {
         resolvedBody = { type: property.type, isExplicit: isBodyVal, property };
-        if (isBodyVal) {
-          diagnostics.pipe(validateBodyProperty(program, property));
-        }
       }
     }
   }
@@ -109,7 +106,7 @@ export function resolveBody(
 }
 
 /** Validate a property marked with `@body` */
-function validateBodyProperty(
+export function validateBodyProperty(
   program: Program,
   property: ModelProperty
 ): [boolean, readonly Diagnostic[]] {

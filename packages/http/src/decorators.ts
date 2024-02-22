@@ -21,6 +21,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import { validateBodyProperty } from "./body.js";
 import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
 import { getStatusCodesFromType } from "./status-codes.js";
@@ -167,7 +168,11 @@ export function isPathParam(program: Program, entity: Type) {
 }
 
 export function $body(context: DecoratorContext, entity: ModelProperty) {
-  context.program.stateSet(HttpStateKeys.body).add(entity);
+  const [valid, diagnostics] = validateBodyProperty(context.program, entity);
+  if (!valid) {
+    context.program.reportDiagnostics(diagnostics);
+  }
+  context.program.stateMap(HttpStateKeys.body).set(entity, { valid });
 }
 
 export function $bodyRoot(context: DecoratorContext, entity: ModelProperty) {
@@ -179,7 +184,15 @@ export function $bodyIgnore(context: DecoratorContext, entity: ModelProperty) {
 }
 
 export function isBody(program: Program, entity: Type): boolean {
-  return program.stateSet(HttpStateKeys.body).has(entity);
+  return program.stateMap(HttpStateKeys.body).has(entity);
+}
+
+/**
+ * Return if a property marked with `@body` is valid(Doesn't contain any metadata property).
+ * Returns `false` if it contains a metadata property.
+ */
+export function isExplicitBodyValid(program: Program, entity: ModelProperty): boolean {
+  return program.stateMap(HttpStateKeys.body).get(entity).valid;
 }
 
 export function isBodyRoot(program: Program, entity: ModelProperty): boolean {

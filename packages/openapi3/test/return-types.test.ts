@@ -4,6 +4,24 @@ import { describe, expect, it } from "vitest";
 import { checkFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: return types", () => {
+  it("model used with @body and without shouldn't conflict if it contains no metadata", async () => {
+    const res = await openApiFor(
+      `
+      model Foo {
+        name: string;
+      }
+      @route("c1") op c1(): Foo;
+      @route("c2") op c2(): {@body _: Foo};
+      `
+    );
+    deepStrictEqual(res.paths["/c1"].get.responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Foo",
+    });
+    deepStrictEqual(res.paths["/c2"].get.responses["200"].content["application/json"].schema, {
+      $ref: "#/components/schemas/Foo",
+    });
+  });
+
   it("defines responses with response headers", async () => {
     const res = await openApiFor(
       `

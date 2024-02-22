@@ -154,8 +154,7 @@ function processResponseType(
       response.responses.push({
         body: {
           contentTypes: contentTypes,
-          type: resolvedBody.type,
-          isExplicit: resolvedBody.isExplicit,
+          ...resolvedBody,
         },
         headers,
       });
