@@ -67,15 +67,17 @@ export function resolveBody(
     }
   }
   if (resolvedBody === undefined) {
+    // Special case if the model as a parent model then we'll return an empty object as this is assumed to be a nominal type.
+    // Special Case if the model has an indexer then it means it can return props so cannot be void.
+    if (requestOrResponseType.baseModel || requestOrResponseType.indexer) {
+      return diagnostics.wrap({ type: requestOrResponseType, isExplicit: false });
+    }
     // Special case for legacy purposes if the return type is an empty model with only @discriminator("xyz")
     // Then we still want to return that object as it technically always has a body with that implicit property.
     if (
       requestOrResponseType.derivedModels.length > 0 &&
       getDiscriminator(program, requestOrResponseType)
     ) {
-      return diagnostics.wrap({ type: requestOrResponseType, isExplicit: false });
-    }
-    if (requestOrResponseType.indexer) {
       return diagnostics.wrap({ type: requestOrResponseType, isExplicit: false });
     }
   }
