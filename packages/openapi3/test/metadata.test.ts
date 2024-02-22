@@ -925,7 +925,7 @@ describe("openapi3: metadata", () => {
     });
   });
 
-  it("supports nested metadata and removes emptied properties", async () => {
+  it("supports nested metadata", async () => {
     const res = await openApiFor(
       `
       model Pet {
@@ -1015,15 +1015,33 @@ describe("openapi3: metadata", () => {
       PetCreate: {
         type: "object",
         properties: {
+          headers: {
+            type: "object",
+            properties: {
+              moreHeaders: {
+                type: "object",
+              },
+            },
+            required: ["moreHeaders"],
+          },
           name: {
             type: "string",
           },
         },
-        required: ["name"],
+        required: ["headers", "name"],
       },
       Pet: {
         type: "object",
         properties: {
+          headers: {
+            type: "object",
+            properties: {
+              moreHeaders: {
+                type: "object",
+              },
+            },
+            required: ["moreHeaders"],
+          },
           id: {
             type: "string",
           },
@@ -1031,7 +1049,7 @@ describe("openapi3: metadata", () => {
             type: "string",
           },
         },
-        required: ["id", "name"],
+        required: ["headers", "id", "name"],
       },
     });
   });
