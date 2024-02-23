@@ -18,11 +18,11 @@ model TypeSpec.OpenAPI.AdditionalInfo
 
 #### Properties
 
-| Name           | Type      | Description                                                                      |
-| -------------- | --------- | -------------------------------------------------------------------------------- |
-| termsOfService | `url`     | A URL to the Terms of Service for the API. MUST be in the format of a URL.<br /> |
-| contact        | `Contact` | The contact information for the exposed API.<br />                               |
-| license        | `License` | The license information for the exposed API.<br />                               |
+| Name            | Type                                   | Description                                                                      |
+| --------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
+| termsOfService? | `url`                                  | A URL to the Terms of Service for the API. MUST be in the format of a URL.<br /> |
+| contact?        | [`Contact`](#TypeSpec.OpenAPI.Contact) | The contact information for the exposed API.<br />                               |
+| license?        | [`License`](#TypeSpec.OpenAPI.License) | The license information for the exposed API.<br />                               |
 
 ### `Contact` {#TypeSpec.OpenAPI.Contact}
 
@@ -34,11 +34,11 @@ model TypeSpec.OpenAPI.Contact
 
 #### Properties
 
-| Name  | Type     | Description                                                                                            |
-| ----- | -------- | ------------------------------------------------------------------------------------------------------ |
-| name  | `string` | The identifying name of the contact person/organization.<br />                                         |
-| url   | `url`    | The URL pointing to the contact information. MUST be in the format of a URL.<br />                     |
-| email | `string` | The email address of the contact person/organization. MUST be in the format of an email address.<br /> |
+| Name   | Type     | Description                                                                                            |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------ |
+| name?  | `string` | The identifying name of the contact person/organization.<br />                                         |
+| url?   | `url`    | The URL pointing to the contact information. MUST be in the format of a URL.<br />                     |
+| email? | `string` | The email address of the contact person/organization. MUST be in the format of an email address.<br /> |
 
 ### `License` {#TypeSpec.OpenAPI.License}
 
@@ -53,4 +53,4 @@ model TypeSpec.OpenAPI.License
 | Name | Type     | Description                                                                  |
 | ---- | -------- | ---------------------------------------------------------------------------- |
 | name | `string` | The license name used for the API.<br />                                     |
-| url  | `url`    | A URL to the license used for the API. MUST be in the format of a URL.<br /> |
+| url? | `url`    | A URL to the license used for the API. MUST be in the format of a URL.<br /> |

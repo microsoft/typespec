@@ -52,6 +52,7 @@ import {
   LinterRuleSetRefDoc,
   ModelPropertyRefDoc,
   ModelRefDoc,
+  NamedTypeRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
   ScalarRefDoc,
@@ -66,22 +67,12 @@ import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
  */
 
 //prettier-ignore
-type MutableArrayProps<T> =
-  T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
-  T extends ReadonlySet<infer T> ? Set<Mutable<T>> :
-  T extends readonly (infer V)[] ? V[] :
-  // brand to force explicit conversion.
-  { -readonly [P in keyof T]: MutateIfArray<T[P]> };
-
-//prettier-ignore
 type Mutable<T> =
   T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
   T extends ReadonlySet<infer T> ? Set<Mutable<T>> :
   T extends readonly (infer V)[] ? V[] :
   // brand to force explicit conversion.
   { -readonly [P in keyof T]: T[P]};
-
-type MutateIfArray<T> = T extends readonly (infer U)[] ? U[] : T;
 
 export async function extractLibraryRefDocs(
   libraryPath: string
@@ -93,13 +84,15 @@ export async function extractLibraryRefDocs(
     description: pkgJson.description,
     packageJson: pkgJson,
     namespaces: [],
+    getNamedTypeRefDoc: (type) => undefined,
   };
   if (pkgJson.tspMain) {
     const main = resolvePath(libraryPath, pkgJson.tspMain);
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    refDoc.namespaces = diagnostics.pipe(extractRefDocs(program)).namespaces as any;
+    const tspEmitter = diagnostics.pipe(extractRefDocs(program));
+    Object.assign(refDoc, tspEmitter);
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }
@@ -173,13 +166,11 @@ export function extractRefDocs(
 ): [TypeSpecRefDocBase, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const namespaceTypes = diagnostics.pipe(resolveNamespaces(program, options));
-
-  const refDoc: MutableArrayProps<TypeSpecRefDocBase> = {
-    namespaces: [],
-  };
+  const typeMapping = new Map<Type, NamedTypeRefDoc>();
+  const namespaces: Mutable<NamespaceRefDoc>[] = [];
 
   for (const namespace of namespaceTypes) {
-    const namespaceDoc: MutableArrayProps<NamespaceRefDoc> = {
+    const namespaceDoc: Mutable<NamespaceRefDoc> = {
       id: getTypeName(namespace),
       decorators: [],
       operations: [],
@@ -190,26 +181,39 @@ export function extractRefDocs(
       scalars: [],
     };
 
-    refDoc.namespaces.push(namespaceDoc);
+    namespaces.push(namespaceDoc);
+    function collectType<T extends NamedTypeRefDoc>(
+      type: Type,
+      refDoc: T,
+      array: T[] | readonly T[]
+    ) {
+      typeMapping.set(type, refDoc);
+      (array as any).push(refDoc);
+    }
     navigateTypesInNamespace(
       namespace,
       {
         decorator(dec) {
-          namespaceDoc.decorators.push(extractDecoratorRefDoc(program, dec));
+          collectType(dec, extractDecoratorRefDoc(program, dec), namespaceDoc.decorators);
         },
         operation(operation) {
           if (!isDeclaredType(operation)) {
             return;
           }
+
           if (operation.interface === undefined) {
-            namespaceDoc.operations.push(extractOperationRefDoc(program, operation, undefined));
+            collectType(
+              operation,
+              extractOperationRefDoc(program, operation, undefined),
+              namespaceDoc.operations
+            );
           }
         },
         interface(iface) {
           if (!isDeclaredType(iface)) {
             return;
           }
-          namespaceDoc.interfaces.push(extractInterfaceRefDocs(program, iface));
+          collectType(iface, extractInterfaceRefDocs(program, iface), namespaceDoc.interfaces);
         },
         model(model) {
           if (!isDeclaredType(model)) {
@@ -218,32 +222,32 @@ export function extractRefDocs(
           if (model.name === "") {
             return;
           }
-          namespaceDoc.models.push(extractModelRefDocs(program, model));
+          collectType(model, extractModelRefDocs(program, model), namespaceDoc.models);
         },
         enum(e) {
           if (!isDeclaredType(e)) {
             return;
           }
-          namespaceDoc.enums.push(extractEnumRefDoc(program, e));
+          collectType(e, extractEnumRefDoc(program, e), namespaceDoc.enums);
         },
         union(union) {
           if (!isDeclaredType(union)) {
             return;
           }
           if (union.name !== undefined) {
-            namespaceDoc.unions.push(extractUnionRefDocs(program, union as any));
+            collectType(union, extractUnionRefDocs(program, union as any), namespaceDoc.unions);
           }
         },
         scalar(scalar) {
-          namespaceDoc.scalars.push(extractScalarRefDocs(program, scalar as any));
+          collectType(scalar, extractScalarRefDocs(program, scalar), namespaceDoc.scalars);
         },
       },
       { includeTemplateDeclaration: true, skipSubNamespaces: true }
     );
   }
 
-  sort(refDoc.namespaces);
-  for (const namespace of refDoc.namespaces as MutableArrayProps<NamespaceRefDoc>[]) {
+  sort(namespaces);
+  for (const namespace of namespaces) {
     sort(namespace.decorators);
     sort(namespace.enums);
     sort(namespace.interfaces);
@@ -253,11 +257,14 @@ export function extractRefDocs(
     sort(namespace.scalars);
   }
 
-  function sort(arr: { id: string }[]) {
-    arr.sort((a, b) => a.id.localeCompare(b.id, "en"));
+  function sort(arr: { id: string }[] | readonly { id: string }[]) {
+    (arr as { id: string }[]).sort((a, b) => a.id.localeCompare(b.id, "en"));
   }
 
-  return diagnostics.wrap(refDoc);
+  return diagnostics.wrap({
+    namespaces,
+    getNamedTypeRefDoc: (type) => typeMapping.get(type),
+  });
 }
 
 function extractTemplateParameterDocs(program: Program, type: TemplatedType) {

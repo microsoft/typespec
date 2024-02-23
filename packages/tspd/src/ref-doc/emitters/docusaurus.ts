@@ -255,10 +255,8 @@ function renderLinter(
 }
 
 export class DocusaurusRenderer extends MarkdownRenderer {
-  #refDoc: TypeSpecLibraryRefDoc;
   constructor(refDoc: TypeSpecLibraryRefDoc) {
-    super();
-    this.#refDoc = refDoc;
+    super(refDoc);
   }
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
@@ -288,7 +286,7 @@ export class DocusaurusRenderer extends MarkdownRenderer {
   }
 
   linterRuleLink(url: string) {
-    const homepage = (this.#refDoc.packageJson as any).docusaurusWebsite;
+    const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
     if (homepage && url.includes(homepage)) {
       const fromRoot = url.replace(homepage, "");
       return `${fromRoot}.md`;

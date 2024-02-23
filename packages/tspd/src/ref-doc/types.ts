@@ -10,6 +10,7 @@ import {
   NodePackage,
   Operation,
   Scalar,
+  Type,
   Union,
 } from "@typespec/compiler";
 
@@ -39,6 +40,9 @@ export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
 
 export type TypeSpecRefDocBase = {
   readonly namespaces: readonly NamespaceRefDoc[];
+
+  /** Returns the named type ref doc mapping to that type if is is part of this library. */
+  readonly getNamedTypeRefDoc: (type: Type) => NamedTypeRefDoc | undefined;
 };
 
 export type EmitterRefDoc = {
@@ -137,11 +141,6 @@ export type ModelRefDoc = NamedTypeRefDoc & {
 
 export type ModelPropertyRefDoc = NamedTypeRefDoc & {
   readonly type: ModelProperty;
-};
-
-export type TypeRefDocRef = {
-  id: string;
-  name: string;
 };
 
 export type EnumRefDoc = NamedTypeRefDoc & {

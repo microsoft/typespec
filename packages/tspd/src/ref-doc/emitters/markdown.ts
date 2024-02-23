@@ -44,7 +44,7 @@ async function loadTemplate(projectRoot: string, name: string) {
 
 export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) {
   const content: MarkdownDoc[] = [];
-  const renderer = new MarkdownRenderer();
+  const renderer = new MarkdownRenderer(refDoc);
 
   if (refDoc.description) {
     content.push(refDoc.description);
@@ -89,6 +89,7 @@ export function groupByNamespace(
  * Github flavored markdown renderer.
  */
 export class MarkdownRenderer {
+  constructor(protected readonly refDoc: TypeSpecRefDoc) {}
   headingTitle(item: NamedTypeRefDoc): string {
     return inlinecode(item.name);
   }
@@ -146,7 +147,11 @@ export class MarkdownRenderer {
       table([
         ["Name", "Type", "Description"],
         ...[...model.properties.values()].map((prop) => {
-          return [prop.name, inlinecode(this.ref(prop.type.type)), prop.doc];
+          return [
+            `${prop.name}${prop.type.optional ? "?" : ""}`,
+            this.ref(prop.type.type),
+            prop.doc,
+          ];
         }),
       ])
     );
@@ -154,6 +159,10 @@ export class MarkdownRenderer {
   }
 
   ref(type: Type | ValueType): string {
+    const namedType = type.kind !== "Value" && this.refDoc.getNamedTypeRefDoc(type);
+    if (namedType) {
+      return link(inlinecode(namedType.name), `#${this.anchorId(namedType)}`);
+    }
     return "name" in type && typeof type.name === "string"
       ? inlinecode(type.name)
       : getTypeSignature(type);
@@ -207,14 +216,12 @@ export class MarkdownRenderer {
   decorator(dec: DecoratorRefDoc) {
     const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
 
-    content.push(
-      section("Target", [dec.target.doc, inlinecode(this.ref(dec.target.type.type)), ""])
-    );
+    content.push(section("Target", [dec.target.doc, this.ref(dec.target.type.type), ""]));
 
     if (dec.parameters.length > 0) {
       const paramTable: string[][] = [["Name", "Type", "Description"]];
       for (const param of dec.parameters) {
-        paramTable.push([param.name, inlinecode(this.ref(param.type.type)), param.doc]);
+        paramTable.push([param.name, this.ref(param.type.type), param.doc]);
       }
       content.push(section("Parameters", [table(paramTable), ""]));
     } else {
