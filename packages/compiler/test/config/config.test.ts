@@ -3,9 +3,9 @@ import { join } from "path";
 import { describe, it } from "vitest";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
 import { TypeSpecRawConfig, loadTypeSpecConfigForPath } from "../../src/config/index.js";
-import { createSourceFile } from "../../src/core/diagnostics.js";
 import { NodeHost } from "../../src/core/node-host.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
+import { createSourceFile } from "../../src/core/source-file.js";
 import { resolvePath } from "../../src/index.js";
 import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
