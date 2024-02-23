@@ -8,6 +8,7 @@ import {
   ExampleRefDoc,
   InterfaceRefDoc,
   LinterRuleRefDoc,
+  ModelPropertyRefDoc,
   ModelRefDoc,
   NamedTypeRefDoc,
   NamespaceRefDoc,
@@ -144,22 +145,44 @@ export class MarkdownRenderer {
 
   modelProperties(model: ModelRefDoc) {
     const content: MarkdownDoc = [];
-    content.push(
-      table([
-        ["Name", "Type", "Description"],
-        ...[...model.properties.values()].map((prop) => {
-          return [
-            `${prop.name}${prop.type.optional ? "?" : ""}`,
-            this.ref(prop.type.type),
-            prop.doc,
-          ];
-        }),
-        ...(model.type.indexer
-          ? [["", this.ref(model.type.indexer.value), "Additional properties"]]
-          : []),
-      ])
-    );
+    const rows: { name: string; type: string; doc: string }[] = [
+      { name: "Name", type: "Type", doc: "Description" },
+    ];
+
+    for (const prop of model.properties.values()) {
+      const propRows = this.modelPropertyRows(prop);
+      for (const row of propRows) {
+        rows.push(row);
+      }
+    }
+    if (model.type.indexer) {
+      rows.push({
+        name: "",
+        type: this.ref(model.type.indexer.value),
+        doc: "Additional properties",
+      });
+    }
+    content.push(table(rows.map((x) => [x.name, x.type, x.doc])));
     return section("Properties", content);
+  }
+
+  modelPropertyRows(prop: ModelPropertyRefDoc): { name: string; type: string; doc: string }[] {
+    const base = {
+      name: `${prop.name}${prop.type.optional ? "?" : ""}`,
+      type: this.ref(prop.type.type),
+      doc: prop.doc,
+    };
+    if (prop.type.type.kind === "Model" && prop.type.type.name === "") {
+      return [
+        base,
+        ...[...prop.type.type.properties.values()].map((x) => ({
+          name: `${prop.name}.${x.name}`,
+          type: this.ref(x.type),
+          doc: "",
+        })),
+      ];
+    }
+    return [base];
   }
 
   ref(type: Type | ValueType): string {
