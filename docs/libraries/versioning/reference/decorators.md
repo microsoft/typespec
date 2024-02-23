@@ -147,10 +147,10 @@ Identifies when the target type changed.
 
 #### Parameters
 
-| Name    | Type                  | Description                                  |
-| ------- | --------------------- | -------------------------------------------- |
-| version | `EnumMember`          | The version that the target type changed in. |
-| oldType | `(intrinsic) unknown` | The previous type of the target.             |
+| Name    | Type         | Description                                  |
+| ------- | ------------ | -------------------------------------------- |
+| version | `EnumMember` | The version that the target type changed in. |
+| oldType | `unknown`    | The previous type of the target.             |
 
 ### `@typeChangedFrom` {#@TypeSpec.Versioning.typeChangedFrom}
 
@@ -166,10 +166,10 @@ Identifies when the target type changed.
 
 #### Parameters
 
-| Name    | Type                  | Description                                  |
-| ------- | --------------------- | -------------------------------------------- |
-| version | `EnumMember`          | The version that the target type changed in. |
-| oldType | `(intrinsic) unknown` | The previous type of the target.             |
+| Name    | Type         | Description                                  |
+| ------- | ------------ | -------------------------------------------- |
+| version | `EnumMember` | The version that the target type changed in. |
+| oldType | `unknown`    | The previous type of the target.             |
 
 ### `@useDependency` {#@TypeSpec.Versioning.useDependency}
 
@@ -185,9 +185,9 @@ Identifies that a namespace or a given versioning enum member relies upon a vers
 
 #### Parameters
 
-| Name           | Type                 | Description                                                           |
-| -------------- | -------------------- | --------------------------------------------------------------------- |
-| versionRecords | `model EnumMember[]` | The dependent library version(s) for the target namespace or version. |
+| Name           | Type    | Description                                                           |
+| -------------- | ------- | --------------------------------------------------------------------- |
+| versionRecords | `Array` | The dependent library version(s) for the target namespace or version. |
 
 #### Examples
 

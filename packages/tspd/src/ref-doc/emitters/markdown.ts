@@ -167,9 +167,9 @@ export class MarkdownRenderer {
         `${this.filename(namedType)}#${this.anchorId(namedType)}`
       );
     }
-    return "name" in type && typeof type.name === "string"
-      ? inlinecode(type.name)
-      : getTypeSignature(type);
+    return inlinecode(
+      "name" in type && typeof type.name === "string" ? type.name : getTypeSignature(type)
+    );
   }
 
   enum(e: EnumRefDoc): MarkdownDoc {

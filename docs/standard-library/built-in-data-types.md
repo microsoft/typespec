@@ -20,6 +20,9 @@ model Array<Element>
 | Element | The type of the array elements |
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `DefaultKeyVisibility` {#DefaultKeyVisibility}
 
@@ -36,6 +39,9 @@ model DefaultKeyVisibility<Source, Visibility>
 | Visibility | The visibility to apply to all properties. |
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `object` {#object}
 
@@ -46,6 +52,9 @@ model object
 ```
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `OmitDefaults` {#OmitDefaults}
 
@@ -61,6 +70,9 @@ model OmitDefaults<Source>
 | Source | An object whose spread property defaults are all omitted. |
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `OmitProperties` {#OmitProperties}
 
@@ -77,6 +89,9 @@ model OmitProperties<Source, Keys>
 | Keys | The property keys to omit. |
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `OptionalProperties` {#OptionalProperties}
 
@@ -92,6 +107,9 @@ model OptionalProperties<Source>
 | Source | An object whose spread properties are all optional. |
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `Record` {#Record}
 
@@ -108,6 +126,9 @@ model Record<Element>
 | Element | The type of the properties |
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `ServiceOptions` {#ServiceOptions}
 
@@ -118,6 +139,11 @@ model ServiceOptions
 ```
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
+| title? | [`string`](#string) | Title of the service.<br /> |
+| version? | [`string`](#string) | Version of the service.<br /> |
 
 ### `UpdateableProperties` {#UpdateableProperties}
 
@@ -133,6 +159,9 @@ model UpdateableProperties<Source>
 | Source | An object whose spread properties are all updateable. |
 
 
+#### Properties
+| Name | Type | Description |
+|------|------|-------------|
 
 ### `BytesKnownEncoding` {#BytesKnownEncoding}
 

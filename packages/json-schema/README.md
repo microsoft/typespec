@@ -131,9 +131,9 @@ Use `@minContains` and `@maxContains` to customize how many instances to expect.
 
 ##### Parameters
 
-| Name  | Type                  | Description                      |
-| ----- | --------------------- | -------------------------------- |
-| value | `(intrinsic) unknown` | The type the array must contain. |
+| Name  | Type      | Description                      |
+| ----- | --------- | -------------------------------- |
+| value | `unknown` | The type the array must contain. |
 
 #### `@contentEncoding`
 
@@ -186,9 +186,9 @@ media type and encoding.
 
 ##### Parameters
 
-| Name  | Type                  | Description                       |
-| ----- | --------------------- | --------------------------------- |
-| value | `(intrinsic) unknown` | the schema of the string contents |
+| Name  | Type      | Description                       |
+| ----- | --------- | --------------------------------- |
+| value | `unknown` | the schema of the string contents |
 
 #### `@extension`
 
@@ -204,14 +204,14 @@ emit the raw JSON code `{x: "value"}`.
 
 ##### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 ##### Parameters
 
 | Name  | Type                    | Description                                                                             |
 | ----- | ----------------------- | --------------------------------------------------------------------------------------- |
 | key   | `valueof scalar string` | the name of the keyword of vendor extension, e.g. `x-custom`.                           |
-| value | `(intrinsic) unknown`   | the value of the keyword. Will be converted to a schema unless wrapped in `Json<Data>`. |
+| value | `unknown`               | the value of the keyword. Will be converted to a schema unless wrapped in `Json<Data>`. |
 
 #### `@id`
 
@@ -226,7 +226,7 @@ By default, the id will be constructed based on the declaration's name.
 
 ##### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 ##### Parameters
 
@@ -248,7 +248,7 @@ you can provide the id.
 
 ##### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 ##### Parameters
 
@@ -362,9 +362,9 @@ Specify that the target array must begin with the provided types.
 
 ##### Parameters
 
-| Name  | Type              | Description                                                                 |
-| ----- | ----------------- | --------------------------------------------------------------------------- |
-| value | `model unknown[]` | a tuple containing the types that must be present at the start of the array |
+| Name  | Type    | Description                                                                 |
+| ----- | ------- | --------------------------------------------------------------------------- |
+| value | `Array` | a tuple containing the types that must be present at the start of the array |
 
 #### `@uniqueItems`
 

@@ -39,9 +39,9 @@ async function generateCompilerDocs() {
   const results = await resolveLibraryRefDocsBase(compilerPath, {
     namespaces: { include: ["TypeSpec"] },
   });
-  const renderer = new DocusaurusRenderer();
   assert(results, "Unexpected ref doc should have been resolved for compiler.");
   const [refDoc, diagnostics] = results;
+  const renderer = new DocusaurusRenderer(refDoc);
   const decoratorContent = renderDecoratorFile(renderer, refDoc, { title: "Built-in Decorators" });
   assert(decoratorContent, "Unexpected decorator file shouldn't be empty for compiler.");
   await writeFile(join(outputDir, "built-in-decorators.md"), decoratorContent);

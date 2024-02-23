@@ -17,7 +17,7 @@ NOTE: This decorator **should not** be used, use the `#deprecated` directive ins
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |
@@ -80,13 +80,13 @@ Attach a documentation string.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
 | doc | `valueof scalar string` | Documentation string |
-| formatArgs | `model {}` | Record with key value pair that can be interpolated in the doc. |
+| formatArgs | `` | Record with key value pair that can be interpolated in the doc. |
 
 #### Examples
 
@@ -142,7 +142,7 @@ Provide an alternative name for this type when serialized to the given mime type
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |
@@ -258,13 +258,13 @@ Specifies how a templated type should name their instances.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
 | name | `valueof scalar string` | name the template instance should take |
-| formatArgs | `(intrinsic) unknown` | Model with key value used to interpolate the name |
+| formatArgs | `unknown` | Model with key value used to interpolate the name |
 
 #### Examples
 
@@ -287,7 +287,7 @@ A debugging decorator used to inspect a type.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |
@@ -306,7 +306,7 @@ A debugging decorator used to inspect a type name.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |
@@ -684,7 +684,7 @@ Provide an alternative name for this type.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |
@@ -785,7 +785,7 @@ Mark this namespace as describing a service and configure service properties.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| options | `model ServiceOptions` | Optional configuration for the service. |
+| options | [`ServiceOptions`](./data-types.md#ServiceOptions) | Optional configuration for the service. |
 
 #### Examples
 
@@ -819,7 +819,7 @@ Typically a short, single-line description.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 | Name | Type | Description |

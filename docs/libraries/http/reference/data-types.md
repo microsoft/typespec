@@ -16,6 +16,12 @@ The request has been accepted for processing, but processing has not yet complet
 model TypeSpec.Http.AcceptedResponse
 ```
 
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 202` | The status code. |
+
 ### `ApiKeyAuth` {#TypeSpec.Http.ApiKeyAuth}
 
 An API key is a token that a client provides when making API calls. The key can be sent in the query string:
@@ -49,6 +55,14 @@ model TypeSpec.Http.ApiKeyAuth<Location, Name>
 | Location | The location of the API key |
 | Name     | The name of the API key     |
 
+#### Properties
+
+| Name | Type       | Description |
+| ---- | ---------- | ----------- |
+| type | `apiKey`   |             |
+| in   | `Location` |             |
+| name | `Name`     |             |
+
 ### `AuthorizationCodeFlow` {#TypeSpec.Http.AuthorizationCodeFlow}
 
 Authorization Code flow
@@ -57,6 +71,16 @@ Authorization Code flow
 model TypeSpec.Http.AuthorizationCodeFlow
 ```
 
+#### Properties
+
+| Name             | Type                | Description                       |
+| ---------------- | ------------------- | --------------------------------- |
+| type             | `authorizationCode` | authorization code flow           |
+| authorizationUrl | `string`            | the authorization URL             |
+| tokenUrl         | `string`            | the token URL                     |
+| refreshUrl?      | `string`            | the refresh URL                   |
+| scopes           | `Array`             | list of scopes for the credential |
+
 ### `BadRequestResponse` {#TypeSpec.Http.BadRequestResponse}
 
 The server could not understand the request due to invalid syntax.
@@ -64,6 +88,12 @@ The server could not understand the request due to invalid syntax.
 ```typespec
 model TypeSpec.Http.BadRequestResponse
 ```
+
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 400` | The status code. |
 
 ### `BasicAuth` {#TypeSpec.Http.BasicAuth}
 
@@ -79,6 +109,13 @@ Authorization: Basic ZGVtbzpwQDU1dzByZA==
 model TypeSpec.Http.BasicAuth
 ```
 
+#### Properties
+
+| Name   | Type               | Description         |
+| ------ | ------------------ | ------------------- |
+| type   | `http`             | Http authentication |
+| scheme | `(string) "basic"` | basic auth scheme   |
+
 ### `BearerAuth` {#TypeSpec.Http.BearerAuth}
 
 Bearer authentication (also called token authentication) is an HTTP authentication scheme that involves security tokens called bearer tokens.
@@ -92,6 +129,13 @@ Authorization: Bearer <token>
 ```typespec
 model TypeSpec.Http.BearerAuth
 ```
+
+#### Properties
+
+| Name   | Type                | Description         |
+| ------ | ------------------- | ------------------- |
+| type   | `http`              | Http authentication |
+| scheme | `(string) "bearer"` | bearer auth scheme  |
 
 ### `Body` {#TypeSpec.Http.Body}
 
@@ -110,6 +154,12 @@ model TypeSpec.Http.Body<Type>
 | ---- | ---------------------------------------- |
 | Type | The type of the model's `body` property. |
 
+#### Properties
+
+| Name | Type   | Description |
+| ---- | ------ | ----------- |
+| body | `Type` |             |
+
 ### `ClientCredentialsFlow` {#TypeSpec.Http.ClientCredentialsFlow}
 
 Client credentials flow
@@ -117,6 +167,15 @@ Client credentials flow
 ```typespec
 model TypeSpec.Http.ClientCredentialsFlow
 ```
+
+#### Properties
+
+| Name        | Type                | Description                       |
+| ----------- | ------------------- | --------------------------------- |
+| type        | `clientCredentials` | client credential flow            |
+| tokenUrl    | `string`            | the token URL                     |
+| refreshUrl? | `string`            | the refresh URL                   |
+| scopes      | `Array`             | list of scopes for the credential |
 
 ### `ConflictResponse` {#TypeSpec.Http.ConflictResponse}
 
@@ -126,6 +185,12 @@ The request conflicts with the current state of the server.
 model TypeSpec.Http.ConflictResponse
 ```
 
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 409` | The status code. |
+
 ### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
 The request has succeeded and a new resource has been created as a result.
@@ -133,6 +198,12 @@ The request has succeeded and a new resource has been created as a result.
 ```typespec
 model TypeSpec.Http.CreatedResponse
 ```
+
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 201` | The status code. |
 
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 
@@ -142,6 +213,12 @@ Access is forbidden.
 model TypeSpec.Http.ForbiddenResponse
 ```
 
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 403` | The status code. |
+
 ### `HeaderOptions` {#TypeSpec.Http.HeaderOptions}
 
 Header options.
@@ -149,6 +226,13 @@ Header options.
 ```typespec
 model TypeSpec.Http.HeaderOptions
 ```
+
+#### Properties
+
+| Name    | Type                                                          | Description                                                     |
+| ------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| name?   | `string`                                                      | Name of the header when sent over HTTP.<br />                   |
+| format? | `union csv \| multi \| tsv \| ssv \| pipes \| simple \| form` | Determines the format of the array if type array is used.<br /> |
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
@@ -158,6 +242,15 @@ Implicit flow
 model TypeSpec.Http.ImplicitFlow
 ```
 
+#### Properties
+
+| Name             | Type       | Description                       |
+| ---------------- | ---------- | --------------------------------- |
+| type             | `implicit` | implicit flow                     |
+| authorizationUrl | `string`   | the authorization URL             |
+| refreshUrl?      | `string`   | the refresh URL                   |
+| scopes           | `Array`    | list of scopes for the credential |
+
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
 The Location header contains the URL where the status of the long running operation can be checked.
@@ -165,6 +258,12 @@ The Location header contains the URL where the status of the long running operat
 ```typespec
 model TypeSpec.Http.LocationHeader
 ```
+
+#### Properties
+
+| Name     | Type     | Description                                                                                         |
+| -------- | -------- | --------------------------------------------------------------------------------------------------- |
+| location | `string` | The Location header contains the URL where the status of the long running operation can be checked. |
 
 ### `MovedResponse` {#TypeSpec.Http.MovedResponse}
 
@@ -174,6 +273,13 @@ The URL of the requested resource has been changed permanently. The new URL is g
 model TypeSpec.Http.MovedResponse
 ```
 
+#### Properties
+
+| Name       | Type           | Description                                                                                         |
+| ---------- | -------------- | --------------------------------------------------------------------------------------------------- |
+| statusCode | `(number) 301` | The status code.                                                                                    |
+| location   | `string`       | The Location header contains the URL where the status of the long running operation can be checked. |
+
 ### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
 There is no content to send for this request, but the headers may be useful.
@@ -181,6 +287,12 @@ There is no content to send for this request, but the headers may be useful.
 ```typespec
 model TypeSpec.Http.NoContentResponse
 ```
+
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 204` | The status code. |
 
 ### `NotFoundResponse` {#TypeSpec.Http.NotFoundResponse}
 
@@ -190,6 +302,12 @@ The server cannot find the requested resource.
 model TypeSpec.Http.NotFoundResponse
 ```
 
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 404` | The status code. |
+
 ### `NotModifiedResponse` {#TypeSpec.Http.NotModifiedResponse}
 
 The client has made a conditional request and the resource has not been modified.
@@ -197,6 +315,12 @@ The client has made a conditional request and the resource has not been modified
 ```typespec
 model TypeSpec.Http.NotModifiedResponse
 ```
+
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 304` | The status code. |
 
 ### `OAuth2Auth` {#TypeSpec.Http.OAuth2Auth}
 
@@ -216,6 +340,13 @@ model TypeSpec.Http.OAuth2Auth<Flows>
 | ----- | ---------------------------------- |
 | Flows | The list of supported OAuth2 flows |
 
+#### Properties
+
+| Name  | Type     | Description |
+| ----- | -------- | ----------- |
+| type  | `oauth2` |             |
+| flows | `Flows`  |             |
+
 ### `OkResponse` {#TypeSpec.Http.OkResponse}
 
 The request has succeeded.
@@ -223,6 +354,12 @@ The request has succeeded.
 ```typespec
 model TypeSpec.Http.OkResponse
 ```
+
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 200` | The status code. |
 
 ### `OpenIdConnectAuth` {#TypeSpec.Http.OpenIdConnectAuth}
 
@@ -245,6 +382,13 @@ model TypeSpec.Http.OpenIdConnectAuth<ConnectUrl>
 | ---------- | ----------- |
 | ConnectUrl |             |
 
+#### Properties
+
+| Name             | Type            | Description                                                       |
+| ---------------- | --------------- | ----------------------------------------------------------------- |
+| type             | `openIdConnect` | Auth type<br />                                                   |
+| openIdConnectUrl | `ConnectUrl`    | Connect url. It can be specified relative to the server URL<br /> |
+
 ### `PasswordFlow` {#TypeSpec.Http.PasswordFlow}
 
 Resource Owner Password flow
@@ -252,6 +396,15 @@ Resource Owner Password flow
 ```typespec
 model TypeSpec.Http.PasswordFlow
 ```
+
+#### Properties
+
+| Name             | Type       | Description                       |
+| ---------------- | ---------- | --------------------------------- |
+| type             | `password` | password flow                     |
+| authorizationUrl | `string`   | the authorization URL             |
+| refreshUrl?      | `string`   | the refresh URL                   |
+| scopes           | `Array`    | list of scopes for the credential |
 
 ### `PlainData` {#TypeSpec.Http.PlainData}
 
@@ -268,6 +421,11 @@ model TypeSpec.Http.PlainData<Data>
 | ---- | -------------------------------------- |
 | Data | The model to spread as the plain data. |
 
+#### Properties
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
 ### `QueryOptions` {#TypeSpec.Http.QueryOptions}
 
 Query parameter options.
@@ -275,6 +433,13 @@ Query parameter options.
 ```typespec
 model TypeSpec.Http.QueryOptions
 ```
+
+#### Properties
+
+| Name    | Type                                                          | Description                                                     |
+| ------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
+| name?   | `string`                                                      | Name of the query when included in the url.<br />               |
+| format? | `union multi \| csv \| ssv \| tsv \| simple \| form \| pipes` | Determines the format of the array if type array is used.<br /> |
 
 ### `Response` {#TypeSpec.Http.Response}
 
@@ -290,6 +455,12 @@ model TypeSpec.Http.Response<Status>
 | ------ | -------------------------------- |
 | Status | The status code of the response. |
 
+#### Properties
+
+| Name       | Type     | Description |
+| ---------- | -------- | ----------- |
+| statusCode | `Status` |             |
+
 ### `UnauthorizedResponse` {#TypeSpec.Http.UnauthorizedResponse}
 
 Access is unauthorized.
@@ -297,6 +468,12 @@ Access is unauthorized.
 ```typespec
 model TypeSpec.Http.UnauthorizedResponse
 ```
+
+#### Properties
+
+| Name       | Type           | Description      |
+| ---------- | -------------- | ---------------- |
+| statusCode | `(number) 401` | The status code. |
 
 ### `ApiKeyLocation` {#TypeSpec.Http.ApiKeyLocation}
 
