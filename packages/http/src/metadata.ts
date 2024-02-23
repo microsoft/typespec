@@ -592,7 +592,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
       // For OpenAPI emit, for example, this means that we won't put a
       // readOnly: true property into a specialized schema for a non-read
       // visibility.
-      keepShareableProperties ||= visibility === canonicalVisibility;
+      keepShareableProperties ??= visibility === canonicalVisibility;
       return !!(keepShareableProperties && options?.canShareProperty?.(property));
     }
 
@@ -606,7 +606,7 @@ export function createMetadataInfo(program: Program, options?: MetadataInfoOptio
   function getEffectivePayloadType(type: Type, visibility: Visibility): Type {
     if (type.kind === "Model" && !type.name) {
       const effective = getEffectiveModelType(program, type, (p) =>
-        isPayloadProperty(p, visibility)
+        isPayloadProperty(p, visibility, undefined, /* keep shared */ false)
       );
       if (effective.name) {
         return effective;
