@@ -154,6 +154,9 @@ export class MarkdownRenderer {
             prop.doc,
           ];
         }),
+        ...(model.type.indexer
+          ? [["", this.ref(model.type.indexer.value), "Additional properties"]]
+          : []),
       ])
     );
     return section("Properties", content);
