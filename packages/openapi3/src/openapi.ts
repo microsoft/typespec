@@ -44,7 +44,7 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 
-import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import {
   createMetadataInfo,
   getAuthentication,
@@ -90,6 +90,7 @@ import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { getDefaultValue, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
+  OpenAPI3DocumentRecord,
   OpenAPI3Header,
   OpenAPI3OAuthFlows,
   OpenAPI3Operation,
@@ -116,6 +117,37 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   const emitter = createOAPIEmitter(context, options);
   await emitter.emitOpenAPI();
+}
+
+type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
+
+/**
+ * Get the OpenAPI 3 document records from the given program. The documents are
+ * returned as a JS object.
+ *
+ * @param program The program to emit to OpenAPI 3
+ * @param options OpenAPI 3 emit options
+ * @returns An array of OpenAPI 3 document records.
+ */
+export async function getOpenAPI3(
+  program: Program,
+  options: Omit<OpenAPI3EmitterOptions, IrrelevantOpenAPI3EmitterOptionsForObject> = {}
+) {
+  const context: EmitContext<any> = {
+    program,
+
+    // this value doesn't matter for getting the OpenAPI3 objects
+    emitterOutputDir: "tsp-output",
+
+    options: options,
+    getAssetEmitter(TypeEmitterClass) {
+      return createAssetEmitter(program, TypeEmitterClass, this);
+    },
+  };
+
+  const resolvedOptions = resolveOptions(context);
+  const emitter = createOAPIEmitter(context, resolvedOptions);
+  return emitter.getOpenAPI();
 }
 
 function findFileTypeFromFilename(filename: string | undefined): FileType {
@@ -196,7 +228,25 @@ function createOAPIEmitter(
     },
   };
 
-  return { emitOpenAPI };
+  return { emitOpenAPI, getOpenAPI };
+
+  async function emitOpenAPI() {
+    const documents = await getOpenAPI();
+
+    if (program.compilerOptions.noEmit || program.hasError()) {
+      return;
+    }
+
+    const multipleService = new Set(documents.map((d) => d.service)).size > 1;
+
+    for (const documentRecord of documents) {
+      await emitFile(program, {
+        path: resolveOutputFile(documentRecord.service, multipleService, documentRecord.version),
+        content: serializeDocument(documentRecord.document, options.fileType),
+        newLine: options.newLine,
+      });
+    }
+  }
 
   function initializeEmitter(service: Service, version?: string) {
     currentService = service;
@@ -324,7 +374,8 @@ function createOAPIEmitter(
     });
   }
 
-  async function emitOpenAPI() {
+  async function getOpenAPI(): Promise<OpenAPI3DocumentRecord[]> {
+    const documents: OpenAPI3DocumentRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
@@ -347,15 +398,20 @@ function createOAPIEmitter(
           service.type
         ) as Namespace;
 
-        await emitOpenAPIFromVersion(
+        const document = await getOpenApiFromVersion(
           projectedServiceNs === projectedProgram.getGlobalNamespaceType()
             ? { type: projectedProgram.getGlobalNamespaceType() }
             : getService(program, projectedServiceNs)!,
-          services.length > 1,
           record.version
         );
+
+        if (document) {
+          documents.push(document);
+        }
       }
     }
+
+    return documents;
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
@@ -601,11 +657,10 @@ function createOAPIEmitter(
     return result;
   }
 
-  async function emitOpenAPIFromVersion(
+  async function getOpenApiFromVersion(
     service: Service,
-    multipleService: boolean,
     version?: string
-  ) {
+  ): Promise<OpenAPI3DocumentRecord | undefined> {
     initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
@@ -631,15 +686,11 @@ function createOAPIEmitter(
         }
       }
 
-      if (!program.compilerOptions.noEmit && !program.hasError()) {
-        // Write out the OpenAPI document to the output path
-
-        await emitFile(program, {
-          path: resolveOutputFile(service, multipleService, version),
-          content: serializeDocument(root, options.fileType),
-          newLine: options.newLine,
-        });
-      }
+      return {
+        document: root,
+        service,
+        version,
+      };
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was
