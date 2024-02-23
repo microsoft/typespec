@@ -45,9 +45,21 @@ export default function FooterLayout({ style: theme, links, copyright }) {
           <div>{copyright}</div>
         </div>
         <div className={style["general-links"]}>
-          <Link href={Links.privacy} title="Microsoft Privacy Policy">
-            Privacy
-          </Link>
+          <div>
+            <Link href={Links.privacy} title="Microsoft Privacy Policy">
+              Privacy
+            </Link>
+          </div>
+          <div>
+            <Link href={Links.termsOfUse} title="Microsoft Terms Of Use">
+              Terms of use
+            </Link>{" "}
+          </div>
+          <div>
+            <Link href={Links.trademark} title="Microsoft Trademarks">
+              Trademarks
+            </Link>{" "}
+          </div>
         </div>
       </div>
     </footer>
