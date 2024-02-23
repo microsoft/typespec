@@ -260,13 +260,21 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+    it("emit diagnostics when not all duplicated routes are declared shared on each op conflicting", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
         @route("/test") op test3(): string;
       `);
       expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `All shared routes must agree on the value of the shared parameter.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `All shared routes must agree on the value of the shared parameter.`,
+        },
         {
           code: "@typespec/http/shared-inconsistency",
           message: `All shared routes must agree on the value of the shared parameter.`,
@@ -280,6 +288,15 @@ describe("http: decorators", () => {
         @route("/test") @sharedRoute op test2(): string;
       `);
 
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("do not emit diagnostics routes sharing path but not same verb", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
+        @route("/test") @post op test3(): string;
+      `);
       expectDiagnosticEmpty(diagnostics);
     });
 
