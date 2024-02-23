@@ -229,10 +229,10 @@ model TypeSpec.Http.HeaderOptions
 
 #### Properties
 
-| Name    | Type                                                          | Description                                                     |
-| ------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
-| name?   | `string`                                                      | Name of the header when sent over HTTP.<br />                   |
-| format? | `union csv \| multi \| tsv \| ssv \| pipes \| simple \| form` | Determines the format of the array if type array is used.<br /> |
+| Name    | Type                                                                        | Description                                                     |
+| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| name?   | `string`                                                                    | Name of the header when sent over HTTP.<br />                   |
+| format? | `union "csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used.<br /> |
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
@@ -436,10 +436,10 @@ model TypeSpec.Http.QueryOptions
 
 #### Properties
 
-| Name    | Type                                                          | Description                                                     |
-| ------- | ------------------------------------------------------------- | --------------------------------------------------------------- |
-| name?   | `string`                                                      | Name of the query when included in the url.<br />               |
-| format? | `union multi \| csv \| ssv \| tsv \| simple \| form \| pipes` | Determines the format of the array if type array is used.<br /> |
+| Name    | Type                                                                        | Description                                                     |
+| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| name?   | `string`                                                                    | Name of the query when included in the url.<br />               |
+| format? | `union "multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used.<br /> |
 
 ### `Response` {#TypeSpec.Http.Response}
 

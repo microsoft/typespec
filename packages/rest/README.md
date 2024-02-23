@@ -52,7 +52,7 @@ Specify this operation is an action. (Scoped to a resource item /pets/{petId}/my
 Defines the separator string that is inserted before the action name in auto-generated routes for actions.
 
 ```typespec
-@TypeSpec.Rest.actionSeparator(seperator: valueof / | : | /:)
+@TypeSpec.Rest.actionSeparator(seperator: valueof "/" | ":" | "/:")
 ```
 
 ##### Target
@@ -61,9 +61,9 @@ Defines the separator string that is inserted before the action name in auto-gen
 
 ##### Parameters
 
-| Name      | Type                         | Description                                                      |
-| --------- | ---------------------------- | ---------------------------------------------------------------- |
-| seperator | `valueof union / \| : \| /:` | Seperator seperating the action segment from the rest of the url |
+| Name      | Type                               | Description                                                      |
+| --------- | ---------------------------------- | ---------------------------------------------------------------- |
+| seperator | `valueof union "/" \| ":" \| "/:"` | Seperator seperating the action segment from the rest of the url |
 
 #### `@autoRoute`
 
