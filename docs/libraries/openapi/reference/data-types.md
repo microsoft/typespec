@@ -18,11 +18,11 @@ model TypeSpec.OpenAPI.AdditionalInfo
 
 #### Properties
 
-| Name            | Type                                   | Description                                                                      |
-| --------------- | -------------------------------------- | -------------------------------------------------------------------------------- |
-| termsOfService? | `url`                                  | A URL to the Terms of Service for the API. MUST be in the format of a URL.<br /> |
-| contact?        | [`Contact`](#TypeSpec.OpenAPI.Contact) | The contact information for the exposed API.<br />                               |
-| license?        | [`License`](#TypeSpec.OpenAPI.License) | The license information for the exposed API.<br />                               |
+| Name            | Type                                                  | Description                                                                      |
+| --------------- | ----------------------------------------------------- | -------------------------------------------------------------------------------- |
+| termsOfService? | `url`                                                 | A URL to the Terms of Service for the API. MUST be in the format of a URL.<br /> |
+| contact?        | [`Contact`](./data-types.md#TypeSpec.OpenAPI.Contact) | The contact information for the exposed API.<br />                               |
+| license?        | [`License`](./data-types.md#TypeSpec.OpenAPI.License) | The license information for the exposed API.<br />                               |
 
 ### `Contact` {#TypeSpec.OpenAPI.Contact}
 

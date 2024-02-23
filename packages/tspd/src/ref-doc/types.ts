@@ -42,7 +42,7 @@ export type TypeSpecRefDocBase = {
   readonly namespaces: readonly NamespaceRefDoc[];
 
   /** Returns the named type ref doc mapping to that type if is is part of this library. */
-  readonly getNamedTypeRefDoc: (type: Type) => NamedTypeRefDoc | undefined;
+  readonly getNamedTypeRefDoc: (type: Type) => RefDocEntity | undefined;
 };
 
 export type EmitterRefDoc = {
@@ -56,9 +56,11 @@ export type LinterRefDoc = {
 };
 
 export type LinterRuleSetRefDoc = ReferencableElement & {
+  readonly kind: "ruleset";
   readonly ruleSet: LinterRuleSet;
 };
 export type LinterRuleRefDoc = ReferencableElement & {
+  readonly kind: "rule";
   readonly rule: LinterRuleDefinition<any, any>;
 };
 
@@ -68,8 +70,22 @@ export type EmitterOptionRefDoc = {
   readonly doc: string;
 };
 
+export type RefDocEntity =
+  | NamespaceRefDoc
+  | DecoratorRefDoc
+  | OperationRefDoc
+  | InterfaceRefDoc
+  | ModelRefDoc
+  | EnumRefDoc
+  | UnionRefDoc
+  | ScalarRefDoc
+  | LinterRuleSetRefDoc
+  | LinterRuleRefDoc;
+
 export type NamespaceRefDoc = {
+  readonly kind: "namespace";
   readonly id: string;
+  readonly name: string;
   readonly decorators: readonly DecoratorRefDoc[];
   readonly operations: readonly OperationRefDoc[];
   readonly interfaces: readonly InterfaceRefDoc[];
@@ -95,6 +111,7 @@ export type NamedTypeRefDoc = ReferencableElement & {
 };
 
 export type DecoratorRefDoc = NamedTypeRefDoc & {
+  readonly kind: "decorator";
   readonly type: Decorator;
   readonly target: FunctionParameterRefDoc;
   readonly parameters: readonly FunctionParameterRefDoc[];
@@ -115,15 +132,15 @@ export type ExampleRefDoc = {
 };
 
 export type OperationRefDoc = NamedTypeRefDoc & {
+  readonly kind: "operation";
   readonly type: Operation;
-
   readonly templateParameters?: TemplateParameterRefDoc[];
 };
 
 export type InterfaceRefDoc = NamedTypeRefDoc & {
+  readonly kind: "interface";
   readonly type: Interface;
   readonly templateParameters?: readonly TemplateParameterRefDoc[];
-
   readonly interfaceOperations: readonly OperationRefDoc[];
 };
 
@@ -133,6 +150,7 @@ export type TemplateParameterRefDoc = {
 };
 
 export type ModelRefDoc = NamedTypeRefDoc & {
+  readonly kind: "model";
   readonly type: Model;
 
   readonly templateParameters?: readonly TemplateParameterRefDoc[];
@@ -144,16 +162,19 @@ export type ModelPropertyRefDoc = NamedTypeRefDoc & {
 };
 
 export type EnumRefDoc = NamedTypeRefDoc & {
+  readonly kind: "enum";
   readonly type: Enum;
 };
 
 export type UnionRefDoc = NamedTypeRefDoc & {
+  readonly kind: "union";
   readonly type: Union;
 
   readonly templateParameters?: readonly TemplateParameterRefDoc[];
 };
 
 export type ScalarRefDoc = NamedTypeRefDoc & {
+  readonly kind: "scalar";
   readonly type: Scalar;
 
   readonly templateParameters?: readonly TemplateParameterRefDoc[];

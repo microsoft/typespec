@@ -52,9 +52,9 @@ import {
   LinterRuleSetRefDoc,
   ModelPropertyRefDoc,
   ModelRefDoc,
-  NamedTypeRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  RefDocEntity,
   ScalarRefDoc,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDocBase,
@@ -166,12 +166,15 @@ export function extractRefDocs(
 ): [TypeSpecRefDocBase, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   const namespaceTypes = diagnostics.pipe(resolveNamespaces(program, options));
-  const typeMapping = new Map<Type, NamedTypeRefDoc>();
+  const typeMapping = new Map<Type, RefDocEntity>();
   const namespaces: Mutable<NamespaceRefDoc>[] = [];
 
   for (const namespace of namespaceTypes) {
+    const name = getTypeName(namespace);
     const namespaceDoc: Mutable<NamespaceRefDoc> = {
-      id: getTypeName(namespace),
+      kind: "namespace",
+      id: name,
+      name,
       decorators: [],
       operations: [],
       interfaces: [],
@@ -182,11 +185,7 @@ export function extractRefDocs(
     };
 
     namespaces.push(namespaceDoc);
-    function collectType<T extends NamedTypeRefDoc>(
-      type: Type,
-      refDoc: T,
-      array: T[] | readonly T[]
-    ) {
+    function collectType<T extends RefDocEntity>(type: Type, refDoc: T, array: T[] | readonly T[]) {
       typeMapping.set(type, refDoc);
       (array as any).push(refDoc);
     }
@@ -301,6 +300,7 @@ function extractInterfaceRefDocs(program: Program, iface: Interface): InterfaceR
     });
   }
   return {
+    kind: "interface",
     id: getNamedTypeId(iface),
     name: iface.name,
     signature: getTypeSignature(iface),
@@ -338,6 +338,7 @@ function extractOperationRefDoc(
     }
   }
   return {
+    kind: "operation",
     id: getNamedTypeId(operation),
     name: interfaceName ? `${interfaceName}.${operation.name}` : operation.name,
     signature: getTypeSignature(operation),
@@ -361,6 +362,7 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
       });
     }
     return {
+      kind: "decorator",
       type: x,
       doc: paramDoc.get(x.name) ?? "",
       name: x.name,
@@ -380,6 +382,7 @@ function extractDecoratorRefDoc(program: Program, decorator: Decorator): Decorat
     });
   }
   return {
+    kind: "decorator",
     id: getNamedTypeId(decorator),
     name: decorator.name,
     type: decorator,
@@ -409,6 +412,7 @@ function extractModelRefDocs(program: Program, type: Model): ModelRefDoc {
     });
   }
   return {
+    kind: "model",
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
@@ -445,6 +449,7 @@ function extractEnumRefDoc(program: Program, type: Enum): EnumRefDoc {
     });
   }
   return {
+    kind: "enum",
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
@@ -464,6 +469,7 @@ function extractUnionRefDocs(program: Program, type: Union & { name: string }): 
     });
   }
   return {
+    kind: "union",
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
@@ -485,6 +491,7 @@ function extractScalarRefDocs(program: Program, type: Scalar): ScalarRefDoc {
     });
   }
   return {
+    kind: "scalar",
     id: getNamedTypeId(type),
     name: type.name,
     signature: getTypeSignature(type),
@@ -628,6 +635,7 @@ function extractLinterRuleSetsRefDoc(
   return Object.entries(ruleSets).map(([name, ruleSet]) => {
     const fullName = `${libName}/${name}`;
     return {
+      kind: "ruleset",
       id: fullName,
       name: fullName,
       ruleSet,
@@ -640,6 +648,7 @@ function extractLinterRuleRefDoc(
 ): LinterRuleRefDoc {
   const fullName = `${libName}/${rule.name}`;
   return {
+    kind: "rule",
     id: fullName,
     name: fullName,
     rule,

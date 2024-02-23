@@ -12,6 +12,7 @@ import {
   NamedTypeRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  RefDocEntity,
   ReferencableElement,
   ScalarRefDoc,
   TemplateParameterRefDoc,
@@ -161,7 +162,10 @@ export class MarkdownRenderer {
   ref(type: Type | ValueType): string {
     const namedType = type.kind !== "Value" && this.refDoc.getNamedTypeRefDoc(type);
     if (namedType) {
-      return link(inlinecode(namedType.name), `#${this.anchorId(namedType)}`);
+      return link(
+        inlinecode(namedType.name),
+        `${this.filename(namedType)}#${this.anchorId(namedType)}`
+      );
     }
     return "name" in type && typeof type.name === "string"
       ? inlinecode(type.name)
@@ -267,10 +271,14 @@ export class MarkdownRenderer {
     });
   }
 
-  toc(items: readonly ReferencableElement[], filename?: string) {
+  toc(items: readonly (ReferencableElement & RefDocEntity)[]) {
     return items.map(
-      (item) => ` - [${inlinecode(item.name)}](${filename ?? ""}#${this.anchorId(item)})`
+      (item) => ` - [${inlinecode(item.name)}](${this.filename(item)}#${this.anchorId(item)})`
     );
+  }
+
+  filename(type: ReferencableElement & RefDocEntity): string {
+    return "";
   }
 
   install(refDoc: TypeSpecRefDoc) {
