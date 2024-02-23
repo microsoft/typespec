@@ -38,6 +38,15 @@ export async function createBrowserHost(
     for (const [key, value] of Object.entries<any>(_TypeSpecLibrary_.jsSourceFiles)) {
       addJsImport(`/test/node_modules/${libName}/${key}`, value);
     }
+    virtualFs.set(
+      `/test/package.json`,
+      JSON.stringify({
+        name: "playground-pkg",
+        dependencies: Object.fromEntries(
+          Object.values(libraries).map((x) => [x.name, x.packageJson.version])
+        ),
+      })
+    );
   }
 
   function addJsImport(path: string, value: any) {
