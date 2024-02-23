@@ -250,9 +250,6 @@ function renderLinter(
 }
 
 export class DocusaurusRenderer extends MarkdownRenderer {
-  constructor(refDoc: TypeSpecLibraryRefDoc) {
-    super(refDoc);
-  }
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;

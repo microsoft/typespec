@@ -785,7 +785,7 @@ Mark this namespace as describing a service and configure service properties.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| options | [`ServiceOptions`](./data-types.md#ServiceOptions) | Optional configuration for the service. |
+| options | [`ServiceOptions`](./built-in-data-types.md#ServiceOptions) | Optional configuration for the service. |
 
 #### Examples
 
