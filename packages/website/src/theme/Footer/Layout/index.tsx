@@ -53,12 +53,12 @@ export default function FooterLayout({ style: theme, links, copyright }) {
           <div>
             <Link href={Links.termsOfUse} title="Microsoft Terms Of Use">
               Terms of use
-            </Link>{" "}
+            </Link>
           </div>
           <div>
             <Link href={Links.trademark} title="Microsoft Trademarks">
               Trademarks
-            </Link>{" "}
+            </Link>
           </div>
         </div>
       </div>
