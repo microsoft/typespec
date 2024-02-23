@@ -269,15 +269,15 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `All shared routes must agree on the value of the shared parameter.`,
+          message: `Route "get /test" is used by multiple operations with different @sharedRoute values.`,
         },
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `All shared routes must agree on the value of the shared parameter.`,
+          message: `Route "get /test" is used by multiple operations with different @sharedRoute values.`,
         },
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `All shared routes must agree on the value of the shared parameter.`,
+          message: `Route "get /test" is used by multiple operations with different @sharedRoute values.`,
         },
       ]);
     });
