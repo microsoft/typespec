@@ -16,6 +16,14 @@ Additional information for the OpenAPI document.
 model TypeSpec.OpenAPI.AdditionalInfo
 ```
 
+#### Properties
+
+| Name           | Type      | Description                                                                      |
+| -------------- | --------- | -------------------------------------------------------------------------------- |
+| termsOfService | `url`     | A URL to the Terms of Service for the API. MUST be in the format of a URL.<br /> |
+| contact        | `Contact` | The contact information for the exposed API.<br />                               |
+| license        | `License` | The license information for the exposed API.<br />                               |
+
 ### `Contact` {#TypeSpec.OpenAPI.Contact}
 
 Contact information for the exposed API.
@@ -24,6 +32,14 @@ Contact information for the exposed API.
 model TypeSpec.OpenAPI.Contact
 ```
 
+#### Properties
+
+| Name  | Type     | Description                                                                                            |
+| ----- | -------- | ------------------------------------------------------------------------------------------------------ |
+| name  | `string` | The identifying name of the contact person/organization.<br />                                         |
+| url   | `url`    | The URL pointing to the contact information. MUST be in the format of a URL.<br />                     |
+| email | `string` | The email address of the contact person/organization. MUST be in the format of an email address.<br /> |
+
 ### `License` {#TypeSpec.OpenAPI.License}
 
 License information for the exposed API.
@@ -31,3 +47,10 @@ License information for the exposed API.
 ```typespec
 model TypeSpec.OpenAPI.License
 ```
+
+#### Properties
+
+| Name | Type     | Description                                                                  |
+| ---- | -------- | ---------------------------------------------------------------------------- |
+| name | `string` | The license name used for the API.<br />                                     |
+| url  | `url`    | A URL to the license used for the API. MUST be in the format of a URL.<br /> |

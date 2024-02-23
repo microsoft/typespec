@@ -20,6 +20,7 @@ import {
   LinterRuleDefinition,
   LinterRuleSet,
   Model,
+  ModelProperty,
   Namespace,
   navigateProgram,
   navigateTypesInNamespace,
@@ -49,6 +50,7 @@ import {
   LinterRefDoc,
   LinterRuleRefDoc,
   LinterRuleSetRefDoc,
+  ModelPropertyRefDoc,
   ModelRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
@@ -59,12 +61,34 @@ import {
 } from "./types.js";
 import { getQualifier, getTypeSignature } from "./utils/type-signature.js";
 
+/**
+ * The mutable equivalent of a type.
+ */
+
+//prettier-ignore
+type MutableArrayProps<T> =
+  T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
+  T extends ReadonlySet<infer T> ? Set<Mutable<T>> :
+  T extends readonly (infer V)[] ? V[] :
+  // brand to force explicit conversion.
+  { -readonly [P in keyof T]: MutateIfArray<T[P]> };
+
+//prettier-ignore
+type Mutable<T> =
+  T extends ReadonlyMap<infer K, infer V> ? Map<K, V> :
+  T extends ReadonlySet<infer T> ? Set<Mutable<T>> :
+  T extends readonly (infer V)[] ? V[] :
+  // brand to force explicit conversion.
+  { -readonly [P in keyof T]: T[P]};
+
+type MutateIfArray<T> = T extends readonly (infer U)[] ? U[] : T;
+
 export async function extractLibraryRefDocs(
   libraryPath: string
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   const pkgJson = await readPackageJson(libraryPath);
-  const refDoc: TypeSpecLibraryRefDoc = {
+  const refDoc: Mutable<TypeSpecLibraryRefDoc> = {
     name: pkgJson.name,
     description: pkgJson.description,
     packageJson: pkgJson,
@@ -75,7 +99,7 @@ export async function extractLibraryRefDocs(
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    refDoc.namespaces = diagnostics.pipe(extractRefDocs(program)).namespaces;
+    refDoc.namespaces = diagnostics.pipe(extractRefDocs(program)).namespaces as any;
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }
@@ -150,12 +174,12 @@ export function extractRefDocs(
   const diagnostics = createDiagnosticCollector();
   const namespaceTypes = diagnostics.pipe(resolveNamespaces(program, options));
 
-  const refDoc: TypeSpecRefDocBase = {
+  const refDoc: MutableArrayProps<TypeSpecRefDocBase> = {
     namespaces: [],
   };
 
   for (const namespace of namespaceTypes) {
-    const namespaceDoc: NamespaceRefDoc = {
+    const namespaceDoc: MutableArrayProps<NamespaceRefDoc> = {
       id: getTypeName(namespace),
       decorators: [],
       operations: [],
@@ -219,7 +243,7 @@ export function extractRefDocs(
   }
 
   sort(refDoc.namespaces);
-  for (const namespace of refDoc.namespaces) {
+  for (const namespace of refDoc.namespaces as MutableArrayProps<NamespaceRefDoc>[]) {
     sort(namespace.decorators);
     sort(namespace.enums);
     sort(namespace.interfaces);
@@ -383,6 +407,21 @@ function extractModelRefDocs(program: Program, type: Model): ModelRefDoc {
     signature: getTypeSignature(type),
     type,
     templateParameters: extractTemplateParameterDocs(program, type),
+    doc: doc,
+    examples: extractExamples(type),
+    properties: new Map(
+      [...type.properties.values()].map((x) => [x.name, extractModelPropertyRefDocs(program, x)])
+    ),
+  };
+}
+
+function extractModelPropertyRefDocs(program: Program, type: ModelProperty): ModelPropertyRefDoc {
+  const doc = extractMainDoc(program, type);
+  return {
+    id: getNamedTypeId(type),
+    name: type.name,
+    signature: getTypeSignature(type),
+    type,
     doc: doc,
     examples: extractExamples(type),
   };

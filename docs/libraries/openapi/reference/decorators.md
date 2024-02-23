@@ -44,14 +44,14 @@ Attach some custom data to the OpenAPI element generated from this type.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 
 | Name  | Type                    | Description                         |
 | ----- | ----------------------- | ----------------------------------- |
 | key   | `valueof scalar string` | Extension key. Must start with `x-` |
-| value | `(intrinsic) unknown`   | Extension value.                    |
+| value | `unknown`               | Extension value.                    |
 
 #### Examples
 
@@ -76,7 +76,7 @@ Specify the OpenAPI `externalDocs` property for this type.
 
 #### Target
 
-`(intrinsic) unknown`
+`unknown`
 
 #### Parameters
 
@@ -110,9 +110,9 @@ The service `title` and `version` are already specified using `@service`.
 
 #### Parameters
 
-| Name           | Type                                    | Description            |
-| -------------- | --------------------------------------- | ---------------------- |
-| additionalInfo | `model TypeSpec.OpenAPI.AdditionalInfo` | Additional information |
+| Name           | Type             | Description            |
+| -------------- | ---------------- | ---------------------- |
+| additionalInfo | `AdditionalInfo` | Additional information |
 
 ### `@operationId` {#@TypeSpec.OpenAPI.operationId}
 

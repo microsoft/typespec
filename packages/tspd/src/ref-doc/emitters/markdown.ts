@@ -1,4 +1,4 @@
-import { resolvePath } from "@typespec/compiler";
+import { Type, ValueType, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -72,7 +72,7 @@ export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) 
 }
 
 export function groupByNamespace(
-  namespaces: NamespaceRefDoc[],
+  namespaces: readonly NamespaceRefDoc[],
   callback: (namespace: NamespaceRefDoc) => MarkdownDoc | undefined
 ): MarkdownDoc {
   const content: MarkdownDoc = [];
@@ -136,8 +136,27 @@ export class MarkdownRenderer {
     }
 
     content.push(this.examples(model.examples));
-
+    content.push(this.modelProperties(model));
     return section(this.headingTitle(model), content);
+  }
+
+  modelProperties(model: ModelRefDoc) {
+    const content: MarkdownDoc = [];
+    content.push(
+      table([
+        ["Name", "Type", "Description"],
+        ...[...model.properties.values()].map((prop) => {
+          return [prop.name, inlinecode(this.ref(prop.type.type)), prop.doc];
+        }),
+      ])
+    );
+    return section("Properties", content);
+  }
+
+  ref(type: Type | ValueType): string {
+    return "name" in type && typeof type.name === "string"
+      ? inlinecode(type.name)
+      : getTypeSignature(type);
   }
 
   enum(e: EnumRefDoc): MarkdownDoc {
@@ -176,7 +195,7 @@ export class MarkdownRenderer {
     return section(this.headingTitle(scalar), content);
   }
 
-  templateParameters(templateParameters: TemplateParameterRefDoc[]): MarkdownDoc {
+  templateParameters(templateParameters: readonly TemplateParameterRefDoc[]): MarkdownDoc {
     const paramTable: string[][] = [["Name", "Description"]];
     for (const param of templateParameters) {
       paramTable.push([param.name, param.doc]);
@@ -189,13 +208,13 @@ export class MarkdownRenderer {
     const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
 
     content.push(
-      section("Target", [dec.target.doc, inlinecode(getTypeSignature(dec.target.type.type)), ""])
+      section("Target", [dec.target.doc, inlinecode(this.ref(dec.target.type.type)), ""])
     );
 
     if (dec.parameters.length > 0) {
       const paramTable: string[][] = [["Name", "Type", "Description"]];
       for (const param of dec.parameters) {
-        paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+        paramTable.push([param.name, inlinecode(this.ref(param.type.type)), param.doc]);
       }
       content.push(section("Parameters", [table(paramTable), ""]));
     } else {
@@ -207,7 +226,7 @@ export class MarkdownRenderer {
     return section(this.headingTitle(dec), content);
   }
 
-  examples(examples: ExampleRefDoc[]) {
+  examples(examples: readonly ExampleRefDoc[]) {
     const content: MarkdownDoc = [];
     if (examples.length === 0) {
       return "";
@@ -241,7 +260,7 @@ export class MarkdownRenderer {
     });
   }
 
-  toc(items: ReferencableElement[], filename?: string) {
+  toc(items: readonly ReferencableElement[], filename?: string) {
     return items.map(
       (item) => ` - [${inlinecode(item.name)}](${filename ?? ""}#${this.anchorId(item)})`
     );
