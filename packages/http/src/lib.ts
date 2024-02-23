@@ -102,7 +102,7 @@ export const $lib = createTypeSpecLibrary({
     "shared-inconsistency": {
       severity: "error",
       messages: {
-        default: paramMessage`Route "${"verb"} ${"path"}" is used by 2 operations with different @sharedRoute values.`,
+        default: paramMessage`Route "${"verb"} ${"path"}" is used by multiple operations with different @sharedRoute values.`,
       },
     },
     "write-visibility-not-supported": {
