@@ -14,7 +14,7 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
-import { resolveBody } from "./body.js";
+import { resolveBody, ResolvedBody } from "./body.js";
 import { getContentTypes, isContentTypeHeader } from "./content-types.js";
 import {
   getHeaderFieldName,
@@ -145,7 +145,7 @@ function processResponseType(
         operation,
         responseType,
         statusCode,
-        resolvedBody?.type
+        resolvedBody
       ),
       responses: [],
     };
@@ -255,7 +255,7 @@ function getResponseDescription(
   operation: Operation,
   responseType: Type,
   statusCode: HttpStatusCodes[number],
-  bodyType: Type | undefined
+  body: ResolvedBody | undefined
 ): string | undefined {
   // NOTE: If the response type is an envelope and not the same as the body
   // type, then use its @doc as the response description. However, if the
@@ -264,7 +264,7 @@ function getResponseDescription(
   // as the response description. This allows more freedom to change how
   // TypeSpec is expressed in semantically equivalent ways without causing
   // the output to change unnecessarily.
-  if (responseType !== bodyType) {
+  if (body === undefined || body.property) {
     const desc = getDoc(program, responseType);
     if (desc) {
       return desc;
