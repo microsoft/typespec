@@ -160,6 +160,7 @@ function resolveNamespaces(
   }
   return diagnostics.wrap(namespaceTypes);
 }
+
 export function extractRefDocs(
   program: Program,
   options: ExtractRefDocOptions = {}
@@ -502,13 +503,13 @@ function extractScalarRefDocs(program: Program, type: Scalar): ScalarRefDoc {
 }
 
 function extractMainDoc(program: Program, type: Type): string {
-  let mainDoc: string = "";
+  const mainDocs: string[] = [];
   for (const doc of type.node?.docs ?? []) {
     for (const dContent of doc.content) {
-      mainDoc += dContent.text + "\n";
+      mainDocs.push(dContent.text);
     }
   }
-  return mainDoc !== "" ? mainDoc : getDoc(program, type) ?? "";
+  return mainDocs.length > 0 ? mainDocs.join("\n") : getDoc(program, type) ?? "";
 }
 
 function extractExamples(type: Type): ExampleRefDoc[] {

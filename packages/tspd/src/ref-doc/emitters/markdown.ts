@@ -176,7 +176,7 @@ export class MarkdownRenderer {
       return [
         base,
         ...[...prop.type.type.properties.values()].map((x) => ({
-          name: `${prop.name}.${x.name}${prop.type.optional ? "?" : ""}`,
+          name: `${prop.name}.${x.name}${x.optional ? "?" : ""}`,
           type: this.ref(x.type),
           doc: "",
         })),
