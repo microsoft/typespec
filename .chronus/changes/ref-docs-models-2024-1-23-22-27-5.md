@@ -3,6 +3,7 @@
 changeKind: internal
 packages:
   - "@typespec/http"
+  - "@typespec/rest"
   - "@typespec/json-schema"
   - "@typespec/openapi"
   - "@typespec/protobuf"
