@@ -52,7 +52,7 @@ export type OpenAPI3ServiceRecord =
 export interface OpenAPI3UnversionedServiceRecord {
   service: Service;
   versioned: false;
-  document: OpenAPI3UnversionedDocumentRecord;
+  document: OpenAPI3Document;
 }
 
 export interface OpenAPI3VersionedServiceRecord {
@@ -64,11 +64,8 @@ export interface OpenAPI3VersionedServiceRecord {
 /**
  * A record containing an unversioned OpenAPI document and associated metadata.
  */
-export type OpenAPI3DocumentRecord =
-  | OpenAPI3UnversionedDocumentRecord
-  | OpenAPI3VersionedDocumentRecord;
 
-export interface OpenAPI3UnversionedDocumentRecord {
+export interface OpenAPI3VersionedDocumentRecord {
   /** The OpenAPI document*/
   document: OpenAPI3Document;
 
@@ -79,9 +76,7 @@ export interface OpenAPI3UnversionedDocumentRecord {
    * the outer service record.
    * */
   service: Service;
-}
 
-export interface OpenAPI3VersionedDocumentRecord extends OpenAPI3UnversionedDocumentRecord {
   /** The version of the service. Absent if the service is unversioned. */
   version: string;
 }

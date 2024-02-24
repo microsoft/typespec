@@ -90,7 +90,6 @@ import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { getDefaultValue, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
-  OpenAPI3DocumentRecord,
   OpenAPI3Header,
   OpenAPI3OAuthFlows,
   OpenAPI3Operation,
@@ -255,7 +254,7 @@ function createOAPIEmitter(
       } else {
         await emitFile(program, {
           path: resolveOutputFile(serviceRecord.service, multipleService),
-          content: serializeDocument(serviceRecord.document.document, options.fileType),
+          content: serializeDocument(serviceRecord.document, options.fileType),
           newLine: options.newLine,
         });
       }
@@ -434,7 +433,8 @@ function createOAPIEmitter(
             "Expected only one version when service is unversioned"
           );
           serviceRecord.versioned = false;
-          (serviceRecord as OpenAPI3UnversionedServiceRecord).document = document;
+          (serviceRecord as OpenAPI3UnversionedServiceRecord).document =
+            document as OpenAPI3Document;
         } else {
           serviceRecord.versioned = true;
           (serviceRecord as OpenAPI3VersionedServiceRecord).versions ??= [];
@@ -700,7 +700,7 @@ function createOAPIEmitter(
   async function getOpenApiFromVersion(
     service: Service,
     version?: string
-  ): Promise<OpenAPI3DocumentRecord | undefined> {
+  ): Promise<OpenAPI3VersionedDocumentRecord | OpenAPI3Document | undefined> {
     initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
@@ -726,11 +726,15 @@ function createOAPIEmitter(
         }
       }
 
-      return {
-        document: root,
-        service,
-        version,
-      };
+      if (version) {
+        return {
+          document: root,
+          service,
+          version,
+        };
+      } else {
+        return root;
+      }
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was

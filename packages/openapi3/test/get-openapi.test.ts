@@ -26,5 +26,5 @@ it("can get openapi as an object", async () => {
   );
   await host.compile("main.tsp");
   const output = await getOpenAPI3(host.program, { "omit-unreachable-types": false });
-  strictEqual((output[0] as any).document.document.components!.schemas!["Item"].type, "object");
+  strictEqual((output[0] as any).document.components!.schemas!["Item"].type, "object");
 });
