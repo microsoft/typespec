@@ -135,7 +135,7 @@ type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "
 export async function getOpenAPI3(
   program: Program,
   options: Omit<OpenAPI3EmitterOptions, IrrelevantOpenAPI3EmitterOptionsForObject> = {}
-) {
+): Promise<OpenAPI3ServiceRecord[]> {
   const context: EmitContext<any> = {
     program,
 
