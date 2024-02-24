@@ -100,7 +100,11 @@ import {
   OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
+  OpenAPI3ServiceRecord,
   OpenAPI3StatusCode,
+  OpenAPI3UnversionedServiceRecord,
+  OpenAPI3VersionedDocumentRecord,
+  OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
 import { deepEquals } from "./util.js";
@@ -231,20 +235,30 @@ function createOAPIEmitter(
   return { emitOpenAPI, getOpenAPI };
 
   async function emitOpenAPI() {
-    const documents = await getOpenAPI();
+    const services = await getOpenAPI();
 
     if (program.compilerOptions.noEmit || program.hasError()) {
       return;
     }
 
-    const multipleService = new Set(documents.map((d) => d.service)).size > 1;
+    const multipleService = services.length > 1;
 
-    for (const documentRecord of documents) {
-      await emitFile(program, {
-        path: resolveOutputFile(documentRecord.service, multipleService, documentRecord.version),
-        content: serializeDocument(documentRecord.document, options.fileType),
-        newLine: options.newLine,
-      });
+    for (const serviceRecord of services) {
+      if (serviceRecord.versioned) {
+        for (const documentRecord of serviceRecord.versions) {
+          await emitFile(program, {
+            path: resolveOutputFile(serviceRecord.service, multipleService, documentRecord.version),
+            content: serializeDocument(documentRecord.document, options.fileType),
+            newLine: options.newLine,
+          });
+        }
+      } else {
+        await emitFile(program, {
+          path: resolveOutputFile(serviceRecord.service, multipleService),
+          content: serializeDocument(serviceRecord.document.document, options.fileType),
+          newLine: options.newLine,
+        });
+      }
     }
   }
 
@@ -374,13 +388,17 @@ function createOAPIEmitter(
     });
   }
 
-  async function getOpenAPI(): Promise<OpenAPI3DocumentRecord[]> {
-    const documents: OpenAPI3DocumentRecord[] = [];
+  async function getOpenAPI(): Promise<OpenAPI3ServiceRecord[]> {
+    const serviceRecords: OpenAPI3ServiceRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
+      const serviceRecord: OpenAPI3ServiceRecord = {
+        service,
+      } as any;
+
       const commonProjections: ProjectionApplication[] = [
         {
           projectionName: "target",
@@ -405,13 +423,35 @@ function createOAPIEmitter(
           record.version
         );
 
-        if (document) {
-          documents.push(document);
+        if (document === undefined) {
+          // an error occurred producing this document
+          continue;
+        }
+
+        if (record.version === undefined) {
+          compilerAssert(
+            versions.length === 1,
+            "Expected only one version when service is unversioned"
+          );
+          serviceRecord.versioned = false;
+          (serviceRecord as OpenAPI3UnversionedServiceRecord).document = document;
+        } else {
+          serviceRecord.versioned = true;
+          (serviceRecord as OpenAPI3VersionedServiceRecord).versions ??= [];
+          compilerAssert(
+            (document as OpenAPI3VersionedDocumentRecord).version,
+            "Expected a versioned document from a versioned service"
+          );
+          (serviceRecord as OpenAPI3VersionedServiceRecord).versions.push(
+            document as OpenAPI3VersionedDocumentRecord
+          );
         }
       }
+
+      serviceRecords.push(serviceRecord);
     }
 
-    return documents;
+    return serviceRecords;
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {

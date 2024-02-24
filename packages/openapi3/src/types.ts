@@ -41,17 +41,49 @@ export interface OpenAPI3Document extends Extensions {
 }
 
 /**
- * A record containing an OpenAPI document and associated metadata.
+ * A record containing the the OpenAPI 3 documents corresponding to
+ * a particular service definition.
  */
-export interface OpenAPI3DocumentRecord {
+
+export type OpenAPI3ServiceRecord =
+  | OpenAPI3UnversionedServiceRecord
+  | OpenAPI3VersionedServiceRecord;
+
+export interface OpenAPI3UnversionedServiceRecord {
+  service: Service;
+  versioned: false;
+  document: OpenAPI3UnversionedDocumentRecord;
+}
+
+export interface OpenAPI3VersionedServiceRecord {
+  service: Service;
+  versioned: true;
+  versions: OpenAPI3VersionedDocumentRecord[];
+}
+
+/**
+ * A record containing an unversioned OpenAPI document and associated metadata.
+ */
+export type OpenAPI3DocumentRecord =
+  | OpenAPI3UnversionedDocumentRecord
+  | OpenAPI3VersionedDocumentRecord;
+
+export interface OpenAPI3UnversionedDocumentRecord {
   /** The OpenAPI document*/
   document: OpenAPI3Document;
 
-  /** The service that generated this OpenAPI document */
+  /**
+   * The service that generated this OpenAPI document. When this is a versioned
+   * service, this service references the projected namespace. Otherwise, it
+   * will be the canonical service namespace and be identical to the service in
+   * the outer service record.
+   * */
   service: Service;
+}
 
+export interface OpenAPI3VersionedDocumentRecord extends OpenAPI3UnversionedDocumentRecord {
   /** The version of the service. Absent if the service is unversioned. */
-  version?: string;
+  version: string;
 }
 
 export interface OpenAPI3Info extends Extensions {
