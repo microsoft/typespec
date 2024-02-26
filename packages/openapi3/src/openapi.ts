@@ -48,6 +48,7 @@ import {
 } from "@typespec/compiler";
 
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import {} from "@typespec/compiler/utils";
 import {
   createMetadataInfo,
   getAuthentication,
@@ -86,7 +87,7 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { buildVersionProjections } from "@typespec/versioning";
+import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
@@ -104,8 +105,6 @@ import {
   OpenAPI3ServerVariable,
   OpenAPI3ServiceRecord,
   OpenAPI3StatusCode,
-  OpenAPI3UnversionedServiceRecord,
-  OpenAPI3VersionedDocumentRecord,
   OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
@@ -411,10 +410,50 @@ function createOAPIEmitter(
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
-      const serviceRecord: OpenAPI3ServiceRecord = {
-        service,
-      } as any;
+      const versions = buildVersionProjections(program, service.type);
+      if (versions.length === 1 && versions[0].version === undefined) {
+        // non-versioned spec
+        const document = await getProjectedOpenAPIDocument(service, versions[0]);
+        if (document === undefined) {
+          // an error occurred producing this document, so don't return it
+          return serviceRecords;
+        }
 
+        serviceRecords.push({
+          service,
+          versioned: false,
+          document: document[0],
+          diagnostics: document[1],
+        });
+      } else {
+        // versioned spec
+        const serviceRecord: OpenAPI3VersionedServiceRecord = {
+          service,
+          versioned: true,
+          versions: [],
+        };
+        serviceRecords.push(serviceRecord);
+
+        for (const record of versions) {
+          const document = await getProjectedOpenAPIDocument(service, record);
+          if (document === undefined) {
+            // an error occurred producing this document
+            continue;
+          }
+
+          serviceRecord.versions.push({
+            service,
+            version: record.version!,
+            document: document[0],
+            diagnostics: document[1],
+          });
+        }
+      }
+    }
+
+    return serviceRecords;
+
+    async function getProjectedOpenAPIDocument(service: Service, record: VersionProjections) {
       const commonProjections: ProjectionApplication[] = [
         {
           projectionName: "target",
@@ -422,57 +461,23 @@ function createOAPIEmitter(
         },
       ];
       const originalProgram = program;
-      const versions = buildVersionProjections(program, service.type);
-      for (const record of versions) {
-        const projectedProgram = (program = projectProgram(originalProgram, [
-          ...commonProjections,
-          ...record.projections,
-        ]));
-        const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
-          service.type
-        ) as Namespace;
+      const projectedProgram = (program = projectProgram(originalProgram, [
+        ...commonProjections,
+        ...record.projections,
+      ]));
+      const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
+        service.type
+      ) as Namespace;
 
-        const document = await getOpenApiFromVersion(
-          projectedServiceNs === projectedProgram.getGlobalNamespaceType()
-            ? { type: projectedProgram.getGlobalNamespaceType() }
-            : getService(program, projectedServiceNs)!,
-          record.version
-        );
+      const document = await getOpenApiFromVersion(
+        projectedServiceNs === projectedProgram.getGlobalNamespaceType()
+          ? { type: projectedProgram.getGlobalNamespaceType() }
+          : getService(program, projectedServiceNs)!,
+        record.version
+      );
 
-        if (document === undefined) {
-          // an error occurred producing this document
-          continue;
-        }
-
-        if (record.version === undefined) {
-          compilerAssert(
-            versions.length === 1,
-            "Expected only one version when service is unversioned"
-          );
-          compilerAssert(
-            Array.isArray(document),
-            "Expected getOpenAPIVersion to return tuple of document and diagnostics"
-          );
-          serviceRecord.versioned = false;
-          (serviceRecord as OpenAPI3UnversionedServiceRecord).document = document[0];
-          (serviceRecord as OpenAPI3UnversionedServiceRecord).diagnostics = document[1];
-        } else {
-          serviceRecord.versioned = true;
-          (serviceRecord as OpenAPI3VersionedServiceRecord).versions ??= [];
-          compilerAssert(
-            (document as OpenAPI3VersionedDocumentRecord).version,
-            "Expected a versioned document from a versioned service"
-          );
-          (serviceRecord as OpenAPI3VersionedServiceRecord).versions.push(
-            document as OpenAPI3VersionedDocumentRecord
-          );
-        }
-      }
-
-      serviceRecords.push(serviceRecord);
+      return document;
     }
-
-    return serviceRecords;
   }
 
   function resolveOutputFile(service: Service, multipleService: boolean, version?: string): string {
@@ -723,9 +728,7 @@ function createOAPIEmitter(
   async function getOpenApiFromVersion(
     service: Service,
     version?: string
-  ): Promise<
-    OpenAPI3VersionedDocumentRecord | [OpenAPI3Document, Readonly<Diagnostic[]>] | undefined
-  > {
+  ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
     initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
@@ -751,16 +754,7 @@ function createOAPIEmitter(
         }
       }
 
-      if (version) {
-        return {
-          document: root,
-          diagnostics: diagnostics.diagnostics,
-          service,
-          version,
-        };
-      } else {
-        return [root, diagnostics.diagnostics];
-      }
+      return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was

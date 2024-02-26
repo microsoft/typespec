@@ -56,7 +56,7 @@ export interface OpenAPI3UnversionedServiceRecord {
   readonly versioned: false;
 
   /** The OpenAPI 3 document */
-  readonly ocument: OpenAPI3Document;
+  readonly document: OpenAPI3Document;
 
   /** The diagnostics created for this document */
   readonly diagnostics: Readonly<Diagnostic[]>;
