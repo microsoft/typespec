@@ -1,4 +1,4 @@
-import { Service } from "@typespec/compiler";
+import { Diagnostic, Service } from "@typespec/compiler";
 import { ExtensionKey } from "@typespec/openapi";
 
 export type Extensions = {
@@ -44,20 +44,32 @@ export interface OpenAPI3Document extends Extensions {
  * A record containing the the OpenAPI 3 documents corresponding to
  * a particular service definition.
  */
-
 export type OpenAPI3ServiceRecord =
   | OpenAPI3UnversionedServiceRecord
   | OpenAPI3VersionedServiceRecord;
 
 export interface OpenAPI3UnversionedServiceRecord {
+  /** The service that generated this OpenAPI document */
   service: Service;
+
+  /** Whether the service is versioned */
   versioned: false;
+
+  /** The OpenAPI 3 document */
   document: OpenAPI3Document;
+
+  /** The diagnostics created for this document */
+  diagnostics: Readonly<Diagnostic[]>;
 }
 
 export interface OpenAPI3VersionedServiceRecord {
+  /** The service that generated this OpenAPI document */
   service: Service;
+
+  /** Whether the service is versioned */
   versioned: true;
+
+  /** The OpenAPI 3 document records for each version of this service */
   versions: OpenAPI3VersionedDocumentRecord[];
 }
 
@@ -69,16 +81,14 @@ export interface OpenAPI3VersionedDocumentRecord {
   /** The OpenAPI document*/
   document: OpenAPI3Document;
 
-  /**
-   * The service that generated this OpenAPI document. When this is a versioned
-   * service, this service references the projected namespace. Otherwise, it
-   * will be the canonical service namespace and be identical to the service in
-   * the outer service record.
-   * */
+  /** The service that generated this OpenAPI document. */
   service: Service;
 
   /** The version of the service. Absent if the service is unversioned. */
   version: string;
+
+  /** The diagnostics created for this version. */
+  readonly diagnostics: Readonly<Diagnostic[]>;
 }
 
 export interface OpenAPI3Info extends Extensions {
