@@ -20,8 +20,7 @@ model Array<Element>
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `DefaultKeyVisibility` {#DefaultKeyVisibility}
 
@@ -38,8 +37,7 @@ model DefaultKeyVisibility<Source, Visibility>
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `object` {#object}
 
@@ -50,8 +48,7 @@ model object
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `OmitDefaults` {#OmitDefaults}
 
@@ -67,8 +64,7 @@ model OmitDefaults<Source>
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `OmitProperties` {#OmitProperties}
 
@@ -85,8 +81,7 @@ model OmitProperties<Source, Keys>
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `OptionalProperties` {#OptionalProperties}
 
@@ -102,8 +97,7 @@ model OptionalProperties<Source>
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `Record` {#Record}
 
@@ -120,8 +114,7 @@ model Record<Element>
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `ServiceOptions` {#ServiceOptions}
 
@@ -151,8 +144,7 @@ model UpdateableProperties<Source>
 
 
 #### Properties
-| Name | Type | Description |
-|------|------|-------------|
+None
 
 ### `BytesKnownEncoding` {#BytesKnownEncoding}
 

@@ -29,9 +29,9 @@ The field index of a Protobuf message must:
 
 #### Parameters
 
-| Name  | Type                    | Description                          |
-| ----- | ----------------------- | ------------------------------------ |
-| index | `valueof scalar uint32` | The whole-number index of the field. |
+| Name  | Type             | Description                          |
+| ----- | ---------------- | ------------------------------------ |
+| index | `valueof uint32` | The whole-number index of the field. |
 
 #### Examples
 
@@ -59,7 +59,7 @@ This decorator will force the emitter to check and emit a model.
 
 #### Target
 
-``
+`{}`
 
 #### Parameters
 
@@ -113,13 +113,13 @@ information.
 
 #### Target
 
-``
+`{}`
 
 #### Parameters
 
-| Name         | Type                                                   | Description                  |
-| ------------ | ------------------------------------------------------ | ---------------------------- |
-| reservations | `valueof model string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
+| Name         | Type                                             | Description                  |
+| ------------ | ------------------------------------------------ | ---------------------------- |
+| reservations | `valueof string \| [uint32, uint32] \| uint32[]` | a list of field reservations |
 
 #### Examples
 

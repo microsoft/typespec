@@ -113,9 +113,9 @@ Specify this property is to be sent or received as an HTTP header.
 
 #### Parameters
 
-| Name                | Type                                          | Description                                                                                                                                                                                                 |
-| ------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| headerNameOrOptions | `union string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
+| Name                | Type                                    | Description                                                                                                                                                                                                 |
+| ------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headerNameOrOptions | `string \| TypeSpec.Http.HeaderOptions` | Optional name of the header when sent over HTTP or header options.<br />By default the header name will be the property name converted from camelCase to kebab-case. (e.g. `contentType` -> `content-type`) |
 
 #### Examples
 
@@ -155,9 +155,9 @@ Specify if inapplicable metadata should be included in the payload for the given
 
 #### Parameters
 
-| Name  | Type                     | Description                                                     |
-| ----- | ------------------------ | --------------------------------------------------------------- |
-| value | `valueof scalar boolean` | If true, inapplicable metadata will be included in the payload. |
+| Name  | Type              | Description                                                     |
+| ----- | ----------------- | --------------------------------------------------------------- |
+| value | `valueof boolean` | If true, inapplicable metadata will be included in the payload. |
 
 ### `@patch` {#@TypeSpec.Http.patch}
 
@@ -195,9 +195,9 @@ Explicitly specify that this property is to be interpolated as a path parameter.
 
 #### Parameters
 
-| Name      | Type                    | Description                                         |
-| --------- | ----------------------- | --------------------------------------------------- |
-| paramName | `valueof scalar string` | Optional name of the parameter in the url template. |
+| Name      | Type             | Description                                         |
+| --------- | ---------------- | --------------------------------------------------- |
+| paramName | `valueof string` | Optional name of the parameter in the url template. |
 
 #### Examples
 
@@ -264,9 +264,9 @@ Specify this property is to be sent as a query parameter.
 
 #### Parameters
 
-| Name               | Type                                         | Description                                                                     |
-| ------------------ | -------------------------------------------- | ------------------------------------------------------------------------------- |
-| queryNameOrOptions | `union string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
+| Name               | Type                                   | Description                                                                     |
+| ------------------ | -------------------------------------- | ------------------------------------------------------------------------------- |
+| queryNameOrOptions | `string \| TypeSpec.Http.QueryOptions` | Optional name of the query when included in the url or query parameter options. |
 
 #### Examples
 
@@ -297,14 +297,14 @@ it will be used as a prefix to the route URI of the operation.
 
 #### Target
 
-`union Namespace | Interface | Operation`
+`Namespace | Interface | Operation`
 
 #### Parameters
 
-| Name    | Type                    | Description                                                                                                                                  |
-| ------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `valueof scalar string` | Relative route path. Cannot include query parameters.                                                                                        |
-| options | ``                      | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+| Name    | Type                | Description                                                                                                                                  |
+| ------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| path    | `valueof string`    | Relative route path. Cannot include query parameters.                                                                                        |
+| options | `(anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 #### Examples
 
@@ -327,11 +327,11 @@ Specify the endpoint for this service.
 
 #### Parameters
 
-| Name        | Type                    | Description                                             |
-| ----------- | ----------------------- | ------------------------------------------------------- |
-| url         | `valueof scalar string` | Server endpoint                                         |
-| description | `valueof scalar string` | Description of the endpoint                             |
-| parameters  | `Record`                | Optional set of parameters used to interpolate the url. |
+| Name        | Type              | Description                                             |
+| ----------- | ----------------- | ------------------------------------------------------- |
+| url         | `valueof string`  | Server endpoint                                         |
+| description | `valueof string`  | Description of the endpoint                             |
+| parameters  | `Record<unknown>` | Optional set of parameters used to interpolate the url. |
 
 #### Examples
 
@@ -414,9 +414,9 @@ Specify this service authentication. See the [documentation in the Http library]
 
 #### Parameters
 
-| Name | Type                        | Description                                                                                                                                                     |
-| ---- | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| auth | `union {} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple (must use all authentication together) |
+| Name | Type                  | Description                                                                                                                                                     |
+| ---- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth | `{} \| Union \| {}[]` | Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple (must use all authentication together) |
 
 #### Examples
 

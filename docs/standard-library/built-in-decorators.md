@@ -21,7 +21,7 @@ NOTE: This decorator **should not** be used, use the `#deprecated` directive ins
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| message | `valueof scalar string` | Deprecation message. |
+| message | `valueof string` | Deprecation message. |
 
 #### Examples
 
@@ -42,12 +42,12 @@ Specify the property to be used to discriminate this type.
 
 #### Target
 
-`union Model | Union`
+`Model | Union`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| propertyName | `valueof scalar string` | The property name to use for discrimination |
+| propertyName | `valueof string` | The property name to use for discrimination |
 
 #### Examples
 
@@ -82,8 +82,8 @@ Attach a documentation string.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `valueof scalar string` | Documentation string |
-| formatArgs | `` | Record with key value pair that can be interpolated in the doc. |
+| doc | `valueof string` | Documentation string |
+| formatArgs | `{}` | Record with key value pair that can be interpolated in the doc. |
 
 #### Examples
 
@@ -102,12 +102,12 @@ Specify how to encode the target type.
 
 #### Target
 
-`union Scalar | ModelProperty`
+`Scalar | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| encoding | `union string \| EnumMember` | Known name of an encoding. |
+| encoding | `string \| EnumMember` | Known name of an encoding. |
 | encodedAs | `Scalar` | What target type is this being encoded as. Default to string. |
 
 #### Examples
@@ -142,8 +142,8 @@ Provide an alternative name for this type when serialized to the given mime type
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| mimeType | `valueof scalar string` | Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`) |
-| name | `valueof scalar string` | Alternative name |
+| mimeType | `valueof string` | Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`) |
+| name | `valueof string` | Alternative name |
 
 #### Examples
 
@@ -204,7 +204,7 @@ If an operation returns a union of success and errors it only describe the error
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `valueof scalar string` | Documentation string |
+| doc | `valueof string` | Documentation string |
 
 #### Examples
 
@@ -225,12 +225,12 @@ The format names are open ended and are left to emitter to interpret.
 
 #### Target
 
-`union string | bytes | ModelProperty`
+`string | bytes | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| format | `valueof scalar string` | format name. |
+| format | `valueof string` | format name. |
 
 #### Examples
 
@@ -254,7 +254,7 @@ Specifies how a templated type should name their instances.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| name | `valueof scalar string` | name the template instance should take |
+| name | `valueof string` | name the template instance should take |
 | formatArgs | `unknown` | Model with key value used to interpolate the name |
 
 #### Examples
@@ -282,7 +282,7 @@ A debugging decorator used to inspect a type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `valueof scalar string` | Custom text to log |
+| text | `valueof string` | Custom text to log |
 
 
 
@@ -300,7 +300,7 @@ A debugging decorator used to inspect a type name.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| text | `valueof scalar string` | Custom text to log |
+| text | `valueof string` | Custom text to log |
 
 
 
@@ -318,7 +318,7 @@ Mark a model property as the key to identify instances of that type
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| altName | `valueof scalar string` | Name of the property. If not specified, the decorated property name is used. |
+| altName | `valueof string` | Name of the property. If not specified, the decorated property name is used. |
 
 #### Examples
 
@@ -338,7 +338,7 @@ Provide a set of known values to a string type.
 
 #### Target
 
-`union string | numeric | ModelProperty`
+`string | numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -385,12 +385,12 @@ Specify the maximum number of items this array should have.
 
 #### Target
 
-`union unknown[] | ModelProperty`
+`unknown[] | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar integer` | Maximum number |
+| value | `valueof integer` | Maximum number |
 
 #### Examples
 
@@ -409,12 +409,12 @@ Specify the maximum length this string type should be.
 
 #### Target
 
-`union string | ModelProperty`
+`string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar integer` | Maximum length |
+| value | `valueof integer` | Maximum length |
 
 #### Examples
 
@@ -433,12 +433,12 @@ Specify the maximum value this numeric type should be.
 
 #### Target
 
-`union numeric | ModelProperty`
+`numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar numeric` | Maximum value |
+| value | `valueof numeric` | Maximum value |
 
 #### Examples
 
@@ -458,12 +458,12 @@ value.
 
 #### Target
 
-`union numeric | ModelProperty`
+`numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar numeric` | Maximum value |
+| value | `valueof numeric` | Maximum value |
 
 #### Examples
 
@@ -482,12 +482,12 @@ Specify the minimum number of items this array should have.
 
 #### Target
 
-`union unknown[] | ModelProperty`
+`unknown[] | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar integer` | Minimum number |
+| value | `valueof integer` | Minimum number |
 
 #### Examples
 
@@ -506,12 +506,12 @@ Specify the minimum length this string type should be.
 
 #### Target
 
-`union string | ModelProperty`
+`string | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar integer` | Minimum length |
+| value | `valueof integer` | Minimum length |
 
 #### Examples
 
@@ -530,12 +530,12 @@ Specify the minimum value this numeric type should be.
 
 #### Target
 
-`union numeric | ModelProperty`
+`numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar numeric` | Minimum value |
+| value | `valueof numeric` | Minimum value |
 
 #### Examples
 
@@ -555,12 +555,12 @@ value.
 
 #### Target
 
-`union numeric | ModelProperty`
+`numeric | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | `valueof scalar numeric` | Minimum value |
+| value | `valueof numeric` | Minimum value |
 
 #### Examples
 
@@ -611,7 +611,7 @@ Sets which visibilities apply to parameters for the given operation.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+| visibilities | `valueof string[]` | List of visibility strings which apply to this operation. |
 
 
 
@@ -631,13 +631,13 @@ validates a GUID string might have a message like "Must be a valid GUID."
 
 #### Target
 
-`union string | bytes | ModelProperty`
+`string | bytes | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| pattern | `valueof scalar string` | Regular expression. |
-| validationMessage | `valueof scalar string` | Optional validation message that may provide context when validation fails. |
+| pattern | `valueof string` | Regular expression. |
+| validationMessage | `valueof string` | Optional validation message that may provide context when validation fails. |
 
 #### Examples
 
@@ -663,8 +663,8 @@ Provide an alternative name for this type.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| targetName | `valueof scalar string` | Projection target |
-| projectedName | `valueof scalar string` | Alternative name |
+| targetName | `valueof string` | Projection target |
+| projectedName | `valueof string` | Alternative name |
 
 #### Examples
 
@@ -691,7 +691,7 @@ If an operation returns a union of success and errors it only describe the succe
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| doc | `valueof scalar string` | Documentation string |
+| doc | `valueof string` | Documentation string |
 
 #### Examples
 
@@ -715,7 +715,7 @@ Sets which visibilities apply to the return type for the given operation.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof model string[]` | List of visibility strings which apply to this operation. |
+| visibilities | `valueof string[]` | List of visibility strings which apply to this operation. |
 
 
 
@@ -728,7 +728,7 @@ Mark this string as a secret value that should be treated carefully to avoid exp
 
 #### Target
 
-`union string | ModelProperty`
+`string | ModelProperty`
 
 #### Parameters
 None
@@ -793,7 +793,7 @@ Typically a short, single-line description.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| summary | `valueof scalar string` | Summary string. |
+| summary | `valueof string` | Summary string. |
 
 #### Examples
 
@@ -812,12 +812,12 @@ Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorat
 
 #### Target
 
-`union Namespace | Interface | Operation`
+`Namespace | Interface | Operation`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| tag | `valueof scalar string` | Tag value |
+| tag | `valueof string` | Tag value |
 
 
 
@@ -849,7 +849,7 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof model string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof string[]` | List of visibilities which apply to this property. |
 
 #### Examples
 
@@ -879,7 +879,7 @@ Set the visibility of key properties in a model if not already set.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibility | `valueof scalar string` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
+| visibility | `valueof string` | The desired default visibility value. If a key property already has a `visibility` decorator then the default visibility is not applied. |
 
 
 
@@ -929,7 +929,7 @@ Returns the model with the given properties omitted.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| omit | `union string \| Union` | List of properties to omit |
+| omit | `string \| Union` | List of properties to omit |
 
 
 
@@ -971,7 +971,7 @@ not necessary to use this decorator.
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| visibilities | `valueof model string[]` | List of visibilities which apply to this property. |
+| visibilities | `valueof string[]` | List of visibilities which apply to this property. |
 
 #### Examples
 

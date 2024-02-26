@@ -1,4 +1,4 @@
-import { Type, ValueType, resolvePath } from "@typespec/compiler";
+import { Type, ValueType, getTypeName, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -30,7 +30,6 @@ import {
   section,
   table,
 } from "../utils/markdown.js";
-import { getTypeSignature } from "../utils/type-signature.js";
 
 async function loadTemplate(projectRoot: string, name: string) {
   try {
@@ -196,8 +195,11 @@ export class MarkdownRenderer {
         `${this.filename(namedType)}#${this.anchorId(namedType)}`
       );
     }
+
     return inlinecode(
-      "name" in type && typeof type.name === "string" ? type.name : getTypeSignature(type)
+      getTypeName(type, {
+        namespaceFilter: (ns) => !this.refDoc.namespaces.some((x) => x.name === ns.name),
+      })
     );
   }
 

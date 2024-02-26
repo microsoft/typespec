@@ -18,9 +18,9 @@ model TypeSpec.Http.AcceptedResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 202` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `202` | The status code. |
 
 ### `ApiKeyAuth` {#TypeSpec.Http.ApiKeyAuth}
 
@@ -57,11 +57,11 @@ model TypeSpec.Http.ApiKeyAuth<Location, Name>
 
 #### Properties
 
-| Name | Type       | Description |
-| ---- | ---------- | ----------- |
-| type | `apiKey`   |             |
-| in   | `Location` |             |
-| name | `Name`     |             |
+| Name | Type                            | Description |
+| ---- | ------------------------------- | ----------- |
+| type | `TypeSpec.Http.AuthType.apiKey` |             |
+| in   | `Location`                      |             |
+| name | `Name`                          |             |
 
 ### `AuthorizationCodeFlow` {#TypeSpec.Http.AuthorizationCodeFlow}
 
@@ -73,13 +73,13 @@ model TypeSpec.Http.AuthorizationCodeFlow
 
 #### Properties
 
-| Name             | Type                | Description                       |
-| ---------------- | ------------------- | --------------------------------- |
-| type             | `authorizationCode` | authorization code flow           |
-| authorizationUrl | `string`            | the authorization URL             |
-| tokenUrl         | `string`            | the token URL                     |
-| refreshUrl?      | `string`            | the refresh URL                   |
-| scopes           | `Array`             | list of scopes for the credential |
+| Name             | Type                                             | Description                       |
+| ---------------- | ------------------------------------------------ | --------------------------------- |
+| type             | `TypeSpec.Http.OAuth2FlowType.authorizationCode` | authorization code flow           |
+| authorizationUrl | `string`                                         | the authorization URL             |
+| tokenUrl         | `string`                                         | the token URL                     |
+| refreshUrl?      | `string`                                         | the refresh URL                   |
+| scopes           | `string[]`                                       | list of scopes for the credential |
 
 ### `BadRequestResponse` {#TypeSpec.Http.BadRequestResponse}
 
@@ -91,9 +91,9 @@ model TypeSpec.Http.BadRequestResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 400` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `400` | The status code. |
 
 ### `BasicAuth` {#TypeSpec.Http.BasicAuth}
 
@@ -111,10 +111,10 @@ model TypeSpec.Http.BasicAuth
 
 #### Properties
 
-| Name   | Type               | Description         |
-| ------ | ------------------ | ------------------- |
-| type   | `http`             | Http authentication |
-| scheme | `(string) "basic"` | basic auth scheme   |
+| Name   | Type                          | Description         |
+| ------ | ----------------------------- | ------------------- |
+| type   | `TypeSpec.Http.AuthType.http` | Http authentication |
+| scheme | `"basic"`                     | basic auth scheme   |
 
 ### `BearerAuth` {#TypeSpec.Http.BearerAuth}
 
@@ -132,10 +132,10 @@ model TypeSpec.Http.BearerAuth
 
 #### Properties
 
-| Name   | Type                | Description         |
-| ------ | ------------------- | ------------------- |
-| type   | `http`              | Http authentication |
-| scheme | `(string) "bearer"` | bearer auth scheme  |
+| Name   | Type                          | Description         |
+| ------ | ----------------------------- | ------------------- |
+| type   | `TypeSpec.Http.AuthType.http` | Http authentication |
+| scheme | `"bearer"`                    | bearer auth scheme  |
 
 ### `Body` {#TypeSpec.Http.Body}
 
@@ -170,12 +170,12 @@ model TypeSpec.Http.ClientCredentialsFlow
 
 #### Properties
 
-| Name        | Type                | Description                       |
-| ----------- | ------------------- | --------------------------------- |
-| type        | `clientCredentials` | client credential flow            |
-| tokenUrl    | `string`            | the token URL                     |
-| refreshUrl? | `string`            | the refresh URL                   |
-| scopes      | `Array`             | list of scopes for the credential |
+| Name        | Type                                             | Description                       |
+| ----------- | ------------------------------------------------ | --------------------------------- |
+| type        | `TypeSpec.Http.OAuth2FlowType.clientCredentials` | client credential flow            |
+| tokenUrl    | `string`                                         | the token URL                     |
+| refreshUrl? | `string`                                         | the refresh URL                   |
+| scopes      | `string[]`                                       | list of scopes for the credential |
 
 ### `ConflictResponse` {#TypeSpec.Http.ConflictResponse}
 
@@ -187,9 +187,9 @@ model TypeSpec.Http.ConflictResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 409` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `409` | The status code. |
 
 ### `CreatedResponse` {#TypeSpec.Http.CreatedResponse}
 
@@ -201,9 +201,9 @@ model TypeSpec.Http.CreatedResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 201` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `201` | The status code. |
 
 ### `ForbiddenResponse` {#TypeSpec.Http.ForbiddenResponse}
 
@@ -215,9 +215,9 @@ model TypeSpec.Http.ForbiddenResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 403` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `403` | The status code. |
 
 ### `HeaderOptions` {#TypeSpec.Http.HeaderOptions}
 
@@ -229,10 +229,10 @@ model TypeSpec.Http.HeaderOptions
 
 #### Properties
 
-| Name    | Type                                                                        | Description                                               |
-| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------- |
-| name?   | `string`                                                                    | Name of the header when sent over HTTP.                   |
-| format? | `union "csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used. |
+| Name    | Type                                                                  | Description                                               |
+| ------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
+| name?   | `string`                                                              | Name of the header when sent over HTTP.                   |
+| format? | `"csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used. |
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
@@ -244,12 +244,12 @@ model TypeSpec.Http.ImplicitFlow
 
 #### Properties
 
-| Name             | Type       | Description                       |
-| ---------------- | ---------- | --------------------------------- |
-| type             | `implicit` | implicit flow                     |
-| authorizationUrl | `string`   | the authorization URL             |
-| refreshUrl?      | `string`   | the refresh URL                   |
-| scopes           | `Array`    | list of scopes for the credential |
+| Name             | Type                                    | Description                       |
+| ---------------- | --------------------------------------- | --------------------------------- |
+| type             | `TypeSpec.Http.OAuth2FlowType.implicit` | implicit flow                     |
+| authorizationUrl | `string`                                | the authorization URL             |
+| refreshUrl?      | `string`                                | the refresh URL                   |
+| scopes           | `string[]`                              | list of scopes for the credential |
 
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
@@ -275,10 +275,10 @@ model TypeSpec.Http.MovedResponse
 
 #### Properties
 
-| Name       | Type           | Description                                                                                         |
-| ---------- | -------------- | --------------------------------------------------------------------------------------------------- |
-| statusCode | `(number) 301` | The status code.                                                                                    |
-| location   | `string`       | The Location header contains the URL where the status of the long running operation can be checked. |
+| Name       | Type     | Description                                                                                         |
+| ---------- | -------- | --------------------------------------------------------------------------------------------------- |
+| statusCode | `301`    | The status code.                                                                                    |
+| location   | `string` | The Location header contains the URL where the status of the long running operation can be checked. |
 
 ### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
@@ -290,9 +290,9 @@ model TypeSpec.Http.NoContentResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 204` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `204` | The status code. |
 
 ### `NotFoundResponse` {#TypeSpec.Http.NotFoundResponse}
 
@@ -304,9 +304,9 @@ model TypeSpec.Http.NotFoundResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 404` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `404` | The status code. |
 
 ### `NotModifiedResponse` {#TypeSpec.Http.NotModifiedResponse}
 
@@ -318,9 +318,9 @@ model TypeSpec.Http.NotModifiedResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 304` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `304` | The status code. |
 
 ### `OAuth2Auth` {#TypeSpec.Http.OAuth2Auth}
 
@@ -342,10 +342,10 @@ model TypeSpec.Http.OAuth2Auth<Flows>
 
 #### Properties
 
-| Name  | Type     | Description |
-| ----- | -------- | ----------- |
-| type  | `oauth2` |             |
-| flows | `Flows`  |             |
+| Name  | Type                            | Description |
+| ----- | ------------------------------- | ----------- |
+| type  | `TypeSpec.Http.AuthType.oauth2` |             |
+| flows | `Flows`                         |             |
 
 ### `OkResponse` {#TypeSpec.Http.OkResponse}
 
@@ -357,9 +357,9 @@ model TypeSpec.Http.OkResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 200` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `200` | The status code. |
 
 ### `OpenIdConnectAuth` {#TypeSpec.Http.OpenIdConnectAuth}
 
@@ -384,10 +384,10 @@ model TypeSpec.Http.OpenIdConnectAuth<ConnectUrl>
 
 #### Properties
 
-| Name             | Type            | Description                                                 |
-| ---------------- | --------------- | ----------------------------------------------------------- |
-| type             | `openIdConnect` | Auth type                                                   |
-| openIdConnectUrl | `ConnectUrl`    | Connect url. It can be specified relative to the server URL |
+| Name             | Type                                   | Description                                                 |
+| ---------------- | -------------------------------------- | ----------------------------------------------------------- |
+| type             | `TypeSpec.Http.AuthType.openIdConnect` | Auth type                                                   |
+| openIdConnectUrl | `ConnectUrl`                           | Connect url. It can be specified relative to the server URL |
 
 ### `PasswordFlow` {#TypeSpec.Http.PasswordFlow}
 
@@ -399,12 +399,12 @@ model TypeSpec.Http.PasswordFlow
 
 #### Properties
 
-| Name             | Type       | Description                       |
-| ---------------- | ---------- | --------------------------------- |
-| type             | `password` | password flow                     |
-| authorizationUrl | `string`   | the authorization URL             |
-| refreshUrl?      | `string`   | the refresh URL                   |
-| scopes           | `Array`    | list of scopes for the credential |
+| Name             | Type                                    | Description                       |
+| ---------------- | --------------------------------------- | --------------------------------- |
+| type             | `TypeSpec.Http.OAuth2FlowType.password` | password flow                     |
+| authorizationUrl | `string`                                | the authorization URL             |
+| refreshUrl?      | `string`                                | the refresh URL                   |
+| scopes           | `string[]`                              | list of scopes for the credential |
 
 ### `PlainData` {#TypeSpec.Http.PlainData}
 
@@ -423,8 +423,7 @@ model TypeSpec.Http.PlainData<Data>
 
 #### Properties
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `QueryOptions` {#TypeSpec.Http.QueryOptions}
 
@@ -436,10 +435,10 @@ model TypeSpec.Http.QueryOptions
 
 #### Properties
 
-| Name    | Type                                                                        | Description                                               |
-| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------- |
-| name?   | `string`                                                                    | Name of the query when included in the url.               |
-| format? | `union "multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used. |
+| Name    | Type                                                                  | Description                                               |
+| ------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
+| name?   | `string`                                                              | Name of the query when included in the url.               |
+| format? | `"multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used. |
 
 ### `Response` {#TypeSpec.Http.Response}
 
@@ -471,9 +470,9 @@ model TypeSpec.Http.UnauthorizedResponse
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 401` | The status code. |
+| Name       | Type  | Description      |
+| ---------- | ----- | ---------------- |
+| statusCode | `401` | The status code. |
 
 ### `ApiKeyLocation` {#TypeSpec.Http.ApiKeyLocation}
 

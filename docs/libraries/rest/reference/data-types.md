@@ -37,10 +37,10 @@ model TypeSpec.Rest.Resource.CollectionWithNextLink<Resource>
 
 #### Properties
 
-| Name      | Type               | Description |
-| --------- | ------------------ | ----------- |
-| value     | `Array`            |             |
-| nextLink? | `ResourceLocation` |             |
+| Name      | Type                             | Description |
+| --------- | -------------------------------- | ----------- |
+| value     | `Array<Element>`                 |             |
+| nextLink? | `TypeSpec.Rest.ResourceLocation` |             |
 
 ### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
 
@@ -58,8 +58,7 @@ model TypeSpec.Rest.Resource.KeysOf<Resource>
 
 #### Properties
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `ParentKeysOf` {#TypeSpec.Rest.Resource.ParentKeysOf}
 
@@ -77,8 +76,7 @@ model TypeSpec.Rest.Resource.ParentKeysOf<Resource>
 
 #### Properties
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `ResourceCollectionParameters` {#TypeSpec.Rest.Resource.ResourceCollectionParameters}
 
@@ -96,8 +94,7 @@ model TypeSpec.Rest.Resource.ResourceCollectionParameters<Resource>
 
 #### Properties
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
@@ -115,10 +112,10 @@ model TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource>
 
 #### Properties
 
-| Name       | Type           | Description      |
-| ---------- | -------------- | ---------------- |
-| statusCode | `(number) 201` | The status code. |
-| body       | `Resource`     |                  |
+| Name       | Type       | Description      |
+| ---------- | ---------- | ---------------- |
+| statusCode | `201`      | The status code. |
+| body       | `Resource` |                  |
 
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
@@ -136,8 +133,7 @@ model TypeSpec.Rest.Resource.ResourceCreateModel<Resource>
 
 #### Properties
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
@@ -155,8 +151,7 @@ model TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>
 
 #### Properties
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
 
 ### `ResourceDeletedResponse` {#TypeSpec.Rest.Resource.ResourceDeletedResponse}
 
@@ -168,9 +163,9 @@ model TypeSpec.Rest.Resource.ResourceDeletedResponse
 
 #### Properties
 
-| Name | Type           | Description      |
-| ---- | -------------- | ---------------- |
-| \_   | `(number) 200` | The status code. |
+| Name | Type  | Description      |
+| ---- | ----- | ---------------- |
+| \_   | `200` | The status code. |
 
 ### `ResourceError` {#TypeSpec.Rest.Resource.ResourceError}
 
@@ -203,5 +198,4 @@ model TypeSpec.Rest.Resource.ResourceParameters<Resource>
 
 #### Properties
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
+None
