@@ -23,8 +23,7 @@ it("render simple model", async () => {
       "",
       "",
       "## Properties",
-      "| Name | Type | Description |",
-      "|------|------|-------------|",
+      "None",
     ].join("\n")
   );
 });
@@ -47,8 +46,7 @@ it("render model with template parameter", async () => {
       "",
       "",
       "## Properties",
-      "| Name | Type | Description |",
-      "|------|------|-------------|",
+      "None",
     ].join("\n")
   );
 });
@@ -81,8 +79,7 @@ describe("model examples", () => {
         "```",
         "",
         "## Properties",
-        "| Name | Type | Description |",
-        "|------|------|-------------|",
+        "None",
       ].join("\n")
     );
   });
@@ -125,8 +122,7 @@ describe("model examples", () => {
         "```",
         "",
         "## Properties",
-        "| Name | Type | Description |",
-        "|------|------|-------------|",
+        "None",
       ].join("\n")
     );
   });

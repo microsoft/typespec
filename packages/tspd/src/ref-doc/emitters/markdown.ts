@@ -145,6 +145,9 @@ export class MarkdownRenderer {
 
   modelProperties(model: ModelRefDoc) {
     const content: MarkdownDoc = [];
+    if (model.properties.size === 0 && model.type.indexer === undefined) {
+      return section("Properties", "None");
+    }
     const rows: { name: string; type: string; doc: string }[] = [
       { name: "Name", type: "Type", doc: "Description" },
     ];
