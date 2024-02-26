@@ -59,7 +59,7 @@ export interface OpenAPI3UnversionedServiceRecord {
   readonly document: OpenAPI3Document;
 
   /** The diagnostics created for this document */
-  readonly diagnostics: Readonly<Diagnostic[]>;
+  readonly diagnostics: readonly Diagnostic[];
 }
 
 export interface OpenAPI3VersionedServiceRecord {
@@ -88,7 +88,7 @@ export interface OpenAPI3VersionedDocumentRecord {
   readonly version: string;
 
   /** The diagnostics created for this version. */
-  readonly diagnostics: Readonly<Diagnostic[]>;
+  readonly diagnostics: readonly Diagnostic[];
 }
 
 export interface OpenAPI3Info extends Extensions {
