@@ -153,13 +153,22 @@ describe("properties table", () => {
     });
   });
 
-  it.only("render enum properties", async () => {
+  it("render enum properties", async () => {
     await expectTable({
       code: `
         model Test { name: Bar.baz } 
         enum Bar { baz }
       `,
       rows: ["| name | `Bar.baz` |  |"],
+    });
+  });
+
+  it("render array properties", async () => {
+    await expectTable({
+      code: `
+        model Test { name: string[] } 
+      `,
+      rows: ["| name | `string[]` |  |"],
     });
   });
 

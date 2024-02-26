@@ -346,10 +346,10 @@ it will be used as a prefix to the route URI of the operation.
 
 ##### Parameters
 
-| Name    | Type                | Description                                                                                                                                  |
-| ------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| path    | `valueof string`    | Relative route path. Cannot include query parameters.                                                                                        |
-| options | `(anonymous model)` | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+| Name    | Type             | Description                                                                                                                                  |
+| ------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| path    | `valueof string` | Relative route path. Cannot include query parameters.                                                                                        |
+| options | ``               | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 ##### Examples
 
