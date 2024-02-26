@@ -10,7 +10,6 @@ toc_max_heading_level: 3
 Mark this type as deprecated.
 
 NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
-
 ```typespec
 @deprecated(message: valueof string)
 ```
@@ -37,7 +36,6 @@ op Action<Result>(): Result;
 ### `@discriminator` {#@discriminator}
 
 Specify the property to be used to discriminate this type.
-
 ```typespec
 @discriminator(propertyName: valueof string)
 ```
@@ -73,7 +71,6 @@ model Dog extends Pet  {kind: "dog", bark: boolean}
 ### `@doc` {#@doc}
 
 Attach a documentation string.
-
 ```typespec
 @doc(doc: valueof string, formatArgs?: {})
 ```
@@ -99,7 +96,6 @@ model Pet {}
 ### `@encode` {#@encode}
 
 Specify how to encode the target type.
-
 ```typespec
 @encode(encoding: string | EnumMember, encodedAs?: Scalar)
 ```
@@ -135,7 +131,6 @@ scalar myDateTime extends unixTimestamp;
 ### `@encodedName` {#@encodedName}
 
 Provide an alternative name for this type when serialized to the given mime type.
-
 ```typespec
 @encodedName(mimeType: valueof string, name: valueof string)
 ```
@@ -172,7 +167,6 @@ expireAt: int32;
 ### `@error` {#@error}
 
 Specify that this model is an error type. Operations return error types when the operation has failed.
-
 ```typespec
 @error
 ```
@@ -199,7 +193,6 @@ message: string;
 
 Attach a documentation string to describe the error return types of an operation.
 If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
-
 ```typespec
 @errorsDoc(doc: valueof string)
 ```
@@ -226,7 +219,6 @@ op get(): Pet | NotFound;
 Specify a known data format hint for this string type. For example `uuid`, `uri`, etc.
 This differs from the `@pattern` decorator which is meant to specify a regular expression while `@format` accepts a known format name.
 The format names are open ended and are left to emitter to interpret.
-
 ```typespec
 @format(format: valueof string)
 ```
@@ -251,7 +243,6 @@ scalar uuid extends string;
 ### `@friendlyName` {#@friendlyName}
 
 Specifies how a templated type should name their instances.
-
 ```typespec
 @friendlyName(name: valueof string, formatArgs?: unknown)
 ```
@@ -280,7 +271,6 @@ nextLink: string;
 ### `@inspectType` {#@inspectType}
 
 A debugging decorator used to inspect a type.
-
 ```typespec
 @inspectType(text: valueof string)
 ```
@@ -299,7 +289,6 @@ A debugging decorator used to inspect a type.
 ### `@inspectTypeName` {#@inspectTypeName}
 
 A debugging decorator used to inspect a type name.
-
 ```typespec
 @inspectTypeName(text: valueof string)
 ```
@@ -318,7 +307,6 @@ A debugging decorator used to inspect a type name.
 ### `@key` {#@key}
 
 Mark a model property as the key to identify instances of that type
-
 ```typespec
 @key(altName?: valueof string)
 ```
@@ -344,7 +332,6 @@ model Pet {
 ### `@knownValues` {#@knownValues}
 
 Provide a set of known values to a string type.
-
 ```typespec
 @knownValues(values: Enum)
 ```
@@ -374,7 +361,6 @@ Invalid,
 ### `@list` {#@list}
 
 Mark this operation as a `list` operation for resource types.
-
 ```typespec
 @list(listedType?: Model)
 ```
@@ -393,7 +379,6 @@ Mark this operation as a `list` operation for resource types.
 ### `@maxItems` {#@maxItems}
 
 Specify the maximum number of items this array should have.
-
 ```typespec
 @maxItems(value: valueof integer)
 ```
@@ -418,7 +403,6 @@ model Endpoints is string[];
 ### `@maxLength` {#@maxLength}
 
 Specify the maximum length this string type should be.
-
 ```typespec
 @maxLength(value: valueof integer)
 ```
@@ -443,7 +427,6 @@ scalar Username extends string;
 ### `@maxValue` {#@maxValue}
 
 Specify the maximum value this numeric type should be.
-
 ```typespec
 @maxValue(value: valueof numeric)
 ```
@@ -469,7 +452,6 @@ scalar Age is int32;
 
 Specify the maximum value this numeric type should be, exclusive of the given
 value.
-
 ```typespec
 @maxValueExclusive(value: valueof numeric)
 ```
@@ -494,7 +476,6 @@ scalar distance is float64;
 ### `@minItems` {#@minItems}
 
 Specify the minimum number of items this array should have.
-
 ```typespec
 @minItems(value: valueof integer)
 ```
@@ -519,7 +500,6 @@ model Endpoints is string[];
 ### `@minLength` {#@minLength}
 
 Specify the minimum length this string type should be.
-
 ```typespec
 @minLength(value: valueof integer)
 ```
@@ -544,7 +524,6 @@ scalar Username extends string;
 ### `@minValue` {#@minValue}
 
 Specify the minimum value this numeric type should be.
-
 ```typespec
 @minValue(value: valueof numeric)
 ```
@@ -570,7 +549,6 @@ scalar Age is int32;
 
 Specify the minimum value this numeric type should be, exclusive of the given
 value.
-
 ```typespec
 @minValueExclusive(value: valueof numeric)
 ```
@@ -595,7 +573,6 @@ scalar distance is float64;
 ### `@overload` {#@overload}
 
 Specify this operation is an overload of the given operation.
-
 ```typespec
 @overload(overloadbase: Operation)
 ```
@@ -623,7 +600,6 @@ op uploadBytes(data: bytes, @header contentType: "application/octet-stream"): vo
 ### `@parameterVisibility` {#@parameterVisibility}
 
 Sets which visibilities apply to parameters for the given operation.
-
 ```typespec
 @parameterVisibility(...visibilities: valueof string[])
 ```
@@ -649,7 +625,6 @@ This decorator may optionally provide a custom validation _message_. Emitters ma
 context when pattern validation fails. For the sake of consistency, the message should be a phrase that describes in
 plain language what sort of content the pattern attempts to validate. For example, a complex regular expression that
 validates a GUID string might have a message like "Must be a valid GUID."
-
 ```typespec
 @pattern(pattern: valueof string, validationMessage?: valueof string)
 ```
@@ -677,7 +652,6 @@ scalar LowerAlpha extends string;
 DEPRECATED: Use `@encodedName` instead.
 
 Provide an alternative name for this type.
-
 ```typespec
 @projectedName(targetName: valueof string, projectedName: valueof string)
 ```
@@ -706,7 +680,6 @@ expireAt: int32;
 
 Attach a documentation string to describe the successful return types of an operation.
 If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
-
 ```typespec
 @returnsDoc(doc: valueof string)
 ```
@@ -731,7 +704,6 @@ op get(): Pet | NotFound;
 ### `@returnTypeVisibility` {#@returnTypeVisibility}
 
 Sets which visibilities apply to the return type for the given operation.
-
 ```typespec
 @returnTypeVisibility(...visibilities: valueof string[])
 ```
@@ -750,7 +722,6 @@ Sets which visibilities apply to the return type for the given operation.
 ### `@secret` {#@secret}
 
 Mark this string as a secret value that should be treated carefully to avoid exposure
-
 ```typespec
 @secret
 ```
@@ -773,7 +744,6 @@ scalar Password is string;
 ### `@service` {#@service}
 
 Mark this namespace as describing a service and configure service properties.
-
 ```typespec
 @service(options?: ServiceOptions)
 ```
@@ -812,7 +782,6 @@ namespace PetStore;
 ### `@summary` {#@summary}
 
 Typically a short, single-line description.
-
 ```typespec
 @summary(summary: valueof string)
 ```
@@ -837,7 +806,6 @@ model Pet {}
 ### `@tag` {#@tag}
 
 Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
-
 ```typespec
 @tag(tag: valueof string)
 ```
@@ -870,7 +838,6 @@ with standard emitters that interpret them as follows:
 - "delete": input to operations that delete data.
 
 See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
-
 ```typespec
 @visibility(...visibilities: valueof string[])
 ```
@@ -901,7 +868,6 @@ name: string;
 ### `@withDefaultKeyVisibility` {#@withDefaultKeyVisibility}
 
 Set the visibility of key properties in a model if not already set.
-
 ```typespec
 @withDefaultKeyVisibility(visibility: valueof string)
 ```
@@ -920,7 +886,6 @@ Set the visibility of key properties in a model if not already set.
 ### `@withOptionalProperties` {#@withOptionalProperties}
 
 Returns the model with required properties removed.
-
 ```typespec
 @withOptionalProperties
 ```
@@ -937,7 +902,6 @@ None
 ### `@withoutDefaultValues` {#@withoutDefaultValues}
 
 Returns the model with any default values removed.
-
 ```typespec
 @withoutDefaultValues
 ```
@@ -954,7 +918,6 @@ None
 ### `@withoutOmittedProperties` {#@withoutOmittedProperties}
 
 Returns the model with the given properties omitted.
-
 ```typespec
 @withoutOmittedProperties(omit: string | Union)
 ```
@@ -973,7 +936,6 @@ Returns the model with the given properties omitted.
 ### `@withUpdateableProperties` {#@withUpdateableProperties}
 
 Returns the model with non-updateable properties removed.
-
 ```typespec
 @withUpdateableProperties
 ```
@@ -998,7 +960,6 @@ See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operati
 
 When using an emitter that applies visibility automatically, it is generally
 not necessary to use this decorator.
-
 ```typespec
 @withVisibility(...visibilities: valueof string[])
 ```

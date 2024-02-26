@@ -80,10 +80,10 @@ model TypeSpec.Protobuf.PackageDetails
 
 #### Properties
 
-| Name     | Type     | Description                                                                                                                                                                                                                                                 |
-| -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name?    | `string` | The package's name.<br /><br />By default, the package's name is constructed from the namespace it is applied to.<br />                                                                                                                                     |
-| options? | `Record` | The package's top-level options.<br /><br />See the [Protobuf Language Guide - Options](https://protobuf.dev/programming-guides/proto3/#options) for more information.<br /><br />Currently, only string, boolean, and numeric options are supported.<br /> |
+| Name     | Type     | Description                                                                                                                                                                                                                                           |
+| -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name?    | `string` | The package's name.<br /><br />By default, the package's name is constructed from the namespace it is applied to.                                                                                                                                     |
+| options? | `Record` | The package's top-level options.<br /><br />See the [Protobuf Language Guide - Options](https://protobuf.dev/programming-guides/proto3/#options) for more information.<br /><br />Currently, only string, boolean, and numeric options are supported. |
 
 ### `StreamMode` {#TypeSpec.Protobuf.StreamMode}
 

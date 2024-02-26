@@ -229,10 +229,10 @@ model TypeSpec.Http.HeaderOptions
 
 #### Properties
 
-| Name    | Type                                                                        | Description                                                     |
-| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| name?   | `string`                                                                    | Name of the header when sent over HTTP.<br />                   |
-| format? | `union "csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used.<br /> |
+| Name    | Type                                                                        | Description                                               |
+| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------- |
+| name?   | `string`                                                                    | Name of the header when sent over HTTP.                   |
+| format? | `union "csv" \| "multi" \| "tsv" \| "ssv" \| "pipes" \| "simple" \| "form"` | Determines the format of the array if type array is used. |
 
 ### `ImplicitFlow` {#TypeSpec.Http.ImplicitFlow}
 
@@ -384,10 +384,10 @@ model TypeSpec.Http.OpenIdConnectAuth<ConnectUrl>
 
 #### Properties
 
-| Name             | Type            | Description                                                       |
-| ---------------- | --------------- | ----------------------------------------------------------------- |
-| type             | `openIdConnect` | Auth type<br />                                                   |
-| openIdConnectUrl | `ConnectUrl`    | Connect url. It can be specified relative to the server URL<br /> |
+| Name             | Type            | Description                                                 |
+| ---------------- | --------------- | ----------------------------------------------------------- |
+| type             | `openIdConnect` | Auth type                                                   |
+| openIdConnectUrl | `ConnectUrl`    | Connect url. It can be specified relative to the server URL |
 
 ### `PasswordFlow` {#TypeSpec.Http.PasswordFlow}
 
@@ -436,10 +436,10 @@ model TypeSpec.Http.QueryOptions
 
 #### Properties
 
-| Name    | Type                                                                        | Description                                                     |
-| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| name?   | `string`                                                                    | Name of the query when included in the url.<br />               |
-| format? | `union "multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used.<br /> |
+| Name    | Type                                                                        | Description                                               |
+| ------- | --------------------------------------------------------------------------- | --------------------------------------------------------- |
+| name?   | `string`                                                                    | Name of the query when included in the url.               |
+| format? | `union "multi" \| "csv" \| "ssv" \| "tsv" \| "simple" \| "form" \| "pipes"` | Determines the format of the array if type array is used. |
 
 ### `Response` {#TypeSpec.Http.Response}
 
