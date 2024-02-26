@@ -1,6 +1,5 @@
 // Simple smoke test verifying the plugin is able to be loaded via prettier.
 const prettier = require("prettier");
-const prettier_2 = require("prettier_2");
 const { strictEqual } = require("assert");
 const { resolve } = require("path");
 import { describe, it } from "vitest";
