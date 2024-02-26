@@ -13,12 +13,4 @@ describe("prettier-plugin: smoke test", () => {
     });
     strictEqual(result, "alias Foo = string;\n");
   });
-
-  it("loads and formats (Prettier 2.0)", async () => {
-    const result = prettier_2.format("alias   Foo   =   string;", {
-      parser: "typespec",
-      plugins: [resolve(__dirname, "..")],
-    });
-    strictEqual(result, "alias Foo = string;\n");
-  });
 });
