@@ -50,27 +50,27 @@ export type OpenAPI3ServiceRecord =
 
 export interface OpenAPI3UnversionedServiceRecord {
   /** The service that generated this OpenAPI document */
-  service: Service;
+  readonly service: Service;
 
   /** Whether the service is versioned */
-  versioned: false;
+  readonly versioned: false;
 
   /** The OpenAPI 3 document */
-  document: OpenAPI3Document;
+  readonly ocument: OpenAPI3Document;
 
   /** The diagnostics created for this document */
-  diagnostics: Readonly<Diagnostic[]>;
+  readonly diagnostics: Readonly<Diagnostic[]>;
 }
 
 export interface OpenAPI3VersionedServiceRecord {
   /** The service that generated this OpenAPI document */
-  service: Service;
+  readonly service: Service;
 
   /** Whether the service is versioned */
-  versioned: true;
+  readonly versioned: true;
 
   /** The OpenAPI 3 document records for each version of this service */
-  versions: OpenAPI3VersionedDocumentRecord[];
+  readonly versions: OpenAPI3VersionedDocumentRecord[];
 }
 
 /**
@@ -79,13 +79,13 @@ export interface OpenAPI3VersionedServiceRecord {
 
 export interface OpenAPI3VersionedDocumentRecord {
   /** The OpenAPI document*/
-  document: OpenAPI3Document;
+  readonly document: OpenAPI3Document;
 
   /** The service that generated this OpenAPI document. */
-  service: Service;
+  readonly service: Service;
 
   /** The version of the service. Absent if the service is unversioned. */
-  version: string;
+  readonly version: string;
 
   /** The diagnostics created for this version. */
   readonly diagnostics: Readonly<Diagnostic[]>;
