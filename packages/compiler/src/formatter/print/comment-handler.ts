@@ -131,7 +131,6 @@ function handleOnlyComments({ comment, ast, isLastComment }: CommentContext) {
     if (isLastComment) {
       util.addDanglingComment(ast, comment, undefined);
     } else {
-      console.log("Format", ast.file.text.slice(comment.pos, comment.end));
       util.addLeadingComment(ast, comment);
     }
     return true;
