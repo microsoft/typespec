@@ -1,8 +1,9 @@
 import type { Printer } from "prettier";
-import { Node, SyntaxKind, TypeSpecScriptNode } from "../../core/types.js";
+import { Node, SyntaxKind, TextRange, TypeSpecScriptNode } from "../../core/types.js";
 import { util } from "./util.js";
 
-interface CommentNode {
+interface CommentNode extends TextRange {
+  readonly kind: SyntaxKind.LineComment | SyntaxKind.BlockComment;
   precedingNode?: Node;
   enclosingNode?: Node;
   followingNode?: Node;
@@ -19,6 +20,14 @@ export const commentHandler: Printer<Node>["handleComments"] = {
       addCommentBetweenAnnotationsAndNode,
       handleOnlyComments,
     ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
+  remaining: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+    ),
+  endOfLine: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+    ),
 };
 
 interface CommentContext {
@@ -122,6 +131,7 @@ function handleOnlyComments({ comment, ast, isLastComment }: CommentContext) {
     if (isLastComment) {
       util.addDanglingComment(ast, comment, undefined);
     } else {
+      console.log("Format", ast.file.text.slice(comment.pos, comment.end));
       util.addLeadingComment(ast, comment);
     }
     return true;
