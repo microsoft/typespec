@@ -664,8 +664,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "unassignable",
-          message:
-            "Type 'foo' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+          message: `Type '"foo"' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'`,
         },
         {
           code: "unassignable",
