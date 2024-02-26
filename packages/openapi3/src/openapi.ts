@@ -1,5 +1,8 @@
 import {
   compilerAssert,
+  createDiagnosticCollector,
+  Diagnostic,
+  DiagnosticCollector,
   DiagnosticTarget,
   EmitContext,
   emitFile,
@@ -44,7 +47,8 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 
-import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import {} from "@typespec/compiler/utils";
 import {
   createMetadataInfo,
   getAuthentication,
@@ -83,10 +87,10 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { buildVersionProjections } from "@typespec/versioning";
+import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
-import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
 import { getDefaultValue, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
@@ -99,7 +103,9 @@ import {
   OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
+  OpenAPI3ServiceRecord,
   OpenAPI3StatusCode,
+  OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
 import { deepEquals } from "./util.js";
@@ -116,6 +122,37 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   const emitter = createOAPIEmitter(context, options);
   await emitter.emitOpenAPI();
+}
+
+type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
+
+/**
+ * Get the OpenAPI 3 document records from the given program. The documents are
+ * returned as a JS object.
+ *
+ * @param program The program to emit to OpenAPI 3
+ * @param options OpenAPI 3 emit options
+ * @returns An array of OpenAPI 3 document records.
+ */
+export async function getOpenAPI3(
+  program: Program,
+  options: Omit<OpenAPI3EmitterOptions, IrrelevantOpenAPI3EmitterOptionsForObject> = {}
+): Promise<OpenAPI3ServiceRecord[]> {
+  const context: EmitContext<any> = {
+    program,
+
+    // this value doesn't matter for getting the OpenAPI3 objects
+    emitterOutputDir: "tsp-output",
+
+    options: options,
+    getAssetEmitter(TypeEmitterClass) {
+      return createAssetEmitter(program, TypeEmitterClass, this);
+    },
+  };
+
+  const resolvedOptions = resolveOptions(context);
+  const emitter = createOAPIEmitter(context, resolvedOptions);
+  return emitter.getOpenAPI();
 }
 
 function findFileTypeFromFilename(filename: string | undefined): FileType {
@@ -167,6 +204,7 @@ function createOAPIEmitter(
   let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
 
   let root: OpenAPI3Document;
+  let diagnostics: DiagnosticCollector;
   let currentService: Service;
   // Get the service namespace string for use in name shortening
   let serviceNamespaceName: string | undefined;
@@ -196,7 +234,45 @@ function createOAPIEmitter(
     },
   };
 
-  return { emitOpenAPI };
+  return { emitOpenAPI, getOpenAPI };
+
+  async function emitOpenAPI() {
+    const services = await getOpenAPI();
+    // first, emit diagnostics
+    for (const serviceRecord of services) {
+      if (serviceRecord.versioned) {
+        for (const documentRecord of serviceRecord.versions) {
+          program.reportDiagnostics(documentRecord.diagnostics);
+        }
+      } else {
+        program.reportDiagnostics(serviceRecord.diagnostics);
+      }
+    }
+
+    if (program.compilerOptions.noEmit || program.hasError()) {
+      return;
+    }
+
+    const multipleService = services.length > 1;
+
+    for (const serviceRecord of services) {
+      if (serviceRecord.versioned) {
+        for (const documentRecord of serviceRecord.versions) {
+          await emitFile(program, {
+            path: resolveOutputFile(serviceRecord.service, multipleService, documentRecord.version),
+            content: serializeDocument(documentRecord.document, options.fileType),
+            newLine: options.newLine,
+          });
+        }
+      } else {
+        await emitFile(program, {
+          path: resolveOutputFile(serviceRecord.service, multipleService),
+          content: serializeDocument(serviceRecord.document, options.fileType),
+          newLine: options.newLine,
+        });
+      }
+    }
+  }
 
   function initializeEmitter(service: Service, version?: string) {
     currentService = service;
@@ -241,6 +317,7 @@ function createOAPIEmitter(
         securitySchemes: auth?.securitySchemes ?? {},
       },
     };
+    diagnostics = createDiagnosticCollector();
     const servers = getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);
@@ -282,11 +359,13 @@ function createOAPIEmitter(
     const isValid = isValidServerVariableType(program, prop.type);
 
     if (!isValid) {
-      reportDiagnostic(program, {
-        code: "invalid-server-variable",
-        format: { propName: prop.name },
-        target: prop,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "invalid-server-variable",
+          format: { propName: prop.name },
+          target: prop,
+        })
+      );
     }
     return isValid;
   }
@@ -324,12 +403,57 @@ function createOAPIEmitter(
     });
   }
 
-  async function emitOpenAPI() {
+  async function getOpenAPI(): Promise<OpenAPI3ServiceRecord[]> {
+    const serviceRecords: OpenAPI3ServiceRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
+      const versions = buildVersionProjections(program, service.type);
+      if (versions.length === 1 && versions[0].version === undefined) {
+        // non-versioned spec
+        const document = await getProjectedOpenAPIDocument(service, versions[0]);
+        if (document === undefined) {
+          // an error occurred producing this document, so don't return it
+          return serviceRecords;
+        }
+
+        serviceRecords.push({
+          service,
+          versioned: false,
+          document: document[0],
+          diagnostics: document[1],
+        });
+      } else {
+        // versioned spec
+        const serviceRecord: OpenAPI3VersionedServiceRecord = {
+          service,
+          versioned: true,
+          versions: [],
+        };
+        serviceRecords.push(serviceRecord);
+
+        for (const record of versions) {
+          const document = await getProjectedOpenAPIDocument(service, record);
+          if (document === undefined) {
+            // an error occurred producing this document
+            continue;
+          }
+
+          serviceRecord.versions.push({
+            service,
+            version: record.version!,
+            document: document[0],
+            diagnostics: document[1],
+          });
+        }
+      }
+    }
+
+    return serviceRecords;
+
+    async function getProjectedOpenAPIDocument(service: Service, record: VersionProjections) {
       const commonProjections: ProjectionApplication[] = [
         {
           projectionName: "target",
@@ -337,24 +461,22 @@ function createOAPIEmitter(
         },
       ];
       const originalProgram = program;
-      const versions = buildVersionProjections(program, service.type);
-      for (const record of versions) {
-        const projectedProgram = (program = projectProgram(originalProgram, [
-          ...commonProjections,
-          ...record.projections,
-        ]));
-        const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
-          service.type
-        ) as Namespace;
+      const projectedProgram = (program = projectProgram(originalProgram, [
+        ...commonProjections,
+        ...record.projections,
+      ]));
+      const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
+        service.type
+      ) as Namespace;
 
-        await emitOpenAPIFromVersion(
-          projectedServiceNs === projectedProgram.getGlobalNamespaceType()
-            ? { type: projectedProgram.getGlobalNamespaceType() }
-            : getService(program, projectedServiceNs)!,
-          services.length > 1,
-          record.version
-        );
-      }
+      const document = await getOpenApiFromVersion(
+        projectedServiceNs === projectedProgram.getGlobalNamespaceType()
+          ? { type: projectedProgram.getGlobalNamespaceType() }
+          : getService(program, projectedServiceNs)!,
+        record.version
+      );
+
+      return document;
     }
   }
 
@@ -478,11 +600,13 @@ function createOAPIEmitter(
     diagnosticTarget: DiagnosticTarget
   ): OpenAPI3StatusCode[] {
     const reportInvalid = () =>
-      reportDiagnostic(program, {
-        code: "unsupported-status-code-range",
-        format: { start: String(range.start), end: String(range.end) },
-        target: diagnosticTarget,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-status-code-range",
+          format: { start: String(range.start), end: String(range.end) },
+          target: diagnosticTarget,
+        })
+      );
 
     const codes: OpenAPI3StatusCode[] = [];
     let start = range.start;
@@ -601,11 +725,10 @@ function createOAPIEmitter(
     return result;
   }
 
-  async function emitOpenAPIFromVersion(
+  async function getOpenApiFromVersion(
     service: Service,
-    multipleService: boolean,
     version?: string
-  ) {
+  ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
     initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
@@ -631,15 +754,7 @@ function createOAPIEmitter(
         }
       }
 
-      if (!program.compilerOptions.noEmit && !program.hasError()) {
-        // Write out the OpenAPI document to the output path
-
-        await emitFile(program, {
-          path: resolveOutputFile(service, multipleService, version),
-          content: serializeDocument(root, options.fileType),
-          newLine: options.newLine,
-        });
-      }
+      return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was
@@ -707,10 +822,12 @@ function createOAPIEmitter(
       return resolveRequestVisibility(program, op, verb);
     });
     if (visibilities.some((v) => v !== visibilities[0])) {
-      reportDiagnostic(program, {
-        code: "inconsistent-shared-route-request-visibility",
-        target: ops[0],
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "inconsistent-shared-route-request-visibility",
+          target: ops[0],
+        })
+      );
     }
     const visibility = resolveRequestVisibility(program, shared.operations[0], verb);
     emitEndpointParameters(shared.parameters.parameters, visibility);
@@ -734,7 +851,7 @@ function createOAPIEmitter(
     const { path: fullPath, operation: op, verb, parameters } = operation;
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
-      reportDiagnostic(program, { code: "path-query", target: op });
+      diagnostics.add(createDiagnostic({ code: "path-query", target: op }));
       return;
     }
     if (!root.paths[fullPath]) {
@@ -844,11 +961,13 @@ function createOAPIEmitter(
           const existing = obj.headers[key];
           if (existing) {
             if (!deepEquals(existing, headerVal)) {
-              reportDiagnostic(program, {
-                code: "duplicate-header",
-                format: { header: key },
-                target: target,
-              });
+              diagnostics.add(
+                createDiagnostic({
+                  code: "duplicate-header",
+                  format: { header: key },
+                  target: target,
+                })
+              );
             }
             continue;
           }
@@ -916,11 +1035,13 @@ function createOAPIEmitter(
       case "declaration":
         return { $ref: `#/components/schemas/${result.name}` };
       case "circular":
-        reportDiagnostic(program, {
-          code: "inline-cycle",
-          format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
-          target: type,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "inline-cycle",
+            format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+            target: type,
+          })
+        );
         return {};
       case "none":
         return {};
@@ -935,11 +1056,13 @@ function createOAPIEmitter(
       case "declaration":
         return result.value as any;
       case "circular":
-        reportDiagnostic(program, {
-          code: "inline-cycle",
-          format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
-          target: type,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "inline-cycle",
+            format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+            target: type,
+          })
+        );
         return {};
       case "none":
         return {};
@@ -1207,14 +1330,16 @@ function createOAPIEmitter(
       case "simple":
         return { style: "simple" };
       default:
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          format: {
-            paramType: "header",
-            value: parameter.format,
-          },
-          target: parameter.param,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "header",
+              value: parameter.format,
+            },
+            target: parameter.param,
+          })
+        );
         return undefined;
     }
   }
@@ -1238,14 +1363,16 @@ function createOAPIEmitter(
         return { style: "pipeDelimited", explode: false };
 
       default:
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          format: {
-            paramType: "query",
-            value: parameter.format,
-          },
-          target: parameter.param,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "query",
+              value: parameter.format,
+            },
+            target: parameter.param,
+          })
+        );
         return undefined;
     }
   }
@@ -1542,11 +1669,13 @@ function createOAPIEmitter(
           scopes: [],
         };
       default:
-        reportDiagnostic(program, {
-          code: "unsupported-auth",
-          format: { authType: (auth as any).type },
-          target: currentService.type,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "unsupported-auth",
+            format: { authType: (auth as any).type },
+            target: currentService.type,
+          })
+        );
         return undefined;
     }
   }
