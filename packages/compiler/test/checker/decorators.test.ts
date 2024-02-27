@@ -1,5 +1,5 @@
 import { ok, strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { setTypeSpecNamespace } from "../../src/core/index.js";
 import {
   BasicTestRunner,
@@ -183,6 +183,7 @@ describe("compiler: checker: decorators", () => {
         code: "invalid-argument-count",
         message: "Expected 2 arguments, but got 1.",
       });
+      expect(calledArgs).toBeUndefined();
     });
 
     it("errors if not calling with too many arguments", async () => {
@@ -197,6 +198,7 @@ describe("compiler: checker: decorators", () => {
         code: "invalid-argument-count",
         message: "Expected 1-2 arguments, but got 3.",
       });
+      expect(calledArgs).toEqual(["one", "two"]);
     });
 
     it("errors if not calling with argument and decorator expect none", async () => {
@@ -211,6 +213,7 @@ describe("compiler: checker: decorators", () => {
         code: "invalid-argument-count",
         message: "Expected 0 arguments, but got 1.",
       });
+      expect(calledArgs).toBeUndefined();
     });
 
     it("errors if not calling with too few arguments with rest", async () => {

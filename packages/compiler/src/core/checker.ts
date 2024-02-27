@@ -3606,6 +3606,7 @@ export function createChecker(program: Program): Checker {
 
     if (args.length < minArgs || (maxArgs !== undefined && args.length > maxArgs)) {
       if (maxArgs === undefined) {
+        hasError = true; // In the case we have too little args then this decorator is not applicable.
         reportCheckerDiagnostic(
           createDiagnostic({
             code: "invalid-argument-count",
@@ -3615,6 +3616,7 @@ export function createChecker(program: Program): Checker {
           })
         );
       } else {
+        // If there is too many args then we can still run the decorator as long as the args are valid.
         const expected = minArgs === maxArgs ? minArgs.toString() : `${minArgs}-${maxArgs}`;
         reportCheckerDiagnostic(
           createDiagnostic({
