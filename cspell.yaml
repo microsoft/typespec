@@ -15,10 +15,12 @@ words:
   - cadl
   - cadleditor
   - cadleng
+  - cadlplayground
   - clsx
   - cobertura
   - codeql
   - Contoso
+  - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
   - CRUDL
@@ -28,14 +30,18 @@ words:
   - eastus
   - ecmarkup
   - esbuild
+  - ESRP
   - fluentui
+  - genproto
   - globby
+  - Infima
   - inmemory
   - instanceid
   - interner
   - intrinsics
   - jsyaml
   - keyer
+  - lifecyle
   - lzutf
   - mocharc
   - msbuild
@@ -43,12 +49,14 @@ words:
   - multis
   - munge
   - mylib
+  - nanos
   - noformat
   - noopener
   - noreferrer
   - nostdlib
   - npmjs
   - oapi
+  - OIDC
   - oneof
   - onig
   - onigasm
@@ -74,9 +82,11 @@ words:
   - TRYIT
   - TSES
   - tspd
+  - tspwebsitepr
   - tsvs
   - typespecvs
   - Uhoh
+  - uitestresults
   - unassignable
   - Uncapitalize
   - uninstantiated
@@ -98,8 +108,15 @@ ignorePaths:
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
   - "**/coverage/**"
+  - grammars/**
   - packages/website/build/**
   - common/scripts/*
+  - "**/ThirdPartyNotices.txt"
+  - packages/compiler/test/formatter/scenarios/**
+  - pnpm-lock.yaml
+  - "**/*.mp4"
+  - packages/samples/test/output/**
+useGitignore: true
 enableFiletypes:
   - cadl
 patterns:

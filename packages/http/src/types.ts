@@ -16,7 +16,11 @@ export type OperationDetails = HttpOperation;
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
-export interface ServiceAuthentication {
+/** @deprecated use Authentication */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type ServiceAuthentication = Authentication;
+
+export interface Authentication {
   /**
    * Either one of those options can be used independently to authenticate.
    */
@@ -34,7 +38,9 @@ export type HttpAuth =
   | BasicAuth
   | BearerAuth
   | ApiKeyAuth<ApiKeyLocation, string>
-  | Oauth2Auth<OAuth2Flow[]>;
+  | Oauth2Auth<OAuth2Flow[]>
+  | OpenIDConnectAuth
+  | NoAuth;
 
 export interface HttpAuthBase {
   /**
@@ -168,6 +174,29 @@ export interface OAuth2Scope {
   description?: string;
 }
 
+/**
+ * OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol and supported by some OAuth 2.0 providers, such as Google and Azure Active Directory.
+ * It defines a sign-in flow that enables a client application to authenticate a user, and to obtain information (or "claims") about that user, such as the user name, email, and so on.
+ * User identity information is encoded in a secure JSON Web Token (JWT), called ID token.
+ * OpenID Connect defines a discovery mechanism, called OpenID Connect Discovery, where an OpenID server publishes its metadata at a well-known URL, typically
+ *
+ * ```http
+ * https://server.com/.well-known/openid-configuration
+ * ```
+ */
+export interface OpenIDConnectAuth extends HttpAuthBase {
+  type: "openIdConnect";
+  openIdConnectUrl: string;
+}
+
+/**
+ * This authentication option signifies that API is not secured at all.
+ * It might be useful when overriding authentication on interface of operation level.
+ */
+export interface NoAuth extends HttpAuthBase {
+  type: "noAuth";
+}
+
 export type OperationContainer = Namespace | Interface;
 
 export type OperationVerbSelector = (
@@ -271,6 +300,7 @@ export interface HttpOperationParameters {
 export interface HttpService {
   namespace: Namespace;
   operations: HttpOperation[];
+  authentication?: Authentication;
 }
 
 export interface HttpOperation {
@@ -308,6 +338,11 @@ export interface HttpOperation {
    * Operation type reference.
    */
   operation: Operation;
+
+  /**
+   * Operation authentication. Overrides HttpService authentication
+   */
+  authentication?: Authentication;
 
   /**
    * Overload this operation

@@ -40,13 +40,13 @@ const DataValidationContent = () => {
         <Section
           layout="text-right"
           header="Output"
-          title="Produce Json Schema"
-          description="Benefit from the Json Schema ecosystem to validate your data while writing a much more concise and readable code."
+          title="Produce JSON Schema"
+          description="Benefit from the JSON Schema ecosystem to validate your data while writing a much more concise and readable code."
           illustration={<MultiFileIllustration />}
         >
           <LearnMoreCard
-            title="Configure the json schema emitter"
-            description="Change how the json schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml."
+            title="Configure the JSON schema emitter"
+            description="Change how the JSON schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml."
             image="shield-settings"
             link={Links.libraryReferences.jsonSchema.index}
           />
@@ -54,12 +54,12 @@ const DataValidationContent = () => {
 
         <Section
           header="Customize"
-          title="Json Schema Decorators"
+          title="JSON Schema Decorators"
           description="The json schema library provide decorators to customize the output with json schema specific concept."
           illustration={<JsonSchemaExtensionsIllustration />}
         >
           <LearnMoreCard
-            title="Json Schema Decorators Reference"
+            title="JSON Schema Decorators Reference"
             description="Read the reference documentation for available options."
             image="design"
             link={Links.libraryReferences.jsonSchema.decorators}

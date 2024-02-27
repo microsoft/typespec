@@ -405,10 +405,16 @@ export function getFormat(program: Program, target: Type): string | undefined {
 
 const patternValuesKey = createStateSymbol("patternValues");
 
+export interface PatternData {
+  readonly pattern: string;
+  readonly validationMessage?: string;
+}
+
 export function $pattern(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  pattern: string
+  pattern: string,
+  validationMessage?: string
 ) {
   validateDecoratorUniqueOnNode(context, target, $pattern);
 
@@ -416,10 +422,36 @@ export function $pattern(
     return;
   }
 
-  context.program.stateMap(patternValuesKey).set(target, pattern);
+  const patternData: PatternData = {
+    pattern,
+    validationMessage,
+  };
+
+  context.program.stateMap(patternValuesKey).set(target, patternData);
 }
 
+/**
+ * Gets the pattern regular expression associated with a given type, if one has been set.
+ *
+ * @see getPatternData
+ *
+ * @param program - the Program containing the target Type
+ * @param target - the type to get the pattern for
+ * @returns the pattern string, if one was set
+ */
 export function getPattern(program: Program, target: Type): string | undefined {
+  return getPatternData(program, target)?.pattern;
+}
+
+/**
+ * Gets the associated pattern data, including the pattern regular expression and optional validation message, if any
+ * has been set.
+ *
+ * @param program - the Program containing the target Type
+ * @param target - the type to get the pattern data for
+ * @returns the pattern data, if any was set
+ */
+export function getPatternData(program: Program, target: Type): PatternData | undefined {
   return program.stateMap(patternValuesKey).get(target);
 }
 

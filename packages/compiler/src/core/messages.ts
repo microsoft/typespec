@@ -298,6 +298,12 @@ const diagnostics = {
       array: "Cannot intersect an array model.",
     },
   },
+  "no-array-properties": {
+    severity: "error",
+    messages: {
+      default: "Array models cannot have any properties.",
+    },
+  },
   "intersect-duplicate-property": {
     severity: "error",
     messages: {
@@ -846,6 +852,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
+  "circular-constraint": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type parameter '${"typeName"}' has a circular constraint.`,
     },
   },
   "circular-op-signature": {

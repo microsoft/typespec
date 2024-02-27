@@ -20,7 +20,6 @@
     "**/.git": true,
     "**/.DS_Store": true
   },
-
   "[javascript][javascriptreact][typescript][typescriptreact]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": false, // work around https://github.com/simonhaenisch/prettier-plugin-organize-imports/issues/53

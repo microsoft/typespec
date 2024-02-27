@@ -13,6 +13,9 @@ enum AuthType {
 
   @doc("OpenID connect")
   openIdConnect,
+
+  @doc("Empty auth")
+  noAuth,
 }
 
 /**
@@ -105,14 +108,18 @@ model ApiKeyAuth<Location extends ApiKeyLocation, Name extends string> {
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
  *
  * @template Flows The list of supported OAuth2 flows
+ * @template Scopes The list of OAuth2 scopes, which are common for every flow from `Flows`. This list is combined with the scopes defined in specific OAuth2 flows.
  */
 @doc("")
-model OAuth2Auth<Flows extends OAuth2Flow[]> {
+model OAuth2Auth<Flows extends OAuth2Flow[], Scopes extends string[] = []> {
   @doc("OAuth2 authentication")
   type: AuthType.oauth2;
 
   @doc("Supported OAuth2 flows")
   flows: Flows;
+
+  @doc("Oauth2 scopes of every flow. Overridden by scope definitions in specific flows")
+  defaultScopes: Scopes;
 }
 
 @doc("Describes the OAuth2 flow type")
@@ -120,7 +127,7 @@ enum OAuth2FlowType {
   @doc("authorization code flow")
   authorizationCode,
 
-  @doc("implcit flow")
+  @doc("implicit flow")
   implicit,
 
   @doc("password flow")
@@ -147,7 +154,7 @@ model AuthorizationCodeFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes: string[];
+  scopes?: string[];
 }
 
 @doc("Implicit flow")
@@ -162,7 +169,7 @@ model ImplicitFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes: string[];
+  scopes?: string[];
 }
 
 @doc("Resource Owner Password flow")
@@ -177,7 +184,7 @@ model PasswordFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes: string[];
+  scopes?: string[];
 }
 
 @doc("Client credentials flow")
@@ -192,5 +199,32 @@ model ClientCredentialsFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes: string[];
+  scopes?: string[];
+}
+
+/**
+ * OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol and supported by some OAuth 2.0 providers, such as Google and Azure Active Directory.
+ * It defines a sign-in flow that enables a client application to authenticate a user, and to obtain information (or "claims") about that user, such as the user name, email, and so on.
+ * User identity information is encoded in a secure JSON Web Token (JWT), called ID token.
+ * OpenID Connect defines a discovery mechanism, called OpenID Connect Discovery, where an OpenID server publishes its metadata at a well-known URL, typically
+ *
+ * ```http
+ * https://server.com/.well-known/openid-configuration
+ * ```
+ */
+model OpenIdConnectAuth<ConnectUrl extends valueof string> {
+  /** Auth type */
+  type: AuthType.openIdConnect;
+
+  /** Connect url. It can be specified relative to the server URL */
+  openIdConnectUrl: ConnectUrl;
+}
+
+/**
+ * This authentication option signifies that API is not secured at all.
+ * It might be useful when overriding authentication on interface of operation level.
+ */
+@doc("")
+model NoAuth {
+  type: AuthType.noAuth;
 }

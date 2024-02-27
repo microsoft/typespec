@@ -1,9 +1,9 @@
 import { resolveCompilerOptions } from "../../../../config/config-to-options.js";
+import { omitUndefined } from "../../../../utils/misc.js";
 import { createDiagnosticCollector } from "../../../diagnostics.js";
 import { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
 import { CompilerHost, Diagnostic } from "../../../types.js";
-import { omitUndefined } from "../../../util.js";
 
 export interface CompileCliArgs {
   "output-dir"?: string;
@@ -56,6 +56,10 @@ export async function getCompilerOptions(
       }),
     })
   );
+  if (args["no-emit"]) {
+    resolvedOptions.noEmit = true;
+  }
+
   return diagnostics.wrap(
     omitUndefined({
       ...resolvedOptions,

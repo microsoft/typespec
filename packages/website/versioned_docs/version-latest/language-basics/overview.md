@@ -22,7 +22,7 @@ _Details: [Imports](./imports.md)_
 
 | Feature              | Example                   |
 | -------------------- | ------------------------- |
-| Import typespec file | `import "./models.tsp"`   |
+| Import TypeSpec file | `import "./models.tsp"`   |
 | Import JS file       | `import "./models.js"`    |
 | Import Library       | `import "@typespec/rest"` |
 

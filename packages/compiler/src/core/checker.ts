@@ -1,4 +1,5 @@
 import { $docFromComment, getIndexer } from "../lib/decorators.js";
+import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
@@ -150,7 +151,6 @@ import {
   ValueType,
   VoidType,
 } from "./types.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
 
@@ -711,6 +711,7 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
+      | TemplateParameterDeclarationNode
       | UnionStatementNode
   ): number {
     const symbol =
@@ -750,6 +751,19 @@ export function createChecker(program: Program): Checker {
     const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
 
+    if (pendingResolutions.has(getNodeSymId(node), ResolutionKind.Constraint)) {
+      if (mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-constraint",
+            format: { typeName: node.id.sv },
+            target: node.constraint!,
+          })
+        );
+      }
+      return errorType;
+    }
+
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
     if (type === undefined) {
       if (grandParentNode) {
@@ -770,7 +784,9 @@ export function createChecker(program: Program): Checker {
       });
 
       if (node.constraint) {
+        pendingResolutions.start(getNodeSymId(node), ResolutionKind.Constraint);
         type.constraint = getTypeOrValueTypeForNode(node.constraint);
+        pendingResolutions.finish(getNodeSymId(node), ResolutionKind.Constraint);
       }
       if (node.default) {
         type.default = checkTemplateParameterDefault(
@@ -1090,11 +1106,15 @@ export function createChecker(program: Program): Checker {
           commit(param, effectiveType);
           continue;
         }
+      } else if (isErrorType(type)) {
+        // If we got an error type we don't want to keep passing it through so we reduce to unknown
+        // Similar to the above where if the type is not assignable to the constraint we reduce to the constraint
+        commit(param, unknownType);
+        continue;
       }
 
       commit(param, type);
     }
-
     return finalMap;
   }
 
@@ -2825,6 +2845,15 @@ export function createChecker(program: Program): Checker {
     if (indexer === undefined) {
       return;
     }
+    if (indexer.key.name === "integer") {
+      reportCheckerDiagnostics([
+        createDiagnostic({
+          code: "no-array-properties",
+          target: diagnosticTarget,
+        }),
+      ]);
+      return;
+    }
 
     const [valid, diagnostics] = isTypeAssignableTo(
       property.type,
@@ -3457,6 +3486,9 @@ export function createChecker(program: Program): Checker {
       const [valid] = isStringTemplateSerializable(type);
       return valid;
     }
+    if (type.kind === "UnionVariant") {
+      return isValueType(type.type);
+    }
     const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
     return valueTypes.has(type.kind);
   }
@@ -3573,6 +3605,12 @@ export function createChecker(program: Program): Checker {
       : declaration.parameters.length;
 
     if (args.length < minArgs || (maxArgs !== undefined && args.length > maxArgs)) {
+      // In the case we have too little args then this decorator is not applicable.
+      // If there is too many args then we can still run the decorator as long as the args are valid.
+      if (args.length < minArgs) {
+        hasError = true;
+      }
+
       if (maxArgs === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -6314,6 +6352,7 @@ const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionName
 enum ResolutionKind {
   Type,
   BaseType,
+  Constraint,
 }
 
 class PendingResolutions {

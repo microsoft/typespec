@@ -174,6 +174,15 @@ The URL of the requested resource has been changed permanently. The new URL is g
 model TypeSpec.Http.MovedResponse
 ```
 
+### `NoAuth` {#TypeSpec.Http.NoAuth}
+
+This authentication option signifies that API is not secured at all.
+It might be useful when overriding authentication on interface of operation level.
+
+```typespec
+model TypeSpec.Http.NoAuth
+```
+
 ### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
 There is no content to send for this request, but the headers may be useful.
@@ -207,14 +216,15 @@ For that purpose, an OAuth 2.0 server issues access tokens that the client appli
 For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 ```typespec
-model TypeSpec.Http.OAuth2Auth<Flows>
+model TypeSpec.Http.OAuth2Auth<Flows, Scopes>
 ```
 
 #### Template Parameters
 
-| Name  | Description                        |
-| ----- | ---------------------------------- |
-| Flows | The list of supported OAuth2 flows |
+| Name   | Description                                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Flows  | The list of supported OAuth2 flows                                                                                                               |
+| Scopes | The list of OAuth2 scopes, which are common for every flow from `Flows`. This list is combined with the scopes defined in specific OAuth2 flows. |
 
 ### `OkResponse` {#TypeSpec.Http.OkResponse}
 
@@ -223,6 +233,27 @@ The request has succeeded.
 ```typespec
 model TypeSpec.Http.OkResponse
 ```
+
+### `OpenIdConnectAuth` {#TypeSpec.Http.OpenIdConnectAuth}
+
+OpenID Connect (OIDC) is an identity layer built on top of the OAuth 2.0 protocol and supported by some OAuth 2.0 providers, such as Google and Azure Active Directory.
+It defines a sign-in flow that enables a client application to authenticate a user, and to obtain information (or "claims") about that user, such as the user name, email, and so on.
+User identity information is encoded in a secure JSON Web Token (JWT), called ID token.
+OpenID Connect defines a discovery mechanism, called OpenID Connect Discovery, where an OpenID server publishes its metadata at a well-known URL, typically
+
+```http
+https://server.com/.well-known/openid-configuration
+```
+
+```typespec
+model TypeSpec.Http.OpenIdConnectAuth<ConnectUrl>
+```
+
+#### Template Parameters
+
+| Name       | Description |
+| ---------- | ----------- |
+| ConnectUrl |             |
 
 ### `PasswordFlow` {#TypeSpec.Http.PasswordFlow}
 

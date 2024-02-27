@@ -23,7 +23,7 @@ import "./decorators.js";
 
 ## Import a library
 
-The import value can be name one of the package dependencies. In that case typespec will lookup for the `package.json` file and check the `tspMain` entry (or default to `main` if absent) to decide what is the library entrypoint to load.
+The import value can be name one of the package dependencies. In that case TypeSpec will lookup for the `package.json` file and check the `tspMain` entry (or default to `main` if absent) to decide what is the library entrypoint to load.
 
 ```typespec
 import "@typespec/rest";
@@ -40,12 +40,12 @@ which result in `./node_modules/@typespec/rest/lib/main.tsp` to be imported
 
 ## Import a directory
 
-If the import value is a directory it will lookup if that directory is a node package and follow the npm package [lookup logic](#import-a-library) or if the directory contains a `main.tsp`.
+If the import value is a directory it will lookup if that directory is a Node package and follow the npm package [lookup logic](#import-a-library) or if the directory contains a `main.tsp`.
 
 ```typespec
 import "./models"; // same as `import "./models/main.tsp";
 ```
 
 ```typespec
-import "./path/to/local/module"; // Assuming this path is a typespec package, it will load it using the tspMain file.
+import "./path/to/local/module"; // Assuming this path is a TypeSpec package, it will load it using the tspMain file.
 ```

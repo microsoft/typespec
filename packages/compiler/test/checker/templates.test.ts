@@ -1,7 +1,8 @@
-import { deepStrictEqual, fail, strictEqual } from "assert";
+import { deepStrictEqual, fail, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
 import { Diagnostic, Model, StringLiteral, Type } from "../../src/core/types.js";
+import { isUnknownType } from "../../src/index.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -244,6 +245,30 @@ describe("compiler: templates", () => {
       });
     });
 
+    it("an error type should revert to unknown", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+          model Test<T> {
+            @test prop: T;
+          }
+          
+          model Bar {
+            a: Test<notExists>;
+          }
+        `
+      );
+      const [{ prop }, diagnostics] = await testHost.compileAndDiagnose("main.tsp");
+      // Only one error
+      expectDiagnostics(diagnostics, {
+        code: "unknown-identifier",
+        message: "Unknown identifier notExists",
+      });
+
+      strictEqual(prop.kind, "ModelProperty");
+      ok(isUnknownType(prop.type), "Prop type should be unknown");
+    });
+
     it("operation should still be able to be used(no extra diagnostic)", async () => {
       const { pos, source } = extractCursor(`
     op Action<T extends {}>(): T;
@@ -401,6 +426,36 @@ describe("compiler: templates", () => {
           a: A<"def">
         }
       `);
+    });
+
+    it("emits diagnostic when constraint reference itself", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends A> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
+    });
+
+    it("emits diagnostic when constraint reference other parameter in circular constraint", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends B, B extends A> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
+    });
+
+    it("emits diagnostic when constraint reference itself inside an expression", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends {name: A}> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
     });
 
     it("emit diagnostics if template default is not assignable to constraint", async () => {
