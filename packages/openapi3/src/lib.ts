@@ -54,6 +54,14 @@ export interface OpenAPI3EmitterOptions {
    * @default "never"
    */
   "include-x-typespec-name"?: "inline-only" | "never";
+
+  /**
+   * How to handle safeint type. Options are:
+   *  - `double-int`: Will produce `type: integer, format: double-int`
+   *  - `int64`: Will produce `type: integer, format: int64`
+   * @default "double-int"
+   */
+  "safeint-strategy"?: "double-int" | "int64";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -116,6 +124,17 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       default: "never",
       description:
         "If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.\nThis extension is meant for debugging and should not be depended on.",
+    },
+    "safeint-strategy": {
+      type: "string",
+      enum: ["double-int", "int64"],
+      nullable: true,
+      default: "double-int",
+      description: [
+        "How to handle safeint type. Options are:",
+        " - `double-int`: Will produce `type: integer, format: double-int`",
+        " - `int64`: Will produce `type: integer, format: int64`",
+      ].join("\n"),
     },
   },
   required: [],

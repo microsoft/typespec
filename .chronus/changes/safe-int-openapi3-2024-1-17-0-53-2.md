@@ -9,12 +9,12 @@ The `safeint` scalar now emits to `type: integer, format: double-int`. The `doub
 
 There are two options to preserve the previous emit of `type: integer, format: int64`:
 
-1. Use the `safeint-as-int64` option:
+1. Use the `safeint-strategy` option:
   ```yaml
   # tspconfig.yaml
   options:
      "@typespec/openapi3":
-        safeint-as-int64: true
+        safeint-strategy: int64
   ```
 2. Apply `@encode("int64", int64)` on every usage of safeint(or create a new scalar)
   ```tsp

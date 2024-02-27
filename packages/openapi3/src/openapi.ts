@@ -118,6 +118,7 @@ const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
   "include-x-typespec-name": "never",
+  "safeint-strategy": "double-int",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -186,6 +187,7 @@ export function resolveOptions(
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
+    safeintStrategy: resolvedOptions["safeint-strategy"],
     outputFile: resolvePath(context.emitterOutputDir, outputFile),
   };
 }
@@ -196,6 +198,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   newLine: NewLine;
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
+  safeintStrategy: "double-int" | "int64";
 }
 
 function createOAPIEmitter(
