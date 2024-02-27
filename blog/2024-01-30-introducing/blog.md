@@ -1,4 +1,5 @@
 ---
+slug: 2024-01-30-introducing
 title: "Introducing TypeSpec: A New Language for API-Centric Development"
 ---
 
