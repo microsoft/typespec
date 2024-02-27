@@ -5,7 +5,9 @@ packages:
   - "@typespec/openapi3"
 ---
 
-`safeint` scalar now map to `type: integer, format: double-int`. To revert to the previous output of `type: integer, format: int64`. You can either:
+The `safeint` scalar now emits to `type: integer, format: double-int`. The `double-int` format was added to the [OpenAPI Formats Registry](https://spec.openapis.org/registry/format/double-int) in November 2023 to represent integers that can be stored in a double without precision loss.
+
+There are two options to preserve the previous emit of `type: integer, format: int64`:
 
 1. Use the `safeint-as-int64` option:
   ```yaml
