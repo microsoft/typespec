@@ -243,6 +243,6 @@ export const libDef = {
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
-export const { reportDiagnostic, createStateSymbol } = $lib;
+export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;
