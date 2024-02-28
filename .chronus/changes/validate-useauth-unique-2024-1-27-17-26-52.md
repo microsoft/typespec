@@ -5,4 +5,4 @@ packages:
   - "@typespec/http"
 ---
 
-Validate `@useAuth` is unique on node
+Validate that only one `@useAuth` decorator is applied to a type.
