@@ -18,7 +18,7 @@ export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 /** @deprecated use Authentication */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type ServiceAuthentication = Authentication;
+export type ServiceAuthentication = Authentication;
 
 export interface Authentication {
   /**
