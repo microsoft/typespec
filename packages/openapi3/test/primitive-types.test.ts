@@ -7,6 +7,7 @@ describe("openapi3: primitives", () => {
   describe("handle TypeSpec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
+      ["null", { nullable: true }],
       ["numeric", { type: "number" }],
       ["integer", { type: "integer" }],
       ["int8", { type: "integer", format: "int8" }],

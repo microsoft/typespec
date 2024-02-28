@@ -902,6 +902,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     switch (name) {
       case "unknown":
         return {};
+      case "null":
+        return { nullable: true };
     }
 
     throw new Error("Unknown intrinsic type " + name);
