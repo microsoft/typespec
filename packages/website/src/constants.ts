@@ -45,4 +45,6 @@ export const Links = {
 
   // Microsoft links
   privacy: "https://go.microsoft.com/fwlink/?LinkId=521839",
+  termsOfUse: "https://www.microsoft.com/legal/terms-of-use",
+  trademark: "https://www.microsoft.com/legal/intellectualproperty/trademarks",
 };

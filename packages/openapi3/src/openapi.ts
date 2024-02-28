@@ -1,5 +1,8 @@
 import {
   compilerAssert,
+  createDiagnosticCollector,
+  Diagnostic,
+  DiagnosticCollector,
   DiagnosticTarget,
   EmitContext,
   emitFile,
@@ -44,10 +47,13 @@ import {
   TypeNameOptions,
 } from "@typespec/compiler";
 
-import { AssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
+import {} from "@typespec/compiler/utils";
 import {
+  Authentication,
+  AuthenticationOptionReference,
+  AuthenticationReference,
   createMetadataInfo,
-  getAuthentication,
   getHttpService,
   getServers,
   getStatusCodeDescription,
@@ -68,8 +74,8 @@ import {
   MetadataInfo,
   QueryParameterOptions,
   reportIfNoRoutes,
+  resolveAuthentication,
   resolveRequestVisibility,
-  ServiceAuthentication,
   Visibility,
 } from "@typespec/http";
 import {
@@ -83,10 +89,10 @@ import {
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
-import { buildVersionProjections } from "@typespec/versioning";
+import { buildVersionProjections, VersionProjections } from "@typespec/versioning";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
-import { FileType, OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
+import { createDiagnostic, FileType, OpenAPI3EmitterOptions } from "./lib.js";
 import { getDefaultValue, OpenAPI3SchemaEmitter } from "./schema-emitter.js";
 import {
   OpenAPI3Document,
@@ -99,7 +105,9 @@ import {
   OpenAPI3SecurityScheme,
   OpenAPI3Server,
   OpenAPI3ServerVariable,
+  OpenAPI3ServiceRecord,
   OpenAPI3StatusCode,
+  OpenAPI3VersionedServiceRecord,
   Refable,
 } from "./types.js";
 import { deepEquals } from "./util.js";
@@ -116,6 +124,37 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   const emitter = createOAPIEmitter(context, options);
   await emitter.emitOpenAPI();
+}
+
+type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
+
+/**
+ * Get the OpenAPI 3 document records from the given program. The documents are
+ * returned as a JS object.
+ *
+ * @param program The program to emit to OpenAPI 3
+ * @param options OpenAPI 3 emit options
+ * @returns An array of OpenAPI 3 document records.
+ */
+export async function getOpenAPI3(
+  program: Program,
+  options: Omit<OpenAPI3EmitterOptions, IrrelevantOpenAPI3EmitterOptionsForObject> = {}
+): Promise<OpenAPI3ServiceRecord[]> {
+  const context: EmitContext<any> = {
+    program,
+
+    // this value doesn't matter for getting the OpenAPI3 objects
+    emitterOutputDir: "tsp-output",
+
+    options: options,
+    getAssetEmitter(TypeEmitterClass) {
+      return createAssetEmitter(program, TypeEmitterClass, this);
+    },
+  };
+
+  const resolvedOptions = resolveOptions(context);
+  const emitter = createOAPIEmitter(context, resolvedOptions);
+  return emitter.getOpenAPI();
 }
 
 function findFileTypeFromFilename(filename: string | undefined): FileType {
@@ -167,6 +206,7 @@ function createOAPIEmitter(
   let schemaEmitter: AssetEmitter<OpenAPI3Schema, OpenAPI3EmitterOptions>;
 
   let root: OpenAPI3Document;
+  let diagnostics: DiagnosticCollector;
   let currentService: Service;
   // Get the service namespace string for use in name shortening
   let serviceNamespaceName: string | undefined;
@@ -196,9 +236,52 @@ function createOAPIEmitter(
     },
   };
 
-  return { emitOpenAPI };
+  return { emitOpenAPI, getOpenAPI };
 
-  function initializeEmitter(service: Service, version?: string) {
+  async function emitOpenAPI() {
+    const services = await getOpenAPI();
+    // first, emit diagnostics
+    for (const serviceRecord of services) {
+      if (serviceRecord.versioned) {
+        for (const documentRecord of serviceRecord.versions) {
+          program.reportDiagnostics(documentRecord.diagnostics);
+        }
+      } else {
+        program.reportDiagnostics(serviceRecord.diagnostics);
+      }
+    }
+
+    if (program.compilerOptions.noEmit || program.hasError()) {
+      return;
+    }
+
+    const multipleService = services.length > 1;
+
+    for (const serviceRecord of services) {
+      if (serviceRecord.versioned) {
+        for (const documentRecord of serviceRecord.versions) {
+          await emitFile(program, {
+            path: resolveOutputFile(serviceRecord.service, multipleService, documentRecord.version),
+            content: serializeDocument(documentRecord.document, options.fileType),
+            newLine: options.newLine,
+          });
+        }
+      } else {
+        await emitFile(program, {
+          path: resolveOutputFile(serviceRecord.service, multipleService),
+          content: serializeDocument(serviceRecord.document, options.fileType),
+          newLine: options.newLine,
+        });
+      }
+    }
+  }
+
+  function initializeEmitter(
+    service: Service,
+    allHttpAuthentications: HttpAuth[],
+    defaultAuth: AuthenticationReference,
+    version?: string
+  ) {
     currentService = service;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
@@ -218,7 +301,8 @@ function createOAPIEmitter(
       } as any
     );
 
-    const auth = processAuth(service.type);
+    const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
+    const security = getOpenAPISecurity(defaultAuth);
 
     root = {
       openapi: "3.0.0",
@@ -231,16 +315,17 @@ function createOAPIEmitter(
       externalDocs: getExternalDocs(program, service.type),
       tags: [],
       paths: {},
-      security: auth?.security,
+      security: security.length > 0 ? security : undefined,
       components: {
         parameters: {},
         requestBodies: {},
         responses: {},
         schemas: {},
         examples: {},
-        securitySchemes: auth?.securitySchemes ?? {},
+        securitySchemes: securitySchemes,
       },
     };
+    diagnostics = createDiagnosticCollector();
     const servers = getServers(program, service.type);
     if (servers) {
       root.servers = resolveServers(servers);
@@ -282,11 +367,13 @@ function createOAPIEmitter(
     const isValid = isValidServerVariableType(program, prop.type);
 
     if (!isValid) {
-      reportDiagnostic(program, {
-        code: "invalid-server-variable",
-        format: { propName: prop.name },
-        target: prop,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "invalid-server-variable",
+          format: { propName: prop.name },
+          target: prop,
+        })
+      );
     }
     return isValid;
   }
@@ -324,12 +411,57 @@ function createOAPIEmitter(
     });
   }
 
-  async function emitOpenAPI() {
+  async function getOpenAPI(): Promise<OpenAPI3ServiceRecord[]> {
+    const serviceRecords: OpenAPI3ServiceRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {
       services.push({ type: program.getGlobalNamespaceType() });
     }
     for (const service of services) {
+      const versions = buildVersionProjections(program, service.type);
+      if (versions.length === 1 && versions[0].version === undefined) {
+        // non-versioned spec
+        const document = await getProjectedOpenAPIDocument(service, versions[0]);
+        if (document === undefined) {
+          // an error occurred producing this document, so don't return it
+          return serviceRecords;
+        }
+
+        serviceRecords.push({
+          service,
+          versioned: false,
+          document: document[0],
+          diagnostics: document[1],
+        });
+      } else {
+        // versioned spec
+        const serviceRecord: OpenAPI3VersionedServiceRecord = {
+          service,
+          versioned: true,
+          versions: [],
+        };
+        serviceRecords.push(serviceRecord);
+
+        for (const record of versions) {
+          const document = await getProjectedOpenAPIDocument(service, record);
+          if (document === undefined) {
+            // an error occurred producing this document
+            continue;
+          }
+
+          serviceRecord.versions.push({
+            service,
+            version: record.version!,
+            document: document[0],
+            diagnostics: document[1],
+          });
+        }
+      }
+    }
+
+    return serviceRecords;
+
+    async function getProjectedOpenAPIDocument(service: Service, record: VersionProjections) {
       const commonProjections: ProjectionApplication[] = [
         {
           projectionName: "target",
@@ -337,24 +469,22 @@ function createOAPIEmitter(
         },
       ];
       const originalProgram = program;
-      const versions = buildVersionProjections(program, service.type);
-      for (const record of versions) {
-        const projectedProgram = (program = projectProgram(originalProgram, [
-          ...commonProjections,
-          ...record.projections,
-        ]));
-        const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
-          service.type
-        ) as Namespace;
+      const projectedProgram = (program = projectProgram(originalProgram, [
+        ...commonProjections,
+        ...record.projections,
+      ]));
+      const projectedServiceNs: Namespace = projectedProgram.projector.projectedTypes.get(
+        service.type
+      ) as Namespace;
 
-        await emitOpenAPIFromVersion(
-          projectedServiceNs === projectedProgram.getGlobalNamespaceType()
-            ? { type: projectedProgram.getGlobalNamespaceType() }
-            : getService(program, projectedServiceNs)!,
-          services.length > 1,
-          record.version
-        );
-      }
+      const document = await getOpenApiFromVersion(
+        projectedServiceNs === projectedProgram.getGlobalNamespaceType()
+          ? { type: projectedProgram.getGlobalNamespaceType() }
+          : getService(program, projectedServiceNs)!,
+        record.version
+      );
+
+      return document;
     }
   }
 
@@ -456,6 +586,7 @@ function createOAPIEmitter(
     verb: HttpVerb;
     parameters: HttpOperationParameters;
     bodies: HttpOperationRequestBody[] | undefined;
+    authentication?: Authentication;
     responses: Map<string, HttpOperationResponse[]>;
     operations: Operation[];
   }
@@ -478,11 +609,13 @@ function createOAPIEmitter(
     diagnosticTarget: DiagnosticTarget
   ): OpenAPI3StatusCode[] {
     const reportInvalid = () =>
-      reportDiagnostic(program, {
-        code: "unsupported-status-code-range",
-        format: { start: String(range.start), end: String(range.end) },
-        target: diagnosticTarget,
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "unsupported-status-code-range",
+          format: { start: String(range.start), end: String(range.end) },
+          target: diagnosticTarget,
+        })
+      );
 
     const codes: OpenAPI3StatusCode[] = [];
     let start = range.start;
@@ -558,6 +691,7 @@ function createOAPIEmitter(
         parameters: [],
       },
       bodies: undefined,
+      authentication: operations[0].authentication,
       responses: new Map<string, HttpOperationResponse[]>(),
     };
     for (const [paramName, ops] of paramMap) {
@@ -601,21 +735,24 @@ function createOAPIEmitter(
     return result;
   }
 
-  async function emitOpenAPIFromVersion(
+  async function getOpenApiFromVersion(
     service: Service,
-    multipleService: boolean,
     version?: string
-  ) {
-    initializeEmitter(service, version);
+  ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
+      const auth = resolveAuthentication(httpService);
+
+      initializeEmitter(service, auth.schemes, auth.defaultAuth, version);
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
         if ((op as SharedHttpOperation).kind === "shared") {
-          emitSharedOperation(op as SharedHttpOperation);
+          const opAuth = auth.operationsAuth.get((op as SharedHttpOperation).operations[0]);
+          emitSharedOperation(op as SharedHttpOperation, opAuth);
         } else {
-          emitOperation(op as HttpOperation);
+          const opAuth = auth.operationsAuth.get((op as HttpOperation).operation);
+          emitOperation(op as HttpOperation, opAuth);
         }
       }
       emitParameters();
@@ -631,15 +768,7 @@ function createOAPIEmitter(
         }
       }
 
-      if (!program.compilerOptions.noEmit && !program.hasError()) {
-        // Write out the OpenAPI document to the output path
-
-        await emitFile(program, {
-          path: resolveOutputFile(service, multipleService, version),
-          content: serializeDocument(root, options.fileType),
-          newLine: options.newLine,
-        });
-      }
+      return [root, diagnostics.diagnostics];
     } catch (err) {
       if (err instanceof ErrorTypeFoundError) {
         // Return early, there must be a parse error if an ErrorType was
@@ -666,7 +795,10 @@ function createOAPIEmitter(
     }
   }
 
-  function emitSharedOperation(shared: SharedHttpOperation): void {
+  function emitSharedOperation(
+    shared: SharedHttpOperation,
+    authReference?: AuthenticationReference
+  ): void {
     const { path: fullPath, verb: verb, operations: ops } = shared;
     if (!root.paths[fullPath]) {
       root.paths[fullPath] = {};
@@ -707,10 +839,12 @@ function createOAPIEmitter(
       return resolveRequestVisibility(program, op, verb);
     });
     if (visibilities.some((v) => v !== visibilities[0])) {
-      reportDiagnostic(program, {
-        code: "inconsistent-shared-route-request-visibility",
-        target: ops[0],
-      });
+      diagnostics.add(
+        createDiagnostic({
+          code: "inconsistent-shared-route-request-visibility",
+          target: ops[0],
+        })
+      );
     }
     const visibility = resolveRequestVisibility(program, shared.operations[0], verb);
     emitEndpointParameters(shared.parameters.parameters, visibility);
@@ -728,13 +862,16 @@ function createOAPIEmitter(
       }
       attachExtensions(program, op, currentEndpoint);
     }
+    if (authReference) {
+      emitSecurity(authReference);
+    }
   }
 
-  function emitOperation(operation: HttpOperation): void {
+  function emitOperation(operation: HttpOperation, authReference?: AuthenticationReference): void {
     const { path: fullPath, operation: op, verb, parameters } = operation;
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
-      reportDiagnostic(program, { code: "path-query", target: op });
+      diagnostics.add(createDiagnostic({ code: "path-query", target: op }));
       return;
     }
     if (!root.paths[fullPath]) {
@@ -760,10 +897,14 @@ function createOAPIEmitter(
     currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
+
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
+    if (authReference) {
+      emitSecurity(authReference);
+    }
     if (isDeprecated(program, op)) {
       currentEndpoint.deprecated = true;
     }
@@ -844,11 +985,13 @@ function createOAPIEmitter(
           const existing = obj.headers[key];
           if (existing) {
             if (!deepEquals(existing, headerVal)) {
-              reportDiagnostic(program, {
-                code: "duplicate-header",
-                format: { header: key },
-                target: target,
-              });
+              diagnostics.add(
+                createDiagnostic({
+                  code: "duplicate-header",
+                  format: { header: key },
+                  target: target,
+                })
+              );
             }
             continue;
           }
@@ -916,11 +1059,13 @@ function createOAPIEmitter(
       case "declaration":
         return { $ref: `#/components/schemas/${result.name}` };
       case "circular":
-        reportDiagnostic(program, {
-          code: "inline-cycle",
-          format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
-          target: type,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "inline-cycle",
+            format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+            target: type,
+          })
+        );
         return {};
       case "none":
         return {};
@@ -935,11 +1080,13 @@ function createOAPIEmitter(
       case "declaration":
         return result.value as any;
       case "circular":
-        reportDiagnostic(program, {
-          code: "inline-cycle",
-          format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
-          target: type,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "inline-cycle",
+            format: { type: getOpenAPITypeName(program, type, typeNameOptions) },
+            target: type,
+          })
+        );
         return {};
       case "none":
         return {};
@@ -1207,14 +1354,16 @@ function createOAPIEmitter(
       case "simple":
         return { style: "simple" };
       default:
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          format: {
-            paramType: "header",
-            value: parameter.format,
-          },
-          target: parameter.param,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "header",
+              value: parameter.format,
+            },
+            target: parameter.param,
+          })
+        );
         return undefined;
     }
   }
@@ -1238,14 +1387,16 @@ function createOAPIEmitter(
         return { style: "pipeDelimited", explode: false };
 
       default:
-        reportDiagnostic(program, {
-          code: "invalid-format",
-          format: {
-            paramType: "query",
-            value: parameter.format,
-          },
-          target: parameter.param,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-format",
+            format: {
+              paramType: "query",
+              value: parameter.format,
+            },
+            target: parameter.param,
+          })
+        );
         return undefined;
     }
   }
@@ -1472,53 +1623,52 @@ function createOAPIEmitter(
     }
   }
 
-  function processAuth(serviceNamespace: Namespace):
-    | {
-        securitySchemes: Record<string, OpenAPI3SecurityScheme>;
-        security: Record<string, string[]>[];
+  function getOpenAPISecuritySchemes(
+    httpAuthentications: HttpAuth[]
+  ): Record<string, OpenAPI3SecurityScheme> {
+    const schemes: Record<string, OpenAPI3SecurityScheme> = {};
+    for (const httpAuth of httpAuthentications) {
+      const scheme = getOpenAPI3Scheme(httpAuth);
+      if (scheme) {
+        schemes[httpAuth.id] = scheme;
       }
-    | undefined {
-    const authentication = getAuthentication(program, serviceNamespace);
-    if (authentication) {
-      return processServiceAuthentication(authentication);
     }
-    return undefined;
+    return schemes;
   }
 
-  function processServiceAuthentication(authentication: ServiceAuthentication): {
-    securitySchemes: Record<string, OpenAPI3SecurityScheme>;
-    security: Record<string, string[]>[];
-  } {
-    const oaiSchemes: Record<string, OpenAPI3SecurityScheme> = {};
-    const security: Record<string, string[]>[] = [];
-    for (const option of authentication.options) {
-      const oai3SecurityOption: Record<string, string[]> = {};
-      for (const scheme of option.schemes) {
-        const result = getOpenAPI3Scheme(scheme);
-        if (result) {
-          oaiSchemes[scheme.id] = result.scheme;
-          oai3SecurityOption[scheme.id] = result.scopes;
+  function getOpenAPISecurity(authReference: AuthenticationReference) {
+    const security = authReference.options.map((authOption: AuthenticationOptionReference) => {
+      const securityOption: Record<string, string[]> = {};
+      for (const httpAuthRef of authOption.all) {
+        switch (httpAuthRef.kind) {
+          case "noAuth":
+            // should emit "{}" as a security option https://github.com/OAI/OpenAPI-Specification/issues/14#issuecomment-297457320
+            continue;
+          case "oauth2":
+            securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
+            continue;
+          default:
+            securityOption[httpAuthRef.auth.id] = [];
         }
       }
-      security.push(oai3SecurityOption);
-    }
-    return { securitySchemes: oaiSchemes, security };
+      return securityOption;
+    });
+    return security;
   }
 
-  function getOpenAPI3Scheme(
-    auth: HttpAuth
-  ): { scheme: OpenAPI3SecurityScheme; scopes: string[] } | undefined {
+  function emitSecurity(authReference: AuthenticationReference) {
+    const security = getOpenAPISecurity(authReference);
+    if (security.length > 0) {
+      currentEndpoint.security = security;
+    }
+  }
+
+  function getOpenAPI3Scheme(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
     switch (auth.type) {
       case "http":
-        return {
-          scheme: { type: "http", scheme: auth.scheme, description: auth.description },
-          scopes: [],
-        };
+        return { type: "http", scheme: auth.scheme, description: auth.description };
       case "apiKey":
-        return {
-          scheme: { type: "apiKey", in: auth.in, name: auth.name, description: auth.description },
-          scopes: [],
-        };
+        return { type: "apiKey", in: auth.in, name: auth.name, description: auth.description };
       case "oauth2":
         const flows: OpenAPI3OAuthFlows = {};
         const scopes: string[] = [];
@@ -1531,22 +1681,23 @@ function createOAPIEmitter(
             scopes: Object.fromEntries(flow.scopes.map((x) => [x.value, x.description ?? ""])),
           };
         }
-        return { scheme: { type: "oauth2", flows, description: auth.description }, scopes };
+        return { type: "oauth2", flows, description: auth.description };
       case "openIdConnect":
         return {
-          scheme: {
-            type: "openIdConnect",
-            openIdConnectUrl: auth.openIdConnectUrl,
-            description: auth.description,
-          },
-          scopes: [],
+          type: "openIdConnect",
+          openIdConnectUrl: auth.openIdConnectUrl,
+          description: auth.description,
         };
+      case "noAuth":
+        return undefined;
       default:
-        reportDiagnostic(program, {
-          code: "unsupported-auth",
-          format: { authType: (auth as any).type },
-          target: currentService.type,
-        });
+        diagnostics.add(
+          createDiagnostic({
+            code: "unsupported-auth",
+            format: { authType: (auth as any).type },
+            target: currentService.type,
+          })
+        );
         return undefined;
     }
   }

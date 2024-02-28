@@ -174,6 +174,15 @@ The URL of the requested resource has been changed permanently. The new URL is g
 model TypeSpec.Http.MovedResponse
 ```
 
+### `NoAuth` {#TypeSpec.Http.NoAuth}
+
+This authentication option signifies that API is not secured at all.
+It might be useful when overriding authentication on interface of operation level.
+
+```typespec
+model TypeSpec.Http.NoAuth
+```
+
 ### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
 There is no content to send for this request, but the headers may be useful.
@@ -207,14 +216,15 @@ For that purpose, an OAuth 2.0 server issues access tokens that the client appli
 For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 ```typespec
-model TypeSpec.Http.OAuth2Auth<Flows>
+model TypeSpec.Http.OAuth2Auth<Flows, Scopes>
 ```
 
 #### Template Parameters
 
-| Name  | Description                        |
-| ----- | ---------------------------------- |
-| Flows | The list of supported OAuth2 flows |
+| Name   | Description                                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Flows  | The list of supported OAuth2 flows                                                                                                               |
+| Scopes | The list of OAuth2 scopes, which are common for every flow from `Flows`. This list is combined with the scopes defined in specific OAuth2 flows. |
 
 ### `OkResponse` {#TypeSpec.Http.OkResponse}
 

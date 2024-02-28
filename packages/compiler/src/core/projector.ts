@@ -1,6 +1,7 @@
+import { createRekeyableMap, mutate } from "../utils/misc.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-import { createStateAccessors, isProjectedProgram, Program, ProjectedProgram } from "./program.js";
+import { Program, ProjectedProgram, createStateAccessors, isProjectedProgram } from "./program.js";
 import { getParentTemplateNode, isNeverType, isTemplateInstance } from "./type-utils.js";
 import {
   DecoratorApplication,
@@ -21,7 +22,6 @@ import {
   Union,
   UnionVariant,
 } from "./types.js";
-import { createRekeyableMap, mutate } from "./util.js";
 
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
