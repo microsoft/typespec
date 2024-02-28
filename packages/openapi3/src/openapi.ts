@@ -118,7 +118,7 @@ const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
   "include-x-typespec-name": "never",
-  "safeint-strategy": "double-int",
+  "safeint-strategy": "int64",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {

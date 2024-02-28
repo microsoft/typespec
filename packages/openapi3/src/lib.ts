@@ -59,7 +59,7 @@ export interface OpenAPI3EmitterOptions {
    * How to handle safeint type. Options are:
    *  - `double-int`: Will produce `type: integer, format: double-int`
    *  - `int64`: Will produce `type: integer, format: int64`
-   * @default "double-int"
+   * @default "int64"
    */
   "safeint-strategy"?: "double-int" | "int64";
 }
@@ -129,7 +129,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       type: "string",
       enum: ["double-int", "int64"],
       nullable: true,
-      default: "double-int",
+      default: "int64",
       description: [
         "How to handle safeint type. Options are:",
         " - `double-int`: Will produce `type: integer, format: double-int`",
