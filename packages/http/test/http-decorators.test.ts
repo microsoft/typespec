@@ -269,15 +269,15 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `Route "get /test" is used by multiple operations with different @sharedRoute values.`,
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
         },
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `Route "get /test" is used by multiple operations with different @sharedRoute values.`,
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
         },
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `Route "get /test" is used by multiple operations with different @sharedRoute values.`,
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
         },
       ]);
     });
