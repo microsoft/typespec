@@ -81,3 +81,12 @@ By default all types declared under the service namespace will be included. With
 
 If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
 This extension is meant for debugging and should not be depended on.
+
+### `safeint-strategy`
+
+**Type:** `"double-int" | "int64"`
+
+How to handle safeint type. Options are:
+
+- `double-int`: Will produce `type: integer, format: double-int`
+- `int64`: Will produce `type: integer, format: int64`
