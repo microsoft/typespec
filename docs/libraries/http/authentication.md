@@ -25,7 +25,7 @@ The input can be a:
   @useAuth([Auth1, Auth2])
   ```
 
-- A union of security scheme. This means EITHER of the security schemes can be used to authenticate this service
+- A union of security schemes. This means **one** of the security schemes **must** be used to authenticate this service. 
 
   ```typespec
   // Use EITHER Auth1 or Auth2
