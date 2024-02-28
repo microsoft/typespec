@@ -3,6 +3,6 @@
 changeKind: internal
 packages:
   - "@typespec/http"
-  - "@typespec/openapi"
+  - "@typespec/openapi3"
 ---
 
