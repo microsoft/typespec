@@ -623,20 +623,6 @@ describe("http: decorators", () => {
   });
 
   describe("@useAuth", () => {
-    it("emit diagnostics when @useAuth is not used on namespace", async () => {
-      const diagnostics = await runner.diagnose(`
-          @useAuth(BasicAuth) op test(): string;
-        `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "decorator-wrong-target",
-          message:
-            "Cannot apply @useAuth decorator to test since it is not assignable to Namespace",
-        },
-      ]);
-    });
-
     it("emit diagnostics when config is not a model, tuple or union", async () => {
       const diagnostics = await runner.diagnose(`
           @useAuth(anOp)
@@ -792,6 +778,60 @@ describe("http: decorators", () => {
       });
     });
 
+    it("can specify OAuth2 with scopes, which are default for every flow", async () => {
+      const { Foo } = (await runner.compile(`
+        alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
+          type: OAuth2FlowType.implicit;
+          authorizationUrl: "https://api.example.com/oauth2/authorize";
+          refreshUrl: "https://api.example.com/oauth2/refresh";
+        }], Scopes=T>;
+
+        @useAuth(MyAuth<["read", "write"]>)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              {
+                id: "OAuth2Auth",
+                type: "oauth2",
+                flows: [
+                  {
+                    type: "implicit",
+                    authorizationUrl: "https://api.example.com/oauth2/authorize",
+                    refreshUrl: "https://api.example.com/oauth2/refresh",
+                    scopes: [{ value: "read" }, { value: "write" }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify NoAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(NoAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              {
+                id: "NoAuth",
+                type: "noAuth",
+              },
+            ],
+          },
+        ],
+      });
+    });
+
     it("can specify multiple auth options", async () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BasicAuth | BearerAuth)
@@ -848,6 +888,50 @@ describe("http: decorators", () => {
                 name: "x-my-header",
               },
               { id: "BasicAuth", type: "http", scheme: "basic" },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can override auth schemes on interface", async () => {
+      const { Foo } = (await runner.compile(`
+        alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+        @useAuth(ServiceKeyAuth)
+        @test namespace Foo {
+          @useAuth(BasicAuth | BearerAuth)
+          interface Bar { }
+        }
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo.interfaces.get("Bar")!), {
+        options: [
+          {
+            schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }],
+          },
+          {
+            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+          },
+        ],
+      });
+    });
+
+    it("can override auth schemes on operation", async () => {
+      const { Foo } = (await runner.compile(`
+        alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+        @useAuth(ServiceKeyAuth)
+        @test namespace Foo {
+          @useAuth([BasicAuth, BearerAuth])
+          op bar(): void;
+        }
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo.operations.get("bar")!), {
+        options: [
+          {
+            schemes: [
+              { id: "BasicAuth", type: "http", scheme: "basic" },
+              { id: "BearerAuth", type: "http", scheme: "bearer" },
             ],
           },
         ],

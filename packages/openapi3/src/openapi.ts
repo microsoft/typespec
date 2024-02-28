@@ -50,8 +50,10 @@ import {
 import { AssetEmitter, createAssetEmitter, EmitEntity } from "@typespec/compiler/emitter-framework";
 import {} from "@typespec/compiler/utils";
 import {
+  Authentication,
+  AuthenticationOptionReference,
+  AuthenticationReference,
   createMetadataInfo,
-  getAuthentication,
   getHttpService,
   getServers,
   getStatusCodeDescription,
@@ -72,8 +74,8 @@ import {
   MetadataInfo,
   QueryParameterOptions,
   reportIfNoRoutes,
+  resolveAuthentication,
   resolveRequestVisibility,
-  ServiceAuthentication,
   Visibility,
 } from "@typespec/http";
 import {
@@ -274,7 +276,12 @@ function createOAPIEmitter(
     }
   }
 
-  function initializeEmitter(service: Service, version?: string) {
+  function initializeEmitter(
+    service: Service,
+    allHttpAuthentications: HttpAuth[],
+    defaultAuth: AuthenticationReference,
+    version?: string
+  ) {
     currentService = service;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
@@ -294,7 +301,8 @@ function createOAPIEmitter(
       } as any
     );
 
-    const auth = processAuth(service.type);
+    const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
+    const security = getOpenAPISecurity(defaultAuth);
 
     root = {
       openapi: "3.0.0",
@@ -307,14 +315,14 @@ function createOAPIEmitter(
       externalDocs: getExternalDocs(program, service.type),
       tags: [],
       paths: {},
-      security: auth?.security,
+      security: security.length > 0 ? security : undefined,
       components: {
         parameters: {},
         requestBodies: {},
         responses: {},
         schemas: {},
         examples: {},
-        securitySchemes: auth?.securitySchemes ?? {},
+        securitySchemes: securitySchemes,
       },
     };
     diagnostics = createDiagnosticCollector();
@@ -578,6 +586,7 @@ function createOAPIEmitter(
     verb: HttpVerb;
     parameters: HttpOperationParameters;
     bodies: HttpOperationRequestBody[] | undefined;
+    authentication?: Authentication;
     responses: Map<string, HttpOperationResponse[]>;
     operations: Operation[];
   }
@@ -682,6 +691,7 @@ function createOAPIEmitter(
         parameters: [],
       },
       bodies: undefined,
+      authentication: operations[0].authentication,
       responses: new Map<string, HttpOperationResponse[]>(),
     };
     for (const [paramName, ops] of paramMap) {
@@ -729,16 +739,20 @@ function createOAPIEmitter(
     service: Service,
     version?: string
   ): Promise<[OpenAPI3Document, Readonly<Diagnostic[]>] | undefined> {
-    initializeEmitter(service, version);
     try {
       const httpService = ignoreDiagnostics(getHttpService(program, service.type));
+      const auth = resolveAuthentication(httpService);
+
+      initializeEmitter(service, auth.schemes, auth.defaultAuth, version);
       reportIfNoRoutes(program, httpService.operations);
 
       for (const op of resolveOperations(httpService.operations)) {
         if ((op as SharedHttpOperation).kind === "shared") {
-          emitSharedOperation(op as SharedHttpOperation);
+          const opAuth = auth.operationsAuth.get((op as SharedHttpOperation).operations[0]);
+          emitSharedOperation(op as SharedHttpOperation, opAuth);
         } else {
-          emitOperation(op as HttpOperation);
+          const opAuth = auth.operationsAuth.get((op as HttpOperation).operation);
+          emitOperation(op as HttpOperation, opAuth);
         }
       }
       emitParameters();
@@ -781,7 +795,10 @@ function createOAPIEmitter(
     }
   }
 
-  function emitSharedOperation(shared: SharedHttpOperation): void {
+  function emitSharedOperation(
+    shared: SharedHttpOperation,
+    authReference?: AuthenticationReference
+  ): void {
     const { path: fullPath, verb: verb, operations: ops } = shared;
     if (!root.paths[fullPath]) {
       root.paths[fullPath] = {};
@@ -845,9 +862,12 @@ function createOAPIEmitter(
       }
       attachExtensions(program, op, currentEndpoint);
     }
+    if (authReference) {
+      emitSecurity(authReference);
+    }
   }
 
-  function emitOperation(operation: HttpOperation): void {
+  function emitOperation(operation: HttpOperation, authReference?: AuthenticationReference): void {
     const { path: fullPath, operation: op, verb, parameters } = operation;
     // If path contains a query string, issue msg and don't emit this endpoint
     if (fullPath.indexOf("?") > 0) {
@@ -877,10 +897,14 @@ function createOAPIEmitter(
     currentEndpoint.description = getDoc(program, operation.operation);
     currentEndpoint.parameters = [];
     currentEndpoint.responses = {};
+
     const visibility = resolveRequestVisibility(program, operation.operation, verb);
     emitEndpointParameters(parameters.parameters, visibility);
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
+    if (authReference) {
+      emitSecurity(authReference);
+    }
     if (isDeprecated(program, op)) {
       currentEndpoint.deprecated = true;
     }
@@ -1599,53 +1623,52 @@ function createOAPIEmitter(
     }
   }
 
-  function processAuth(serviceNamespace: Namespace):
-    | {
-        securitySchemes: Record<string, OpenAPI3SecurityScheme>;
-        security: Record<string, string[]>[];
+  function getOpenAPISecuritySchemes(
+    httpAuthentications: HttpAuth[]
+  ): Record<string, OpenAPI3SecurityScheme> {
+    const schemes: Record<string, OpenAPI3SecurityScheme> = {};
+    for (const httpAuth of httpAuthentications) {
+      const scheme = getOpenAPI3Scheme(httpAuth);
+      if (scheme) {
+        schemes[httpAuth.id] = scheme;
       }
-    | undefined {
-    const authentication = getAuthentication(program, serviceNamespace);
-    if (authentication) {
-      return processServiceAuthentication(authentication);
     }
-    return undefined;
+    return schemes;
   }
 
-  function processServiceAuthentication(authentication: ServiceAuthentication): {
-    securitySchemes: Record<string, OpenAPI3SecurityScheme>;
-    security: Record<string, string[]>[];
-  } {
-    const oaiSchemes: Record<string, OpenAPI3SecurityScheme> = {};
-    const security: Record<string, string[]>[] = [];
-    for (const option of authentication.options) {
-      const oai3SecurityOption: Record<string, string[]> = {};
-      for (const scheme of option.schemes) {
-        const result = getOpenAPI3Scheme(scheme);
-        if (result) {
-          oaiSchemes[scheme.id] = result.scheme;
-          oai3SecurityOption[scheme.id] = result.scopes;
+  function getOpenAPISecurity(authReference: AuthenticationReference) {
+    const security = authReference.options.map((authOption: AuthenticationOptionReference) => {
+      const securityOption: Record<string, string[]> = {};
+      for (const httpAuthRef of authOption.all) {
+        switch (httpAuthRef.kind) {
+          case "noAuth":
+            // should emit "{}" as a security option https://github.com/OAI/OpenAPI-Specification/issues/14#issuecomment-297457320
+            continue;
+          case "oauth2":
+            securityOption[httpAuthRef.auth.id] = httpAuthRef.scopes;
+            continue;
+          default:
+            securityOption[httpAuthRef.auth.id] = [];
         }
       }
-      security.push(oai3SecurityOption);
-    }
-    return { securitySchemes: oaiSchemes, security };
+      return securityOption;
+    });
+    return security;
   }
 
-  function getOpenAPI3Scheme(
-    auth: HttpAuth
-  ): { scheme: OpenAPI3SecurityScheme; scopes: string[] } | undefined {
+  function emitSecurity(authReference: AuthenticationReference) {
+    const security = getOpenAPISecurity(authReference);
+    if (security.length > 0) {
+      currentEndpoint.security = security;
+    }
+  }
+
+  function getOpenAPI3Scheme(auth: HttpAuth): OpenAPI3SecurityScheme | undefined {
     switch (auth.type) {
       case "http":
-        return {
-          scheme: { type: "http", scheme: auth.scheme, description: auth.description },
-          scopes: [],
-        };
+        return { type: "http", scheme: auth.scheme, description: auth.description };
       case "apiKey":
-        return {
-          scheme: { type: "apiKey", in: auth.in, name: auth.name, description: auth.description },
-          scopes: [],
-        };
+        return { type: "apiKey", in: auth.in, name: auth.name, description: auth.description };
       case "oauth2":
         const flows: OpenAPI3OAuthFlows = {};
         const scopes: string[] = [];
@@ -1658,16 +1681,15 @@ function createOAPIEmitter(
             scopes: Object.fromEntries(flow.scopes.map((x) => [x.value, x.description ?? ""])),
           };
         }
-        return { scheme: { type: "oauth2", flows, description: auth.description }, scopes };
+        return { type: "oauth2", flows, description: auth.description };
       case "openIdConnect":
         return {
-          scheme: {
-            type: "openIdConnect",
-            openIdConnectUrl: auth.openIdConnectUrl,
-            description: auth.description,
-          },
-          scopes: [],
+          type: "openIdConnect",
+          openIdConnectUrl: auth.openIdConnectUrl,
+          description: auth.description,
         };
+      case "noAuth":
+        return undefined;
       default:
         diagnostics.add(
           createDiagnostic({

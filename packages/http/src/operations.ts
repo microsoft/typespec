@@ -15,6 +15,8 @@ import {
   Program,
   SyntaxKind,
 } from "@typespec/compiler";
+import { getAuthenticationForOperation } from "./auth.js";
+import { getAuthentication } from "./decorators.js";
 import { createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getResponsesForOperation } from "./responses.js";
 import { isSharedRoute, resolvePathAndParameters } from "./route.js";
@@ -95,6 +97,7 @@ export function getHttpService(
       },
     })
   );
+  const authentication = getAuthentication(program, serviceNamespace);
 
   validateProgram(program, diagnostics);
   validateRouteUnique(program, diagnostics, httpOperations);
@@ -102,6 +105,7 @@ export function getHttpService(
   const service: HttpService = {
     namespace: serviceNamespace,
     operations: httpOperations,
+    authentication: authentication,
   };
   return diagnostics.wrap(service);
 }
@@ -213,6 +217,7 @@ function getHttpOperationInternal(
     resolvePathAndParameters(program, operation, overloading, options ?? {})
   );
   const responses = diagnostics.pipe(getResponsesForOperation(program, operation));
+  const authentication = getAuthenticationForOperation(program, operation);
 
   const httpOperation: HttpOperation = {
     path: route.path,
@@ -220,8 +225,9 @@ function getHttpOperationInternal(
     verb: route.parameters.verb,
     container: operation.interface ?? operation.namespace ?? program.getGlobalNamespaceType(),
     parameters: route.parameters,
-    operation,
     responses,
+    operation,
+    authentication,
   };
   Object.assign(httpOperationRef, httpOperation);
 
