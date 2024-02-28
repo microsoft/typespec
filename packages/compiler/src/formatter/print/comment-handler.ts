@@ -1,8 +1,9 @@
 import type { Printer } from "prettier";
-import { Node, SyntaxKind, TypeSpecScriptNode } from "../../core/types.js";
+import { Node, SyntaxKind, TextRange, TypeSpecScriptNode } from "../../core/types.js";
 import { util } from "./util.js";
 
-interface CommentNode {
+interface CommentNode extends TextRange {
+  readonly kind: SyntaxKind.LineComment | SyntaxKind.BlockComment;
   precedingNode?: Node;
   enclosingNode?: Node;
   followingNode?: Node;
@@ -19,6 +20,14 @@ export const commentHandler: Printer<Node>["handleComments"] = {
       addCommentBetweenAnnotationsAndNode,
       handleOnlyComments,
     ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
+  remaining: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+    ),
+  endOfLine: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+    ),
 };
 
 interface CommentContext {

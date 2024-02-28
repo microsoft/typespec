@@ -960,6 +960,22 @@ alias foo = ""; /* one */ /* two */ /* three */
       });
     });
 
+    it("format empty file with comment inside starting first line", async () => {
+      await assertFormat({
+        code: `
+  // empty file
+
+
+  // commented out things
+`,
+        expected: `
+// empty file
+
+// commented out things
+`,
+      });
+    });
+
     it("format empty model with comment inside", async () => {
       await assertFormat({
         code: `
