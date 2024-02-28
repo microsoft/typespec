@@ -1,4 +1,5 @@
 import { $docFromComment, getIndexer } from "../lib/decorators.js";
+import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
@@ -150,7 +151,6 @@ import {
   ValueType,
   VoidType,
 } from "./types.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
 
@@ -3605,6 +3605,12 @@ export function createChecker(program: Program): Checker {
       : declaration.parameters.length;
 
     if (args.length < minArgs || (maxArgs !== undefined && args.length > maxArgs)) {
+      // In the case we have too little args then this decorator is not applicable.
+      // If there is too many args then we can still run the decorator as long as the args are valid.
+      if (args.length < minArgs) {
+        hasError = true;
+      }
+
       if (maxArgs === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({

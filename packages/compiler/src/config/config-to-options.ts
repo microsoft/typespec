@@ -1,7 +1,7 @@
 import { createDiagnosticCollector, getDirectoryPath, normalizePath } from "../core/index.js";
 import { CompilerOptions } from "../core/options.js";
 import { CompilerHost, Diagnostic } from "../core/types.js";
-import { deepClone, doIO, omitUndefined } from "../core/util.js";
+import { deepClone, doIO, omitUndefined } from "../utils/misc.js";
 import { expandConfigVariables } from "./config-interpolation.js";
 import { loadTypeSpecConfigForPath, validateConfigPathsAbsolute } from "./config-loader.js";
 import { EmitterOptions, TypeSpecConfig } from "./types.js";

@@ -230,7 +230,7 @@ extern dec server(
 );
 
 /**
- * Specify this service authentication. See the [documentation in the Http library](https://typespec.io/docs/libraries/http/authentication) for full details.
+ * Specify authentication for a whole service or specific methods. See the [documentation in the Http library](https://typespec.io/docs/libraries/http/authentication) for full details.
  *
  * @param auth Authentication configuration. Can be a single security scheme, a union(either option is valid authentication) or a tuple (must use all authentication together)
  * @example
@@ -241,7 +241,7 @@ extern dec server(
  * namespace PetStore;
  * ```
  */
-extern dec useAuth(target: Namespace, auth: {} | Union | {}[]);
+extern dec useAuth(target: Namespace | Interface | Operation, auth: {} | Union | {}[]);
 
 /**
  * Specify if inapplicable metadata should be included in the payload for the given entity.
