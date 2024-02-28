@@ -32,7 +32,7 @@ The input can be a:
   @useAuth(Auth1 | Auth2)
   ```
 
-- A union of tuple security scheme. This means EITHER of the security groups schemes can be used to authenticate this service
+- A union of security schemes and tuples representing security groups. This means **one** of the security groups or security schemes **must** be used to authenticate this service.
 
   ```typespec
   // Use EITHER (Auth1 AND Auth2) OR Auth3
