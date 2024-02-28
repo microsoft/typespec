@@ -18,7 +18,7 @@ The input can be a:
   @useAuth(Auth1)
   ```
 
-- A tuple of security scheme. This means ALL the different security schemes of the tuple MUST be used together to authenticate this service.
+- A tuple of security schemes. This creates a security group and means **all** the security schemes in the group **must** be used together to authenticate this service.
 
   ```typespec
   // Use BOTH Auth1 or Auth2
