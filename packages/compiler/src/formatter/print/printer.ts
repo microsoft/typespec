@@ -1,5 +1,3 @@
-//  TODO revisit `getValue` is deprecated.
-/* eslint-disable deprecation/deprecation */
 import type { AstPath, Doc, Printer } from "prettier";
 import { builders } from "prettier/doc";
 import { isIdentifierContinue, isIdentifierStart, utf16CodeUnits } from "../../core/charcode.js";
@@ -107,7 +105,7 @@ export function printTypeSpec(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   const docs = printDocComments(path, options, print);
   const directives = shouldPrintDirective(node) ? printDirectives(path, options, print) : "";
   const printedNode = printNode(path, options, print);
@@ -133,7 +131,7 @@ export function printNode(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node: Node = path.getValue();
+  const node: Node = path.node;
 
   switch (node.kind) {
     // Root
@@ -390,7 +388,7 @@ export function printTypeSpecScript(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   const body = [];
   if (nodeHasComments) {
@@ -415,7 +413,7 @@ function printTemplateParameters<T extends Node>(
   print: PrettierChildPrint,
   propertyName: keyof T
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const args = node[propertyName] as any as TemplateParameterDeclarationNode[];
   if ((args as any).length === 0) {
     return "";
@@ -450,7 +448,7 @@ export function printComment(
   commentPath: AstPath<Node | Comment>,
   options: TypeSpecPrettierOptions
 ): Doc {
-  const comment = commentPath.getValue();
+  const comment = commentPath.node;
   (comment as any).printed = true;
 
   switch (comment.kind) {
@@ -464,7 +462,7 @@ export function printComment(
 }
 
 function printBlockComment(commentPath: AstPath<BlockComment>, options: TypeSpecPrettierOptions) {
-  const comment = commentPath.getValue();
+  const comment = commentPath.node;
   const rawComment = options.originalText.slice(comment.pos + 2, comment.end - 2);
 
   const printed = isIndentableBlockComment(rawComment)
@@ -503,7 +501,7 @@ function printDoc(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const rawComment = options.originalText.slice(node.pos + 3, node.end - 2);
 
   const printed = isIndentableBlockComment(rawComment)
@@ -520,7 +518,7 @@ export function printDecorators(
   print: PrettierChildPrint,
   { tryInline }: { tryInline: boolean }
 ): { decorators: Doc; multiline: boolean } {
-  const node = path.getValue();
+  const node = path.node;
   if (node.decorators.length === 0) {
     return { decorators: "", multiline: false };
   }
@@ -540,7 +538,7 @@ function shouldDecoratorBreakLine(
   options: object,
   { tryInline }: { tryInline: boolean }
 ) {
-  const node = path.getValue();
+  const node = path.node;
 
   return (
     !tryInline || node.decorators.length >= 3 || hasNewlineBetweenOrAfterDecorators(node, options)
@@ -593,7 +591,7 @@ function printAugmentDecoratorArgs(
 }
 
 export function printDocComments(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
-  const node = path.getValue();
+  const node = path.node;
   if (node.docs === undefined || node.docs.length === 0) {
     return "";
   }
@@ -603,7 +601,7 @@ export function printDocComments(path: AstPath<Node>, options: object, print: Pr
 }
 
 export function printDirectives(path: AstPath<Node>, options: object, print: PrettierChildPrint) {
-  const node = path.getValue();
+  const node = path.node;
   if (node.directives === undefined || node.directives.length === 0) {
     return "";
   }
@@ -627,7 +625,7 @@ function printDecoratorArgs(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   if (node.arguments.length === 0) {
     return "";
   }
@@ -672,7 +670,7 @@ export function printDirectiveArgs(
   options: object,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
 
   if (node.arguments.length === 0) {
     return "";
@@ -699,7 +697,7 @@ function printEnumBlock(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   if (node.members.length === 0) {
     return "{}";
   }
@@ -713,7 +711,7 @@ export function printEnumMember(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const id = path.call(print, "id");
   const value = node.value ? [": ", path.call(print, "value")] : "";
   const { decorators } = printDecorators(path, options, print, {
@@ -746,7 +744,7 @@ export function printUnionVariantsBlock(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   if (node.options.length === 0) {
     return "{}";
   }
@@ -793,7 +791,7 @@ function printInterfaceExtends(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   if (node.extends.length === 0) {
     return "";
   }
@@ -807,7 +805,7 @@ export function printInterfaceMembers(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const hasOperations = node.operations.length > 0;
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   if (!hasOperations && !nodeHasComments) {
@@ -818,7 +816,7 @@ export function printInterfaceMembers(
 
   const parts: Doc[] = [];
   path.each((operationPath) => {
-    const node = operationPath.getValue() as any as OperationStatementNode;
+    const node = operationPath.node as any as OperationStatementNode;
 
     const printed = print(operationPath);
     parts.push(printed);
@@ -845,13 +843,13 @@ function printDanglingComments(
   options: TypeSpecPrettierOptions,
   { sameIndent }: { sameIndent: boolean }
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const parts: Doc[] = [];
   if (!node || !node.comments) {
     return "";
   }
   path.each((commentPath) => {
-    const comment: any = commentPath.getValue();
+    const comment: any = commentPath.node;
     if (!comment.leading && !comment.trailing) {
       parts.push(printComment(path, options));
     }
@@ -881,7 +879,7 @@ export function printIntersection(
   options: object,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const types = path.map(print, "options");
   const result: (Doc | string)[] = [];
   let wasIndented = false;
@@ -940,7 +938,7 @@ export function printMemberExpression(
   options: object,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
 
   return [node.base ? [path.call(print, "base"), node.selector] : "", path.call(print, "id")];
 }
@@ -951,7 +949,7 @@ export function printModelExpression(
   print: PrettierChildPrint
 ) {
   const inBlock = isModelExpressionInBlock(path);
-  const node = path.getValue();
+  const node = path.node;
   if (inBlock) {
     return group(printModelPropertiesBlock(path, options, print));
   } else {
@@ -970,7 +968,7 @@ export function printModelStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const id = path.call(print, "id");
   const heritage = node.extends
     ? [ifBreak(line, " "), "extends ", path.call(print, "extends")]
@@ -1004,7 +1002,7 @@ function printModelPropertiesBlock(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const hasProperties = node.properties && node.properties.length > 0;
   const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
   if (!hasProperties && !nodeHasComments) {
@@ -1039,7 +1037,7 @@ function joinMembersInBlock<T extends Node>(
   regularLine: Doc = hardline
 ): Doc {
   const doc: Doc[] = [regularLine];
-  const propertyContainerNode = path.getValue();
+  const propertyContainerNode = path.node;
 
   let newLineBeforeNextProp = false;
   path.each((item, propertyIndex) => {
@@ -1083,7 +1081,7 @@ function shouldWrapMemberInNewLines(
   >,
   options: any
 ): boolean {
-  const node = path.getValue();
+  const node = path.node;
   return (
     (node.kind !== SyntaxKind.ModelSpreadProperty &&
       node.kind !== SyntaxKind.ProjectionModelSpreadProperty &&
@@ -1102,7 +1100,7 @@ function shouldWrapMemberInNewLines(
  */
 function isModelAValue(path: AstPath<Node>): boolean {
   let count = 0;
-  let node: Node | null = path.getValue();
+  let node: Node | null = path.node;
   do {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
@@ -1121,7 +1119,7 @@ export function printModelProperty(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const { decorators } = printDecorators(path as AstPath<DecorableNode>, options, print, {
     tryInline: DecoratorsTryInline.modelProperty,
   });
@@ -1190,7 +1188,7 @@ export function printScalarStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const id = path.call(print, "id");
   const template = printTemplateParameters(path, options, print, "templateParameters");
 
@@ -1272,12 +1270,12 @@ export function printStatementSequence<T extends Node>(
   print: PrettierChildPrint,
   property: keyof T
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const parts: Doc[] = [];
   const lastStatement = getLastStatement(node[property] as any as Statement[]);
 
   path.each((statementPath) => {
-    const node = path.getValue();
+    const node = path.node;
 
     if (node.kind === SyntaxKind.EmptyStatement) {
       return;
@@ -1313,7 +1311,7 @@ export function printUnion(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const shouldHug = shouldHugType(node);
 
   const types = path.map((typePath) => {
@@ -1355,7 +1353,7 @@ export function printTemplateArgument(
   _options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  if (path.getValue().name !== undefined) {
+  if (path.node.name !== undefined) {
     const name = path.call(print, "name");
     const argument = path.call(print, "argument");
 
@@ -1379,7 +1377,7 @@ function printTemplateParameterDeclaration(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   return [
     path.call(print, "id"),
     node.constraint ? [" extends ", path.call(print, "constraint")] : "",
@@ -1420,7 +1418,7 @@ function printFunctionDeclarationStatement(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   const id = path.call(print, "id");
   const parameters = [
     group([
@@ -1442,7 +1440,7 @@ function printFunctionParameterDeclaration(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   const id = path.call(print, "id");
 
   const type = node.type ? [": ", path.call(print, "type")] : "";
@@ -1461,7 +1459,7 @@ export function printModifiers(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   if (node.modifiers.length === 0) {
     return "";
   }
@@ -1473,7 +1471,7 @@ function printStringLiteral(
   path: AstPath<StringLiteralNode>,
   options: TypeSpecPrettierOptions
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   return getRawText(node, options);
 }
 
@@ -1481,7 +1479,7 @@ function printNumberLiteral(
   path: AstPath<NumericLiteralNode>,
   options: TypeSpecPrettierOptions
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   return getRawText(node, options);
 }
 
@@ -1489,7 +1487,7 @@ function printBooleanLiteral(
   path: AstPath<BooleanLiteralNode>,
   options: TypeSpecPrettierOptions
 ): Doc {
-  const node = path.getValue();
+  const node = path.node;
   return node.value ? "true" : "false";
 }
 
@@ -1518,7 +1516,7 @@ function printProjection(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const params = printProjectionParameters(path, options, print);
   const body = printProjectionExpressionStatements(path, options, print, "body");
   return [
@@ -1537,7 +1535,7 @@ function printProjectionParameters(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const params = node.parameters;
   if ((params as any).length === 0) {
     return "";
@@ -1559,9 +1557,9 @@ function printProjectionExpressionStatements<T extends Node>(
   key: keyof T
 ) {
   const parts: Doc[] = [hardline];
-  const lastIndex = (path.getValue()[key] as any).length - 1;
+  const lastIndex = (path.node[key] as any).length - 1;
   path.each((statementPath, index) => {
-    const node = path.getValue();
+    const node = path.node;
 
     if (node.kind === SyntaxKind.EmptyStatement) {
       return;
@@ -1601,7 +1599,7 @@ function printProjectionIfExpressionNode(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const test = path.call(print, "test");
   const consequent = path.call(print, "consequent");
   const alternate = node.alternate ? [" else ", path.call(print, "alternate")] : "";
@@ -1613,7 +1611,7 @@ export function printProjectionBlockExpressionNode(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   if (node.statements.length === 0) {
     return "{}";
   }
@@ -1630,7 +1628,7 @@ export function printProjectionMemberExpression(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   return [path.call(print, "base"), node.selector, path.call(print, "id")];
 }
 
@@ -1644,7 +1642,7 @@ export function printProjectionLeftRightExpression(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   return [path.call(print, "left"), " ", node.op, " ", path.call(print, "right")];
 }
 
@@ -1661,7 +1659,7 @@ export function printProjectionCallExpression(
   options: TypeSpecPrettierOptions,
   print: PrettierChildPrint
 ) {
-  const node = path.getValue();
+  const node = path.node;
   const target = path.call(print, "target");
   const params = printItemList(path, options, print, "arguments");
 

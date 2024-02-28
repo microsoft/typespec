@@ -4,40 +4,40 @@ title: Authentication
 
 # Configure Http Authentication
 
-Notes:
-
-- Authentication right now can ONLY be configured at the service level.
-
 ## Configure
 
-Authentication can be configured using the `@useAuth` decorator on the service namespace. The decorator accept a few options:
+Authentication can be configured using the `@useAuth` decorator on a service namespace, sub-namespace, interface or operation.
 
-- A security scheme (see options [here](https://github.com/microsoft/typespec/blob/main/packages/http/lib/auth.tsp)). This means this is the security scheme to use to authenticate this service.
+The `@useAuth` decorator takes as input the security to apply for all operations contained in the type. If another `@useAuth` was specified on a parent type the new one will override the value of the parent. [See application hierarchy](#application-hierarchy)
 
-```typespec
-@useAuth(Auth1)
-```
+The input can be a:
 
-- A tuple of security scheme. This means ALL the different security schemes of the tuple MUST be used together to authenticate this service.
+- A single security scheme (see options [here](https://github.com/microsoft/typespec/blob/main/packages/http/lib/auth.tsp)).
 
-```typespec
-// Use BOTH Auth1 or Auth2
-@useAuth([Auth1, Auth2])
-```
+  ```typespec
+  @useAuth(Auth1)
+  ```
 
-- A union of security scheme. This means EITHER of the security schemes can be used to authenticate this service
+- A tuple of security schemes. This creates a security group and means **all** the security schemes in the group **must** be used together to authenticate this service.
 
-```typespec
-// Use EITHER Auth1 or Auth2
-@useAuth(Auth1 | Auth2)
-```
+  ```typespec
+  // Use BOTH Auth1 or Auth2
+  @useAuth([Auth1, Auth2])
+  ```
 
-- A union of tuple security scheme. This means EITHER of the security groups schemes can be used to authenticate this service
+- A union of security schemes. This means **one** of the security schemes **must** be used to authenticate this service.
 
-```typespec
-// Use EITHER (Auth1 AND Auth2) OR Auth3
-@useAuth([Auth1, Auth2] | Auth3)
-```
+  ```typespec
+  // Use EITHER Auth1 or Auth2
+  @useAuth(Auth1 | Auth2)
+  ```
+
+- A union of security schemes and tuples representing security groups. This means **one** of the security groups or security schemes **must** be used to authenticate this service.
+
+  ```typespec
+  // Use EITHER (Auth1 AND Auth2) OR Auth3
+  @useAuth([Auth1, Auth2] | Auth3)
+  ```
 
 ## Available security schemes
 
@@ -111,3 +111,75 @@ OAuth 2.0 is an authorization protocol that gives an API client limited access t
 OAuth relies on authentication scenarios called flows, which allow the resource owner (user) to share the protected content from the resource server without sharing their credentials.
 For that purpose, an OAuth 2.0 server issues access tokens that the client applications can use to access protected resources on behalf of the resource owner.
 For more information about OAuth 2.0, see oauth.net and RFC 6749.
+
+## Application hierarchy
+
+The `@useAuth` decorator can be used on a service namespace, sub-namespace, interface or operation. The security scheme specified will be applied to all operations contained in the type.
+A child type with a `@useAuth` will **override** the security scheme of the parent type. If the goal is to append a new scheme, you must re-specify the security schemes on the parent and add the new scheme.
+
+### Examples
+
+All operations of `MyService` will use `BasicAuth` to authenticate
+
+```typespec
+@useAuth(BasicAuth)
+namespace MyService;
+
+op one(): void;
+op two(): void;
+```
+
+`one` will use `ApiKey` auth and `two` will use the `Basic` auth.
+
+```typespec
+@useAuth(BasicAuth)
+namespace MyService;
+
+@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api_key">)
+op one(): void; // Use ApiKey only
+op two(): void; // Use BasicAuth
+```
+
+`one` will use `ApiKey` or `Basic` auth and `two` will use the `Basic` auth.
+
+```typespec
+@useAuth(BasicAuth)
+namespace MyService;
+
+@useAuth(BasicAuth | ApiKeyAuth<ApiKeyLocation.query, "api_key">)
+op one(): void; // Use ApiKey only
+op two(): void; // Use BasicAuth
+```
+
+## OAuth2 Scopes
+
+The `OAuth2` security scheme can have a list of scopes that must be granted to the OAuth2 token to be able to use the operations the security scheme applies to.
+When different operations have different scopes, you will likely want to create a template that allows providing OAuth scopes without having to respecify the other properties of the security scheme:
+
+```tsp
+alias MyOAuth2<Scopes extends valueof string[]> = OAuth2Auth<[{
+  type: OAuth2FlowType.implicit;
+  authorizationUrl: "https://api.example.com/oauth2/authorize";
+  refreshUrl: "https://api.example.com/oauth2/refresh";
+}], Scopes>;
+
+@useAuth<MyOAuth2<["read"]>>
+namespace DemoService;
+
+
+// Use OAuth2 with the "read" scope
+op list(): string[];
+
+// Use OAuth2 with the "read" scope or no authentication at all
+@useAuth<MyOAuth2<["read"]> | NoAuth>
+op read(): string;
+
+// Use OAuth2 with the "write" scope
+@useAuth(MyAuth<["write"]>)
+op write(value: string): void;
+
+// Use OAuth2 with the "delete" scope
+@useAuth(MyAuth<["delete"]>)
+op delete(value: string): void;
+
+```
