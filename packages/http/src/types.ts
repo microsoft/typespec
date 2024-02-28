@@ -411,6 +411,9 @@ export interface HttpOperationBody {
 
   /** If the body was explicitly set with `@body`. */
   readonly isExplicit: boolean;
+
+  /** If the body contains metadata annotations to ignore. For example `@header`. */
+  readonly containsMetadataAnnotations: boolean;
 }
 
 export interface HttpStatusCodeRange {

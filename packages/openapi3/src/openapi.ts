@@ -70,7 +70,6 @@ import {
   HttpStatusCodesEntry,
   HttpVerb,
   isContentTypeHeader,
-  isExplicitBodyValid,
   isOverloadSameEndpoint,
   MetadataInfo,
   QueryParameterOptions,
@@ -1020,7 +1019,7 @@ function createOAPIEmitter(
           : getSchemaForBody(
               data.body.type,
               Visibility.Read,
-              data.body.isExplicit && !isExplicitBodyValid(program, data.body.property!),
+              data.body.isExplicit && data.body.containsMetadataAnnotations,
               undefined
             );
         if (schemaMap.has(contentType)) {
@@ -1128,14 +1127,14 @@ function createOAPIEmitter(
   function getSchemaForBody(
     type: Type,
     visibility: Visibility,
-    isExplicit: boolean,
+    ignoreMetadataAnnotations: boolean,
     multipart: string | undefined
   ): any {
     const effectiveType = metadataInfo.getEffectivePayloadType(type, visibility);
     return callSchemaEmitter(
       effectiveType,
       visibility,
-      isExplicit,
+      ignoreMetadataAnnotations,
       multipart ?? "application/json"
     );
   }
@@ -1215,7 +1214,7 @@ function createOAPIEmitter(
           : getSchemaForBody(
               body.type,
               visibility,
-              body.isExplicit && !isExplicitBodyValid(program, body.parameter!),
+              body.isExplicit,
               contentType.startsWith("multipart/") ? contentType : undefined
             );
         if (schemaMap.has(contentType)) {
@@ -1258,7 +1257,7 @@ function createOAPIEmitter(
         : getSchemaForBody(
             body.type,
             visibility,
-            body.isExplicit && !isExplicitBodyValid(program, body.parameter!),
+            body.isExplicit && body.containsMetadataAnnotations,
             contentType.startsWith("multipart/") ? contentType : undefined
           );
       const contentEntry: any = {

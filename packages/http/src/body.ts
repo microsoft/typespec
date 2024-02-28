@@ -25,6 +25,8 @@ export interface ResolvedBody {
   readonly type: Type;
   /** `true` if the body was specified with `@body` */
   readonly isExplicit: boolean;
+  /** If the body original model contained property annotated with metadata properties. */
+  readonly containsMetadataAnnotations: boolean;
   /** If body is defined with `@body` or `@bodyRoot` this is the property */
   readonly property?: ModelProperty;
 }
@@ -34,12 +36,17 @@ export function resolveBody(
   requestOrResponseType: Type,
   metadata: Set<ModelProperty>,
   rootPropertyMap: Map<ModelProperty, ModelProperty>,
-  visibility: Visibility
+  visibility: Visibility,
+  usedIn: "request" | "response"
 ): [ResolvedBody | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   // non-model or intrinsic/array model -> response body is response type
   if (requestOrResponseType.kind !== "Model" || isArrayModelType(program, requestOrResponseType)) {
-    return diagnostics.wrap({ type: requestOrResponseType, isExplicit: false });
+    return diagnostics.wrap({
+      type: requestOrResponseType,
+      isExplicit: false,
+      containsMetadataAnnotations: false,
+    });
   }
 
   const duplicateTracker = new DuplicateTracker<string, Type>();
@@ -51,8 +58,18 @@ export function resolveBody(
     const isBodyRootVal = isBodyRoot(program, property);
     if (isBodyVal || isBodyRootVal) {
       duplicateTracker.track("body", property);
+      let containsMetadataAnnotations = false;
+      if (isBodyVal) {
+        const valid = diagnostics.pipe(validateBodyProperty(program, property, usedIn));
+        containsMetadataAnnotations = !valid;
+      }
       if (resolvedBody === undefined) {
-        resolvedBody = { type: property.type, isExplicit: isBodyVal, property };
+        resolvedBody = {
+          type: property.type,
+          isExplicit: isBodyVal,
+          containsMetadataAnnotations,
+          property,
+        };
       }
     }
   }
@@ -70,7 +87,11 @@ export function resolveBody(
     // Special case if the model as a parent model then we'll return an empty object as this is assumed to be a nominal type.
     // Special Case if the model has an indexer then it means it can return props so cannot be void.
     if (requestOrResponseType.baseModel || requestOrResponseType.indexer) {
-      return diagnostics.wrap({ type: requestOrResponseType, isExplicit: false });
+      return diagnostics.wrap({
+        type: requestOrResponseType,
+        isExplicit: false,
+        containsMetadataAnnotations: false,
+      });
     }
     // Special case for legacy purposes if the return type is an empty model with only @discriminator("xyz")
     // Then we still want to return that object as it technically always has a body with that implicit property.
@@ -78,7 +99,11 @@ export function resolveBody(
       requestOrResponseType.derivedModels.length > 0 &&
       getDiscriminator(program, requestOrResponseType)
     ) {
-      return diagnostics.wrap({ type: requestOrResponseType, isExplicit: false });
+      return diagnostics.wrap({
+        type: requestOrResponseType,
+        isExplicit: false,
+        containsMetadataAnnotations: false,
+      });
     }
   }
 
@@ -92,7 +117,11 @@ export function resolveBody(
 
   if (unannotatedProperties.properties.size > 0) {
     if (resolvedBody === undefined) {
-      return diagnostics.wrap({ type: unannotatedProperties, isExplicit: false });
+      return diagnostics.wrap({
+        type: unannotatedProperties,
+        isExplicit: false,
+        containsMetadataAnnotations: false,
+      });
     } else {
       diagnostics.add(
         createDiagnostic({
@@ -110,7 +139,8 @@ export function resolveBody(
 /** Validate a property marked with `@body` */
 export function validateBodyProperty(
   program: Program,
-  property: ModelProperty
+  property: ModelProperty,
+  usedIn: "request" | "response"
 ): [boolean, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   navigateType(
@@ -119,11 +149,11 @@ export function validateBodyProperty(
       modelProperty: (prop) => {
         const kind = isHeader(program, prop)
           ? "header"
-          : isQueryParam(program, prop)
+          : usedIn === "request" && isQueryParam(program, prop)
             ? "query"
-            : isPathParam(program, prop)
+            : usedIn === "request" && isPathParam(program, prop)
               ? "path"
-              : isStatusCode(program, prop)
+              : usedIn === "response" && isStatusCode(program, prop)
                 ? "statusCode"
                 : undefined;
 

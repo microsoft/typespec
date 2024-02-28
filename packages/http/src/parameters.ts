@@ -77,7 +77,7 @@ function getOperationParametersForVerb(
 
   const parameters: HttpOperationParameter[] = [];
   const resolvedBody = diagnostics.pipe(
-    resolveBody(program, operation.parameters, metadata, rootPropertyMap, visibility)
+    resolveBody(program, operation.parameters, metadata, rootPropertyMap, visibility, "request")
   );
   let contentTypes: string[] | undefined;
 
@@ -182,6 +182,7 @@ function computeHttpOperationBody(
   const body: HttpOperationRequestBody = {
     type: resolvedBody.type,
     isExplicit: resolvedBody.isExplicit,
+    containsMetadataAnnotations: resolvedBody.containsMetadataAnnotations,
     contentTypes,
   };
   if (resolvedBody.property) {

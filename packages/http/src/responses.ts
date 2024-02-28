@@ -109,7 +109,7 @@ function processResponseType(
 
   // Get body
   let resolvedBody = diagnostics.pipe(
-    resolveBody(program, responseType, metadata, rootPropertyMap, Visibility.Read)
+    resolveBody(program, responseType, metadata, rootPropertyMap, Visibility.Read, "response")
   );
 
   // If there is no explicit status code, check if it should be 204
