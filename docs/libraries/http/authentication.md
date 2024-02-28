@@ -114,8 +114,8 @@ For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 ## Application hierarchy
 
-The `@useAuth` decorator can be used on a service, namespace, sub namespace, interface or operation. The security scheme specified will be applied to all operations contained in the type.
-A child typ with a `@useAuth` will **override** the security scheme of the parent type. If the goal is to append a new scheme you'll need to re-specify the same authentication as the parent as well as the new scheme.
+The `@useAuth` decorator can be used on a service namespace, sub-namespace, interface or operation. The security scheme specified will be applied to all operations contained in the type.
+A child type with a `@useAuth` will **override** the security scheme of the parent type. If the goal is to append a new scheme, you must re-specify the security schemes on the parent and add the new scheme.
 
 ### Examples
 
@@ -135,7 +135,8 @@ op two(): void;
 @useAuth(BasicAuth)
 namespace MyService;
 
-@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api_key">) op one(): void; // Use ApiKey only
+@useAuth(ApiKeyAuth<ApiKeyLocation.query, "api_key">)
+op one(): void; // Use ApiKey only
 op two(): void; // Use BasicAuth
 ```
 
@@ -145,15 +146,15 @@ op two(): void; // Use BasicAuth
 @useAuth(BasicAuth)
 namespace MyService;
 
-@useAuth(BasicAuth | ApiKeyAuth<ApiKeyLocation.query, "api_key">) op one(): void; // Use ApiKey only
+@useAuth(BasicAuth | ApiKeyAuth<ApiKeyLocation.query, "api_key">)
+op one(): void; // Use ApiKey only
 op two(): void; // Use BasicAuth
 ```
 
 ## OAuth2 Scopes
 
-The `OAuth2` authentication scheme can have a list of scopes that must be granted to the OAuth2 token to be able to use the various operations.
-With the creation of a simple alias template you can define a reusable scheme that can be used to specify different scopes for each operations.
-This respect the logic of the `@useAuth` decorator that will override the parent security scheme and scopes.
+The `OAuth2` security scheme can have a list of scopes that must be granted to the OAuth2 token to be able to use the operations the security scheme applies to.
+When different operations have different scopes, you will likely want to create a template that allows providing OAuth scopes without having to respecify the other properties of the security scheme:
 
 ```tsp
 alias MyOAuth2<Scopes extends valueof string[]> = OAuth2Auth<[{
