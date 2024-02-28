@@ -12,7 +12,7 @@ import {
   UnionStatementNode,
 } from "../core/index.js";
 import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";
-import { isArray, isDefined } from "../core/util.js";
+import { isArray, isDefined } from "../utils/misc.js";
 
 export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
   const file = ast.file;

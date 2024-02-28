@@ -5,7 +5,7 @@ import { dirname, resolve } from "path";
 import { describe, it } from "vitest";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
-import { createSourceFile } from "../../src/core/diagnostics.js";
+import { createSourceFile } from "../../src/core/source-file.js";
 import { TypeSpecScope } from "../../src/server/tmlanguage.js";
 import { SemanticToken, SemanticTokenKind } from "../../src/server/types.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";

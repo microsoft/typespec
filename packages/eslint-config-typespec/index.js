@@ -57,7 +57,7 @@ module.exports = {
     // Symbols should have a description so it can be serialized.
     "symbol-description": "warn",
   },
-  ignorePatterns: ["dist/**/*", "dist-dev/**/*"],
+  ignorePatterns: ["dist/**/*", "dist-dev/**/*", "temp/**/*"],
   overrides: [
     {
       /**
