@@ -54,7 +54,6 @@ describe("body resolution", () => {
   describe("emit diagnostics when using metadata decorator in @body", () => {
     it.each([
       ["@header", "id: string"],
-      ["@query", "id: string"],
       ["@statusCode", "_: 200"],
     ])("%s", async (dec, prop) => {
       const [_, diagnostics] = await compileOperations(
@@ -63,6 +62,13 @@ describe("body resolution", () => {
       expectDiagnostics(diagnostics, { code: "@typespec/http/metadata-ignored" });
     });
   });
+});
+
+it("doesn't emit diagnostic if the metadata is not applicable in the response", async () => {
+  const [_, diagnostics] = await compileOperations(
+    `op read(): { @body explicit: {@path id: string} };`
+  );
+  expectDiagnosticEmpty(diagnostics);
 });
 
 it("issues diagnostics for invalid content types", async () => {

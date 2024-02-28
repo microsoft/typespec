@@ -187,11 +187,16 @@ describe("emit diagnostics when using metadata decorator in @body", () => {
   it.each([
     ["@header", "id: string"],
     ["@query", "id: string"],
-    ["@statusCode", "_: 200"],
+    ["@path", "id: string"],
   ])("%s", async (dec, prop) => {
     const [_, diagnostics] = await compileOperations(
       `op read(@body explicit: {${dec} ${prop}, other: string}): void;`
     );
     expectDiagnostics(diagnostics, { code: "@typespec/http/metadata-ignored" });
   });
+});
+
+it("doesn't emit diagnostic if the metadata is not applicable in the request", async () => {
+  const [_, diagnostics] = await compileOperations(`op read(@statusCode id: 200): { };`);
+  expectDiagnosticEmpty(diagnostics);
 });
