@@ -12,7 +12,7 @@ The `@useAuth` decorator takes as input the security to apply for all operations
 
 The input can be a:
 
-- A single security scheme (see options [here](https://github.com/microsoft/typespec/blob/main/packages/http/lib/auth.tsp)). This means this is the security scheme to use to authenticate this service.
+- A single security scheme (see options [here](https://github.com/microsoft/typespec/blob/main/packages/http/lib/auth.tsp)).
 
   ```typespec
   @useAuth(Auth1)
