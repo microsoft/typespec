@@ -103,8 +103,9 @@ describe("compiler: checker: decorators", () => {
 
   describe("usage", () => {
     let runner: BasicTestRunner;
-    let calledArgs: any[];
+    let calledArgs: any[] | undefined;
     beforeEach(() => {
+      calledArgs = undefined;
       testHost.addJsFile("test.js", {
         $testDec: (...args: any[]) => (calledArgs = args),
       });
@@ -115,12 +116,17 @@ describe("compiler: checker: decorators", () => {
     });
 
     function expectDecoratorCalledWith(target: unknown, ...args: unknown[]) {
+      ok(calledArgs, "Decorator was not called.");
       strictEqual(calledArgs.length, 2 + args.length);
       strictEqual(calledArgs[0].program, runner.program);
       strictEqual(calledArgs[1], target);
       for (const [index, arg] of args.entries()) {
         strictEqual(calledArgs[2 + index], arg);
       }
+    }
+
+    function expectDecoratorNotCalled() {
+      strictEqual(calledArgs, undefined);
     }
 
     it("calls a decorator with no argument", async () => {
@@ -183,20 +189,22 @@ describe("compiler: checker: decorators", () => {
         code: "invalid-argument-count",
         message: "Expected 2 arguments, but got 1.",
       });
+      expectDecoratorNotCalled();
     });
 
     it("errors if not calling with too many arguments", async () => {
-      const diagnostics = await runner.diagnose(`
-        extern dec testDec(target: unknown, arg1: string, arg2?: string);
+      const [{ Foo }, diagnostics] = await runner.compileAndDiagnose(`
+        extern dec testDec(target: unknown, arg1: valueof string, arg2?: valueof string);
 
         @testDec("one", "two", "three")
-        model Foo {}
+        @test model Foo {}
       `);
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument-count",
         message: "Expected 1-2 arguments, but got 3.",
       });
+      expectDecoratorCalledWith(Foo, "one", "two");
     });
 
     it("errors if not calling with argument and decorator expect none", async () => {
@@ -225,6 +233,7 @@ describe("compiler: checker: decorators", () => {
         code: "invalid-argument-count",
         message: "Expected at least 1 arguments, but got 0.",
       });
+      expectDecoratorNotCalled();
     });
 
     it("errors if target type is incorrect", async () => {
@@ -239,6 +248,7 @@ describe("compiler: checker: decorators", () => {
         code: "decorator-wrong-target",
         message: "Cannot apply @testDec decorator to Foo since it is not assignable to Union",
       });
+      expectDecoratorNotCalled();
     });
 
     it("errors if argument is not assignable to parameter type", async () => {
@@ -253,6 +263,7 @@ describe("compiler: checker: decorators", () => {
         code: "invalid-argument",
         message: "Argument '123' is not assignable to parameter of type 'string'",
       });
+      expectDecoratorNotCalled();
     });
 
     it("errors if argument is not assignable to rest parameter type", async () => {
@@ -273,6 +284,7 @@ describe("compiler: checker: decorators", () => {
           message: "Argument '456' is not assignable to parameter of type 'string'",
         },
       ]);
+      expectDecoratorNotCalled();
     });
 
     describe("value marshalling", () => {
@@ -284,7 +296,7 @@ describe("compiler: checker: decorators", () => {
           @test
           model Foo {}
         `);
-        return calledArgs[2];
+        return calledArgs![2];
       }
 
       describe("passing a string literal", () => {
