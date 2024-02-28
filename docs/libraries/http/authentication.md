@@ -6,7 +6,7 @@ title: Authentication
 
 ## Configure
 
-Authentication can be configured using the `@useAuth` decorator on a service namespace, sub namespace, interface or operation.
+Authentication can be configured using the `@useAuth` decorator on a service namespace, sub-namespace, interface or operation.
 
 The `@useAuth` decorator takes as input the security to apply for all operations contained in the type. If another `@useAuth` was specified on a parent type the new one will override the value of the parent. [See application hierarchy](#application-hierarchy)
 
