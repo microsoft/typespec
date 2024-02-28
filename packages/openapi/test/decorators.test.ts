@@ -2,7 +2,7 @@ import { Namespace } from "@typespec/compiler";
 import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { getExtensions, getExternalDocs, getInfo } from "../src/decorators.js";
+import { getExtensions, getExternalDocs, getInfo, resolveInfo } from "../src/decorators.js";
 import { createOpenAPITestRunner } from "./test-host.js";
 
 describe("openapi: decorators", () => {
@@ -178,6 +178,9 @@ describe("openapi: decorators", () => {
     it("set all properties", async () => {
       const { Service } = (await runner.compile(`
         @info({
+          title: "My API",
+          version: "1.0.0",
+          summary: "My API summary",
           termsOfService: "http://example.com/terms/",
           contact: {
             name: "API Support",
@@ -193,6 +196,9 @@ describe("openapi: decorators", () => {
       `)) as { Service: Namespace };
 
       deepStrictEqual(getInfo(runner.program, Service), {
+        title: "My API",
+        version: "1.0.0",
+        summary: "My API summary",
         termsOfService: "http://example.com/terms/",
         contact: {
           name: "API Support",
@@ -204,6 +210,38 @@ describe("openapi: decorators", () => {
           url: "http://www.apache.org/licenses/LICENSE-2.0.html",
         },
       });
+    });
+
+    it("resolveInfo() merge with data from @service and @summary", async () => {
+      const { Service } = (await runner.compile(`
+        @service({ 
+          title: "Service API", 
+          
+          #suppress "deprecated" "Test"
+          version: "2.0.0" 
+        })
+        @summary("My summary")
+        @info({
+          version: "1.0.0",
+          termsOfService: "http://example.com/terms/",
+        })
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+
+      deepStrictEqual(resolveInfo(runner.program, Service), {
+        title: "Service API",
+        version: "1.0.0",
+        summary: "My summary",
+        termsOfService: "http://example.com/terms/",
+      });
+    });
+
+    it("resolveInfo() returns empty object if nothing is provided", async () => {
+      const { Service } = (await runner.compile(`
+        @test namespace Service {}
+      `)) as { Service: Namespace };
+
+      deepStrictEqual(resolveInfo(runner.program, Service), {});
     });
   });
 });

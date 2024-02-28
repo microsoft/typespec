@@ -81,11 +81,11 @@ import {
 import {
   getExtensions,
   getExternalDocs,
-  getInfo,
   getOpenAPITypeName,
   getParameterKey,
   isDefaultResponse,
   isReadonlyProperty,
+  resolveInfo,
   resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
@@ -304,13 +304,13 @@ function createOAPIEmitter(
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);
 
+    const info = resolveInfo(program, service.type);
     root = {
       openapi: "3.0.0",
       info: {
-        title: service.title ?? "(title)",
-        version: version ?? service.version ?? "0000-00-00",
-        description: getDoc(program, service.type),
-        ...getInfo(program, service.type),
+        title: "(title)",
+        ...info,
+        version: version ?? info?.version ?? "0.0.0",
       },
       externalDocs: getExternalDocs(program, service.type),
       tags: [],
