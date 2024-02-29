@@ -48,6 +48,7 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
     case "StringTemplate":
       return "string";
     case "String":
+      return `"${type.value}"`;
     case "Number":
     case "Boolean":
       return type.value.toString();

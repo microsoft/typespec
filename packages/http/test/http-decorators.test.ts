@@ -260,7 +260,7 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+    it("emit diagnostics when not all duplicated routes are declared shared on each op conflicting", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
@@ -269,7 +269,15 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `All shared routes must agree on the value of the shared parameter.`,
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
         },
       ]);
     });
@@ -280,6 +288,15 @@ describe("http: decorators", () => {
         @route("/test") @sharedRoute op test2(): string;
       `);
 
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("do not emit diagnostics routes sharing path but not same verb", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
+        @route("/test") @post op test3(): string;
+      `);
       expectDiagnosticEmpty(diagnostics);
     });
 
@@ -650,8 +667,7 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "unassignable",
-          message:
-            "Type 'foo' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+          message: `Type '"foo"' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'`,
         },
         {
           code: "unassignable",
@@ -780,7 +796,7 @@ describe("http: decorators", () => {
 
     it("can specify OAuth2 with scopes, which are default for every flow", async () => {
       const { Foo } = (await runner.compile(`
-        alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
+        alias MyAuth<T extends valueof string[]> = OAuth2Auth<Flows=[{
           type: OAuth2FlowType.implicit;
           authorizationUrl: "https://api.example.com/oauth2/authorize";
           refreshUrl: "https://api.example.com/oauth2/refresh";

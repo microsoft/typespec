@@ -1,4 +1,4 @@
-import { resolvePath } from "@typespec/compiler";
+import { Type, ValueType, getTypeName, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -8,10 +8,12 @@ import {
   ExampleRefDoc,
   InterfaceRefDoc,
   LinterRuleRefDoc,
+  ModelPropertyRefDoc,
   ModelRefDoc,
   NamedTypeRefDoc,
   NamespaceRefDoc,
   OperationRefDoc,
+  RefDocEntity,
   ReferencableElement,
   ScalarRefDoc,
   TemplateParameterRefDoc,
@@ -28,7 +30,6 @@ import {
   section,
   table,
 } from "../utils/markdown.js";
-import { getTypeSignature } from "../utils/type-signature.js";
 
 async function loadTemplate(projectRoot: string, name: string) {
   try {
@@ -44,7 +45,7 @@ async function loadTemplate(projectRoot: string, name: string) {
 
 export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) {
   const content: MarkdownDoc[] = [];
-  const renderer = new MarkdownRenderer();
+  const renderer = new MarkdownRenderer(refDoc);
 
   if (refDoc.description) {
     content.push(refDoc.description);
@@ -72,7 +73,7 @@ export async function renderReadme(refDoc: TypeSpecRefDoc, projectRoot: string) 
 }
 
 export function groupByNamespace(
-  namespaces: NamespaceRefDoc[],
+  namespaces: readonly NamespaceRefDoc[],
   callback: (namespace: NamespaceRefDoc) => MarkdownDoc | undefined
 ): MarkdownDoc {
   const content: MarkdownDoc = [];
@@ -89,6 +90,7 @@ export function groupByNamespace(
  * Github flavored markdown renderer.
  */
 export class MarkdownRenderer {
+  constructor(protected readonly refDoc: TypeSpecRefDoc) {}
   headingTitle(item: NamedTypeRefDoc): string {
     return inlinecode(item.name);
   }
@@ -136,8 +138,73 @@ export class MarkdownRenderer {
     }
 
     content.push(this.examples(model.examples));
-
+    content.push(this.modelProperties(model));
     return section(this.headingTitle(model), content);
+  }
+
+  modelProperties(model: ModelRefDoc) {
+    const content: MarkdownDoc = [];
+    if (model.properties.size === 0 && model.type.indexer === undefined) {
+      return section("Properties", "None");
+    }
+    const rows: { name: string; type: string; doc: string }[] = [
+      { name: "Name", type: "Type", doc: "Description" },
+    ];
+
+    for (const prop of model.properties.values()) {
+      const propRows = this.modelPropertyRows(prop);
+      for (const row of propRows) {
+        rows.push(row);
+      }
+    }
+    if (model.type.indexer) {
+      rows.push({
+        name: "",
+        type: this.ref(model.type.indexer.value),
+        doc: "Additional properties",
+      });
+    }
+    content.push(table(rows.map((x) => [x.name, x.type, x.doc])));
+    return section("Properties", content);
+  }
+
+  modelPropertyRows(prop: ModelPropertyRefDoc): { name: string; type: string; doc: string }[] {
+    const base = {
+      name: `${prop.name}${prop.type.optional ? "?" : ""}`,
+      type: this.ref(prop.type.type),
+      doc: prop.doc,
+    };
+    if (prop.type.type.kind === "Model" && prop.type.type.name === "") {
+      return [
+        base,
+        ...[...prop.type.type.properties.values()].map((x) => ({
+          name: `${prop.name}.${x.name}${x.optional ? "?" : ""}`,
+          type: this.ref(x.type),
+          doc: "",
+        })),
+      ];
+    }
+    return [base];
+  }
+
+  ref(type: Type | ValueType): string {
+    const namedType = type.kind !== "Value" && this.refDoc.getNamedTypeRefDoc(type);
+    if (namedType) {
+      return link(
+        inlinecode(namedType.name),
+        `${this.filename(namedType)}#${this.anchorId(namedType)}`
+      );
+    }
+
+    // So we don't show (anonymous model) until this gets improved.
+    if (type.kind === "Model" && type.name === "" && type.properties.size > 0) {
+      return inlinecode("{...}");
+    }
+    return inlinecode(
+      getTypeName(type, {
+        namespaceFilter: (ns) => !this.refDoc.namespaces.some((x) => x.name === ns.name),
+      })
+    );
   }
 
   enum(e: EnumRefDoc): MarkdownDoc {
@@ -176,7 +243,7 @@ export class MarkdownRenderer {
     return section(this.headingTitle(scalar), content);
   }
 
-  templateParameters(templateParameters: TemplateParameterRefDoc[]): MarkdownDoc {
+  templateParameters(templateParameters: readonly TemplateParameterRefDoc[]): MarkdownDoc {
     const paramTable: string[][] = [["Name", "Description"]];
     for (const param of templateParameters) {
       paramTable.push([param.name, param.doc]);
@@ -188,14 +255,12 @@ export class MarkdownRenderer {
   decorator(dec: DecoratorRefDoc) {
     const content: MarkdownDoc = ["", dec.doc, codeblock(dec.signature, "typespec"), ""];
 
-    content.push(
-      section("Target", [dec.target.doc, inlinecode(getTypeSignature(dec.target.type.type)), ""])
-    );
+    content.push(section("Target", [dec.target.doc, this.ref(dec.target.type.type), ""]));
 
     if (dec.parameters.length > 0) {
       const paramTable: string[][] = [["Name", "Type", "Description"]];
       for (const param of dec.parameters) {
-        paramTable.push([param.name, inlinecode(getTypeSignature(param.type.type)), param.doc]);
+        paramTable.push([param.name, this.ref(param.type.type), param.doc]);
       }
       content.push(section("Parameters", [table(paramTable), ""]));
     } else {
@@ -207,7 +272,7 @@ export class MarkdownRenderer {
     return section(this.headingTitle(dec), content);
   }
 
-  examples(examples: ExampleRefDoc[]) {
+  examples(examples: readonly ExampleRefDoc[]) {
     const content: MarkdownDoc = [];
     if (examples.length === 0) {
       return "";
@@ -241,10 +306,14 @@ export class MarkdownRenderer {
     });
   }
 
-  toc(items: ReferencableElement[], filename?: string) {
+  toc(items: readonly (ReferencableElement & RefDocEntity)[]) {
     return items.map(
-      (item) => ` - [${inlinecode(item.name)}](${filename ?? ""}#${this.anchorId(item)})`
+      (item) => ` - [${inlinecode(item.name)}](${this.filename(item)}#${this.anchorId(item)})`
     );
+  }
+
+  filename(type: ReferencableElement & RefDocEntity): string {
+    return "";
   }
 
   install(refDoc: TypeSpecRefDoc) {

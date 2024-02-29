@@ -436,6 +436,7 @@ export function $useAuth(
   entity: Namespace | Interface | Operation,
   authConfig: Model | Union | Tuple
 ) {
+  validateDecoratorUniqueOnNode(context, entity, $useAuth);
   const [auth, diagnostics] = extractAuthentication(context.program, authConfig);
   if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
   if (auth !== undefined) {

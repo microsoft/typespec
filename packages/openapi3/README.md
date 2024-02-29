@@ -114,7 +114,7 @@ Specify that `oneOf` should be used instead of `anyOf` for that union.
 
 ##### Target
 
-`union Union | ModelProperty`
+`Union | ModelProperty`
 
 ##### Parameters
 
@@ -130,10 +130,10 @@ Specify an external reference that should be used inside of emitting this type.
 
 ##### Target
 
-`union Model | ModelProperty`
+`Model | ModelProperty`
 
 ##### Parameters
 
-| Name | Type                    | Description                                                          |
-| ---- | ----------------------- | -------------------------------------------------------------------- |
-| ref  | `valueof scalar string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |
+| Name | Type             | Description                                                          |
+| ---- | ---------------- | -------------------------------------------------------------------- |
+| ref  | `valueof string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |
