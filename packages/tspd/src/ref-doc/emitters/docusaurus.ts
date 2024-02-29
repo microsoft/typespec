@@ -1,5 +1,6 @@
 import {
   NamedTypeRefDoc,
+  RefDocEntity,
   TypeSpecLibraryRefDoc,
   TypeSpecRefDoc,
   TypeSpecRefDocBase,
@@ -72,25 +73,19 @@ function renderIndexFile(renderer: DocusaurusRenderer, refDoc: TypeSpecLibraryRe
         const content = [];
 
         if (namespace.decorators.length > 0) {
-          content.push(
-            section("Decorators", renderer.toc(namespace.decorators, "./decorators.md"))
-          );
+          content.push(section("Decorators", renderer.toc(namespace.decorators)));
         }
 
         if (namespace.interfaces.length > 0) {
-          content.push(
-            section("Interfaces", renderer.toc(namespace.interfaces, "./interfaces.md"))
-          );
+          content.push(section("Interfaces", renderer.toc(namespace.interfaces)));
         }
 
         if (namespace.operations.length > 0) {
-          content.push(
-            section("Operations", renderer.toc(namespace.operations, "./interfaces.md"))
-          );
+          content.push(section("Operations", renderer.toc(namespace.operations)));
         }
 
         if (namespace.models.length > 0) {
-          content.push(section("Models", renderer.toc(namespace.models, "./data-types.md")));
+          content.push(section("Models", renderer.toc(namespace.models)));
         }
         return content;
       }),
@@ -255,11 +250,6 @@ function renderLinter(
 }
 
 export class DocusaurusRenderer extends MarkdownRenderer {
-  #refDoc: TypeSpecLibraryRefDoc;
-  constructor(refDoc: TypeSpecLibraryRefDoc) {
-    super();
-    this.#refDoc = refDoc;
-  }
   headingTitle(item: NamedTypeRefDoc): string {
     // Set an explicit anchor id.
     return `${inlinecode(item.name)} {#${item.id}}`;
@@ -287,8 +277,24 @@ export class DocusaurusRenderer extends MarkdownRenderer {
     );
   }
 
+  filename(type: RefDocEntity): string {
+    switch (type.kind) {
+      case "decorator":
+        return "./decorators.md";
+      case "operation":
+      case "interface":
+        return "./interfaces.md";
+      case "model":
+      case "enum":
+      case "union":
+        return "./data-types.md";
+      default:
+        return "";
+    }
+  }
+
   linterRuleLink(url: string) {
-    const homepage = (this.#refDoc.packageJson as any).docusaurusWebsite;
+    const homepage = (this.refDoc.packageJson as any).docusaurusWebsite;
     if (homepage && url.includes(homepage)) {
       const fromRoot = url.replace(homepage, "");
       return `${fromRoot}.md`;

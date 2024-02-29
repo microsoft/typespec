@@ -40,6 +40,12 @@ model TypeSpec.Protobuf.Extern<Path, Name>
 model Widget is Extern<"path/to/test.proto", "test.Widget">;
 ```
 
+#### Properties
+
+| Name     | Type    | Description |
+| -------- | ------- | ----------- |
+| \_extern | `never` |             |
+
 ### `Map` {#TypeSpec.Protobuf.Map}
 
 A type representing a Protobuf `map`. Instances of this type in models will be converted to the built-in `map` type
@@ -59,6 +65,10 @@ model TypeSpec.Protobuf.Map<Key, Value>
 | Key   | the key type (any integral type or string)       |
 | Value | the value type (any type other than another map) |
 
+#### Properties
+
+None
+
 ### `PackageDetails` {#TypeSpec.Protobuf.PackageDetails}
 
 Details applied to a package definition by the [`@package`](./decorators#
@@ -66,6 +76,13 @@ Details applied to a package definition by the [`@package`](./decorators#
 ```typespec
 model TypeSpec.Protobuf.PackageDetails
 ```
+
+#### Properties
+
+| Name     | Type                                   | Description                                                                                                                                                                                                                                           |
+| -------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name?    | `string`                               | The package's name.<br /><br />By default, the package's name is constructed from the namespace it is applied to.                                                                                                                                     |
+| options? | `Record<string \| boolean \| numeric>` | The package's top-level options.<br /><br />See the [Protobuf Language Guide - Options](https://protobuf.dev/programming-guides/proto3/#options) for more information.<br /><br />Currently, only string, boolean, and numeric options are supported. |
 
 ### `StreamMode` {#TypeSpec.Protobuf.StreamMode}
 
@@ -166,6 +183,12 @@ This model references `google.protobuf.Any` from `google/protobuf/any.proto`.
 model TypeSpec.Protobuf.WellKnown.Any
 ```
 
+#### Properties
+
+| Name     | Type    | Description |
+| -------- | ------- | ----------- |
+| \_extern | `never` |             |
+
 ### `Empty` {#TypeSpec.Protobuf.WellKnown.Empty}
 
 An empty message.
@@ -175,6 +198,12 @@ This model references `google.protobuf.Empty` from `google/protobuf/empty.proto`
 ```typespec
 model TypeSpec.Protobuf.WellKnown.Empty
 ```
+
+#### Properties
+
+| Name     | Type    | Description |
+| -------- | ------- | ----------- |
+| \_extern | `never` |             |
 
 ### `LatLng` {#TypeSpec.Protobuf.WellKnown.LatLng}
 
@@ -186,6 +215,12 @@ This model references `google.type.LatLng` from `google/type/latlng.proto`.
 model TypeSpec.Protobuf.WellKnown.LatLng
 ```
 
+#### Properties
+
+| Name     | Type    | Description |
+| -------- | ------- | ----------- |
+| \_extern | `never` |             |
+
 ### `Timestamp` {#TypeSpec.Protobuf.WellKnown.Timestamp}
 
 A timestamp.
@@ -195,3 +230,9 @@ This model references `google.protobuf.Timestamp` from `google/protobuf/timestam
 ```typespec
 model TypeSpec.Protobuf.WellKnown.Timestamp
 ```
+
+#### Properties
+
+| Name     | Type    | Description |
+| -------- | ------- | ----------- |
+| \_extern | `never` |             |
