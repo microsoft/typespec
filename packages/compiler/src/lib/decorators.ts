@@ -350,16 +350,28 @@ const errorKey = createStateSymbol("error");
 
 /**
  * `@error` decorator marks a model as an error type.
- *
- * `@error` can only be specified on a model.
+ *  Any derived models (using extends) will also be seen as error types.
  */
 export function $error(context: DecoratorContext, entity: Model) {
   validateDecoratorUniqueOnNode(context, entity, $error);
   context.program.stateSet(errorKey).add(entity);
 }
 
+/**
+ * Check if the type is an error model or a descendant of an error model.
+ */
 export function isErrorModel(program: Program, target: Type): boolean {
-  return program.stateSet(errorKey).has(target);
+  if (target.kind !== "Model") {
+    return false;
+  }
+  let current: Model | undefined = target;
+  while (current) {
+    if (program.stateSet(errorKey).has(current)) {
+      return true;
+    }
+    current = target.baseModel;
+  }
+  return false;
 }
 
 // -- @format decorator ---------------------
