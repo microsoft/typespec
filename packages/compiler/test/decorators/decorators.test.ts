@@ -676,7 +676,7 @@ describe("compiler: built-in decorators", () => {
           '"int32"',
           // TODO: Arguably this should be improved.
           "invalid-argument",
-          `Argument 'int32' is not assignable to parameter of type 'Scalar'`,
+          `Argument '"int32"' is not assignable to parameter of type 'Scalar'`,
         ],
       ];
       describe("valid", () => {
@@ -802,7 +802,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'foo' is not assignable to parameter of type 'Operation'",
+        message: `Argument '"foo"' is not assignable to parameter of type 'Operation'`,
         severity: "error",
       });
     });
