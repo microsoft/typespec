@@ -290,7 +290,7 @@ describe("compiler: checker: type relations", () => {
         { source: `"bar"`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'bar' is not assignable to type 'foo'",
+          message: `Type '"bar"' is not assignable to type '"foo"'`,
         }
       );
     });
@@ -300,7 +300,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'string' is not assignable to type 'foo'",
+          message: `Type 'string' is not assignable to type '"foo"'`,
         }
       );
     });
@@ -1153,7 +1153,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof int16" },
           {
             code: "unassignable",
-            message: "Type 'foo bar' is not assignable to type 'int16'",
+            message: `Type '"foo bar"' is not assignable to type 'int16'`,
           }
         );
       });
@@ -1179,7 +1179,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof float32" },
           {
             code: "unassignable",
-            message: "Type 'foo bar' is not assignable to type 'float32'",
+            message: `Type '"foo bar"' is not assignable to type 'float32'`,
           }
         );
       });

@@ -280,7 +280,7 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'abc' is not assignable to type '{}'",
+        message: `Type '"abc"' is not assignable to type '{}'`,
         pos,
       });
     });

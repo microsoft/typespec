@@ -129,10 +129,10 @@ describe("compiler: models", () => {
   describe("doesn't allow a default of different type than the property type", () => {
     const testCases: [string, string, string][] = [
       ["string", "123", "Type '123' is not assignable to type 'string'"],
-      ["int32", `"foo"`, "Type 'foo' is not assignable to type 'int32'"],
-      ["boolean", `"foo"`, "Type 'foo' is not assignable to type 'boolean'"],
+      ["int32", `"foo"`, `Type '"foo"' is not assignable to type 'int32'`],
+      ["boolean", `"foo"`, `Type '"foo"' is not assignable to type 'boolean'`],
       ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'string'`],
-      [`"foo" | "bar"`, `"foo1"`, "Type 'foo1' is not assignable to type 'foo | bar'"],
+      [`"foo" | "bar"`, `"foo1"`, `Type '"foo1"' is not assignable to type '"foo" | "bar"'`],
     ];
 
     for (const [type, defaultValue, errorMessage] of testCases) {

@@ -294,7 +294,7 @@ export function createDiagnosticCollector(): DiagnosticCollector {
 
 /**
  * Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.
- * @param result: Accessor pattern tuple result including the actual result and the list of diagnostics.
+ * @param result Accessor pattern tuple result including the actual result and the list of diagnostics.
  * @returns Actual result.
  */
 export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
