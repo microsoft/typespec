@@ -198,7 +198,7 @@ export class MarkdownRenderer {
 
     // So we don't show (anonymous model) until this gets improved.
     if (type.kind === "Model" && type.name === "" && type.properties.size > 0) {
-      return inlinecode("");
+      return inlinecode("{...}");
     }
     return inlinecode(
       getTypeName(type, {

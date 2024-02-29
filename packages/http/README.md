@@ -349,7 +349,7 @@ it will be used as a prefix to the route URI of the operation.
 | Name    | Type             | Description                                                                                                                                  |
 | ------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | path    | `valueof string` | Relative route path. Cannot include query parameters.                                                                                        |
-| options | ``               | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
+| options | `{...}`          | Set of parameters used to configure the route. Supports `{shared: true}` which indicates that the route may be shared by several operations. |
 
 ##### Examples
 
@@ -455,7 +455,7 @@ Specify authentication for a whole service or specific methods. See the [documen
 
 ##### Target
 
-`union Namespace | Interface | Operation`
+`Namespace | Interface | Operation`
 
 ##### Parameters
 
