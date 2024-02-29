@@ -210,7 +210,7 @@ describe("properties table", () => {
       code: `model Test { name: string, nested: {val: string, age: int32, third?: boolean} }`,
       rows: [
         "| name | `string` |  |",
-        "| nested | `` |  |",
+        "| nested | `{...}` |  |",
         "| nested.val | `string` |  |",
         "| nested.age | `int32` |  |",
         "| nested.third? | `boolean` |  |",
