@@ -369,7 +369,7 @@ export function isErrorModel(program: Program, target: Type): boolean {
     if (program.stateSet(errorKey).has(current)) {
       return true;
     }
-    current = target.baseModel;
+    current = current.baseModel;
   }
   return false;
 }
