@@ -388,11 +388,13 @@ describe("compiler: built-in decorators", () => {
     });
 
     it("applies @error on derived models", async () => {
-      const { B } = await runner.compile(`
+      const { B, C } = await runner.compile(`
         @error model A { }
         @test model B extends A { }
+        @test model C extends B { }
       `);
       ok(isErrorModel(runner.program, B), "isError should be true");
+      ok(isErrorModel(runner.program, C), "isError should be true");
     });
 
     it("emit diagnostic if error is not applied to a model", async () => {
