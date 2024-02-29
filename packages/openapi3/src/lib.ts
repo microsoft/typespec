@@ -134,6 +134,8 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "How to handle safeint type. Options are:",
         " - `double-int`: Will produce `type: integer, format: double-int`",
         " - `int64`: Will produce `type: integer, format: int64`",
+        "",
+        "Default: `int64`",
       ].join("\n"),
     },
   },

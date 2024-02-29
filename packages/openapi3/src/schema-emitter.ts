@@ -700,11 +700,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
         return { type: "integer", format: "int64" };
       case "safeint":
         switch (this.#options.safeintStrategy) {
-          case "int64":
-            return { type: "integer", format: "int64" };
           case "double-int":
-          default:
             return { type: "integer", format: "double-int" };
+          case "int64":
+          default:
+            return { type: "integer", format: "int64" };
         }
       case "uint8":
         return { type: "integer", format: "uint8" };

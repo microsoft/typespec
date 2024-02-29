@@ -48,17 +48,32 @@ describe("openapi3: primitives", () => {
     }
   });
 
-  it("produce type: integer, format: double-int for safeint when safeint-strategy is double-int", async () => {
-    const res = await openApiFor(
-      `
+  describe("safeint-strategy", () => {
+    it("produce type: integer, format: double-int for safeint when safeint-strategy is double-int", async () => {
+      const res = await openApiFor(
+        `
       model Pet { name: safeint };
       `,
-      undefined,
-      { "safeint-strategy": "double-int" }
-    );
+        undefined,
+        { "safeint-strategy": "double-int" }
+      );
 
-    const schema = res.components.schemas.Pet.properties.name;
-    deepStrictEqual(schema, { type: "integer", format: "double-int" });
+      const schema = res.components.schemas.Pet.properties.name;
+      deepStrictEqual(schema, { type: "integer", format: "double-int" });
+    });
+
+    it("produce type: integer, format: int64 for safeint when safeint-strategy is int64", async () => {
+      const res = await openApiFor(
+        `
+      model Pet { name: safeint };
+      `,
+        undefined,
+        { "safeint-strategy": "int64" }
+      );
+
+      const schema = res.components.schemas.Pet.properties.name;
+      deepStrictEqual(schema, { type: "integer", format: "int64" });
+    });
   });
 
   it("defines models extended from primitives", async () => {
