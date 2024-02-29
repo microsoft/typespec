@@ -79,7 +79,7 @@ model TypeSpec.Http.AuthorizationCodeFlow
 | authorizationUrl | `string`                                         | the authorization URL             |
 | tokenUrl         | `string`                                         | the token URL                     |
 | refreshUrl?      | `string`                                         | the refresh URL                   |
-| scopes           | `string[]`                                       | list of scopes for the credential |
+| scopes?          | `string[]`                                       | list of scopes for the credential |
 
 ### `BadRequestResponse` {#TypeSpec.Http.BadRequestResponse}
 
@@ -175,7 +175,7 @@ model TypeSpec.Http.ClientCredentialsFlow
 | type        | `TypeSpec.Http.OAuth2FlowType.clientCredentials` | client credential flow            |
 | tokenUrl    | `string`                                         | the token URL                     |
 | refreshUrl? | `string`                                         | the refresh URL                   |
-| scopes      | `string[]`                                       | list of scopes for the credential |
+| scopes?     | `string[]`                                       | list of scopes for the credential |
 
 ### `ConflictResponse` {#TypeSpec.Http.ConflictResponse}
 
@@ -249,7 +249,7 @@ model TypeSpec.Http.ImplicitFlow
 | type             | `TypeSpec.Http.OAuth2FlowType.implicit` | implicit flow                     |
 | authorizationUrl | `string`                                | the authorization URL             |
 | refreshUrl?      | `string`                                | the refresh URL                   |
-| scopes           | `string[]`                              | list of scopes for the credential |
+| scopes?          | `string[]`                              | list of scopes for the credential |
 
 ### `LocationHeader` {#TypeSpec.Http.LocationHeader}
 
@@ -279,6 +279,21 @@ model TypeSpec.Http.MovedResponse
 | ---------- | -------- | --------------------------------------------------------------------------------------------------- |
 | statusCode | `301`    | The status code.                                                                                    |
 | location   | `string` | The Location header contains the URL where the status of the long running operation can be checked. |
+
+### `NoAuth` {#TypeSpec.Http.NoAuth}
+
+This authentication option signifies that API is not secured at all.
+It might be useful when overriding authentication on interface of operation level.
+
+```typespec
+model TypeSpec.Http.NoAuth
+```
+
+#### Properties
+
+| Name | Type                            | Description |
+| ---- | ------------------------------- | ----------- |
+| type | `TypeSpec.Http.AuthType.noAuth` |             |
 
 ### `NoContentResponse` {#TypeSpec.Http.NoContentResponse}
 
@@ -331,21 +346,23 @@ For that purpose, an OAuth 2.0 server issues access tokens that the client appli
 For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 ```typespec
-model TypeSpec.Http.OAuth2Auth<Flows>
+model TypeSpec.Http.OAuth2Auth<Flows, Scopes>
 ```
 
 #### Template Parameters
 
-| Name  | Description                        |
-| ----- | ---------------------------------- |
-| Flows | The list of supported OAuth2 flows |
+| Name   | Description                                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Flows  | The list of supported OAuth2 flows                                                                                                               |
+| Scopes | The list of OAuth2 scopes, which are common for every flow from `Flows`. This list is combined with the scopes defined in specific OAuth2 flows. |
 
 #### Properties
 
-| Name  | Type                            | Description |
-| ----- | ------------------------------- | ----------- |
-| type  | `TypeSpec.Http.AuthType.oauth2` |             |
-| flows | `Flows`                         |             |
+| Name          | Type                            | Description |
+| ------------- | ------------------------------- | ----------- |
+| type          | `TypeSpec.Http.AuthType.oauth2` |             |
+| flows         | `Flows`                         |             |
+| defaultScopes | `Scopes`                        |             |
 
 ### `OkResponse` {#TypeSpec.Http.OkResponse}
 
@@ -404,7 +421,7 @@ model TypeSpec.Http.PasswordFlow
 | type             | `TypeSpec.Http.OAuth2FlowType.password` | password flow                     |
 | authorizationUrl | `string`                                | the authorization URL             |
 | refreshUrl?      | `string`                                | the refresh URL                   |
-| scopes           | `string[]`                              | list of scopes for the credential |
+| scopes?          | `string[]`                              | list of scopes for the credential |
 
 ### `PlainData` {#TypeSpec.Http.PlainData}
 

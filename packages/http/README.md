@@ -447,7 +447,7 @@ op create(): {@statusCode: 201 | 202}
 
 #### `@useAuth`
 
-Specify this service authentication. See the [documentation in the Http library](https://typespec.io/docs/libraries/http/authentication) for full details.
+Specify authentication for a whole service or specific methods. See the [documentation in the Http library](https://typespec.io/docs/libraries/http/authentication) for full details.
 
 ```typespec
 @TypeSpec.Http.useAuth(auth: {} | Union | {}[])
@@ -455,7 +455,7 @@ Specify this service authentication. See the [documentation in the Http library]
 
 ##### Target
 
-`Namespace`
+`union Namespace | Interface | Operation`
 
 ##### Parameters
 
