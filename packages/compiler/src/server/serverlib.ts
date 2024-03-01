@@ -635,17 +635,10 @@ export function createServer(host: ServerHost): Server {
         return resolveTspMain(pkg) ?? pkg.main;
       },
     });
-    if (resolved.type === "file") {
-      return {
-        uri: fileService.getURL(resolved.path),
-        range: Range.create(0, 0, 0, 0),
-      };
-    } else {
-      return {
-        uri: fileService.getURL(resolved.mainFile),
-        range: Range.create(0, 0, 0, 0),
-      };
-    }
+    return {
+      uri: fileService.getURL(resolved.type === "file" ? resolved.path : resolved.mainFile),
+      range: Range.create(0, 0, 0, 0),
+    };
   }
 
   async function complete(params: CompletionParams): Promise<CompletionList> {
