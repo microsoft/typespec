@@ -1,5 +1,8 @@
 import {
   DecoratorContext,
+  getDoc,
+  getService,
+  getSummary,
   Model,
   Namespace,
   Operation,
@@ -107,7 +110,7 @@ const externalDocsKey = createStateSymbol("externalDocs");
 /**
  * Allows referencing an external resource for extended documentation.
  * @param url The URL for the target documentation. Value MUST be in the format of a URL.
- * @param @optional description A short description of the target documentation.
+ * @param description A short description of the target documentation.
  */
 export function $externalDocs(
   context: DecoratorContext,
@@ -128,11 +131,35 @@ export function getExternalDocs(program: Program, entity: Type): ExternalDocs | 
 
 const infoKey = createStateSymbol("info");
 export function $info(context: DecoratorContext, entity: Namespace, model: Model) {
-  const [data, diagnostics] = typespecTypeToJson(model, context.getArgumentTarget(0)!);
+  const [data, diagnostics] = typespecTypeToJson<AdditionalInfo>(
+    model,
+    context.getArgumentTarget(0)!
+  );
   context.program.reportDiagnostics(diagnostics);
+  if (data === undefined) {
+    return;
+  }
   context.program.stateMap(infoKey).set(entity, data);
 }
 
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   return program.stateMap(infoKey).get(entity);
+}
+
+/** Resolve the info entry by merging data specified with `@service`, `@summary` and `@info`. */
+export function resolveInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
+  const info = getInfo(program, entity);
+  const service = getService(program, entity);
+  return omitUndefined({
+    ...info,
+    title: info?.title ?? service?.title,
+    // eslint-disable-next-line deprecation/deprecation
+    version: info?.version ?? service?.version,
+    summary: info?.summary ?? getSummary(program, entity),
+    description: info?.description ?? getDoc(program, entity),
+  });
+}
+
+function omitUndefined<T extends Record<string, unknown>>(data: T): T {
+  return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }

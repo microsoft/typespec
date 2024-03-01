@@ -23,6 +23,12 @@ model TypeSpec.JsonSchema.Json<Data>
 | ---- | ------------------------------- |
 | Data | the type to convert to raw JSON |
 
+#### Properties
+
+| Name  | Type   | Description |
+| ----- | ------ | ----------- |
+| value | `Data` |             |
+
 ### `Format` {#TypeSpec.JsonSchema.Format}
 
 Well-known JSON Schema formats.

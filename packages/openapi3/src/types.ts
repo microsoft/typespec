@@ -662,6 +662,7 @@ export type OpenAPI3Operation = Extensions & {
   requestBody?: any;
   parameters: OpenAPI3Parameter[];
   deprecated?: boolean;
+  security?: Record<string, string[]>[];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
