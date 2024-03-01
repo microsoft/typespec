@@ -10,7 +10,7 @@ A codefix takes 3 arguments:
 
 - `id`: A unique identifier for the code fix.
 - `label`: A human-readable label for the code fix.
-- `fix`: The implementation of the codefix. Takes in a context that allows to do patch operation on the source code. The fix function should return the list of changes to apply to the source code.
+- `fix`: The implementation of the codefix. Takes in a context that allows patch operations on the source code. The fix function should return the list of changes to apply to the source code.
 
 ```ts
 import { defineCodeFix, getSourceLocation, type IdentifierNode } from "@typespec/compiler";
