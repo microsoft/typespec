@@ -252,7 +252,7 @@ export async function registerMonacoLanguage(host: BrowserHost) {
         let itemRange = range;
         let insertText = item.insertText!;
         if (item.textEdit && "range" in item.textEdit) {
-          itemRange = monacoRange(item.textEdit.range);
+          itemRange = LspToMonaco.range(item.textEdit.range);
           insertText = item.textEdit.newText;
         }
         suggestions.push({
