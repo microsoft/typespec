@@ -185,7 +185,7 @@ describe("required-doc rule", () => {
 
 ### Testing linter with codefixes
 
-The linter rule tester provide an API to easily test a codefix. This is a different approach to the standalone codefix tester which is more targeted at testing codefixes in isolation.
+The linter rule tester provides an API to easily test a codefix. This is a different approach from the standalone codefix tester, which is more targeted at testing codefixes in isolation.
 
 This can be done with calling `applyCodeFix` with the fix id. It will expect a single diagnostic to be emitted with a codefix with the given id.
 Then calling `toEqual` with the expected code after the codefix is applied.
