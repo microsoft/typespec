@@ -1,0 +1,21 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: Car.yaml
+type: object
+properties:
+  kind:
+    anyOf:
+      - type: string
+        const: ev
+      - type: string
+        const: ice
+    description: Kind of car
+  brand:
+    type: string
+    description: Brand of the car
+  model:
+    type: string
+    description: Model of the car
+required:
+  - kind
+  - brand
+  - model

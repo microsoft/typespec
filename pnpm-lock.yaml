@@ -944,6 +944,12 @@ importers:
       '@vitejs/plugin-react':
         specifier: ~4.2.1
         version: 4.2.1(vite@5.1.0)
+      '@vitest/coverage-v8':
+        specifier: ^1.2.2
+        version: 1.2.2(vitest@1.2.2)
+      '@vitest/ui':
+        specifier: ^1.2.2
+        version: 1.2.2(vitest@1.2.2)
       c8:
         specifier: ^9.1.0
         version: 9.1.0
@@ -965,6 +971,9 @@ importers:
       vite:
         specifier: ^5.1.0
         version: 5.1.0(@types/node@18.11.19)
+      vitest:
+        specifier: ^1.2.2
+        version: 1.2.2(@types/node@18.11.19)(@vitest/ui@1.2.2)
 
   packages/prettier-plugin-typespec:
     dependencies:

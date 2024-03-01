@@ -4,7 +4,6 @@ using TypeSpec.Http;
 
 @service({
   title: "Accounting firm",
-  version: "1.0.0",
 })
 namespace MyOrg.Accounting;
 

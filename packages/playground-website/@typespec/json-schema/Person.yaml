@@ -1,0 +1,34 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: Person.yaml
+type: object
+properties:
+  firstName:
+    type: string
+    description: The person's first name.
+  lastName:
+    type: string
+    description: The person's last name.
+  age:
+    type: integer
+    minimum: 0
+    maximum: 2147483647
+    description: Age in years which must be equal to or greater than zero.
+  address:
+    $ref: Address.yaml
+    description: Person address
+  nickNames:
+    type: array
+    items:
+      type: string
+    uniqueItems: true
+    description: List of nick names
+  cars:
+    type: array
+    items:
+      $ref: Car.yaml
+    description: List of cars person owns
+required:
+  - firstName
+  - lastName
+  - age
+  - address
