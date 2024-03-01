@@ -1,0 +1,57 @@
+openapi: 3.0.0
+info:
+  title: Authenticated service with method override
+  version: 0.0.0
+tags: []
+paths:
+  /one:
+    get:
+      operationId: one
+      parameters: []
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+  /three:
+    get:
+      operationId: three
+      parameters: []
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      security:
+        - OAuth2Auth:
+            - delete
+  /two:
+    get:
+      operationId: two
+      parameters: []
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      security:
+        - {}
+        - ApiKeyAuth: []
+security:
+  - BearerAuth: []
+  - OAuth2Auth:
+      - read
+      - write
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    OAuth2Auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://api.example.com/oauth2/authorize
+          refreshUrl: https://api.example.com/oauth2/refresh
+          scopes:
+            read: ''
+            write: ''
+            delete: ''
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-my-header

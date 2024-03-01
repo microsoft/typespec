@@ -36,10 +36,10 @@ export type InferredTypeSpecValue<K extends TypeKind> =
 
 /**
  * Validate the decorator target is matching the expected value.
- * @param program
+ * @param context
  * @param target
- * @param expectedType
  * @param decoratorName
+ * @param expectedType
  * @returns
  */
 export function validateDecoratorTarget<K extends TypeKind>(

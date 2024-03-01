@@ -86,6 +86,17 @@ By default all types declared under the service namespace will be included. With
 If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.
 This extension is meant for debugging and should not be depended on.
 
+#### `safeint-strategy`
+
+**Type:** `"double-int" | "int64"`
+
+How to handle safeint type. Options are:
+
+- `double-int`: Will produce `type: integer, format: double-int`
+- `int64`: Will produce `type: integer, format: int64`
+
+Default: `int64`
+
 ## Decorators
 
 ### TypeSpec.OpenAPI
@@ -103,7 +114,7 @@ Specify that `oneOf` should be used instead of `anyOf` for that union.
 
 ##### Target
 
-`union Union | ModelProperty`
+`Union | ModelProperty`
 
 ##### Parameters
 
@@ -119,10 +130,10 @@ Specify an external reference that should be used inside of emitting this type.
 
 ##### Target
 
-`union Model | ModelProperty`
+`Model | ModelProperty`
 
 ##### Parameters
 
-| Name | Type                    | Description                                                          |
-| ---- | ----------------------- | -------------------------------------------------------------------- |
-| ref  | `valueof scalar string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |
+| Name | Type             | Description                                                          |
+| ---- | ---------------- | -------------------------------------------------------------------- |
+| ref  | `valueof string` | External reference(e.g. "../../common.json#/components/schemas/Foo") |
