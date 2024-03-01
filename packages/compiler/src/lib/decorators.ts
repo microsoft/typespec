@@ -91,7 +91,7 @@ export interface DocData {
 
   /**
    * How was the doc set.
-   * - `@doc` means the `@doc` decorator was used
+   * - `decorator` means the `@doc` decorator was used
    * - `comment` means it was set from a `/** comment * /`
    */
   source: "decorator" | "comment";
