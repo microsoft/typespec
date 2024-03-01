@@ -5,7 +5,7 @@ title: TypeSpec Visual Studio Extension
 ## Installation
 
 :::note
-Extension is not available yet in the marketplace and must be installed via the command line.
+Install the extension via the Visual Studio extension manager. [TypeSpec for Visual Studio - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespecvs)
 :::
 
 ```bash
