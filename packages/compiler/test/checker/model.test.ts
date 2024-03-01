@@ -2,7 +2,7 @@ import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
-import { Operation, getDoc, isArrayModelType } from "../../src/index.js";
+import { Operation, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
@@ -397,24 +397,6 @@ describe("compiler: models", () => {
       );
       const { Spread } = (await testHost.compile("main.tsp")) as { Spread: Model };
       strictEqual((Spread.properties.get("h1")!.type as any)!.value, "test");
-    });
-
-    it("can decorate spread properties independently", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        @test model Base {@doc("base doc") one: string}
-        @test model Spread {...Base}
-
-        @@doc(Spread.one, "override for spread");
-        `
-      );
-      const { Base, Spread } = (await testHost.compile("main.tsp")) as {
-        Base: Model;
-        Spread: Model;
-      };
-      strictEqual(getDoc(testHost.program, Spread.properties.get("one")!), "override for spread");
-      strictEqual(getDoc(testHost.program, Base.properties.get("one")!), "base doc");
     });
 
     it("keeps reference of children", async () => {
@@ -847,6 +829,102 @@ describe("compiler: models", () => {
       strictEqual((C as Model).properties.size, 2);
       strictEqual(((C as Model).properties.get("c")?.type as any).name, "int32");
       strictEqual(((C as Model).properties.get("b")?.type as any).name, "B");
+    });
+  });
+
+  describe("spread", () => {
+    it("can decorate spread properties independently", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Base {@doc("base doc") one: string}
+        @test model Spread {...Base}
+
+        @@doc(Spread.one, "override for spread");
+        `
+      );
+      const { Base, Spread } = (await testHost.compile("main.tsp")) as {
+        Base: Model;
+        Spread: Model;
+      };
+      strictEqual(getDoc(testHost.program, Spread.properties.get("one")!), "override for spread");
+      strictEqual(getDoc(testHost.program, Base.properties.get("one")!), "base doc");
+    });
+
+    it("can spread a Record<T>", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {...Record<int32>;}
+        `
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      strictEqual(Test.indexer?.key.name, "string");
+      strictEqual(Test.indexer?.value.kind, "Scalar");
+      strictEqual(Test.indexer?.value.name, "int32");
+    });
+
+    it("can spread a Record<T> with different value than existing props", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {
+          name: string;
+          ...Record<int32>;
+        }
+        `
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      const nameProp = Test.properties.get("name");
+      strictEqual(nameProp?.type.kind, "Scalar");
+      strictEqual(nameProp?.type.name, "string");
+      strictEqual(Test.indexer?.key.name, "string");
+      strictEqual(Test.indexer?.value.kind, "Scalar");
+      strictEqual(Test.indexer?.value.name, "int32");
+    });
+
+    it("can spread different records", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {
+          ...Record<int32>;
+          ...Record<string>;
+        }
+        `
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      strictEqual(Test.indexer?.key.name, "string");
+      const indexerValue = Test.indexer?.value;
+      strictEqual(indexerValue.kind, "Union");
+      const options = [...indexerValue.variants.values()].map((x) => x.type);
+      strictEqual(options[0].kind, "Scalar");
+      strictEqual(options[0].name, "int32");
+      strictEqual(options[1].kind, "Scalar");
+      strictEqual(options[1].name, "string");
+    });
+
+    it("emit diagnostic if spreading an T[]", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {...Array<int32>;}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "spread-model",
+        message: "Cannot spread properties of non-model type.",
+      });
     });
   });
 
