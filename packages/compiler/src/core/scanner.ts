@@ -15,8 +15,9 @@ import {
   isWhiteSpaceSingleLine,
   utf16CodeUnits,
 } from "./charcode.js";
-import { DiagnosticHandler, compilerAssert, createSourceFile } from "./diagnostics.js";
+import { DiagnosticHandler, compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import { createSourceFile } from "./source-file.js";
 import { DiagnosticReport, SourceFile, TextRange } from "./types.js";
 
 // All conflict markers consist of the same character repeated seven times.  If it is

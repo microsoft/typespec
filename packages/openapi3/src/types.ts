@@ -1,3 +1,4 @@
+import { Diagnostic, Service } from "@typespec/compiler";
 import { ExtensionKey } from "@typespec/openapi";
 
 export type Extensions = {
@@ -37,6 +38,57 @@ export interface OpenAPI3Document extends Extensions {
 
   /** A declaration of which security mechanisms can be used across the API. The list of values includes alternative security requirement objects that can be used. Only one of the security requirement objects need to be satisfied to authorize a request. Individual operations can override this definition. */
   security?: Record<string, string[]>[];
+}
+
+/**
+ * A record containing the the OpenAPI 3 documents corresponding to
+ * a particular service definition.
+ */
+export type OpenAPI3ServiceRecord =
+  | OpenAPI3UnversionedServiceRecord
+  | OpenAPI3VersionedServiceRecord;
+
+export interface OpenAPI3UnversionedServiceRecord {
+  /** The service that generated this OpenAPI document */
+  readonly service: Service;
+
+  /** Whether the service is versioned */
+  readonly versioned: false;
+
+  /** The OpenAPI 3 document */
+  readonly document: OpenAPI3Document;
+
+  /** The diagnostics created for this document */
+  readonly diagnostics: readonly Diagnostic[];
+}
+
+export interface OpenAPI3VersionedServiceRecord {
+  /** The service that generated this OpenAPI document */
+  readonly service: Service;
+
+  /** Whether the service is versioned */
+  readonly versioned: true;
+
+  /** The OpenAPI 3 document records for each version of this service */
+  readonly versions: OpenAPI3VersionedDocumentRecord[];
+}
+
+/**
+ * A record containing an unversioned OpenAPI document and associated metadata.
+ */
+
+export interface OpenAPI3VersionedDocumentRecord {
+  /** The OpenAPI document*/
+  readonly document: OpenAPI3Document;
+
+  /** The service that generated this OpenAPI document. */
+  readonly service: Service;
+
+  /** The version of the service. Absent if the service is unversioned. */
+  readonly version: string;
+
+  /** The diagnostics created for this version. */
+  readonly diagnostics: readonly Diagnostic[];
 }
 
 export interface OpenAPI3Info extends Extensions {
@@ -610,6 +662,7 @@ export type OpenAPI3Operation = Extensions & {
   requestBody?: any;
   parameters: OpenAPI3Parameter[];
   deprecated?: boolean;
+  security?: Record<string, string[]>[];
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

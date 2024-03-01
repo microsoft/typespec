@@ -1,5 +1,5 @@
+import { isArray } from "../../utils/misc.js";
 import { Enum, Interface, Model, Namespace, Operation, Tuple, Type, Union } from "../types.js";
-import { isArray } from "../util.js";
 
 // prettier-ignore
 export enum UsageFlags {

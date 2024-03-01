@@ -1,3 +1,4 @@
+import { isArray, mutate } from "../utils/misc.js";
 import { trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
@@ -109,7 +110,6 @@ import {
   ValueOfExpressionNode,
   VoidKeywordNode,
 } from "./types.js";
-import { isArray, mutate } from "./util.js";
 
 /**
  * Callback to parse each element in a delimited list

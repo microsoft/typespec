@@ -1917,7 +1917,7 @@ export interface CompilerHost {
    * @param path Path to the directory.
    * @returns list of file/directory in the given directory. Returns the name not the full path.
    */
-  readDir(dir: string): Promise<string[]>;
+  readDir(path: string): Promise<string[]>;
 
   /**
    * Deletes a directory or file.
@@ -2318,7 +2318,7 @@ export interface Tracer {
   trace(area: string, message: string, target?: DiagnosticTarget): void;
 
   /**
-   * @param area
+   * @param subarea
    */
   sub(subarea: string): Tracer;
 }

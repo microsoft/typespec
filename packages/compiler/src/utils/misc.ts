@@ -1,14 +1,14 @@
-import { createSourceFile, DiagnosticHandler } from "./diagnostics.js";
-import { createDiagnostic } from "./messages.js";
+import { DiagnosticHandler } from "../core/diagnostics.js";
+import { createDiagnostic } from "../core/messages.js";
 import {
-  getAnyExtensionFromPath,
   getDirectoryPath,
   isPathAbsolute,
   isUrl,
   joinPaths,
   normalizePath,
   resolvePath,
-} from "./path-utils.js";
+} from "../core/path-utils.js";
+import { createSourceFile } from "../core/source-file.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -16,10 +16,9 @@ import {
   NoTarget,
   RekeyableMap,
   SourceFile,
-  SourceFileKind,
   Sym,
   SymbolTable,
-} from "./types.js";
+} from "../core/types.js";
 
 export { typespecVersion } from "../manifest.js";
 
@@ -438,17 +437,6 @@ export function mutate<T>(value: T): Mutable<T> {
   return value as Mutable<T>;
 }
 
-export function getSourceFileKindFromExt(path: string): SourceFileKind | undefined {
-  const ext = getAnyExtensionFromPath(path);
-  if (ext === ".js" || ext === ".mjs") {
-    return "js";
-  } else if (ext === ".tsp" || ext === ".cadl") {
-    return "typespec";
-  } else {
-    return undefined;
-  }
-}
-
 export function createStringMap<T>(caseInsensitive: boolean): Map<string, T> {
   return caseInsensitive ? new CaseInsensitiveMap<T>() : new Map<string, T>();
 }
@@ -465,38 +453,6 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
   }
   delete(key: string) {
     return super.delete(key.toUpperCase());
-  }
-}
-
-/**
- * Helper class to track duplicate instance
- */
-export class DuplicateTracker<K, V> {
-  #entries = new Map<K, V[]>();
-
-  /**
-   * Track usage of K.
-   * @param k key that is being checked for duplicate.
-   * @param v value that map to the key
-   */
-  track(k: K, v: V) {
-    const existing = this.#entries.get(k);
-    if (existing === undefined) {
-      this.#entries.set(k, [v]);
-    } else {
-      existing.push(v);
-    }
-  }
-
-  /**
-   * Return iterator of all the duplicate entries.
-   */
-  *entries(): Iterable<[K, V[]]> {
-    for (const [k, v] of this.#entries.entries()) {
-      if (v.length > 1) {
-        yield [k, v];
-      }
-    }
   }
 }
 

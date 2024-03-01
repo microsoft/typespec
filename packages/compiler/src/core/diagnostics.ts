@@ -1,6 +1,6 @@
-import { CharCode } from "./charcode.js";
 import { formatLog } from "./logger/index.js";
 import type { Program } from "./program.js";
+import { createSourceFile } from "./source-file.js";
 import {
   Diagnostic,
   DiagnosticResult,
@@ -9,7 +9,6 @@ import {
   Node,
   NodeFlags,
   NoTarget,
-  SourceFile,
   SourceLocation,
   SymbolFlags,
   SyntaxKind,
@@ -50,42 +49,6 @@ export function formatDiagnostic(diagnostic: Diagnostic) {
     },
     { pretty: false }
   );
-}
-
-export function createSourceFile(text: string, path: string): SourceFile {
-  let lineStarts: number[] | undefined = undefined;
-
-  return {
-    text,
-    path,
-    getLineStarts,
-    getLineAndCharacterOfPosition,
-  };
-
-  function getLineStarts() {
-    return (lineStarts = lineStarts ?? scanLineStarts(text));
-  }
-
-  function getLineAndCharacterOfPosition(position: number) {
-    const starts = getLineStarts();
-
-    let line = binarySearch(starts, position);
-
-    // When binarySearch returns < 0 indicating that the value was not found, it
-    // returns the bitwise complement of the index where the value would need to
-    // be inserted to keep the array sorted. So flipping the bits back to this
-    // positive index tells us what the line number would be if we were to
-    // create a new line starting at the given position, and subtracting 1 from
-    // that therefore gives us the line number we're after.
-    if (line < 0) {
-      line = ~line - 1;
-    }
-
-    return {
-      line,
-      character: position - starts[line],
-    };
-  }
 }
 
 export interface SourceLocationOptions {
@@ -241,55 +204,6 @@ export function compilerAssert(
   throw new Error(message);
 }
 
-function scanLineStarts(text: string): number[] {
-  const starts = [];
-  let start = 0;
-  let pos = 0;
-
-  while (pos < text.length) {
-    const ch = text.charCodeAt(pos);
-    pos++;
-    switch (ch) {
-      case CharCode.CarriageReturn:
-        if (text.charCodeAt(pos) === CharCode.LineFeed) {
-          pos++;
-        }
-      // fallthrough
-      case CharCode.LineFeed:
-        starts.push(start);
-        start = pos;
-        break;
-    }
-  }
-
-  starts.push(start);
-  return starts;
-}
-
-/**
- * Search sorted array of numbers for the given value. If found, return index
- * in array where value was found. If not found, return a negative number that
- * is the bitwise complement of the index where value would need to be inserted
- * to keep the array sorted.
- */
-function binarySearch(array: readonly number[], value: number) {
-  let low = 0;
-  let high = array.length - 1;
-  while (low <= high) {
-    const middle = low + ((high - low) >> 1);
-    const v = array[middle];
-    if (v < value) {
-      low = middle + 1;
-    } else if (v > value) {
-      high = middle - 1;
-    } else {
-      return middle;
-    }
-  }
-
-  return ~low;
-}
-
 /**
  * Assert that the input type has one of the kinds provided
  */
@@ -380,7 +294,7 @@ export function createDiagnosticCollector(): DiagnosticCollector {
 
 /**
  * Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.
- * @param result: Accessor pattern tuple result including the actual result and the list of diagnostics.
+ * @param result Accessor pattern tuple result including the actual result and the list of diagnostics.
  * @returns Actual result.
  */
 export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {

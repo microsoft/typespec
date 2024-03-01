@@ -3,11 +3,11 @@ import {
   Namespace,
   Operation,
   Program,
-  TwoLevelMap,
   Type,
   ignoreDiagnostics,
   navigateTypesInNamespace,
 } from "@typespec/compiler";
+import { TwoLevelMap } from "@typespec/compiler/utils";
 import {
   MetadataInfo,
   Visibility,
