@@ -1,0 +1,32 @@
+openapi: 3.0.0
+info:
+  title: Authenticated service with interface override
+  version: 0.0.0
+tags: []
+paths:
+  /one:
+    get:
+      operationId: one
+      parameters: []
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+  /two:
+    get:
+      operationId: Sample_two
+      parameters: []
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      security:
+        - BasicAuth: []
+security:
+  - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+    BasicAuth:
+      type: http
+      scheme: basic

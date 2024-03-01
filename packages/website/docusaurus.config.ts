@@ -142,15 +142,14 @@ const config: Config = {
       return {
         name: "custom-configure-webpack",
         configureWebpack: (config, isServer, utils) => {
+          // Need to change the font rule to use asset/resource
+          const fontRule = config.module.rules.find(
+            (x) => typeof x === "object" && x.test?.toString().includes("ttf")
+          );
+          delete (fontRule as any).use;
+          (fontRule as any).type = "asset/resource";
+
           return {
-            module: {
-              rules: [
-                {
-                  test: /\.ttf$/,
-                  use: ["file-loader"],
-                },
-              ],
-            },
             plugins: [
               new MonacoWebpackPlugin({
                 languages: ["json"],

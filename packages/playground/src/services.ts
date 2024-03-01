@@ -249,12 +249,18 @@ export async function registerMonacoLanguage(host: BrowserHost) {
 
       const suggestions: monaco.languages.CompletionItem[] = [];
       for (const item of result.items) {
+        let itemRange = range;
+        let insertText = item.insertText!;
+        if (item.textEdit && "range" in item.textEdit) {
+          itemRange = monacoRange(item.textEdit.range);
+          insertText = item.textEdit.newText;
+        }
         suggestions.push({
           label: item.label,
           kind: item.kind as any,
           documentation: item.documentation,
-          insertText: item.insertText!,
-          range,
+          insertText,
+          range: itemRange,
           commitCharacters:
             item.commitCharacters ?? lsConfig.capabilities.completionProvider!.allCommitCharacters,
           tags: item.tags,

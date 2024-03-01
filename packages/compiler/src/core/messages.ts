@@ -298,6 +298,12 @@ const diagnostics = {
       array: "Cannot intersect an array model.",
     },
   },
+  "incompatible-indexer": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property is incompatible with indexer:\n${"message"}`,
+    },
+  },
   "no-array-properties": {
     severity: "error",
     messages: {
@@ -852,6 +858,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
+    },
+  },
+  "circular-constraint": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type parameter '${"typeName"}' has a circular constraint.`,
     },
   },
   "circular-op-signature": {

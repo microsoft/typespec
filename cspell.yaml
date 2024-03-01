@@ -30,6 +30,7 @@ words:
   - eastus
   - ecmarkup
   - esbuild
+  - ESRP
   - fluentui
   - genproto
   - globby
@@ -69,6 +70,7 @@ words:
   - protoc
   - pwsh
   - regen
+  - respecify
   - rpaas
   - rushx
   - safeint
@@ -107,7 +109,7 @@ ignorePaths:
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
   - "**/coverage/**"
-  - "grammars/**"
+  - grammars/**
   - packages/website/build/**
   - common/scripts/*
   - "**/ThirdPartyNotices.txt"

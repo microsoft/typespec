@@ -18,7 +18,10 @@ describe("openapi3: info", () => {
   it("set the service version with @service", async () => {
     const res = await openApiFor(
       `
-      @service({version: "1.2.3-test"})
+      @service({
+        #suppress "deprecated" "For test"
+        version: "1.2.3-test"
+      })
       namespace Foo {
         op test(): string;
       }
@@ -78,7 +81,7 @@ describe("openapi3: info", () => {
     );
     deepStrictEqual(res.info, {
       title: "(title)",
-      version: "0000-00-00",
+      version: "0.0.0",
       termsOfService: "http://example.com/terms/",
       contact: {
         name: "API Support",

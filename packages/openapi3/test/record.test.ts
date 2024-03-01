@@ -36,4 +36,36 @@ describe("openapi3: Record", () => {
       additionalProperties: { type: "integer", format: "int32" },
     });
   });
+
+  it("specify additionalProperties when `...Record<T>`", async () => {
+    const res = await oapiForModel(
+      "Person",
+      `
+      model Person {age: int32, ...Record<string>}
+      `
+    );
+
+    deepStrictEqual(res.schemas.Person, {
+      type: "object",
+      properties: { age: { type: "integer", format: "int32" } },
+      additionalProperties: { type: "string" },
+      required: ["age"],
+    });
+  });
+
+  it("specify additionalProperties of anyOf when multiple `...Record<T>`", async () => {
+    const res = await oapiForModel(
+      "Person",
+      `
+      model Person {age: int32, ...Record<string>, ...Record<boolean>}
+      `
+    );
+
+    deepStrictEqual(res.schemas.Person, {
+      type: "object",
+      properties: { age: { type: "integer", format: "int32" } },
+      additionalProperties: { anyOf: [{ type: "string" }, { type: "boolean" }] },
+      required: ["age"],
+    });
+  });
 });
