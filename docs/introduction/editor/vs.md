@@ -4,9 +4,7 @@ title: TypeSpec Visual Studio Extension
 
 ## Installation
 
-:::note
 Install the extension via the Visual Studio extension manager. [TypeSpec for Visual Studio - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=typespec.typespecvs)
-:::
 
 ```bash
 tsp vs install
