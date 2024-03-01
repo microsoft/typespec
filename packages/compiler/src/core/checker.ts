@@ -2119,28 +2119,43 @@ export function createChecker(program: Program): Checker {
   }
 
   function getModelContext(model: ModelExpressionNode | ModelStatementNode) {
-    let current: Node | undefined = model.parent;
-    while (current !== undefined) {
-      if (current.kind === SyntaxKind.DecoratorExpression) {
-        console.log("Curr", current);
-        const sym = resolveTypeReferenceSym(current.target, undefined, true);
+    let current: Node = model;
+    while (current.parent !== undefined) {
+      if (
+        current.parent.kind === SyntaxKind.DecoratorExpression ||
+        current.parent.kind === SyntaxKind.AugmentDecoratorStatement
+      ) {
+        const argIndex = current.parent.arguments.indexOf(current as any);
+        const sym = resolveTypeReferenceSym(current.parent.target, undefined, true);
         if (sym) {
           const links = getSymbolLinks(sym);
           const type = links.declaredType;
-          if (type) {
-            return;
+          if (type && type.kind === "Decorator") {
+            return type.parameters[
+              current.parent.kind === SyntaxKind.AugmentDecoratorStatement ? argIndex - 1 : argIndex
+            ]?.type;
           }
-          return;
+          return undefined;
         }
-        return;
+        return undefined;
       }
       current = current.parent;
     }
+    return undefined;
   }
-  function getCompletionForModelProperty(
-    model: ModelExpressionNode | ModelStatementNode
-  ): string[] {
+
+  function getCompletionForModelProperty(model: ModelExpressionNode | ModelStatementNode): Sym[] {
     const context = getModelContext(model);
+    if (context) {
+      switch (context.kind) {
+        case "Model":
+          const members = context.node?.symbol.members;
+          if (members) {
+            const table = getOrCreateAugmentedSymbolTable(members);
+            return [...table.values()];
+          }
+      }
+    }
     return [];
   }
   function resolveCompletions(identifier: IdentifierNode): Map<string, TypeSpecCompletionItem> {
@@ -2158,8 +2173,10 @@ export function createChecker(program: Program): Checker {
       case IdentifierKind.Declaration:
         return completions; // cannot complete, name can be chosen arbitrarily
       case IdentifierKind.ModelProperty: {
-        const props = getCompletionForModelProperty(ancestor.parent! as any);
-        console.log("Props", props);
+        const symbols = getCompletionForModelProperty(ancestor.parent! as any);
+        for (const sym of symbols) {
+          addCompletion(sym.name, sym);
+        }
         return completions;
       }
 
@@ -2298,6 +2315,8 @@ export function createChecker(program: Program): Checker {
           return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
         case IdentifierKind.TemplateArgument:
           return !!(sym.flags & SymbolFlags.TemplateParameter);
+        case IdentifierKind.ModelProperty:
+          return !!(sym.flags & SymbolFlags.ModelProperty);
         default:
           compilerAssert(false, "We should have bailed up-front on other kinds.");
       }
