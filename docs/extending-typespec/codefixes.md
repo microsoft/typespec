@@ -4,7 +4,7 @@ title: Code fixes
 
 ## Define a code fix
 
-A code fix can be defined using the `defineCodeFix` function which is just here to help with typing. It doesn't needs to be declared separately from being reported but doing so allows you to test it.
+A code fix can be defined using the `defineCodeFix` function which is just here to help with typing. It doesn't need to be declared separately from being reported but doing so allows you to test it.
 
 A codefix takes 3 arguments:
 
