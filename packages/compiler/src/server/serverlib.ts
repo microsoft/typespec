@@ -604,6 +604,7 @@ export function createServer(host: ServerHost): Server {
       id?.kind === SyntaxKind.Identifier ? result.program.checker.resolveIdentifier(id) : undefined;
     return getLocations(sym?.declarations);
   }
+
   async function complete(params: CompletionParams): Promise<CompletionList> {
     const completions: CompletionList = {
       isIncomplete: false,

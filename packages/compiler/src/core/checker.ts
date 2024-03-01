@@ -2039,6 +2039,7 @@ export function createChecker(program: Program): Checker {
     const { node, kind } = getIdentifierContext(id);
 
     switch (kind) {
+      case IdentifierKind.ModelProperty:
       case IdentifierKind.Declaration:
         if (node.symbol && (!isTemplatedNode(node) || mapper === undefined)) {
           sym = getMergedSymbol(node.symbol);
@@ -2117,6 +2118,46 @@ export function createChecker(program: Program): Checker {
     return (resolved?.declarations.filter((n) => isTemplatedNode(n)) ?? []) as TemplateableNode[];
   }
 
+  function getModelContext(model: ModelExpressionNode | ModelStatementNode) {
+    let current: Node = model;
+    while (current.parent !== undefined) {
+      if (
+        current.parent.kind === SyntaxKind.DecoratorExpression ||
+        current.parent.kind === SyntaxKind.AugmentDecoratorStatement
+      ) {
+        const argIndex = current.parent.arguments.indexOf(current as any);
+        const sym = resolveTypeReferenceSym(current.parent.target, undefined, true);
+        if (sym) {
+          const links = getSymbolLinks(sym);
+          const type = links.declaredType;
+          if (type && type.kind === "Decorator") {
+            return type.parameters[
+              current.parent.kind === SyntaxKind.AugmentDecoratorStatement ? argIndex - 1 : argIndex
+            ]?.type;
+          }
+          return undefined;
+        }
+        return undefined;
+      }
+      current = current.parent;
+    }
+    return undefined;
+  }
+
+  function getCompletionForModelProperty(model: ModelExpressionNode | ModelStatementNode): Sym[] {
+    const context = getModelContext(model);
+    if (context) {
+      switch (context.kind) {
+        case "Model":
+          const members = context.node?.symbol.members;
+          if (members) {
+            const table = getOrCreateAugmentedSymbolTable(members);
+            return [...table.values()];
+          }
+      }
+    }
+    return [];
+  }
   function resolveCompletions(identifier: IdentifierNode): Map<string, TypeSpecCompletionItem> {
     const completions = new Map<string, TypeSpecCompletionItem>();
     const { kind, node: ancestor } = getIdentifierContext(identifier);
@@ -2131,6 +2172,14 @@ export function createChecker(program: Program): Checker {
         return completions; // not implemented
       case IdentifierKind.Declaration:
         return completions; // cannot complete, name can be chosen arbitrarily
+      case IdentifierKind.ModelProperty: {
+        const symbols = getCompletionForModelProperty(ancestor.parent! as any);
+        for (const sym of symbols) {
+          addCompletion(sym.name, sym);
+        }
+        return completions;
+      }
+
       case IdentifierKind.TemplateArgument: {
         const templates = getTemplateDeclarationsForArgument(
           ancestor as TemplateArgumentNode,
@@ -2266,6 +2315,8 @@ export function createChecker(program: Program): Checker {
           return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
         case IdentifierKind.TemplateArgument:
           return !!(sym.flags & SymbolFlags.TemplateParameter);
+        case IdentifierKind.ModelProperty:
+          return !!(sym.flags & SymbolFlags.ModelProperty);
         default:
           compilerAssert(false, "We should have bailed up-front on other kinds.");
       }

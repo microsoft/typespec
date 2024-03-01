@@ -1,5 +1,7 @@
 namespace TypeSpec;
 
+model Foo<A, B> {}
+
 /**
  * Represent a byte array
  */
