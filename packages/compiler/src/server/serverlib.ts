@@ -47,7 +47,7 @@ import {
 } from "vscode-languageserver/node.js";
 import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcode.js";
 import { resolveCodeFix } from "../core/code-fixes.js";
-import { compilerAssert, createSourceFile, getSourceLocation } from "../core/diagnostics.js";
+import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
@@ -55,7 +55,7 @@ import { getNodeAtPosition, visitChildren } from "../core/parser.js";
 import { ensureTrailingDirectorySeparator } from "../core/path-utils.js";
 import { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
-import { getSourceFileKindFromExt } from "../core/source-file.js";
+import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import {
   AugmentDecoratorStatementNode,
   CodeFix,

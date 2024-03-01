@@ -1,3 +1,4 @@
+import { isArray } from "../utils/misc.js";
 import type {
   CodeFix,
   CodeFixContext,
@@ -9,7 +10,6 @@ import type {
   SourceFile,
   SourceLocation,
 } from "./types.js";
-import { isArray } from "./util.js";
 
 export async function resolveCodeFix(codeFix: CodeFix): Promise<CodeFixEdit[]> {
   const context = createCodeFixContext();

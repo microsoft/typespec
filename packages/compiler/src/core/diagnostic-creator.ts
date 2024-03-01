@@ -1,3 +1,4 @@
+import { mutate } from "../utils/misc.js";
 import type { Program } from "./program.js";
 import type {
   Diagnostic,
@@ -6,7 +7,6 @@ import type {
   DiagnosticMessages,
   DiagnosticReport,
 } from "./types.js";
-import { mutate } from "./util.js";
 
 /**
  * Create a new diagnostics creator.

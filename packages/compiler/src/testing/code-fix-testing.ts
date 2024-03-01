@@ -8,7 +8,7 @@ import {
   parse,
   visitChildren,
 } from "../core/index.js";
-import { mutate } from "../core/util.js";
+import { mutate } from "../utils/misc.js";
 import { createTestHost } from "./test-host.js";
 import { extractCursor } from "./test-server-host.js";
 import { trimBlankLines } from "./test-utils.js";

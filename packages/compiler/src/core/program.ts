@@ -14,7 +14,7 @@ import {
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
 import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
-import { compilerAssert, createSourceFile } from "./diagnostics.js";
+import { compilerAssert } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
   resolveTypeSpecEntrypointForDir,
@@ -36,6 +36,7 @@ import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths } from "./path-utils.js";
 import { createProjector } from "./projector.js";
+import { createSourceFile } from "./source-file.js";
 import {
   CompilerHost,
   Diagnostic,
