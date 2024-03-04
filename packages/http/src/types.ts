@@ -197,6 +197,57 @@ export interface NoAuth extends HttpAuthBase {
   type: "noAuth";
 }
 
+export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
+
+export interface AnyHttpAuthRef {
+  readonly kind: "any";
+  readonly auth: HttpAuth;
+}
+
+export interface NoHttpAuthRef {
+  readonly kind: "noAuth";
+  readonly auth: NoAuth;
+}
+
+/* Holder of this reference needs only a `scopes` subset of all scopes defined at `auth` */
+export interface OAuth2HttpAuthRef {
+  readonly kind: "oauth2";
+  readonly auth: Oauth2Auth<OAuth2Flow[]>;
+  readonly scopes: string[];
+}
+
+export interface AuthenticationReference {
+  /**
+   * Either one of those options can be used independently to authenticate.
+   */
+  readonly options: AuthenticationOptionReference[];
+}
+
+export interface AuthenticationOptionReference {
+  /**
+   * For this authentication option all the given auth have to be used together.
+   */
+  readonly all: HttpAuthRef[];
+}
+
+export interface HttpServiceAuthentication {
+  /**
+   * All the authentication schemes used in this service.
+   * Some might only be used in certain operations.
+   */
+  readonly schemes: HttpAuth[];
+
+  /**
+   * Default authentication for operations in this service.
+   */
+  readonly defaultAuth: AuthenticationReference;
+
+  /**
+   * Authentication overrides for individual operations.
+   */
+  readonly operationsAuth: Map<Operation, AuthenticationReference>;
+}
+
 export type OperationContainer = Namespace | Interface;
 
 export type OperationVerbSelector = (
