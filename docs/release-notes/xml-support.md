@@ -801,7 +801,7 @@ Book:
 
 </table>
 
-### 4. Namespace and prefix (normalized form)
+### 5. Namespace and prefix (normalized form)
 
 <table>
 <tr>
