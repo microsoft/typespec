@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { Location } from "vscode-languageserver";
-import { createTestServerHost, extractCursor } from "../../src/testing/index.js";
+import {
+  createTestServerHost,
+  extractCursor,
+  resolveVirtualPath,
+} from "../../src/testing/index.js";
 
+function resolveVirtualPathUri(path: string): string {
+  return `file://${resolveVirtualPath(path)}`;
+}
 async function goToDefinitionAtCursor(
   sourceWithCursor: string,
   otherFiles: Record<string, string> = {}
@@ -33,7 +40,7 @@ describe("go to imports", () => {
           end: { character: 0, line: 0 },
           start: { character: 0, line: 0 },
         },
-        uri: "file:///test/other.tsp",
+        uri: resolveVirtualPathUri("other.tsp"),
       },
     ]);
   });
@@ -57,7 +64,7 @@ describe("go to imports", () => {
           end: { character: 0, line: 0 },
           start: { character: 0, line: 0 },
         },
-        uri: "file:///test/node_modules/test-lib/main.tsp",
+        uri: resolveVirtualPathUri("node_modules/test-lib/main.tsp"),
       },
     ]);
   });
