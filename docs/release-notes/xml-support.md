@@ -611,7 +611,7 @@ Pet:
 
 </table>
 
-### 3. Attributes
+### 3. Nested models
 
 <table>
 <tr>
@@ -625,6 +625,184 @@ Pet:
 <td>
 
 **Scenario 3.1:**
+
+No annotations
+
+</td>
+<td>
+
+```tsp
+model Book {
+  author: Author;
+}
+
+model Author {
+  name: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<Book>
+  <author>
+    <name>string</name>
+  </author>
+</Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    author:
+      $ref: "#/components/schemas/Author"
+Author:
+  type: object
+  properties:
+    name:
+      type: string
+```
+
+</td>
+</tr>
+
+<!-- ---------------------------------------------------  SCENARIO 3.2  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 3.2:**
+
+Nested model has xml encoded name.
+
+_⚠️ no op in serialization of Book_
+
+</td>
+<td>
+
+```tsp
+model Book {
+  author: Author;
+}
+
+@encodedName("application/xml", "XmlAuthor")
+model Author {
+  name: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<Book>
+  <author>
+    <name>string</name>
+  </author>
+</Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    author:
+      allOf:
+        - $ref: "#/components/schemas/Author"
+      xml:
+        name: "author" # Here we have to redefine this name otherwise in OpenAPI semantic the `XmlAuthor` name would be used
+Author:
+  type: object
+  properties:
+    name:
+      type: string
+  xml:
+    name: "XmlAuthor"
+```
+
+</td>
+</tr>
+
+<!-- ---------------------------------------------------  SCENARIO 3.3  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 3.2:**
+
+Property has encoded name
+
+</td>
+<td>
+
+```tsp
+model Book {
+  @encodedName("application/xml", "xml-author")
+  author: Author;
+}
+
+model Author {
+  name: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<Book>
+  <xml-author>
+    <name>string</name>
+  </xml-author>
+</Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    author:
+      allOf:
+        - $ref: "#/components/schemas/Author"
+      xml:
+        name: "xml-author"
+Author:
+  type: object
+  properties:
+    name:
+      type: string
+```
+
+</td>
+</tr>
+
+<!-- -------------------------------------------------------------------------------------------------------------- -->
+
+</table>
+
+### 4. Attributes
+
+<table>
+<tr>
+  <td>Scenario</td>
+  <td>TypeSpec</td>
+  <td>Xml</td>
+  <td>OpenAPI3</td>
+</tr>
+<!-- ---------------------------------------------------  SCENARIO 4.1  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 4.1:**
 
 Convert a property to an attribute
 
@@ -646,9 +824,9 @@ model Book {
 
 ```xml
 <Book>
-	<id>0</id>
-	<xml-title>string</xml-title>
-	<author>string</author>
+  <id>0</id>
+  <xml-title>string</xml-title>
+  <author>string</author>
 </Book>
 ```
 
@@ -676,132 +854,7 @@ Book:
 
 </table>
 
-### 4. Namespace and prefix (inline form)
-
-<table>
-<tr>
-  <td>Scenario</td>
-  <td>TypeSpec</td>
-  <td>Xml</td>
-  <td>OpenAPI3</td>
-</tr>
-<!-- ---------------------------------------------------  SCENARIO 4.1  ----------------------------------------------------------- -->
-<tr>
-<td>
-
-**Scenario 4.1:**
-
-On model
-
-</td>
-<td>
-
-```tsp
-@Xml.namespace("smp", "http://example.com/schema")
-model Book {
-  id: string;
-  title: string;
-  author: string;
-}
-```
-
-</td>
-<td>
-
-```xml
-<smp:Book xmlns:smp="http://example.com/schema">
-	<id>0</id>
-	<title>string</title>
-	<author>string</author>
-</smp:Book>
-```
-
-</td>
-<td>
-
-```yaml
-Book:
-  type: object
-  properties:
-    id:
-      type: integer
-    title:
-      type: string
-    author:
-      type: string
-  xml:
-    prefix: "smp"
-    namespace: "http://example.com/schema"
-```
-
-</td>
-</tr>
-
-<!-- ---------------------------------------------------  SCENARIO 4.2  ----------------------------------------------------------- -->
-<tr>
-<td>
-
-**Scenario 4.2:**
-
-On model and properties
-
-</td>
-<td>
-
-```tsp
-@Xml.namespace("smp", "http://example.com/schema")
-model Book {
-  id: string;
-  @Xml.namespace("smp", "http://example.com/schema")
-  title: string;
-  @Xml.namespace("ns2", "http://example.com/ns2")
-  author: string;
-}
-```
-
-</td>
-<td>
-
-```xml
-<smp:Book xmlns:smp="http://example.com/schema" xmlns:sn2="http://example.com/ns2">
-	<id>0</id>
-	<smp:title>string</smp:title>
-	<ns2:author>string</ns2:author>
-</smp:Book>
-```
-
-</td>
-<td>
-
-```yaml
-Book:
-  type: object
-  properties:
-    id:
-      type: integer
-    title:
-      type: string
-       xml:
-        prefix: "smp"
-        namespace: "http://example.com/schema"
-    author:
-      type: string
-      xml:
-        prefix: "ns2"
-        namespace: "http://example.com/ns2"
-  xml:
-    prefix: "smp"
-    namespace: "http://example.com/schema"
-```
-
-</td>
-</tr>
-
-<!-- -------------------------------------------------------------------------------------------------------------- -->
-
-</table>
-
-### 5. Namespace and prefix (normalized form)
+### 5. Namespace and prefix (inline form)
 
 <table>
 <tr>
@@ -822,12 +875,7 @@ On model
 <td>
 
 ```tsp
-@Xml.namespaceDeclarations
-enum Namespaces {
-  smp = "http://example.com/schema"
-}
-
-@Xml.namespace(Namespaces.smp)
+@Xml.namespace("smp", "http://example.com/schema")
 model Book {
   id: string;
   title: string;
@@ -840,9 +888,9 @@ model Book {
 
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema">
-	<id>0</id>
-	<title>string</title>
-	<author>string</author>
+  <id>0</id>
+  <title>string</title>
+  <author>string</author>
 </smp:Book>
 ```
 
@@ -879,6 +927,136 @@ On model and properties
 <td>
 
 ```tsp
+@Xml.namespace("smp", "http://example.com/schema")
+model Book {
+  id: string;
+  @Xml.namespace("smp", "http://example.com/schema")
+  title: string;
+  @Xml.namespace("ns2", "http://example.com/ns2")
+  author: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<smp:Book xmlns:smp="http://example.com/schema" xmlns:sn2="http://example.com/ns2">
+  <id>0</id>
+  <smp:title>string</smp:title>
+  <ns2:author>string</ns2:author>
+</smp:Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+       xml:
+        prefix: "smp"
+        namespace: "http://example.com/schema"
+    author:
+      type: string
+      xml:
+        prefix: "ns2"
+        namespace: "http://example.com/ns2"
+  xml:
+    prefix: "smp"
+    namespace: "http://example.com/schema"
+```
+
+</td>
+</tr>
+
+<!-- -------------------------------------------------------------------------------------------------------------- -->
+
+</table>
+
+### 6. Namespace and prefix (normalized form)
+
+<table>
+<tr>
+  <td>Scenario</td>
+  <td>TypeSpec</td>
+  <td>Xml</td>
+  <td>OpenAPI3</td>
+</tr>
+<!-- ---------------------------------------------------  SCENARIO 6.1  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 6.1:**
+
+On model
+
+</td>
+<td>
+
+```tsp
+@Xml.namespaceDeclarations
+enum Namespaces {
+  smp = "http://example.com/schema"
+}
+
+@Xml.namespace(Namespaces.smp)
+model Book {
+  id: string;
+  title: string;
+  author: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<smp:Book xmlns:smp="http://example.com/schema">
+  <id>0</id>
+  <title>string</title>
+  <author>string</author>
+</smp:Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+    author:
+      type: string
+  xml:
+    prefix: "smp"
+    namespace: "http://example.com/schema"
+```
+
+</td>
+</tr>
+
+<!-- ---------------------------------------------------  SCENARIO 6.2  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 6.2:**
+
+On model and properties
+
+</td>
+<td>
+
+```tsp
 @Xml.namespaceDeclarations
 enum Namespaces {
   smp = "http://example.com/schema",
@@ -900,9 +1078,9 @@ model Book {
 
 ```xml
 <smp:Book xmlns:smp="http://example.com/schema" xmlns:sn2="http://example.com/ns2">
-	<id>0</id>
-	<smp:title>string</smp:title>
-	<ns2:author>string</ns2:author>
+  <id>0</id>
+  <smp:title>string</smp:title>
+  <ns2:author>string</ns2:author>
 </smp:Book>
 ```
 
