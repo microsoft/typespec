@@ -112,6 +112,14 @@ model Foo {
 }
 ```
 
+## Shorter names
+
+- `@encodedName` -> `@Xml.name`
+- `@Xml.attribute` -> `@Xml.attr`
+- `@Xml.namespace` -> `@Xml.ns`
+- `@Xml.namespaceDeclarations` -> `@Xml.nsDeclarations`
+- `@Xml.flattenArray` -> `@Xml.flatten`
+
 ## Examples
 
 ### 1. Array of primitive types
@@ -667,12 +675,11 @@ Book:
 </td>
 </tr>
 
-</tr>
 <!-- -------------------------------------------------------------------------------------------------------------- -->
 
 </table>
 
-### 4. Namespace and prefix
+### 4. Namespace and prefix (inline form)
 
 <table>
 <tr>
@@ -687,16 +694,15 @@ Book:
 
 **Scenario 4.1:**
 
-Convert a property to an attribute
+On model
 
 </td>
 <td>
 
 ```tsp
+@Xml.namespace("smp", "http://example.com/schema")
 model Book {
-  @Xml.attribute
   id: string;
-
   title: string;
   author: string;
 }
@@ -706,11 +712,11 @@ model Book {
 <td>
 
 ```xml
-<Book>
+<smp:Book xmlns:smp="http://example.com/schema">
 	<id>0</id>
-	<xml-title>string</xml-title>
+	<title>string</title>
 	<author>string</author>
-</Book>
+</smp:Book>
 ```
 
 </td>
@@ -724,16 +730,212 @@ Book:
       type: integer
     title:
       type: string
-      xml:
-        name: "xml-title"
     author:
       type: string
+  xml:
+    prefix: "smp"
+    namespace: "http://example.com/schema"
 ```
 
 </td>
 </tr>
 
+<!-- ---------------------------------------------------  SCENARIO 4.2  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 4.2:**
+
+On model and properties
+
+</td>
+<td>
+
+```tsp
+@Xml.namespace("smp", "http://example.com/schema")
+model Book {
+  id: string;
+  @Xml.namespace("smp", "http://example.com/schema")
+  title: string;
+  @Xml.namespace("ns2", "http://example.com/ns2")
+  author: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<smp:Book xmlns:smp="http://example.com/schema" xmlns:sn2="http://example.com/ns2">
+	<id>0</id>
+	<smp:title>string</smp:title>
+	<ns2:author>string</ns2:author>
+</smp:Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+       xml:
+        prefix: "smp"
+        namespace: "http://example.com/schema"
+    author:
+      type: string
+      xml:
+        prefix: "ns2"
+        namespace: "http://example.com/ns2"
+  xml:
+    prefix: "smp"
+    namespace: "http://example.com/schema"
+```
+
+</td>
 </tr>
+
+<!-- -------------------------------------------------------------------------------------------------------------- -->
+
+</table>
+
+### 4. Namespace and prefix (normalized form)
+
+<table>
+<tr>
+  <td>Scenario</td>
+  <td>TypeSpec</td>
+  <td>Xml</td>
+  <td>OpenAPI3</td>
+</tr>
+<!-- ---------------------------------------------------  SCENARIO 5.1  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 5.1:**
+
+On model
+
+</td>
+<td>
+
+```tsp
+@Xml.namespaceDeclarations
+enum Namespaces {
+  smp = "http://example.com/schema"
+}
+
+@Xml.namespace(Namespaces.smp)
+model Book {
+  id: string;
+  title: string;
+  author: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<smp:Book xmlns:smp="http://example.com/schema">
+	<id>0</id>
+	<title>string</title>
+	<author>string</author>
+</smp:Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+    author:
+      type: string
+  xml:
+    prefix: "smp"
+    namespace: "http://example.com/schema"
+```
+
+</td>
+</tr>
+
+<!-- ---------------------------------------------------  SCENARIO 5.2  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 5.2:**
+
+On model and properties
+
+</td>
+<td>
+
+```tsp
+@Xml.namespaceDeclarations
+enum Namespaces {
+  smp = "http://example.com/schema",
+  ns2 = "http://example.com/ns2"
+}
+
+@Xml.namespace(Namespaces.smp)
+model Book {
+  id: string;
+  @Xml.namespace(Namespaces.smp)
+  title: string;
+  @Xml.namespace(Namespaces.ns2)
+  author: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<smp:Book xmlns:smp="http://example.com/schema" xmlns:sn2="http://example.com/ns2">
+	<id>0</id>
+	<smp:title>string</smp:title>
+	<ns2:author>string</ns2:author>
+</smp:Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    id:
+      type: integer
+    title:
+      type: string
+       xml:
+        prefix: "smp"
+        namespace: "http://example.com/schema"
+    author:
+      type: string
+      xml:
+        prefix: "ns2"
+        namespace: "http://example.com/ns2"
+  xml:
+    prefix: "smp"
+    namespace: "http://example.com/schema"
+```
+
+</td>
+</tr>
+
 <!-- -------------------------------------------------------------------------------------------------------------- -->
 
 </table>
