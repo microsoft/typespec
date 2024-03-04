@@ -1,3 +1,4 @@
+import { pathToFileURL } from "url";
 import { describe, expect, it } from "vitest";
 import { Location } from "vscode-languageserver";
 import {
@@ -7,8 +8,9 @@ import {
 } from "../../src/testing/index.js";
 
 function resolveVirtualPathUri(path: string): string {
-  return `file://${resolveVirtualPath(path)}`;
+  return pathToFileURL(resolveVirtualPath(path)).href;
 }
+
 async function goToDefinitionAtCursor(
   sourceWithCursor: string,
   otherFiles: Record<string, string> = {}
