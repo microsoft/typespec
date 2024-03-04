@@ -866,7 +866,7 @@ function createOAPIEmitter(
       attachExtensions(program, op, currentEndpoint);
     }
     if (authReference) {
-      emitSecurity(authReference);
+      emitEndpointSecurity(authReference);
     }
   }
 
@@ -906,7 +906,7 @@ function createOAPIEmitter(
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
     if (authReference) {
-      emitSecurity(authReference);
+      emitEndpointSecurity(authReference);
     }
     if (isDeprecated(program, op)) {
       currentEndpoint.deprecated = true;
@@ -1659,8 +1659,11 @@ function createOAPIEmitter(
     return security;
   }
 
-  function emitSecurity(authReference: AuthenticationReference) {
+  function emitEndpointSecurity(authReference: AuthenticationReference) {
     const security = getOpenAPISecurity(authReference);
+    if (deepEquals(security, root.security)) {
+      return;
+    }
     if (security.length > 0) {
       currentEndpoint.security = security;
     }
