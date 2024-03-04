@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@prettier/plugin-xml':
+        specifier: ^3.3.1
+        version: 3.3.1(prettier@3.2.5)
     devDependencies:
       '@chronus/chronus':
         specifier: ^0.7.0
@@ -6524,6 +6528,15 @@ packages:
   /@polka/url@1.0.0-next.24:
     resolution: {integrity: sha512-2LuNTFBIO0m7kKIQvvPHN6UE63VjpmL9rnEEaOOaiSPbZK+zUOYIzBAWcED+3XYzhYsd/0mD57VdxAEqqV52CQ==}
 
+  /@prettier/plugin-xml@3.3.1(prettier@3.2.5):
+    resolution: {integrity: sha512-kllNJk6n2pXJjGWdj+HAr1GhOoOTrlmeWkDYCGBzkyZS2l0K6h2gsUQcVif2cNqAE1MNC+nUrzN6QwEsCukPnQ==}
+    peerDependencies:
+      prettier: ^3.0.0
+    dependencies:
+      '@xml-tools/parser': 1.0.11
+      prettier: 3.2.5
+    dev: false
+
   /@rollup/plugin-alias@5.1.0(rollup@4.9.6):
     resolution: {integrity: sha512-lpA3RZ9PdIG7qqhEfv79tBffNaoDuukFDrmhLqg9ifv99u/ehn+lOg30x2zmhf8AQqQUZaMk/B9fZraQ6/acDQ==}
     engines: {node: '>=14.0.0'}
@@ -8311,6 +8324,12 @@ packages:
       '@webassemblyjs/ast': 1.11.6
       '@xtuc/long': 4.2.2
 
+  /@xml-tools/parser@1.0.11:
+    resolution: {integrity: sha512-aKqQ077XnR+oQtHJlrAflaZaL7qZsulWc/i/ZEooar5JiWj1eLt0+Wg28cpa+XLney107wXqneC+oG1IZvxkTA==}
+    dependencies:
+      chevrotain: 7.1.1
+    dev: false
+
   /@xmldom/xmldom@0.8.10:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
@@ -9107,6 +9126,12 @@ packages:
       htmlparser2: 8.0.2
       parse5: 7.1.2
       parse5-htmlparser2-tree-adapter: 7.0.0
+
+  /chevrotain@7.1.1:
+    resolution: {integrity: sha512-wy3mC1x4ye+O+QkEinVJkPf5u2vsrDIYW9G7ZuwFl6v/Yu0LwUuT2POsb+NUWApebyxfkQq6+yDfRExbnI5rcw==}
+    dependencies:
+      regexp-to-ast: 0.5.0
+    dev: false
 
   /chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -15831,6 +15856,10 @@ packages:
     resolution: {integrity: sha512-hfMp2BoF0qOk3uc5V20ALGDS2ddjQaLrdl7xrGXvAIow7qeWRM2VA2HuCHkUKk9slq3VwEwLNK3DFBqDfPGYtg==}
     dependencies:
       '@babel/runtime': 7.23.9
+    dev: false
+
+  /regexp-to-ast@0.5.0:
+    resolution: {integrity: sha512-tlbJqcMHnPKI9zSrystikWKwHkBqu2a/Sgw01h3zFjvYrMxEDYHzzoMZnUrbIfpTFEsoRnnviOXNCzFiSc54Qw==}
     dev: false
 
   /regexp-tree@0.1.27:

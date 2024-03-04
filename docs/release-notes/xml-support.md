@@ -207,7 +207,6 @@ model Pet {
     <ItemsTags>string</ItemsTags>
   </ItemsTags>
 </XmlPet>
-
 ```
 
 </td>
@@ -261,8 +260,6 @@ model Pet {
 <XmlPet>
   <ItemsName>string</ItemsName>
 </XmlPet>
-
-
 ```
 
 </td>

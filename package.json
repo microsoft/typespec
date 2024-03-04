@@ -49,5 +49,8 @@
       "prod",
       "resolutions"
     ]
+  },
+  "dependencies": {
+    "@prettier/plugin-xml": "^3.3.1"
   }
 }
