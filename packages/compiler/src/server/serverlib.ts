@@ -45,8 +45,9 @@ import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcod
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { ResolveModuleHost, resolveModule } from "../core/index.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
-import { ensureTrailingDirectorySeparator } from "../core/path-utils.js";
+import { ensureTrailingDirectorySeparator, getDirectoryPath } from "../core/path-utils.js";
 import { Program } from "../core/program.js";
 import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
@@ -64,7 +65,7 @@ import {
   TypeReferenceNode,
   TypeSpecScriptNode,
 } from "../core/types.js";
-import { getNormalizedRealPath } from "../utils/misc.js";
+import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
 import { createCompileService } from "./compile-service.js";
 import { resolveCompletion } from "./completion.js";
@@ -599,11 +600,47 @@ export function createServer(host: ServerHost): Server {
     if (result === undefined) {
       return [];
     }
-    const id = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
-    const sym =
-      id?.kind === SyntaxKind.Identifier ? result.program.checker.resolveIdentifier(id) : undefined;
-    return getLocations(sym?.declarations);
+    const node = getNodeAtPosition(result.script, result.document.offsetAt(params.position));
+    switch (node?.kind) {
+      case SyntaxKind.Identifier:
+        const sym = result.program.checker.resolveIdentifier(node);
+        return getLocations(sym?.declarations);
+      case SyntaxKind.StringLiteral:
+        if (node.parent?.kind === SyntaxKind.ImportStatement) {
+          return [await getImportLocation(node.value, result.script)];
+        } else {
+          return [];
+        }
+    }
+    return [];
   }
+
+  async function getImportLocation(
+    importPath: string,
+    currentFile: TypeSpecScriptNode
+  ): Promise<Location> {
+    const host: ResolveModuleHost = {
+      realpath: compilerHost.realpath,
+      readFile: async (path) => {
+        const file = await compilerHost.readFile(path);
+        return file.text;
+      },
+      stat: compilerHost.stat,
+    };
+    const resolved = await resolveModule(host, importPath, {
+      baseDir: getDirectoryPath(currentFile.file.path),
+      resolveMain(pkg) {
+        // this lets us follow node resolve semantics more-or-less exactly
+        // but using tspMain instead of main.
+        return resolveTspMain(pkg) ?? pkg.main;
+      },
+    });
+    return {
+      uri: fileService.getURL(resolved.type === "file" ? resolved.path : resolved.mainFile),
+      range: Range.create(0, 0, 0, 0),
+    };
+  }
+
   async function complete(params: CompletionParams): Promise<CompletionList> {
     const completions: CompletionList = {
       isIncomplete: false,
