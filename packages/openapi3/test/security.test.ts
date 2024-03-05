@@ -208,6 +208,52 @@ describe("openapi3: security", () => {
     ]);
   });
 
+  it("can specify security on containing namespace", async () => {
+    const res = await openApiFor(
+      `
+      namespace Test;
+      alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+
+      @service
+      @useAuth(ServiceKeyAuth)
+      @route("/my-service")
+      namespace MyService {
+        @route("/file")
+        @useAuth(ServiceKeyAuth | ApiKeyAuth<ApiKeyLocation.query, "token">)
+        namespace FileManagement {
+          @route("/download")
+          op download(fileId: string): bytes;
+        }
+      }
+      `
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      ApiKeyAuth: {
+        in: "header",
+        name: "X-API-KEY",
+        type: "apiKey",
+      },
+      ApiKeyAuth_: {
+        in: "query",
+        name: "token",
+        type: "apiKey",
+      },
+    });
+    deepStrictEqual(res.security, [
+      {
+        ApiKeyAuth: [],
+      },
+    ]);
+    deepStrictEqual(res.paths["/my-service/file/download"]["post"].security, [
+      {
+        ApiKeyAuth: [],
+      },
+      {
+        ApiKeyAuth_: [],
+      },
+    ]);
+  });
+
   it("can override security on methods of operation", async () => {
     const res = await openApiFor(
       `
