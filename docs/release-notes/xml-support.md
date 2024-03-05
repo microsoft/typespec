@@ -1121,3 +1121,59 @@ Book:
 <!-- -------------------------------------------------------------------------------------------------------------- -->
 
 </table>
+
+### 6. Property setting the text of the node
+
+<table>
+<tr>
+  <td>Scenario</td>
+  <td>TypeSpec</td>
+  <td>Xml</td>
+  <td>OpenAPI3</td>
+</tr>
+<!-- ---------------------------------------------------  SCENARIO 6.1  ----------------------------------------------------------- -->
+<tr>
+<td>
+
+**Scenario 6.1:**
+
+</td>
+<td>
+
+```tsp
+model BlobName {
+  @Xml.attribute language: string;
+  @Xml.unwrapped content: string;
+}
+```
+
+</td>
+<td>
+
+```xml
+<BlobName language="abc">
+  ...content...
+</smp:Book>
+```
+
+</td>
+<td>
+
+```yaml
+Book:
+  type: object
+  properties:
+    language:
+      type: string
+    content:
+      type: string
+      xml:
+        x-ms-text: true # on autorest emitter
+```
+
+</td>
+</tr>
+
+<!-- -------------------------------------------------------------------------------------------------------------- -->
+
+</table>
