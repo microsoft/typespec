@@ -1,5 +1,5 @@
-import { isWhiteSpace } from "../core/charcode.js";
-import { Comment, TypeSpecScriptNode } from "../core/index.js";
+import { isWhiteSpace } from "./charcode.js";
+import type { Comment, TypeSpecScriptNode } from "./types.js";
 
 /**
  * Find the comment that is at given position, if any.
@@ -36,8 +36,6 @@ export function getCommentAtPosition(script: TypeSpecScriptNode, pos: number): C
 
 /**
  * Adjust the given postion backwards before any trivia.
- *
- * @internal
  */
 export function getPositionBeforeTrivia(script: TypeSpecScriptNode, pos: number): number {
   if (!script.parseOptions.comments) {
