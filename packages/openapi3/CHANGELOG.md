@@ -1,5 +1,18 @@
 # Change Log - @typespec/openapi3
 
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2902](https://github.com/microsoft/typespec/pull/2902) Add support for all properties of openapi `info` object on the `@info` decorator
+- [#2950](https://github.com/microsoft/typespec/pull/2950) Add `getOpenAPI3` function that takes a TypeSpec program and returns the emitted OpenAPI as an object. Useful for other emitters and tools that want to work with emitted OpenAPI directly without writing it to disk.
+- [#2933](https://github.com/microsoft/typespec/pull/2933) Add a new option `safeint-strategy` that can be set to `double-int` to emit `type: integer, format: double-int` instead of `type: integer, format: int64` when using the `safeint` scalar.
+
+
 ## 0.53.2
 
 ### Patch Changes

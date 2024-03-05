@@ -3,10 +3,6 @@ jsApi: true
 title: "[P] JS API"
 
 ---
-## Namespaces
-
-- [$validatesRawJson](namespaces/$validatesRawJson/index.md)
-
 ## Classes
 
 - [JsonSchemaEmitter](classes/JsonSchemaEmitter.md)

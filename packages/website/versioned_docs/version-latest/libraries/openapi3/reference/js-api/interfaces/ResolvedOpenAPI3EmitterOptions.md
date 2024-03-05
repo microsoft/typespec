@@ -5,10 +5,11 @@ title: "[I] ResolvedOpenAPI3EmitterOptions"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `fileType` | `FileType` | - |
-| `includeXTypeSpecName` | `"never"` \| `"inline-only"` | - |
-| `newLine` | `NewLine` | - |
-| `omitUnreachableTypes` | `boolean` | - |
-| `outputFile` | `string` | - |
+| Property | Type |
+| :------ | :------ |
+| `fileType` | `FileType` |
+| `includeXTypeSpecName` | `"never"` \| `"inline-only"` |
+| `newLine` | `NewLine` |
+| `omitUnreachableTypes` | `boolean` |
+| `outputFile` | `string` |
+| `safeintStrategy` | `"int64"` \| `"double-int"` |

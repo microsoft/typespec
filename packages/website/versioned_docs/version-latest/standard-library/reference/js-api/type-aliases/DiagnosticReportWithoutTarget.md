@@ -9,14 +9,15 @@ type DiagnosticReportWithoutTarget<T, C, M>: Object & DiagnosticFormat<T, C, M>;
 
 ## Type declaration
 
-| Member | Type | Description |
-| :------ | :------ | :------ |
-| `code` | `C` | - |
-| `messageId` | `M` | - |
+| Member | Type |
+| :------ | :------ |
+| `code` | `C` |
+| `codefixes` | readonly [`CodeFix`](../interfaces/CodeFix.md)[] |
+| `messageId` | `M` |
 
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends `Object` | - |
 | `C` extends keyof `T` | - |

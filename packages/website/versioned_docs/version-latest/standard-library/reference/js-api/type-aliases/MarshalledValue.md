@@ -9,6 +9,6 @@ type MarshalledValue<Type>: Type extends StringLiteral ? string : Type extends N
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `Type` |

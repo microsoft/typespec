@@ -1,5 +1,16 @@
 # Change Log - @typespec/internal-build-utils
 
+## 0.54.0
+
+### Bug Fixes
+
+- [#2914](https://github.com/microsoft/typespec/pull/2914) Bumping PR version will also update the dependencies to be an open range
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
 ## 0.53.0
 
 ### Minor Changes

@@ -5,7 +5,8 @@ title: "[I] HttpService"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `namespace` | `Namespace` | - |
-| `operations` | [`HttpOperation`](HttpOperation.md)[] | - |
+| Property | Type |
+| :------ | :------ |
+| `authentication?` | [`Authentication`](Authentication.md) |
+| `namespace` | `Namespace` |
+| `operations` | [`HttpOperation`](HttpOperation.md)[] |

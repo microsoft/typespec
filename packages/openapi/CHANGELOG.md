@@ -1,5 +1,16 @@
 # Change Log - @typespec/openapi
 
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2902](https://github.com/microsoft/typespec/pull/2902) Add support for all properties of openapi `info` object on the `@info` decorator
+
+
 ## 0.53.0
 
 ### Patch Changes

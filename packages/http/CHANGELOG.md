@@ -1,5 +1,21 @@
 # Change Log - @typespec/http
 
+## 0.54.0
+
+### Bug Fixes
+
+- [#2948](https://github.com/microsoft/typespec/pull/2948) Fix don't emit shared route error when verb don't match
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2901](https://github.com/microsoft/typespec/pull/2901) Add ability to sepcify authentication and different scopes per operation
+- [#2958](https://github.com/microsoft/typespec/pull/2958) Validate that only one `@useAuth` decorator is applied to a type.
+
+
 ## 0.53.0
 
 ### Patch Changes

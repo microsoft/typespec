@@ -5,7 +5,7 @@ title: "[E] SymbolFlags"
 ---
 ## Enumeration Members
 
-| Member | Value | Description |
+| Enumeration Member | Value | Description |
 | :------ | :------ | :------ |
 | `Alias` | `2048` | - |
 | `Declaration` | `4194304` | - |

@@ -4,7 +4,7 @@ title: "[F] isTemplateDeclaration"
 
 ---
 ```ts
-isTemplateDeclaration(type): type is Object
+isTemplateDeclaration(type): type is TemplatedType & Object
 ```
 
 Resolve if the type is a template type declaration(Non initialized template type).
@@ -17,4 +17,4 @@ Resolve if the type is a template type declaration(Non initialized template type
 
 ## Returns
 
-`type is Object`
+`type is TemplatedType & Object`

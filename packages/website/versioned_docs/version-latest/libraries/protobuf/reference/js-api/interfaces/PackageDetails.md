@@ -5,6 +5,6 @@ title: "[I] PackageDetails"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `name?` | `string` | - |
+| Property | Type |
+| :------ | :------ |
+| `name?` | `string` |

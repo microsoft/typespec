@@ -11,7 +11,7 @@ Create a new TypeSpec library definition.
 
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends `Object` | - |
 | `E` extends `Record`<`string`, `any`\> | - |
