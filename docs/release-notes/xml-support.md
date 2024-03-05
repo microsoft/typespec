@@ -15,6 +15,7 @@ This means we need to have ways of specifying the following:
 | prefix     | string  | The prefix to be used for the name.                                                                                                                                                                                                                                                                                                                          |
 | attribute  | boolean | Declares whether the property definition translates to an attribute instead of an element. Default value is false.                                                                                                                                                                                                                                           |
 | wrapped    | boolean | MAY be used only for an array definition. Signifies whether the array is wrapped (for example, <books><book/><book/></books>) or unwrapped (<book/><book/>). Default value is false. The definition takes effect only when defined alongside type being array (outside the items).                                                                           |
+| x-ms-text  | boolean | [Autorest doc](https://azure.github.io/autorest/extensions/#x-ms-text) \| [OpenAPI Issue](https://github.com/OAI/OpenAPI-Specification/issues/630)                                                                                                                                                                                                           |
 
 ## Attributes coverage
 
@@ -34,12 +35,16 @@ Decorator would specify that this property should be serialized as an attribute 
 extern dec attribute(target: ModelProperty);
 ```
 
-### 3. `wrapped`
+### 3. `wrapped` and `x-ms-text`
 
-Proposing that when dealing with arrays we always wrap them by default. And instead we have a `flattenArray` decorator to remove the wrapping.
+Proposing that when dealing with arrays we always wrap them by default.
+We are saying that there is always a node created for a property.
+We then have a decorator `@unwrapped` that allows you to not wrap the property content.
+In the case of an array property this is equivalent to setting `wrapped: false` in OpenAPI.
+In the case of a scalar property this is equivalent to setting `x-ms-text: true` in OpenAPI with Autorest extensions.
 
 ```tsp
-extern dec flattenArray(target: ModelProperty);
+extern dec unwrapped(target: ModelProperty);
 ```
 
 ### 4. `namespace` and `prefix`
@@ -112,13 +117,15 @@ model Foo {
 }
 ```
 
+### 5. `x-ms-text`
+
 ## Shorter names
 
 - `@encodedName` -> `@Xml.name`
 - `@Xml.attribute` -> `@Xml.attr`
 - `@Xml.namespace` -> `@Xml.ns`
 - `@Xml.namespaceDeclarations` -> `@Xml.nsDeclarations`
-- `@Xml.flattenArray` -> `@Xml.flatten`
+- `@Xml.unwrapped` -> `@Xml.unwrapped`
 
 ## Examples
 
@@ -146,7 +153,7 @@ model Foo {
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @Xml.flattenArray
+  @xml.unwrapped
   tags: string[];
 }
 ```
@@ -248,7 +255,7 @@ scalar tag extends string;
 
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @Xml.flattenArray
+  @xml.unwrapped
   tags: tag[];
 }
 ```
@@ -367,7 +374,7 @@ Pet:
 ```tsp
 @encodedName("application/xml", "XmlPet")
 model Pet {
-  @Xml.flattenArray
+  @xml.unwrapped
   tags: Tag[];
 }
 
@@ -494,7 +501,7 @@ Pet:
 @encodedName("application/xml", "XmlPet")
 model Pet {
   @encodedName("application/xml", "ItemsTags")
-  @Xml.flattenArray
+  @xml.unwrapped
   tags: Tag[];
 }
 
