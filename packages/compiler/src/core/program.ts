@@ -287,6 +287,7 @@ export async function compile(
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
   const sourceFileLocationContexts = new WeakMap<SourceFile, LocationContext>();
   let error = false;
+  let continueToNextStage = true;
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -382,7 +383,7 @@ export async function compile(
   program.checker = createChecker(program);
   program.checker.checkProgram();
 
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
   // onValidate stage
@@ -391,7 +392,7 @@ export async function compile(
   validateRequiredImports();
 
   await validateLoadedLibraries();
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
 
@@ -1046,6 +1047,10 @@ export async function compile(
   function reportDiagnostic(diagnostic: Diagnostic): void {
     if (shouldSuppress(diagnostic)) {
       return;
+    }
+
+    if (diagnostic.severity === "error") {
+      continueToNextStage = false;
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {
