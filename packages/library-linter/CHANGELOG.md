@@ -1,5 +1,12 @@
 # Change Log - @typespec/library-linter
 
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
 ## 0.53.0
 
 ### Patch Changes

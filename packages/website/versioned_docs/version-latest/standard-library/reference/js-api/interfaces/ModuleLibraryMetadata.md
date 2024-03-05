@@ -11,7 +11,7 @@ Data for a library. Either loaded via a node_modules package or a standalone js 
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
+| Property | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ |
 | `bugs?` | `Object` | - | `LibraryMetadataBase.bugs` |
 | `bugs.url?` | `string` | Url where to file bugs for this library. | - |

@@ -5,6 +5,6 @@ title: "[I] AutoRouteOptions"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `routeParamFilter?` | (`op`, `param`) => `undefined` \| [`FilteredRouteParam`](FilteredRouteParam.md) | - |
+| Property | Type |
+| :------ | :------ |
+| `routeParamFilter?` | (`op`: `Operation`, `param`: `ModelProperty`) => `undefined` \| [`FilteredRouteParam`](FilteredRouteParam.md) |

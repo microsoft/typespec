@@ -7,6 +7,6 @@ Refer to a type that was not declared in a file
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `type` | `"synthetic"` | - |
+| Property | Type |
+| :------ | :------ |
+| `type` | `"synthetic"` |

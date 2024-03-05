@@ -8,8 +8,7 @@ $error(context, entity): void
 ```
 
 `@error` decorator marks a model as an error type.
-
-`@error` can only be specified on a model.
+ Any derived models (using extends) will also be seen as error types.
 
 ## Parameters
 

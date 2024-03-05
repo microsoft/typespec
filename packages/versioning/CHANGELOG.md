@@ -1,5 +1,16 @@
 # Change Log - @typespec/versioning
 
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2950](https://github.com/microsoft/typespec/pull/2950) Export the VersionProjections interface.
+
+
 ## 0.53.0
 
 ### Patch Changes

@@ -9,7 +9,7 @@ type LinterRuleDiagnosticFormat<T, M>: T[M] extends CallableMessage<infer A> ? O
 
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
 | `M` extends keyof `T` | `"default"` |

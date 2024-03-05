@@ -8,14 +8,14 @@ validateDecoratorTarget<K>(
    context, 
    target, 
    decoratorName, 
-   expectedType): target is K extends "Any" ? Type : Object
+   expectedType): target is K extends "Any" ? Type : Type & Object
 ```
 
 Validate the decorator target is matching the expected value.
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
 
@@ -23,11 +23,11 @@ Validate the decorator target is matching the expected value.
 
 | Parameter | Type | Description |
 | :------ | :------ | :------ |
-| `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) | - |
+| `context` | [`DecoratorContext`](../interfaces/DecoratorContext.md) |  |
 | `target` | [`Type`](../type-aliases/Type.md) |  |
 | `decoratorName` | `string` |  |
 | `expectedType` | `K` \| readonly `K`[] |  |
 
 ## Returns
 
-`target is K extends "Any" ? Type : Object`
+`target is K extends "Any" ? Type : Type & Object`

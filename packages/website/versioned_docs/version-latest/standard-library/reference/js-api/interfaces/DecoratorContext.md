@@ -25,7 +25,7 @@ Helper to call out to another decorator
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`Type`](../type-aliases/Type.md) |
 | `A` extends `any`[] |

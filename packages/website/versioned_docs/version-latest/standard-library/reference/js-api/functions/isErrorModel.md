@@ -7,6 +7,8 @@ title: "[F] isErrorModel"
 isErrorModel(program, target): boolean
 ```
 
+Check if the type is an error model or a descendant of an error model.
+
 ## Parameters
 
 | Parameter | Type |

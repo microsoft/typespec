@@ -1,5 +1,16 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.54.0
+
+### Bug Fixes
+
+- [#2941](https://github.com/microsoft/typespec/pull/2941) Fix: Program Viewer crash when using unnamed union variants
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
 ## 0.53.0
 
 ### Patch Changes

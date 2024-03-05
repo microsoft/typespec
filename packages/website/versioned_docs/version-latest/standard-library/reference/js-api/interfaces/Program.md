@@ -3,27 +3,27 @@ jsApi: true
 title: "[I] Program"
 
 ---
-## Extended By
+## Extended by
 
 - [`ProjectedProgram`](ProjectedProgram.md)
 
 ## Properties
 
-| Modifier | Property | Type | Description |
+| Property | Modifier | Type | Description |
 | :------ | :------ | :------ | :------ |
-| `public` | `checker` | [`Checker`](Checker.md) | - |
-| `public` | `compilerOptions` | [`CompilerOptions`](CompilerOptions.md) | - |
-| `readonly` | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] | - |
-| `public` | `emitters` | `EmitterRef`[] | - |
-| `public` | `host` | [`CompilerHost`](CompilerHost.md) | - |
-| `public` | `jsSourceFiles` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - |
-| `public` | `literalTypes` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - |
-| `public` | `mainFile?` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
-| `readonly` | `projectRoot` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. |
-| `public` | `sourceFiles` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. |
-| `public` | `stateMaps` | `Map`<`symbol`, `StateMap`\> | - |
-| `public` | `stateSets` | `Map`<`symbol`, `StateSet`\> | - |
-| `public` | `tracer` | [`Tracer`](Tracer.md) | - |
+| `checker` | `public` | [`Checker`](Checker.md) | - |
+| `compilerOptions` | `public` | [`CompilerOptions`](CompilerOptions.md) | - |
+| `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] | - |
+| `emitters` | `public` | `EmitterRef`[] | - |
+| `host` | `public` | [`CompilerHost`](CompilerHost.md) | - |
+| `jsSourceFiles` | `public` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - |
+| `literalTypes` | `public` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - |
+| `mainFile?` | `public` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
+| `projectRoot` | `readonly` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. |
+| `sourceFiles` | `public` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. |
+| `stateMaps` | `public` | `Map`<`symbol`, `StateMap`\> | - |
+| `stateSets` | `public` | `Map`<`symbol`, `StateSet`\> | - |
+| `tracer` | `public` | [`Tracer`](Tracer.md) | - |
 
 ## Methods
 

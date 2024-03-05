@@ -5,7 +5,7 @@ title: "[E] Availability"
 ---
 ## Enumeration Members
 
-| Member | Value |
+| Enumeration Member | Value |
 | :------ | :------ |
 | `Added` | `"Added"` |
 | `Available` | `"Available"` |

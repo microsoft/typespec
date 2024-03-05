@@ -5,10 +5,11 @@ title: "[I] ServerHost"
 ---
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `compilerHost` | [`CompilerHost`](CompilerHost.md) | - |
-| `readonly` | `getOpenDocumentByURL` | (`url`) => `undefined` \| `TextDocument` | - |
-| `readonly` | `log` | (`message`) => `void` | - |
-| `readonly` | `sendDiagnostics` | (`params`) => `void` | - |
-| `readonly` | `throwInternalErrors?` | `boolean` | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `applyEdit` | `readonly` | (`paramOrEdit`: `WorkspaceEdit` \| `ApplyWorkspaceEditParams`) => `Promise`<`ApplyWorkspaceEditResult`\> |
+| `compilerHost` | `readonly` | [`CompilerHost`](CompilerHost.md) |
+| `getOpenDocumentByURL` | `readonly` | (`url`: `string`) => `undefined` \| `TextDocument` |
+| `log` | `readonly` | (`message`: `string`) => `void` |
+| `sendDiagnostics` | `readonly` | (`params`: `PublishDiagnosticsParams`) => `void` |
+| `throwInternalErrors?` | `readonly` | `boolean` |

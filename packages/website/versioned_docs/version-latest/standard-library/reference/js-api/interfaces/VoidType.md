@@ -9,16 +9,16 @@ title: "[I] VoidType"
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
-| :------ | :------ | :------ | :------ |
-| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`IntrinsicType.instantiationParameters`](IntrinsicType.md) |
-| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`IntrinsicType.isFinished`](IntrinsicType.md) |
-| `kind` | `"Intrinsic"` | - | [`IntrinsicType.kind`](IntrinsicType.md) |
-| `name` | `"void"` | - | [`IntrinsicType.name`](IntrinsicType.md) |
-| `node?` | [`Node`](../type-aliases/Node.md) | - | [`IntrinsicType.node`](IntrinsicType.md) |
-| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`IntrinsicType.projectionBase`](IntrinsicType.md) |
-| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`IntrinsicType.projectionSource`](IntrinsicType.md) |
-| `projector?` | [`Projector`](Projector.md) | - | [`IntrinsicType.projector`](IntrinsicType.md) |
+| Property | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`IntrinsicType`](IntrinsicType.md).`instantiationParameters` | [`IntrinsicType`](IntrinsicType.md).`instantiationParameters` |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`IntrinsicType`](IntrinsicType.md).`isFinished` | [`IntrinsicType`](IntrinsicType.md).`isFinished` |
+| `kind` | `"Intrinsic"` | - | [`IntrinsicType`](IntrinsicType.md).`kind` | [`IntrinsicType`](IntrinsicType.md).`kind` |
+| `name` | `"void"` | - | [`IntrinsicType`](IntrinsicType.md).`name` | [`IntrinsicType`](IntrinsicType.md).`name` |
+| `node?` | [`Node`](../type-aliases/Node.md) | - | [`IntrinsicType`](IntrinsicType.md).`node` | [`IntrinsicType`](IntrinsicType.md).`node` |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`IntrinsicType`](IntrinsicType.md).`projectionBase` | [`IntrinsicType`](IntrinsicType.md).`projectionBase` |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`IntrinsicType`](IntrinsicType.md).`projectionSource` | [`IntrinsicType`](IntrinsicType.md).`projectionSource` |
+| `projector?` | [`Projector`](Projector.md) | - | [`IntrinsicType`](IntrinsicType.md).`projector` | [`IntrinsicType`](IntrinsicType.md).`projector` |
 
 ## Accessors
 
@@ -52,4 +52,4 @@ projectionsByName(name): ProjectionStatementNode[]
 
 #### Inherited from
 
-[`IntrinsicType.projectionsByName`](IntrinsicType.md#projectionsbyname)
+[`IntrinsicType`](IntrinsicType.md).[`projectionsByName`](IntrinsicType.md#projectionsbyname)

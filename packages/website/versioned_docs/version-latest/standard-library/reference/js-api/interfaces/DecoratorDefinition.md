@@ -5,7 +5,7 @@ title: "[I] DecoratorDefinition"
 ---
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends [`TypeKind`](../type-aliases/TypeKind.md) | - |
 | `P` extends readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] | - |
@@ -13,9 +13,9 @@ title: "[I] DecoratorDefinition"
 
 ## Properties
 
-| Modifier | Property | Type | Description |
+| Property | Modifier | Type | Description |
 | :------ | :------ | :------ | :------ |
-| `readonly` | `args` | `P` | List of positional arguments in the function. |
-| `readonly` | `name` | `string` | Name of the decorator. |
-| `readonly` | `spreadArgs?` | `S` | **Optional**<br />Type of the spread args at the end of the function if applicable. |
-| `readonly` | `target` | `T` \| readonly `T`[] | Decorator target. |
+| `args` | `readonly` | `P` | List of positional arguments in the function. |
+| `name` | `readonly` | `string` | Name of the decorator. |
+| `spreadArgs?` | `readonly` | `S` | **Optional**<br />Type of the spread args at the end of the function if applicable. |
+| `target` | `readonly` | `T` \| readonly `T`[] | Decorator target. |

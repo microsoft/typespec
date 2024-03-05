@@ -14,15 +14,15 @@ For more information about OAuth 2.0, see oauth.net and RFC 6749.
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `TFlows` extends [`OAuth2Flow`](../type-aliases/OAuth2Flow.md)[] |
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
+| Property | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase.description`](HttpAuthBase.md) |
+| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
 | `flows` | `TFlows` | - | - |
-| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase.id`](HttpAuthBase.md) |
+| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
 | `type` | `"oauth2"` | - | - |

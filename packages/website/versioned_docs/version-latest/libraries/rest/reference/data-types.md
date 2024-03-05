@@ -35,6 +35,13 @@ model TypeSpec.Rest.Resource.CollectionWithNextLink<Resource>
 | -------- | ------------------------------------ |
 | Resource | The resource type of the collection. |
 
+#### Properties
+
+| Name      | Type                             | Description |
+| --------- | -------------------------------- | ----------- |
+| value     | `Array<Element>`                 |             |
+| nextLink? | `TypeSpec.Rest.ResourceLocation` |             |
+
 ### `KeysOf` {#TypeSpec.Rest.Resource.KeysOf}
 
 Dynamically gathers keys of the model type `Resource`.
@@ -48,6 +55,10 @@ model TypeSpec.Rest.Resource.KeysOf<Resource>
 | Name     | Description                |
 | -------- | -------------------------- |
 | Resource | The target resource model. |
+
+#### Properties
+
+None
 
 ### `ParentKeysOf` {#TypeSpec.Rest.Resource.ParentKeysOf}
 
@@ -63,6 +74,10 @@ model TypeSpec.Rest.Resource.ParentKeysOf<Resource>
 | -------- | -------------------------- |
 | Resource | The target resource model. |
 
+#### Properties
+
+None
+
 ### `ResourceCollectionParameters` {#TypeSpec.Rest.Resource.ResourceCollectionParameters}
 
 Represents collection operation parameters for the resource of type `Resource`.
@@ -76,6 +91,10 @@ model TypeSpec.Rest.Resource.ResourceCollectionParameters<Resource>
 | Name     | Description         |
 | -------- | ------------------- |
 | Resource | The resource model. |
+
+#### Properties
+
+None
 
 ### `ResourceCreatedResponse` {#TypeSpec.Rest.Resource.ResourceCreatedResponse}
 
@@ -91,6 +110,13 @@ model TypeSpec.Rest.Resource.ResourceCreatedResponse<Resource>
 | -------- | ------------------------------------ |
 | Resource | The resource model that was created. |
 
+#### Properties
+
+| Name       | Type       | Description      |
+| ---------- | ---------- | ---------------- |
+| statusCode | `201`      | The status code. |
+| body       | `Resource` |                  |
+
 ### `ResourceCreateModel` {#TypeSpec.Rest.Resource.ResourceCreateModel}
 
 Resource create operation model.
@@ -104,6 +130,10 @@ model TypeSpec.Rest.Resource.ResourceCreateModel<Resource>
 | Name     | Description                   |
 | -------- | ----------------------------- |
 | Resource | The resource model to create. |
+
+#### Properties
+
+None
 
 ### `ResourceCreateOrUpdateModel` {#TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel}
 
@@ -119,6 +149,10 @@ model TypeSpec.Rest.Resource.ResourceCreateOrUpdateModel<Resource>
 | -------- | --------------------------------------- |
 | Resource | The resource model to create or update. |
 
+#### Properties
+
+None
+
 ### `ResourceDeletedResponse` {#TypeSpec.Rest.Resource.ResourceDeletedResponse}
 
 Resource deleted successfully.
@@ -127,6 +161,12 @@ Resource deleted successfully.
 model TypeSpec.Rest.Resource.ResourceDeletedResponse
 ```
 
+#### Properties
+
+| Name | Type  | Description      |
+| ---- | ----- | ---------------- |
+| \_   | `200` | The status code. |
+
 ### `ResourceError` {#TypeSpec.Rest.Resource.ResourceError}
 
 The default error response for resource operations.
@@ -134,6 +174,13 @@ The default error response for resource operations.
 ```typespec
 model TypeSpec.Rest.Resource.ResourceError
 ```
+
+#### Properties
+
+| Name    | Type     | Description        |
+| ------- | -------- | ------------------ |
+| code    | `int32`  | The error code.    |
+| message | `string` | The error message. |
 
 ### `ResourceParameters` {#TypeSpec.Rest.Resource.ResourceParameters}
 
@@ -148,3 +195,7 @@ model TypeSpec.Rest.Resource.ResourceParameters<Resource>
 | Name     | Description         |
 | -------- | ------------------- |
 | Resource | The resource model. |
+
+#### Properties
+
+None
