@@ -1,6 +1,7 @@
 import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
 import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
+import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -34,6 +35,7 @@ import {
   AugmentDecoratorStatementNode,
   BooleanLiteral,
   BooleanLiteralNode,
+  CodeFix,
   DecoratedType,
   Decorator,
   DecoratorApplication,
@@ -2337,10 +2339,24 @@ export function createChecker(program: Program): Checker {
 
     if (mapper === undefined) {
       reportCheckerDiagnostic(
-        createDiagnostic({ code: "unknown-identifier", format: { id: node.sv }, target: node })
+        createDiagnostic({
+          code: "unknown-identifier",
+          format: { id: node.sv },
+          target: node,
+          codefixes: getCodefixesForUnknownIdentifier(node),
+        })
       );
     }
     return undefined;
+  }
+
+  function getCodefixesForUnknownIdentifier(node: IdentifierNode): CodeFix[] | undefined {
+    switch (node.sv) {
+      case "number":
+        return [createChangeIdentifierCodeFix(node, "float64")];
+      default:
+        return undefined;
+    }
   }
 
   function resolveTypeReferenceSym(

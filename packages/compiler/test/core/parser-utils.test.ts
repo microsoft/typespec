@@ -1,13 +1,13 @@
 import { deepStrictEqual, ok, strictEqual, throws } from "assert";
 import { describe, it } from "vitest";
 import { Comment } from "../../src/core/index.js";
+import { getCommentAtPosition, getPositionBeforeTrivia } from "../../src/core/parser-utils.js";
 import { parse } from "../../src/core/parser.js";
 import { TypeSpecScriptNode } from "../../src/core/types.js";
-import { getCommentAtPosition, getPositionBeforeTrivia } from "../../src/server/server-utils.js";
 import { extractCursor } from "../../src/testing/test-server-host.js";
 import { dumpAST } from "../parser.test.js";
 
-describe("compiler: server: utils", () => {
+describe("compiler: parser-utils", () => {
   describe("getCommentAtPosition", () => {
     function getCommentAtCursor(
       sourceWithCursor: string,

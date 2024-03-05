@@ -66,6 +66,30 @@ export const requiredDocRule = createLinterRule({
 });
 ```
 
+#### Provide a codefix
+
+[See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.
+
+In the same way you can provide a codefix on any reported diagnostic, you can pass codefixes to the `reportDiagnostic` function.
+
+```ts
+context.reportDiagnostic({
+  messageId: "models",
+  target: model,
+  codefixes: [
+    defineCodeFix({
+      id: "add-model-suffix",
+      description: "Add 'Model' suffix to model name",
+      apply: (program) => {
+        program.update(model, {
+          name: `${model.name}Model`,
+        });
+      },
+    }),
+  ],
+});
+```
+
 #### Don'ts
 
 - ❌ Do not call `program.reportDiagnostic` or your library `reportDiagnostic` helper directly in a linter rule
@@ -157,4 +181,27 @@ describe("required-doc rule", () => {
     await ruleTester.expect(`model Bar {}`).toBeValid();
   });
 });
+```
+
+### Testing linter with codefixes
+
+The linter rule tester provides an API to easily test a codefix. This is a different approach from the standalone codefix tester, which is more targeted at testing codefixes in isolation.
+
+This can be done with calling `applyCodeFix` with the fix id. It will expect a single diagnostic to be emitted with a codefix with the given id.
+Then calling `toEqual` with the expected code after the codefix is applied.
+
+:::note
+When using multi-line strings (with `\``) in typescript there is no de-indenting done so you will need to make sure the input and expected result are aligned to the left.
+:::
+
+```ts
+await tester
+  .expect(
+    `        
+    model Foo {}
+    `
+  )
+  .applyCodeFix("add-model-suffix").toEqual(`
+    model FooModel {}
+  `);
 ```
