@@ -45,7 +45,7 @@ stages:
               NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
           - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
-            name: Create github releases
+            displayName: Create github releases
             env:
               GITHUB_TOKEN: $(azuresdk-github-pat)
 
