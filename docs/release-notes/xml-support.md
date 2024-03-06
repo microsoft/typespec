@@ -164,7 +164,8 @@ model Pet {
 
 ```xml
 <XmlPet>
-  <tags>string</tags>
+  <tags>abc</tags>
+  <tags>def</tags>
 </XmlPet>
 ```
 
@@ -212,7 +213,8 @@ model Pet {
 ```xml
 <XmlPet>
   <ItemsTags>
-    <ItemsTags>string</ItemsTags>
+    <string>abc</string>
+    <string>def</string>
   </ItemsTags>
 </XmlPet>
 ```
@@ -266,7 +268,8 @@ model Pet {
 
 ```xml
 <XmlPet>
-  <ItemsName>string</ItemsName>
+  <ItemsName>abc</ItemsName>
+  <ItemsName>def</ItemsName>
 </XmlPet>
 ```
 
@@ -310,6 +313,7 @@ scalar tag extends string;
 
 @encodedName("application/xml", "XmlPet")
 model Pet {
+  @encodedName("application/xml", "ItemsTags")
   tags: tag[];
 }
 ```
@@ -320,7 +324,8 @@ model Pet {
 ```xml
 <XmlPet>
   <ItemsTags>
-    <ItemsName>string</ItemsName>
+    <ItemsName>abc</ItemsName>
+    <ItemsName>def</ItemsName>
   </ItemsTags>
 </XmlPet>
 ```
@@ -831,8 +836,7 @@ model Book {
 <td>
 
 ```xml
-<Book>
-  <id>0</id>
+<Book id="0">
   <xml-title>string</xml-title>
   <author>string</author>
 </Book>
