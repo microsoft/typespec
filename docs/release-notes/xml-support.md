@@ -59,11 +59,11 @@ extern dec namespace(target: unknown, namespace: EnumMember)
 1. Simple but more verbose as you need to keep reusing the same namespace
 
 ```tsp
-@namespace("ns1", "https://example.com/ns1")
+@ns("ns1", "https://example.com/ns1")
 model Foo {
-  @namespace("ns1", "https://example.com/ns1")
+  @ns("ns1", "https://example.com/ns1")
   bar: string
-  @namespace("ns2", "https://example.com/ns2")
+  @ns("ns2", "https://example.com/ns2")
   bar: string
 }
 ```
@@ -73,11 +73,11 @@ You could also use an alias to reuse
 ```tsp
 alias ns1 = "https://example.com/ns1";
 alias ns2 = "https://example.com/ns2";
-@namespace("ns1", ns1)
+@ns("ns1", ns1)
 model Foo {
-  @namespace("ns1", ns1)
+  @ns("ns1", ns1)
   bar: string
-  @namespace("ns2", ns2)
+  @ns("ns2", ns2)
   bar: string
 }
 ```
@@ -90,11 +90,11 @@ enum Namespaces {
   ns2 = "https://example.com/ns2"
 }
 
-@Xml.namespace(Namespaces.ns1)
+@Xml.ns(Namespaces.ns1)
 model Foo {
-  @Xml.namespace(Namespaces.ns1)
+  @Xml.ns(Namespaces.ns1)
   bar: string
-  @Xml.namespace(Namespaces.ns2)
+  @Xml.ns(Namespaces.ns2)
   bar: string
 }
 ```
@@ -102,17 +102,17 @@ model Foo {
 #### 4.a Do we need a decorator to annoate the enum?
 
 ```tsp
-@Xml.namespaceDeclarations
+@Xml.nsDeclarations
 enum Namespaces {
   ns1 = "https://example.com/ns1",
   ns2 = "https://example.com/ns2"
 }
 
-@Xml.namespace(Namespaces.ns1)
+@Xml.ns(Namespaces.ns1)
 model Foo {
-  @Xml.namespace(Namespaces.ns1)
+  @Xml.ns(Namespaces.ns1)
   bar: string
-  @Xml.namespace(Namespaces.ns2)
+  @Xml.ns(Namespaces.ns2)
   bar: string
 }
 ```
@@ -121,11 +121,12 @@ model Foo {
 
 ## Shorter names
 
+As we have `@Xml.ns` for namespace we could consider short names for some other decorators
+
 - `@encodedName` -> `@Xml.name`
 - `@Xml.attribute` -> `@Xml.attr`
-- `@Xml.namespace` -> `@Xml.ns`
-- `@Xml.namespaceDeclarations` -> `@Xml.nsDeclarations`
-- `@Xml.unwrapped` -> `@Xml.unwrapped`
+
+
 
 ## Examples
 
@@ -882,7 +883,7 @@ On model
 <td>
 
 ```tsp
-@Xml.namespace("smp", "http://example.com/schema")
+@Xml.ns("smp", "http://example.com/schema")
 model Book {
   id: string;
   title: string;
@@ -934,12 +935,12 @@ On model and properties
 <td>
 
 ```tsp
-@Xml.namespace("smp", "http://example.com/schema")
+@Xml.ns("smp", "http://example.com/schema")
 model Book {
   id: string;
-  @Xml.namespace("smp", "http://example.com/schema")
+  @Xml.ns("smp", "http://example.com/schema")
   title: string;
-  @Xml.namespace("ns2", "http://example.com/ns2")
+  @Xml.ns("ns2", "http://example.com/ns2")
   author: string;
 }
 ```
@@ -1007,12 +1008,12 @@ On model
 <td>
 
 ```tsp
-@Xml.namespaceDeclarations
+@Xml.nsDeclarations
 enum Namespaces {
   smp = "http://example.com/schema"
 }
 
-@Xml.namespace(Namespaces.smp)
+@Xml.ns(Namespaces.smp)
 model Book {
   id: string;
   title: string;
@@ -1064,18 +1065,18 @@ On model and properties
 <td>
 
 ```tsp
-@Xml.namespaceDeclarations
+@Xml.nsDeclarations
 enum Namespaces {
   smp = "http://example.com/schema",
   ns2 = "http://example.com/ns2"
 }
 
-@Xml.namespace(Namespaces.smp)
+@Xml.ns(Namespaces.smp)
 model Book {
   id: string;
-  @Xml.namespace(Namespaces.smp)
+  @Xml.ns(Namespaces.smp)
   title: string;
-  @Xml.namespace(Namespaces.ns2)
+  @Xml.ns(Namespaces.ns2)
   author: string;
 }
 ```
