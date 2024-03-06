@@ -12,7 +12,6 @@
 ### Patch Changes
 
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.1.0-alpha.5
 

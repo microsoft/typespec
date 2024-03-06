@@ -54,7 +54,6 @@
 - cc2723a: Template instantiated with ErrorType will get the arg changed to unknown
 - fd4fdfb: Fix: Error out when using properties in array model
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 
