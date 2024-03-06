@@ -5,16 +5,16 @@ title: "[I] DiagnosticCreator"
 ---
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends `Object` |
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `diagnostics` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> | - |
-| `readonly` | `type` | `T` | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `diagnostics` | `readonly` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> |
+| `type` | `readonly` | `T` |
 
 ## Methods
 
@@ -26,7 +26,7 @@ createDiagnostic<C, M>(diag): Diagnostic
 
 #### Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `C` extends `string` \| `number` \| `symbol` | - |
 | `M` extends `string` \| `number` \| `symbol` | `"default"` |
@@ -51,7 +51,7 @@ reportDiagnostic<C, M>(program, diag): void
 
 #### Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `C` extends `string` \| `number` \| `symbol` | - |
 | `M` extends `string` \| `number` \| `symbol` | `"default"` |

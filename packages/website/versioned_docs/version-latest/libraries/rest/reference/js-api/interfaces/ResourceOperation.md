@@ -5,7 +5,7 @@ title: "[I] ResourceOperation"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `operation` | `string` | - |
-| `resourceType` | `Model` | - |
+| Property | Type |
+| :------ | :------ |
+| `operation` | `string` |
+| `resourceType` | `Model` |

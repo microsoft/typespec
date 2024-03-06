@@ -37,7 +37,7 @@ export interface ConfigToOptionsOptions {
 /**
  * Resolve the compiler options for the given entrypoint by resolving the tspconfig.yaml.
  * @param host Compiler host
- * @param compilerOptions
+ * @param options
  */
 export async function resolveCompilerOptions(
   host: CompilerHost,

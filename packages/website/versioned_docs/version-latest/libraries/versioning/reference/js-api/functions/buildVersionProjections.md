@@ -16,4 +16,4 @@ buildVersionProjections(program, rootNs): VersionProjections[]
 
 ## Returns
 
-`VersionProjections`[]
+[`VersionProjections`](../interfaces/VersionProjections.md)[]

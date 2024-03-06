@@ -12,7 +12,7 @@ Emits diagnostics if the given type is invalid
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 

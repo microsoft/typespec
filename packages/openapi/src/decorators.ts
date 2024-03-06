@@ -110,7 +110,7 @@ const externalDocsKey = createStateSymbol("externalDocs");
 /**
  * Allows referencing an external resource for extended documentation.
  * @param url The URL for the target documentation. Value MUST be in the format of a URL.
- * @param @optional description A short description of the target documentation.
+ * @param description A short description of the target documentation.
  */
 export function $externalDocs(
   context: DecoratorContext,

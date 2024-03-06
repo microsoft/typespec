@@ -5,7 +5,7 @@ title: "[I] FilteredRouteParam"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `excludeFromOperationParams?` | `boolean` | - |
-| `routeParamString?` | `string` | - |
+| Property | Type |
+| :------ | :------ |
+| `excludeFromOperationParams?` | `boolean` |
+| `routeParamString?` | `string` |

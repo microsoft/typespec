@@ -29,7 +29,7 @@ npm install -g @typespec/compiler
 TypeSpec provides extension for the following editors:
 
 - [Visual Studio Code](./editor/vscode.md)
-- [Visual Studio](./editor/vscode.md)
+- [Visual Studio](./editor/vs.md)
 
 ## Create first TypeSpec Project
 

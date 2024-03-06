@@ -14,6 +14,7 @@ title: "[P] JS API"
 ## Interfaces
 
 - [Version](interfaces/Version.md)
+- [VersionProjections](interfaces/VersionProjections.md)
 - [VersionResolution](interfaces/VersionResolution.md)
 
 ## Variables

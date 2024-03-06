@@ -1,3 +1,4 @@
+export { expectCodeFixOnAst } from "./code-fix-testing.js";
 export * from "./expect.js";
 export * from "./rule-tester.js";
 export * from "./test-host.js";

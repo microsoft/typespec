@@ -9,7 +9,7 @@ type DiagnosticFormat<T, C, M>: T[C][M] extends CallableMessage<infer A> ? Objec
 
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends `Object` | - |
 | `C` extends keyof `T` | - |

@@ -118,6 +118,7 @@ const defaultOptions = {
   "new-line": "lf",
   "omit-unreachable-types": false,
   "include-x-typespec-name": "never",
+  "safeint-strategy": "int64",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -186,6 +187,7 @@ export function resolveOptions(
     newLine: resolvedOptions["new-line"],
     omitUnreachableTypes: resolvedOptions["omit-unreachable-types"],
     includeXTypeSpecName: resolvedOptions["include-x-typespec-name"],
+    safeintStrategy: resolvedOptions["safeint-strategy"],
     outputFile: resolvePath(context.emitterOutputDir, outputFile),
   };
 }
@@ -196,6 +198,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   newLine: NewLine;
   omitUnreachableTypes: boolean;
   includeXTypeSpecName: "inline-only" | "never";
+  safeintStrategy: "double-int" | "int64";
 }
 
 function createOAPIEmitter(
@@ -863,7 +866,7 @@ function createOAPIEmitter(
       attachExtensions(program, op, currentEndpoint);
     }
     if (authReference) {
-      emitSecurity(authReference);
+      emitEndpointSecurity(authReference);
     }
   }
 
@@ -903,7 +906,7 @@ function createOAPIEmitter(
     emitRequestBody(parameters.body, visibility);
     emitResponses(operation.responses);
     if (authReference) {
-      emitSecurity(authReference);
+      emitEndpointSecurity(authReference);
     }
     if (isDeprecated(program, op)) {
       currentEndpoint.deprecated = true;
@@ -1682,8 +1685,11 @@ function createOAPIEmitter(
     return security;
   }
 
-  function emitSecurity(authReference: AuthenticationReference) {
+  function emitEndpointSecurity(authReference: AuthenticationReference) {
     const security = getOpenAPISecurity(authReference);
+    if (deepEquals(security, root.security)) {
+      return;
+    }
     if (security.length > 0) {
       currentEndpoint.security = security;
     }

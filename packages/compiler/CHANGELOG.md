@@ -1,5 +1,41 @@
 # Change Log - @typespec/compiler
 
+## 0.54.0
+
+### Bug Fixes
+
+- [#2932](https://github.com/microsoft/typespec/pull/2932) Report error when having a circular template constraint e.g. `model Example<T extends T>`
+- [#2955](https://github.com/microsoft/typespec/pull/2955) [Formatter] Formatting file with only comments would reorder the first line.
+- [#2934](https://github.com/microsoft/typespec/pull/2934) [IDE] Fix issue when deleting an open file outside the IDE that would crash the language server
+- [#2959](https://github.com/microsoft/typespec/pull/2959) Decorators that have missing arguments will not run. This is inline with passing invalid argument to a decorator that would prevent it from running.
+- [#2976](https://github.com/microsoft/typespec/pull/2976) [IDE] Fix type documentation shown twice when hovering symbols or in completion details.
+- [#2929](https://github.com/microsoft/typespec/pull/2929) [API] Add `Scalar` to TS `TemplatedType` type
+- [#2978](https://github.com/microsoft/typespec/pull/2978) [IDE] Go to imports
+- [#2936](https://github.com/microsoft/typespec/pull/2936) [IDE] Autocompleting file or folder with non alpha numeric charachter completes correctly
+- [#2936](https://github.com/microsoft/typespec/pull/2936) [IDE] Fix crashing when trying to autocomplete an invalid folder
+- [#2951](https://github.com/microsoft/typespec/pull/2951) Wrap string in quotes in errors
+- [#2886](https://github.com/microsoft/typespec/pull/2886) Fix: `tsp compile --watch` was missing coloring and error previews
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+### Features
+
+- [#2888](https://github.com/microsoft/typespec/pull/2888) Add support for codefixes
+- [#2920](https://github.com/microsoft/typespec/pull/2920) Add support for `...Record<T>` to define the type of remaining properties
+- [#2968](https://github.com/microsoft/typespec/pull/2968) Any subtype of an error(marked with `@error`) is now an error.
+
+### Deprecations
+
+- [#2919](https://github.com/microsoft/typespec/pull/2919) [API] Create a new export `@typespec/compiler/utils` exports. Deprecate export from `@typespec/compiler` of utils like `DuplicateTracker`, `Queue`, `createTwoKeyMap`, etc.
+- [#2902](https://github.com/microsoft/typespec/pull/2902) Deprecate `@service` version property. If wanting to describe a service versioning you can use the `@typespec/versioning` library. If wanting to describe the project version you can use the package.json version. For OpenAPI generation. the `@OpenAPI.info` nows decorator allows providing the document version.
+
+### Breaking Changes
+
+- [#2920](https://github.com/microsoft/typespec/pull/2920) Intersecting Record<T> with incompatible properties will now emit an error
+
+
 ## 0.53.1
 
 ### Patch Changes
@@ -18,7 +54,6 @@
 - cc2723a: Template instantiated with ErrorType will get the arg changed to unknown
 - fd4fdfb: Fix: Error out when using properties in array model
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 

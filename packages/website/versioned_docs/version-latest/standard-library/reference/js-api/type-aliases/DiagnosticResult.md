@@ -14,6 +14,6 @@ Tuple composed of:
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |

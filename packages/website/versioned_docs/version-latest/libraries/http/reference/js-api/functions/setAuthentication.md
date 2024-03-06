@@ -6,7 +6,7 @@ title: "[F] setAuthentication"
 ```ts
 setAuthentication(
    program, 
-   serviceNamespace, 
+   entity, 
    auth): void
 ```
 
@@ -15,8 +15,8 @@ setAuthentication(
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `serviceNamespace` | `Namespace` |
-| `auth` | [`ServiceAuthentication`](../interfaces/ServiceAuthentication.md) |
+| `entity` | `Interface` \| `Namespace` \| `Operation` |
+| `auth` | [`Authentication`](../interfaces/Authentication.md) |
 
 ## Returns
 

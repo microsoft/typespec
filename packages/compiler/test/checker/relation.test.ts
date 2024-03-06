@@ -78,8 +78,11 @@ describe("compiler: checker: type relations", () => {
           prop1: string;
         }`);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'string' is not assignable to type 'int32'",
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
       });
     });
 
@@ -89,8 +92,11 @@ describe("compiler: checker: type relations", () => {
           prop1: string;
         }`);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'string' is not assignable to type 'int32'",
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
       });
     });
 
@@ -104,6 +110,19 @@ describe("compiler: checker: type relations", () => {
       const indexValue = Foo.indexer.value;
       strictEqual(indexValue.kind, "Model" as const);
       deepStrictEqual([...indexValue.properties.keys()], ["foo", "bar"]);
+    });
+
+    it("cannot intersect model with property incompatible with record", async () => {
+      const diagnostics = await runner.diagnose(`
+        alias A = Record<int32> & {prop1: string};
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
+      });
     });
 
     it("cannot intersect model with a scalar", async () => {
@@ -133,6 +152,38 @@ describe("compiler: checker: type relations", () => {
       expectDiagnostics(diagnostics, {
         code: "intersect-invalid-index",
         message: "Cannot intersect an array model.",
+      });
+    });
+
+    it("spread Record<string> lets other property be non string", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          age: int32;
+          enabled: boolean;
+          ...Record<string>;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("model is a model that spread record does need to respect indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          age: int32;
+          enabled: boolean;
+          ...Record<string>;
+        }
+
+        model Bar is Foo {
+          thisNeedsToBeString: int32;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'int32' is not assignable to type 'string'",
+        ].join("\n"),
       });
     });
   });
@@ -239,7 +290,7 @@ describe("compiler: checker: type relations", () => {
         { source: `"bar"`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'bar' is not assignable to type 'foo'",
+          message: `Type '"bar"' is not assignable to type '"foo"'`,
         }
       );
     });
@@ -249,7 +300,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'string' is not assignable to type 'foo'",
+          message: `Type 'string' is not assignable to type '"foo"'`,
         }
       );
     });
@@ -1102,7 +1153,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof int16" },
           {
             code: "unassignable",
-            message: "Type 'foo bar' is not assignable to type 'int16'",
+            message: `Type '"foo bar"' is not assignable to type 'int16'`,
           }
         );
       });
@@ -1128,7 +1179,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof float32" },
           {
             code: "unassignable",
-            message: "Type 'foo bar' is not assignable to type 'float32'",
+            message: `Type '"foo bar"' is not assignable to type 'float32'`,
           }
         );
       });

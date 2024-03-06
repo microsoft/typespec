@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 0.54.0
+
+### Bug Fixes
+
+- [#2977](https://github.com/microsoft/typespec/pull/2977) Respect compiler `noEmit` flag
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
 ## 0.53.1
 
 ### Patch Changes
@@ -12,7 +23,6 @@
 
 ### Patch Changes
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 

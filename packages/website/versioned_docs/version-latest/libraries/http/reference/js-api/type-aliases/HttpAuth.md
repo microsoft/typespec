@@ -9,5 +9,6 @@ type HttpAuth:
   | BearerAuth
   | ApiKeyAuth<ApiKeyLocation, string>
   | Oauth2Auth<OAuth2Flow[]>
-  | OpenIDConnectAuth;
+  | OpenIDConnectAuth
+  | NoAuth;
 ```

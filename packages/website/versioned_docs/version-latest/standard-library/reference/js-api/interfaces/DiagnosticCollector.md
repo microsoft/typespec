@@ -7,9 +7,9 @@ Helper object to collect diagnostics from function following the diagnostics acc
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] |
 
 ## Methods
 
@@ -43,7 +43,7 @@ Unwrap the Diagnostic result, add all the diagnostics and return the data.
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 
@@ -69,7 +69,7 @@ Wrap the given value in a tuple including the diagnostics following the TypeSpec
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 

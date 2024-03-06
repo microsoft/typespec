@@ -13,6 +13,6 @@ Use InferredTypeSpecValue
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` extends [`TypeKind`](TypeKind.md) |
