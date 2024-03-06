@@ -21,11 +21,12 @@ This means we need to have ways of specifying the following:
 
 ### 1. `name`
 
-Name is something we can already provide with `@encodedName("application/xml", "<newname>")`
+Name is something we can already provide with `@encodedName("application/xml", "newname")`
 
-#### 1.b Consider `@Xml.name` decorator
+#### 1.b Add `@Xml.name` decorator
 
-If overriding the name is common enough we could consider adding a `@Xml.name` decorator that would just call `@encodedName("application/xml", "<newname>")` for you.
+Add an `@Xml.name` decorator that would just call `@encodedName("application/xml", "newname")` for you.
+It should **not** be saving any extra state. It should really just be a shorthand for `@encodedName("application/xml", "newname")` and in no way using `@xml.name("newname")` achieve different functionality from `@encodedName("application/xml", "newname")`.
 
 ### 2. `attribute`
 
@@ -34,6 +35,10 @@ Decorator would specify that this property should be serialized as an attribute 
 ```tsp
 extern dec attribute(target: ModelProperty);
 ```
+
+Restrictions:
+
+- `@attribute` can only be applied to model properties of scalar types
 
 ### 3. `wrapped` and `x-ms-text`
 
@@ -117,16 +122,18 @@ model Foo {
 }
 ```
 
-### 5. `x-ms-text`
+## Default encoding of scalars
 
-## Shorter names
+As in Json we need to have some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`
 
-As we have `@Xml.ns` for namespace we could consider short names for some other decorators
-
-- `@encodedName` -> `@Xml.name`
-- `@Xml.attribute` -> `@Xml.attr`
-
-
+| Scalar Type      | Default Encoding  | Encoding name |
+| ---------------- | ----------------- | ------------- |
+| `utcDateTime`    | `xs:dateTime`     | ``            |
+| `offsetDateTime` | `xs:dateTime`     | ``            |
+| `plainDate`      | `xs:date`         | ``            |
+| `plainTime`      | `xs:time`         | ``            |
+| `duration`       | `xs:duration`     | ``            |
+| `bytes`          | `xs:base64Binary` | ``            |
 
 ## Examples
 
