@@ -34,7 +34,6 @@
 - 05c8597: Fix circular reference would not always inline array properties
 - 8ed1d82: Add support for OpenIdConnect auth scheme
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 
