@@ -3,4 +3,7 @@
 changeKind: internal
 packages:
   - "@typespec/openapi"
+  - "@typespec/openapi3"
+  - "@typespec/json-schema"
 ---
+Align TS decorators implementation types with the TypeSpec signature
