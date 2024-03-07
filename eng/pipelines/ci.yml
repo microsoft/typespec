@@ -127,7 +127,10 @@ stages:
               echo "Updating config"
               pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
               echo "Publishing"
-              pnpm chronus publish  --access public --report-summary ./publish-summary.json
+              pnpm -r publish --access public --no-git-checks --tag next
+
+            # Chronus doesn't support tag yet.
+            # pnpm chronus publish --tag next  --access public --report-summary ./publish-summary.json
 
             name: Publish
             env:
