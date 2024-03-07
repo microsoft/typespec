@@ -136,6 +136,8 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
         return `${type.value}`;
       case "Scalar":
         return getScalarTSType(type);
+      case "Union":
+        return [...type.variants.values()].map((x) => getValueTSType(x.type)).join(" | ");
     }
     return "unknown";
   }

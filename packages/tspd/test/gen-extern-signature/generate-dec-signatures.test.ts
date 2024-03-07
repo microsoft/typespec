@@ -83,26 +83,6 @@ export type SimpleDecorator = (context: DecoratorContext, target: ${expected.joi
     });
   });
 
-  describe("single valueof", () => {
-    it.each([
-      ["valueof string", "string"],
-      ["valueof boolean", "boolean"],
-      ["valueof int32", "number"],
-      ["valueof int8", "number"],
-      ["valueof uint64", "number"],
-      ["valueof int64", "number"],
-    ])("%s => %s", async (ref, expected) => {
-      await expectSignatures({
-        code: `extern dec simple(target: ${ref});`,
-        expected: `
-${importLine([])}
-
-export type SimpleDecorator = (context: DecoratorContext, target: ${expected}) => void;
-    `,
-      });
-    });
-  });
-
   describe("actual types", () => {
     it.each([
       ["model Options { name: string, other: string }", "Options", "Type"],
@@ -161,7 +141,7 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
     });
   });
 
-  describe("single valueof", () => {
+  describe("valueof", () => {
     it.each([
       ["valueof string", "string"],
       ["valueof boolean", "boolean"],
@@ -169,6 +149,11 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
       ["valueof int8", "number"],
       ["valueof uint64", "number"],
       ["valueof int64", "number"],
+      [`valueof "abc"`, `"abc"`],
+      [`valueof 123`, `123`],
+      [`valueof true`, `true`],
+      [`valueof "abc" | "def"`, `"abc" | "def"`],
+      [`valueof "abc" | "def" | string`, `"abc" | "def" | string`],
     ])("%s => %s", async (ref, expected) => {
       await expectSignatures({
         code: `extern dec simple(target, arg1: ${ref});`,
