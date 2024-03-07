@@ -5,6 +5,7 @@ import {
   Model,
   Program,
   Scalar,
+  SyntaxKind,
   Type,
   ValueType,
   getSourceLocation,
@@ -218,13 +219,17 @@ function getDocComment(type: Type): string {
 
       let first = true;
       const hasContentFirstLine = checkIfTagHasDocOnSameLine(tag);
+      const tagStart =
+        tag.kind === SyntaxKind.DocParamTag || tag.kind === SyntaxKind.DocTemplateTag
+          ? `@${tag.tagName.sv} ${tag.paramName.sv}`
+          : `@${tag.tagName.sv}`;
       for (const content of tag.content) {
         for (const line of content.text.split("\n")) {
           if (first) {
             if (hasContentFirstLine) {
-              tagLines.push(`@${tag.tagName.sv} ${line}`);
+              tagLines.push(`${tagStart} ${line}`);
             } else {
-              tagLines.push(`@${tag.tagName.sv}`, line);
+              tagLines.push(tagStart, line);
             }
 
             first = false;

@@ -3,7 +3,7 @@ import { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/c
 /**
  * Specify the OpenAPI `operationId` property for this operation.
  *
- * @param Operation id value.
+ * @param operationId Operation id value.
  * @example
  * ```typespec
  * @operationId("download")
@@ -19,8 +19,8 @@ export type OperationIdDecorator = (
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
  *
- * @param Extension key. Must start with `x-`
- * @param Extension value.
+ * @param key Extension key. Must start with `x-`
+ * @param value Extension value.
  * @example
  * ```typespec
  * @extension("x-custom", "My value")
@@ -52,8 +52,8 @@ export type DefaultResponseDecorator = (context: DecoratorContext, target: Model
 /**
  * Specify the OpenAPI `externalDocs` property for this type.
  *
- * @param Url to the docs
- * @param Description of the docs
+ * @param url Url to the docs
+ * @param description Description of the docs
  * @example
  * ```typespec
  * @externalDocs("https://example.com/detailed.md", "Detailed information on how to use this operation")
@@ -71,7 +71,7 @@ export type ExternalDocsDecorator = (
  * Specify OpenAPI additional information.
  * The service `title` and `version` are already specified using `@service`.
  *
- * @param Additional information
+ * @param additionalInfo Additional information
  */
 export type InfoDecorator = (
   context: DecoratorContext,

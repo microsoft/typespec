@@ -183,6 +183,48 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
   });
 });
 
+describe("decorator comments", () => {
+  it("include basic doc comment", async () => {
+    await expectSignatures({
+      code: `
+/** Some doc comment */      
+extern dec simple(target);`,
+      expected: `
+${importLine(["Type"])}
+
+/**
+ * Some doc comment
+ */
+export type SimpleDecorator = (context: DecoratorContext, target: Type) => void;
+  `,
+    });
+  });
+
+  it("include @param doc comment", async () => {
+    await expectSignatures({
+      code: `
+/** 
+ * Some doc comment 
+ * 
+ * @param arg1 This is the first argument
+ * @param arg2 This is the second argument
+ */      
+extern dec simple(target, arg1, arg2);`,
+      expected: `
+${importLine(["Type"])}
+
+/**
+ * Some doc comment
+ *
+ * @param arg1 This is the first argument
+ * @param arg2 This is the second argument
+ */
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Type, arg2: Type) => void;
+  `,
+    });
+  });
+});
+
 function importLine(imports: string[]) {
   const all = new Set(["DecoratorContext", ...imports]);
   return `import { ${[...all].sort().join(", ")} } from "@typespec/compiler";`;
