@@ -183,6 +183,49 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
   });
 });
 
+describe("generate rest parameter type", () => {
+  it("include as rest", async () => {
+    await expectSignatures({
+      code: `
+/** Some doc comment */      
+extern dec simple(target, ...args: Model[]);`,
+      expected: `
+${importLine(["Type", "Model"])}
+
+/**
+ * Some doc comment
+ */
+export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args: Model[]) => void;
+  `,
+    });
+  });
+
+  describe("valueof", () => {
+    it.each([
+      ["valueof string[]", "string[]"],
+      ["valueof boolean[]", "boolean[]"],
+      ["valueof int32[]", "number[]"],
+      ["valueof int8[]", "number[]"],
+      ["valueof uint64[]", "number[]"],
+      ["valueof int64[]", "number[]"],
+      [`valueof "abc"[]`, `"abc"[]`],
+      [`valueof 123[]`, `123[]`],
+      [`valueof true[]`, `true[]`],
+      [`valueof ("abc" | "def")[]`, `("abc" | "def")[]`],
+      [`valueof ("abc" | "def" | string)[]`, `("abc" | "def" | string)[]`],
+    ])("%s => %s", async (ref, expected) => {
+      await expectSignatures({
+        code: `extern dec simple(target, ...args: ${ref});`,
+        expected: `
+${importLine(["Type"])}
+
+export type SimpleDecorator = (context: DecoratorContext, target: Type, ...args: ${expected}) => void;
+    `,
+      });
+    });
+  });
+});
+
 describe("decorator comments", () => {
   it("include basic doc comment", async () => {
     await expectSignatures({

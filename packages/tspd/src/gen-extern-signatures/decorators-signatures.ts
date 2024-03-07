@@ -9,6 +9,7 @@ import {
   Type,
   ValueType,
   getSourceLocation,
+  isArrayModelType,
   isUnknownType,
 } from "@typespec/compiler";
 import { Doc, renderDoc } from "./doc-builder.js";
@@ -105,7 +106,27 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
 
   function getTSParameter(param: FunctionParameter, isTarget?: boolean): string {
     const optional = param.optional ? "?" : "";
-    return `${param.name}${optional}: ${getTSParmeterType(param.type, isTarget)}`;
+    const rest = param.rest ? "..." : "";
+    if (rest) {
+      return `...${param.name}${optional}: ${getRestTSParmeterType(param.type)}`;
+    } else {
+      return `${param.name}${optional}: ${getTSParmeterType(param.type, isTarget)}`;
+    }
+  }
+
+  function getRestTSParmeterType(type: Type | ValueType) {
+    if (type.kind === "Value") {
+      if (type.target.kind === "Model" && isArrayModelType(program, type.target)) {
+        return `(${getValueTSType(type.target.indexer.value)})[]`;
+      } else {
+        return "unknown";
+      }
+    }
+    if (!(type.kind === "Model" && isArrayModelType(program, type))) {
+      return `unknown`;
+    }
+
+    return `${getTSParmeterType(type.indexer.value)}[]`;
   }
 
   function getTSParmeterType(type: Type | ValueType, isTarget?: boolean): string {
