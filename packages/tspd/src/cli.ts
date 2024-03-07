@@ -2,6 +2,7 @@
 import { NodeHost, logDiagnostics, resolvePath, typespecVersion } from "@typespec/compiler";
 import pc from "picocolors";
 import yargs from "yargs";
+import { generateExternSignatures } from "./gen-extern-signatures/gen-extern-signatures.js";
 import { generateLibraryDocs } from "./ref-doc/experimental.js";
 
 try {
@@ -87,6 +88,25 @@ async function main() {
           args["output-dir"] ?? resolvePath(resolvedRoot, "docs")
         );
         // const diagnostics = await generateExternSignatures(host, resolvedRoot);
+        if (diagnostics.length > 0) {
+          logDiagnostics(diagnostics, host.logSink);
+        }
+      }
+    )
+    .command(
+      "gen-extern-signature <entrypoint>",
+      "Format given list of TypeSpec files.",
+      (cmd) => {
+        return cmd.positional("entrypoint", {
+          description: "Path to the library entrypoint.",
+          type: "string",
+          demandOption: true,
+        });
+      },
+      async (args) => {
+        const resolvedRoot = resolvePath(process.cwd(), args.entrypoint);
+        const host = NodeHost;
+        const diagnostics = await generateExternSignatures(host, resolvedRoot);
         if (diagnostics.length > 0) {
           logDiagnostics(diagnostics, host.logSink);
         }

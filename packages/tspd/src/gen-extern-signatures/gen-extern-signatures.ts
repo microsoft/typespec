@@ -11,7 +11,7 @@ import {
   joinPaths,
   navigateProgram,
   resolvePath,
-} from "../../core/index.js";
+} from "../../../compiler/src/core/index.js";
 import { generateSignatureTests, generateSignatures } from "./decorators-signatures.js";
 import { DecoratorSignature } from "./types.js";
 
@@ -77,8 +77,8 @@ export async function generateExternDecorators(
   }
 
   return {
-    "decorators.ts": format(generateSignatures(program, decorators)),
-    "decorators.test.ts": format(
+    "decorators.ts": await format(generateSignatures(program, decorators)),
+    "decorators.test.ts": await format(
       generateSignatureTests(packageName, "./decorators.js", decorators)
     ),
   };

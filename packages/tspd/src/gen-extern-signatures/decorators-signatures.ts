@@ -9,7 +9,7 @@ import {
   ValueType,
   getSourceLocation,
   isUnknownType,
-} from "../../core/index.js";
+} from "../../../compiler/src/core/index.js";
 import { Doc, renderDoc } from "./doc-builder.js";
 import { DecoratorSignature } from "./types.js";
 

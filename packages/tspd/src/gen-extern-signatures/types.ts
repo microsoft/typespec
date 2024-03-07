@@ -1,4 +1,4 @@
-import type { Decorator } from "../../core/types.js";
+import type { Decorator } from "../../../compiler/src/core/types.js";
 
 export interface DecoratorSignature {
   /** Decorator name ()`@example `@foo`) */
