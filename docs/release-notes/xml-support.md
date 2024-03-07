@@ -57,8 +57,8 @@ extern dec unwrapped(target: ModelProperty);
 Define a new `namespace` decorator that can be used in two ways.
 
 ```tsp
-extern dec namespace(target: unknown, prefix: string, namespace: string)
-extern dec namespace(target: unknown, namespace: EnumMember)
+extern dec ns(target: unknown, prefix: string, namespace: string)
+extern dec ns(target: unknown, namespace: EnumMember)
 ```
 
 1. Simple but more verbose as you need to keep reusing the same namespace
@@ -126,14 +126,62 @@ model Foo {
 
 As in Json we need to have some [default handling](https://typespec.io/docs/libraries/http/encoding#bytes) of the common scalars like `utcDateTime`
 
-| Scalar Type      | Default Encoding  | Encoding name |
-| ---------------- | ----------------- | ------------- |
-| `utcDateTime`    | `xs:dateTime`     | ``            |
-| `offsetDateTime` | `xs:dateTime`     | ``            |
-| `plainDate`      | `xs:date`         | ``            |
-| `plainTime`      | `xs:time`         | ``            |
-| `duration`       | `xs:duration`     | ``            |
-| `bytes`          | `xs:base64Binary` | ``            |
+| Scalar Type      | Default Encoding  | Encoding name                           |
+| ---------------- | ----------------- | --------------------------------------- |
+| `utcDateTime`    | `xs:dateTime`     | `TypeSpec.Xml.Encoding.xmlDateTime`     |
+| `offsetDateTime` | `xs:dateTime`     | `TypeSpec.Xml.Encoding.xmlDateTime`     |
+| `plainDate`      | `xs:date`         | `TypeSpec.Xml.Encoding.xmlDate`         |
+| `plainTime`      | `xs:time`         | `TypeSpec.Xml.Encoding.xmlTim`          |
+| `duration`       | `xs:duration`     | `TypeSpec.Xml.Encoding.xmlDuration`     |
+| `bytes`          | `xs:base64Binary` | `TypeSpec.Xml.Encoding.xmlBase64Binary` |
+
+## Changes to add
+
+Create new `@typespec/xml` library
+
+### New decorators
+
+```tsp
+namespace TypeSpec.Xml
+extern dec name(target: ModelProperty);
+extern dec attribute(target: ModelProperty);
+extern dec unwrapped(target: ModelProperty);
+extern dec ns(target: unknown, namespaceOrPrefix: EnumMember | valueof string, namespace?: string);
+extern dec nsDeclaration(target: Enum);
+
+enum Encoding {
+  /** Maps to encoding to a value used in xs:date */
+  xmlDate,
+  /** Maps to encoding to a value used in xs:time  */
+  xmlTime,
+  /** Maps to encoding to a value used in xs:dateTime  */
+  xmlDateTime,
+  /** Maps to encoding to a value used in xs:duration  */
+  xmlDuration,
+  /** Maps to encoding to a value used in xs:base64Binary  */
+  xmlBase64Binary,
+}
+```
+
+### Apis to Add
+
+To figure out if it is better to have those as fully qualifed id to the enum member name or just return the enum member directly.
+This most likely need a change in the compiler to
+
+1. return the fully qualified enum member name(unless they are from the compiler)
+2. return the enum member directly via a different api ?
+
+```ts
+export function resolveXmlEncoding(type: Scalar): XmlEncoding | string;
+
+export type XmlEncoding =
+  | "TypeSpec.Xml.Encoding.xmlDate"
+  | "TypeSpec.Xml.Encoding.xmlDate"
+  | "TypeSpec.Xml.Encoding.xmlDateTime"
+  | "TypeSpec.Xml.Encoding.xmlDuration"
+  | "TypeSpec.Xml.Encoding.xmlBase64Binary"
+  | string;
+```
 
 ## Examples
 
