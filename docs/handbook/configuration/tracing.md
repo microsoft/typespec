@@ -4,23 +4,23 @@ title: Tracing
 
 # Tracing
 
-By default the TypeSpec Compiler will build without any debug information. The standard output will be minimal and limited to any `warning` or `error` diagnostics emitted during compilation.
+The TypeSpec Compiler, by default, builds without any debug information. The standard output is minimal, only including any `warning` or `error` diagnostics that occur during the compilation process.
 
-Some additional information is however being collected and can be revealed using the `--trace` cli flag.
+However, the compiler does collect additional information that can be accessed using the `--trace` command-line interface (CLI) flag.
 
 ```bash
 tsp compile . --trace import-resolution
 ```
 
-You can use the `--trace` option multiple times if there is multiple areas that should be logged from.
+If you want to log multiple areas, you can use the `--trace` option more than once.
 
 ```bash
 tsp compile . --trace import-resolution  --trace projection
 ```
 
-Using `--trace *` will log everything. This might be a bit overwhelming but you can [pick and choose which trace area to include](#trace-selection)
+To log everything, use `--trace *`. This might produce a lot of output, but you can [select specific trace areas to include](#trace-selection)
 
-It can also be provided via the `tspconfig.yaml` file:
+You can also specify the trace areas in the `tspconfig.yaml` file:
 
 ```yaml
 trace: *
@@ -30,55 +30,54 @@ trace:
   - projection
 ```
 
-## Trace selection
+## Selecting Trace Areas
 
-The tracing system in the tsp compiler works by having each trace under an area. The area name is a dot `.` separated string of area segments.
+The tracing system in the tsp compiler organizes each trace under a specific area. The area name is a dot `.` separated string of area segments.
 
-When filtering which area to select you can use this area path to select which area is going to be revealed.
-The filter follow the same naming style, except the last segment could be a wildcard `*`. This is however the same result as omitting the last segment all together. In other words, those filter have the exact same behavior:
+To filter the areas you want to trace, you can use this area path. The filter follows the same naming style, but the last segment can be a wildcard `*`. However, this produces the same result as leaving out the last segment. In other words, these filters behave identically:
 
 - `foo` and `foo.*`
 - `one.two` and `one.two.*`
 
-For example, assuming we'd have those 3 areas
+For instance, if we have these three areas:
 
 - `one.two.three`
 - `one.foo`
 - `bar.info`
 
-Using:
+You can use:
 
-- `*` will log everything
-- `one` will log everything under `one`(`one.two.three`, `one.foo`)
-- `bar` will log everything under `bar`(`bar.info`)
-- `one.foo` will log everything under `one.foo`(`one.foo`)
-- `other` will log everything under `other` which is nothing here.
+- `*` to log everything
+- `one` to log everything under `one`(`one.two.three`, `one.foo`)
+- `bar` to log everything under `bar`(`bar.info`)
+- `one.foo` to log everything under `one.foo`(`one.foo`)
+- `other` to log everything under `other`, which is nothing in this case.
 
-## Compiler Trace Areas
+## Trace Areas in the Compiler
 
-This is a list of the trace area used in the compiler
+Here is a list of the trace areas used in the compiler:
 
 | Area                           | Description                                                          |
 | ------------------------------ | -------------------------------------------------------------------- |
-| `compiler.options`             | Log the resolved compiler options                                    |
-| `import-resolution.library`    | Information related to the resolution of import libraries            |
-| `projection.log`               | Debug information logged by the `log()` function used in projections |
-| `bind.js`                      | Information when binding JS files                                    |
-| `linter.register-library`      | Information that a library rules will be loaded                      |
-| `linter.register-library.rule` | Information about a rule that is being registered                    |
-| `linter.extend-rule-set.start` | Information about a ruleset it is about to extend                    |
-| `linter.extend-rule-set.end`   | Information about rules enabled after extending a ruleset            |
-| `linter.lint`                  | Start the lint process and show information of all the rules enabled |
+| `compiler.options`             | Logs the resolved compiler options                                   |
+| `import-resolution.library`    | Logs information related to the resolution of import libraries       |
+| `projection.log`               | Logs debug information from the `log()` function used in projections |
+| `bind.js`                      | Logs information when binding JS files                               |
+| `linter.register-library`      | Logs information when a library's rules are being loaded             |
+| `linter.register-library.rule` | Logs information about a rule that is being registered               |
+| `linter.extend-rule-set.start` | Logs information about a ruleset that is about to be extended        |
+| `linter.extend-rule-set.end`   | Logs information about rules enabled after extending a ruleset       |
+| `linter.lint`                  | Starts the lint process and shows information of all the rules enabled |
 
-## Tracing in TypeSpec library
+## Tracing in TypeSpec Libraries
 
-TypeSpec libraries can emit their own tracing that can be collected using the same mechanism. It is recommended that a library scope their tracing area under the library name to prevent collision. This can be achieved by calling the `sub(subArea: string)` method on the tracer.
+TypeSpec libraries can also emit their own traces that can be collected using the same mechanism. To avoid naming conflicts, it's recommended that a library prefixes their tracing area with the library name. This can be done by calling the `sub(subArea: string)` method on the tracer.
 
 ```ts
 const tracer = program.tracer.sub("my-library");
 ```
 
-the tracer is then available for trace collection
+The tracer can then be used for trace collection:
 
 ```ts
 tracer.trace("emitting-ts", "Emitting ts interface");
