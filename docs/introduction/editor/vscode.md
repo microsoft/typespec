@@ -8,7 +8,7 @@ Install the extension via the Visual Studio Code extension manager https://marke
 
 ## Configure
 
-TypeSpec wil interpolate a few variables using this pattern: `${<name>}`. For example: `${workspaceFolder}`.
+TypeSpec will interpolate a few variables using this pattern: `${<name>}`. For example: `${workspaceFolder}`.
 
 Available variables:
 
