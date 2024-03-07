@@ -1,4 +1,3 @@
-import prettier from "prettier";
 import {
   CompilerHost,
   Decorator,
@@ -11,7 +10,8 @@ import {
   joinPaths,
   navigateProgram,
   resolvePath,
-} from "../../../compiler/src/core/index.js";
+} from "@typespec/compiler";
+import prettier from "prettier";
 import { generateSignatureTests, generateSignatures } from "./decorators-signatures.js";
 import { DecoratorSignature } from "./types.js";
 

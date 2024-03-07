@@ -36,7 +36,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "npm run gen-extern-signature && tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
-    "gen-extern-signature": "tspd --enable-experiemental gen-extern-signature .",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
     "test:ui": "vitest --ui",
