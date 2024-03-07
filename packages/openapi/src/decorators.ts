@@ -16,6 +16,7 @@ import {
   DefaultResponseDecorator,
   ExtensionDecorator,
   ExternalDocsDecorator,
+  InfoDecorator,
   OperationIdDecorator,
 } from "../definitions/decorators.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
@@ -142,7 +143,11 @@ export function getExternalDocs(program: Program, entity: Type): ExternalDocs | 
 }
 
 const infoKey = createStateSymbol("info");
-export function $info(context: DecoratorContext, entity: Namespace, model: Model) {
+export const $info: InfoDecorator = (
+  context: DecoratorContext,
+  entity: Namespace,
+  model: TypeSpecValue
+) => {
   const [data, diagnostics] = typespecTypeToJson<AdditionalInfo>(
     model,
     context.getArgumentTarget(0)!
@@ -152,7 +157,7 @@ export function $info(context: DecoratorContext, entity: Namespace, model: Model
     return;
   }
   context.program.stateMap(infoKey).set(entity, data);
-}
+};
 
 export function getInfo(program: Program, entity: Namespace): AdditionalInfo | undefined {
   return program.stateMap(infoKey).get(entity);

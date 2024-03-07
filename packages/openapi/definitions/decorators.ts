@@ -1,4 +1,11 @@
-import { DecoratorContext, Model, Operation, Type, TypeSpecValue } from "@typespec/compiler";
+import {
+  DecoratorContext,
+  Model,
+  Namespace,
+  Operation,
+  Type,
+  TypeSpecValue,
+} from "@typespec/compiler";
 
 /**
  * Specify the OpenAPI `operationId` property for this operation.
@@ -65,4 +72,16 @@ export type ExternalDocsDecorator = (
   target: Type,
   url: string,
   description?: string
+) => void;
+
+/**
+ * Specify OpenAPI additional information.
+ * The service `title` and `version` are already specified using `@service`.
+ *
+ * @param Additional information
+ */
+export type InfoDecorator = (
+  context: DecoratorContext,
+  target: Namespace,
+  additionalInfo: TypeSpecValue
 ) => void;
