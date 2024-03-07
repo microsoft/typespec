@@ -69,8 +69,9 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
   const compilerImports = new Set<string>();
   const decoratorDeclarations: string[] = decorators.map((x) => getTSSignatureForDecorator(x));
 
+  const importArray = [...compilerImports].sort();
   const content: Doc = [
-    `import {${[...compilerImports].join(",")}} from "@typespec/compiler";`,
+    `import {${importArray.join(",")}} from "@typespec/compiler";`,
     line,
     line,
     decoratorDeclarations.join("\n\n"),

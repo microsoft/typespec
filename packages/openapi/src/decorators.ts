@@ -100,6 +100,7 @@ export const $defaultResponse: DefaultResponseDecorator = (
   context: DecoratorContext,
   entity: Model
 ) => {
+  // eslint-disable-next-line deprecation/deprecation
   setStatusCode(context.program, entity, ["*"]);
   context.program.stateSet(defaultResponseKey).add(entity);
 };
