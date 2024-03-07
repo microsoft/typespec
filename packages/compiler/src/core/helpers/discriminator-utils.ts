@@ -1,9 +1,10 @@
 import { Discriminator, getDiscriminatedTypes } from "../../lib/decorators.js";
+import { DuplicateTracker } from "../../utils/duplicate-tracker.js";
+import { isDefined } from "../../utils/misc.js";
 import { createDiagnostic } from "../messages.js";
 import { Program } from "../program.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
 import { Diagnostic, Model, Type, Union } from "../types.js";
-import { DuplicateTracker, isDefined } from "../util.js";
 
 export interface DiscriminatedUnion {
   propertyName: string;
@@ -203,6 +204,8 @@ function getStringValues(type: Type): string[] {
       return [...type.variants.values()].flatMap((x) => getStringValues(x.type)).filter(isDefined);
     case "EnumMember":
       return typeof type.value !== "number" ? [type.value ?? type.name] : [];
+    case "UnionVariant":
+      return getStringValues(type.type);
     default:
       return [];
   }

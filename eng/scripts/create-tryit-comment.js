@@ -26,7 +26,11 @@ async function main() {
   const folderName = process.argv.length > 2 ? `/${process.argv[2]}` : "";
   const repo = process.env["BUILD_REPOSITORY_ID"];
   const prNumber = process.env["SYSTEM_PULLREQUEST_PULLREQUESTNUMBER"];
-  const ghAuth = getGithubAuthHeader(repo);
+  const ghToken = process.env.GH_TOKEN;
+  if (ghToken === undefined) {
+    throw new Error("GH_TOKEN environment variable is not set");
+  }
+  const ghAuth = `Bearer ${ghToken}`;
 
   console.log("Looking for comments in", { repo, prNumber });
   const data = await listComments(repo, prNumber, ghAuth);
@@ -44,7 +48,7 @@ async function main() {
     `<!-- ${TRY_ID_COMMENT_IDENTIFIER} -->`,
     `You can try these changes at https://cadlplayground.z22.web.core.windows.net${folderName}/prs/${prNumber}/`,
     "",
-    `Check the website changes at https://cadlwebsite.z1.web.core.windows.net${folderName}/prs/${prNumber}/`,
+    `Check the website changes at https://tspwebsitepr.z22.web.core.windows.net${folderName}/prs/${prNumber}/`,
   ].join("\n");
   await writeComment(repo, prNumber, comment, ghAuth);
 }

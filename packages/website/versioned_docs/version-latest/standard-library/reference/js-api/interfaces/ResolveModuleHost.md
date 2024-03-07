@@ -1,26 +1,21 @@
-[JS Api](../index.md) / ResolveModuleHost
+---
+jsApi: true
+title: "[I] ResolveModuleHost"
 
-# Interface: ResolveModuleHost
-
-## Table of contents
-
-### Methods
-
-- [readFile](ResolveModuleHost.md#readfile)
-- [realpath](ResolveModuleHost.md#realpath)
-- [stat](ResolveModuleHost.md#stat)
-
+---
 ## Methods
 
-### readFile
+### readFile()
 
-▸ **readFile**(`path`): `Promise`<`string`\>
+```ts
+readFile(path): Promise<string>
+```
 
 Read a utf-8 encoded file.
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
@@ -28,17 +23,19 @@ Read a utf-8 encoded file.
 
 `Promise`<`string`\>
 
-___
+***
 
-### realpath
+### realpath()
 
-▸ **realpath**(`path`): `Promise`<`string`\>
+```ts
+realpath(path): Promise<string>
+```
 
 Resolve the real path for the current host.
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
@@ -46,20 +43,28 @@ Resolve the real path for the current host.
 
 `Promise`<`string`\>
 
-___
+***
 
-### stat
+### stat()
 
-▸ **stat**(`path`): `Promise`<{ `isDirectory`: () => `boolean` ; `isFile`: () => `boolean`  }\>
+```ts
+stat(path): Promise<Object>
+```
 
 Get information about the given path
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
 #### Returns
 
-`Promise`<{ `isDirectory`: () => `boolean` ; `isFile`: () => `boolean`  }\>
+`Promise`<`Object`\>
+
+> | Member | Type |
+> | :------ | :------ |
+> | `isDirectory` | `boolean` |
+> | `isFile` | `boolean` |
+>

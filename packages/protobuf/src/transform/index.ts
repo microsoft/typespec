@@ -5,11 +5,14 @@ import {
   DiagnosticTarget,
   Enum,
   formatDiagnostic,
+  getDoc,
   getEffectiveModelType,
+  getFriendlyName,
   getTypeName,
   Interface,
   IntrinsicType,
   isDeclaredInNamespace,
+  isTemplateInstance,
   Model,
   ModelProperty,
   Namespace,
@@ -26,6 +29,7 @@ import {
   map,
   matchType,
   ProtoEnumDeclaration,
+  ProtoEnumVariantDeclaration,
   ProtoFieldDeclaration,
   ProtoFile,
   ProtoMap,
@@ -58,7 +62,7 @@ export function createProtobufEmitter(
 ): (outDir: string, options: ProtobufEmitterOptions) => Promise<void> {
   return async function doEmit(outDir, options) {
     // Convert the program to a set of proto files.
-    const files = tspToProto(program);
+    const files = tspToProto(program, options);
 
     if (!program.compilerOptions.noEmit && !options?.noEmit && !program.hasError()) {
       for (const file of files) {
@@ -85,12 +89,14 @@ export function createProtobufEmitter(
  *
  * This is the meat of the emitter.
  */
-function tspToProto(program: Program): ProtoFile[] {
+function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): ProtoFile[] {
   const packages = new Set<Namespace>(
     program.stateMap(state.package).keys() as Iterable<Namespace>
   );
 
   const serviceInterfaces = [...(program.stateSet(state.service) as Set<Interface>)];
+
+  const declaredMessages = [...(program.stateSet(state.message) as Set<Model>)];
 
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
     [...packages].map((p) => [p, []])
@@ -204,6 +210,8 @@ function tspToProto(program: Program): ProtoFile[] {
 
       declarations: declarationMap.get(namespace),
       source: namespace,
+
+      doc: getDoc(program, namespace),
     } as ProtoFile;
   });
 
@@ -218,11 +226,23 @@ function tspToProto(program: Program): ProtoFile[] {
    * @returns an array of declarations
    */
   function addDeclarationsOfPackage(namespace: Namespace) {
-    const models = [...namespace.models.values()];
+    const eagerModels = new Set([
+      ...declaredMessages.filter((m) => isDeclaredInNamespace(m, namespace)),
+    ]);
 
-    // Eagerly visit all models in the namespace.
-    for (const model of models) {
-      // Don't eagerly visit externs
+    if (!emitterOptions["omit-unreachable-types"]) {
+      // Add all models in the namespace that have `@field` on every property.
+      for (const model of namespace.models.values()) {
+        if (
+          [...model.properties.values()].every((p) => program.stateMap(state.fieldIndex).has(p)) ||
+          program.stateSet(state.message).has(model)
+        ) {
+          eagerModels.add(model);
+        }
+      }
+    }
+
+    for (const model of eagerModels) {
       if (
         // Don't eagerly visit externs
         !program.stateMap(state.externRef).has(model) &&
@@ -247,6 +267,7 @@ function tspToProto(program: Program): ProtoFile[] {
         name: iface.name,
         // The service's methods are just projections of the interface operations.
         operations: [...iface.operations.values()].map(toMethodFromOperation),
+        doc: getDoc(program, iface),
       });
     }
   }
@@ -260,22 +281,30 @@ function tspToProto(program: Program): ProtoFile[] {
   function toMethodFromOperation(operation: Operation): ProtoMethodDeclaration {
     const streamingMode = program.stateMap(state.stream).get(operation) ?? StreamingMode.None;
 
+    const isEmptyParams =
+      operation.parameters.name === "" && operation.parameters.properties.size === 0;
+
+    const input = isEmptyParams
+      ? getCachedExternType(program, operation, "TypeSpec.Protobuf.WellKnown.Empty")
+      : addImportSourceForProtoIfNeeded(
+          program,
+          addInputParams(operation.parameters, operation),
+          operation,
+          operation.parameters
+        );
+
     return {
       kind: "method",
       stream: streamingMode,
       name: capitalize(operation.name),
-      input: addImportSourceForProtoIfNeeded(
-        program,
-        addInputParams(operation.parameters, operation),
-        operation,
-        operation.parameters
-      ),
+      input,
       returns: addImportSourceForProtoIfNeeded(
         program,
         addReturnType(operation.returnType, operation),
         operation,
         operation.returnType as NamespaceTraversable
       ),
+      doc: getDoc(program, operation),
     };
   }
 
@@ -319,7 +348,7 @@ function tspToProto(program: Program): ProtoFile[] {
       return ref(extern[1]);
     }
 
-    return ref(model.name);
+    return ref(getModelName(model));
   }
 
   /**
@@ -433,7 +462,7 @@ function tspToProto(program: Program): ProtoFile[] {
 
     const effectiveModel = computeEffectiveModel(m, capitalize(operation.name) + "Response");
     if (effectiveModel) {
-      return ref(effectiveModel.name);
+      return ref(getModelName(effectiveModel));
     }
 
     reportDiagnostic(program, {
@@ -480,8 +509,10 @@ function tspToProto(program: Program): ProtoFile[] {
           });
           return unreachable("anonymous model");
         }
+
         visitModel(t, relativeSource);
-        return ref(t.name);
+
+        return ref(getModelName(t));
       case "Enum":
         visitEnum(t);
         return ref(t.name);
@@ -656,10 +687,41 @@ function tspToProto(program: Program): ProtoFile[] {
   function toMessage(model: Model): ProtoMessageDeclaration {
     return {
       kind: "message",
-      name: model.name,
+      name: getModelName(model),
       reservations: program.stateMap(state.reserve).get(model),
       declarations: [...model.properties.values()].map((f) => toMessageBodyDeclaration(f, model)),
+      doc: getDoc(program, model),
     };
+  }
+
+  function getModelName(model: Model): string {
+    const friendlyName = getFriendlyName(program, model);
+
+    if (friendlyName) return capitalize(friendlyName);
+
+    const templateArguments = isTemplateInstance(model) ? model.templateMapper!.args : [];
+
+    const prefix = templateArguments
+      .map(function getTypePrefixName(arg, idx) {
+        if ("name" in arg && typeof arg.name === "string" && arg.name !== "")
+          return capitalize(arg.name!);
+        else {
+          reportDiagnostic.once(program, {
+            code: "unspeakable-template-argument",
+            // TODO-WILL - I'd rather attach the diagnostic to the template argument, but it's the best I can do for
+            // now to attach it to the model itself.
+            target: model,
+            format: {
+              name: model.name,
+            },
+          });
+
+          return `T${idx}`;
+        }
+      })
+      .join("");
+
+    return prefix + capitalize(model.name);
   }
 
   /**
@@ -754,6 +816,7 @@ function tspToProto(program: Program): ProtoFile[] {
         property.type as NamespaceTraversable
       ),
       index: program.stateMap(state.fieldIndex).get(property),
+      doc: getDoc(program, property),
     };
 
     // Determine if the property type is an array
@@ -775,7 +838,15 @@ function tspToProto(program: Program): ProtoFile[] {
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map(({ name, value }) => [name, value as number]),
+      variants: [...e.members.values()].map(
+        (variant): ProtoEnumVariantDeclaration => ({
+          kind: "variant",
+          name: variant.name,
+          value: variant.value as number,
+          doc: getDoc(program, variant),
+        })
+      ),
+      doc: getDoc(program, e),
     };
   }
 

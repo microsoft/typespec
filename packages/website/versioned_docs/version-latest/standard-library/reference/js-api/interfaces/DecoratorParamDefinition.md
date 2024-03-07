@@ -1,32 +1,17 @@
-[JS Api](../index.md) / DecoratorParamDefinition
+---
+jsApi: true
+title: "[I] DecoratorParamDefinition"
 
-# Interface: DecoratorParamDefinition<K\>
-
+---
 ## Type parameters
 
-| Name | Type |
-| :------ | :------ |
-| `K` | extends [`TypeKind`](../index.md#typekind) |
-
-## Table of contents
-
-### Properties
-
-- [kind](DecoratorParamDefinition.md#kind)
-- [optional](DecoratorParamDefinition.md#optional)
+| Type parameter |
+| :------ |
+| `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
 
 ## Properties
 
-### kind
-
-• `Readonly` **kind**: `K` \| readonly `K`[]
-
-Kind of the parameter
-
-___
-
-### optional
-
-• `Optional` `Readonly` **optional**: `boolean`
-
-Is the parameter optional.
+| Property | Modifier | Type | Description |
+| :------ | :------ | :------ | :------ |
+| `kind` | `readonly` | `K` \| readonly `K`[] | Kind of the parameter |
+| `optional?` | `readonly` | `boolean` | Is the parameter optional. |

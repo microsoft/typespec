@@ -2,6 +2,7 @@ import { rejects, strictEqual } from "assert";
 import { mkdir, readFile, rm, writeFile } from "fs/promises";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { beforeAll, describe, it } from "vitest";
 import { InvalidEncodingError, NodeHost } from "../../../src/core/node-host.js";
 import { getDirectoryPath, resolvePath } from "../../../src/index.js";
 
@@ -37,7 +38,7 @@ describe("compiler: node host", () => {
     return resolvedPath;
   }
 
-  before(async () => {
+  beforeAll(async () => {
     try {
       await rm(fixtureRoot, { recursive: true });
     } catch {}

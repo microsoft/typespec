@@ -24,7 +24,7 @@ export interface TypeUIBaseProps {
 
 const TypeNameStyles = css({
   display: "inline",
-  color: "#333333",
+  color: Colors.typeName,
 });
 
 export const TypeUIBase: FunctionComponent<TypeUIBaseProps> = (props) => {
@@ -32,7 +32,7 @@ export const TypeUIBase: FunctionComponent<TypeUIBaseProps> = (props) => {
   const properties = props.properties.map((prop) => {
     return (
       <li key={prop.name}>
-        <span css={{ color: "#9c5d27" }} title={prop.description}>
+        <span css={{ color: Colors.property }} title={prop.description}>
           {prop.name}
         </span>
         : <span>{prop.value}</span>

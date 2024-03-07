@@ -2,6 +2,153 @@
   "name": "@typespec/json-schema",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/json-schema_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Rename template parameters in preparation for named template argument instantiation."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.51.0",
+      "tag": "@typespec/json-schema_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for simple literal default on model properties"
+          },
+          {
+            "comment": "Added support for string template literals"
+          },
+          {
+            "comment": "Fix: Enum with a value of `0` would have resulting in `type` of `string` and `number`"
+          },
+          {
+            "comment": "Fix: Scalar constraints combine with base scalar constraints"
+          },
+          {
+            "comment": "JsonSchema: Fix `@maxValueExclusive` setting `minimumExclusive` instead of `maximumExclusive`"
+          },
+          {
+            "comment": "Report diagnostic instead of throwing errors in the case of duplicate ids or unknown scalar"
+          },
+          {
+            "comment": "Add support for templated scalars."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.50.0",
+      "tag": "@typespec/json-schema_v0.50.0",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add TupleLiteral support."
+          },
+          {
+            "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files"
+          },
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.49.0",
+      "tag": "@typespec/json-schema_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "Disable folding of serialized yaml if line is above 80 characters"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/json-schema_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Changed yaml parser from `js-yaml` to `yaml`"
+          },
+          {
+            "comment": "Support decimal scalar types."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.47.0",
+      "tag": "@typespec/json-schema_v0.47.0",
+      "date": "Tue, 08 Aug 2023 22:32:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Uptake breaking change to `emitSourceFile` returning a `Promise`"
+          },
+          {
+            "comment": "Fix: Crash when using interfaces inside a `@jsonSchema` namespace"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.46.0",
+      "tag": "@typespec/json-schema_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for enum member references."
+          },
+          {
+            "comment": "Export the emitter and related types from the package."
+          },
+          {
+            "comment": "Fix a bug that could result in a schema being bundled more than once."
+          },
+          {
+            "comment": "By default, types that are not marked with @jsonSchema or are within a namespace with @jsonSchema are bundled into the schemas that reference them. Set the `emitAllRefs` option to true to get the previous behavior of emitting all types referenced as JSON Schema."
+          },
+          {
+            "comment": "Support @extension for adding arbitrary vendor extensions into the output."
+          },
+          {
+            "comment": "Breaking change: the namespace has been corrected to TypeSpec.JsonSchema."
+          },
+          {
+            "comment": "Fix: Make sure `$lib` is exported"
+          },
+          {
+            "comment": "Add support for Record<T>"
+          },
+          {
+            "comment": "Support templates instantiated with intrinsic types and type expressions."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.0",
       "tag": "@typespec/json-schema_v0.45.0",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",

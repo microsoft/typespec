@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Type } from "../../src/core/types.js";
 import {
   BasicTestRunner,
@@ -62,6 +63,35 @@ describe("compiler: spread", () => {
     expectDiagnostics(diagnostics, {
       code: "spread-model",
       message: "Cannot spread properties of non-model type.",
+    });
+  });
+
+  it("emit diagnostic if model spreads itself", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Foo {
+        ...Foo,
+        name: string,
+      }
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread type within its own declaration.",
+    });
+  });
+
+  it("emit diagnostic if model spreads itself through alias", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Foo {
+        ...Bar,
+        name: string,
+      }
+      alias Bar = Foo;
+      `);
+
+    expectDiagnostics(diagnostics, {
+      code: "spread-model",
+      message: "Cannot spread type within its own declaration.",
     });
   });
 

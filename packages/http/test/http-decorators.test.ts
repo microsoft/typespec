@@ -1,10 +1,11 @@
-import { ModelProperty, Namespace } from "@typespec/compiler";
+import { ModelProperty, Namespace, Operation } from "@typespec/compiler";
 import {
   BasicTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
 } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   getAuthentication,
   getHeaderFieldName,
@@ -14,6 +15,7 @@ import {
   getQueryParamName,
   getQueryParamOptions,
   getServers,
+  getStatusCodes,
   includeInapplicableMetadataInPayload,
   isBody,
   isHeader,
@@ -21,8 +23,8 @@ import {
   isQueryParam,
   isStatusCode,
 } from "../src/decorators.js";
+import { Visibility, getRequestVisibility, resolveRequestVisibility } from "../src/metadata.js";
 import { createHttpTestRunner } from "./test-host.js";
-
 describe("http: decorators", () => {
   let runner: BasicTestRunner;
 
@@ -211,7 +213,7 @@ describe("http: decorators", () => {
     });
 
     describe("change format for array value", () => {
-      ["csv", "tsv", "ssv", "pipes"].forEach((format) => {
+      ["csv", "tsv", "ssv", "simple", "form", "pipes"].forEach((format) => {
         it(`set query format to "${format}"`, async () => {
           const { selects } = await runner.compile(`
             op test(@test @query({name: "$select", format: "${format}"}) selects: string[]): string;
@@ -258,7 +260,7 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("emit diagnostics when not all duplicated routes are declared shared", async () => {
+    it("emit diagnostics when not all duplicated routes are declared shared on each op conflicting", async () => {
       const diagnostics = await runner.diagnose(`
         @route("/test") @sharedRoute op test(): string;
         @route("/test") @sharedRoute op test2(): string;
@@ -267,7 +269,15 @@ describe("http: decorators", () => {
       expectDiagnostics(diagnostics, [
         {
           code: "@typespec/http/shared-inconsistency",
-          message: `All shared routes must agree on the value of the shared parameter.`,
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
+        },
+        {
+          code: "@typespec/http/shared-inconsistency",
+          message: `Each operation routed at "get /test" needs to have the @sharedRoute decorator.`,
         },
       ]);
     });
@@ -278,6 +288,15 @@ describe("http: decorators", () => {
         @route("/test") @sharedRoute op test2(): string;
       `);
 
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("do not emit diagnostics routes sharing path but not same verb", async () => {
+      const diagnostics = await runner.diagnose(`
+        @route("/test") @sharedRoute op test(): string;
+        @route("/test") @sharedRoute op test2(): string;
+        @route("/test") @post op test3(): string;
+      `);
       expectDiagnosticEmpty(diagnostics);
     });
 
@@ -423,14 +442,87 @@ describe("http: decorators", () => {
       ]);
     });
 
-    it("set the statusCode with @statusCode", async () => {
-      const { code } = await runner.compile(`
+    it("emits error if multiple properties are decorated with `@statusCode` in return type", async () => {
+      const diagnostics = await runner.diagnose(
+        `
+        model CreatedOrUpdatedResponse {
+          @statusCode ok: "200";
+          @statusCode created: "201";
+        }
+        model DateHeader {
+          @header date: utcDateTime;
+        }
+        model Key {
+          key: string;
+        }
+        @put op create(): CreatedOrUpdatedResponse & DateHeader & Key;
+        `
+      );
+      expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
+    });
+
+    it("emits error if multiple `@statusCode` decorators are composed together", async () => {
+      const diagnostics = await runner.diagnose(
+        `      
+        model CustomUnauthorizedResponse {
+          @statusCode _: 401;
+          @body body: UnauthorizedResponse;
+        }
+  
+        model Pet {
+          name: string;
+        }
+        
+        model PetList {
+          @statusCode _: 200;
+          @body body: Pet[];
+        }
+        
+        op list(): PetList | CustomUnauthorizedResponse;
+        `
+      );
+      expectDiagnostics(diagnostics, [{ code: "@typespec/http/multiple-status-codes" }]);
+    });
+
+    it("set numeric statusCode with @statusCode", async () => {
+      const { code } = (await runner.compile(`
           op test(): {
             @test @statusCode code: 201
           };
-        `);
+        `)) as { code: ModelProperty };
 
       ok(isStatusCode(runner.program, code));
+      deepStrictEqual(getStatusCodes(runner.program, code), [201]);
+    });
+
+    it("set range statusCode with @statusCode", async () => {
+      const { code } = (await runner.compile(`
+          op test(): {
+            @test @statusCode @minValue(200) @maxValue(299) code: int32;
+          };
+        `)) as { code: ModelProperty };
+
+      ok(isStatusCode(runner.program, code));
+      deepStrictEqual(getStatusCodes(runner.program, code), [{ start: 200, end: 299 }]);
+    });
+
+    describe("invalid status codes", () => {
+      async function checkInvalid(code: string, message: string) {
+        const diagnostics = await runner.diagnose(`
+        op test(): {
+          @statusCode code: ${code}
+        };
+      `);
+
+        expectDiagnostics(diagnostics, { code: "@typespec/http/status-code-invalid", message });
+      }
+
+      it("emit diagnostic if status code is not a number", () =>
+        checkInvalid(`"Ok"`, "statusCode value must be a three digit code between 100 and 599"));
+      it("emit diagnostic if status code is a number with more than 3 digit", () =>
+        checkInvalid("12345", "statusCode value must be a three digit code between 100 and 599"));
+      it("emit diagnostic if status code is not an integer", () =>
+        checkInvalid("200.3", "statusCode value must be a three digit code between 100 and 599"));
     });
   });
 
@@ -548,20 +640,6 @@ describe("http: decorators", () => {
   });
 
   describe("@useAuth", () => {
-    it("emit diagnostics when @useAuth is not used on namespace", async () => {
-      const diagnostics = await runner.diagnose(`
-          @useAuth(BasicAuth) op test(): string;
-        `);
-
-      expectDiagnostics(diagnostics, [
-        {
-          code: "decorator-wrong-target",
-          message:
-            "Cannot apply @useAuth decorator to test since it is not assignable to Namespace",
-        },
-      ]);
-    });
-
     it("emit diagnostics when config is not a model, tuple or union", async () => {
       const diagnostics = await runner.diagnose(`
           @useAuth(anOp)
@@ -574,6 +652,29 @@ describe("http: decorators", () => {
         code: "invalid-argument",
         message: "Argument 'anOp' is not assignable to parameter of type '{} | Union | {}[]'",
       });
+    });
+
+    it("emit diagnostic when OAuth2 flow is not a valid model", async () => {
+      const diagnostics = await runner.diagnose(`
+        @useAuth(OAuth2Auth<["foo"]>)
+        namespace Foo {}
+
+        model Flow { noscopes: "boom"; };
+        @useAuth(OAuth2Auth<[Flow]>)
+        namespace Bar {}
+        `);
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "unassignable",
+          message: `Type '"foo"' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'`,
+        },
+        {
+          code: "unassignable",
+          message:
+            "Type 'Flow' is not assignable to type 'TypeSpec.Http.AuthorizationCodeFlow | TypeSpec.Http.ImplicitFlow | TypeSpec.Http.PasswordFlow | TypeSpec.Http.ClientCredentialsFlow'",
+        },
+      ]);
     });
 
     it("can specify BasicAuth", async () => {
@@ -693,6 +794,60 @@ describe("http: decorators", () => {
       });
     });
 
+    it("can specify OAuth2 with scopes, which are default for every flow", async () => {
+      const { Foo } = (await runner.compile(`
+        alias MyAuth<T extends valueof string[]> = OAuth2Auth<Flows=[{
+          type: OAuth2FlowType.implicit;
+          authorizationUrl: "https://api.example.com/oauth2/authorize";
+          refreshUrl: "https://api.example.com/oauth2/refresh";
+        }], Scopes=T>;
+
+        @useAuth(MyAuth<["read", "write"]>)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              {
+                id: "OAuth2Auth",
+                type: "oauth2",
+                flows: [
+                  {
+                    type: "implicit",
+                    authorizationUrl: "https://api.example.com/oauth2/authorize",
+                    refreshUrl: "https://api.example.com/oauth2/refresh",
+                    scopes: [{ value: "read" }, { value: "write" }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can specify NoAuth", async () => {
+      const { Foo } = (await runner.compile(`
+        @useAuth(NoAuth)
+        @test namespace Foo {}
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo), {
+        options: [
+          {
+            schemes: [
+              {
+                id: "NoAuth",
+                type: "noAuth",
+              },
+            ],
+          },
+        ],
+      });
+    });
+
     it("can specify multiple auth options", async () => {
       const { Foo } = (await runner.compile(`
         @useAuth(BasicAuth | BearerAuth)
@@ -749,6 +904,50 @@ describe("http: decorators", () => {
                 name: "x-my-header",
               },
               { id: "BasicAuth", type: "http", scheme: "basic" },
+            ],
+          },
+        ],
+      });
+    });
+
+    it("can override auth schemes on interface", async () => {
+      const { Foo } = (await runner.compile(`
+        alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+        @useAuth(ServiceKeyAuth)
+        @test namespace Foo {
+          @useAuth(BasicAuth | BearerAuth)
+          interface Bar { }
+        }
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo.interfaces.get("Bar")!), {
+        options: [
+          {
+            schemes: [{ id: "BasicAuth", type: "http", scheme: "basic" }],
+          },
+          {
+            schemes: [{ id: "BearerAuth", type: "http", scheme: "bearer" }],
+          },
+        ],
+      });
+    });
+
+    it("can override auth schemes on operation", async () => {
+      const { Foo } = (await runner.compile(`
+        alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+        @useAuth(ServiceKeyAuth)
+        @test namespace Foo {
+          @useAuth([BasicAuth, BearerAuth])
+          op bar(): void;
+        }
+      `)) as { Foo: Namespace };
+
+      deepStrictEqual(getAuthentication(runner.program, Foo.operations.get("bar")!), {
+        options: [
+          {
+            schemes: [
+              { id: "BasicAuth", type: "http", scheme: "basic" },
+              { id: "BearerAuth", type: "http", scheme: "bearer" },
             ],
           },
         ],
@@ -835,6 +1034,34 @@ describe("http: decorators", () => {
       strictEqual(
         includeInapplicableMetadataInPayload(runner.program, M.properties.get("p")!),
         true
+      );
+    });
+  });
+
+  describe("@parameterVisibility", () => {
+    it("ensures getRequestVisibility and resolveRequestVisibility return the same value for default PATCH operations", async () => {
+      const { testPatch } = await runner.compile(`
+      @patch
+      @test op testPatch(): void;
+      `);
+      deepStrictEqual(
+        // eslint-disable-next-line deprecation/deprecation
+        getRequestVisibility("patch"),
+        resolveRequestVisibility(runner.program, testPatch as Operation, "patch")
+      );
+    });
+
+    it("ensures getRequestVisibility and resolveRequestVisibility return expected values for customized PATCH operations", async () => {
+      const { testPatch } = await runner.compile(`
+      @parameterVisibility("create", "update")
+      @patch
+      @test op testPatch(): void;
+      `);
+      // eslint-disable-next-line deprecation/deprecation
+      deepStrictEqual(getRequestVisibility("patch"), Visibility.Update | Visibility.Patch);
+      deepStrictEqual(
+        resolveRequestVisibility(runner.program, testPatch as Operation, "patch"),
+        Visibility.Update | Visibility.Create | Visibility.Patch
       );
     });
   });

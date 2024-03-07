@@ -1,36 +1,11 @@
-[JS Api](../index.md) / TypeNameOptions
+---
+jsApi: true
+title: "[I] TypeNameOptions"
 
-# Interface: TypeNameOptions
-
-## Table of contents
-
-### Properties
-
-- [namespaceFilter](TypeNameOptions.md#namespacefilter)
-- [printable](TypeNameOptions.md#printable)
-
+---
 ## Properties
 
-### namespaceFilter
-
-• `Optional` **namespaceFilter**: (`ns`: [`Namespace`](Namespace.md)) => `boolean`
-
-#### Type declaration
-
-▸ (`ns`): `boolean`
-
-##### Parameters
-
-| Name | Type |
+| Property | Type |
 | :------ | :------ |
-| `ns` | [`Namespace`](Namespace.md) |
-
-##### Returns
-
-`boolean`
-
-___
-
-### printable
-
-• `Optional` **printable**: `boolean`
+| `namespaceFilter?` | (`ns`: [`Namespace`](Namespace.md)) => `boolean` |
+| `printable?` | `boolean` |

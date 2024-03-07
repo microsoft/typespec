@@ -1,72 +1,34 @@
-[JS Api](../index.md) / ServerSourceFile
+---
+jsApi: true
+title: "[I] ServerSourceFile"
 
-# Interface: ServerSourceFile
-
-## Hierarchy
+---
+## Extends
 
 - [`SourceFile`](SourceFile.md)
 
-  ↳ **`ServerSourceFile`**
-
-## Table of contents
-
-### Properties
-
-- [document](ServerSourceFile.md#document)
-- [path](ServerSourceFile.md#path)
-- [text](ServerSourceFile.md#text)
-
-### Methods
-
-- [getLineAndCharacterOfPosition](ServerSourceFile.md#getlineandcharacterofposition)
-- [getLineStarts](ServerSourceFile.md#getlinestarts)
-
 ## Properties
 
-### document
-
-• `Optional` `Readonly` **document**: `TextDocument`
-
-___
-
-### path
-
-• `Readonly` **path**: `string`
-
-The source file path.
-
-This is used only for diagnostics. The command line compiler will populate
-it with the actual path from which the file was read, but it can actually
-be an arbitrary name for other scenarios.
-
-#### Inherited from
-
-[SourceFile](SourceFile.md).[path](SourceFile.md#path)
-
-___
-
-### text
-
-• `Readonly` **text**: `string`
-
-The source code text.
-
-#### Inherited from
-
-[SourceFile](SourceFile.md).[text](SourceFile.md#text)
+| Property | Modifier | Type | Description | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `document?` | `readonly` | `TextDocument` | - | - |
+| `path` | `readonly` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. | [`SourceFile`](SourceFile.md).`path` |
+| `text` | `readonly` | `string` | The source code text. | [`SourceFile`](SourceFile.md).`text` |
 
 ## Methods
 
-### getLineAndCharacterOfPosition
+### getLineAndCharacterOfPosition()
 
-▸ **getLineAndCharacterOfPosition**(`position`): [`LineAndCharacter`](LineAndCharacter.md)
+```ts
+getLineAndCharacterOfPosition(position): LineAndCharacter
+```
 
 Converts a one-dimensional position in the document (measured in UTF-16
 code units) to line number and offset from line start.
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `position` | `number` |
 
@@ -76,13 +38,15 @@ code units) to line number and offset from line start.
 
 #### Inherited from
 
-[SourceFile](SourceFile.md).[getLineAndCharacterOfPosition](SourceFile.md#getlineandcharacterofposition)
+[`SourceFile`](SourceFile.md).[`getLineAndCharacterOfPosition`](SourceFile.md#getlineandcharacterofposition)
 
-___
+***
 
-### getLineStarts
+### getLineStarts()
 
-▸ **getLineStarts**(): readonly `number`[]
+```ts
+getLineStarts(): readonly number[]
+```
 
 Array of positions in the text where each line begins. There is one entry
 per line, in order of lines, and each entry represents the offset in UTF-16
@@ -94,4 +58,4 @@ readonly `number`[]
 
 #### Inherited from
 
-[SourceFile](SourceFile.md).[getLineStarts](SourceFile.md#getlinestarts)
+[`SourceFile`](SourceFile.md).[`getLineStarts`](SourceFile.md#getlinestarts)

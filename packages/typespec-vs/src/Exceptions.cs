@@ -27,9 +27,9 @@ namespace Microsoft.TypeSpec.VisualStudio
             : base(string.Join("\n", new string[]
             {
                 $"TypeSpec server executable was not found: '{fileName}' is not found. Make sure either:",
-                " - typespec is installed locally at the root of this workspace or in a parent directory.",
-                " - typespec is installed globally with `npm install -g @typespec/compiler'.",
-                " - typespec server path is configured with https://github.com/microsoft/typespec/blob/main/packages/typespec-vs/README.md#configure-typespec-visual-studio-extension."
+                " - TypeSpec is installed locally at the root of this workspace or in a parent directory.",
+                " - TypeSpec is installed globally with `npm install -g @typespec/compiler'.",
+                " - TypeSpec server path is configured with https://github.com/microsoft/typespec/blob/main/packages/typespec-vs/README.md#configure-typespec-visual-studio-extension."
             }), innerException)
         {
         }

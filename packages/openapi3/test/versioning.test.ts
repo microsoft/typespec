@@ -1,6 +1,7 @@
-import { DecoratorContext, getNamespaceFullName, Namespace } from "@typespec/compiler";
+import { DecoratorContext, Namespace, getNamespaceFullName } from "@typespec/compiler";
 import { createTestWrapper, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { createOpenAPITestHost, createOpenAPITestRunner, openApiFor } from "./test-host.js";
 
 describe("openapi3: versioning", () => {
@@ -118,7 +119,7 @@ describe("openapi3: versioning", () => {
 
     const runner = createTestWrapper(host, {
       autoImports: [...host.libraries.map((x) => x.name), "./test.js"],
-      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "OpenAPI", "TypeSpec.Versioning"],
+      autoUsings: ["TypeSpec.Rest", "TypeSpec.Http", "TypeSpec.OpenAPI", "TypeSpec.Versioning"],
       compilerOptions: { emit: ["@typespec/openapi3"] },
     });
 

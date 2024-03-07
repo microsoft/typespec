@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import {
   ExpandConfigOptions,
   expandConfigVariables,

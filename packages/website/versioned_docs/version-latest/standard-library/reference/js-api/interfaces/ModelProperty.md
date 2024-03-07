@@ -1,187 +1,54 @@
-[JS Api](../index.md) / ModelProperty
+---
+jsApi: true
+title: "[I] ModelProperty"
 
-# Interface: ModelProperty
+---
+## Extends
 
-## Hierarchy
-
-- [`BaseType`](BaseType.md)
-
-- [`DecoratedType`](DecoratedType.md)
-
-  ↳ **`ModelProperty`**
-
-## Table of contents
-
-### Properties
-
-- [decorators](ModelProperty.md#decorators)
-- [default](ModelProperty.md#default)
-- [instantiationParameters](ModelProperty.md#instantiationparameters)
-- [isFinished](ModelProperty.md#isfinished)
-- [kind](ModelProperty.md#kind)
-- [model](ModelProperty.md#model)
-- [name](ModelProperty.md#name)
-- [node](ModelProperty.md#node)
-- [optional](ModelProperty.md#optional)
-- [projectionBase](ModelProperty.md#projectionbase)
-- [projectionSource](ModelProperty.md#projectionsource)
-- [projector](ModelProperty.md#projector)
-- [sourceProperty](ModelProperty.md#sourceproperty)
-- [type](ModelProperty.md#type)
-
-### Accessors
-
-- [projections](ModelProperty.md#projections)
-
-### Methods
-
-- [projectionsByName](ModelProperty.md#projectionsbyname)
+- [`BaseType`](BaseType.md).[`DecoratedType`](DecoratedType.md)
 
 ## Properties
 
-### decorators
-
-• **decorators**: [`DecoratorApplication`](DecoratorApplication.md)[]
-
-#### Inherited from
-
-[DecoratedType](DecoratedType.md).[decorators](DecoratedType.md#decorators)
-
-___
-
-### default
-
-• `Optional` **default**: [`Type`](../index.md#type)
-
-___
-
-### instantiationParameters
-
-• `Optional` **instantiationParameters**: [`Type`](../index.md#type)[]
-
-#### Inherited from
-
-[BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
-
-___
-
-### isFinished
-
-• **isFinished**: `boolean`
-
-Reflect if a type has been finished(Decorators have been called).
-There is multiple reasons a type might not be finished:
-- a template declaration will not
-- a template instance that argument that are still template parameters
-- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
-
-___
-
-### kind
-
-• **kind**: ``"ModelProperty"``
-
-#### Overrides
-
-[BaseType](BaseType.md).[kind](BaseType.md#kind)
-
-___
-
-### model
-
-• `Optional` **model**: [`Model`](Model.md)
-
-___
-
-### name
-
-• **name**: `string`
-
-___
-
-### node
-
-• **node**: [`ModelPropertyNode`](ModelPropertyNode.md) \| [`ModelSpreadPropertyNode`](ModelSpreadPropertyNode.md) \| [`ProjectionModelPropertyNode`](ProjectionModelPropertyNode.md) \| [`ProjectionModelSpreadPropertyNode`](ProjectionModelSpreadPropertyNode.md)
-
-#### Overrides
-
-[BaseType](BaseType.md).[node](BaseType.md#node)
-
-___
-
-### optional
-
-• **optional**: `boolean`
-
-___
-
-### projectionBase
-
-• `Optional` **projectionBase**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionBase](BaseType.md#projectionbase)
-
-___
-
-### projectionSource
-
-• `Optional` **projectionSource**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionSource](BaseType.md#projectionsource)
-
-___
-
-### projector
-
-• `Optional` **projector**: [`Projector`](Projector.md)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projector](BaseType.md#projector)
-
-___
-
-### sourceProperty
-
-• `Optional` **sourceProperty**: [`ModelProperty`](ModelProperty.md)
-
-___
-
-### type
-
-• **type**: [`Type`](../index.md#type)
+| Property | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `default?` | [`Type`](../type-aliases/Type.md) | - | - | - |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `"ModelProperty"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `model?` | [`Model`](Model.md) | - | - | - |
+| `name` | `string` | - | - | - |
+| `node` | [`ModelPropertyNode`](ModelPropertyNode.md) \| [`ModelSpreadPropertyNode`](ModelSpreadPropertyNode.md) \| [`ProjectionModelPropertyNode`](ProjectionModelPropertyNode.md) \| [`ProjectionModelSpreadPropertyNode`](ProjectionModelSpreadPropertyNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| `optional` | `boolean` | - | - | - |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
+| `sourceProperty?` | [`ModelProperty`](ModelProperty.md) | - | - | - |
+| `type` | [`Type`](../type-aliases/Type.md) | - | - | - |
 
 ## Accessors
 
 ### projections
 
-• `get` **projections**(): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+get projections(): ProjectionStatementNode[]
+```
 
 #### Returns
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
-#### Inherited from
-
-BaseType.projections
-
 ## Methods
 
-### projectionsByName
+### projectionsByName()
 
-▸ **projectionsByName**(`name`): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+projectionsByName(name): ProjectionStatementNode[]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
 
@@ -191,4 +58,4 @@ BaseType.projections
 
 #### Inherited from
 
-[BaseType](BaseType.md).[projectionsByName](BaseType.md#projectionsbyname)
+[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)

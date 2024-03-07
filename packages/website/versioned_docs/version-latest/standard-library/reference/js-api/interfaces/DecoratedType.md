@@ -1,39 +1,23 @@
-[JS Api](../index.md) / DecoratedType
+---
+jsApi: true
+title: "[I] DecoratedType"
 
-# Interface: DecoratedType
+---
+## Extended by
 
-## Hierarchy
-
-- **`DecoratedType`**
-
-  ↳ [`Model`](Model.md)
-
-  ↳ [`ModelProperty`](ModelProperty.md)
-
-  ↳ [`Scalar`](Scalar.md)
-
-  ↳ [`Interface`](Interface.md)
-
-  ↳ [`Enum`](Enum.md)
-
-  ↳ [`EnumMember`](EnumMember.md)
-
-  ↳ [`Operation`](Operation.md)
-
-  ↳ [`Namespace`](Namespace.md)
-
-  ↳ [`Union`](Union.md)
-
-  ↳ [`UnionVariant`](UnionVariant.md)
-
-## Table of contents
-
-### Properties
-
-- [decorators](DecoratedType.md#decorators)
+- [`Model`](Model.md)
+- [`ModelProperty`](ModelProperty.md)
+- [`Scalar`](Scalar.md)
+- [`Interface`](Interface.md)
+- [`Enum`](Enum.md)
+- [`EnumMember`](EnumMember.md)
+- [`Operation`](Operation.md)
+- [`Namespace`](Namespace.md)
+- [`Union`](Union.md)
+- [`UnionVariant`](UnionVariant.md)
 
 ## Properties
 
-### decorators
-
-• **decorators**: [`DecoratorApplication`](DecoratorApplication.md)[]
+| Property | Type |
+| :------ | :------ |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] |

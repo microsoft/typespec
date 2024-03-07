@@ -1,22 +1,19 @@
-[JS Api](../index.md) / LogSink
+---
+jsApi: true
+title: "[I] LogSink"
 
-# Interface: LogSink
-
-## Table of contents
-
-### Methods
-
-- [log](LogSink.md#log)
-
+---
 ## Methods
 
-### log
+### log()
 
-▸ **log**(`log`): `void`
+```ts
+log(log): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `log` | [`ProcessedLog`](ProcessedLog.md) |
 

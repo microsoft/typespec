@@ -1,49 +1,29 @@
-[JS Api](../index.md) / TypeMapper
+---
+jsApi: true
+title: "[I] TypeMapper"
 
-# Interface: TypeMapper
-
-## Table of contents
-
-### Properties
-
-- [args](TypeMapper.md#args)
-- [map](TypeMapper.md#map)
-- [partial](TypeMapper.md#partial)
-
-### Methods
-
-- [getMappedType](TypeMapper.md#getmappedtype)
-
+---
 ## Properties
 
-### args
-
-• **args**: readonly [`Type`](../index.md#type)[]
-
-___
-
-### map
-
-• **map**: `Map`<[`TemplateParameter`](TemplateParameter.md), [`Type`](../index.md#type)\>
-
-___
-
-### partial
-
-• **partial**: `boolean`
+| Property | Type |
+| :------ | :------ |
+| `args` | readonly [`Type`](../type-aliases/Type.md)[] |
+| `partial` | `boolean` |
 
 ## Methods
 
-### getMappedType
+### getMappedType()
 
-▸ **getMappedType**(`type`): [`Type`](../index.md#type)
+```ts
+getMappedType(type): Type
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `type` | [`TemplateParameter`](TemplateParameter.md) |
 
 #### Returns
 
-[`Type`](../index.md#type)
+[`Type`](../type-aliases/Type.md)

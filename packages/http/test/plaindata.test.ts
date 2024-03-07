@@ -1,5 +1,6 @@
 import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { isBody, isHeader, isPathParam, isQueryParam } from "../src/decorators.js";
 import { createHttpTestHost } from "./test-host.js";
 

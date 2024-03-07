@@ -1,56 +1,17 @@
-[JS Api](../index.md) / SourceLocation
+---
+jsApi: true
+title: "[I] SourceLocation"
 
-# Interface: SourceLocation
-
-## Hierarchy
+---
+## Extends
 
 - [`TextRange`](TextRange.md)
 
-  ↳ **`SourceLocation`**
-
-## Table of contents
-
-### Properties
-
-- [end](SourceLocation.md#end)
-- [file](SourceLocation.md#file)
-- [isSynthetic](SourceLocation.md#issynthetic)
-- [pos](SourceLocation.md#pos)
-
 ## Properties
 
-### end
-
-• `Readonly` **end**: `number`
-
-The ending position measured in UTF-16 code units from the start of the
-full string. Exclusive.
-
-#### Inherited from
-
-[TextRange](TextRange.md).[end](TextRange.md#end)
-
-___
-
-### file
-
-• **file**: [`SourceFile`](SourceFile.md)
-
-___
-
-### isSynthetic
-
-• `Optional` **isSynthetic**: `boolean`
-
-___
-
-### pos
-
-• `Readonly` **pos**: `number`
-
-The starting position of the ranger measured in UTF-16 code units from the
-start of the full string. Inclusive.
-
-#### Inherited from
-
-[TextRange](TextRange.md).[pos](TextRange.md#pos)
+| Property | Modifier | Type | Description | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`TextRange`](TextRange.md).`end` |
+| `file` | `public` | [`SourceFile`](SourceFile.md) | - | - |
+| `isSynthetic?` | `public` | `boolean` | - | - |
+| `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`TextRange`](TextRange.md).`pos` |

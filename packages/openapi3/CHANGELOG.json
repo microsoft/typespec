@@ -2,6 +2,221 @@
   "name": "@typespec/openapi3",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/openapi3_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for `@encodedName` decorator"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.51.1",
+      "tag": "@typespec/openapi3_v0.51.1",
+      "date": "Wed, 13 Dec 2023 23:28:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Multipart part of type `bytes[]` is now treated as multiple binary part"
+          },
+          {
+            "comment": "Fix: OpenAPI3 creating conflicting type declaration when type was used in multipart implicit body and json body"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.51.0",
+      "tag": "@typespec/openapi3_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle `bytes` as a multipart part type correctly and produce `type: string, format: binary`"
+          },
+          {
+            "comment": "Added support for string template literals"
+          },
+          {
+            "comment": "Handle: union variants as discriminator"
+          },
+          {
+            "comment": "Migrate code to use the emitter framework"
+          },
+          {
+            "comment": "Emitter will now emit all properties on unreferenced schemas."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.50.0",
+      "tag": "@typespec/openapi3_v0.50.0",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: Stops emitting an error when using `@body _: void` in operation parameters and treat it as no body."
+          },
+          {
+            "comment": "Fix issue where using shared routes would, in some cases, result in a \"duplicate-header\" error."
+          },
+          {
+            "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files"
+          },
+          {
+            "comment": "Support `@summary` on data types which emits the JSON Schema `title` property."
+          },
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.49.0",
+      "tag": "@typespec/openapi3_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Removes `@typespec/rest` as a `peerDependency`. Relates to #2391"
+          },
+          {
+            "comment": "Add support for constraints on unions"
+          },
+          {
+            "comment": "Add support for `@returns` and `@errors` doc comment tags."
+          },
+          {
+            "comment": "Add support for http status code ranges"
+          },
+          {
+            "comment": "Fix: Correctly generate discriminated union mapping property with multiple visibilities involved"
+          },
+          {
+            "comment": "Fix: Crash when assigning a numeric default to a union"
+          },
+          {
+            "comment": "Fix: Using format `ssv` or `pipes` in `@header` produced an invalid OpenAPI3 schema. It will now change the type to string and ignore the format as well as logging a warning."
+          },
+          {
+            "comment": "Fix: Use `null` as a default"
+          },
+          {
+            "comment": "Allow use of `@oneOf` on model properties"
+          },
+          {
+            "comment": "Fix `OpenAPI` namespace to be `TypeSpec.OpenAPI`."
+          },
+          {
+            "comment": "Fix issue with CSV format representation."
+          },
+          {
+            "comment": "Fix issue where openAPI3 for shared routes incorrectly output a statusCode field."
+          },
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "Disable folding of serialized yaml if line is above 80 characters"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.1",
+      "tag": "@typespec/openapi3_v0.48.1",
+      "date": "Tue, 19 Sep 2023 19:28:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix: Correctly generate discriminated union mapping property with multiple visibilities involved"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          },
+          {
+            "comment": "Updating dependency \"@typespec/compiler\" from `~0.48.0` to `~0.48.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/openapi3_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fixed issue where parameters on a PATCH request marked with visibility \"create\" did not appear."
+          },
+          {
+            "comment": "Changed yaml parser from `js-yaml` to `yaml`"
+          },
+          {
+            "comment": "Fix: `exclusiveMinimum` and `exclusiveMaximum` properties are booleans in openapi3"
+          },
+          {
+            "comment": "Use `anyOf` instead of `oneOf` for shared route with different request/response bodies"
+          },
+          {
+            "comment": "Fix handling of `Record<T>` in `model is` and `model extends`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.47.0",
+      "tag": "@typespec/openapi3_v0.47.0",
+      "date": "Tue, 08 Aug 2023 22:32:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle general encodings for utcDateTime"
+          },
+          {
+            "comment": "Add support for  `@info` decorator providing the ability to specify the additional fields from openapi info object."
+          },
+          {
+            "comment": "Emit diagnostic for empty unions"
+          },
+          {
+            "comment": "Fix: Apply `@minItems` and `@maxItems` decorators on model array."
+          },
+          {
+            "comment": "Fix `@useRef` decorator serializing `$ref` as an object."
+          },
+          {
+            "comment": "Support collection formats: simple, form, ssv and pipes."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.46.0",
+      "tag": "@typespec/openapi3_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Omitting `x-typespec-name` extension by default from openapi3 output. A new flag `include-x-typespec-name: \"inline-only\" | \"never\"` has been added to get previous behavior."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.0",
       "tag": "@typespec/openapi3_v0.45.0",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",

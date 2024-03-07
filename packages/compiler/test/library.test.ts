@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { paramMessage } from "../src/core/library.js";
 
 describe("compiler: library", () => {

@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import {
   CompletionItem,
   CompletionItemKind,
@@ -37,7 +38,10 @@ describe("compiler: server: completion", () => {
         label: "Record",
         insertText: "Record",
         kind: CompletionItemKind.Class,
-        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nmodel Record<T>\n```" },
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "```typespec\nmodel Record<Element>\n```",
+        },
       },
     ]);
   });
@@ -125,25 +129,35 @@ describe("compiler: server: completion", () => {
       const completions = await complete(` import "./┆ `, undefined, {
         "test/bar.tsp": "",
         "test/foo.tsp": "",
-        "test/foo/test.tsp": "",
+        "test/dir/test.tsp": "",
       });
+      const range = { start: { line: 0, character: 11 }, end: { line: 0, character: 11 } };
       check(
         completions,
         [
           {
             label: "bar.tsp",
-            commitCharacters: [],
             kind: CompletionItemKind.File,
+            textEdit: {
+              newText: "bar.tsp",
+              range,
+            },
           },
           {
             label: "foo.tsp",
-            commitCharacters: [],
             kind: CompletionItemKind.File,
+            textEdit: {
+              newText: "foo.tsp",
+              range,
+            },
           },
           {
-            label: "foo",
-            commitCharacters: [],
+            label: "dir",
             kind: CompletionItemKind.Folder,
+            textEdit: {
+              newText: "dir",
+              range,
+            },
           },
         ],
         {
@@ -162,9 +176,12 @@ describe("compiler: server: completion", () => {
         completions,
         [
           {
-            commitCharacters: [],
             kind: 19,
             label: "main",
+            textEdit: {
+              newText: "main",
+              range: { start: { line: 0, character: 11 }, end: { line: 0, character: 11 } },
+            },
           },
         ],
         {
@@ -181,9 +198,12 @@ describe("compiler: server: completion", () => {
         completions,
         [
           {
-            commitCharacters: [],
             kind: 17,
             label: "foo.tsp",
+            textEdit: {
+              newText: "foo.tsp",
+              range: { start: { line: 0, character: 24 }, end: { line: 0, character: 24 } },
+            },
           },
         ],
         {
@@ -200,9 +220,12 @@ describe("compiler: server: completion", () => {
         completions,
         [
           {
-            commitCharacters: [],
             kind: 17,
             label: "foo.tsp",
+            textEdit: {
+              newText: "foo.tsp",
+              range: { start: { line: 0, character: 15 }, end: { line: 0, character: 15 } },
+            },
           },
         ],
         {
@@ -593,6 +616,54 @@ describe("compiler: server: completion", () => {
     ]);
   });
 
+  it("completes template parameter names in arguments", async () => {
+    const completions = await complete(`
+      model Template<Param> {
+        prop: Param;
+      }
+
+      model M {
+        prop: Template<P┆>;
+      }
+      `);
+
+    check(completions, [
+      {
+        label: "Param",
+        insertText: "Param = ",
+        kind: CompletionItemKind.Struct,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(template parameter)\n```typespec\nParam\n```",
+        },
+      },
+    ]);
+  });
+
+  it("completes template parameter names in arguments with equals sign already in place", async () => {
+    const completions = await complete(`
+      model Template<Param> {
+        prop: Param;
+      }
+
+      model M {
+        prop: Template<P┆ = string>;
+      }
+      `);
+
+    check(completions, [
+      {
+        label: "Param",
+        insertText: "Param",
+        kind: CompletionItemKind.Struct,
+        documentation: {
+          kind: MarkupKind.Markdown,
+          value: "(template parameter)\n```typespec\nParam\n```",
+        },
+      },
+    ]);
+  });
+
   it("completes sibling in namespace", async () => {
     const completions = await complete(
       `
@@ -675,7 +746,10 @@ describe("compiler: server: completion", () => {
           label: "Inner",
           insertText: "Inner",
           kind: CompletionItemKind.Module,
-          documentation: undefined,
+          documentation: {
+            kind: MarkupKind.Markdown,
+            value: "```typespec\nnamespace Outer.Inner\n```",
+          },
         },
         {
           label: "outerDecorator",
@@ -862,7 +936,7 @@ describe("compiler: server: completion", () => {
   it("completes deprecated type", async () => {
     const completions = await complete(
       `
-      @deprecated("Foo is bad")
+      #deprecated "Foo is bad"
       model Foo {}
 
       model Bar {
@@ -880,6 +954,64 @@ describe("compiler: server: completion", () => {
         tags: [CompletionItemTag.Deprecated],
       },
     ]);
+  });
+
+  it("completes deprecated alias", async () => {
+    const completions = await complete(
+      `
+      model Foo {}
+
+      #deprecated "AliasedFoo is bad"
+      alias AliasedFoo = Foo
+
+      model Bar {
+        prop: Ali┆
+      }
+      `
+    );
+
+    check(completions, [
+      {
+        label: "AliasedFoo",
+        insertText: "AliasedFoo",
+        kind: CompletionItemKind.Variable,
+        documentation: { kind: MarkupKind.Markdown, value: "```typespec\nalias AliasedFoo\n```" },
+        tags: [CompletionItemTag.Deprecated],
+      },
+    ]);
+  });
+
+  describe("directives", () => {
+    it("complete directives when starting with `#`", async () => {
+      const completions = await complete(
+        `
+        #┆
+        model Bar {}
+        `
+      );
+
+      check(completions, [
+        {
+          label: "suppress",
+          kind: CompletionItemKind.Keyword,
+        },
+        {
+          label: "deprecated",
+          kind: CompletionItemKind.Keyword,
+        },
+      ]);
+    });
+
+    it("doesn't complete when in the argument section", async () => {
+      const completions = await complete(
+        `
+        #suppress s┆
+        model Bar {}
+        `
+      );
+
+      check(completions, []);
+    });
   });
 
   function check(

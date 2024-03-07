@@ -1,13 +1,15 @@
-# Diagnostics
+---
+title: Diagnostics
+---
 
-TypeSpec compiler report errors and warnings in the spec using the diagnostic API.
+The TypeSpec compiler reports errors and warnings in the spec using the diagnostic API.
 
 ## Best practices
 
 - ❌ Do not use `throw` to report errors. Any exception thrown like this will be presented as a bug in your library to the user.
 - ✅ Use diagnostic API to report expected errors and warnings.
   - ✅ Use `reportDiagnostic` in a decorator, `$onValidate` or `$onEmit`
-  - ❌ Do not use `reportDiagnostic` in an accessor(A function meant to be consumed in another library or emitter). See [collect diagnostics section](#collect-diagnostics)
+  - ❌ Do not use `reportDiagnostic` in an accessor (A function meant to be consumed in another library or emitter). See [collect diagnostics section](#collect-diagnostics)
 
 ## Diagnostic specification
 
@@ -21,8 +23,10 @@ TypeSpec compiler report errors and warnings in the spec using the diagnostic AP
 ### Declare the diagnostics you are reporting
 
 ```ts
+import { createTypeSpecLibrary } from "@typespec/compiler";
+
 // in lib.js
-export const { reportDiagnostic, createDiagnostic, createStateSymbol } = createTypeSpecLibrary({
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/my-lib",
   diagnostics: {
     // Basic diagnostic with a fixed message
@@ -51,6 +55,9 @@ export const { reportDiagnostic, createDiagnostic, createStateSymbol } = createT
     },
   },
 } as const);
+
+// Rexport the helper functions to be able to just call them directly.
+export const { reportDiagnostic, createDiagnostic };
 ```
 
 This will represent 3 different diagnostics with full name of
@@ -110,7 +117,7 @@ function getRoutes(): [Route, readonly Diagnostic] {
 or manually
 
 ```ts
-import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";
+import { Diagnostic } from "@typespec/compiler";
 
 function getRoutes(): [Route, readonly Diagnostic] {
   const diagnostics = [];

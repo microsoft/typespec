@@ -1,8 +1,10 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
 import { TypeEmitter } from "../emitter-framework/type-emitter.js";
 import { AssetEmitter } from "../emitter-framework/types.js";
+import { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import { ModuleResolutionResult } from "./module-resolver.js";
 import { Program } from "./program.js";
+import type { TokenFlags } from "./scanner.js";
 
 // prettier-ignore
 export type MarshalledValue<Type>  = 
@@ -66,7 +68,7 @@ export interface DecoratedType {
 /**
  * Union of all the types that implement TemplatedTypeBase
  */
-export type TemplatedType = Model | Operation | Interface | Union;
+export type TemplatedType = Model | Operation | Interface | Union | Scalar;
 
 export interface TypeMapper {
   partial: boolean;
@@ -97,6 +99,8 @@ export type Type =
   | StringLiteral
   | NumericLiteral
   | BooleanLiteral
+  | StringTemplate
+  | StringTemplateSpan
   | Tuple
   | Union
   | UnionVariant
@@ -390,7 +394,7 @@ export interface Namespace extends BaseType, DecoratedType {
   kind: "Namespace";
   name: string;
   namespace?: Namespace;
-  node: NamespaceStatementNode;
+  node: NamespaceStatementNode | JsNamespaceDeclarationNode;
 
   /**
    * The models in the namespace.
@@ -475,6 +479,28 @@ export interface BooleanLiteral extends BaseType {
   kind: "Boolean";
   node?: BooleanLiteralNode;
   value: boolean;
+}
+
+export interface StringTemplate extends BaseType {
+  kind: "StringTemplate";
+  node: StringTemplateExpressionNode;
+  spans: StringTemplateSpan[];
+}
+
+export type StringTemplateSpan = StringTemplateSpanLiteral | StringTemplateSpanValue;
+
+export interface StringTemplateSpanLiteral extends BaseType {
+  kind: "StringTemplateSpan";
+  node: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
+  isInterpolated: false;
+  type: StringLiteral;
+}
+
+export interface StringTemplateSpanValue extends BaseType {
+  kind: "StringTemplateSpan";
+  node: Expression;
+  isInterpolated: true;
+  type: Type;
 }
 
 export interface Tuple extends BaseType {
@@ -620,6 +646,9 @@ export interface SymbolLinks {
   instantiations?: TypeInstantiationMap;
 }
 
+/**
+ * @hidden bug in typedoc
+ */
 export interface SymbolTable extends ReadonlyMap<string, Sym> {
   /**
    * Duplicate
@@ -678,6 +707,7 @@ export interface TypeInstantiationMap {
 
 /**
  * A map where keys can be changed without changing enumeration order.
+ * @hidden bug in typedoc
  */
 export interface RekeyableMap<K, V> extends Map<K, V> {
   /**
@@ -731,6 +761,11 @@ export enum SyntaxKind {
   StringLiteral,
   NumericLiteral,
   BooleanLiteral,
+  StringTemplateExpression,
+  StringTemplateHead,
+  StringTemplateMiddle,
+  StringTemplateTail,
+  StringTemplateSpan,
   ExternKeyword,
   VoidKeyword,
   NeverKeyword,
@@ -747,6 +782,7 @@ export enum SyntaxKind {
   DocText,
   DocParamTag,
   DocReturnsTag,
+  DocErrorsTag,
   DocTemplateTag,
   DocUnknownTag,
   Projection,
@@ -779,6 +815,8 @@ export enum SyntaxKind {
   ProjectionStatement,
   ProjectionDecoratorReferenceExpression,
   Return,
+  JsNamespaceDeclaration,
+  TemplateArgument,
 }
 
 export const enum NodeFlags {
@@ -834,6 +872,8 @@ export interface TemplateDeclarationNode {
 export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
+  | JsNamespaceDeclarationNode
+  | TemplateArgumentNode
   | TemplateParameterDeclarationNode
   | ProjectionParameterDeclarationNode
   | ProjectionLambdaParameterDeclarationNode
@@ -850,6 +890,10 @@ export type Node =
   | Statement
   | Expression
   | FunctionParameterNode
+  | StringTemplateSpanNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode
   | Modifier
   | DocNode
   | DocContent
@@ -1028,10 +1072,10 @@ export type Expression =
   | IntersectionExpressionNode
   | TypeReferenceNode
   | ValueOfExpressionNode
-  | IdentifierNode
   | StringLiteralNode
   | NumericLiteralNode
   | BooleanLiteralNode
+  | StringTemplateExpressionNode
   | VoidKeywordNode
   | NeverKeywordNode
   | AnyKeywordNode;
@@ -1142,7 +1186,7 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
 
 export interface UnionVariantNode extends BaseNode {
   readonly kind: SyntaxKind.UnionVariant;
-  readonly id: IdentifierNode;
+  readonly id?: IdentifierNode;
   readonly value: Expression;
   readonly decorators: readonly DecoratorExpressionNode[];
   readonly parent?: UnionStatementNode;
@@ -1213,7 +1257,13 @@ export interface ModelSpreadPropertyNode extends BaseNode {
   readonly parent?: ModelStatementNode | ModelExpressionNode;
 }
 
-export type LiteralNode = StringLiteralNode | NumericLiteralNode | BooleanLiteralNode;
+export type LiteralNode =
+  | StringLiteralNode
+  | NumericLiteralNode
+  | BooleanLiteralNode
+  | StringTemplateHeadNode
+  | StringTemplateMiddleNode
+  | StringTemplateTailNode;
 
 export interface StringLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.StringLiteral;
@@ -1229,6 +1279,39 @@ export interface NumericLiteralNode extends BaseNode {
 export interface BooleanLiteralNode extends BaseNode {
   readonly kind: SyntaxKind.BooleanLiteral;
   readonly value: boolean;
+}
+
+export interface StringTemplateExpressionNode extends BaseNode {
+  readonly kind: SyntaxKind.StringTemplateExpression;
+  readonly head: StringTemplateHeadNode;
+  readonly spans: readonly StringTemplateSpanNode[];
+}
+
+// Each of these corresponds to a substitution expression and a template literal, in that order.
+// The template literal must have kind TemplateMiddleLiteral or TemplateTailLiteral.
+export interface StringTemplateSpanNode extends BaseNode {
+  readonly kind: SyntaxKind.StringTemplateSpan;
+  readonly expression: Expression;
+  readonly literal: StringTemplateMiddleNode | StringTemplateTailNode;
+}
+
+export interface StringTemplateLiteralLikeNode extends BaseNode {
+  readonly value: string;
+
+  /** @internal */
+  readonly tokenFlags: TokenFlags;
+}
+
+export interface StringTemplateHeadNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateHead;
+}
+
+export interface StringTemplateMiddleNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateMiddle;
+}
+
+export interface StringTemplateTailNode extends StringTemplateLiteralLikeNode {
+  readonly kind: SyntaxKind.StringTemplateTail;
 }
 
 export interface ExternKeywordNode extends BaseNode {
@@ -1270,7 +1353,13 @@ export interface ValueOfExpressionNode extends BaseNode {
 export interface TypeReferenceNode extends BaseNode {
   readonly kind: SyntaxKind.TypeReference;
   readonly target: MemberExpressionNode | IdentifierNode;
-  readonly arguments: readonly Expression[];
+  readonly arguments: readonly TemplateArgumentNode[];
+}
+
+export interface TemplateArgumentNode extends BaseNode {
+  readonly kind: SyntaxKind.TemplateArgument;
+  readonly name?: IdentifierNode;
+  readonly argument: Expression;
 }
 
 export interface ProjectionReferenceNode extends BaseNode {
@@ -1531,6 +1620,7 @@ export interface IdentifierContext {
 
 export enum IdentifierKind {
   TypeReference,
+  TemplateArgument,
   Decorator,
   Function,
   Using,
@@ -1551,7 +1641,12 @@ export interface DocTagBaseNode extends BaseNode {
   readonly content: readonly DocContent[];
 }
 
-export type DocTag = DocReturnsTagNode | DocParamTagNode | DocTemplateTagNode | DocUnknownTagNode;
+export type DocTag =
+  | DocReturnsTagNode
+  | DocErrorsTagNode
+  | DocParamTagNode
+  | DocTemplateTagNode
+  | DocUnknownTagNode;
 export type DocContent = DocTextNode;
 
 export interface DocTextNode extends BaseNode {
@@ -1561,6 +1656,10 @@ export interface DocTextNode extends BaseNode {
 
 export interface DocReturnsTagNode extends DocTagBaseNode {
   readonly kind: SyntaxKind.DocReturnsTag;
+}
+
+export interface DocErrorsTagNode extends DocTagBaseNode {
+  readonly kind: SyntaxKind.DocErrorsTag;
 }
 
 export interface DocParamTagNode extends DocTagBaseNode {
@@ -1610,6 +1709,10 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
 
   /* Any namespaces declared by decorators. */
   readonly namespaceSymbols: Sym[];
+}
+
+export interface JsNamespaceDeclarationNode extends DeclarationNode, BaseNode {
+  readonly kind: SyntaxKind.JsNamespaceDeclaration;
 }
 
 export type EmitterFunc = (context: EmitContext) => Promise<void> | void;
@@ -1680,6 +1783,7 @@ export interface LibraryInstance {
   entrypoint: JsSourceFileNode | undefined;
   metadata: LibraryMetadata;
   definition?: TypeSpecLibrary<any>;
+  linter: LinterDefinition;
 }
 
 export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
@@ -1687,6 +1791,9 @@ export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
 interface LibraryMetadataBase {
   /** Library homepage. */
   homepage?: string;
+
+  /** Library version */
+  version?: string;
 
   bugs?: {
     /** Url where to file bugs for this library. */
@@ -1728,9 +1835,12 @@ export interface SourceLocation extends TextRange {
   isSynthetic?: boolean;
 }
 
+/** Used to explicitly specify that a diagnostic has no target. */
 export const NoTarget = Symbol.for("NoTarget");
 
-export type DiagnosticTarget = Node | Type | Sym | SourceLocation;
+/** Diagnostic target that can be used when working with TypeSpec types.  */
+export type TypeSpecDiagnosticTarget = Node | Type | Sym;
+export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
 export type DiagnosticSeverity = "error" | "warning";
 
@@ -1739,6 +1849,42 @@ export interface Diagnostic {
   severity: DiagnosticSeverity;
   message: string;
   target: DiagnosticTarget | typeof NoTarget;
+  readonly codefixes?: readonly CodeFix[];
+}
+
+export interface CodeFix {
+  readonly id: string;
+  readonly label: string;
+  readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
+}
+
+export interface FilePos {
+  readonly pos: number;
+  readonly file: SourceFile;
+}
+
+export interface CodeFixContext {
+  /** Add the given text before the range or pos given. */
+  readonly prependText: (location: SourceLocation | FilePos, text: string) => InsertTextCodeFixEdit;
+  /** Add the given text after the range or pos given. */
+  readonly appendText: (location: SourceLocation | FilePos, text: string) => InsertTextCodeFixEdit;
+  /** Replace the text at the given range. */
+  readonly replaceText: (location: SourceLocation, newText: string) => ReplaceTextCodeFixEdit;
+}
+
+export type CodeFixEdit = InsertTextCodeFixEdit | ReplaceTextCodeFixEdit;
+
+export interface InsertTextCodeFixEdit {
+  readonly kind: "insert-text";
+  readonly text: string;
+  readonly pos: number;
+  readonly file: SourceFile;
+}
+
+export interface ReplaceTextCodeFixEdit extends TextRange {
+  readonly kind: "replace-text";
+  readonly text: string;
+  readonly file: SourceFile;
 }
 
 /**
@@ -1753,11 +1899,16 @@ export interface DirectiveBase {
   node: DirectiveExpressionNode;
 }
 
-export type Directive = SuppressDirective;
+export type Directive = SuppressDirective | DeprecatedDirective;
 
 export interface SuppressDirective extends DirectiveBase {
   name: "suppress";
   code: string;
+  message: string;
+}
+
+export interface DeprecatedDirective extends DirectiveBase {
+  name: "deprecated";
   message: string;
 }
 
@@ -1801,7 +1952,7 @@ export interface CompilerHost {
    * @param path Path to the directory.
    * @returns list of file/directory in the given directory. Returns the name not the full path.
    */
-  readDir(dir: string): Promise<string[]>;
+  readDir(path: string): Promise<string[]>;
 
   /**
    * Deletes a directory or file.
@@ -1875,25 +2026,27 @@ export type SemanticNodeListener = {
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
-  M extends keyof T[C] = "default"
+  M extends keyof T[C] = "default",
 > = {
   code: C;
   messageId?: M;
+  readonly codefixes?: readonly CodeFix[];
 } & DiagnosticFormat<T, C, M>;
 
 export type DiagnosticReport<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
-  M extends keyof T[C] = "default"
+  M extends keyof T[C] = "default",
 > = DiagnosticReportWithoutTarget<T, C, M> & { target: DiagnosticTarget | typeof NoTarget };
 
 export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
-  M extends keyof T[C] = "default"
-> = T[C][M] extends CallableMessage<infer A>
-  ? { format: Record<A[number], string> }
-  : Record<string, unknown>;
+  M extends keyof T[C] = "default",
+> =
+  T[C][M] extends CallableMessage<infer A>
+    ? { format: Record<A[number], string> }
+    : Record<string, unknown>;
 
 export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly severity: "warning" | "error";
@@ -1925,12 +2078,14 @@ export interface DiagnosticCreator<T extends { [code: string]: DiagnosticMessage
   ): void;
 }
 
-export type TypeOfDiagnostics<T extends DiagnosticMap<any>> = T extends DiagnosticMap<infer D>
-  ? D
-  : never;
+export type TypeOfDiagnostics<T extends DiagnosticMap<any>> =
+  T extends DiagnosticMap<infer D> ? D : never;
 
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 
+/**
+ * @internal
+ */
 export interface JSONSchemaValidator {
   /**
    * Validate the configuration against its JSON Schema.
@@ -1939,27 +2094,34 @@ export interface JSONSchemaValidator {
    * @param target Source file target to use for diagnostics.
    * @returns Diagnostics produced by schema validation of the configuration.
    */
-  validate(config: unknown, target: SourceFile | typeof NoTarget): Diagnostic[];
+  validate(
+    config: unknown,
+    target: YamlScript | YamlPathTarget | SourceFile | typeof NoTarget
+  ): Diagnostic[];
 }
 
 /** @deprecated Use TypeSpecLibraryDef */
 export type CadlLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
+  E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibraryDef<T, E>;
 
-/**
- * Definition of a TypeSpec library
- */
+export interface StateDef {
+  /**
+   * Description for this state.
+   */
+  readonly description?: string;
+}
+
 export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
+  E extends Record<string, any> = Record<string, never>,
+  State extends string = never,
 > {
   /**
-   * Name of the library. Must match the package.json name.
+   * Library name. MUST match package.json name.
    */
   readonly name: string;
-
   /**
    * Map of potential diagnostics that can be emitted in this library where the key is the diagnostic code.
    */
@@ -1980,8 +2142,11 @@ export interface TypeSpecLibraryDef<
 
   /**
    * Configuration if library is providing linting rules/rulesets.
+   * @deprecated Use `export const $linter` instead. This will cause circular reference with linters.
    */
   readonly linter?: LinterDefinition;
+
+  readonly state?: Record<State, StateDef>;
 }
 
 export interface LinterDefinition {
@@ -1990,10 +2155,17 @@ export interface LinterDefinition {
 }
 
 export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
+  /** Rule name (without the library name) */
   name: N;
+  /** Rule default severity. */
   severity: "warning";
+  /** Short description of the rule */
   description: string;
+  /** Specifies the URL at which the full documentation can be accessed. */
+  url?: string;
+  /** Messages that can be reported with the diagnostic. */
   messages: DM;
+  /** Creator */
   create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }
 
@@ -2024,35 +2196,42 @@ export interface LinterRuleContext<DM extends DiagnosticMessages> {
 
 export type LinterRuleDiagnosticFormat<
   T extends DiagnosticMessages,
-  M extends keyof T = "default"
-> = T[M] extends CallableMessage<infer A>
-  ? { format: Record<A[number], string> }
-  : Record<string, unknown>;
+  M extends keyof T = "default",
+> =
+  T[M] extends CallableMessage<infer A>
+    ? { format: Record<A[number], string> }
+    : Record<string, unknown>;
 
 export type LinterRuleDiagnosticReportWithoutTarget<
   T extends DiagnosticMessages,
-  M extends keyof T = "default"
+  M extends keyof T = "default",
 > = {
   messageId?: M;
+  codefixes?: CodeFix[];
 } & LinterRuleDiagnosticFormat<T, M>;
 
 export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
-  M extends keyof T = "default"
+  M extends keyof T = "default",
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
 
 /** @deprecated Use TypeSpecLibrary */
 export type CadlLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
+  E extends Record<string, any> = Record<string, never>,
 > = TypeSpecLibrary<T, E>;
 
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
-  E extends Record<string, any> = Record<string, never>
-> extends TypeSpecLibraryDef<T, E> {
+  E extends Record<string, any> = Record<string, never>,
+  State extends string = never,
+> extends TypeSpecLibraryDef<T, E, State> {
+  /** Library name */
+  readonly name: string;
+
   /**
    * JSON Schema validator for emitter options
+   * @internal
    */
   readonly emitterOptionValidator?: JSONSchemaValidator;
 
@@ -2075,6 +2254,8 @@ export interface TypeSpecLibrary<
    * All trace area logged via this tracer will be prefixed with the library name.
    */
   getTracer(program: Program): Tracer;
+
+  readonly stateKeys: Record<State, symbol>;
 }
 
 /**
@@ -2174,7 +2355,7 @@ export interface Tracer {
   trace(area: string, message: string, target?: DiagnosticTarget): void;
 
   /**
-   * @param area
+   * @param subarea
    */
   sub(subarea: string): Tracer;
 }

@@ -2,6 +2,7 @@ import { ModelProperty, Operation } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { isSharedRoute } from "@typespec/http";
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import {
   compileOperations,
   createRestTestRunner,
@@ -424,7 +425,7 @@ describe("rest: routes", () => {
     strictEqual(diagnostics[0].code, "invalid-argument");
     strictEqual(
       diagnostics[0].message,
-      `Argument 'x' is not assignable to parameter of type 'valueof / | : | /:'`
+      `Argument '"x"' is not assignable to parameter of type 'valueof "/" | ":" | "/:"'`
     );
   });
 
@@ -507,6 +508,19 @@ describe("rest: routes", () => {
         message:
           "An operation marked as '@sharedRoute' must have an explicit collection action name passed to '@collectionAction'.",
       },
+    ]);
+  });
+
+  it("respect @path custom name", async () => {
+    const routes = await getRoutesFor(
+      `
+      @autoRoute 
+      op test(@path("custom-name") @segment("params") myParam: string): void;
+      `
+    );
+
+    deepStrictEqual(routes, [
+      { verb: "get", path: "/params/{custom-name}", params: ["custom-name"] },
     ]);
   });
 });

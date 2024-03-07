@@ -1,4 +1,4 @@
-import { typespecBundlePlugin } from "@typespec/bundler";
+import { typespecBundlePlugin } from "@typespec/bundler/vite";
 import react from "@vitejs/plugin-react";
 import { Plugin, ResolvedConfig, UserConfig } from "vite";
 import { PlaygroundUserConfig } from "./types.js";
@@ -8,7 +8,7 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
     base: "./",
     build: {
       target: "esnext",
-      chunkSizeWarningLimit: 3000,
+      chunkSizeWarningLimit: 5000,
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -28,17 +28,14 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
       exclude: ["swagger-ui"],
     },
     plugins: [
-      (react as any)({
-        jsxImportSource: "@emotion/react",
-        babel: {
-          plugins: ["@emotion/babel-plugin"],
-        },
-      }),
+      react({}),
       playgroundManifestPlugin(config),
-      typespecBundlePlugin({
-        folderName: "libs",
-        libraries: config.libraries,
-      }),
+      !config.skipBundleLibraries
+        ? typespecBundlePlugin({
+            folderName: "libs",
+            libraries: config.libraries,
+          })
+        : undefined,
     ],
     server: {
       fs: {
@@ -54,18 +51,19 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
 
   return {
     name: "playground-manifest",
+    enforce: "pre", // Need to run before resolving library imports to stub `@typespec/playground/manifest`
     async configResolved(c) {
       viteConfig = c;
     },
     resolveId(id: string) {
-      if (id === "playground-manifest.js") {
+      if (id === "@typespec/playground/manifest") {
         return id;
       }
       return null;
     },
     load(id: string) {
-      if (id === `playground-manifest.js`) {
-        const sampleImport = Object.values(samples)
+      if (id === `@typespec/playground/manifest`) {
+        const sampleImport = Object.values(samples ?? {})
           .map(
             (sampleValue, index) =>
               `import s${index} from "${viteConfig.root}/${sampleValue.filename}?raw"`
@@ -73,14 +71,20 @@ function playgroundManifestPlugin(config: PlaygroundUserConfig): Plugin {
           .join("\n");
         const sampleObj = [
           "{",
-          ...Object.entries(samples).map(
+          ...Object.entries(samples ?? {}).map(
             ([label, config], index) =>
               `${JSON.stringify(label)}: {
                 fileName: ${JSON.stringify(config.filename)},
                 preferredEmitter: ${
                   config.preferredEmitter ? JSON.stringify(config.preferredEmitter) : "undefined"
                 },
-                content: s${index}
+                content: s${index},
+                ${
+                  config.compilerOptions
+                    ? `compilerOptions: ${JSON.stringify(config.compilerOptions)},`
+                    : ""
+                }
+
               }, `
           ),
           "}",

@@ -112,12 +112,12 @@ extern dec contentSchema(target: string | Reflection.ModelProperty, value: unkno
 /**
  * Specify a custom property to add to the emitted schema. Useful for adding custom keywords
  * and other vendor-specific extensions. The value will be converted to a schema unless the parameter
- * is wrapped in the `Json<T>` template. For example, `@extension("x-schema", { x: "value" })` will
+ * is wrapped in the `Json<Data>` template. For example, `@extension("x-schema", { x: "value" })` will
  * emit a JSON schema value for `x-schema`, whereas `@extension("x-schema", Json<{x: "value"}>)` will
  * emit the raw JSON code `{x: "value"}`.
  *
  * @param key the name of the keyword of vendor extension, e.g. `x-custom`.
- * @param value the value of the keyword. Will be converted to a schema unless wrapped in `Json<T>`.
+ * @param value the value of the keyword. Will be converted to a schema unless wrapped in `Json<Data>`.
  */
 extern dec extension(target: unknown, key: valueof string, value: unknown);
 
@@ -152,11 +152,11 @@ enum Format {
  * whereas `@extension("x-schema", Json<{x: "value"}>)` will emit the raw JSON code
  * `{x: "value"}`.
  *
- * @template T the type to convert to raw JSON
+ * @template Data the type to convert to raw JSON
  */
-@Private.validatesRawJson(T)
-model Json<T> {
-  value: T;
+@Private.validatesRawJson(Data)
+model Json<Data> {
+  value: Data;
 }
 
 namespace Private {

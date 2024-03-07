@@ -1,101 +1,25 @@
-[JS Api](../index.md) / NodePackage
+---
+jsApi: true
+title: "[I] NodePackage"
 
-# Interface: NodePackage
-
+---
 Type for package.json https://docs.npmjs.com/cli/v8/configuring-npm/package-json
-
-## Table of contents
-
-### Properties
-
-- [bugs](NodePackage.md#bugs)
-- [dependencies](NodePackage.md#dependencies)
-- [description](NodePackage.md#description)
-- [devDependencies](NodePackage.md#devdependencies)
-- [homepage](NodePackage.md#homepage)
-- [main](NodePackage.md#main)
-- [name](NodePackage.md#name)
-- [peerDependencies](NodePackage.md#peerdependencies)
-- [private](NodePackage.md#private)
-- [tspMain](NodePackage.md#tspmain)
-- [type](NodePackage.md#type)
-- [version](NodePackage.md#version)
 
 ## Properties
 
-### bugs
-
-• `Optional` **bugs**: `Object`
-
-#### Type declaration
-
-| Name | Type |
+| Property | Type |
 | :------ | :------ |
-| `email?` | `string` |
-| `url?` | `string` |
-
-___
-
-### dependencies
-
-• `Optional` **dependencies**: `Record`<`string`, `string`\>
-
-___
-
-### description
-
-• `Optional` **description**: `string`
-
-___
-
-### devDependencies
-
-• `Optional` **devDependencies**: `Record`<`string`, `string`\>
-
-___
-
-### homepage
-
-• `Optional` **homepage**: `string`
-
-___
-
-### main
-
-• `Optional` **main**: `string`
-
-___
-
-### name
-
-• **name**: `string`
-
-___
-
-### peerDependencies
-
-• `Optional` **peerDependencies**: `Record`<`string`, `string`\>
-
-___
-
-### private
-
-• `Optional` **private**: `boolean`
-
-___
-
-### tspMain
-
-• `Optional` **tspMain**: `string`
-
-___
-
-### type
-
-• `Optional` **type**: ``"module"`` \| ``"commonjs"``
-
-___
-
-### version
-
-• **version**: `string`
+| `bugs?` | `Object` |
+| `bugs.email?` | `string` |
+| `bugs.url?` | `string` |
+| `dependencies?` | `Record`<`string`, `string`\> |
+| `description?` | `string` |
+| `devDependencies?` | `Record`<`string`, `string`\> |
+| `homepage?` | `string` |
+| `main?` | `string` |
+| `name` | `string` |
+| `peerDependencies?` | `Record`<`string`, `string`\> |
+| `private?` | `boolean` |
+| `tspMain?` | `string` |
+| `type?` | `"module"` \| `"commonjs"` |
+| `version` | `string` |

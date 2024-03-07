@@ -1,5 +1,6 @@
+import { beforeEach, describe, it } from "vitest";
 import { Diagnostic } from "../../src/core/types.js";
-import { createTestHost, expectDiagnostics, TestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: duplicate declarations", () => {
   let testHost: TestHost;
@@ -95,7 +96,7 @@ describe("compiler: duplicate declarations", () => {
   });
 
   describe("reports duplicate namespace/non-namespace", () => {
-    context("in same file", () => {
+    describe("in same file", () => {
       it("with namespace first", async () => {
         testHost.addTypeSpecFile(
           "main.tsp",
@@ -123,7 +124,7 @@ describe("compiler: duplicate declarations", () => {
       });
     });
 
-    context("across multiple files", () => {
+    describe("across multiple files", () => {
       // NOTE: Different order of declarations triggers different code paths, so test both
       it("with namespace first", async () => {
         testHost.addTypeSpecFile(

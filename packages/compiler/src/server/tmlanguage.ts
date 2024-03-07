@@ -11,18 +11,26 @@ type MatchRule = tm.MatchRule<TypeSpecScope>;
 type Grammar = tm.Grammar<TypeSpecScope>;
 
 export type TypeSpecScope =
+  // Comments
   | "comment.block.tsp"
   | "comment.line.double-slash.tsp"
+  // Constants
   | "constant.character.escape.tsp"
   | "constant.numeric.tsp"
   | "constant.language.tsp"
+  // Keywords
   | "keyword.directive.name.tsp"
+  | "keyword.other.tsp"
+  | "keyword.tag.tspdoc"
+  // Entities
   | "entity.name.type.tsp"
   | "entity.name.function.tsp"
   | "entity.name.tag.tsp"
-  | "keyword.other.tsp"
+  | "entity.name.function.macro.tsp"
+  // Strings
   | "string.quoted.double.tsp"
   | "string.quoted.triple.tsp"
+  // Variables
   | "variable.name.tsp"
   // Operators
   | "keyword.operator.type.annotation.tsp"
@@ -36,6 +44,8 @@ export type TypeSpecScope =
   | "punctuation.terminator.statement.tsp"
   | "punctuation.definition.typeparameters.begin.tsp"
   | "punctuation.definition.typeparameters.end.tsp"
+  | "punctuation.definition.template-expression.begin.tsp"
+  | "punctuation.definition.template-expression.end.tsp"
   | "punctuation.squarebracket.open.tsp"
   | "punctuation.squarebracket.close.tsp"
   | "punctuation.curlybrace.open.tsp"
@@ -101,12 +111,26 @@ const escapeChar: MatchRule = {
   match: "\\\\.",
 };
 
+const templateExpression: BeginEndRule = {
+  key: "template-expression",
+  scope: meta,
+  begin: "\\$\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.definition.template-expression.begin.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.definition.template-expression.end.tsp" },
+  },
+  patterns: [expression],
+};
+
 const stringLiteral: BeginEndRule = {
   key: "string-literal",
   scope: "string.quoted.double.tsp",
   begin: '"',
   end: '"|$',
-  patterns: [escapeChar],
+  patterns: [templateExpression, escapeChar],
 };
 
 const tripleQuotedStringLiteral: BeginEndRule = {
@@ -114,7 +138,7 @@ const tripleQuotedStringLiteral: BeginEndRule = {
   scope: "string.quoted.triple.tsp",
   begin: '"""',
   end: '"""',
-  patterns: [escapeChar],
+  patterns: [templateExpression, escapeChar],
 };
 
 const punctuationComma: MatchRule = {
@@ -160,12 +184,62 @@ const blockComment: BeginEndRule = {
   end: "\\*/",
 };
 
+const docCommentParam: MatchRule = {
+  key: "doc-comment-param",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:param|template))\\s+(${identifier})\\b`,
+  captures: {
+    "1": { scope: "keyword.tag.tspdoc" },
+    "2": { scope: "keyword.tag.tspdoc" },
+    "3": { scope: "variable.name.tsp" },
+  },
+};
+const docCommentReturn: MatchRule = {
+  key: "doc-comment-return-tag",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:returns))\\b`,
+  captures: {
+    "1": { scope: "keyword.tag.tspdoc" },
+    "2": { scope: "keyword.tag.tspdoc" },
+  },
+};
+const docCommentUnknownTag: MatchRule = {
+  key: "doc-comment-unknown-tag",
+  scope: "comment.block.tsp",
+  match: `(?x)((@)(?:${identifier}))\\b`,
+  captures: {
+    "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
+  },
+};
+
+const docCommentBlock: IncludeRule = {
+  key: "doc-comment-block",
+  patterns: [docCommentParam, docCommentReturn, docCommentUnknownTag],
+};
+
+const docComment: BeginEndRule = {
+  key: "doc-comment",
+  scope: "comment.block.tsp",
+  begin: "/\\*\\*",
+  beginCaptures: {
+    "0": { scope: "comment.block.tsp" },
+  },
+  end: "\\*/",
+  endCaptures: {
+    "0": { scope: "comment.block.tsp" },
+  },
+  patterns: [docCommentBlock],
+};
+
 // Tokens that match standing alone in any context: literals and comments
 const token: IncludeRule = {
   key: "token",
   patterns: [
+    docComment,
     lineComment,
     blockComment,
+
     // `"""` must come before `"` or first two quotes of `"""` will match as
     // empty string
     tripleQuotedStringLiteral,
@@ -192,9 +266,10 @@ const parenthesizedExpression: BeginEndRule = {
 const decorator: BeginEndRule = {
   key: "decorator",
   scope: meta,
-  begin: `(@${qualifiedIdentifier})`,
+  begin: `((@)${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
   },
   end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],
@@ -203,9 +278,10 @@ const decorator: BeginEndRule = {
 const augmentDecoratorStatement: BeginEndRule = {
   key: "augment-decorator-statement",
   scope: meta,
-  begin: `(@@${qualifiedIdentifier})`,
+  begin: `((@@)${qualifiedIdentifier})`,
   beginCaptures: {
     "1": { scope: "entity.name.tag.tsp" },
+    "2": { scope: "entity.name.tag.tsp" },
   },
   end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],
@@ -239,7 +315,7 @@ const typeArguments: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.definition.typeparameters.end.tsp" },
   },
-  patterns: [expression, punctuationComma],
+  patterns: [identifierExpression, operatorAssignment, expression, punctuationComma],
 };
 
 const typeParameterConstraint: BeginEndRule = {
@@ -827,6 +903,11 @@ export async function main() {
   const plist = await tm.emitPList(grammar, {
     errorSourceFilePath: resolve("./src/tmlanguage.ts"),
   });
+  const json = await tm.emitJSON(grammar, {
+    errorSourceFilePath: resolve("./src/tmlanguage.ts"),
+  });
   await mkdir("./dist", { recursive: true });
   await writeFile("./dist/typespec.tmLanguage", plist);
+  await mkdir("../../grammars", { recursive: true });
+  await writeFile("../../grammars/typespec.json", json);
 }

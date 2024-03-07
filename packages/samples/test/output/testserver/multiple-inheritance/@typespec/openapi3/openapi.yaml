@@ -1,0 +1,259 @@
+openapi: 3.0.0
+info:
+  title: sample
+  version: 0.0.0
+tags: []
+paths:
+  /multipleInheritance/cat:
+    get:
+      operationId: MultipleInheritance_getCat
+      description: Get a cat with name 'Whiskers' where likesMilk, meows, and hisses is true
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cat'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      operationId: MultipleInheritance_putCat
+      description: Put a cat with name 'Boots' where likesMilk and hisses is false, meows is true
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cat'
+  /multipleInheritance/feline:
+    get:
+      operationId: MultipleInheritance_getFeline
+      description: Get a feline where meows and hisses are true
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feline'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      operationId: MultipleInheritance_putFeline
+      description: Put a feline who hisses and doesn't meow
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feline'
+  /multipleInheritance/horse:
+    get:
+      operationId: MultipleInheritance_getHorse
+      description: Get a horse with name 'Fred' and isAShowHorse true
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Horse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      operationId: MultipleInheritance_putHorse
+      description: Put a horse with name 'General' and isAShowHorse false
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Horse'
+  /multipleInheritance/kitten:
+    get:
+      operationId: MultipleInheritance_getKitten
+      description: Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kitten'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      operationId: MultipleInheritance_putKitten
+      description: Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Kitten'
+  /multipleInheritance/pet:
+    get:
+      operationId: MultipleInheritance_getPet
+      description: Get a pet with name 'Peanut'
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+    put:
+      operationId: MultipleInheritance_putPet
+      description: Put a pet with name 'Butter'
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Cat:
+      type: object
+      required:
+        - likesMilk
+      properties:
+        likesMilk:
+          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Feline'
+    Feline:
+      type: object
+      required:
+        - meows
+        - hisses
+      properties:
+        meows:
+          type: boolean
+        hisses:
+          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+    Horse:
+      type: object
+      required:
+        - isAShowHorse
+      properties:
+        isAShowHorse:
+          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Pet'
+    Kitten:
+      type: object
+      required:
+        - eatsMiceYet
+      properties:
+        eatsMiceYet:
+          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/Cat'
+    Pet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

@@ -1,263 +1,58 @@
-[JS Api](../index.md) / Model
+---
+jsApi: true
+title: "[I] Model"
 
-# Interface: Model
+---
+## Extends
 
-## Hierarchy
-
-- [`BaseType`](BaseType.md)
-
-- [`DecoratedType`](DecoratedType.md)
-
-- [`TemplatedTypeBase`](TemplatedTypeBase.md)
-
-  ↳ **`Model`**
-
-  ↳↳ [`ArrayModelType`](ArrayModelType.md)
-
-  ↳↳ [`RecordModelType`](RecordModelType.md)
-
-## Table of contents
-
-### Properties
-
-- [baseModel](Model.md#basemodel)
-- [decorators](Model.md#decorators)
-- [derivedModels](Model.md#derivedmodels)
-- [indexer](Model.md#indexer)
-- [instantiationParameters](Model.md#instantiationparameters)
-- [isFinished](Model.md#isfinished)
-- [kind](Model.md#kind)
-- [name](Model.md#name)
-- [namespace](Model.md#namespace)
-- [node](Model.md#node)
-- [projectionBase](Model.md#projectionbase)
-- [projectionSource](Model.md#projectionsource)
-- [projector](Model.md#projector)
-- [properties](Model.md#properties)
-- [sourceModel](Model.md#sourcemodel)
-- [symbol](Model.md#symbol)
-- [templateArguments](Model.md#templatearguments)
-- [templateMapper](Model.md#templatemapper)
-- [templateNode](Model.md#templatenode)
-
-### Accessors
-
-- [projections](Model.md#projections)
-
-### Methods
-
-- [projectionsByName](Model.md#projectionsbyname)
+- [`BaseType`](BaseType.md).[`DecoratedType`](DecoratedType.md).[`TemplatedTypeBase`](TemplatedTypeBase.md)
 
 ## Properties
 
-### baseModel
-
-• `Optional` **baseModel**: [`Model`](Model.md)
-
-Model this model extends. This represent inheritance.
-
-___
-
-### decorators
-
-• **decorators**: [`DecoratorApplication`](DecoratorApplication.md)[]
-
-#### Inherited from
-
-[DecoratedType](DecoratedType.md).[decorators](DecoratedType.md#decorators)
-
-___
-
-### derivedModels
-
-• **derivedModels**: [`Model`](Model.md)[]
-
-Direct children. This is the reverse relation of [baseModel](ArrayModelType.md#basemodel)
-
-___
-
-### indexer
-
-• `Optional` **indexer**: [`ModelIndexer`](../index.md#modelindexer)
-
-___
-
-### instantiationParameters
-
-• `Optional` **instantiationParameters**: [`Type`](../index.md#type)[]
-
-#### Inherited from
-
-[BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
-
-___
-
-### isFinished
-
-• **isFinished**: `boolean`
-
-Reflect if a type has been finished(Decorators have been called).
-There is multiple reasons a type might not be finished:
-- a template declaration will not
-- a template instance that argument that are still template parameters
-- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
-
-___
-
-### kind
-
-• **kind**: ``"Model"``
-
-#### Overrides
-
-[BaseType](BaseType.md).[kind](BaseType.md#kind)
-
-___
-
-### name
-
-• **name**: `string`
-
-___
-
-### namespace
-
-• `Optional` **namespace**: [`Namespace`](Namespace.md)
-
-___
-
-### node
-
-• `Optional` **node**: [`ModelStatementNode`](ModelStatementNode.md) \| [`ModelExpressionNode`](ModelExpressionNode.md) \| [`IntersectionExpressionNode`](IntersectionExpressionNode.md) \| [`ProjectionModelExpressionNode`](ProjectionModelExpressionNode.md)
-
-#### Overrides
-
-[BaseType](BaseType.md).[node](BaseType.md#node)
-
-___
-
-### projectionBase
-
-• `Optional` **projectionBase**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionBase](BaseType.md#projectionbase)
-
-___
-
-### projectionSource
-
-• `Optional` **projectionSource**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionSource](BaseType.md#projectionsource)
-
-___
-
-### projector
-
-• `Optional` **projector**: [`Projector`](Projector.md)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projector](BaseType.md#projector)
-
-___
-
-### properties
-
-• **properties**: [`RekeyableMap`](RekeyableMap.md)<`string`, [`ModelProperty`](ModelProperty.md)\>
-
-The properties of the model.
-
-Properties are ordered in the order that they appear in source.
-Properties obtained via `model is` appear before properties defined in
-the model body. Properties obtained via `...` are inserted where the
-spread appears in source.
-
-Properties inherited via `model extends` are not included. Use
-[walkPropertiesInherited](../index.md#walkpropertiesinherited) to enumerate all properties in the
-inheritance hierarchy.
-
-___
-
-### sourceModel
-
-• `Optional` **sourceModel**: [`Model`](Model.md)
-
-The model that is referenced via `model is`.
-
-___
-
-### symbol
-
-• `Optional` **symbol**: [`Sym`](Sym.md)
-
-Late-bound symbol of this model type.
-
-___
-
-### templateArguments
-
-• `Optional` **templateArguments**: [`Type`](../index.md#type)[]
-
-**`Deprecated`**
-
-use templateMapper instead.
-
-#### Inherited from
-
-[TemplatedTypeBase](TemplatedTypeBase.md).[templateArguments](TemplatedTypeBase.md#templatearguments)
-
-___
-
-### templateMapper
-
-• `Optional` **templateMapper**: [`TypeMapper`](TypeMapper.md)
-
-#### Inherited from
-
-[TemplatedTypeBase](TemplatedTypeBase.md).[templateMapper](TemplatedTypeBase.md#templatemapper)
-
-___
-
-### templateNode
-
-• `Optional` **templateNode**: [`Node`](../index.md#node)
-
-#### Inherited from
-
-[TemplatedTypeBase](TemplatedTypeBase.md).[templateNode](TemplatedTypeBase.md#templatenode)
+| Property | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `baseModel?` | [`Model`](Model.md) | Model this model extends. This represent inheritance. | - | - |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `derivedModels` | [`Model`](Model.md)[] | Direct children. This is the reverse relation of [baseModel](Model.md) | - | - |
+| `indexer?` | [`ModelIndexer`](../type-aliases/ModelIndexer.md) | - | - | - |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `"Model"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `name` | `string` | - | - | - |
+| `namespace?` | [`Namespace`](Namespace.md) | - | - | - |
+| `node?` | [`ModelStatementNode`](ModelStatementNode.md) \| [`ModelExpressionNode`](ModelExpressionNode.md) \| [`IntersectionExpressionNode`](IntersectionExpressionNode.md) \| [`ProjectionModelExpressionNode`](ProjectionModelExpressionNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
+| `properties` | `RekeyableMap`<`string`, [`ModelProperty`](ModelProperty.md)\> | The properties of the model.<br /><br />Properties are ordered in the order that they appear in source.<br />Properties obtained via `model is` appear before properties defined in<br />the model body. Properties obtained via `...` are inserted where the<br />spread appears in source.<br /><br />Properties inherited via `model extends` are not included. Use<br />[walkPropertiesInherited](../functions/walkPropertiesInherited.md) to enumerate all properties in the<br />inheritance hierarchy. | - | - |
+| `sourceModel?` | [`Model`](Model.md) | The model that is referenced via `model is`. | - | - |
+| ~~`templateArguments?`~~ | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` |
+| `templateMapper?` | [`TypeMapper`](TypeMapper.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` |
+| `templateNode?` | [`Node`](../type-aliases/Node.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` |
 
 ## Accessors
 
 ### projections
 
-• `get` **projections**(): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+get projections(): ProjectionStatementNode[]
+```
 
 #### Returns
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
-#### Inherited from
-
-BaseType.projections
-
 ## Methods
 
-### projectionsByName
+### projectionsByName()
 
-▸ **projectionsByName**(`name`): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+projectionsByName(name): ProjectionStatementNode[]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
 
@@ -267,4 +62,4 @@ BaseType.projections
 
 #### Inherited from
 
-[BaseType](BaseType.md).[projectionsByName](BaseType.md#projectionsbyname)
+[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)

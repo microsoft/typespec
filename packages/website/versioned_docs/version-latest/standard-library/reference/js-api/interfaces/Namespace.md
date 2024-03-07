@@ -1,258 +1,59 @@
-[JS Api](../index.md) / Namespace
+---
+jsApi: true
+title: "[I] Namespace"
 
-# Interface: Namespace
+---
+## Extends
 
-## Hierarchy
-
-- [`BaseType`](BaseType.md)
-
-- [`DecoratedType`](DecoratedType.md)
-
-  ↳ **`Namespace`**
-
-## Table of contents
-
-### Properties
-
-- [decoratorDeclarations](Namespace.md#decoratordeclarations)
-- [decorators](Namespace.md#decorators)
-- [enums](Namespace.md#enums)
-- [functionDeclarations](Namespace.md#functiondeclarations)
-- [instantiationParameters](Namespace.md#instantiationparameters)
-- [interfaces](Namespace.md#interfaces)
-- [isFinished](Namespace.md#isfinished)
-- [kind](Namespace.md#kind)
-- [models](Namespace.md#models)
-- [name](Namespace.md#name)
-- [namespace](Namespace.md#namespace)
-- [namespaces](Namespace.md#namespaces)
-- [node](Namespace.md#node)
-- [operations](Namespace.md#operations)
-- [projectionBase](Namespace.md#projectionbase)
-- [projectionSource](Namespace.md#projectionsource)
-- [projector](Namespace.md#projector)
-- [scalars](Namespace.md#scalars)
-- [unions](Namespace.md#unions)
-
-### Accessors
-
-- [projections](Namespace.md#projections)
-
-### Methods
-
-- [projectionsByName](Namespace.md#projectionsbyname)
+- [`BaseType`](BaseType.md).[`DecoratedType`](DecoratedType.md)
 
 ## Properties
 
-### decoratorDeclarations
-
-• **decoratorDeclarations**: `Map`<`string`, [`Decorator`](Decorator.md)\>
-
-The decorators declared in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### decorators
-
-• **decorators**: [`DecoratorApplication`](DecoratorApplication.md)[]
-
-#### Inherited from
-
-[DecoratedType](DecoratedType.md).[decorators](DecoratedType.md#decorators)
-
-___
-
-### enums
-
-• **enums**: `Map`<`string`, [`Enum`](Enum.md)\>
-
-The enums in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### functionDeclarations
-
-• **functionDeclarations**: `Map`<`string`, [`FunctionType`](FunctionType.md)\>
-
-The functions declared in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### instantiationParameters
-
-• `Optional` **instantiationParameters**: [`Type`](../index.md#type)[]
-
-#### Inherited from
-
-[BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
-
-___
-
-### interfaces
-
-• **interfaces**: `Map`<`string`, [`Interface`](Interface.md)\>
-
-The interfaces in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### isFinished
-
-• **isFinished**: `boolean`
-
-Reflect if a type has been finished(Decorators have been called).
-There is multiple reasons a type might not be finished:
-- a template declaration will not
-- a template instance that argument that are still template parameters
-- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
-
-___
-
-### kind
-
-• **kind**: ``"Namespace"``
-
-#### Overrides
-
-[BaseType](BaseType.md).[kind](BaseType.md#kind)
-
-___
-
-### models
-
-• **models**: `Map`<`string`, [`Model`](Model.md)\>
-
-The models in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### name
-
-• **name**: `string`
-
-___
-
-### namespace
-
-• `Optional` **namespace**: [`Namespace`](Namespace.md)
-
-___
-
-### namespaces
-
-• **namespaces**: `Map`<`string`, [`Namespace`](Namespace.md)\>
-
-The sub-namespaces in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### node
-
-• **node**: [`NamespaceStatementNode`](NamespaceStatementNode.md)
-
-#### Overrides
-
-[BaseType](BaseType.md).[node](BaseType.md#node)
-
-___
-
-### operations
-
-• **operations**: `Map`<`string`, [`Operation`](Operation.md)\>
-
-The operations in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### projectionBase
-
-• `Optional` **projectionBase**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionBase](BaseType.md#projectionbase)
-
-___
-
-### projectionSource
-
-• `Optional` **projectionSource**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionSource](BaseType.md#projectionsource)
-
-___
-
-### projector
-
-• `Optional` **projector**: [`Projector`](Projector.md)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projector](BaseType.md#projector)
-
-___
-
-### scalars
-
-• **scalars**: `Map`<`string`, [`Scalar`](Scalar.md)\>
-
-The scalars in the namespace.
-
-Order is implementation-defined and may change.
-
-___
-
-### unions
-
-• **unions**: `Map`<`string`, [`Union`](Union.md)\>
-
-The unions in the namespace.
-
-Order is implementation-defined and may change.
+| Property | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `decoratorDeclarations` | `Map`<`string`, [`Decorator`](Decorator.md)\> | The decorators declared in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `enums` | `Map`<`string`, [`Enum`](Enum.md)\> | The enums in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `functionDeclarations` | `Map`<`string`, [`FunctionType`](FunctionType.md)\> | The functions declared in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `interfaces` | `Map`<`string`, [`Interface`](Interface.md)\> | The interfaces in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `"Namespace"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `models` | `Map`<`string`, [`Model`](Model.md)\> | The models in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `name` | `string` | - | - | - |
+| `namespace?` | [`Namespace`](Namespace.md) | - | - | - |
+| `namespaces` | `Map`<`string`, [`Namespace`](Namespace.md)\> | The sub-namespaces in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `node` | [`JsNamespaceDeclarationNode`](JsNamespaceDeclarationNode.md) \| [`NamespaceStatementNode`](NamespaceStatementNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| `operations` | `Map`<`string`, [`Operation`](Operation.md)\> | The operations in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
+| `scalars` | `Map`<`string`, [`Scalar`](Scalar.md)\> | The scalars in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
+| `unions` | `Map`<`string`, [`Union`](Union.md)\> | The unions in the namespace.<br /><br />Order is implementation-defined and may change. | - | - |
 
 ## Accessors
 
 ### projections
 
-• `get` **projections**(): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+get projections(): ProjectionStatementNode[]
+```
 
 #### Returns
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
-#### Inherited from
-
-BaseType.projections
-
 ## Methods
 
-### projectionsByName
+### projectionsByName()
 
-▸ **projectionsByName**(`name`): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+projectionsByName(name): ProjectionStatementNode[]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
 
@@ -262,4 +63,4 @@ BaseType.projections
 
 #### Inherited from
 
-[BaseType](BaseType.md).[projectionsByName](BaseType.md#projectionsbyname)
+[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)

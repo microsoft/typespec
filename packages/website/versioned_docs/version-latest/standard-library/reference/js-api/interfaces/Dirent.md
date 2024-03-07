@@ -1,39 +1,33 @@
-[JS Api](../index.md) / Dirent
+---
+jsApi: true
+title: "[I] Dirent"
 
-# Interface: Dirent
-
-## Table of contents
-
-### Properties
-
-- [name](Dirent.md#name)
-
-### Methods
-
-- [isDirectory](Dirent.md#isdirectory)
-- [isFile](Dirent.md#isfile)
-
+---
 ## Properties
 
-### name
-
-• **name**: `string`
+| Property | Type |
+| :------ | :------ |
+| `name` | `string` |
 
 ## Methods
 
-### isDirectory
+### isDirectory()
 
-▸ **isDirectory**(): `boolean`
+```ts
+isDirectory(): boolean
+```
 
 #### Returns
 
 `boolean`
 
-___
+***
 
-### isFile
+### isFile()
 
-▸ **isFile**(): `boolean`
+```ts
+isFile(): boolean
+```
 
 #### Returns
 

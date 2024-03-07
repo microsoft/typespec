@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Diagnostic, FunctionParameterNode, Model, Type } from "../../src/core/index.js";
 import {
   BasicTestRunner,
@@ -77,8 +78,25 @@ describe("compiler: checker: type relations", () => {
           prop1: string;
         }`);
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type 'string' is not assignable to type 'int32'",
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
+      });
+    });
+
+    it("cannot add property where parent model has incompatible indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo extends Record<int32> {
+          prop1: string;
+        }`);
+      expectDiagnostics(diagnostics, {
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
       });
     });
 
@@ -92,6 +110,19 @@ describe("compiler: checker: type relations", () => {
       const indexValue = Foo.indexer.value;
       strictEqual(indexValue.kind, "Model" as const);
       deepStrictEqual([...indexValue.properties.keys()], ["foo", "bar"]);
+    });
+
+    it("cannot intersect model with property incompatible with record", async () => {
+      const diagnostics = await runner.diagnose(`
+        alias A = Record<int32> & {prop1: string};
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'string' is not assignable to type 'int32'",
+        ].join("\n"),
+      });
     });
 
     it("cannot intersect model with a scalar", async () => {
@@ -121,6 +152,38 @@ describe("compiler: checker: type relations", () => {
       expectDiagnostics(diagnostics, {
         code: "intersect-invalid-index",
         message: "Cannot intersect an array model.",
+      });
+    });
+
+    it("spread Record<string> lets other property be non string", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          age: int32;
+          enabled: boolean;
+          ...Record<string>;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("model is a model that spread record does need to respect indexer", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Foo {
+          age: int32;
+          enabled: boolean;
+          ...Record<string>;
+        }
+
+        model Bar is Foo {
+          thisNeedsToBeString: int32;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "incompatible-indexer",
+        message: [
+          "Property is incompatible with indexer:",
+          "  Type 'int32' is not assignable to type 'string'",
+        ].join("\n"),
       });
     });
   });
@@ -161,6 +224,34 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
+  describe("never source", () => {
+    [
+      "integer",
+      "int8",
+      "int16",
+      "int32",
+      "int64",
+      "safeint",
+      "uint8",
+      "uint16",
+      "uint32",
+      "uint64",
+      "decimal",
+      "decimal128",
+      "string",
+      "numeric",
+      "float",
+      "Record<string>",
+      "bytes",
+      "duration",
+      "plainDate",
+    ].forEach((x) => {
+      it(`can assign to ${x}`, async () => {
+        await expectTypeAssignable({ source: "never", target: x });
+      });
+    });
+  });
+
   describe("string target", () => {
     it("can assign string", async () => {
       await expectTypeAssignable({ source: "string", target: "string" });
@@ -168,6 +259,10 @@ describe("compiler: checker: type relations", () => {
 
     it("can assign string literal", async () => {
       await expectTypeAssignable({ source: `"foo"`, target: "string" });
+    });
+
+    it("can assign string template with primitives interpolated", async () => {
+      await expectTypeAssignable({ source: `"foo \${123} bar"`, target: "string" });
     });
 
     it("can assign string literal union", async () => {
@@ -195,7 +290,7 @@ describe("compiler: checker: type relations", () => {
         { source: `"bar"`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'bar' is not assignable to type 'foo'",
+          message: `Type '"bar"' is not assignable to type '"foo"'`,
         }
       );
     });
@@ -205,7 +300,7 @@ describe("compiler: checker: type relations", () => {
         { source: `string`, target: `"foo"` },
         {
           code: "unassignable",
-          message: "Type 'string' is not assignable to type 'foo'",
+          message: `Type 'string' is not assignable to type '"foo"'`,
         }
       );
     });
@@ -304,7 +399,7 @@ describe("compiler: checker: type relations", () => {
     });
   });
 
-  // Need to handle bigint in typespec. https://github.com/Azure/typespec-azure/issues/506
+  // Need to handle bigint in TypeSpec. https://github.com/Azure/typespec-azure/issues/506
   describe.skip("int64 target", () => {
     it("can assign int64", async () => {
       await expectTypeAssignable({ source: "int64", target: "int64" });
@@ -406,6 +501,43 @@ describe("compiler: checker: type relations", () => {
           message: "Type 'boolean' is not assignable to type 'float'",
         }
       );
+    });
+  });
+
+  describe("float32 target", () => {
+    it("can assign float32", async () => {
+      await expectTypeAssignable({ source: "float32", target: "float32" });
+    });
+
+    it("can assign numeric literal between -3.4e38, 3.4e38", async () => {
+      await expectTypeAssignable({ source: "-123456789.123456789", target: "float32" });
+      await expectTypeAssignable({ source: "123456789.123456789", target: "float32" });
+      await expectTypeAssignable({ source: "0.0", target: "float32" });
+    });
+
+    it("emit diagnostic when numeric literal is out of range large", async () => {
+      await expectTypeNotAssignable(
+        { source: `3.4e40`, target: "float32" },
+        {
+          code: "unassignable",
+          message: "Type '3.4e+40' is not assignable to type 'float32'",
+        }
+      );
+    });
+  });
+
+  describe("float64 target", () => {
+    it("can assign float32", async () => {
+      await expectTypeAssignable({ source: "float32", target: "float64" });
+    });
+    it("can assign float64", async () => {
+      await expectTypeAssignable({ source: "float64", target: "float64" });
+    });
+
+    it("can assign numeric literal between -1.79E+308 and 1.79E+308", async () => {
+      await expectTypeAssignable({ source: "-123456789.123456789", target: "float64" });
+      await expectTypeAssignable({ source: "123456789.123456789", target: "float64" });
+      await expectTypeAssignable({ source: "0.0", target: "float64" });
     });
   });
 
@@ -622,6 +754,35 @@ describe("compiler: checker: type relations", () => {
         }
       );
     });
+
+    describe("recursive models", () => {
+      it("compare recursive models", async () => {
+        await expectTypeAssignable({
+          source: "A",
+          target: "B",
+          commonCode: `
+          model A { a: A }
+          model B { a: B }
+        `,
+        });
+      });
+
+      it("emit diagnostic if they don't match", async () => {
+        const { related, diagnostics } = await checkTypeAssignable({
+          source: "A",
+          target: "B",
+          commonCode: `
+        model A { a: A }
+        model B { a: B, b: B }
+      `,
+        });
+        ok(!related);
+        expectDiagnostics(diagnostics, {
+          code: "missing-property",
+          message: "Property 'b' is missing on type 'A' but required in 'B'",
+        });
+      });
+    });
   });
 
   describe("Array target", () => {
@@ -716,6 +877,14 @@ describe("compiler: checker: type relations", () => {
       await expectTypeAssignable({ source: "string", target: "string | int32" });
     });
 
+    it("can assign any of the variants", async () => {
+      await expectTypeAssignable({
+        source: "Choice.yes",
+        target: "Choice",
+        commonCode: `union Choice {yes: "yes", no: "no" }`,
+      });
+    });
+
     it("can a subtype of any of the options", async () => {
       await expectTypeAssignable({ source: "int32", target: "string | numeric" });
     });
@@ -771,13 +940,78 @@ describe("compiler: checker: type relations", () => {
         model Test<T extends TypeSpec.Reflection.EnumMember> {
           t: Target<T>;
         }
-        
+
         model Target<T extends TypeSpec.Reflection.EnumMember> {
           t: T;
         }
         `);
 
       expectDiagnosticEmpty(diagnostics);
+    });
+
+    describe("using template parameter as a constraint", () => {
+      it("pass if the argument is assignable to the constraint", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Template<A, B extends A> {
+            a: A;
+            b: B;
+          }
+
+          model Test {
+            t: Template<{a: string}, {a: string}>;
+          }
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("pass with multiple constraints", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Template<A, B extends A, C extends B> {
+            a: A;
+            b: B;
+            c: C;
+          }
+
+          model Test {
+            t: Template<{a: string}, {a: string, b: string}, {a: string, b: string}>;
+          }
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+
+      it("fail if the argument is not assignable to the constraint", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Template<A, B extends A> {
+            a: A;
+            b: B;
+          }
+
+          model Test {
+            t: Template<{a: string}, {b: string}>;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, {
+          code: "missing-property",
+          message: `Property 'a' is missing on type '(anonymous model)' but required in '(anonymous model)'`,
+        });
+      });
+
+      it("respect the constraint when using in another template", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Other<T extends {a: string}> {
+            t: T
+          }
+
+          model Template<A extends {a: string}, B extends A> {
+            t: Other<B>;
+          }
+          `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
     });
   });
 
@@ -919,7 +1153,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof int16" },
           {
             code: "unassignable",
-            message: "Type 'foo bar' is not assignable to type 'int16'",
+            message: `Type '"foo bar"' is not assignable to type 'int16'`,
           }
         );
       });
@@ -945,7 +1179,7 @@ describe("compiler: checker: type relations", () => {
           { source: `"foo bar"`, target: "valueof float32" },
           {
             code: "unassignable",
-            message: "Type 'foo bar' is not assignable to type 'float32'",
+            message: `Type '"foo bar"' is not assignable to type 'float32'`,
           }
         );
       });

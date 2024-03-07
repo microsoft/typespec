@@ -2,13 +2,19 @@
 **/dist-dev/
 **/test/output/
 **/bin/
+**/out/
 **/obj/
 **/.vs/
 **/.docusaurus/
 common/temp/
 common/scripts/
-common/changes/
-common/config/rush/pnpm-lock.yaml
+.chronus/changes/
+
+# Pnpm lock file
+pnpm-lock.yaml
+
+# Emu spec file, formatting is wrong
+packages/spec/src/spec.emu.html
 
 # Coverage report directory
 **/coverage/
@@ -24,7 +30,7 @@ CODE_OF_CONDUCT.md
 packages/compiler/test/formatter/**/*.tsp
 
 # That is an example with error and can't be formatted
-packages/samples/local-typespec/test.tsp
+packages/samples/specs/local-typespec/test.tsp
 packages/website/build/
 packages/website/versioned_sidebars/
 packages/website/versions.json
@@ -34,8 +40,24 @@ spec.emu.html
 # Auto generated reference docs.
 docs/**/reference/
 docs/standard-library/built-in-decorators.md
+docs/standard-library/built-in-data-types.md
 packages/website/versioned_docs/**/reference/
 packages/website/versioned_docs/**/standard-library/built-in-decorators.md
+packages/website/versioned_docs/**/standard-library/built-in-data-types.md
+
+# Auto generated version list
+packages/website/playground-versions.json
+
+# Auto generated built-in template list
+packages/compiler/templates/scaffolding.json
+packages/compiler/templates/__snapshots__/
 
 #.tsp init template
 eng/feeds/
+
+# Skip formatting tsp files
+
+*.noformat.tsp
+
+# Tm Grammars generated files
+grammars/

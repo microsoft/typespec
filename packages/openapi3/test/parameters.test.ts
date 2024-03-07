@@ -1,5 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, expect, it } from "vitest";
 import { diagnoseOpenApiFor, openApiFor } from "./test-host.js";
 
 describe("openapi3: parameters", () => {
@@ -28,18 +29,76 @@ describe("openapi3: parameters", () => {
     const res = await openApiFor(
       `
       op test(
-        @query({name: "$select", format: "multi"}) selects: string[],
-        @query({name: "$order", format: "csv"}) orders: string[],
+        @query({name: "$multi", format: "multi"}) multis: string[],
+        @query({name: "$csv", format: "csv"}) csvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
+        @query({name: "$tsv", format: "tsv"}) tsvs: string[],
+        @query({name: "$ssv", format: "ssv"}) ssvs: string[],
+        @query({name: "$pipes", format: "pipes"}) pipes: string[]
       ): void;
       `
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "query");
-    strictEqual(res.paths["/"].get.parameters[0].name, "$select");
-    strictEqual(res.paths["/"].get.parameters[0].style, "form");
-    strictEqual(res.paths["/"].get.parameters[0].explode, true);
-    strictEqual(res.paths["/"].get.parameters[1].in, "query");
-    strictEqual(res.paths["/"].get.parameters[1].name, "$order");
-    strictEqual(res.paths["/"].get.parameters[1].style, "simple");
+    const params = res.paths["/"].get.parameters;
+    deepStrictEqual(params[0], {
+      in: "query",
+      name: "$multi",
+      style: "form",
+      required: true,
+      explode: true,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+    });
+    deepStrictEqual(params[1], {
+      in: "query",
+      name: "$csv",
+      style: "form",
+      explode: false,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      required: true,
+    });
+    deepStrictEqual(params[2], {
+      in: "query",
+      name: "$tsv",
+      schema: {
+        type: "string",
+      },
+      required: true,
+    });
+    deepStrictEqual(params[3], {
+      in: "query",
+      name: "$ssv",
+      style: "spaceDelimited",
+      required: true,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      explode: false,
+    });
+    deepStrictEqual(params[4], {
+      in: "query",
+      name: "$pipes",
+      style: "pipeDelimited",
+      required: true,
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      explode: false,
+    });
   });
 
   it("create a query param that is a model property", async () => {
@@ -83,15 +142,67 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
   });
 
-  it("create an header param of array type", async () => {
+  it("create a header param of array type", async () => {
     const res = await openApiFor(
       `
-      op test(@header({name: "foo-bar", format: "csv"}) foo: string[]): void;
+      op test(
+        @header({name: "$csv", format: "csv"}) csvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
+        @header({name: "$multi", format: "multi"}) multis: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
+        @header({name: "$tsv", format: "tsv"}) tsvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
+        @header({name: "$ssv", format: "ssv"}) ssvs: string[],
+        #suppress "@typespec/openapi3/invalid-format" "test"
+        @header({name: "$pipes", format: "pipes"}) pipes: string[]
+      ): void;
       `
     );
-    strictEqual(res.paths["/"].get.parameters[0].in, "header");
-    strictEqual(res.paths["/"].get.parameters[0].name, "foo-bar");
-    strictEqual(res.paths["/"].get.parameters[0].style, "simple");
+    const params = res.paths["/"].get.parameters;
+    deepStrictEqual(params[0], {
+      in: "header",
+      name: "$csv",
+      style: "simple",
+      schema: {
+        type: "array",
+        items: {
+          type: "string",
+        },
+      },
+      required: true,
+    });
+    deepStrictEqual(params[1], {
+      in: "header",
+      name: "$multi",
+      required: true,
+      schema: {
+        type: "string",
+      },
+    });
+    deepStrictEqual(params[2], {
+      in: "header",
+      name: "$tsv",
+      schema: {
+        type: "string",
+      },
+      required: true,
+    });
+    deepStrictEqual(params[3], {
+      in: "header",
+      name: "$ssv",
+      required: true,
+      schema: {
+        type: "string",
+      },
+    });
+    deepStrictEqual(params[4], {
+      in: "header",
+      name: "$pipes",
+      required: true,
+      schema: {
+        type: "string",
+      },
+    });
   });
 
   // Regression test for https://github.com/microsoft/typespec/issues/414
@@ -190,6 +301,11 @@ describe("openapi3: parameters", () => {
     strictEqual(res.paths["/"].get.parameters[0].name, "top");
   });
 
+  it("omit request body if type is void", async () => {
+    const res = await openApiFor(`op test(@body foo: void ): void;`);
+    strictEqual(res.paths["/"].post.requestBody, undefined);
+  });
+
   describe("content type parameter", () => {
     it("header named with 'Content-Type' gets resolved as content type for operation.", async () => {
       const res = await openApiFor(
@@ -232,6 +348,18 @@ describe("openapi3: parameters", () => {
       );
       strictEqual(res.paths["/"].post.requestBody.content["application/octet-stream"], undefined);
       ok(res.paths["/"].post.requestBody.content["application/json"]);
+    });
+  });
+
+  describe("path parameters", () => {
+    it("figure out the route parameter from the name of the param", async () => {
+      const res = await openApiFor(`op test(@path myParam: string): void;`);
+      expect(res.paths).toHaveProperty("/{myParam}");
+    });
+
+    it("uses explicit name provided from @path", async () => {
+      const res = await openApiFor(`op test(@path("my-custom-path") myParam: string): void;`);
+      expect(res.paths).toHaveProperty("/{my-custom-path}");
     });
   });
 });

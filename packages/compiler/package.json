@@ -1,11 +1,11 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.45.2",
+  "version": "0.54.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
-  "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/microsoft/typespec.git"
@@ -21,30 +21,33 @@
   "main": "dist/src/index.js",
   "tspMain": "lib/main.tsp",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js",
-    "./module-resolver": "./dist/src/core/module-resolver.js",
-    "./emitter-framework": "./dist/src/emitter-framework/index.js"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./utils": {
+      "types": "./dist/src/utils/index.d.ts",
+      "default": "./dist/src/utils/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    },
+    "./module-resolver": {
+      "types": "./dist/src/core/module-resolver.d.ts",
+      "default": "./dist/src/core/module-resolver.js"
+    },
+    "./emitter-framework": {
+      "types": "./dist/src/emitter-framework/index.d.ts",
+      "default": "./dist/src/emitter-framework/index.js"
+    }
   },
   "browser": {
     "./dist/src/core/node-host.js": "./dist/src/core/node-host.browser.js",
     "./dist/src/core/logger/console-sink.js": "./dist/src/core/logger/console-sink.browser.js"
   },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/src/index.d.ts"
-      ],
-      "testing": [
-        "./dist/src/testing/index.d.ts"
-      ],
-      "module-resolver": [
-        "./dist/src/core/module-resolver.d.ts"
-      ]
-    }
-  },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "bin": {
     "tsp": "cmd/tsp.js",
@@ -54,19 +57,24 @@
   "files": [
     "lib/*.tsp",
     "dist/**",
+    "templates/**",
     "entrypoints",
     "!dist/test/**"
   ],
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "npm run gen-manifest && npm run compile && npm run generate-tmlanguage",
+    "build:init-templates-index": "node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./.scripts/build-init-templates.ts",
+    "build": "npm run gen-manifest && npm run build:init-templates-index && npm run compile && npm run generate-tmlanguage",
     "compile": "tsc -p .",
     "watch": "tsc -p . --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
     "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
     "dogfood": "node scripts/dogfood.js",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest -w",
+    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "gen-manifest": "node scripts/generate-manifest.js",
     "regen-nonascii": "node scripts/regen-nonascii.js",
     "fuzz": "node dist/test/manual/fuzz.js run",
@@ -74,47 +82,43 @@
     "lint:fix": "eslint . --fix --ext .ts"
   },
   "dependencies": {
-    "@babel/code-frame": "~7.22.5",
+    "@babel/code-frame": "~7.23.5",
     "ajv": "~8.12.0",
-    "picocolors": "~1.0.0",
-    "globby": "~13.1.1",
-    "js-yaml": "~4.1.0",
+    "change-case": "~5.4.2",
+    "globby": "~14.0.0",
     "mustache": "~4.2.0",
-    "prettier": "~2.8.7",
-    "prompts": "~2.4.1",
-    "semver": "^7.3.8",
-    "vscode-languageserver": "~8.1.0",
-    "vscode-languageserver-textdocument": "~1.0.1",
-    "yargs": "~17.7.1",
-    "node-watch": "~0.7.1",
-    "change-case": "~4.1.2"
+    "picocolors": "~1.0.0",
+    "prettier": "~3.2.5",
+    "prompts": "~2.4.2",
+    "semver": "^7.6.0",
+    "vscode-languageserver": "~9.0.1",
+    "vscode-languageserver-textdocument": "~1.0.11",
+    "yaml": "~2.3.4",
+    "yargs": "~17.7.2"
   },
   "devDependencies": {
-    "@types/babel__code-frame": "~7.0.3",
-    "@types/js-yaml": "~4.0.1",
-    "@types/mocha": "~10.0.1",
-    "@types/mustache": "~4.2.1",
-    "@types/node": "~18.11.9",
-    "@types/prettier": "2.6.0",
-    "@types/prompts": "~2.4.3",
-    "@types/semver": "^7.3.13",
-    "@types/yargs": "~17.0.24",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
-    "@typespec/internal-build-utils": "workspace:~0.4.2",
-    "eslint": "^8.42.0",
-    "grammarkdown": "~3.2.0",
-    "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.0",
-    "mocha-multi-reporters": "~1.5.1",
-    "c8": "~8.0.0",
-    "prettier-plugin-organize-imports": "~3.2.0",
-    "source-map-support": "~0.5.19",
-    "rimraf": "~5.0.1",
-    "tmlanguage-generator": "workspace:~0.4.1",
-    "typescript": "~5.1.3",
-    "vscode-oniguruma": "~1.7.0",
-    "vscode-textmate": "~9.0.0",
-    "sinon": "~15.1.0",
-    "@types/sinon": "~10.0.13"
+    "@types/babel__code-frame": "~7.0.6",
+    "@types/mustache": "~4.2.5",
+    "@types/node": "~18.11.19",
+    "@types/prompts": "~2.4.9",
+    "@types/semver": "^7.5.6",
+    "@types/sinon": "~17.0.3",
+    "@types/yargs": "~17.0.32",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typespec/internal-build-utils": "workspace:~",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "c8": "^9.1.0",
+    "eslint": "^8.56.0",
+    "grammarkdown": "~3.3.2",
+    "rimraf": "~5.0.5",
+    "sinon": "~17.0.1",
+    "source-map-support": "~0.5.21",
+    "tmlanguage-generator": "workspace:~",
+    "ts-node": "~10.9.2",
+    "typescript": "~5.3.3",
+    "vitest": "^1.2.2",
+    "vscode-oniguruma": "~2.0.1",
+    "vscode-textmate": "~9.0.0"
   }
 }

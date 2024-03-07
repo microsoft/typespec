@@ -1,19 +1,29 @@
-import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+import { CompilerOptions, Diagnostic } from "@typespec/compiler";
 import debounce from "debounce";
 import { KeyCode, KeyMod, MarkerSeverity, Uri, editor } from "monaco-editor";
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from "react";
-import "swagger-ui/dist/swagger-ui.css";
+import {
+  FunctionComponent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CompletionItemTag } from "vscode-languageserver";
-import { BrowserHost } from "../browser-host.js";
-import { importTypeSpecCompiler } from "../core.js";
-import { getMarkerLocation } from "../services.js";
-import { PlaygroundSample } from "../types.js";
-import { EditorCommandBar } from "./editor-command-bar.js";
-import { useMonacoModel } from "./editor.js";
-import { Footer } from "./footer.js";
+import { EditorCommandBar } from "../editor-command-bar/editor-command-bar.js";
+import { getMonacoRange } from "../services.js";
+import { BrowserHost, PlaygroundSample } from "../types.js";
+import { PlaygroundContextProvider } from "./context/playground-context.js";
+import { DefaultFooter } from "./default-footer.js";
+import { OnMountData, useMonacoModel } from "./editor.js";
 import { useControllableValue } from "./hooks.js";
-import { OutputView } from "./output-view.js";
-import { CompilationState, EmitterOptions, FileOutputViewer } from "./types.js";
+import { OutputView } from "./output-view/output-view.js";
+import style from "./playground.module.css";
+import { ProblemPane } from "./problem-pane/index.js";
+import Pane from "./split-pane/pane.js";
+import { SplitPane } from "./split-pane/split-pane.js";
+import { CompilationState, FileOutputViewer } from "./types.js";
 import { TypeSpecEditor } from "./typespec-editor.js";
 
 export interface PlaygroundProps {
@@ -22,8 +32,8 @@ export interface PlaygroundProps {
   /** Default emitter if leaving this unmanaged. */
   defaultContent?: string;
 
-  /** List of available emitters */
-  emitters: string[];
+  /** List of available libraries */
+  readonly libraries: readonly string[];
 
   /** Emitter to use */
   emitter?: string;
@@ -33,11 +43,11 @@ export interface PlaygroundProps {
   onEmitterChange?: (emitter: string) => void;
 
   /** Emitter options */
-  emitterOptions?: EmitterOptions;
+  compilerOptions?: CompilerOptions;
   /** Default emitter options if leaving this unmanaged. */
-  defaultEmitterOptions?: EmitterOptions;
+  defaultCompilerOptions?: CompilerOptions;
   /** Callback when emitter options change */
-  onEmitterOptionsChange?: (emitter: EmitterOptions) => void;
+  onCompilerOptionsChange?: (emitter: CompilerOptions) => void;
 
   /** Samples available */
   samples?: Record<string, PlaygroundSample>;
@@ -49,6 +59,8 @@ export interface PlaygroundProps {
   /** Callback when sample change */
   onSampleNameChange?: (sampleName: string) => void;
 
+  onFileBug?: () => void;
+
   /** Playground links */
   links?: PlaygroundLinks;
 
@@ -56,6 +68,17 @@ export interface PlaygroundProps {
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
   onSave?: (value: PlaygroundSaveData) => void;
+
+  editorOptions?: PlaygroundEditorsOptions;
+
+  /**
+   * Change the footer of the playground.
+   */
+  footer?: ReactNode;
+}
+
+export interface PlaygroundEditorsOptions {
+  theme?: string;
 }
 
 export interface PlaygroundSaveData {
@@ -66,7 +89,7 @@ export interface PlaygroundSaveData {
   emitter: string;
 
   /** Emitter options. */
-  options?: EmitterOptions;
+  options?: CompilerOptions;
 
   /** If a sample is selected and the content hasn't changed since. */
   sampleName?: string;
@@ -75,27 +98,21 @@ export interface PlaygroundSaveData {
 export interface PlaygroundLinks {
   /** Link to documentation */
   documentationUrl?: string;
-  /** Issue to github issue to open a new issue. */
-  githubIssueUrl?: string;
 }
-
-export const StyledPlayground: FunctionComponent<PlaygroundProps> = (props) => (
-  <FluentProvider theme={webLightTheme}>
-    <Playground {...props} />
-  </FluentProvider>
-);
 
 export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const { host, onSave } = props;
+  const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined);
+
   const [selectedEmitter, onSelectedEmitterChange] = useControllableValue(
     props.emitter,
     props.defaultEmitter,
     props.onEmitterChange
   );
-  const [emitterOptions, onEmitterOptionsChange] = useControllableValue(
-    props.emitterOptions,
-    props.defaultEmitterOptions ?? {},
-    props.onEmitterOptionsChange
+  const [compilerOptions, onCompilerOptionsChange] = useControllableValue(
+    props.compilerOptions,
+    props.defaultCompilerOptions ?? {},
+    props.onCompilerOptionsChange
   );
   const [selectedSampleName, onSelectedSampleNameChange] = useControllableValue(
     props.sampleName,
@@ -112,13 +129,13 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
   const doCompile = useCallback(async () => {
     const content = typespecModel.getValue();
     setContent(content);
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
 
-    const state = await compile(host, content, selectedEmitter, emitterOptions);
+    const state = await compile(host, content, selectedEmitter, compilerOptions);
     setCompilationState(state);
     if ("program" in state) {
       const markers: editor.IMarkerData[] = state.program.diagnostics.map((diag) => ({
-        ...getMarkerLocation(typespecCompiler, diag.target),
+        ...getMonacoRange(typespecCompiler, diag.target),
         message: diag.message,
         severity: diag.severity === "error" ? MarkerSeverity.Error : MarkerSeverity.Warning,
         tags: diag.code === "deprecated" ? [CompletionItemTag.Deprecated] : undefined,
@@ -128,7 +145,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     } else {
       editor.setModelMarkers(typespecModel, "owner", []);
     }
-  }, [host, selectedEmitter, emitterOptions, typespecModel, setContent]);
+  }, [host, selectedEmitter, compilerOptions, typespecModel, setContent]);
 
   const updateTypeSpec = useCallback(
     (value: string) => {
@@ -149,6 +166,9 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
         updateTypeSpec(config.content);
         if (config.preferredEmitter) {
           onSelectedEmitterChange(config.preferredEmitter);
+        }
+        if (config.compilerOptions) {
+          onCompilerOptionsChange(config.compilerOptions);
         }
       }
     }
@@ -172,7 +192,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       onSave({
         content: typespecModel.getValue(),
         emitter: selectedEmitter,
-        options: emitterOptions,
+        options: compilerOptions,
         sampleName: isSampleUntouched ? selectedSampleName : undefined,
       });
     }
@@ -180,17 +200,21 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     typespecModel,
     onSave,
     selectedEmitter,
-    emitterOptions,
+    compilerOptions,
     selectedSampleName,
     isSampleUntouched,
   ]);
 
-  const newIssue = useCallback(async () => {
-    saveCode();
-    const bodyPayload = encodeURIComponent(`\n\n\n[Playground Link](${document.location.href})`);
-    const url = `${props?.links?.githubIssueUrl}?body=${bodyPayload}`;
-    window.open(url, "_blank");
-  }, [saveCode, typespecModel]);
+  const formatCode = useCallback(() => {
+    void editorRef.current?.getAction("editor.action.formatDocument")?.run();
+  }, [typespecModel]);
+
+  const fileBug = useCallback(async () => {
+    if (props.onFileBug) {
+      saveCode();
+      props.onFileBug();
+    }
+  }, [saveCode, typespecModel, props.onFileBug]);
 
   const typespecEditorActions = useMemo(
     (): editor.IActionDescriptor[] => [
@@ -200,76 +224,113 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [saveCode]
   );
 
+  const onTypeSpecEditorMount = useCallback(({ editor }: OnMountData) => {
+    editorRef.current = editor;
+  }, []);
+
+  const [verticalPaneSizes, setVerticalPaneSizes] = useState<(string | number | undefined)[]>(
+    verticalPaneSizesConst.collapsed
+  );
+  const toggleProblemPane = useCallback(() => {
+    setVerticalPaneSizes((value) => {
+      return value === verticalPaneSizesConst.collapsed
+        ? verticalPaneSizesConst.expanded
+        : verticalPaneSizesConst.collapsed;
+    });
+  }, [setVerticalPaneSizes]);
+
+  const onVerticalPaneSizeChange = useCallback(
+    (sizes: number[]) => {
+      setVerticalPaneSizes(sizes);
+    },
+    [setVerticalPaneSizes]
+  );
+  const handleDiagnosticSelected = useCallback(
+    (diagnostic: Diagnostic) => {
+      editorRef.current?.setSelection(getMonacoRange(host.compiler, diagnostic.target));
+    },
+    [setVerticalPaneSizes]
+  );
+
   return (
-    <div
-      css={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gridTemplateRows: "1fr auto",
-        gridTemplateAreas: '"typespeceditor output"\n    "footer footer"',
-        width: "100vw",
-        height: "100vh",
-        overflow: "hidden",
-        fontFamily: `"Segoe UI", Tahoma, Geneva, Verdana, sans-serif`,
-      }}
-    >
-      <div css={{ gridArea: "typespeceditor", width: "100%", height: "100%", overflow: "hidden" }}>
-        <EditorCommandBar
-          emitters={props.emitters}
-          selectedEmitter={selectedEmitter}
-          onSelectedEmitterChange={onSelectedEmitterChange}
-          emitterOptions={emitterOptions}
-          onEmitterOptionsChange={onEmitterOptionsChange}
-          samples={props.samples}
-          selectedSampleName={selectedSampleName}
-          onSelectedSampleNameChange={onSelectedSampleNameChange}
-          saveCode={saveCode}
-          newIssue={props?.links?.githubIssueUrl ? newIssue : undefined}
-          documentationUrl={props.links?.documentationUrl}
-        />
-        <TypeSpecEditor model={typespecModel} actions={typespecEditorActions} />
+    <PlaygroundContextProvider value={{ host }}>
+      <div className={style["layout"]}>
+        <SplitPane sizes={verticalPaneSizes} onChange={onVerticalPaneSizeChange} split="horizontal">
+          <Pane>
+            <SplitPane initialSizes={["50%", "50%"]}>
+              <Pane>
+                <EditorCommandBar
+                  host={host}
+                  selectedEmitter={selectedEmitter}
+                  onSelectedEmitterChange={onSelectedEmitterChange}
+                  compilerOptions={compilerOptions}
+                  onCompilerOptionsChange={onCompilerOptionsChange}
+                  samples={props.samples}
+                  selectedSampleName={selectedSampleName}
+                  onSelectedSampleNameChange={onSelectedSampleNameChange}
+                  saveCode={saveCode}
+                  formatCode={formatCode}
+                  fileBug={props.onFileBug ? fileBug : undefined}
+                  documentationUrl={props.links?.documentationUrl}
+                />
+                <TypeSpecEditor
+                  model={typespecModel}
+                  actions={typespecEditorActions}
+                  options={props.editorOptions}
+                  onMount={onTypeSpecEditorMount}
+                />
+              </Pane>
+              <Pane>
+                <OutputView
+                  compilationState={compilationState}
+                  editorOptions={props.editorOptions}
+                  viewers={props.emitterViewers?.[selectedEmitter]}
+                />
+              </Pane>
+            </SplitPane>
+          </Pane>
+          <Pane minSize={30}>
+            <ProblemPane
+              collapsed={verticalPaneSizes[1] === verticalPaneSizesConst.collapsed[1]}
+              compilationState={compilationState}
+              onHeaderClick={toggleProblemPane}
+              onDiagnosticSelected={handleDiagnosticSelected}
+            />
+          </Pane>
+        </SplitPane>
+        {props.footer ?? <DefaultFooter />}
       </div>
-      <div
-        css={{
-          gridArea: "output",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-          borderLeft: "1px solid #c5c5c5",
-        }}
-      >
-        <OutputView
-          compilationState={compilationState}
-          viewers={props.emitterViewers?.[selectedEmitter]}
-        />
-      </div>
-      <Footer />
-    </div>
+    </PlaygroundContextProvider>
   );
 };
 
+const verticalPaneSizesConst = {
+  collapsed: [undefined, 30],
+  expanded: [undefined, 200],
+};
 const outputDir = "./tsp-output";
 
 async function compile(
   host: BrowserHost,
   content: string,
   selectedEmitter: string,
-  emittersOptions: Record<string, Record<string, unknown>>
+  options: CompilerOptions
 ): Promise<CompilationState> {
   await host.writeFile("main.tsp", content);
   await emptyOutputDir(host);
   try {
-    const typespecCompiler = await importTypeSpecCompiler();
+    const typespecCompiler = host.compiler;
     const program = await typespecCompiler.compile(host, "main.tsp", {
-      outputDir: "tsp-output",
-      emit: [selectedEmitter],
+      ...options,
       options: {
-        ...emittersOptions,
+        ...options.options,
         [selectedEmitter]: {
-          ...emittersOptions[selectedEmitter],
+          ...options.options?.[selectedEmitter],
           "emitter-output-dir": "tsp-output",
         },
       },
+      outputDir: "tsp-output",
+      emit: [selectedEmitter],
     });
     const outputFiles = await findOutputFiles(host);
     return { program, outputFiles };

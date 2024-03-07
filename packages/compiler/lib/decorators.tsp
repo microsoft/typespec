@@ -30,16 +30,49 @@ extern dec summary(target: unknown, summary: valueof string);
 extern dec doc(target: unknown, doc: valueof string, formatArgs?: {});
 
 /**
- * Mark this type as deprecated
+ * Attach a documentation string to describe the successful return types of an operation.
+ * If an operation returns a union of success and errors it only describe the success. See `@errorsDoc` for error documentation.
+ * @param doc Documentation string
+ *
+ * @example
+ * ```typespec
+ * @returnsDoc("Returns doc")
+ * op get(): Pet | NotFound;
+ * ```
+ */
+extern dec returnsDoc(target: Operation, doc: valueof string);
+
+/**
+ * Attach a documentation string to describe the error return types of an operation.
+ * If an operation returns a union of success and errors it only describe the errors. See `@errorsDoc` for success documentation.
+ * @param doc Documentation string
+ *
+ * @example
+ * ```typespec
+ * @errorsDoc("Returns doc")
+ * op get(): Pet | NotFound;
+ * ```
+ */
+extern dec errorsDoc(target: Operation, doc: valueof string);
+
+/**
+ * Mark this type as deprecated.
+ *
+ * NOTE: This decorator **should not** be used, use the `#deprecated` directive instead.
+ *
+ * @deprecated Use the `#deprecated` directive instead.
  * @param message Deprecation message.
  *
  * @example
  *
+ * Use the `#deprecated` directive instead:
+ *
  * ```typespec
- * @deprecated("Use ActionV2")
- * op Action<T>(): T;
+ * #deprecated "Use ActionV2"
+ * op Action<Result>(): Result;
  * ```
  */
+#deprecated "@deprecated decorator is deprecated. Use the `#deprecated` directive instead."
 extern dec deprecated(target: unknown, message: valueof string);
 
 /**
@@ -115,15 +148,25 @@ extern dec format(target: string | bytes | ModelProperty, format: valueof string
  * The following syntax is allowed: alternations (`|`), quantifiers (`?`, `*`, `+`, and `{ }`), wildcard (`.`), and grouping parentheses.
  * Advanced features like look-around, capture groups, and references are not supported.
  *
+ * This decorator may optionally provide a custom validation _message_. Emitters may choose to use the message to provide
+ * context when pattern validation fails. For the sake of consistency, the message should be a phrase that describes in
+ * plain language what sort of content the pattern attempts to validate. For example, a complex regular expression that
+ * validates a GUID string might have a message like "Must be a valid GUID."
+ *
  * @param pattern Regular expression.
+ * @param validationMessage Optional validation message that may provide context when validation fails.
  *
  * @example
  * ```typespec
- * @pattern("[a-z]+")
+ * @pattern("[a-z]+", "Must be a string consisting of only lower case letters and of at least one character.")
  * scalar LowerAlpha extends string;
  * ```
  */
-extern dec pattern(target: string | bytes | ModelProperty, pattern: valueof string);
+extern dec pattern(
+  target: string | bytes | ModelProperty,
+  pattern: valueof string,
+  validationMessage?: valueof string
+);
 
 /**
  * Specify the minimum length this string type should be.
@@ -255,8 +298,8 @@ extern dec tag(target: Namespace | Interface | Operation, tag: valueof string);
  * @example
  * ```typespec
  * @friendlyName("{name}List", T)
- * model List<T> {
- *   value: T[];
+ * model List<Item> {
+ *   value: Item[];
  *   nextLink: string;
  * }
  * ```
@@ -309,6 +352,8 @@ extern dec key(target: ModelProperty, altName?: valueof string);
 extern dec overload(target: Operation, overloadbase: Operation);
 
 /**
+ * DEPRECATED: Use `@encodedName` instead.
+ *
  * Provide an alternative name for this type.
  * @param targetName Projection target
  * @param projectedName Alternative name
@@ -326,6 +371,30 @@ extern dec projectedName(
   targetName: valueof string,
   projectedName: valueof string
 );
+
+/**
+ * Provide an alternative name for this type when serialized to the given mime type.
+ * @param mimeType Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`)
+ * @param name Alternative name
+ *
+ * @example
+ *
+ * ```typespec
+ * model Certificate {
+ *   @encodedName("application/json", "exp")
+ *   @encodedName("application/xml", "expiry")
+ *   expireAt: int32;
+ * }
+ * ```
+ *
+ * @example Invalid values
+ *
+ * ```typespec
+ * @encodedName("application/merge-patch+json", "exp")
+ *              ^ error cannot use subtype
+ * ```
+ */
+extern dec encodedName(target: unknown, mimeType: valueof string, name: valueof string);
 
 /**
  * Specify the property to be used to discriminate this type.
@@ -360,13 +429,16 @@ enum DateTimeKnownEncoding {
    * Encode to string.
    */
   rfc3339: "rfc3339",
+
   /**
    * RFC 7231 standard. https://www.ietf.org/rfc/rfc7231.txt
    * Encode to string.
    */
   rfc7231: "rfc7231",
+
   /**
-   * Encode to integer
+   * Encode a datetime to a unix timestamp.
+   * Unix timestamps are represented as an integer number of seconds since the Unix epoch and usually encoded as an int32.
    */
   unixTimestamp: "unixTimestamp",
 }
@@ -379,6 +451,7 @@ enum DurationKnownEncoding {
    * ISO8601 duration
    */
   ISO8601: "ISO8601",
+
   /**
    * Encode to integer or float
    */
@@ -393,6 +466,7 @@ enum BytesKnownEncoding {
    * Encode to Base64
    */
   base64: "base64",
+
   /**
    * Encode to Base64 Url
    */
@@ -439,7 +513,7 @@ extern dec encode(
  * - "update": input to operations that update data.
  * - "delete": input to operations that delete data.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
  *
  * @param visibilities List of visibilities which apply to this property.
  *
@@ -464,7 +538,7 @@ extern dec visibility(target: ModelProperty, ...visibilities: valueof string[]);
  * together with spread to effectively spread only visible properties into
  * a new model.
  *
- * See also: [Automatic visibility](https://microsoft.github.io/typespec/standard-library/http/operations#automatic-visibility)
+ * See also: [Automatic visibility](https://typespec.io/docs/libraries/http/operations#automatic-visibility)
  *
  * When using an emitter that applies visibility automatically, it is generally
  * not necessary to use this decorator.
@@ -543,3 +617,15 @@ extern dec inspectType(target: unknown, text: valueof string);
  * @param text Custom text to log
  */
 extern dec inspectTypeName(target: unknown, text: valueof string);
+
+/**
+ * Sets which visibilities apply to parameters for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec parameterVisibility(target: Operation, ...visibilities: valueof string[]);
+
+/**
+ * Sets which visibilities apply to the return type for the given operation.
+ * @param visibilities List of visibility strings which apply to this operation.
+ */
+extern dec returnTypeVisibility(target: Operation, ...visibilities: valueof string[]);

@@ -1,21 +1,15 @@
-[JS Api](../index.md) / DirectiveBase
+---
+jsApi: true
+title: "[I] DirectiveBase"
 
-# Interface: DirectiveBase
+---
+## Extended by
 
-## Hierarchy
-
-- **`DirectiveBase`**
-
-  ↳ [`SuppressDirective`](SuppressDirective.md)
-
-## Table of contents
-
-### Properties
-
-- [node](DirectiveBase.md#node)
+- [`SuppressDirective`](SuppressDirective.md)
+- [`DeprecatedDirective`](DeprecatedDirective.md)
 
 ## Properties
 
-### node
-
-• **node**: [`DirectiveExpressionNode`](DirectiveExpressionNode.md)
+| Property | Type |
+| :------ | :------ |
+| `node` | [`DirectiveExpressionNode`](DirectiveExpressionNode.md) |

@@ -1,0 +1,100 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    get:
+      operationId: read
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          headers:
+            in-header:
+              required: true
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Encodings'
+components:
+  schemas:
+    Encodings:
+      type: object
+      required:
+        - datetime
+        - duration
+        - bytes
+      properties:
+        datetime:
+          type: object
+          properties:
+            default:
+              type: string
+              format: date-time
+            rfc3339:
+              type: string
+              format: date-time
+            rfc7231:
+              type: string
+              format: http-date
+            rfc7231ViaScalar:
+              $ref: '#/components/schemas/myRfc7231DateTime'
+            unixtime:
+              type: integer
+              format: unixtime
+            unixtimeViaScalar:
+              $ref: '#/components/schemas/myUnixTimestamp'
+          required:
+            - default
+            - rfc3339
+            - rfc7231
+            - rfc7231ViaScalar
+            - unixtime
+            - unixtimeViaScalar
+        duration:
+          type: object
+          properties:
+            default:
+              type: string
+              format: duration
+            durationISO:
+              type: string
+              format: duration
+            durationSecondsInt32:
+              type: integer
+              format: int32
+            durationSecondsFloat32:
+              type: number
+              format: float
+          required:
+            - default
+            - durationISO
+            - durationSecondsInt32
+            - durationSecondsFloat32
+        bytes:
+          type: object
+          properties:
+            default:
+              type: string
+              format: byte
+            base64:
+              type: string
+              format: base64
+            base64url:
+              type: string
+              format: base64url
+          required:
+            - default
+            - base64
+            - base64url
+    myRfc7231DateTime:
+      type: string
+      format: http-date
+    myUnixTimestamp:
+      type: integer
+      format: unixtime

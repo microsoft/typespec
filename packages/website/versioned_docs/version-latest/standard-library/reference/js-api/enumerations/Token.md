@@ -1,0 +1,84 @@
+---
+jsApi: true
+title: "[E] Token"
+
+---
+## Enumeration Members
+
+| Enumeration Member | Value |
+| :------ | :------ |
+| `AliasKeyword` | `57` |
+| `Ampersand` | `30` |
+| `AmpsersandAmpersand` | `45` |
+| `At` | `35` |
+| `AtAt` | `36` |
+| `Bar` | `31` |
+| `BarBar` | `46` |
+| `CloseBrace` | `18` |
+| `CloseBracket` | `22` |
+| `CloseParen` | `20` |
+| `Colon` | `33` |
+| `ColonColon` | `34` |
+| `Comma` | `26` |
+| `ConflictMarker` | `13` |
+| `DecKeyword` | `64` |
+| `DocCodeFenceDelimiter` | `16` |
+| `DocCodeSpan` | `15` |
+| `DocText` | `14` |
+| `Dot` | `23` |
+| `Ellipsis` | `24` |
+| `ElseKeyword` | `62` |
+| `EndOfFile` | `2` |
+| `EnumKeyword` | `56` |
+| `Equals` | `29` |
+| `EqualsEquals` | `47` |
+| `EqualsGreaterThan` | `49` |
+| `Exclamation` | `42` |
+| `ExclamationEquals` | `48` |
+| `ExtendsKeyword` | `68` |
+| `ExternKeyword` | `67` |
+| `FalseKeyword` | `70` |
+| `FnKeyword` | `65` |
+| `ForwardSlash` | `39` |
+| `GreaterThan` | `28` |
+| `GreaterThanEquals` | `44` |
+| `Hash` | `37` |
+| `Hyphen` | `41` |
+| `Identifier` | `3` |
+| `IfKeyword` | `63` |
+| `ImportKeyword` | `50` |
+| `InterfaceKeyword` | `59` |
+| `Invalid` | `1` |
+| `IsKeyword` | `58` |
+| `LessThan` | `27` |
+| `LessThanEquals` | `43` |
+| `ModelKeyword` | `51` |
+| `MultiLineComment` | `10` |
+| `NamespaceKeyword` | `53` |
+| `NeverKeyword` | `73` |
+| `NewLine` | `11` |
+| `None` | `0` |
+| `NumericLiteral` | `4` |
+| `OpKeyword` | `55` |
+| `OpenBrace` | `17` |
+| `OpenBracket` | `21` |
+| `OpenParen` | `19` |
+| `Plus` | `40` |
+| `ProjectionKeyword` | `61` |
+| `Question` | `32` |
+| `ReturnKeyword` | `71` |
+| `ScalarKeyword` | `52` |
+| `Semicolon` | `25` |
+| `SingleLineComment` | `9` |
+| `Star` | `38` |
+| `StringLiteral` | `5` |
+| `StringTemplateHead` | `6` |
+| `StringTemplateMiddle` | `7` |
+| `StringTemplateTail` | `8` |
+| `TrueKeyword` | `69` |
+| `UnionKeyword` | `60` |
+| `UnknownKeyword` | `74` |
+| `UsingKeyword` | `54` |
+| `ValueOfKeyword` | `66` |
+| `VoidKeyword` | `72` |
+| `Whitespace` | `12` |

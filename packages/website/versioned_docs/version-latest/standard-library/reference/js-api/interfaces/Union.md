@@ -1,236 +1,56 @@
-[JS Api](../index.md) / Union
+---
+jsApi: true
+title: "[I] Union"
 
-# Interface: Union
+---
+## Extends
 
-## Hierarchy
-
-- [`BaseType`](BaseType.md)
-
-- [`DecoratedType`](DecoratedType.md)
-
-- [`TemplatedTypeBase`](TemplatedTypeBase.md)
-
-  ↳ **`Union`**
-
-## Table of contents
-
-### Properties
-
-- [decorators](Union.md#decorators)
-- [expression](Union.md#expression)
-- [instantiationParameters](Union.md#instantiationparameters)
-- [isFinished](Union.md#isfinished)
-- [kind](Union.md#kind)
-- [name](Union.md#name)
-- [namespace](Union.md#namespace)
-- [node](Union.md#node)
-- [options](Union.md#options)
-- [projectionBase](Union.md#projectionbase)
-- [projectionSource](Union.md#projectionsource)
-- [projector](Union.md#projector)
-- [symbol](Union.md#symbol)
-- [templateArguments](Union.md#templatearguments)
-- [templateMapper](Union.md#templatemapper)
-- [templateNode](Union.md#templatenode)
-- [variants](Union.md#variants)
-
-### Accessors
-
-- [projections](Union.md#projections)
-
-### Methods
-
-- [projectionsByName](Union.md#projectionsbyname)
+- [`BaseType`](BaseType.md).[`DecoratedType`](DecoratedType.md).[`TemplatedTypeBase`](TemplatedTypeBase.md)
 
 ## Properties
 
-### decorators
-
-• **decorators**: [`DecoratorApplication`](DecoratorApplication.md)[]
-
-#### Inherited from
-
-[DecoratedType](DecoratedType.md).[decorators](DecoratedType.md#decorators)
-
-___
-
-### expression
-
-• **expression**: `boolean`
-
-___
-
-### instantiationParameters
-
-• `Optional` **instantiationParameters**: [`Type`](../index.md#type)[]
-
-#### Inherited from
-
-[BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
-
-___
-
-### isFinished
-
-• **isFinished**: `boolean`
-
-Reflect if a type has been finished(Decorators have been called).
-There is multiple reasons a type might not be finished:
-- a template declaration will not
-- a template instance that argument that are still template parameters
-- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
-
-___
-
-### kind
-
-• **kind**: ``"Union"``
-
-#### Overrides
-
-[BaseType](BaseType.md).[kind](BaseType.md#kind)
-
-___
-
-### name
-
-• `Optional` **name**: `string`
-
-___
-
-### namespace
-
-• `Optional` **namespace**: [`Namespace`](Namespace.md)
-
-___
-
-### node
-
-• **node**: [`UnionExpressionNode`](UnionExpressionNode.md) \| [`UnionStatementNode`](UnionStatementNode.md)
-
-#### Overrides
-
-[BaseType](BaseType.md).[node](BaseType.md#node)
-
-___
-
-### options
-
-• `Readonly` **options**: [`Type`](../index.md#type)[]
-
-**`Deprecated`**
-
-use variants
-
-___
-
-### projectionBase
-
-• `Optional` **projectionBase**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionBase](BaseType.md#projectionbase)
-
-___
-
-### projectionSource
-
-• `Optional` **projectionSource**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionSource](BaseType.md#projectionsource)
-
-___
-
-### projector
-
-• `Optional` **projector**: [`Projector`](Projector.md)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projector](BaseType.md#projector)
-
-___
-
-### symbol
-
-• `Optional` **symbol**: [`Sym`](Sym.md)
-
-Late-bound symbol of this interface type.
-
-___
-
-### templateArguments
-
-• `Optional` **templateArguments**: [`Type`](../index.md#type)[]
-
-**`Deprecated`**
-
-use templateMapper instead.
-
-#### Inherited from
-
-[TemplatedTypeBase](TemplatedTypeBase.md).[templateArguments](TemplatedTypeBase.md#templatearguments)
-
-___
-
-### templateMapper
-
-• `Optional` **templateMapper**: [`TypeMapper`](TypeMapper.md)
-
-#### Inherited from
-
-[TemplatedTypeBase](TemplatedTypeBase.md).[templateMapper](TemplatedTypeBase.md#templatemapper)
-
-___
-
-### templateNode
-
-• `Optional` **templateNode**: [`Node`](../index.md#node)
-
-#### Inherited from
-
-[TemplatedTypeBase](TemplatedTypeBase.md).[templateNode](TemplatedTypeBase.md#templatenode)
-
-___
-
-### variants
-
-• **variants**: [`RekeyableMap`](RekeyableMap.md)<`string` \| `symbol`, [`UnionVariant`](UnionVariant.md)\>
-
-The variants of the union.
-
-Variants are ordered in order that they appear in source.
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ | :------ |
+| `decorators` | `public` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `expression` | `public` | `boolean` | - | - | - |
+| `instantiationParameters?` | `public` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `public` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `public` | `"Union"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `name?` | `public` | `string` | - | - | - |
+| `namespace?` | `public` | [`Namespace`](Namespace.md) | - | - | - |
+| `node` | `public` | [`UnionStatementNode`](UnionStatementNode.md) \| [`UnionExpressionNode`](UnionExpressionNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| ~~`options`~~ | `readonly` | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use variants | - | - |
+| `projectionBase?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | `public` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | `public` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
+| ~~`templateArguments?`~~ | `public` | [`Type`](../type-aliases/Type.md)[] | **Deprecated**<br />use templateMapper instead. | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateArguments` |
+| `templateMapper?` | `public` | [`TypeMapper`](TypeMapper.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateMapper` |
+| `templateNode?` | `public` | [`Node`](../type-aliases/Node.md) | - | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` | [`TemplatedTypeBase`](TemplatedTypeBase.md).`templateNode` |
+| `variants` | `public` | `RekeyableMap`<`string` \| `symbol`, [`UnionVariant`](UnionVariant.md)\> | The variants of the union.<br /><br />Variants are ordered in order that they appear in source. | - | - |
 
 ## Accessors
 
 ### projections
 
-• `get` **projections**(): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+get projections(): ProjectionStatementNode[]
+```
 
 #### Returns
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
-#### Inherited from
-
-BaseType.projections
-
 ## Methods
 
-### projectionsByName
+### projectionsByName()
 
-▸ **projectionsByName**(`name`): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+projectionsByName(name): ProjectionStatementNode[]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
 
@@ -240,4 +60,4 @@ BaseType.projections
 
 #### Inherited from
 
-[BaseType](BaseType.md).[projectionsByName](BaseType.md#projectionsbyname)
+[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)

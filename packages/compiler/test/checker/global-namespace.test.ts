@@ -1,6 +1,7 @@
 import assert, { notStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model } from "../../src/core/types.js";
-import { createTestHost, TestHost } from "../../src/testing/index.js";
+import { TestHost, createTestHost } from "../../src/testing/index.js";
 
 describe("compiler: global namespace", () => {
   let testHost: TestHost;
@@ -100,7 +101,7 @@ describe("compiler: global namespace", () => {
     });
   });
 
-  it("can override typespec library things", async () => {
+  it("can override TypeSpec library things", async () => {
     testHost.addTypeSpecFile("./main.tsp", `@test model int32 { x: TypeSpec.int32 }`);
 
     const { int32 } = (await testHost.compile("./")) as { int32: Model };

@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import * as prettier from "prettier";
 import {
   BooleanLiteral,
   Enum,
@@ -263,7 +263,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
     return super.reference(targetDeclaration, pathUp, pathDown, commonScope);
   }
 
-  sourceFile(sourceFile: SourceFile<string>): EmittedSourceFile {
+  async sourceFile(sourceFile: SourceFile<string>): Promise<EmittedSourceFile> {
     const emittedSourceFile: EmittedSourceFile = {
       path: sourceFile.path,
       contents: "",
@@ -277,7 +277,7 @@ export class TypeScriptInterfaceEmitter extends CodeTypeEmitter {
       emittedSourceFile.contents += decl.value + "\n";
     }
 
-    emittedSourceFile.contents = prettier.format(emittedSourceFile.contents, {
+    emittedSourceFile.contents = await prettier.format(emittedSourceFile.contents, {
       parser: "typescript",
     });
     return emittedSourceFile;

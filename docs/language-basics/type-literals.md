@@ -62,6 +62,22 @@ two
 }
 ```
 
+## String template literal
+
+Single or multi line string literal can be interpolated using `${}`
+
+```typespec
+alias hello = "bonjour";
+alias Single = "${hello} world!";
+
+alias Multi = """
+  ${hello} 
+  world!
+  """;
+```
+
+Any valid expression can be used in the interpolation but only other literals will result in the template literal being assignable to a `valueof string`. Any other value will be dependent on the decorator/emitter receiving it to handle.
+
 ## Numeric literal
 
 Numeric literals can be declared by using the raw number

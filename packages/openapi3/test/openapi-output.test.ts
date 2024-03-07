@@ -1,6 +1,7 @@
 import { resolvePath } from "@typespec/compiler";
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { OpenAPI3EmitterOptions } from "../src/lib.js";
 import { OpenAPI3Document } from "../src/types.js";
 import { createOpenAPITestRunner, oapiForModel, openApiFor } from "./test-host.js";
@@ -19,7 +20,7 @@ async function openapiWithOptions(
     options: { "@typespec/openapi3": { ...options, "output-file": outPath } },
   });
 
-  expectDiagnosticEmpty(diagnostics.filter((x) => x.code !== "@typespec/http/no-routes"));
+  expectDiagnosticEmpty(diagnostics);
 
   const content = runner.fs.get(outPath)!;
   return JSON.parse(content);
@@ -157,10 +158,10 @@ describe("openapi3: operations", () => {
     strictEqual(getThing.parameters[1].schema.maximum, 10);
   });
 
-  it("deprecate operations with @deprecated", async () => {
+  it("deprecate operations with #deprecated", async () => {
     const res = await openApiFor(
       `
-      @deprecated("use something else")
+      #deprecated "use something else"
       op read(@query query: string): string;
       `
     );

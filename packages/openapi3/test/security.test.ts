@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { describe, expect, it } from "vitest";
 import { openApiFor } from "./test-host.js";
 
 describe("openapi3: security", () => {
@@ -88,6 +89,24 @@ describe("openapi3: security", () => {
     deepStrictEqual(res.security, [{ OAuth2Auth: ["read", "write"] }]);
   });
 
+  it("set openId auth", async () => {
+    const res = await openApiFor(
+      `
+      @service
+      @useAuth(OpenIdConnectAuth<"https://api.example.com/openid">)
+      namespace MyService {}
+      `
+    );
+    expect(res.components.securitySchemes).toEqual({
+      OpenIdConnectAuth: {
+        type: "openIdConnect",
+        openIdConnectUrl: "https://api.example.com/openid",
+        description: expect.stringMatching(/^OpenID Connect/),
+      },
+    });
+    deepStrictEqual(res.security, [{ OpenIdConnectAuth: [] }]);
+  });
+
   it("can specify custom auth name with description", async () => {
     const res = await openApiFor(
       `
@@ -139,6 +158,192 @@ describe("openapi3: security", () => {
       {
         ApiKeyAuth: [],
         BasicAuth: [],
+      },
+    ]);
+  });
+
+  it("can override security on methods of interface", async () => {
+    const res = await openApiFor(
+      `
+      namespace Test;
+      alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+
+      @service
+      @useAuth(ServiceKeyAuth)
+      @route("/my-service")
+      namespace MyService {
+        @route("/file")
+        @useAuth(ServiceKeyAuth | ApiKeyAuth<ApiKeyLocation.query, "token">)
+        interface FileManagement {
+          @route("/download")
+          op download(fileId: string): bytes;
+        }
+      }
+      `
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      ApiKeyAuth: {
+        in: "header",
+        name: "X-API-KEY",
+        type: "apiKey",
+      },
+      ApiKeyAuth_: {
+        in: "query",
+        name: "token",
+        type: "apiKey",
+      },
+    });
+    deepStrictEqual(res.security, [
+      {
+        ApiKeyAuth: [],
+      },
+    ]);
+    deepStrictEqual(res.paths["/my-service/file/download"]["post"].security, [
+      {
+        ApiKeyAuth: [],
+      },
+      {
+        ApiKeyAuth_: [],
+      },
+    ]);
+  });
+
+  it("can specify security on containing namespace", async () => {
+    const res = await openApiFor(
+      `
+      namespace Test;
+      alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+
+      @service
+      @useAuth(ServiceKeyAuth)
+      @route("/my-service")
+      namespace MyService {
+        @route("/file")
+        @useAuth(ServiceKeyAuth | ApiKeyAuth<ApiKeyLocation.query, "token">)
+        namespace FileManagement {
+          @route("/download")
+          op download(fileId: string): bytes;
+        }
+      }
+      `
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      ApiKeyAuth: {
+        in: "header",
+        name: "X-API-KEY",
+        type: "apiKey",
+      },
+      ApiKeyAuth_: {
+        in: "query",
+        name: "token",
+        type: "apiKey",
+      },
+    });
+    deepStrictEqual(res.security, [
+      {
+        ApiKeyAuth: [],
+      },
+    ]);
+    deepStrictEqual(res.paths["/my-service/file/download"]["post"].security, [
+      {
+        ApiKeyAuth: [],
+      },
+      {
+        ApiKeyAuth_: [],
+      },
+    ]);
+  });
+
+  it("can override security on methods of operation", async () => {
+    const res = await openApiFor(
+      `
+      namespace Test;
+
+      alias ServiceKeyAuth = ApiKeyAuth<ApiKeyLocation.header, "X-API-KEY">;
+
+      @service
+      @useAuth(ServiceKeyAuth)
+      @route("/my-service")
+      namespace MyService {
+        @useAuth(NoAuth | ServiceKeyAuth | ApiKeyAuth<ApiKeyLocation.query, "token">)
+        @route("download")
+        op download(fileId: string): bytes;
+      }
+      `
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      ApiKeyAuth: {
+        in: "header",
+        name: "X-API-KEY",
+        type: "apiKey",
+      },
+      ApiKeyAuth_: {
+        in: "query",
+        name: "token",
+        type: "apiKey",
+      },
+    });
+    deepStrictEqual(res.security, [
+      {
+        ApiKeyAuth: [],
+      },
+    ]);
+    deepStrictEqual(res.paths["/my-service/download"]["post"].security, [
+      {},
+      {
+        ApiKeyAuth: [],
+      },
+      {
+        ApiKeyAuth_: [],
+      },
+    ]);
+  });
+
+  it("can override Oauth2 scopes on operation", async () => {
+    const res = await openApiFor(
+      `
+      namespace Test;
+
+      alias MyOauth<T extends valueof string[]> = OAuth2Auth<Flows=[{
+        type: OAuth2FlowType.implicit;
+        authorizationUrl: "https://api.example.com/oauth2/authorize";
+        refreshUrl: "https://api.example.com/oauth2/refresh";
+      }], Scopes=T>;
+
+      @route("/my-service")
+      @useAuth(MyOauth<["read", "write"]>)
+      @service
+      namespace MyService {
+        @route("/delete")
+        @useAuth(MyOauth<["delete"]>)
+        @post op delete(): void;
+      }
+      `
+    );
+    deepStrictEqual(res.components.securitySchemes, {
+      OAuth2Auth: {
+        type: "oauth2",
+        flows: {
+          implicit: {
+            authorizationUrl: "https://api.example.com/oauth2/authorize",
+            refreshUrl: "https://api.example.com/oauth2/refresh",
+            scopes: {
+              read: "",
+              write: "",
+              delete: "",
+            },
+          },
+        },
+      },
+    });
+    deepStrictEqual(res.security, [
+      {
+        OAuth2Auth: ["read", "write"],
+      },
+    ]);
+    deepStrictEqual(res.paths["/my-service/delete"]["post"].security, [
+      {
+        OAuth2Auth: ["delete"],
       },
     ]);
   });

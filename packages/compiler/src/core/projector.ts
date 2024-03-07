@@ -1,6 +1,7 @@
+import { createRekeyableMap, mutate } from "../utils/misc.js";
 import { finishTypeForProgram } from "./checker.js";
 import { compilerAssert } from "./diagnostics.js";
-import { createStateAccessors, isProjectedProgram, Program, ProjectedProgram } from "./program.js";
+import { Program, ProjectedProgram, createStateAccessors, isProjectedProgram } from "./program.js";
 import { getParentTemplateNode, isNeverType, isTemplateInstance } from "./type-utils.js";
 import {
   DecoratorApplication,
@@ -21,7 +22,6 @@ import {
   Union,
   UnionVariant,
 } from "./types.js";
-import { createRekeyableMap, mutate } from "./util.js";
 
 /**
  * Creates a projector which returns a projected view of either the global namespace or the
@@ -284,9 +284,10 @@ export function createProjector(
     }
 
     if (model.indexer) {
+      const projectedValue = projectType(model.indexer.value);
       projectedModel.indexer = {
         key: projectType(model.indexer.key) as Scalar,
-        value: projectType(model.indexer.value),
+        value: projectedValue,
       };
     }
 
@@ -368,7 +369,7 @@ export function createProjector(
    * a template type, because we don't want to run decorators for templates.
    */
   function shouldFinishType(type: Type) {
-    const parentTemplate = getParentTemplateNode(type.node!);
+    const parentTemplate = type.node && getParentTemplateNode(type.node);
     return !parentTemplate || isTemplateInstance(type);
   }
 

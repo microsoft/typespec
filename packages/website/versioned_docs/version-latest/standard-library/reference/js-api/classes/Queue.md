@@ -1,91 +1,76 @@
-[JS Api](../index.md) / Queue
+---
+jsApi: true
+title: "[C] Queue"
 
-# Class: Queue<T\>
-
+---
 ## Type parameters
 
-| Name |
+| Type parameter |
 | :------ |
 | `T` |
-
-## Table of contents
-
-### Constructors
-
-- [constructor](Queue.md#constructor)
-
-### Properties
-
-- [#elements](Queue.md##elements)
-- [#headIndex](Queue.md##headindex)
-
-### Methods
-
-- [dequeue](Queue.md#dequeue)
-- [enqueue](Queue.md#enqueue)
-- [isEmpty](Queue.md#isempty)
 
 ## Constructors
 
-### constructor
+### new Queue(elements)
 
-• **new Queue**<`T`\>(`elements?`)
-
-#### Type parameters
-
-| Name |
-| :------ |
-| `T` |
+```ts
+new Queue<T>(elements?): Queue<T>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `elements?` | `T`[] |
+| `elements`? | `T`[] |
+
+#### Returns
+
+[`Queue`](Queue.md)<`T`\>
 
 ## Properties
 
-### #elements
-
-• `Private` **#elements**: `T`[]
-
-___
-
-### #headIndex
-
-• `Private` **#headIndex**: `number` = `0`
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `#elements` | `private` | `T`[] |
+| `#headIndex` | `private` | `number` |
 
 ## Methods
 
-### dequeue
+### dequeue()
 
-▸ **dequeue**(): `T`
+```ts
+dequeue(): T
+```
 
 #### Returns
 
 `T`
 
-___
+***
 
-### enqueue
+### enqueue()
 
-▸ **enqueue**(`...items`): `void`
+```ts
+enqueue(...items): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `...items` | `T`[] |
+| ...`items` | `T`[] |
 
 #### Returns
 
 `void`
 
-___
+***
 
-### isEmpty
+### isEmpty()
 
-▸ **isEmpty**(): `boolean`
+```ts
+isEmpty(): boolean
+```
 
 #### Returns
 

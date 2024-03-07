@@ -1,6 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-const libDefinition = {
+export const $lib = createTypeSpecLibrary({
   name: "@typespec/http",
   diagnostics: {
     "http-verb-duplicate": {
@@ -61,6 +61,12 @@ const libDefinition = {
         default: paramMessage`Duplicate operation "${"operationName"}" routed at "${"verb"} ${"path"}".`,
       },
     },
+    "multiple-status-codes": {
+      severity: "error",
+      messages: {
+        default: "Multiple `@statusCode` decorators defined for this operation response.",
+      },
+    },
     "status-code-invalid": {
       severity: "error",
       messages: {
@@ -81,11 +87,10 @@ const libDefinition = {
         default: "`Content-Type` header ignored because there is no body.",
       },
     },
-    "no-routes": {
+    "no-service-found": {
       severity: "warning",
       messages: {
-        default:
-          "Current spec is not exposing any routes. This could be to not having the service namespace marked with @service.",
+        default: paramMessage`No namespace with '@service' was found, but Namespace '${"namespace"}' contains routes. Did you mean to annotate this with '@service'?`,
       },
     },
     "invalid-type-for-auth": {
@@ -97,7 +102,7 @@ const libDefinition = {
     "shared-inconsistency": {
       severity: "error",
       messages: {
-        default: "All shared routes must agree on the value of the shared parameter.",
+        default: paramMessage`Each operation routed at "${"verb"} ${"path"}" needs to have the @sharedRoute decorator.`,
       },
     },
     "write-visibility-not-supported": {
@@ -125,9 +130,26 @@ const libDefinition = {
       },
     },
   },
-} as const;
+  state: {
+    authentication: { description: "State for the @auth decorator" },
+    header: { description: "State for the @header decorator" },
+    query: { description: "State for the @query decorator" },
+    path: { description: "State for the @path decorator" },
+    body: { description: "State for the @body decorator" },
+    statusCode: { description: "State for the @statusCode decorator" },
+    verbs: { description: "State for the verb decorators (@get, @post, @put, etc.)" },
+    servers: { description: "State for the @server decorator" },
+    includeInapplicableMetadataInPayload: {
+      description: "State for the @includeInapplicableMetadataInPayload decorator",
+    },
 
-const httpLib = createTypeSpecLibrary(libDefinition);
-const { reportDiagnostic, createDiagnostic, createStateSymbol } = httpLib;
+    // route.ts
+    externalInterfaces: {},
+    routeProducer: {},
+    routes: {},
+    sharedRoutes: { description: "State for the @sharedRoute decorator" },
+    routeOptions: {},
+  },
+} as const);
 
-export { createDiagnostic, createStateSymbol, httpLib, reportDiagnostic };
+export const { reportDiagnostic, createDiagnostic, stateKeys: HttpStateKeys } = $lib;

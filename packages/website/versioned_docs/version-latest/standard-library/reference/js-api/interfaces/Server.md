@@ -1,59 +1,26 @@
-[JS Api](../index.md) / Server
+---
+jsApi: true
+title: "[I] Server"
 
-# Interface: Server
-
-## Table of contents
-
-### Properties
-
-- [pendingMessages](Server.md#pendingmessages)
-- [workspaceFolders](Server.md#workspacefolders)
-
-### Methods
-
-- [buildSemanticTokens](Server.md#buildsemantictokens)
-- [checkChange](Server.md#checkchange)
-- [compile](Server.md#compile)
-- [complete](Server.md#complete)
-- [documentClosed](Server.md#documentclosed)
-- [findDocumentHighlight](Server.md#finddocumenthighlight)
-- [findReferences](Server.md#findreferences)
-- [formatDocument](Server.md#formatdocument)
-- [getDocumentSymbols](Server.md#getdocumentsymbols)
-- [getFoldingRanges](Server.md#getfoldingranges)
-- [getHover](Server.md#gethover)
-- [getSemanticTokens](Server.md#getsemantictokens)
-- [getSignatureHelp](Server.md#getsignaturehelp)
-- [gotoDefinition](Server.md#gotodefinition)
-- [initialize](Server.md#initialize)
-- [initialized](Server.md#initialized)
-- [log](Server.md#log)
-- [prepareRename](Server.md#preparerename)
-- [rename](Server.md#rename)
-- [watchedFilesChanged](Server.md#watchedfileschanged)
-- [workspaceFoldersChanged](Server.md#workspacefolderschanged)
-
+---
 ## Properties
 
-### pendingMessages
-
-• `Readonly` **pendingMessages**: readonly `string`[]
-
-___
-
-### workspaceFolders
-
-• `Readonly` **workspaceFolders**: readonly [`ServerWorkspaceFolder`](ServerWorkspaceFolder.md)[]
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `pendingMessages` | `readonly` | readonly `string`[] |
+| `workspaceFolders` | `readonly` | readonly [`ServerWorkspaceFolder`](ServerWorkspaceFolder.md)[] |
 
 ## Methods
 
-### buildSemanticTokens
+### buildSemanticTokens()
 
-▸ **buildSemanticTokens**(`params`): `Promise`<`SemanticTokens`\>
+```ts
+buildSemanticTokens(params): Promise<SemanticTokens>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `SemanticTokensParams` |
 
@@ -61,15 +28,17 @@ ___
 
 `Promise`<`SemanticTokens`\>
 
-___
+***
 
-### checkChange
+### checkChange()
 
-▸ **checkChange**(`change`): `Promise`<`void`\>
+```ts
+checkChange(change): Promise<void>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `change` | `TextDocumentChangeEvent`<`TextDocument`\> |
 
@@ -77,31 +46,35 @@ ___
 
 `Promise`<`void`\>
 
-___
+***
 
-### compile
+### compile()
 
-▸ **compile**(`document`): `Promise`<`undefined` \| [`Program`](Program.md)\>
+```ts
+compile(document): Promise<undefined | CompileResult>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `document` | `TextDocument` \| `TextDocumentIdentifier` |
 
 #### Returns
 
-`Promise`<`undefined` \| [`Program`](Program.md)\>
+`Promise`<`undefined` \| [`CompileResult`](CompileResult.md)\>
 
-___
+***
 
-### complete
+### complete()
 
-▸ **complete**(`params`): `Promise`<`CompletionList`\>
+```ts
+complete(params): Promise<CompletionList>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `CompletionParams` |
 
@@ -109,15 +82,17 @@ ___
 
 `Promise`<`CompletionList`\>
 
-___
+***
 
-### documentClosed
+### documentClosed()
 
-▸ **documentClosed**(`change`): `void`
+```ts
+documentClosed(change): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `change` | `TextDocumentChangeEvent`<`TextDocument`\> |
 
@@ -125,15 +100,35 @@ ___
 
 `void`
 
-___
+***
 
-### findDocumentHighlight
+### executeCommand()
 
-▸ **findDocumentHighlight**(`params`): `Promise`<`DocumentHighlight`[]\>
+```ts
+executeCommand(params): Promise<void>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
+| :------ | :------ |
+| `params` | `ExecuteCommandParams` |
+
+#### Returns
+
+`Promise`<`void`\>
+
+***
+
+### findDocumentHighlight()
+
+```ts
+findDocumentHighlight(params): Promise<DocumentHighlight[]>
+```
+
+#### Parameters
+
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `DocumentHighlightParams` |
 
@@ -141,15 +136,17 @@ ___
 
 `Promise`<`DocumentHighlight`[]\>
 
-___
+***
 
-### findReferences
+### findReferences()
 
-▸ **findReferences**(`params`): `Promise`<`Location`[]\>
+```ts
+findReferences(params): Promise<Location[]>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `ReferenceParams` |
 
@@ -157,15 +154,17 @@ ___
 
 `Promise`<`Location`[]\>
 
-___
+***
 
-### formatDocument
+### formatDocument()
 
-▸ **formatDocument**(`params`): `Promise`<`TextEdit`[]\>
+```ts
+formatDocument(params): Promise<TextEdit[]>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `DocumentFormattingParams` |
 
@@ -173,15 +172,35 @@ ___
 
 `Promise`<`TextEdit`[]\>
 
-___
+***
 
-### getDocumentSymbols
+### getCodeActions()
 
-▸ **getDocumentSymbols**(`params`): `Promise`<`DocumentSymbol`[]\>
+```ts
+getCodeActions(params): Promise<CodeAction[]>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
+| :------ | :------ |
+| `params` | `CodeActionParams` |
+
+#### Returns
+
+`Promise`<`CodeAction`[]\>
+
+***
+
+### getDocumentSymbols()
+
+```ts
+getDocumentSymbols(params): Promise<DocumentSymbol[]>
+```
+
+#### Parameters
+
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `DocumentSymbolParams` |
 
@@ -189,15 +208,17 @@ ___
 
 `Promise`<`DocumentSymbol`[]\>
 
-___
+***
 
-### getFoldingRanges
+### getFoldingRanges()
 
-▸ **getFoldingRanges**(`getFoldingRanges`): `Promise`<`FoldingRange`[]\>
+```ts
+getFoldingRanges(getFoldingRanges): Promise<FoldingRange[]>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `getFoldingRanges` | `FoldingRangeParams` |
 
@@ -205,15 +226,17 @@ ___
 
 `Promise`<`FoldingRange`[]\>
 
-___
+***
 
-### getHover
+### getHover()
 
-▸ **getHover**(`params`): `Promise`<`Hover`\>
+```ts
+getHover(params): Promise<Hover>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `HoverParams` |
 
@@ -221,15 +244,17 @@ ___
 
 `Promise`<`Hover`\>
 
-___
+***
 
-### getSemanticTokens
+### getSemanticTokens()
 
-▸ **getSemanticTokens**(`params`): `Promise`<[`SemanticToken`](SemanticToken.md)[]\>
+```ts
+getSemanticTokens(params): Promise<SemanticToken[]>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `SemanticTokensParams` |
 
@@ -237,15 +262,17 @@ ___
 
 `Promise`<[`SemanticToken`](SemanticToken.md)[]\>
 
-___
+***
 
-### getSignatureHelp
+### getSignatureHelp()
 
-▸ **getSignatureHelp**(`params`): `Promise`<`undefined` \| `SignatureHelp`\>
+```ts
+getSignatureHelp(params): Promise<undefined | SignatureHelp>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `SignatureHelpParams` |
 
@@ -253,15 +280,17 @@ ___
 
 `Promise`<`undefined` \| `SignatureHelp`\>
 
-___
+***
 
-### gotoDefinition
+### gotoDefinition()
 
-▸ **gotoDefinition**(`params`): `Promise`<`Location`[]\>
+```ts
+gotoDefinition(params): Promise<Location[]>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `DefinitionParams` |
 
@@ -269,15 +298,17 @@ ___
 
 `Promise`<`Location`[]\>
 
-___
+***
 
-### initialize
+### initialize()
 
-▸ **initialize**(`params`): `Promise`<`InitializeResult`<`any`\>\>
+```ts
+initialize(params): Promise<InitializeResult<any>>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `InitializeParams` |
 
@@ -285,15 +316,17 @@ ___
 
 `Promise`<`InitializeResult`<`any`\>\>
 
-___
+***
 
-### initialized
+### initialized()
 
-▸ **initialized**(`params`): `void`
+```ts
+initialized(params): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `InitializedParams` |
 
@@ -301,32 +334,36 @@ ___
 
 `void`
 
-___
+***
 
-### log
+### log()
 
-▸ **log**(`message`, `details?`): `void`
+```ts
+log(message, details?): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `message` | `string` |
-| `details?` | `any` |
+| `details`? | `any` |
 
 #### Returns
 
 `void`
 
-___
+***
 
-### prepareRename
+### prepareRename()
 
-▸ **prepareRename**(`params`): `Promise`<`undefined` \| `Range`\>
+```ts
+prepareRename(params): Promise<undefined | Range>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `PrepareRenameParams` |
 
@@ -334,15 +371,17 @@ ___
 
 `Promise`<`undefined` \| `Range`\>
 
-___
+***
 
-### rename
+### rename()
 
-▸ **rename**(`params`): `Promise`<`WorkspaceEdit`\>
+```ts
+rename(params): Promise<WorkspaceEdit>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `RenameParams` |
 
@@ -350,15 +389,17 @@ ___
 
 `Promise`<`WorkspaceEdit`\>
 
-___
+***
 
-### watchedFilesChanged
+### watchedFilesChanged()
 
-▸ **watchedFilesChanged**(`params`): `void`
+```ts
+watchedFilesChanged(params): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `params` | `DidChangeWatchedFilesParams` |
 
@@ -366,15 +407,17 @@ ___
 
 `void`
 
-___
+***
 
-### workspaceFoldersChanged
+### workspaceFoldersChanged()
 
-▸ **workspaceFoldersChanged**(`e`): `Promise`<`void`\>
+```ts
+workspaceFoldersChanged(e): Promise<void>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `e` | `WorkspaceFoldersChangeEvent` |
 

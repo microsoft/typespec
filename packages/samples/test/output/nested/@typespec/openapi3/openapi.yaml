@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: Nested sample
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    post:
+      operationId: SubC_anotherOp
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                thing:
+                  $ref: '#/components/schemas/SubA.Thing'
+                thing2:
+                  $ref: '#/components/schemas/SubA.Thing'
+              required:
+                - thing
+                - thing2
+  /sub/a/subsub:
+    post:
+      operationId: SubSubA_doSomething
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubA.SubSubA.Thing'
+  /sub/b:
+    post:
+      operationId: SubB_doSomething
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubB.Thing'
+components:
+  schemas:
+    SubA.SubSubA.Thing:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    SubA.Thing:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+    SubB.Thing:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64

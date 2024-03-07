@@ -1,29 +1,12 @@
-[JS Api](../index.md) / SymbolLinks
+---
+jsApi: true
+title: "[I] SymbolLinks"
 
-# Interface: SymbolLinks
-
-## Table of contents
-
-### Properties
-
-- [declaredType](SymbolLinks.md#declaredtype)
-- [instantiations](SymbolLinks.md#instantiations)
-- [type](SymbolLinks.md#type)
-
+---
 ## Properties
 
-### declaredType
-
-• `Optional` **declaredType**: [`Type`](../index.md#type)
-
-___
-
-### instantiations
-
-• `Optional` **instantiations**: [`TypeInstantiationMap`](TypeInstantiationMap.md)
-
-___
-
-### type
-
-• `Optional` **type**: [`Type`](../index.md#type)
+| Property | Type |
+| :------ | :------ |
+| `declaredType?` | [`Type`](../type-aliases/Type.md) |
+| `instantiations?` | [`TypeInstantiationMap`](TypeInstantiationMap.md) |
+| `type?` | [`Type`](../type-aliases/Type.md) |

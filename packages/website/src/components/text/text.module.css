@@ -1,0 +1,30 @@
+.neutral-text {
+  color: var(--colorNeutralForeground1);
+  font-weight: 400;
+}
+.description-text {
+  color: var(--colorNeutralForeground3);
+  font-weight: 400;
+}
+
+.primary-text {
+  color: var(--colorBrandForeground1);
+  font-weight: 400;
+}
+
+.text {
+  line-height: 140%;
+}
+
+.text-size-standard {
+  font-size: 20px;
+}
+
+.text-size-large {
+  font-size: 24px;
+}
+
+.text-size-xlarge {
+  font-size: 28px;
+  font-weight: 600;
+}

@@ -1,9 +1,9 @@
-import prettier, { Printer } from "prettier";
-import { Node, SyntaxKind, TypeSpecScriptNode } from "../../core/types.js";
+import type { Printer } from "prettier";
+import { Node, SyntaxKind, TextRange, TypeSpecScriptNode } from "../../core/types.js";
+import { util } from "./util.js";
 
-const { util } = prettier;
-
-interface CommentNode {
+interface CommentNode extends TextRange {
+  readonly kind: SyntaxKind.LineComment | SyntaxKind.BlockComment;
   precedingNode?: Node;
   enclosingNode?: Node;
   followingNode?: Node;
@@ -17,9 +17,17 @@ export const commentHandler: Printer<Node>["handleComments"] = {
     [
       addEmptyInterfaceComment,
       addEmptyModelComment,
-      addStatementDecoratorComment,
+      addCommentBetweenAnnotationsAndNode,
       handleOnlyComments,
     ].some((x) => x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })),
+  remaining: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+    ),
+  endOfLine: (comment, text, options, ast, isLastComment) =>
+    [handleOnlyComments].some((x) =>
+      x({ comment, text, options, ast: ast as TypeSpecScriptNode, isLastComment })
+    ),
 };
 
 interface CommentContext {
@@ -38,7 +46,7 @@ interface CommentContext {
  *   // My comment
  * }
  */
-function addEmptyInterfaceComment({ comment }: CommentContext) {
+function addEmptyInterfaceComment({ comment, ast }: CommentContext) {
   const { precedingNode, enclosingNode } = comment;
 
   if (
@@ -55,7 +63,7 @@ function addEmptyInterfaceComment({ comment }: CommentContext) {
 }
 
 /**
- * When a comment is in between decorators.
+ * When a comment is in between a node and its annotations(Decorator, directives, doc comments).
  *
  * @example
  *
@@ -65,12 +73,14 @@ function addEmptyInterfaceComment({ comment }: CommentContext) {
  * model Foo {
  * }
  */
-function addStatementDecoratorComment({ comment }: CommentContext) {
+function addCommentBetweenAnnotationsAndNode({ comment }: CommentContext) {
   const { enclosingNode, precedingNode } = comment;
 
   if (
     precedingNode &&
-    precedingNode.kind === SyntaxKind.DecoratorExpression &&
+    (precedingNode.kind === SyntaxKind.DecoratorExpression ||
+      precedingNode.kind === SyntaxKind.DirectiveExpression ||
+      precedingNode.kind === SyntaxKind.Doc) &&
     enclosingNode &&
     (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelStatement ||

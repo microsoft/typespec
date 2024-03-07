@@ -1,6 +1,6 @@
 import yargs from "yargs";
 import { generateThirdPartyNotice } from "./generate-third-party-notice.js";
-import { bumpVersionsForPrerelease } from "./prerelease.js";
+import { bumpVersionsForPR, bumpVersionsForPrerelease } from "./prerelease.js";
 
 main().catch((e) => {
   // eslint-disable-next-line no-console
@@ -29,5 +29,24 @@ async function main() {
           demandOption: true,
         }),
       (args) => bumpVersionsForPrerelease(args.workspaceRoots)
+    )
+    .command(
+      "bump-version-pr <workspaceRoot>",
+      "Bump all package version for the PR",
+      (cmd) =>
+        cmd
+          .positional("workspaceRoot", {
+            type: "string",
+            demandOption: true,
+          })
+          .option("pr", {
+            type: "number",
+            demandOption: true,
+          })
+          .option("buildNumber", {
+            type: "string",
+            demandOption: true,
+          }),
+      (args) => bumpVersionsForPR(args.workspaceRoot, args.pr, args.buildNumber)
     ).argv;
 }

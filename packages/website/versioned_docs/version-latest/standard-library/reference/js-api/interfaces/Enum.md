@@ -1,171 +1,51 @@
-[JS Api](../index.md) / Enum
+---
+jsApi: true
+title: "[I] Enum"
 
-# Interface: Enum
+---
+## Extends
 
-## Hierarchy
-
-- [`BaseType`](BaseType.md)
-
-- [`DecoratedType`](DecoratedType.md)
-
-  ↳ **`Enum`**
-
-## Table of contents
-
-### Properties
-
-- [decorators](Enum.md#decorators)
-- [instantiationParameters](Enum.md#instantiationparameters)
-- [isFinished](Enum.md#isfinished)
-- [kind](Enum.md#kind)
-- [members](Enum.md#members)
-- [name](Enum.md#name)
-- [namespace](Enum.md#namespace)
-- [node](Enum.md#node)
-- [projectionBase](Enum.md#projectionbase)
-- [projectionSource](Enum.md#projectionsource)
-- [projector](Enum.md#projector)
-
-### Accessors
-
-- [projections](Enum.md#projections)
-
-### Methods
-
-- [projectionsByName](Enum.md#projectionsbyname)
+- [`BaseType`](BaseType.md).[`DecoratedType`](DecoratedType.md)
 
 ## Properties
 
-### decorators
-
-• **decorators**: [`DecoratorApplication`](DecoratorApplication.md)[]
-
-#### Inherited from
-
-[DecoratedType](DecoratedType.md).[decorators](DecoratedType.md#decorators)
-
-___
-
-### instantiationParameters
-
-• `Optional` **instantiationParameters**: [`Type`](../index.md#type)[]
-
-#### Inherited from
-
-[BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
-
-___
-
-### isFinished
-
-• **isFinished**: `boolean`
-
-Reflect if a type has been finished(Decorators have been called).
-There is multiple reasons a type might not be finished:
-- a template declaration will not
-- a template instance that argument that are still template parameters
-- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
-
-___
-
-### kind
-
-• **kind**: ``"Enum"``
-
-#### Overrides
-
-[BaseType](BaseType.md).[kind](BaseType.md#kind)
-
-___
-
-### members
-
-• **members**: [`RekeyableMap`](RekeyableMap.md)<`string`, [`EnumMember`](EnumMember.md)\>
-
-The members of the enum.
-
-Members are ordered in the order that they appear in source. Members
-obtained via `...` are inserted where the spread appears in source.
-
-___
-
-### name
-
-• **name**: `string`
-
-___
-
-### namespace
-
-• `Optional` **namespace**: [`Namespace`](Namespace.md)
-
-___
-
-### node
-
-• **node**: [`EnumStatementNode`](EnumStatementNode.md)
-
-#### Overrides
-
-[BaseType](BaseType.md).[node](BaseType.md#node)
-
-___
-
-### projectionBase
-
-• `Optional` **projectionBase**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionBase](BaseType.md#projectionbase)
-
-___
-
-### projectionSource
-
-• `Optional` **projectionSource**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionSource](BaseType.md#projectionsource)
-
-___
-
-### projector
-
-• `Optional` **projector**: [`Projector`](Projector.md)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projector](BaseType.md#projector)
+| Property | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `decorators` | [`DecoratorApplication`](DecoratorApplication.md)[] | - | [`DecoratedType`](DecoratedType.md).`decorators` | [`DecoratedType`](DecoratedType.md).`decorators` |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `"Enum"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `members` | `RekeyableMap`<`string`, [`EnumMember`](EnumMember.md)\> | The members of the enum.<br /><br />Members are ordered in the order that they appear in source. Members<br />obtained via `...` are inserted where the spread appears in source. | - | - |
+| `name` | `string` | - | - | - |
+| `namespace?` | [`Namespace`](Namespace.md) | - | - | - |
+| `node` | [`EnumStatementNode`](EnumStatementNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
 
 ## Accessors
 
 ### projections
 
-• `get` **projections**(): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+get projections(): ProjectionStatementNode[]
+```
 
 #### Returns
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
-#### Inherited from
-
-BaseType.projections
-
 ## Methods
 
-### projectionsByName
+### projectionsByName()
 
-▸ **projectionsByName**(`name`): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+projectionsByName(name): ProjectionStatementNode[]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
 
@@ -175,4 +55,4 @@ BaseType.projections
 
 #### Inherited from
 
-[BaseType](BaseType.md).[projectionsByName](BaseType.md#projectionsbyname)
+[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)

@@ -1,0 +1,54 @@
+{
+  "name": "@typespec/monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@8.13.1",
+  "scripts": {
+    "build": "pnpm -r --workspace-concurrency=Infinity --aggregate-output --reporter=append-only build ",
+    "check-format": "pnpm run prettier --check",
+    "check-version-mismatch": "syncpack list-mismatches",
+    "change": "chronus",
+    "clean": "pnpm -r run clean",
+    "cspell": "cspell --no-progress .",
+    "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
+    "fix-version-mismatch": "syncpack fix-mismatches",
+    "format": "pnpm run prettier --write",
+    "lint": "pnpm -r --parallel --aggregate-output --reporter=append-only run lint",
+    "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
+    "pack:all": "chronus pack --pack-destination ./temp/artifacts",
+    "preinstall": "npx only-allow pnpm",
+    "prepare-publish": "pnpm chronus version",
+    "prettier": "prettier .",
+    "purge": "rimraf --glob \"packages/*/node_modules/\"",
+    "regen-docs": "pnpm -r --parallel --aggregate-output --reporter=append-only run regen-docs",
+    "regen-samples": "pnpm -r run regen-samples",
+    "test-official": "pnpm -r --aggregate-output --reporter=append-only test-official",
+    "test:e2e": "pnpm -r run test:e2e",
+    "test": "pnpm -r --aggregate-output --reporter=append-only run test",
+    "update-latest-docs": "pnpm -r run update-latest-docs",
+    "watch": "tsc --build ./tsconfig.ws.json --watch"
+  },
+  "devDependencies": {
+    "@chronus/chronus": "^0.8.2",
+    "@chronus/github": "^0.2.1",
+    "@pnpm/find-workspace-packages": "^6.0.9",
+    "c8": "^9.1.0",
+    "cspell": "^8.3.2",
+    "prettier": "~3.2.5",
+    "prettier-plugin-organize-imports": "~3.2.4",
+    "rimraf": "~5.0.5",
+    "syncpack": "^12.3.0",
+    "typescript": "~5.3.3",
+    "vitest": "^1.2.2"
+  },
+  "syncpack": {
+    "dependencyTypes": [
+      "dev",
+      "overrides",
+      "peer",
+      "pnpmOverrides",
+      "prod",
+      "resolutions"
+    ]
+  }
+}

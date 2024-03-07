@@ -1,0 +1,66 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+tags: []
+paths:
+  /:
+    get:
+      operationId: foo
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Foo'
+components:
+  schemas:
+    Foo:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          x-model:
+            name: Foo
+            age: 12
+            other:
+              id: some
+          x-obj:
+            foo: 123
+            bar: string
+          x-array:
+            - one
+            - 2
+          x-bool: true
+          x-number: 123
+          x-string: string
+    MyConfig:
+      type: object
+      required:
+        - name
+        - age
+        - other
+      properties:
+        name:
+          type: string
+          enum:
+            - Foo
+        age:
+          type: number
+          enum:
+            - 12
+        other:
+          $ref: '#/components/schemas/NestedConfig'
+    NestedConfig:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          enum:
+            - some

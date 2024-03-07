@@ -1,37 +1,30 @@
-[JS Api](../index.md) / CallableMessage
+---
+jsApi: true
+title: "[I] CallableMessage"
 
-# Interface: CallableMessage<T\>
-
+---
 ## Type parameters
 
-| Name | Type |
+| Type parameter |
+| :------ |
+| `T` extends `string`[] |
+
+```ts
+interface CallableMessage(dict): string
+```
+
+## Parameters
+
+| Parameter | Type |
 | :------ | :------ |
-| `T` | extends `string`[] |
+| `dict` | `Record`<`T`\[`number`\], `string`\> |
 
-## Callable
-
-### CallableMessage
-
-▸ **CallableMessage**(`dict`): `string`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `dict` | `Record`<`T`[`number`], `string`\> |
-
-#### Returns
+## Returns
 
 `string`
 
-## Table of contents
-
-### Properties
-
-- [keys](CallableMessage.md#keys)
-
 ## Properties
 
-### keys
-
-• **keys**: `T`
+| Property | Type |
+| :------ | :------ |
+| `keys` | `T` |

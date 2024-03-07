@@ -34,7 +34,7 @@ model Dog {}
 
 ## Augment decorators
 
-Decorators can also be used from a different location by referring to the type being decorated. For this you can declare an augment decorator using the `@@` prefix. The first argument of an augment decorator is the type reference that should be decorated.
+Decorators can also be used from a different location by referring to the type being decorated. For this you can declare an augment decorator using the `@@` prefix. The first argument of an augment decorator is the type reference that should be decorated. As the augment decorator is a statement, it must end with a semicolon (`;`).
 
 ```typespec
 model Dog {}

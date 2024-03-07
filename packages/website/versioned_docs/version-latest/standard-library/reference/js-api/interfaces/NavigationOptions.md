@@ -1,17 +1,10 @@
-[JS Api](../index.md) / NavigationOptions
+---
+jsApi: true
+title: "[I] NavigationOptions"
 
-# Interface: NavigationOptions
-
-## Table of contents
-
-### Properties
-
-- [includeTemplateDeclaration](NavigationOptions.md#includetemplatedeclaration)
-
+---
 ## Properties
 
-### includeTemplateDeclaration
-
-• `Optional` **includeTemplateDeclaration**: `boolean`
-
-Skip non instantiated templates.
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `includeTemplateDeclaration?` | `boolean` | Skip non instantiated templates. |

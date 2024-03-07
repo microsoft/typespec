@@ -1,4 +1,5 @@
 import assert from "assert";
+import { describe, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting unions", () => {
@@ -7,6 +8,32 @@ describe("emitting unions", () => {
       union Foo {
         x: string;
         y: boolean;
+      }
+    `);
+    const Foo = schemas["Foo.json"];
+
+    assert.strictEqual(Foo.$id, "Foo.json");
+    assert.strictEqual(Foo.$schema, "https://json-schema.org/draft/2020-12/schema");
+    assert.deepStrictEqual(Foo.anyOf, [{ type: "string" }, { type: "boolean" }]);
+  });
+
+  it("union description carries over", async () => {
+    const schemas = await emitSchema(`
+      /** Foo doc */
+      union Foo {
+        x: string;
+        y: boolean;
+      }
+    `);
+
+    assert.strictEqual(schemas["Foo.json"].description, "Foo doc");
+  });
+
+  it("works with declarations with anonymous variants", async () => {
+    const schemas = await emitSchema(`
+      union Foo {
+        string;
+        boolean;
       }
     `);
     const Foo = schemas["Foo.json"];

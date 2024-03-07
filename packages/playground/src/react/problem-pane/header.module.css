@@ -1,0 +1,41 @@
+.header {
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: 30px;
+  box-sizing: border-box;
+  justify-content: space-between;
+  box-shadow: var(--shadow2);
+}
+
+.header--error {
+  background-color: var(--colorStatusDangerBackground2);
+  color: var(--colorNeutralForeground1);
+}
+
+.error-icon {
+  color: var(--colorStatusDangerForeground1);
+}
+
+.header--warning {
+  background-color: var(--colorStatusWarningBackground2);
+  color: var(--colorNeutralForeground2);
+}
+
+.warning-icon {
+  color: var(--colorStatusWarningForeground1);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-chevron {
+  transition: transform 0.2s ease-in-out;
+}
+.header-chevron--collapsed {
+  transform: rotate(90deg);
+}

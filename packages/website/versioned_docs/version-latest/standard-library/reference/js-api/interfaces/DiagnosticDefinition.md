@@ -1,28 +1,17 @@
-[JS Api](../index.md) / DiagnosticDefinition
+---
+jsApi: true
+title: "[I] DiagnosticDefinition"
 
-# Interface: DiagnosticDefinition<M\>
-
+---
 ## Type parameters
 
-| Name | Type |
-| :------ | :------ |
-| `M` | extends [`DiagnosticMessages`](DiagnosticMessages.md) |
-
-## Table of contents
-
-### Properties
-
-- [messages](DiagnosticDefinition.md#messages)
-- [severity](DiagnosticDefinition.md#severity)
+| Type parameter |
+| :------ |
+| `M` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
-### messages
-
-• `Readonly` **messages**: `M`
-
-___
-
-### severity
-
-• `Readonly` **severity**: ``"error"`` \| ``"warning"``
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `messages` | `readonly` | `M` |
+| `severity` | `readonly` | `"error"` \| `"warning"` |

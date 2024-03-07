@@ -1,4 +1,5 @@
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { CharCode } from "../src/core/charcode.js";
 import { formatDiagnostic, logVerboseTestOutput } from "../src/core/diagnostics.js";
 import { hasParseError, parse, visitChildren } from "../src/core/parser.js";
@@ -8,11 +9,16 @@ import {
   NodeFlags,
   ParseOptions,
   SourceFile,
+  StringTemplateExpressionNode,
   SyntaxKind,
   TypeSpecScriptNode,
 } from "../src/core/types.js";
 import { DecorableNode } from "../src/formatter/print/types.js";
-import { DiagnosticMatch, expectDiagnostics } from "../src/testing/expect.js";
+import {
+  DiagnosticMatch,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+} from "../src/testing/expect.js";
 
 describe("compiler: parser", () => {
   describe("import statements", () => {
@@ -26,8 +32,9 @@ describe("compiler: parser", () => {
     ]);
   });
 
-  describe("empty script", () =>
-    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]));
+  describe("empty script", () => {
+    parseEach([["", (n) => assert.strictEqual(n.statements.length, 0)]]);
+  });
 
   describe("model statements", () => {
     parseEach([
@@ -209,15 +216,11 @@ describe("compiler: parser", () => {
       "@myDec union A { @myDec a: string }",
       "union A<T, V> { a: T; none: {} }",
       `union A { "hi there": string }`,
+      `union A { string, int32 }`,
+      `union A { B<T>, C<T> }`,
+      `union A { "hi", \`bye\` }`,
     ]);
-
-    parseErrorEach([
-      [
-        'union A { @myDec "x" x: number, y: string }',
-        [/':' expected/],
-        (n) => assert(!n.printable, "should not be printable"),
-      ],
-    ]);
+    parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
   });
 
   describe("valueof expressions", () => {
@@ -327,6 +330,7 @@ describe("compiler: parser", () => {
   describe("recovery", () => {
     parseErrorEach([
       [`model M { ]`, [/Property expected/]],
+      [`model M { /** */ */ prop: string }`, [/Property expected/]],
       [
         `
         @dec1 @dec2 import "foo";
@@ -521,6 +525,141 @@ describe("compiler: parser", () => {
     parseErrorEach(bad.map((e) => [`model ${e[0]} {}`, [e[1]]]));
   });
 
+  describe("string template expressions", () => {
+    function getNode(astNode: TypeSpecScriptNode): Node {
+      const statement = astNode.statements[0];
+      strictEqual(statement.kind, SyntaxKind.AliasStatement);
+      return statement.value;
+    }
+    function getStringTemplateNode(astNode: TypeSpecScriptNode): StringTemplateExpressionNode {
+      const node = getNode(astNode);
+      strictEqual(node.kind, SyntaxKind.StringTemplateExpression);
+      return node;
+    }
+
+    describe("single line", () => {
+      it("parse a single line template expression", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \${"one"} middle \${23} end";`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 2);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " middle ");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+
+        const span1 = node.spans[1];
+        strictEqual(span1.literal.value, " end");
+        strictEqual(span1.expression.kind, SyntaxKind.NumericLiteral);
+        strictEqual(span1.expression.value, 23);
+      });
+
+      it("parse a single line template with a multi line model expression inside", () => {
+        const astNode = parseSuccessWithLog(
+          `alias T = "Start \${{ foo: "one",\nbar: "two" }} end";`
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.ModelExpression);
+        strictEqual(span0.expression.properties.length, 2);
+      });
+
+      it("can escape some ${}", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \${"one"} middle \\\${23} end";`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " middle ${23} end");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+      });
+
+      it("can nest string templates", () => {
+        const astNode = parseSuccessWithLog(
+          'alias T = "Start ${"nested-start ${"hi"} nested-end"} end";'
+        );
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " end");
+        strictEqual(span0.expression.kind, SyntaxKind.StringTemplateExpression);
+        strictEqual(span0.expression.head.value, "nested-start ");
+        strictEqual(span0.expression.spans.length, 1);
+
+        const nestedSpan0 = span0.expression.spans[0];
+        strictEqual(nestedSpan0.literal.value, " nested-end");
+        strictEqual(nestedSpan0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(nestedSpan0.expression.value, "hi");
+      });
+
+      it("string with all ${} escape is still a StringLiteral", () => {
+        const astNode = parseSuccessWithLog(`alias T = "Start \\\${12} middle \\\${23} end";`);
+        const node = getNode(astNode);
+        strictEqual(node.kind, SyntaxKind.StringLiteral);
+        strictEqual(node.value, "Start ${12} middle ${23} end");
+      });
+    });
+
+    describe("multi line", () => {
+      it("parse a multiple line template expression", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \${"one"} 
+      middle \${23} 
+      end
+      """;`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 2);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " \nmiddle ");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+
+        const span1 = node.spans[1];
+        strictEqual(span1.literal.value, " \nend");
+        strictEqual(span1.expression.kind, SyntaxKind.NumericLiteral);
+        strictEqual(span1.expression.value, 23);
+      });
+
+      it("can escape some ${}", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \${"one"} 
+      middle \\\${23} 
+      end
+      """;`);
+        const node = getStringTemplateNode(astNode);
+        strictEqual(node.head.value, "Start ");
+        strictEqual(node.spans.length, 1);
+
+        const span0 = node.spans[0];
+        strictEqual(span0.literal.value, " \nmiddle ${23} \nend");
+        strictEqual(span0.expression.kind, SyntaxKind.StringLiteral);
+        strictEqual(span0.expression.value, "one");
+      });
+
+      it("escaping all ${} still produce a string literal", () => {
+        const astNode = parseSuccessWithLog(`alias T = """
+      Start \\\${12} 
+      middle \\\${23} 
+      end
+      """;`);
+        const node = getNode(astNode);
+        strictEqual(node.kind, SyntaxKind.StringLiteral);
+        strictEqual(node.value, "Start ${12} \nmiddle ${23} \nend");
+      });
+    });
+  });
+
   // smaller repro of previous regen-samples baseline failures
   describe("sample regressions", () => {
     parseEach([
@@ -569,6 +708,7 @@ describe("compiler: parser", () => {
         [
           ["#suppress foo;\nmodel Foo {}", [/Unexpected token Semicolon/]],
           ["#suppress foo 123\nmodel Foo {}", [/Unexpected token NumericLiteral/]],
+          ["#deprecated 321\nop doFoo(): string;", [/Unexpected token NumericLiteral/]],
         ],
         { strict: true }
       );
@@ -805,37 +945,55 @@ describe("compiler: parser", () => {
            *
            * @param x the param
            * that continues on another line
+           * @param y - another param
            * @template T some template
+           * @template U - another template
            * @returns something
            * @pretend this an unknown tag
            */
-          op test<T>(x: string): string;
+          op test<T, U>(x: string, y: string): string;
           `,
           (script) => {
             const docs = script.statements[0].docs;
             strictEqual(docs?.length, 1);
             strictEqual(docs[0].content.length, 1);
+
             strictEqual(
               docs[0].content[0].text,
               "This one has a `code span` and a code fence and it spreads over\nmore than one line.\n\n```\nThis is not a @tag because we're in a code fence.\n```\n\n`This is not a @tag either because we're in a code span`."
             );
-            strictEqual(docs[0].tags.length, 4);
-            strictEqual(docs[0].tags[0].kind, SyntaxKind.DocParamTag as const);
-            strictEqual(docs[0].tags[0].tagName.sv, "param");
-            strictEqual(docs[0].tags[0].paramName.sv, "x");
-            strictEqual(
-              docs[0].tags[0].content[0].text,
-              "the param\nthat continues on another line"
-            );
-            strictEqual(docs[0].tags[1].kind, SyntaxKind.DocTemplateTag as const);
-            strictEqual(docs[0].tags[1].tagName.sv, "template");
-            strictEqual(docs[0].tags[1].paramName.sv, "T");
-            strictEqual(docs[0].tags[2].kind, SyntaxKind.DocReturnsTag as const);
-            strictEqual(docs[0].tags[2].tagName.sv, "returns");
-            strictEqual(docs[0].tags[2].content[0].text, "something");
-            strictEqual(docs[0].tags[3].kind, SyntaxKind.DocUnknownTag as const);
-            strictEqual(docs[0].tags[3].tagName.sv, "pretend");
-            strictEqual(docs[0].tags[3].content[0].text, "this an unknown tag");
+            strictEqual(docs[0].tags.length, 6);
+            const [xParam, yParam, tTemplate, uTemplate, returns, pretend] = docs[0].tags;
+
+            strictEqual(xParam.kind, SyntaxKind.DocParamTag as const);
+            strictEqual(xParam.tagName.sv, "param");
+            strictEqual(xParam.paramName.sv, "x");
+            strictEqual(xParam.content[0].text, "the param\nthat continues on another line");
+
+            // `y` has hyphen in doc string, which should be dropped
+            strictEqual(yParam.kind, SyntaxKind.DocParamTag as const);
+            strictEqual(yParam.tagName.sv, "param");
+            strictEqual(yParam.paramName.sv, "y");
+            strictEqual(yParam.content[0].text, "another param");
+
+            strictEqual(tTemplate.kind, SyntaxKind.DocTemplateTag as const);
+            strictEqual(tTemplate.tagName.sv, "template");
+            strictEqual(tTemplate.paramName.sv, "T");
+            strictEqual(tTemplate.content[0].text, "some template");
+
+            // `U` has hyphen in doc string, which should be dropped
+            strictEqual(uTemplate.kind, SyntaxKind.DocTemplateTag as const);
+            strictEqual(uTemplate.tagName.sv, "template");
+            strictEqual(uTemplate.paramName.sv, "U");
+            strictEqual(uTemplate.content[0].text, "another template");
+
+            strictEqual(returns.kind, SyntaxKind.DocReturnsTag as const);
+            strictEqual(returns.tagName.sv, "returns");
+            strictEqual(returns.content[0].text, "something");
+
+            strictEqual(pretend.kind, SyntaxKind.DocUnknownTag as const);
+            strictEqual(pretend.tagName.sv, "pretend");
+            strictEqual(pretend.content[0].text, "this an unknown tag");
           },
         ],
       ],
@@ -1209,6 +1367,33 @@ function checkPositioning(node: Node, file: SourceFile) {
 }
 
 /**
+ * Parse the given code and log debug information.
+ */
+function parseWithLog(code: string, options?: ParseOptions): TypeSpecScriptNode {
+  logVerboseTestOutput("=== Source ===");
+  logVerboseTestOutput(code);
+
+  const astNode = parse(code, options);
+  logVerboseTestOutput("\n=== Parse Result ===");
+  dumpAST(astNode);
+  return astNode;
+}
+/**
+ * Check the given code parse successfully and log debug information.
+ */
+function parseSuccessWithLog(code: string, options?: ParseOptions): TypeSpecScriptNode {
+  const astNode = parseWithLog(code, options);
+  logVerboseTestOutput("\n=== Diagnostics ===");
+  logVerboseTestOutput((log) => {
+    for (const each of astNode.parseDiagnostics) {
+      log(formatDiagnostic(each));
+    }
+  });
+  expectDiagnosticEmpty(astNode.parseDiagnostics);
+  return astNode;
+}
+
+/**
  *
  * @param cases Test cases
  * @param options {
@@ -1221,16 +1406,10 @@ function parseErrorEach(
 ) {
   for (const [code, matches, callback] of cases) {
     it(`doesn't parse '${shorten(code)}'`, () => {
-      logVerboseTestOutput("=== Source ===");
-      logVerboseTestOutput(code);
-
-      const astNode = parse(code, options);
+      const astNode = parseWithLog(code, options);
       if (callback) {
         callback(astNode);
       }
-      logVerboseTestOutput("\n=== Parse Result ===");
-      dumpAST(astNode);
-
       logVerboseTestOutput("\n=== Diagnostics ===");
       logVerboseTestOutput((log) => {
         for (const each of astNode.parseDiagnostics) {

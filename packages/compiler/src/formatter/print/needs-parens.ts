@@ -1,4 +1,4 @@
-import { AstPath } from "prettier";
+import type { AstPath } from "prettier";
 import { Node, SyntaxKind } from "../../core/types.js";
 import { TypeSpecPrettierOptions } from "./types.js";
 
@@ -13,8 +13,14 @@ export function needsParens(path: AstPath<Node>, options: TypeSpecPrettierOption
     return false;
   }
 
-  const node = path.getValue();
+  const node = path.node;
   switch (node.kind) {
+    case SyntaxKind.ValueOfExpression:
+      return (
+        parent.kind === SyntaxKind.UnionExpression ||
+        parent.kind === SyntaxKind.ArrayExpression ||
+        parent.kind === SyntaxKind.IntersectionExpression
+      );
     case SyntaxKind.IntersectionExpression:
       return (
         parent.kind === SyntaxKind.UnionExpression || parent.kind === SyntaxKind.ArrayExpression

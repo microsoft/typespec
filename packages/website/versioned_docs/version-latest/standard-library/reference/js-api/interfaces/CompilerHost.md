@@ -1,54 +1,26 @@
-[JS Api](../index.md) / CompilerHost
+---
+jsApi: true
+title: "[I] CompilerHost"
 
-# Interface: CompilerHost
-
-## Table of contents
-
-### Properties
-
-- [logSink](CompilerHost.md#logsink)
-- [parseCache](CompilerHost.md#parsecache)
-
-### Methods
-
-- [fileURLToPath](CompilerHost.md#fileurltopath)
-- [getExecutionRoot](CompilerHost.md#getexecutionroot)
-- [getJsImport](CompilerHost.md#getjsimport)
-- [getLibDirs](CompilerHost.md#getlibdirs)
-- [getSourceFileKind](CompilerHost.md#getsourcefilekind)
-- [mkdirp](CompilerHost.md#mkdirp)
-- [pathToFileURL](CompilerHost.md#pathtofileurl)
-- [readDir](CompilerHost.md#readdir)
-- [readFile](CompilerHost.md#readfile)
-- [readUrl](CompilerHost.md#readurl)
-- [realpath](CompilerHost.md#realpath)
-- [rm](CompilerHost.md#rm)
-- [stat](CompilerHost.md#stat)
-- [writeFile](CompilerHost.md#writefile)
-
+---
 ## Properties
 
-### logSink
-
-• **logSink**: [`LogSink`](LogSink.md)
-
-___
-
-### parseCache
-
-• `Optional` **parseCache**: `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
-
-Optional cache to reuse the results of parsing and binding across programs.
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `logSink` | [`LogSink`](LogSink.md) | - |
+| `parseCache?` | `WeakMap`<[`SourceFile`](SourceFile.md), [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | Optional cache to reuse the results of parsing and binding across programs. |
 
 ## Methods
 
-### fileURLToPath
+### fileURLToPath()
 
-▸ **fileURLToPath**(`url`): `string`
+```ts
+fileURLToPath(url): string
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `url` | `string` |
 
@@ -56,25 +28,29 @@ Optional cache to reuse the results of parsing and binding across programs.
 
 `string`
 
-___
+***
 
-### getExecutionRoot
+### getExecutionRoot()
 
-▸ **getExecutionRoot**(): `string`
+```ts
+getExecutionRoot(): string
+```
 
 #### Returns
 
 `string`
 
-___
+***
 
-### getJsImport
+### getJsImport()
 
-▸ **getJsImport**(`path`): `Promise`<`Record`<`string`, `any`\>\>
+```ts
+getJsImport(path): Promise<Record<string, any>>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
@@ -82,43 +58,49 @@ ___
 
 `Promise`<`Record`<`string`, `any`\>\>
 
-___
+***
 
-### getLibDirs
+### getLibDirs()
 
-▸ **getLibDirs**(): `string`[]
+```ts
+getLibDirs(): string[]
+```
 
 #### Returns
 
 `string`[]
 
-___
+***
 
-### getSourceFileKind
+### getSourceFileKind()
 
-▸ **getSourceFileKind**(`path`): `undefined` \| [`SourceFileKind`](../index.md#sourcefilekind)
+```ts
+getSourceFileKind(path): undefined | SourceFileKind
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
 #### Returns
 
-`undefined` \| [`SourceFileKind`](../index.md#sourcefilekind)
+`undefined` \| [`SourceFileKind`](../type-aliases/SourceFileKind.md)
 
-___
+***
 
-### mkdirp
+### mkdirp()
 
-▸ **mkdirp**(`path`): `Promise`<`undefined` \| `string`\>
+```ts
+mkdirp(path): Promise<undefined | string>
+```
 
 create directory recursively.
 
 #### Parameters
 
-| Name | Type | Description |
+| Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `path` | `string` | Path to the directory. |
 
@@ -126,15 +108,17 @@ create directory recursively.
 
 `Promise`<`undefined` \| `string`\>
 
-___
+***
 
-### pathToFileURL
+### pathToFileURL()
 
-▸ **pathToFileURL**(`path`): `string`
+```ts
+pathToFileURL(path): string
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
@@ -142,19 +126,21 @@ ___
 
 `string`
 
-___
+***
 
-### readDir
+### readDir()
 
-▸ **readDir**(`dir`): `Promise`<`string`[]\>
+```ts
+readDir(path): Promise<string[]>
+```
 
 Read directory.
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `dir` | `string` |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `path` | `string` | Path to the directory. |
 
 #### Returns
 
@@ -162,15 +148,19 @@ Read directory.
 
 list of file/directory in the given directory. Returns the name not the full path.
 
-___
+***
 
-### readFile
+### readFile()
 
-▸ **readFile**(`path`): `Promise`<[`SourceFile`](SourceFile.md)\>
+```ts
+readFile(path): Promise<SourceFile>
+```
+
+read a utf-8 or utf-8 with bom encoded file
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
@@ -178,15 +168,19 @@ ___
 
 `Promise`<[`SourceFile`](SourceFile.md)\>
 
-___
+***
 
-### readUrl
+### readUrl()
 
-▸ **readUrl**(`url`): `Promise`<[`SourceFile`](SourceFile.md)\>
+```ts
+readUrl(url): Promise<SourceFile>
+```
+
+read a file at the given url.
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `url` | `string` |
 
@@ -194,15 +188,17 @@ ___
 
 `Promise`<[`SourceFile`](SourceFile.md)\>
 
-___
+***
 
-### realpath
+### realpath()
 
-▸ **realpath**(`path`): `Promise`<`string`\>
+```ts
+realpath(path): Promise<string>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
@@ -210,52 +206,64 @@ ___
 
 `Promise`<`string`\>
 
-___
+***
 
-### rm
+### rm()
 
-▸ **rm**(`path`, `options?`): `Promise`<`void`\>
+```ts
+rm(path, options?): Promise<void>
+```
 
 Deletes a directory or file.
 
 #### Parameters
 
-| Name | Type | Description |
+| Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `path` | `string` | Path to the directory or file. |
-| `options?` | [`RmOptions`](RmOptions.md) | - |
+| `options`? | [`RmOptions`](RmOptions.md) | - |
 
 #### Returns
 
 `Promise`<`void`\>
 
-___
+***
 
-### stat
+### stat()
 
-▸ **stat**(`path`): `Promise`<{ `isDirectory`: () => `boolean` ; `isFile`: () => `boolean`  }\>
+```ts
+stat(path): Promise<Object>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `path` | `string` |
 
 #### Returns
 
-`Promise`<{ `isDirectory`: () => `boolean` ; `isFile`: () => `boolean`  }\>
+`Promise`<`Object`\>
 
-___
+> | Member | Type |
+> | :------ | :------ |
+> | `isDirectory` | `boolean` |
+> | `isFile` | `boolean` |
+>
 
-### writeFile
+***
 
-▸ **writeFile**(`path`, `content`): `Promise`<`void`\>
+### writeFile()
+
+```ts
+writeFile(path, content): Promise<void>
+```
 
 Write the file.
 
 #### Parameters
 
-| Name | Type | Description |
+| Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `path` | `string` | Path to the file. |
 | `content` | `string` | Content of the file. |

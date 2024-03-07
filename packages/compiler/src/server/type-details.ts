@@ -64,8 +64,8 @@ function getSymbolDocumentation(program: Program, symbol: Sym) {
   // Add @doc(...) API docs
   const type = symbol.type ?? program.checker.getTypeForNode(symbol.declarations[0]);
   const apiDocs = getDocData(program, type);
-  // The doc comment is already included above we don't want to duplicate
-  if (apiDocs && apiDocs.source === "@doc") {
+  // The doc comment is already included above we don't want to duplicate. Only include if it was specificed via `@doc`
+  if (apiDocs && apiDocs.source === "decorator") {
     docs.push(apiDocs.value);
   }
 

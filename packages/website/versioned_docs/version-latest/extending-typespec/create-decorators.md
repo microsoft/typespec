@@ -25,7 +25,7 @@ extern dec logType(target: unknown, name: string);
 
 ## Decorator target
 
-The first parameter of the decorator represents the typespec type(s) that the decorator can be applied on.
+The first parameter of the decorator represents the TypeSpec type(s) that the decorator can be applied on.
 
 You can specify multiple potential target type using an `union expression`
 
@@ -43,7 +43,7 @@ A decorator parameter can be marked optional using `?`
 extern dec track(target: Model | Enum, name?: valueof string);
 ```
 
-### Rest parameters
+### REST parameters
 
 A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
 
@@ -114,7 +114,7 @@ model Dog {
 
 ### Decorator parameter marshalling
 
-For certain TypeSpec types(Literal types) the decorator do not receive the actual type but a marshalled value if the decorator parmaeter type is a `valueof`. This is to simplify the most common cases.
+For certain TypeSpec types (Literal types) the decorator do not receive the actual type but a marshalled value if the decorator parmaeter type is a `valueof`. This is to simplify the most common cases.
 
 | TypeSpec Type     | Marshalled value in JS |
 | ----------------- | ---------------------- |
@@ -123,6 +123,8 @@ For certain TypeSpec types(Literal types) the decorator do not receive the actua
 | `valueof boolean` | `boolean`              |
 
 for all the other types they are not transformed.
+
+Example:
 
 ```ts
 export function $tag(
@@ -133,18 +135,49 @@ export function $tag(
 ) {}
 ```
 
+#### String templates and marshalling
+
+If a decorator parameter type is `valueof string`, a string template passed to it will also be marshalled as a string.
+The TypeSpec type system will already validate the string template can be serialized as a string.
+
+```tsp
+extern dec doc(target: unknown, name: valueof string);
+
+
+alias world = "world!";
+@doc("Hello ${world} ") // receive: "Hello world!"
+@doc("Hello ${123} ") // receive: "Hello 123"
+@doc("Hello ${true} ") // receive: "Hello true"
+
+model Bar {}
+@doc("Hello ${Bar} ") // not called error
+     ^ String template cannot be serialized as a string.
+
+```
+
+#### Typescript type Reference
+
+| TypeSpec Parameter Type      | TypeScript types                             |
+| ---------------------------- | -------------------------------------------- |
+| `valueof string`             | `string`                                     |
+| `valueof numeric`            | `number`                                     |
+| `valueof boolean`            | `boolean`                                    |
+| `string`                     | `StringLiteral \| TemplateLiteral \| Scalar` |
+| `Reflection.StringLiteral`   | `StringLiteral`                              |
+| `Reflection.TemplateLiteral` | `TemplateLiteral`                            |
+
 ### Adding metadata with decorators
 
 Decorators can be used to register some metadata. For this you can use the `context.program.stateMap` or `context.program.stateSet` to insert data that will be tied to the current execution.
 
 ❌ Do not save the data in a global variable.
 
-```ts
+```ts file=decorators.ts
 import type { DecoratorContext, Type } from "@typespec/compiler";
-import type { createStateSymbol } from "./lib.js";
+import type { StateKeys } from "./lib.js";
 
 // Create a unique key
-const key = createStateSymbol("customName");
+const key = StateKeys.customName;
 export function $customName(context: DecoratorContext, target: Type, name: string) {
   // Keep a mapping between the target and a value.
   context.program.stateMap(key).set(target, name);
@@ -152,6 +185,17 @@ export function $customName(context: DecoratorContext, target: Type, name: strin
   // Keep an index of a type.
   context.program.stateSet(key).add(target);
 }
+```
+
+```ts file=lib.ts
+export const $lib = createTypeSpecLibrary({
+  // ...
+  state: {
+    customName: { description: "State for the @customName decorator" },
+  },
+});
+
+export const StateKeys = $lib.stateKeys;
 ```
 
 ### Reporting diagnostic on decorator or arguments
@@ -165,11 +209,11 @@ import type { reportDiagnostic } from "./lib.js";
 export function $customName(context: DecoratorContext, target: Type, name: string) {
   reportDiagnostic({
     code: "custom-name-invalid",
-    target: context.decoratorTarget, // Get location of @customName decorator in typespec document.
+    target: context.decoratorTarget, // Get location of @customName decorator in TypeSpec document.
   });
   reportDiagnostic({
     code: "bad-name",
-    target: context.getArgumentTarget(0), // Get location of {name} argument in typespec document.
+    target: context.getArgumentTarget(0), // Get location of {name} argument in TypeSpec document.
   });
 }
 ```

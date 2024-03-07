@@ -1,4 +1,5 @@
-import assert from "assert";
+import assert, { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting models", () => {
@@ -73,11 +74,11 @@ describe("emitting models", () => {
     const { "Foo.json": Foo } = await emitSchema(`
       @doc("a")
       @summary("a")
-      @deprecated("bad api")
+      #deprecated "bad api"
       model Foo {
         @doc("b")
         @summary("b")
-        @deprecated("bad api")
+        #deprecated "bad api"
         b: string;
       }
     `);
@@ -252,6 +253,95 @@ describe("emitting models", () => {
     );
     assert.deepStrictEqual(schemas["RecordRecordInt32.json"].additionalProperties, {
       $ref: "RecordInt32.json",
+    });
+  });
+
+  describe("default values", () => {
+    it("specify default value on enum property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optionalEnum?: MyEnum = MyEnum.a;
+        };
+        
+        enum MyEnum {
+          a: "a-value",
+          b,
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optionalEnum, {
+        $ref: "MyEnum.json",
+        default: "a-value",
+      });
+    });
+
+    it("specify default value on string property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optional?: string = "abc";
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optional, {
+        type: "string",
+        default: "abc",
+      });
+    });
+
+    it("specify default value on numeric property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optional?: int32 = 123;
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optional, {
+        type: "integer",
+        minimum: -2147483648,
+        maximum: 2147483647,
+        default: 123,
+      });
+    });
+
+    it("specify default value on boolean property", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optional?: boolean = true;
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optional, {
+        type: "boolean",
+        default: true,
+      });
+    });
+
+    it("specify default value on union with variant", async () => {
+      const res = await emitSchema(
+        `
+        model Foo {
+          optionalUnion?: MyUnion = MyUnion.a;
+        };
+        
+        union MyUnion {
+          a: "a-value",
+          b: "b-value",
+        }
+        `
+      );
+
+      deepStrictEqual(res["Foo.json"].properties.optionalUnion, {
+        $ref: "MyUnion.json",
+        default: "a-value",
+      });
     });
   });
 });

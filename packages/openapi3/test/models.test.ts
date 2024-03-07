@@ -1,11 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import {
-  createOpenAPITestRunner,
-  diagnoseOpenApiFor,
-  oapiForModel,
-  openApiFor,
-} from "./test-host.js";
+import { describe, expect, it } from "vitest";
+import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: models", () => {
   it("defines models", async () => {
@@ -26,7 +22,7 @@ describe("openapi3: models", () => {
     });
   });
 
-  it("uses json name specified", async () => {
+  it("uses json name specified via @projectedName (LEGACY)", async () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
@@ -35,13 +31,46 @@ describe("openapi3: models", () => {
       };`
     );
 
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.Foo, {
-      type: "object",
+    expect(res.schemas.Foo).toMatchObject({
+      required: ["xJson"],
       properties: {
         xJson: { type: "integer", format: "int32" },
       },
+    });
+  });
+
+  it("uses json name specified via @encodedName", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `model Foo {
+        @encodedName("application/json", "xJson")
+        x: int32;
+      };`
+    );
+
+    expect(res.schemas.Foo).toMatchObject({
       required: ["xJson"],
+      properties: {
+        xJson: { type: "integer", format: "int32" },
+      },
+    });
+  });
+
+  it("uses json name specified via @encodedName even if @projectedName is provided", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `model Foo {
+        @encodedName("application/json", "xJson")
+        @projectedName("json", "projectedJson")
+        x: int32;
+      };`
+    );
+
+    expect(res.schemas.Foo).toMatchObject({
+      required: ["xJson"],
+      properties: {
+        xJson: { type: "integer", format: "int32" },
+      },
     });
   });
 
@@ -140,7 +169,6 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
@@ -175,6 +203,55 @@ describe("openapi3: models", () => {
         optionalEnum: {
           allOf: [{ $ref: "#/components/schemas/MyEnum" }],
           default: "a-value",
+        },
+      },
+    });
+  });
+
+  it("specify default value on union with variant", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optionalUnion?: MyUnion = MyUnion.a;
+      };
+      
+      union MyUnion {
+        a: "a-value",
+        b: "b-value",
+      }
+      `
+    );
+
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optionalUnion: {
+          allOf: [{ $ref: "#/components/schemas/MyUnion" }],
+          default: "a-value",
+        },
+      },
+    });
+  });
+
+  it("specify default value on nullable property", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      model Foo {
+        optional?: string | null = null;
+      };
+      `
+    );
+
+    ok(res.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(res.schemas.Foo, {
+      type: "object",
+      properties: {
+        optional: {
+          type: "string",
+          nullable: true,
+          default: null,
         },
       },
     });
@@ -305,8 +382,13 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: { y: { type: "integer", format: "int32" } },
-      required: ["y"],
+      allOf: [
+        {
+          type: "object",
+          properties: { y: { type: "integer", format: "int32" } },
+          required: ["y"],
+        },
+      ],
     });
   });
 
@@ -384,13 +466,11 @@ describe("openapi3: models", () => {
     ok(res.schemas.Bar, "expected definition named Bar");
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
     deepStrictEqual(res.schemas.Foo, {
       type: "object",
-      properties: {},
     });
   });
 
@@ -409,13 +489,11 @@ describe("openapi3: models", () => {
     ok(res.schemas.Baz, "expected definition named Baz");
     deepStrictEqual(res.schemas.Baz, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Bar" }],
     });
 
     deepStrictEqual(res.schemas.Bar, {
       type: "object",
-      properties: {},
       allOf: [{ $ref: "#/components/schemas/Foo" }],
     });
 
@@ -526,23 +604,6 @@ describe("openapi3: models", () => {
         },
       },
       required: ["name"],
-    });
-  });
-
-  it("throws diagnostics for empty enum definitions", async () => {
-    const runner = await createOpenAPITestRunner();
-
-    const diagnostics = await runner.diagnose(`
-      enum PetType {
-      }
-      model Pet { type: PetType };
-      op read(): Pet;
-      `);
-
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/openapi3/union-unsupported",
-      message:
-        "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
     });
   });
 
@@ -685,6 +746,25 @@ describe("openapi3: models", () => {
     });
   });
 
+  it("defines oneOf schema for property of a union with @oneOf decorator", async () => {
+    const openApi = await openApiFor(`
+        model Foo {
+          @oneOf
+          bar: string | int32;
+        }
+      `);
+    ok(openApi.components.schemas.Foo, "expected definition named Foo");
+    deepStrictEqual(openApi.components.schemas.Foo, {
+      type: "object",
+      properties: {
+        bar: {
+          oneOf: [{ type: "string" }, { type: "integer", format: "int32" }],
+        },
+      },
+      required: ["bar"],
+    });
+  });
+
   it("defines oneOf schema for unions with @oneOf decorator", async () => {
     const openApi = await openApiFor(`
       model Cat {
@@ -795,6 +875,21 @@ describe("openapi3: models", () => {
       properties: { y: { type: "integer", format: "int32" } },
       required: ["y"],
     });
+  });
+
+  it("supports summary on models and model properties", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooModel")
+      model Foo {
+        @summary("YProp")
+        y: int32;
+      };
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooModel");
+    strictEqual(res.schemas.Foo.properties.y.title, "YProp");
   });
 
   describe("referencing another property as type", () => {

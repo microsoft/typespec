@@ -1,51 +1,30 @@
-[JS Api](../index.md) / DeclarationNode
+---
+jsApi: true
+title: "[I] DeclarationNode"
 
-# Interface: DeclarationNode
+---
+## Extended by
 
-## Hierarchy
-
-- **`DeclarationNode`**
-
-  ↳ [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
-
-  ↳ [`NamespaceStatementNode`](NamespaceStatementNode.md)
-
-  ↳ [`OperationStatementNode`](OperationStatementNode.md)
-
-  ↳ [`ModelStatementNode`](ModelStatementNode.md)
-
-  ↳ [`ScalarStatementNode`](ScalarStatementNode.md)
-
-  ↳ [`InterfaceStatementNode`](InterfaceStatementNode.md)
-
-  ↳ [`UnionStatementNode`](UnionStatementNode.md)
-
-  ↳ [`EnumStatementNode`](EnumStatementNode.md)
-
-  ↳ [`AliasStatementNode`](AliasStatementNode.md)
-
-  ↳ [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)
-
-  ↳ [`DecoratorDeclarationStatementNode`](DecoratorDeclarationStatementNode.md)
-
-  ↳ [`FunctionDeclarationStatementNode`](FunctionDeclarationStatementNode.md)
-
-  ↳ [`ProjectionParameterDeclarationNode`](ProjectionParameterDeclarationNode.md)
-
-  ↳ [`ProjectionLambdaParameterDeclarationNode`](ProjectionLambdaParameterDeclarationNode.md)
-
-  ↳ [`ProjectionStatementNode`](ProjectionStatementNode.md)
-
-  ↳ [`JsSourceFileNode`](JsSourceFileNode.md)
-
-## Table of contents
-
-### Properties
-
-- [id](DeclarationNode.md#id)
+- [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
+- [`NamespaceStatementNode`](NamespaceStatementNode.md)
+- [`OperationStatementNode`](OperationStatementNode.md)
+- [`ModelStatementNode`](ModelStatementNode.md)
+- [`ScalarStatementNode`](ScalarStatementNode.md)
+- [`InterfaceStatementNode`](InterfaceStatementNode.md)
+- [`UnionStatementNode`](UnionStatementNode.md)
+- [`EnumStatementNode`](EnumStatementNode.md)
+- [`AliasStatementNode`](AliasStatementNode.md)
+- [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)
+- [`DecoratorDeclarationStatementNode`](DecoratorDeclarationStatementNode.md)
+- [`FunctionDeclarationStatementNode`](FunctionDeclarationStatementNode.md)
+- [`ProjectionParameterDeclarationNode`](ProjectionParameterDeclarationNode.md)
+- [`ProjectionLambdaParameterDeclarationNode`](ProjectionLambdaParameterDeclarationNode.md)
+- [`ProjectionStatementNode`](ProjectionStatementNode.md)
+- [`JsSourceFileNode`](JsSourceFileNode.md)
+- [`JsNamespaceDeclarationNode`](JsNamespaceDeclarationNode.md)
 
 ## Properties
 
-### id
-
-• `Readonly` **id**: [`IdentifierNode`](IdentifierNode.md)
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `id` | `readonly` | [`IdentifierNode`](IdentifierNode.md) |

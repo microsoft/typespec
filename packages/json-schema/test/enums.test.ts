@@ -1,4 +1,5 @@
 import assert from "assert";
+import { describe, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting enums", () => {
@@ -15,14 +16,15 @@ describe("emitting enums", () => {
   it("handles numbers", async () => {
     const schemas = await emitSchema(`
       enum Foo {
-        a: 1;
-        b: 2;
+        a: 0;
+        b: 1;
+        c: 2;
       }
     `);
     const Foo = schemas["Foo.json"];
 
     assert.deepEqual(Foo.type, "number");
-    assert.deepStrictEqual(Foo.enum, [1, 2]);
+    assert.deepStrictEqual(Foo.enum, [0, 1, 2]);
   });
 
   it("handles strings", async () => {

@@ -1,26 +1,11 @@
-[JS Api](../index.md) / ParseOptions
+---
+jsApi: true
+title: "[I] ParseOptions"
 
-# Interface: ParseOptions
-
-## Table of contents
-
-### Properties
-
-- [comments](ParseOptions.md#comments)
-- [docs](ParseOptions.md#docs)
-
+---
 ## Properties
 
-### comments
-
-• `Optional` `Readonly` **comments**: `boolean`
-
-When true, collect comment ranges in [comments](TypeSpecScriptNode.md#comments).
-
-___
-
-### docs
-
-• `Optional` `Readonly` **docs**: `boolean`
-
-When true, parse doc comments into [docs](BaseNode.md#docs).
+| Property | Modifier | Type | Description |
+| :------ | :------ | :------ | :------ |
+| `comments?` | `readonly` | `boolean` | When true, collect comment ranges in [TypeSpecScriptNode.comments](TypeSpecScriptNode.md). |
+| `docs?` | `readonly` | `boolean` | When true, parse doc comments into [Node.docs](BaseNode.md). |

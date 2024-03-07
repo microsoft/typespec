@@ -1,4 +1,5 @@
 import { deepStrictEqual, ok } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   LibraryLocationContext,
   LocationContext,
@@ -43,7 +44,7 @@ describe("compiler: imports", () => {
     }
   }
 
-  it("import relative typespec file", async () => {
+  it("import relative TypeSpec file", async () => {
     host.addJsFile("blue.js", { $blue() {} });
     host.addTypeSpecFile(
       "main.tsp",

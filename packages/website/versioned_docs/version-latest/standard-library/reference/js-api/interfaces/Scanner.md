@@ -1,71 +1,25 @@
-[JS Api](../index.md) / Scanner
+---
+jsApi: true
+title: "[I] Scanner"
 
-# Interface: Scanner
-
-## Table of contents
-
-### Properties
-
-- [file](Scanner.md#file)
-- [position](Scanner.md#position)
-- [token](Scanner.md#token)
-- [tokenFlags](Scanner.md#tokenflags)
-- [tokenPosition](Scanner.md#tokenposition)
-
-### Methods
-
-- [eof](Scanner.md#eof)
-- [getTokenText](Scanner.md#gettokentext)
-- [getTokenValue](Scanner.md#gettokenvalue)
-- [scan](Scanner.md#scan)
-- [scanDoc](Scanner.md#scandoc)
-- [scanRange](Scanner.md#scanrange)
-
+---
 ## Properties
 
-### file
-
-• `Readonly` **file**: [`SourceFile`](SourceFile.md)
-
-The source code being scanned.
-
-___
-
-### position
-
-• `Readonly` **position**: `number`
-
-The offset in UTF-16 code units to the current position at the start of the next token.
-
-___
-
-### token
-
-• `Readonly` **token**: [`Token`](../enums/Token.md)
-
-The current token
-
-___
-
-### tokenFlags
-
-• `Readonly` **tokenFlags**: [`TokenFlags`](../enums/TokenFlags.md)
-
-The flags on the current token.
-
-___
-
-### tokenPosition
-
-• `Readonly` **tokenPosition**: `number`
-
-The offset in UTF-16 code units to the start of the current token.
+| Property | Modifier | Type | Description |
+| :------ | :------ | :------ | :------ |
+| `file` | `readonly` | [`SourceFile`](SourceFile.md) | The source code being scanned. |
+| `position` | `readonly` | `number` | The offset in UTF-16 code units to the current position at the start of the next token. |
+| `token` | `readonly` | [`Token`](../enumerations/Token.md) | The current token |
+| `tokenFlags` | `readonly` | [`TokenFlags`](../enumerations/TokenFlags.md) | The flags on the current token. |
+| `tokenPosition` | `readonly` | `number` | The offset in UTF-16 code units to the start of the current token. |
 
 ## Methods
 
-### eof
+### eof()
 
-▸ **eof**(): `boolean`
+```ts
+eof(): boolean
+```
 
 Determine if the scanner has reached the end of the input.
 
@@ -73,11 +27,34 @@ Determine if the scanner has reached the end of the input.
 
 `boolean`
 
-___
+***
 
-### getTokenText
+### findTripleQuotedStringIndent()
 
-▸ **getTokenText**(): `string`
+```ts
+findTripleQuotedStringIndent(start, end): [number, number]
+```
+
+Finds the indent for the given triple quoted string.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `start` | `number` |  |
+| `end` | `number` |  |
+
+#### Returns
+
+[`number`, `number`]
+
+***
+
+### getTokenText()
+
+```ts
+getTokenText(): string
+```
 
 The exact spelling of the current token.
 
@@ -85,11 +62,13 @@ The exact spelling of the current token.
 
 `string`
 
-___
+***
 
-### getTokenValue
+### getTokenValue()
 
-▸ **getTokenValue**(): `string`
+```ts
+getTokenValue(): string
+```
 
 The value of the current token.
 
@@ -101,47 +80,73 @@ getTokenText().
 
 `string`
 
-___
+***
 
-### scan
+### reScanStringTemplate()
 
-▸ **scan**(): [`Token`](../enums/Token.md)
+```ts
+reScanStringTemplate(tokenFlags): StringTemplateToken
+```
+
+Unconditionally back up and scan a template expression portion.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `tokenFlags` | [`TokenFlags`](../enumerations/TokenFlags.md) | Token Flags for head StringTemplateToken |
+
+#### Returns
+
+[`StringTemplateToken`](../type-aliases/StringTemplateToken.md)
+
+***
+
+### scan()
+
+```ts
+scan(): Token
+```
 
 Advance one token.
 
 #### Returns
 
-[`Token`](../enums/Token.md)
+[`Token`](../enumerations/Token.md)
 
-___
+***
 
-### scanDoc
+### scanDoc()
 
-▸ **scanDoc**(): [`DocToken`](../index.md#doctoken)
+```ts
+scanDoc(): DocToken
+```
 
 Advance one token inside DocComment. Use inside [scanRange](Scanner.md#scanrange) callback over DocComment range.
 
 #### Returns
 
-[`DocToken`](../index.md#doctoken)
+[`DocToken`](../type-aliases/DocToken.md)
 
-___
+***
 
-### scanRange
+### scanRange()
 
-▸ **scanRange**<`T`\>(`range`, `callback`): `T`
+```ts
+scanRange<T>(range, callback): T
+```
 
 Reset the scanner to the given start and end positions, invoke the callback, and then restore scanner state.
 
 #### Type parameters
 
-| Name |
+| Type parameter |
 | :------ |
 | `T` |
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `range` | [`TextRange`](TextRange.md) |
 | `callback` | () => `T` |
@@ -149,3 +154,34 @@ Reset the scanner to the given start and end positions, invoke the callback, and
 #### Returns
 
 `T`
+
+***
+
+### unindentAndUnescapeTripleQuotedString()
+
+```ts
+unindentAndUnescapeTripleQuotedString(
+   start, 
+   end, 
+   indentationStart, 
+   indentationEnd, 
+   token, 
+   tokenFlags): string
+```
+
+Unindent and unescape the triple quoted string rawText
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `start` | `number` |
+| `end` | `number` |
+| `indentationStart` | `number` |
+| `indentationEnd` | `number` |
+| `token` | `StringLiteral` \| [`StringTemplateToken`](../type-aliases/StringTemplateToken.md) |
+| `tokenFlags` | [`TokenFlags`](../enumerations/TokenFlags.md) |
+
+#### Returns
+
+`string`

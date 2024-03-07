@@ -5,7 +5,7 @@ import { TypeSpecRawConfig } from "../config/types.js";
 export interface InitTemplateFile {
   path: string;
   destination: string;
-  skipGeneration: boolean;
+  skipGeneration?: boolean;
 }
 
 export interface InitTemplateInput {
@@ -26,12 +26,12 @@ export interface InitTemplate {
   description: string;
 
   /** Minimum Compiler Support Version */
-  compilerVersion: string;
+  compilerVersion?: string;
 
   /**
    * List of libraries to include
    */
-  libraries: string[];
+  libraries?: InitTemplateLibrary[];
 
   /**
    * Config
@@ -55,14 +55,50 @@ export interface InitTemplate {
   files?: InitTemplateFile[];
 }
 
+/**
+ * Describes a library dependency that will be added to the generated project.
+ */
+export type InitTemplateLibrary = string | InitTemplateLibrarySpec;
+
+/**
+ * Describes a library dependency that will be added to the generated project.
+ */
+export interface InitTemplateLibrarySpec {
+  /**
+   * The npm package name of the library.
+   */
+  name: string;
+
+  /**
+   *  The npm-style version string as it would appear in package.json.
+   */
+  version?: string;
+}
+
+export const InitTemplateLibrarySpecSchema: JSONSchemaType<InitTemplateLibrarySpec> = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    name: { type: "string" },
+    version: { type: "string", nullable: true },
+  },
+  required: ["name"],
+};
+
 export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
   type: "object",
   additionalProperties: false,
   properties: {
     title: { type: "string" },
     description: { type: "string" },
-    compilerVersion: { type: "string" },
-    libraries: { type: "array", items: { type: "string" } },
+    compilerVersion: { type: "string", nullable: true },
+    libraries: {
+      type: "array",
+      items: {
+        oneOf: [{ type: "string" }, InitTemplateLibrarySpecSchema],
+      },
+      nullable: true,
+    },
     skipCompilerPackage: { type: "boolean", nullable: true },
     config: { nullable: true, ...TypeSpecConfigJsonSchema },
     inputs: {
@@ -87,11 +123,11 @@ export const InitTemplateSchema: JSONSchemaType<InitTemplate> = {
         properties: {
           path: { type: "string" },
           destination: { type: "string" },
-          skipGeneration: { type: "boolean" },
+          skipGeneration: { type: "boolean", nullable: true },
         },
         required: ["path", "destination"],
       },
     },
   },
-  required: ["title", "description", "compilerVersion"],
+  required: ["title", "description"],
 };

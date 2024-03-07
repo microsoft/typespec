@@ -1,5 +1,7 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { DecoratorContext, Enum, EnumMember, Model, Type } from "../../src/core/types.js";
+import { getDoc } from "../../src/index.js";
 import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: enums", () => {
@@ -154,5 +156,23 @@ describe("compiler: enums", () => {
     ok(refViaMyService);
     ok(refViaMyLib);
     strictEqual(refViaMyService, refViaMyLib);
+  });
+
+  it("can decorate spread member independently", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      @test enum Base {@doc("base doc") one}
+      @test enum Spread {...Base}
+
+      @@doc(Spread.one, "override for spread");
+      `
+    );
+    const { Base, Spread } = (await testHost.compile("main.tsp")) as {
+      Base: Enum;
+      Spread: Enum;
+    };
+    strictEqual(getDoc(testHost.program, Spread.members.get("one")!), "override for spread");
+    strictEqual(getDoc(testHost.program, Base.members.get("one")!), "base doc");
   });
 });

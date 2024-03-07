@@ -1,0 +1,60 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: schema.yaml
+$defs:
+  Address:
+    $schema: https://json-schema.org/draft/2020-12/schema
+    $id: Address
+    type: object
+    properties:
+      street:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+    required:
+      - street
+      - city
+      - country
+  Car:
+    $schema: https://json-schema.org/draft/2020-12/schema
+    $id: Car
+    type: object
+    properties:
+      kind:
+        anyOf:
+          - type: string
+            const: ev
+          - type: string
+            const: ice
+      brand:
+        type: string
+      year:
+        type: integer
+        minimum: 1900
+        maximum: 2147483647
+    required:
+      - kind
+      - brand
+      - year
+  Person:
+    $schema: https://json-schema.org/draft/2020-12/schema
+    $id: Person
+    type: object
+    properties:
+      name:
+        type: string
+      address:
+        $ref: Address
+      nickNames:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+      cars:
+        type: array
+        items:
+          $ref: Car
+    required:
+      - name
+      - address

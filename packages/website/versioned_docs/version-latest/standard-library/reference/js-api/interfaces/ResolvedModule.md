@@ -1,42 +1,13 @@
-[JS Api](../index.md) / ResolvedModule
+---
+jsApi: true
+title: "[I] ResolvedModule"
 
-# Interface: ResolvedModule
-
-## Table of contents
-
-### Properties
-
-- [mainFile](ResolvedModule.md#mainfile)
-- [manifest](ResolvedModule.md#manifest)
-- [path](ResolvedModule.md#path)
-- [type](ResolvedModule.md#type)
-
+---
 ## Properties
 
-### mainFile
-
-• **mainFile**: `string`
-
-Resolved main file for the module.
-
-___
-
-### manifest
-
-• **manifest**: [`NodePackage`](NodePackage.md)
-
-Value of package.json.
-
-___
-
-### path
-
-• **path**: `string`
-
-Root of the package. (Same level as package.json)
-
-___
-
-### type
-
-• **type**: ``"module"``
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `mainFile` | `string` | Resolved main file for the module. |
+| `manifest` | [`NodePackage`](NodePackage.md) | Value of package.json. |
+| `path` | `string` | Root of the package. (Same level as package.json) |
+| `type` | `"module"` | - |

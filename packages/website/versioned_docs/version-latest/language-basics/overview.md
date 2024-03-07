@@ -22,7 +22,7 @@ _Details: [Imports](./imports.md)_
 
 | Feature              | Example                   |
 | -------------------- | ------------------------- |
-| Import typespec file | `import "./models.tsp"`   |
+| Import TypeSpec file | `import "./models.tsp"`   |
 | Import JS file       | `import "./models.js"`    |
 | Import Library       | `import "@typespec/rest"` |
 
@@ -47,11 +47,11 @@ _Details: [Decorators](./decorators.md)_
 | Use decorator with arguments | `@tag("abc")`                                                                       |
 | Declare a decorator in JS    | `export function $tag(context: DecoratorContext, target: Type, name: string) {...}` |
 | Save state in decorator      | `context.program.stateMap(key).set(target, <value>)`                                |
-| Augment decorator            | `@@tag(MyType, "abc")`                                                              |
+| Augment decorator            | `@@tag(MyType, "abc");`                                                             |
 
 ## Scalars
 
-_Details: [Scalars](./models.md)_
+_Details: [Scalars](./scalars.md)_
 
 | Feature            | Example                                     |
 | ------------------ | ------------------------------------------- |

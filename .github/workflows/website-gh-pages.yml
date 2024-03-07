@@ -31,13 +31,17 @@ jobs:
         with:
           node-version: 18.x
 
+      - uses: pnpm/action-setup@v2
+
       - name: Install dependencies
-        run: node common/scripts/install-run-rush.js update
+        run: pnpm install
 
       - name: Build
-        run: node common/scripts/install-run-rush.js build --to @typespec/website
+        run: pnpm --filter "@typespec/website..." run build
         env:
-          TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
+          # Only when deploying to microsoft.github.io/typespec. For typespec.io use the default value.
+          # TYPESPEC_WEBSITE_BASE_PATH: "/typespec/"
+          NODE_OPTIONS: "--max_old_space_size=4096"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1

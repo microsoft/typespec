@@ -1,4 +1,5 @@
 import { deepEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Operation, StringLiteral, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost, expectDiagnosticEmpty } from "../../src/testing/index.js";
 
@@ -68,6 +69,7 @@ describe("compiler: checker: augment decorators", () => {
         },
       });
     });
+
     it("can be defined at the root of document", async () => {
       testHost.addTypeSpecFile(
         "test.tsp",
@@ -119,6 +121,36 @@ describe("compiler: checker: augment decorators", () => {
       const { Foo } = await testHost.compile("test.tsp");
       strictEqual(Foo, blueThing);
     });
+
+    // Regression for https://github.com/microsoft/typespec/issues/2600
+    it("alias of instantiated template doesn't interfere with augment decorators", async () => {
+      // Here we could have add an issue where `Foo` would have been checked before the `@@blue` augment decorator could be run
+      // As we resolve the member symbols and meta types early,
+      // alias `FactoryString` would have checked the template instance `Factory<string>`
+      // which would then have checked `Foo` and then `@@blue` wouldn't have been run
+      testHost.addTypeSpecFile(
+        "test.tsp",
+        `
+        import "./test.js";
+  
+        @test model Foo {};
+
+        interface Factory<T> {
+          op Action(): Foo;
+        }
+
+        alias FactoryString = Factory<string>;
+        
+        op test is FactoryString.Action;
+
+        @@doc(Foo, "This doc");
+        @@blue(Foo);
+        `
+      );
+
+      const { Foo } = await testHost.compile("test.tsp");
+      strictEqual(Foo, blueThing);
+    });
   });
 
   describe("augment types", () => {
@@ -153,7 +185,7 @@ describe("compiler: checker: augment decorators", () => {
 
     it("namespace", () => expectTarget(`@test("target") namespace Foo {}`, "Foo"));
 
-    it("global namespace", () => expectTarget(`@@test(global, "target")`, "global"));
+    it("global namespace", () => expectTarget(`@@test(global, "target");`, "global"));
 
     it("model", () => expectTarget(`@test("target") model Foo {}`, "Foo"));
     it("model property", () =>
@@ -288,7 +320,7 @@ describe("compiler: checker: augment decorators", () => {
         }
 
         namespace MyService {
-          @@customName(Lib.Foo, "FooCustom")
+          @@customName(Lib.Foo, "FooCustom");
         }
       `);
       });
@@ -298,12 +330,12 @@ describe("compiler: checker: augment decorators", () => {
 
         await expectAugmentTarget(`
         import "./lib.tsp";
-        @@customName(Foo, "FooCustom")
+        @@customName(Foo, "FooCustom");
       `);
       });
 
       it("augment type in another file checked after", async () => {
-        testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom") `);
+        testHost.addTypeSpecFile("lib.tsp", `@@customName(Foo, "FooCustom"); `);
 
         await expectAugmentTarget(`
         import "./lib.tsp";
@@ -345,7 +377,7 @@ describe("compiler: checker: augment decorators", () => {
           @test("target") 
           @customName("Foo")
           model Foo {}
-          @@customName(Foo, "FooCustom")
+          @@customName(Foo, "FooCustom");
       `);
       });
 
@@ -354,8 +386,8 @@ describe("compiler: checker: augment decorators", () => {
           @test("target") 
           @customName("Foo")
           model Foo {}
-          @@customName(Foo, "NonCustom")
-          @@customName(Foo, "FooCustom")
+          @@customName(Foo, "NonCustom");
+          @@customName(Foo, "FooCustom");
       `);
       });
     });

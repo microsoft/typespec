@@ -1,44 +1,42 @@
-[JS Api](../index.md) / TypeInstantiationMap
+---
+jsApi: true
+title: "[I] TypeInstantiationMap"
 
-# Interface: TypeInstantiationMap
-
+---
 Maps type arguments to instantiated type.
-
-## Table of contents
-
-### Methods
-
-- [get](TypeInstantiationMap.md#get)
-- [set](TypeInstantiationMap.md#set)
 
 ## Methods
 
-### get
+### get()
 
-▸ **get**(`args`): `undefined` \| [`Type`](../index.md#type)
+```ts
+get(args): undefined | Type
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `args` | readonly [`Type`](../index.md#type)[] |
+| `args` | readonly [`Type`](../type-aliases/Type.md)[] |
 
 #### Returns
 
-`undefined` \| [`Type`](../index.md#type)
+`undefined` \| [`Type`](../type-aliases/Type.md)
 
-___
+***
 
-### set
+### set()
 
-▸ **set**(`args`, `type`): `void`
+```ts
+set(args, type): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `args` | readonly [`Type`](../index.md#type)[] |
-| `type` | [`Type`](../index.md#type) |
+| `args` | readonly [`Type`](../type-aliases/Type.md)[] |
+| `type` | [`Type`](../type-aliases/Type.md) |
 
 #### Returns
 

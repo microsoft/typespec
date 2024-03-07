@@ -7,117 +7,171 @@ trigger:
 
 pr: none
 
-jobs:
-  - job: npm_stable
-    displayName: Npm publish
-    pool:
-      name: azsdk-pool-mms-win-2022-general
-      vmImage: windows-2022
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 16.x
-        displayName: Install Node.js
+variables:
+  - template: templates/variables/globals.yml
 
-      - task: UseDotNet@2
-        inputs:
-          version: 6.0.x
+stages:
+  - stage: build
+    displayName: Build
+    jobs:
+      - job: npm_stable
+        displayName: Npm publish
+        pool:
+          name: azsdk-pool-mms-win-2022-general
+          vmImage: windows-2022
 
-      - script: |
-          echo ##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true
-        displayName: Enable official Visual Studio extension build
+        variables:
+          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
-      - script: node common/scripts/install-run-rush.js install
-        displayName: Install JavaScript Dependencies
+        steps:
+          - template: ./templates/install.yml
+          - template: ./templates/build.yml
 
-      - script: dotnet restore
-        displayName: Restore .NET Dependencies
-        workingDirectory: packages/typespec-vs
+          - script: pnpm run test-official
+            displayName: Test
 
-      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
-        displayName: Build
+          - template: ./templates/upload-coverage.yml
 
-      - script: node common/scripts/install-run-rush.js test-official --parallelism max --verbose
-        displayName: Test
+          - script: pnpm run pack:all
+            displayName: Pack packages
 
-      - template: ./upload-coverage.yml
+          - pwsh: |
+              echo "Updating config"
+              pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+              echo "Publishing"
+              pnpm chronus publish  "./temp/artifacts/*.tgz" --access public  --engine npm --report-summary ./publish-summary.json
+            name: Publish
+            env:
+              NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
-      - script: |
-          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public
-        displayName: Release
+          - script: |
+              echo "Publish summary:"
+              cat ./publish-summary.json
+            displayName: Log publish summary
 
-      - task: AzureCLI@1
-        displayName: "Publish playground"
-        inputs:
-          azureSubscription: "Azure SDK Playground"
-          scriptLocation: inlineScript
-          inlineScript: |
-            az storage blob upload-batch ^
-              --destination $web ^
-              --account-name "cadlplayground" ^
-              --destination-path / ^
-              --source "./packages/playground-website/dist/" ^
-              --overwrite
+          - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
+            displayName: Create github releases
+            env:
+              GITHUB_TOKEN: $(azuresdk-github-pat)
 
-  - job: npm_dev
-    dependsOn: npm_stable
-    displayName: Npm publish dev version
-    pool:
-      name: azsdk-pool-mms-win-2022-general
-      vmImage: windows-2022
-    steps:
-      - task: NodeTool@0
-        inputs:
-          versionSpec: 16.x
-        displayName: Install Node.js
+          - publish: $(Build.SourcesDirectory)/temp/artifacts
+            artifact: packages
+            displayName: Publish packages(.tgz) as pipeline artifacts
 
-      - script: echo '##vso[task.setvariable variable=TYPESPEC_VS_CI_BUILD;]true'
-        displayName: Enable official Visual Studio extension build
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vscode"
+              Contents: "*.vsix"
+              TargetFolder: "$(Build.ArtifactStagingDirectory)/vscode-extension"
 
-      - script: node common/scripts/install-run-rush.js install
-        displayName: Install JavaScript Dependencies
+          - publish: $(Build.ArtifactStagingDirectory)/vscode-extension
+            artifact: vscode-extension-unsigned
+            displayName: Publish VSCode extension(.vsix) as pipeline artifacts
 
-      - script: dotnet restore
-        displayName: Restore .NET Dependencies
-        workingDirectory: packages/typespec-vs
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: "$(Build.SourcesDirectory)/packages/typespec-vs"
+              Contents: "*.vsix"
+              TargetFolder: "$(Build.ArtifactStagingDirectory)/vs-extension"
 
-      - script: node common/scripts/install-run-rush.js rebuild --parallelism max --verbose
-        displayName: Build
+          - publish: $(Build.ArtifactStagingDirectory)/vs-extension
+            artifact: vs-extension-unsigned
+            displayName: Publish VS extension(.vsix) as pipeline artifacts
 
-      - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
-        displayName: Bump version to prerelease targets
+          - task: AzureCLI@1
+            displayName: "Publish bundled packages to package storage"
+            inputs:
+              azureSubscription: "Azure SDK Engineering System"
+              scriptLocation: inlineScript
+              inlineScript: node ./eng/scripts/upload-bundler-packages.js
 
-      - script: npm run gen-manifest
-        displayName: Regen manifest for compiler
-        workingDirectory: ./packages/compiler
+          - task: AzureCLI@1
+            displayName: "Publish playground"
+            inputs:
+              azureSubscription: "Azure SDK Engineering System"
+              scriptLocation: inlineScript
+              inlineScript: |
+                az storage blob upload-batch ^
+                  --destination $web ^
+                  --account-name "cadlplayground" ^
+                  --destination-path / ^
+                  --source "./packages/playground-website/dist/" ^
+                  --overwrite
 
-      - script: |
-          set NPM_AUTH_TOKEN=$(azure-sdk-npm-token)
-          node common/scripts/install-run-rush.js publish --publish --include-all --set-access-level public --tag next
-        displayName: Release
+  - stage: publish_dev_npm
+    displayName: Publish Dev Packages
+    dependsOn: build
+    jobs:
+      - job: npm_dev
+        displayName: Npm publish dev version
+        condition: eq(variables['Build.SourceBranch'], 'refs/heads/main') # Only publish -dev on main branch.
+        pool:
+          name: azsdk-pool-mms-win-2022-general
+          vmImage: windows-2022
 
-  - job: docker
-    displayName: Docker build and publish
-    variables:
-      imageName: "azsdkengsys.azurecr.io/typespec"
-    pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
-    steps:
-      - task: Docker@1
-        displayName: login
-        inputs:
-          azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
-          azureContainerRegistry: azsdkengsys.azurecr.io
-          command: login
+        variables:
+          TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
-      - script: |
-          docker build -f ./docker/Dockerfile \
-            -t $(imageName):latest \
-            -t $(imageName):alpine \
-            .
-        displayName: "Build"
+        steps:
+          - template: ./templates/install.yml
+          - template: ./templates/build.yml
 
-      - script: docker push $(imageName) --all-tags
-        displayName: "Push"
+          - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
+            displayName: Bump version to prerelease targets
+
+          - script: npm run gen-manifest
+            displayName: Regen manifest for compiler
+            workingDirectory: ./packages/compiler
+
+          - pwsh: |
+              echo "Updating config"
+              pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
+              echo "Publishing"
+              pnpm -r publish --access public --no-git-checks --tag next
+
+            # Chronus doesn't support tag yet.
+            # pnpm chronus publish --tag next  --access public --report-summary ./publish-summary.json
+
+            name: Publish
+            env:
+              NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
+
+  - stage: publish_vscode
+    displayName: Publish VSCode extension
+    dependsOn: build
+    jobs:
+      - template: ./jobs/publish-vscode.yml
+
+  - stage: publish_vs
+    displayName: Publish VS extension
+    dependsOn: build
+    jobs:
+      - template: ./jobs/publish-vs.yml
+
+  - stage: docker
+    displayName: Docker
+    dependsOn: []
+    jobs:
+      - job: docker
+        displayName: Build and publish
+        variables:
+          imageName: "azsdkengsys.azurecr.io/typespec"
+        pool:
+          name: azsdk-pool-mms-ubuntu-2004-general
+          vmImage: ubuntu-20.04
+        steps:
+          - task: Docker@1
+            displayName: login
+            inputs:
+              azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+              azureContainerRegistry: azsdkengsys.azurecr.io
+              command: login
+
+          - script: |
+              docker build -f ./docker/Dockerfile \
+                -t $(imageName):latest \
+                -t $(imageName):alpine \
+                .
+            displayName: "Build"
+          - script: docker push $(imageName) --all-tags
+            displayName: "Push"

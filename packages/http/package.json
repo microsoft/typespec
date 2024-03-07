@@ -1,10 +1,11 @@
 {
   "name": "@typespec/http",
-  "version": "0.45.0",
+  "version": "0.54.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "docusaurusWebsite": "https://typespec.io/docs",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,31 +21,30 @@
   "main": "dist/src/index.js",
   "tspMain": "lib/http.tsp",
   "exports": {
-    ".": "./dist/src/index.js",
-    "./testing": "./dist/src/testing/index.js"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/src/index.d.ts"
-      ],
-      "testing": [
-        "./dist/src/testing/index.d.ts"
-      ]
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
     }
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build": "tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
-    "test": "mocha",
-    "test-official": "c8 mocha --forbid-only --reporter mocha-multi-reporters",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "test:ui": "vitest --ui",
+    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
-    "lint:fix": "eslint . --fix --ext .ts"
+    "lint:fix": "eslint . --fix --ext .ts",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/http/reference"
   },
   "files": [
     "lib/*.tsp",
@@ -52,21 +52,21 @@
     "!dist/test/**"
   ],
   "peerDependencies": {
-    "@typespec/compiler": "workspace:~0.45.2"
+    "@typespec/compiler": "workspace:~"
   },
   "devDependencies": {
-    "@types/mocha": "~10.0.1",
-    "@types/node": "~18.11.9",
-    "@typespec/compiler": "workspace:~0.45.2",
-    "@typespec/eslint-config-typespec": "workspace:~0.7.0",
-    "@typespec/library-linter": "workspace:~0.45.0",
-    "@typespec/eslint-plugin": "workspace:~0.45.0",
-    "eslint": "^8.42.0",
-    "mocha": "~10.2.0",
-    "mocha-junit-reporter": "~2.2.0",
-    "mocha-multi-reporters": "~1.5.1",
-    "c8": "~8.0.0",
-    "rimraf": "~5.0.1",
-    "typescript": "~5.1.3"
+    "@types/node": "~18.11.19",
+    "@typespec/compiler": "workspace:~",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typespec/eslint-plugin": "workspace:~",
+    "@typespec/library-linter": "workspace:~",
+    "@typespec/tspd": "workspace:~",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "c8": "^9.1.0",
+    "eslint": "^8.56.0",
+    "rimraf": "~5.0.5",
+    "typescript": "~5.3.3",
+    "vitest": "^1.2.2"
   }
 }

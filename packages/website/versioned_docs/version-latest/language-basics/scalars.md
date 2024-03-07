@@ -4,7 +4,7 @@ title: Scalars
 
 # Scalars
 
-These are types without any fields(For example `string`, `int32`, `boolean`, etc.)
+These are types without any fields (for example `string`, `int32`, `boolean`, etc.)
 
 Scalar can be declared using the `scalar` keyword
 
@@ -25,6 +25,6 @@ scalar Password extends string;
 Scalar support template parameters. Note: the only use for those template are decorators.
 
 ```typespec
-@doc(T)
-scalar Unreal<T extends string>;
+@doc(Type)
+scalar Unreal<Type extends string>;
 ```

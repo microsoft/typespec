@@ -10,6 +10,7 @@ import {
   Operation,
   Scalar,
   Type,
+  Union,
   ValueType,
 } from "../types.js";
 
@@ -39,14 +40,15 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
     case "EnumMember":
       return `${getEnumName(type.enum, options)}.${getIdentifierName(type.name, options)}`;
     case "Union":
-      return type.name
-        ? getIdentifierName(type.name, options)
-        : [...type.variants.values()].map((x) => getTypeName(x.type, options)).join(" | ");
+      return getUnionName(type, options);
     case "UnionVariant":
       return getTypeName(type.type, options);
     case "Tuple":
       return "[" + type.values.map((x) => getTypeName(x, options)).join(", ") + "]";
+    case "StringTemplate":
+      return "string";
     case "String":
+      return `"${type.value}"`;
     case "Number":
     case "Boolean":
       return type.value.toString();
@@ -137,6 +139,14 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     // regular old model.
     return modelName;
   }
+}
+
+function getUnionName(type: Union, options: TypeNameOptions | undefined): string {
+  const nsPrefix = getNamespacePrefix(type.namespace, options);
+  const typeName = type.name
+    ? getIdentifierName(type.name, options)
+    : [...type.variants.values()].map((x) => getTypeName(x.type, options)).join(" | ");
+  return nsPrefix + typeName;
 }
 
 /**

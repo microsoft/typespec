@@ -1,147 +1,53 @@
-[JS Api](../index.md) / Program
+---
+jsApi: true
+title: "[I] Program"
 
-# Interface: Program
+---
+## Extended by
 
-## Hierarchy
-
-- **`Program`**
-
-  ↳ [`ProjectedProgram`](ProjectedProgram.md)
-
-## Table of contents
-
-### Properties
-
-- [checker](Program.md#checker)
-- [compilerOptions](Program.md#compileroptions)
-- [diagnostics](Program.md#diagnostics)
-- [emitters](Program.md#emitters)
-- [host](Program.md#host)
-- [jsSourceFiles](Program.md#jssourcefiles)
-- [literalTypes](Program.md#literaltypes)
-- [mainFile](Program.md#mainfile)
-- [projectRoot](Program.md#projectroot)
-- [sourceFiles](Program.md#sourcefiles)
-- [stateMaps](Program.md#statemaps)
-- [stateSets](Program.md#statesets)
-- [tracer](Program.md#tracer)
-
-### Methods
-
-- [getGlobalNamespaceType](Program.md#getglobalnamespacetype)
-- [getOption](Program.md#getoption)
-- [hasError](Program.md#haserror)
-- [loadTypeSpecScript](Program.md#loadtypespecscript)
-- [onValidate](Program.md#onvalidate)
-- [reportDiagnostic](Program.md#reportdiagnostic)
-- [reportDiagnostics](Program.md#reportdiagnostics)
-- [reportDuplicateSymbols](Program.md#reportduplicatesymbols)
-- [resolveTypeReference](Program.md#resolvetypereference)
-- [stateMap](Program.md#statemap)
-- [stateSet](Program.md#stateset)
-- [trace](Program.md#trace)
+- [`ProjectedProgram`](ProjectedProgram.md)
 
 ## Properties
 
-### checker
-
-• **checker**: [`Checker`](Checker.md)
-
-___
-
-### compilerOptions
-
-• **compilerOptions**: `CompilerOptions`
-
-___
-
-### diagnostics
-
-• `Readonly` **diagnostics**: readonly [`Diagnostic`](Diagnostic.md)[]
-
-___
-
-### emitters
-
-• **emitters**: `EmitterRef`[]
-
-___
-
-### host
-
-• **host**: [`CompilerHost`](CompilerHost.md)
-
-___
-
-### jsSourceFiles
-
-• **jsSourceFiles**: `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\>
-
-___
-
-### literalTypes
-
-• **literalTypes**: `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../index.md#literaltype)\>
-
-___
-
-### mainFile
-
-• `Optional` **mainFile**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
-
-___
-
-### projectRoot
-
-• `Readonly` **projectRoot**: `string`
-
-Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
-
-___
-
-### sourceFiles
-
-• **sourceFiles**: `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
-
-All source files in the program, keyed by their file path.
-
-___
-
-### stateMaps
-
-• **stateMaps**: `Map`<`symbol`, `StateMap`\>
-
-___
-
-### stateSets
-
-• **stateSets**: `Map`<`symbol`, `StateSet`\>
-
-___
-
-### tracer
-
-• **tracer**: [`Tracer`](Tracer.md)
+| Property | Modifier | Type | Description |
+| :------ | :------ | :------ | :------ |
+| `checker` | `public` | [`Checker`](Checker.md) | - |
+| `compilerOptions` | `public` | [`CompilerOptions`](CompilerOptions.md) | - |
+| `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] | - |
+| `emitters` | `public` | `EmitterRef`[] | - |
+| `host` | `public` | [`CompilerHost`](CompilerHost.md) | - |
+| `jsSourceFiles` | `public` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - |
+| `literalTypes` | `public` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - |
+| `mainFile?` | `public` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
+| `projectRoot` | `readonly` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. |
+| `sourceFiles` | `public` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. |
+| `stateMaps` | `public` | `Map`<`symbol`, `StateMap`\> | - |
+| `stateSets` | `public` | `Map`<`symbol`, `StateSet`\> | - |
+| `tracer` | `public` | [`Tracer`](Tracer.md) | - |
 
 ## Methods
 
-### getGlobalNamespaceType
+### getGlobalNamespaceType()
 
-▸ **getGlobalNamespaceType**(): [`Namespace`](Namespace.md)
+```ts
+getGlobalNamespaceType(): Namespace
+```
 
 #### Returns
 
 [`Namespace`](Namespace.md)
 
-___
+***
 
-### getOption
+### getOption()
 
-▸ **getOption**(`key`): `undefined` \| `string`
+```ts
+getOption(key): undefined | string
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `key` | `string` |
 
@@ -149,25 +55,49 @@ ___
 
 `undefined` \| `string`
 
-___
+***
 
-### hasError
+### getSourceFileLocationContext()
 
-▸ **hasError**(): `boolean`
+```ts
+getSourceFileLocationContext(sourceFile): LocationContext
+```
+
+Return location context of the given source file.
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `sourceFile` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+[`LocationContext`](../type-aliases/LocationContext.md)
+
+***
+
+### hasError()
+
+```ts
+hasError(): boolean
+```
 
 #### Returns
 
 `boolean`
 
-___
+***
 
-### loadTypeSpecScript
+### loadTypeSpecScript()
 
-▸ **loadTypeSpecScript**(`typespecScript`): `Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
+```ts
+loadTypeSpecScript(typespecScript): Promise<TypeSpecScriptNode>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `typespecScript` | [`SourceFile`](SourceFile.md) |
 
@@ -175,31 +105,36 @@ ___
 
 `Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
 
-___
+***
 
-### onValidate
+### onValidate()
 
-▸ **onValidate**(`cb`): `void`
+```ts
+onValidate(cb, LibraryMetadata): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `cb` | (`program`: [`Program`](Program.md)) => `void` \| `Promise`<`void`\> |
+| `cb` | (`program`) => `void` \| `Promise`<`void`\> |
+| `LibraryMetadata` | [`LibraryMetadata`](../type-aliases/LibraryMetadata.md) |
 
 #### Returns
 
 `void`
 
-___
+***
 
-### reportDiagnostic
+### reportDiagnostic()
 
-▸ **reportDiagnostic**(`diagnostic`): `void`
+```ts
+reportDiagnostic(diagnostic): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) |
 
@@ -207,15 +142,17 @@ ___
 
 `void`
 
-___
+***
 
-### reportDiagnostics
+### reportDiagnostics()
 
-▸ **reportDiagnostics**(`diagnostics`): `void`
+```ts
+reportDiagnostics(diagnostics): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] |
 
@@ -223,79 +160,89 @@ ___
 
 `void`
 
-___
+***
 
-### reportDuplicateSymbols
+### reportDuplicateSymbols()
 
-▸ **reportDuplicateSymbols**(`symbols`): `void`
+```ts
+reportDuplicateSymbols(symbols): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `symbols` | `undefined` \| [`SymbolTable`](SymbolTable.md) |
+| `symbols` | `undefined` \| `SymbolTable` |
 
 #### Returns
 
 `void`
 
-___
+***
 
-### resolveTypeReference
+### resolveTypeReference()
 
-▸ **resolveTypeReference**(`reference`): [`undefined` \| [`Type`](../index.md#type), readonly [`Diagnostic`](Diagnostic.md)[]]
+```ts
+resolveTypeReference(reference): [undefined | Type, readonly Diagnostic[]]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `reference` | `string` |
 
 #### Returns
 
-[`undefined` \| [`Type`](../index.md#type), readonly [`Diagnostic`](Diagnostic.md)[]]
+[`undefined` \| [`Type`](../type-aliases/Type.md), readonly [`Diagnostic`](Diagnostic.md)[]]
 
-___
+***
 
-### stateMap
+### stateMap()
 
-▸ **stateMap**(`key`): `Map`<[`Type`](../index.md#type), `any`\>
+```ts
+stateMap(key): Map<Type, any>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `key` | `symbol` |
 
 #### Returns
 
-`Map`<[`Type`](../index.md#type), `any`\>
+`Map`<[`Type`](../type-aliases/Type.md), `any`\>
 
-___
+***
 
-### stateSet
+### stateSet()
 
-▸ **stateSet**(`key`): `Set`<[`Type`](../index.md#type)\>
+```ts
+stateSet(key): Set<Type>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `key` | `symbol` |
 
 #### Returns
 
-`Set`<[`Type`](../index.md#type)\>
+`Set`<[`Type`](../type-aliases/Type.md)\>
 
-___
+***
 
-### trace
+### trace()
 
-▸ **trace**(`area`, `message`): `void`
+```ts
+trace(area, message): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `area` | `string` |
 | `message` | `string` |

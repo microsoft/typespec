@@ -1,4 +1,6 @@
+/* eslint-disable vitest/valid-describe-callback */
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Enum, Interface, Model, Operation, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost, expectDiagnostics } from "../../src/testing/index.js";
 
@@ -42,6 +44,18 @@ describe("compiler: references", () => {
         @test("target") x: string;
       }`,
         ref: "MyModel.x",
+      }));
+
+    describe("member of alias of alias of model", () =>
+      itCanReference({
+        code: `
+          model MyModel {
+            @test("target") x: string;
+          }
+          alias Alias1  = MyModel;
+          alias MyModelAlias  = Alias1;
+        `,
+        ref: "MyModelAlias.x",
       }));
 
     describe("spread property from model defined before", () =>
@@ -421,6 +435,18 @@ describe("compiler: references", () => {
         ref: "MyInterfaceAlias.operation",
       }));
 
+    describe("member of alias of alias of interface", () =>
+      itCanReference({
+        code: `
+          interface MyInterface {
+            @test("target") operation(): void;
+          }
+          alias MyInterfaceAlias1  = MyInterface;
+          alias MyInterfaceAlias  = MyInterfaceAlias1;
+        `,
+        ref: "MyInterfaceAlias.operation",
+      }));
+
     describe("member of templated interface instance", () =>
       itCanReference({
         code: `
@@ -595,5 +621,60 @@ describe("compiler: references", () => {
         `,
         ref: "testOp::parameters.select",
       }));
+
+    it("emits a diagnostic when referencing a non-existent meta type property", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A {
+          name: string;
+        }
+
+        model B {
+          a: A;
+        }
+
+        op testOp(...B::foo): void;
+        `
+      );
+
+      const diagnostics = await testHost.diagnose("./main.tsp");
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-ref",
+          message: `Model doesn't have meta property foo`,
+        },
+      ]);
+    });
+
+    // Error should be removed when this is fixed https://github.com/microsoft/typespec/issues/2213
+    it("(TEMP) emits a diagnostic when referencing a non-resolved meta type property", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A {
+          name: string;
+        }
+
+        model B {
+          a: A;
+        }
+
+        model Spread {
+          ... B.a::type;
+        }
+        `
+      );
+
+      const diagnostics = await testHost.diagnose("./main.tsp");
+
+      expectDiagnostics(diagnostics, [
+        {
+          code: "invalid-ref",
+          message: `ModelProperty doesn't have meta property type`,
+        },
+      ]);
+    });
   });
 });

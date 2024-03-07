@@ -1,0 +1,60 @@
+{
+  "name": "@typespec/bundle-uploader",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Microsoft Corporation",
+  "description": "Internal library that manage bundle uploading.",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec"
+  ],
+  "type": "module",
+  "main": "dist/src/index.js",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "test": "echo 'no test'",
+    "test-official": "echo 'no test'",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "dependencies": {
+    "@azure/identity": "~4.0.1",
+    "@azure/storage-blob": "~12.17.0",
+    "@pnpm/find-workspace-packages": "^6.0.9",
+    "@typespec/bundler": "workspace:~",
+    "json5": "^2.2.3",
+    "picocolors": "~1.0.0",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "~18.11.19",
+    "@types/semver": "^7.5.6",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "c8": "^9.1.0",
+    "eslint": "^8.56.0",
+    "rimraf": "~5.0.5",
+    "typescript": "~5.3.3",
+    "vitest": "^1.2.2"
+  }
+}

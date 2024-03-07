@@ -6,37 +6,57 @@ dictionaries:
   - typescript
 words:
   - autorest
+  - azsdk
   - azsdkengsys
   - azurecr
+  - azuresdk
   - blockful
   - blockless
   - cadl
   - cadleditor
   - cadleng
+  - cadlplayground
+  - clsx
+  - cobertura
+  - codeql
   - Contoso
+  - CORGE
   - createsorreplacesresource
   - createsorupdatesresource
   - CRUDL
   - debouncer
+  - devdiv
   - dogfood
   - eastus
   - ecmarkup
   - esbuild
+  - ESRP
   - fluentui
+  - genproto
   - globby
+  - Infima
   - inmemory
   - instanceid
   - interner
   - intrinsics
   - jsyaml
   - keyer
+  - lifecyle
   - lzutf
+  - mocharc
   - msbuild
   - MSRC
+  - multis
   - munge
   - mylib
+  - nanos
+  - noformat
+  - noopener
+  - noreferrer
   - nostdlib
+  - npmjs
   - oapi
+  - OIDC
   - oneof
   - onig
   - onigasm
@@ -44,21 +64,27 @@ words:
   - openapi
   - openapiv
   - picocolors
+  - prismjs
   - proto
   - protobuf
   - protoc
+  - pwsh
   - regen
+  - respecify
   - rpaas
   - rushx
   - safeint
   - segmentof
   - sfixed
   - sint
+  - ssvs
   - strs
+  - syncpack
   - TRYIT
   - TSES
   - tspd
   - Uhoh
+  - uitestresults
   - unassignable
   - Uncapitalize
   - uninstantiated
@@ -68,8 +94,10 @@ words:
   - unsourced
   - unversioned
   - vsix
+  - VSSDK
   - vswhere
   - westus
+  - xlarge
   - xplat
 ignorePaths:
   - "**/node_modules/**"
@@ -77,8 +105,16 @@ ignorePaths:
   - "**/dist-dev/**"
   - "**/.docusaurus/**"
   - "**/CHANGELOG.md"
+  - "**/coverage/**"
+  - grammars/**
   - packages/website/build/**
   - common/scripts/*
+  - "**/ThirdPartyNotices.txt"
+  - packages/compiler/test/formatter/scenarios/**
+  - pnpm-lock.yaml
+  - "**/*.mp4"
+  - packages/samples/test/output/**
+useGitignore: true
 enableFiletypes:
   - cadl
 patterns:

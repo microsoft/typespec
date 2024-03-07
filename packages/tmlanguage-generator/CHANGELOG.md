@@ -1,6 +1,59 @@
 # Change Log - tmlanguage-generator
 
-This log was last generated on Wed, 10 May 2023 21:24:00 GMT and should not be manually modified.
+## 0.5.3
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
+
+## 0.5.2
+Wed, 24 Jan 2024 05:46:53 GMT
+
+### Patches
+
+- Update dependencies
+
+## 0.5.1
+Wed, 06 Dec 2023 19:40:58 GMT
+
+_Version update only_
+
+## 0.5.0
+Wed, 08 Nov 2023 00:07:17 GMT
+
+### Minor changes
+
+- **BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18
+
+### Patches
+
+- `TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files
+
+## 0.4.5
+Wed, 11 Oct 2023 23:31:35 GMT
+
+_Version update only_
+
+## 0.4.4
+Tue, 12 Sep 2023 21:47:11 GMT
+
+### Patches
+
+- Upgrade dependency "plist" to latest
+
+## 0.4.3
+Tue, 08 Aug 2023 22:32:10 GMT
+
+_Version update only_
+
+## 0.4.2
+Tue, 11 Jul 2023 22:06:00 GMT
+
+### Patches
+
+- Update dependencies
 
 ## 0.4.1
 Wed, 10 May 2023 21:24:00 GMT

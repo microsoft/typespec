@@ -1,5 +1,6 @@
-import { deepStrictEqual, ok } from "assert";
-import { oapiForModel } from "./test-host.js";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
+import { oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: Array", () => {
   it("defines array inline", async () => {
@@ -15,6 +16,37 @@ describe("openapi3: Array", () => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: { type: "string" },
+    });
+  });
+
+  it("keeps array inline in circular reference with extra properties", async () => {
+    const res = await openApiFor(
+      `
+      model Root {
+        value: Parent[];
+      }
+
+      model Parent {
+        @OpenAPI.extension("x-someFieldAttr", true)
+        children?: Child[];
+      }
+
+      model Child {
+        @OpenAPI.extension("x-someFieldAttr", true)
+        parents?: Parent[];
+      }
+      `
+    );
+
+    deepStrictEqual(res.components.schemas.Parent.properties.children, {
+      type: "array",
+      items: { $ref: "#/components/schemas/Child" },
+      "x-someFieldAttr": true,
+    });
+    deepStrictEqual(res.components.schemas.Child.properties.parents, {
+      type: "array",
+      items: { $ref: "#/components/schemas/Parent" },
+      "x-someFieldAttr": true,
     });
   });
 
@@ -86,6 +118,38 @@ describe("openapi3: Array", () => {
     });
   });
 
+  it("can specify minItems using @minItems decorator (on array model)", async () => {
+    const res = await oapiForModel(
+      "Names",
+      `
+      @minItems(1)
+      model Names is string[];
+      `
+    );
+
+    deepStrictEqual(res.schemas.Names, {
+      type: "array",
+      minItems: 1,
+      items: { type: "string" },
+    });
+  });
+
+  it("can specify maxItems using @maxItems decorator  (on array model)", async () => {
+    const res = await oapiForModel(
+      "Names",
+      `
+      @maxItems(3)
+      model Names is string[];
+      `
+    );
+
+    deepStrictEqual(res.schemas.Names, {
+      type: "array",
+      maxItems: 3,
+      items: { type: "string" },
+    });
+  });
+
   it("can specify array defaults using tuple syntax", async () => {
     const res = await oapiForModel(
       "Pet",
@@ -115,6 +179,18 @@ describe("openapi3: Array", () => {
       items: { type: "number", format: "decimal128" },
       default: [123, 456.7],
     });
+  });
+
+  it("supports summary", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooArray")
+      model Foo is string[];
+      `
+    );
+
+    strictEqual(res.schemas.Foo.title, "FooArray");
   });
 
   it("can specify tuple defaults using tuple syntax", async () => {

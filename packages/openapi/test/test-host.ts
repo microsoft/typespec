@@ -10,5 +10,5 @@ export async function createOpenAPITestHost() {
 }
 export async function createOpenAPITestRunner() {
   const host = await createOpenAPITestHost();
-  return createTestWrapper(host, { autoUsings: ["OpenAPI"] });
+  return createTestWrapper(host, { autoUsings: ["TypeSpec.OpenAPI"] });
 }

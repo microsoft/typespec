@@ -1,22 +1,11 @@
-[JS Api](../index.md) / ReturnRecord
+---
+jsApi: true
+title: "[I] ReturnRecord"
 
-# Interface: ReturnRecord
-
-## Table of contents
-
-### Properties
-
-- [kind](ReturnRecord.md#kind)
-- [value](ReturnRecord.md#value)
-
+---
 ## Properties
 
-### kind
-
-• **kind**: ``"Return"``
-
-___
-
-### value
-
-• **value**: [`Type`](../index.md#type)
+| Property | Type |
+| :------ | :------ |
+| `kind` | `"Return"` |
+| `value` | [`Type`](../type-aliases/Type.md) |

@@ -1,15 +1,10 @@
-[JS Api](../index.md) / TracerOptions
+---
+jsApi: true
+title: "[I] TracerOptions"
 
-# Interface: TracerOptions
-
-## Table of contents
-
-### Properties
-
-- [filter](TracerOptions.md#filter)
-
+---
 ## Properties
 
-### filter
-
-• `Optional` **filter**: `string`[]
+| Property | Type |
+| :------ | :------ |
+| `filter?` | `string`[] |

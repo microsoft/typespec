@@ -1,7 +1,8 @@
-[JS Api](../index.md) / DiagnosticMessages
+---
+jsApi: true
+title: "[I] DiagnosticMessages"
 
-# Interface: DiagnosticMessages
-
+---
 ## Indexable
 
-▪ [messageId: `string`]: `string` \| [`CallableMessage`](CallableMessage.md)<`string`[]\>
+ \[`messageId`: `string`\]: `string` \| [`CallableMessage`](CallableMessage.md)<`string`[]\>

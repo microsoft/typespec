@@ -1,11 +1,14 @@
-import { mkdir, readdir, readFile, realpath, rm, stat, writeFile } from "fs/promises";
+import { realpath } from "fs";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import { fileURLToPath, pathToFileURL } from "url";
-import { createSourceFile } from "./diagnostics.js";
+import { findProjectRoot } from "../utils/misc.js";
 import { fetch } from "./fetch.js";
 import { createConsoleSink } from "./logger/index.js";
-import { joinPaths, resolvePath } from "./path-utils.js";
+import { joinPaths } from "./path-utils.js";
+import { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
 import { CompilerHost, RmOptions } from "./types.js";
-import { getSourceFileKindFromExt } from "./util.js";
+
+export const CompilerPackageRoot = (await findProjectRoot(stat, fileURLToPath(import.meta.url)))!;
 
 /**
  * Implementation of the @see CompilerHost using the real file system.
@@ -21,7 +24,7 @@ export const NodeHost: CompilerHost = {
   writeFile: (path: string, content: string) => writeFile(path, content, { encoding: "utf-8" }),
   readDir: (path: string) => readdir(path),
   rm: (path: string, options: RmOptions) => rm(path, options),
-  getExecutionRoot: () => resolvePath(fileURLToPath(import.meta.url), "../../../../"),
+  getExecutionRoot: () => CompilerPackageRoot,
   getJsImport: (path: string) => import(pathToFileURL(path).href),
   getLibDirs() {
     const rootDir = this.getExecutionRoot();
@@ -31,7 +34,17 @@ export const NodeHost: CompilerHost = {
     return stat(path);
   },
   realpath(path) {
-    return realpath(path);
+    // BUG in the promise version of realpath https://github.com/microsoft/typespec/issues/2783
+    // Fix was only made to node 21.6 at this time. https://github.com/nodejs/node/issues/51031
+    return new Promise((resolve, reject) => {
+      realpath(path, (err, resolvedPath) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(resolvedPath);
+        }
+      });
+    });
   },
   getSourceFileKind: getSourceFileKindFromExt,
   mkdirp: (path: string) => mkdir(path, { recursive: true }),

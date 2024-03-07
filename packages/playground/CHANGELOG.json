@@ -1,0 +1,110 @@
+{
+  "name": "@typespec/playground",
+  "entries": [
+    {
+      "version": "0.1.0-alpha.5",
+      "tag": "@typespec/playground.1.0-alpha.5",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Remove `githubIssueUrl` link and replace with a `onFileBug` callback."
+          },
+          {
+            "comment": "Handle new `$linter` exported variable"
+          },
+          {
+            "comment": "Add `noopener noreferrer` to footer external links"
+          },
+          {
+            "comment": "Fix: Wrong css exports `style.css` was provided instead of `styles.css`. Both are now available for backward compatibility but `styles.css` is the recommended name."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.4",
+      "tag": "@typespec/playground.1.0-alpha.4",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add a format button to the playground command bar"
+          },
+          {
+            "comment": "Add a notification to the standalone playground when the playground has been saved."
+          },
+          {
+            "comment": "Configure the program viewer to respect the color theme"
+          },
+          {
+            "comment": "Add ability to pass a custom footer and use `Footer` and `FooterItem` component to build your own"
+          },
+          {
+            "comment": "`registerMonacoDefaultWorkers` renamed to `registerMonacoDefaultWorkersForVite` and must now be called if using vite."
+          },
+          {
+            "comment": "Move errors and warnings to a dedicated expandable banner at the bottom of the playground."
+          },
+          {
+            "comment": "Allow standalone playground to show a loading fallback"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.3",
+      "tag": "@typespec/playground.1.0-alpha.3",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          },
+          {
+            "comment": "Enable changing the theme"
+          },
+          {
+            "comment": "Add resizable panes for the editor and output"
+          },
+          {
+            "comment": "Expose a bundle manifest with the relative importmap, package name and version."
+          },
+          {
+            "comment": "Ability to configure via `createBrowserHost` if library loading should use system `importmap` or the es-module-shim library with `importmap-shim`. This was added due to the lack of support for external source map in browsers."
+          },
+          {
+            "comment": "[vite plugin] Provide the ability to configure bundling local libraries with the playground or manage the `importmap` yourself with `skipBundleLibraries` option."
+          },
+          {
+            "comment": "**BREAKING CHANGE** Styles must be imported seperately with `import \"@typespec/playground/styles.css\";`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.2",
+      "tag": "@typespec/playground.1.0-alpha.2",
+      "date": "Wed, 03 Oct 2023 18:00:18 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Upgrade swagger-ui"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.1",
+      "tag": "@typespec/playground_v0.1.0-alpha.1",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: Usage of the package in vite dev mode was broken. Some errors due to the loading of the manifest as well as monaco editor workers.\n**BREAKING CHANGE:** Changed `import { PlaygroundManifest } from \"@typespec/playground/manifest\";` to`import PlaygroundManifest from \"@typespec/playground/manifest\";`"
+          }
+        ]
+      }
+    }
+  ]
+}

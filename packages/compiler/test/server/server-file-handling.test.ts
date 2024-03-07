@@ -1,4 +1,5 @@
 import { deepStrictEqual } from "assert";
+import { describe, it } from "vitest";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 
 describe("compiler: server: main file", () => {

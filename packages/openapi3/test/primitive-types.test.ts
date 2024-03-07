@@ -1,9 +1,10 @@
-import { deepStrictEqual, ok } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { OpenAPI3Schema } from "../src/types.js";
-import { oapiForModel } from "./test-host.js";
+import { oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: primitives", () => {
-  describe("handle typespec intrinsic types", () => {
+  describe("handle TypeSpec intrinsic types", () => {
     const cases = [
       ["unknown", {}],
       ["numeric", { type: "number" }],
@@ -45,6 +46,34 @@ describe("openapi3: primitives", () => {
         deepStrictEqual(schema, expectedSchema);
       });
     }
+  });
+
+  describe("safeint-strategy", () => {
+    it("produce type: integer, format: double-int for safeint when safeint-strategy is double-int", async () => {
+      const res = await openApiFor(
+        `
+      model Pet { name: safeint };
+      `,
+        undefined,
+        { "safeint-strategy": "double-int" }
+      );
+
+      const schema = res.components.schemas.Pet.properties.name;
+      deepStrictEqual(schema, { type: "integer", format: "double-int" });
+    });
+
+    it("produce type: integer, format: int64 for safeint when safeint-strategy is int64", async () => {
+      const res = await openApiFor(
+        `
+      model Pet { name: safeint };
+      `,
+        undefined,
+        { "safeint-strategy": "int64" }
+      );
+
+      const schema = res.components.schemas.Pet.properties.name;
+      deepStrictEqual(schema, { type: "integer", format: "int64" });
+    });
   });
 
   it("defines models extended from primitives", async () => {
@@ -215,6 +244,16 @@ describe("openapi3: primitives", () => {
     });
   });
 
+  it("supports summary on custom scalars", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooScalar") scalar Foo extends string;
+      `
+    );
+    strictEqual(res.schemas.Foo.title, "FooScalar");
+  });
+
   describe("using @encode decorator", () => {
     async function testEncode(
       scalar: string,
@@ -234,22 +273,26 @@ describe("openapi3: primitives", () => {
       it("set format to 'date-time' by default", () =>
         testEncode("utcDateTime", { type: "string", format: "date-time" }));
       it("set format to 'date-time-rfc7231' when encoding is rfc7231", () =>
-        testEncode("utcDateTime", { type: "string", format: "date-time-rfc7231" }, "rfc7231"));
-
-      it("set type to integer and format to 'int32' when encoding is unixTimestamp (unixTimestamp info is lost)", () =>
-        testEncode(
-          "utcDateTime",
-          { type: "integer", format: "unixtime" },
-          "unixTimestamp",
-          "int32"
-        ));
+        testEncode("utcDateTime", { type: "string", format: "http-date" }, "rfc7231"));
+      it("set format to 'http-date' when encoding is http-date", () =>
+        testEncode("utcDateTime", { type: "string", format: "http-date" }, "http-date"));
+      it("set type to integer and format to 'unixtime' when encoding is unixTimestamp (unixTimestamp info is lost)", async () => {
+        const expected: OpenAPI3Schema = { type: "integer", format: "unixtime" };
+        await testEncode("utcDateTime", expected, "unixTimestamp", "integer");
+        await testEncode("utcDateTime", expected, "unixTimestamp", "int32");
+        await testEncode("utcDateTime", expected, "unixTimestamp", "int64");
+        await testEncode("utcDateTime", expected, "unixTimestamp", "int8");
+        await testEncode("utcDateTime", expected, "unixTimestamp", "uint8");
+      });
     });
 
     describe("offsetDateTime", () => {
       it("set format to 'date-time' by default", () =>
         testEncode("offsetDateTime", { type: "string", format: "date-time" }));
       it("set format to 'date-time-rfc7231' when encoding is rfc7231", () =>
-        testEncode("offsetDateTime", { type: "string", format: "date-time-rfc7231" }, "rfc7231"));
+        testEncode("offsetDateTime", { type: "string", format: "http-date" }, "rfc7231"));
+      it("set format to 'http-date' when encoding is http-date", () =>
+        testEncode("offsetDateTime", { type: "string", format: "http-date" }, "http-date"));
     });
 
     describe("duration", () => {

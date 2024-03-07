@@ -1,0 +1,15 @@
+import "@typespec/protobuf";
+
+using TypeSpec.Protobuf;
+
+@package
+namespace Test;
+
+@Protobuf.service
+interface Service {
+  foo(): Output;
+}
+
+model Output {
+  @field(1) testOutputField: int32;
+}

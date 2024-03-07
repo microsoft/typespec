@@ -15,6 +15,7 @@ import {
   Program,
   Scalar,
   StringLiteral,
+  StringTemplate,
   Tuple,
   Type,
   Union,
@@ -22,6 +23,8 @@ import {
 } from "../core/index.js";
 import { code, StringBuilder } from "./builders/string-builder.js";
 import { Placeholder } from "./placeholder.js";
+import { resolveDeclarationReferenceScope } from "./ref-scope.js";
+import { ReferenceCycle } from "./reference-cycle.js";
 import {
   AssetEmitter,
   Context,
@@ -434,6 +437,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return {};
   }
 
+  scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
+    return {};
+  }
+
   scalarInstantiation(scalar: Scalar, name: string | undefined): EmitterOutput<T> {
     return this.emitter.result.none();
   }
@@ -455,6 +462,14 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   }
 
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<T> {
+    return this.emitter.result.none();
+  }
+
+  stringTemplateContext(string: StringTemplate): Context {
+    return {};
+  }
+
+  stringTemplate(stringTemplate: StringTemplate): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
@@ -486,6 +501,22 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   }
 
   operationDeclarationReferenceContext(operation: Operation, name: string): Context {
+    return {};
+  }
+
+  interfaceDeclarationOperationsContext(iface: Interface): Context {
+    return {};
+  }
+
+  interfaceDeclarationOperationsReferenceContext(iface: Interface): Context {
+    return {};
+  }
+
+  interfaceOperationDeclarationContext(operation: Operation, name: string): Context {
+    return {};
+  }
+
+  interfaceOperationDeclarationReferenceContext(operation: Operation, name: string): Context {
     return {};
   }
 
@@ -540,20 +571,16 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
-  interfaceOperationDeclarationContext(operation: Operation, name: string): Context {
-    return {};
-  }
-
-  interfaceOperationDeclarationReferenceContext(operation: Operation, name: string): Context {
-    return {};
-  }
-
   enumDeclaration(en: Enum, name: string): EmitterOutput<T> {
     this.emitter.emitEnumMembers(en);
     return this.emitter.result.none();
   }
 
   enumDeclarationContext(en: Enum, name: string): Context {
+    return {};
+  }
+
+  enumDeclarationReferenceContext(en: Enum, name: string): Context {
     return {};
   }
 
@@ -658,11 +685,19 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  tupleLiteralValuesContext(tuple: Tuple): Context {
+    return {};
+  }
+
+  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
+    return {};
+  }
+
   tupleLiteralReferenceContext(tuple: Tuple): Context {
     return {};
   }
 
-  sourceFile(sourceFile: SourceFile<T>): EmittedSourceFile {
+  sourceFile(sourceFile: SourceFile<T>): Promise<EmittedSourceFile> | EmittedSourceFile {
     const emittedSourceFile: EmittedSourceFile = {
       path: sourceFile.path,
       contents: "",
@@ -677,7 +712,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
 
   async writeOutput(sourceFiles: SourceFile<T>[]) {
     for (const file of sourceFiles) {
-      const outputFile = this.emitter.emitSourceFile(file);
+      const outputFile = await this.emitter.emitSourceFile(file);
       await emitFile(this.emitter.getProgram(), {
         path: outputFile.path,
         content: outputFile.contents,
@@ -692,6 +727,34 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     commonScope: Scope<T> | null
   ): EmitEntity<T> | T {
     return this.emitter.result.none();
+  }
+
+  /**
+   * Handle circular references. When this method is called it means we are resolving a circular reference.
+   * By default if the target is a declaration it will call to {@link reference} otherwise it means we have an inline reference
+   * @param target Reference target.
+   * @param scope Current scope.
+   * @returns Resolved reference entity.
+   */
+  circularReference(
+    target: EmitEntity<T>,
+    scope: Scope<T> | undefined,
+    cycle: ReferenceCycle
+  ): EmitEntity<T> | T {
+    if (!cycle.containsDeclaration) {
+      throw new Error(
+        `Circular references to non-declarations are not supported by this emitter. Cycle:\n${cycle}`
+      );
+    }
+    if (target.kind !== "declaration") {
+      return target;
+    }
+    compilerAssert(
+      scope,
+      "Emit context must have a scope set in order to create references to declarations."
+    );
+    const { pathUp, pathDown, commonScope } = resolveDeclarationReferenceScope(target, scope);
+    return this.reference(target, pathUp, pathDown, commonScope);
   }
 
   declarationName(declarationType: TypeSpecDeclaration): string | undefined {
@@ -783,14 +846,6 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return builder.reduce();
   }
 
-  interfaceDeclarationOperationsContext(iface: Interface): Context {
-    return {};
-  }
-
-  interfaceDeclarationOperationsReferenceContext(iface: Interface): Context {
-    return {};
-  }
-
   enumMembers(en: Enum): EmitterOutput<string> {
     const builder = new StringBuilder();
     let i = 0;
@@ -820,14 +875,6 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
       builder.push(code`${this.emitter.emitTypeReference(v)}${i < tuple.values.length ? "," : ""}`);
     }
     return builder.reduce();
-  }
-
-  tupleLiteralValuesContext(tuple: Tuple): Context {
-    return {};
-  }
-
-  tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
-    return {};
   }
 
   reference(

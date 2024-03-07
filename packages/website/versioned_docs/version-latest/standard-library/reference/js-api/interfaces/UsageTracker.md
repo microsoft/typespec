@@ -1,35 +1,28 @@
-[JS Api](../index.md) / UsageTracker
+---
+jsApi: true
+title: "[I] UsageTracker"
 
-# Interface: UsageTracker
-
-## Table of contents
-
-### Properties
-
-- [types](UsageTracker.md#types)
-
-### Methods
-
-- [isUsedAs](UsageTracker.md#isusedas)
-
+---
 ## Properties
 
-### types
-
-• `Readonly` **types**: readonly [`TrackableType`](../index.md#trackabletype)[]
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `types` | `readonly` | readonly [`TrackableType`](../type-aliases/TrackableType.md)[] |
 
 ## Methods
 
-### isUsedAs
+### isUsedAs()
 
-▸ **isUsedAs**(`type`, `usage`): `boolean`
+```ts
+isUsedAs(type, usage): boolean
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `type` | [`TrackableType`](../index.md#trackabletype) |
-| `usage` | [`UsageFlags`](../enums/UsageFlags.md) |
+| `type` | [`TrackableType`](../type-aliases/TrackableType.md) |
+| `usage` | [`UsageFlags`](../enumerations/UsageFlags.md) |
 
 #### Returns
 

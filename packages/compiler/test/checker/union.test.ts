@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model, Union, UnionVariant } from "../../src/core/types.js";
 import { TestHost, createTestHost } from "../../src/testing/index.js";
 
@@ -39,6 +40,38 @@ describe("compiler: union declarations", () => {
 
     strictEqual(varXType.kind, "Scalar");
     strictEqual(varYType.kind, "Scalar");
+  });
+
+  it("can omit union variant names", async () => {
+    const blues = new WeakSet();
+    testHost.addJsFile("test.js", {
+      $blue(p: any, t: Union | UnionVariant) {
+        blues.add(t);
+      },
+    });
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./test.js";
+      @test union Foo<T> { 
+        @blue x: int32;
+        @blue int16;
+        @blue T;
+      };
+
+      alias T = Foo<string>;
+      `
+    );
+
+    const { Foo } = (await testHost.compile("./")) as { Foo: Union };
+    const variants = Array.from(Foo.variants.values());
+    ok(blues.has(variants[0]));
+    ok(blues.has(variants[1]));
+    ok(blues.has(variants[2]));
+
+    strictEqual(variants[0].name, "x");
+    ok(typeof variants[1].name === "symbol");
+    ok(typeof variants[2].name === "symbol");
   });
 
   it("can be templated", async () => {

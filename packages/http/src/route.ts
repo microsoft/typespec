@@ -1,5 +1,4 @@
 import {
-  createDiagnosticCollector,
   DecoratorContext,
   DiagnosticResult,
   Interface,
@@ -7,9 +6,10 @@ import {
   Operation,
   Program,
   Type,
+  createDiagnosticCollector,
   validateDecoratorTarget,
 } from "@typespec/compiler";
-import { createDiagnostic, createStateSymbol, reportDiagnostic } from "./lib.js";
+import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { getOperationParameters } from "./parameters.js";
 import {
   HttpOperation,
@@ -66,7 +66,7 @@ export function resolvePathAndParameters(
 
   // Pull out path parameters to verify what's in the path string
   const paramByName = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map(({ param }) => param.name)
+    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
   );
 
   // Ensure that all of the parameters defined in the route are accounted for in
@@ -129,7 +129,6 @@ function getRouteSegments(
   return diagnostics.wrap(result);
 }
 
-const externalInterfaces = createStateSymbol("externalInterfaces");
 /**
  * @deprecated DO NOT USE. For internal use only as a workaround.
  * @param program Program
@@ -141,16 +140,14 @@ export function includeInterfaceRoutesInNamespace(
   target: Namespace,
   sourceInterface: string
 ) {
-  let array = program.stateMap(externalInterfaces).get(target);
+  let array = program.stateMap(HttpStateKeys.externalInterfaces).get(target);
   if (array === undefined) {
     array = [];
-    program.stateMap(externalInterfaces).set(target, array);
+    program.stateMap(HttpStateKeys.externalInterfaces).set(target, array);
   }
 
   array.push(sourceInterface);
 }
-
-const routeProducerKey = createStateSymbol("routeProducer");
 
 export function DefaultRouteProducer(
   program: Program,
@@ -173,7 +170,7 @@ export function DefaultRouteProducer(
 
   // Pull out path parameters to verify what's in the path string
   const unreferencedPathParamNames = new Set(
-    parameters.parameters.filter(({ type }) => type === "path").map(({ param }) => param.name)
+    parameters.parameters.filter(({ type }) => type === "path").map((x) => x.name)
   );
 
   // Compile the list of all route params that aren't represented in the route
@@ -197,14 +194,12 @@ export function setRouteProducer(
   operation: Operation,
   routeProducer: RouteProducer
 ): void {
-  program.stateMap(routeProducerKey).set(operation, routeProducer);
+  program.stateMap(HttpStateKeys.routeProducer).set(operation, routeProducer);
 }
 
 export function getRouteProducer(program: Program, operation: Operation): RouteProducer {
-  return program.stateMap(routeProducerKey).get(operation);
+  return program.stateMap(HttpStateKeys.routeProducer).get(operation);
 }
-
-const routesKey = createStateSymbol("routes");
 
 export function setRoute(context: DecoratorContext, entity: Type, details: RoutePath) {
   if (
@@ -213,7 +208,7 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
     return;
   }
 
-  const state = context.program.stateMap(routesKey);
+  const state = context.program.stateMap(HttpStateKeys.routes);
 
   if (state.has(entity) && entity.kind === "Namespace") {
     const existingPath: string | undefined = state.get(entity);
@@ -232,21 +227,19 @@ export function setRoute(context: DecoratorContext, entity: Type, details: Route
   }
 }
 
-const sharedRoutesKey = createStateSymbol("sharedRoutes");
-
 export function setSharedRoute(program: Program, operation: Operation) {
-  program.stateMap(sharedRoutesKey).set(operation, true);
+  program.stateMap(HttpStateKeys.sharedRoutes).set(operation, true);
 }
 
 export function isSharedRoute(program: Program, operation: Operation): boolean {
-  return program.stateMap(sharedRoutesKey).get(operation) === true;
+  return program.stateMap(HttpStateKeys.sharedRoutes).get(operation) === true;
 }
 
 export function getRoutePath(
   program: Program,
   entity: Namespace | Interface | Operation
 ): RoutePath | undefined {
-  const path = program.stateMap(routesKey).get(entity);
+  const path = program.stateMap(HttpStateKeys.routes).get(entity);
   return path
     ? {
         path,
@@ -255,19 +248,17 @@ export function getRoutePath(
     : undefined;
 }
 
-const routeOptionsKey = createStateSymbol("routeOptions");
-
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
   options: RouteOptions
 ) {
-  program.stateMap(routeOptionsKey).set(namespace, options);
+  program.stateMap(HttpStateKeys.routeOptions).set(namespace, options);
 }
 
 export function getRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace
 ): RouteOptions | undefined {
-  return program.stateMap(routeOptionsKey).get(namespace);
+  return program.stateMap(HttpStateKeys.routeOptions).get(namespace);
 }

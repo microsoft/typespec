@@ -1,4 +1,6 @@
-# Cadl to TypeSpec rename completed in March 2023 release
+---
+title: Cadl to TypeSpec rename completed in March 2023 release
+---
 
 As you may recall from our previous email to partners, we are renaming the product as it becomes more mature, stable and one step closer to release.
 

@@ -1,4 +1,5 @@
 import { rejects, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Model } from "../../src/core/types.js";
 import {
   TestHost,
@@ -94,6 +95,36 @@ describe("compiler: using statements", () => {
       "b.tsp",
       `
       using N.M;
+      @test model Y { ... X }
+      `
+    );
+
+    const { Y } = (await testHost.compile("./")) as {
+      Y: Model;
+    };
+
+    strictEqual(Y.properties.size, 1);
+  });
+
+  it("TypeSpec.Xyz namespace doesn't need TypeSpec prefix in using", async () => {
+    testHost.addTypeSpecFile(
+      "main.tsp",
+      `
+      import "./a.tsp";
+      import "./b.tsp";
+      `
+    );
+    testHost.addTypeSpecFile(
+      "a.tsp",
+      `
+      namespace TypeSpec.Xyz;
+      model X { x: int32 }
+      `
+    );
+    testHost.addTypeSpecFile(
+      "b.tsp",
+      `
+      using Xyz;
       @test model Y { ... X }
       `
     );
@@ -303,7 +334,10 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
-      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      {
+        code: "ambiguous-symbol",
+        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+      },
       { code: "unknown-decorator" },
     ]);
   });
@@ -327,7 +361,10 @@ describe("compiler: using statements", () => {
 
     const diagnostics = await testHost.diagnose("./");
     expectDiagnostics(diagnostics, [
-      { code: "ambiguous-symbol", message: /Test\.A\.doc, TypeSpec\.doc/ },
+      {
+        code: "ambiguous-symbol",
+        message: `"doc" is an ambiguous name between TypeSpec.doc, Test.A.doc. Try using fully qualified name instead: TypeSpec.doc, Test.A.doc`,
+      },
       { code: "unknown-decorator" },
       { code: "missing-implementation" },
     ]);
@@ -483,5 +520,32 @@ describe("compiler: using statements", () => {
     `
     );
     await testHost.compile("./");
+  });
+
+  describe("emit diagnostic when using non-namespace types", () => {
+    [
+      ["model", "model Target {}"],
+      ["enum", "enum Target {}"],
+      ["union", "union Target {}"],
+      ["scalar", "scalar Target;"],
+      ["interface", "interface Target {}"],
+      ["operation", "op Target(): void;"],
+    ].forEach(([name, code]) => {
+      it(name, async () => {
+        testHost.addTypeSpecFile(
+          "main.tsp",
+          `
+          using Target;
+          ${code}
+        `
+        );
+
+        const diagnostics = await testHost.diagnose("./");
+        expectDiagnostics(diagnostics, {
+          code: "using-invalid-ref",
+          message: "Using must refer to a namespace",
+        });
+      });
+    });
   });
 });

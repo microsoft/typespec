@@ -1,7 +1,16 @@
-import assert from "assert";
-import { Model, ModelProperty, Namespace, Program } from "../../src/core/index.js";
-import { CodeTypeEmitter, Context, EmitterOutput } from "../../src/emitter-framework/index.js";
-import { emitTypeSpec } from "./host.js";
+import assert, { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
+import { Model, ModelProperty, Namespace, Program, Type } from "../../src/core/index.js";
+import {
+  AssetEmitter,
+  CodeTypeEmitter,
+  Context,
+  EmitEntity,
+  EmitterOutput,
+  TypeEmitter,
+  createAssetEmitter,
+} from "../../src/emitter-framework/index.js";
+import { emitTypeSpec, getHostForTypeSpecFile } from "./host.js";
 
 describe("emitter-framework: emitter context", () => {
   describe("program context", () => {
@@ -211,6 +220,7 @@ describe("emitter-framework: emitter context", () => {
   describe("reference context", () => {
     it("propagates reference context", async () => {
       const seenContexts: Set<boolean> = new Set();
+      const propSeenContexts: Set<boolean> = new Set();
 
       class TestEmitter extends CodeTypeEmitter {
         namespaceReferenceContext(namespace: Namespace): Context {
@@ -227,6 +237,14 @@ describe("emitter-framework: emitter context", () => {
           }
           return super.modelDeclaration(model, name);
         }
+
+        modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
+          const context = this.emitter.getContext();
+          if (property.name === "test") {
+            propSeenContexts.add(context.refFromNs ?? false);
+          }
+          return super.modelPropertyLiteral(property);
+        }
       }
 
       await emitTypeSpec(
@@ -236,17 +254,68 @@ describe("emitter-framework: emitter context", () => {
           model M { x: Bar.N }
         }
         namespace Bar {
-          model N {}
+          model N {
+            test: string;
+          }
         }
       `,
         {
-          namespaceReferenceContext: 2,
+          namespaceReferenceContext: 3,
           modelDeclaration: 3,
+          modelPropertyLiteral: 3,
         }
       );
 
       assert(seenContexts.has(true), "N has ref context");
       assert(seenContexts.has(false), "N doesn't ref context also");
+    });
+
+    it("propagates reference context across multiple references", async () => {
+      let seenContext: Context;
+      class TestEmitter extends CodeTypeEmitter {
+        namespaceReferenceContext(namespace: Namespace): Context {
+          if (namespace.name === "Foo") {
+            return { refFromFoo: true };
+          } else if (namespace.name === "Bar") {
+            return { refFromBar: true };
+          }
+
+          return {};
+        }
+
+        modelPropertyLiteral(property: ModelProperty): EmitterOutput<string> {
+          const context = this.emitter.getContext();
+          if (property.name === "prop") {
+            seenContext = context;
+          }
+          return super.modelPropertyLiteral(property);
+        }
+      }
+      const code = `
+        namespace Foo {
+          model M { x: Bar.N }
+        }
+        namespace Bar {
+          model N {
+            test: Baz.O;
+          }
+        }
+        namespace Baz {
+          model O {
+            prop: string;
+          }
+        }
+      `;
+
+      const host = await getHostForTypeSpecFile(code);
+      const emitter = createAssetEmitter(host.program, TestEmitter, {
+        emitterOutputDir: "tsp-output",
+        options: {},
+      } as any);
+
+      await emitter.emitType(host.program.resolveTypeReference("Foo")[0]!);
+
+      assert.deepStrictEqual(seenContext!, { refFromFoo: true, refFromBar: true });
     });
 
     it("doesn't emit model multiple times when reference context is the same", async () => {
@@ -275,6 +344,164 @@ describe("emitter-framework: emitter context", () => {
           modelDeclaration: 4,
         }
       );
+    });
+  });
+
+  describe("setting context via emitTypeReference", () => {
+    async function emitType(
+      Emitter: typeof TypeEmitter<any>,
+      code: string,
+      ref: string,
+      referenceContext?: Record<string, any>
+    ): Promise<EmitEntity<any>> {
+      const host = await getHostForTypeSpecFile(code);
+      const emitter = createAssetEmitter(host.program, Emitter, {
+        emitterOutputDir: "tsp-output",
+        options: {},
+      } as any);
+      const type = host.program.resolveTypeReference(ref)[0]!;
+      ok(type, `Expected to have found reference ${ref}`);
+      return emitter.emitType(type, { referenceContext });
+    }
+
+    function objTypeReference(
+      emitter: AssetEmitter<any>,
+      target: Type,
+      contextValue: string | undefined
+    ) {
+      return (
+        emitter.emitTypeReference(target, {
+          referenceContext: contextValue ? { contextValue } : {},
+        }) as any
+      ).value;
+    }
+
+    it("set reference context value when calling emitTypeReference", async () => {
+      class TestEmitter extends TypeEmitter<any, any> {
+        modelDeclaration(model: Model, name: string): EmitterOutput<any> {
+          if (model.name === "Foo") {
+            const prop = model.properties.get("prop")!.type;
+
+            return {
+              context1: objTypeReference(this.emitter, prop, "context1"),
+              context2: objTypeReference(this.emitter, prop, "context2"),
+              noSet: objTypeReference(this.emitter, prop, undefined),
+            };
+          }
+          return this.emitter.getContext().contextValue;
+        }
+      }
+
+      const result = await emitType(
+        TestEmitter,
+        `
+        model Foo { prop: Bar }
+        model Bar {}
+      `,
+        "Foo"
+      );
+      strictEqual(result.kind, "code");
+      deepStrictEqual(result.value, {
+        context1: "context1",
+        context2: "context2",
+        noSet: undefined,
+      });
+    });
+
+    it("set reference context on model properties ", async () => {
+      class TestEmitter extends TypeEmitter<any, any> {
+        modelDeclaration(model: Model, name: string): EmitterOutput<any> {
+          if (model.name === "Foo") {
+            const prop = model.properties.get("prop")!;
+
+            return {
+              context1: objTypeReference(this.emitter, prop, "context1"),
+              context2: objTypeReference(this.emitter, prop, "context2"),
+              noSet: objTypeReference(this.emitter, prop, undefined),
+            };
+          }
+          return this.emitter.getContext().contextValue;
+        }
+      }
+
+      const result = await emitType(
+        TestEmitter,
+        `
+        model Foo { prop: Bar }
+        model Bar {}
+      `,
+        "Foo"
+      );
+      strictEqual(result.kind, "code");
+      deepStrictEqual(result.value, {
+        context1: "context1",
+        context2: "context2",
+        noSet: undefined,
+      });
+    });
+
+    it("merge with incoming reference context", async () => {
+      class TestEmitter extends TypeEmitter<any, any> {
+        modelDeclaration(model: Model, name: string): EmitterOutput<any> {
+          if (model.name === "Foo") {
+            const prop = model.properties.get("prop")!.type;
+            return {
+              context1: objTypeReference(this.emitter, prop, "context1"),
+            };
+          }
+          return {
+            contextValue: this.emitter.getContext().contextValue,
+            incoming: this.emitter.getContext().incoming,
+          };
+        }
+      }
+
+      const result = await emitType(
+        TestEmitter,
+        `
+        model Foo { prop: Bar }
+        model Bar {}
+      `,
+        "Foo",
+        { incoming: "incoming-value" }
+      );
+      strictEqual(result.kind, "code");
+      deepStrictEqual(result.value, {
+        context1: {
+          contextValue: "context1",
+          incoming: "incoming-value",
+        },
+      });
+    });
+
+    it("ReferenceContext hook always wins", async () => {
+      class TestEmitter extends TypeEmitter<any, any> {
+        modelDeclarationReferenceContext(model: Model, name: string): Context {
+          return { contextValue: "context-override" };
+        }
+        modelDeclaration(model: Model, name: string): EmitterOutput<any> {
+          if (model.name === "Foo") {
+            const prop = model.properties.get("prop")!.type;
+            return {
+              context1: objTypeReference(this.emitter, prop, "context1"),
+            };
+          }
+          return this.emitter.getContext().contextValue;
+        }
+      }
+
+      const result = await emitType(
+        TestEmitter,
+        `
+        model Foo { prop: Bar }
+        model Bar {}
+      `,
+        "Foo"
+      );
+      strictEqual(result.kind, "code");
+      deepStrictEqual(result.value, {
+        context1: "context-override",
+      });
     });
   });
 });

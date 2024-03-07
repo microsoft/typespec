@@ -13,12 +13,12 @@ export class ArrayBuilder<T> extends Array {
 
   push(...values: (EmitEntity<T> | Placeholder<T> | T)[]): number {
     for (const v of values) {
-      let toPush: Placeholder<T> | T | null;
+      let toPush: Placeholder<T> | T | undefined;
       if (v instanceof EmitterResult) {
         compilerAssert(v.kind !== "circular", "Can't push a circular emit result.");
 
         if (v.kind === "none") {
-          toPush = null;
+          toPush = undefined;
         } else {
           toPush = v.value;
         }

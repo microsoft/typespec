@@ -1,22 +1,11 @@
-[JS Api](../index.md) / IdentifierContext
+---
+jsApi: true
+title: "[I] IdentifierContext"
 
-# Interface: IdentifierContext
-
-## Table of contents
-
-### Properties
-
-- [kind](IdentifierContext.md#kind)
-- [node](IdentifierContext.md#node)
-
+---
 ## Properties
 
-### kind
-
-• **kind**: [`IdentifierKind`](../enums/IdentifierKind.md)
-
-___
-
-### node
-
-• **node**: [`Node`](../index.md#node)
+| Property | Type |
+| :------ | :------ |
+| `kind` | [`IdentifierKind`](../enumerations/IdentifierKind.md) |
+| `node` | [`Node`](../type-aliases/Node.md) |

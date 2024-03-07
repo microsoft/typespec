@@ -1,4 +1,5 @@
-import { run } from "./helpers.js";
+// @ts-check
+import { run } from "./legacy-helpers.js";
 
 const proc = run("git", ["status", "--porcelain"], {
   encoding: "utf-8",

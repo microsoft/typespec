@@ -1,63 +1,32 @@
-[JS Api](../index.md) / Projector
+---
+jsApi: true
+title: "[I] Projector"
 
-# Interface: Projector
-
-## Table of contents
-
-### Properties
-
-- [parentProjector](Projector.md#parentprojector)
-- [projectedGlobalNamespace](Projector.md#projectedglobalnamespace)
-- [projectedStartNode](Projector.md#projectedstartnode)
-- [projectedTypes](Projector.md#projectedtypes)
-- [projections](Projector.md#projections)
-
-### Methods
-
-- [projectType](Projector.md#projecttype)
-
+---
 ## Properties
 
-### parentProjector
-
-• `Optional` **parentProjector**: [`Projector`](Projector.md)
-
-___
-
-### projectedGlobalNamespace
-
-• `Optional` **projectedGlobalNamespace**: [`Namespace`](Namespace.md)
-
-___
-
-### projectedStartNode
-
-• `Optional` **projectedStartNode**: [`Type`](../index.md#type)
-
-___
-
-### projectedTypes
-
-• **projectedTypes**: `Map`<[`Type`](../index.md#type), [`Type`](../index.md#type)\>
-
-___
-
-### projections
-
-• **projections**: [`ProjectionApplication`](ProjectionApplication.md)[]
+| Property | Type |
+| :------ | :------ |
+| `parentProjector?` | [`Projector`](Projector.md) |
+| `projectedGlobalNamespace?` | [`Namespace`](Namespace.md) |
+| `projectedStartNode?` | [`Type`](../type-aliases/Type.md) |
+| `projectedTypes` | `Map`<[`Type`](../type-aliases/Type.md), [`Type`](../type-aliases/Type.md)\> |
+| `projections` | [`ProjectionApplication`](ProjectionApplication.md)[] |
 
 ## Methods
 
-### projectType
+### projectType()
 
-▸ **projectType**(`type`): [`Type`](../index.md#type)
+```ts
+projectType(type): Type
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `type` | [`Type`](../index.md#type) |
+| `type` | [`Type`](../type-aliases/Type.md) |
 
 #### Returns
 
-[`Type`](../index.md#type)
+[`Type`](../type-aliases/Type.md)

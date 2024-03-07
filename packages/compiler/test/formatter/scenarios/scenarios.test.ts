@@ -1,21 +1,22 @@
 import { strictEqual } from "assert";
 import { readdirSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
-import { dirname, join, resolve } from "path";
-import prettier from "prettier";
-import { fileURLToPath } from "url";
+import { join, resolve } from "path";
+import * as prettier from "prettier";
+import { describe, it } from "vitest";
 import * as plugin from "../../../src/formatter/index.js";
+import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
 
-function format(code: string): string {
-  const output = prettier.format(code, {
+async function format(code: string): Promise<string> {
+  const output = await prettier.format(code, {
     parser: "typespec",
     plugins: [plugin],
   });
   return output;
 }
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const scenarioRoot = resolve(__dirname, "../../../../test/formatter/scenarios");
+const packageRoot = await findTestPackageRoot(import.meta.url);
+const scenarioRoot = resolve(packageRoot, "test/formatter/scenarios");
 const shouldUpdate = process.argv.indexOf("--update-snapshots") !== -1;
 
 async function getOutput(name: string): Promise<string | undefined> {
@@ -36,7 +37,7 @@ async function saveOutput(name: string, content: string) {
 async function testScenario(name: string) {
   const content = await readFile(join(scenarioRoot, "inputs", name), "utf-8");
   const output = await getOutput(name);
-  const formatted = format(content);
+  const formatted = await format(content);
   if (!output) {
     return await saveOutput(name, formatted);
   }
@@ -55,7 +56,7 @@ async function testScenario(name: string) {
 
 describe("compiler: prettier formatter scenarios", () => {
   // describe has to be sync, so using sync readdir here.
-  const scenarioFiles = readdirSync(join(__dirname, "../../../../test/formatter/scenarios/inputs"));
+  const scenarioFiles = readdirSync(join(packageRoot, "test/formatter/scenarios/inputs"));
 
   for (const file of scenarioFiles) {
     if (file.endsWith(".tsp")) {

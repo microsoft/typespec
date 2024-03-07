@@ -105,7 +105,7 @@ function autoRouteProducer(
   );
 
   for (const httpParam of parameters.parameters) {
-    const { type, param } = httpParam;
+    const { type, param, name } = httpParam;
     if (type === "path") {
       addSegmentFragment(program, param, segments);
 
@@ -123,7 +123,7 @@ function autoRouteProducer(
           segments.push(`/${param.type.value}`);
           continue; // Skip adding to the parameter list
         } else {
-          segments.push(`/{${param.name}}`);
+          segments.push(`/{${name}}`);
         }
       }
     }

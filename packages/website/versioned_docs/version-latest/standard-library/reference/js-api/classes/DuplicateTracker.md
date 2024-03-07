@@ -1,55 +1,42 @@
-[JS Api](../index.md) / DuplicateTracker
+---
+jsApi: true
+title: "[C] DuplicateTracker"
 
-# Class: DuplicateTracker<K, V\>
-
+---
 Helper class to track duplicate instance
 
 ## Type parameters
 
-| Name |
+| Type parameter |
 | :------ |
 | `K` |
 | `V` |
-
-## Table of contents
-
-### Constructors
-
-- [constructor](DuplicateTracker.md#constructor)
-
-### Properties
-
-- [#entries](DuplicateTracker.md##entries)
-
-### Methods
-
-- [entries](DuplicateTracker.md#entries)
-- [track](DuplicateTracker.md#track)
 
 ## Constructors
 
-### constructor
+### new DuplicateTracker()
 
-• **new DuplicateTracker**<`K`, `V`\>()
+```ts
+new DuplicateTracker<K, V>(): DuplicateTracker<K, V>
+```
 
-#### Type parameters
+#### Returns
 
-| Name |
-| :------ |
-| `K` |
-| `V` |
+[`DuplicateTracker`](DuplicateTracker.md)<`K`, `V`\>
 
 ## Properties
 
-### #entries
-
-• `Private` **#entries**: `Map`<`K`, `V`[]\>
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `#entries` | `private` | `Map`<`K`, `V`[]\> |
 
 ## Methods
 
-### entries
+### entries()
 
-▸ **entries**(): `Iterable`<[`K`, `V`[]]\>
+```ts
+entries(): Iterable<[K, V[]]>
+```
 
 Return iterator of all the duplicate entries.
 
@@ -57,17 +44,19 @@ Return iterator of all the duplicate entries.
 
 `Iterable`<[`K`, `V`[]]\>
 
-___
+***
 
-### track
+### track()
 
-▸ **track**(`k`, `v`): `void`
+```ts
+track(k, v): void
+```
 
 Track usage of K.
 
 #### Parameters
 
-| Name | Type | Description |
+| Parameter | Type | Description |
 | :------ | :------ | :------ |
 | `k` | `K` | key that is being checked for duplicate. |
 | `v` | `V` | value that map to the key |

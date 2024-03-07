@@ -1,38 +1,20 @@
-[JS Api](../index.md) / TemplateDeclarationNode
+---
+jsApi: true
+title: "[I] TemplateDeclarationNode"
 
-# Interface: TemplateDeclarationNode
+---
+## Extended by
 
-## Hierarchy
-
-- **`TemplateDeclarationNode`**
-
-  ↳ [`OperationStatementNode`](OperationStatementNode.md)
-
-  ↳ [`ModelStatementNode`](ModelStatementNode.md)
-
-  ↳ [`ScalarStatementNode`](ScalarStatementNode.md)
-
-  ↳ [`InterfaceStatementNode`](InterfaceStatementNode.md)
-
-  ↳ [`UnionStatementNode`](UnionStatementNode.md)
-
-  ↳ [`AliasStatementNode`](AliasStatementNode.md)
-
-## Table of contents
-
-### Properties
-
-- [locals](TemplateDeclarationNode.md#locals)
-- [templateParameters](TemplateDeclarationNode.md#templateparameters)
+- [`OperationStatementNode`](OperationStatementNode.md)
+- [`ModelStatementNode`](ModelStatementNode.md)
+- [`ScalarStatementNode`](ScalarStatementNode.md)
+- [`InterfaceStatementNode`](InterfaceStatementNode.md)
+- [`UnionStatementNode`](UnionStatementNode.md)
+- [`AliasStatementNode`](AliasStatementNode.md)
 
 ## Properties
 
-### locals
-
-• `Optional` `Readonly` **locals**: [`SymbolTable`](SymbolTable.md)
-
-___
-
-### templateParameters
-
-• `Readonly` **templateParameters**: readonly [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)[]
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `locals?` | `readonly` | `SymbolTable` |
+| `templateParameters` | `readonly` | readonly [`TemplateParameterDeclarationNode`](TemplateParameterDeclarationNode.md)[] |

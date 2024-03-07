@@ -1,10 +1,11 @@
 import { ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { Binder, createBinder } from "../src/core/binder.js";
-import { createSourceFile } from "../src/core/diagnostics.js";
 import { createLogger } from "../src/core/logger/logger.js";
 import { createTracer } from "../src/core/logger/tracer.js";
 import { parse } from "../src/core/parser.js";
 import { Program } from "../src/core/program.js";
+import { createSourceFile } from "../src/core/source-file.js";
 import {
   AliasStatementNode,
   InterfaceStatementNode,
@@ -390,11 +391,11 @@ describe("compiler: binder", () => {
     assertBindings("jsFile", sourceFile.symbol.exports!, {
       Foo: {
         flags: SymbolFlags.Namespace,
-        declarations: [SyntaxKind.JsSourceFile],
+        declarations: [SyntaxKind.JsNamespaceDeclaration],
         exports: {
           Bar: {
             flags: SymbolFlags.Namespace,
-            declarations: [SyntaxKind.JsSourceFile],
+            declarations: [SyntaxKind.JsNamespaceDeclaration],
             exports: {
               "@myDec2": {
                 flags: SymbolFlags.Decorator | SymbolFlags.Implementation,

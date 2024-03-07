@@ -1,4 +1,6 @@
+import { mutate } from "../utils/misc.js";
 import { compilerAssert } from "./diagnostics.js";
+import { getLocationContext } from "./helpers/index.js";
 import { visitChildren } from "./parser.js";
 import { Program } from "./program.js";
 import {
@@ -6,14 +8,17 @@ import {
   Declaration,
   DecoratorDeclarationStatementNode,
   EnumStatementNode,
+  FileLibraryMetadata,
   FunctionDeclarationStatementNode,
   FunctionParameterNode,
   InterfaceStatementNode,
+  JsNamespaceDeclarationNode,
   JsSourceFileNode,
   ModelExpressionNode,
   ModelStatementNode,
   NamespaceStatementNode,
   Node,
+  NodeFlags,
   OperationStatementNode,
   ProjectionLambdaExpressionNode,
   ProjectionLambdaParameterDeclarationNode,
@@ -31,7 +36,6 @@ import {
   UnionStatementNode,
   UsingStatementNode,
 } from "./types.js";
-import { mutate } from "./util.js";
 
 // Use a regular expression to define the prefix for TypeSpec-exposed functions
 // defined in JavaScript modules
@@ -137,7 +141,12 @@ export function createBinder(program: Program): Binder {
           name = getFunctionName(key);
           kind = "decorator";
           if (name === "onValidate") {
-            program.onValidate(member as any);
+            const context = getLocationContext(program, sourceFile);
+            const metadata =
+              context.type === "library"
+                ? context.metadata
+                : ({ type: "file" } satisfies FileLibraryMetadata);
+            program.onValidate(member as any, metadata);
             continue;
           } else if (name === "onEmit") {
             // nothing to do here this is loaded as emitter.
@@ -148,18 +157,27 @@ export function createBinder(program: Program): Binder {
           kind = "function";
         }
 
-        const memberNs: string = (member as any).namespace;
-        const nsParts = [];
-        if (rootNs) {
-          nsParts.push(...rootNs.split("."));
-        }
-
-        if (memberNs) {
-          nsParts.push(...memberNs.split("."));
-        }
-
+        const nsParts = resolveJSMemberNamespaceParts(rootNs, member);
         for (const part of nsParts) {
           const existingBinding = containerSymbol.exports!.get(part);
+          const jsNamespaceNode: JsNamespaceDeclarationNode = {
+            kind: SyntaxKind.JsNamespaceDeclaration,
+            id: {
+              kind: SyntaxKind.Identifier,
+              sv: part,
+              pos: 0,
+              end: 0,
+              flags: NodeFlags.None,
+              symbol: undefined!,
+            },
+            pos: sourceFile.pos,
+            end: sourceFile.end,
+            parent: sourceFile,
+            flags: NodeFlags.None,
+            symbol: undefined!,
+          };
+          const sym = createSymbol(jsNamespaceNode, part, SymbolFlags.Namespace, containerSymbol);
+          mutate(jsNamespaceNode).symbol = sym;
           if (existingBinding) {
             if (existingBinding.flags & SymbolFlags.Namespace) {
               // since the namespace was "declared" as part of this source file,
@@ -167,13 +185,9 @@ export function createBinder(program: Program): Binder {
               containerSymbol = existingBinding;
             } else {
               // we have some conflict, lets report a duplicate binding error.
-              mutate(containerSymbol.exports)!.set(
-                part,
-                createSymbol(sourceFile, part, SymbolFlags.Namespace, containerSymbol)
-              );
+              mutate(containerSymbol.exports)!.set(part, sym);
             }
           } else {
-            const sym = createSymbol(sourceFile, part, SymbolFlags.Namespace, containerSymbol);
             mutate(sym).exports = createSymbolTable();
             mutate(containerSymbol.exports!).set(part, sym);
             containerSymbol = sym;
@@ -204,6 +218,19 @@ export function createBinder(program: Program): Binder {
         mutate(containerSymbol.exports)!.set(sym.name, sym);
       }
     }
+  }
+
+  function resolveJSMemberNamespaceParts(rootNs: string | undefined, member: any) {
+    const memberNs: string = member.namespace;
+    const nsParts = [];
+    if (rootNs) {
+      nsParts.push(...rootNs.split("."));
+    }
+
+    if (memberNs) {
+      nsParts.push(...memberNs.split("."));
+    }
+    return nsParts;
   }
 
   function bindSourceFile(script: TypeSpecScriptNode) {

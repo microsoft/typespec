@@ -7,9 +7,9 @@ title: Linters
 
 ## Linter vs `onValidate`
 
-TypeSpec library can probide a `$onValidate` hook which can be used to validate the typespec program is valid in the eye of your library.
+TypeSpec library can probide a `$onValidate` hook which can be used to validate the TypeSpec program is valid in the eye of your library.
 
-A linter on the other hand might be a validation that is optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the typespec program but without it the end user experience might suffer.
+A linter on the other hand might be a validation that is optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the TypeSpec program but without it the end user experience might suffer.
 Linters need to be explicitly enabled. `$onValidate` will be run automatically if that library is imported.
 
 ## Writing a linter
@@ -66,6 +66,30 @@ export const requiredDocRule = createLinterRule({
 });
 ```
 
+#### Provide a codefix
+
+[See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.
+
+In the same way you can provide a codefix on any reported diagnostic, you can pass codefixes to the `reportDiagnostic` function.
+
+```ts
+context.reportDiagnostic({
+  messageId: "models",
+  target: model,
+  codefixes: [
+    defineCodeFix({
+      id: "add-model-suffix",
+      description: "Add 'Model' suffix to model name",
+      apply: (program) => {
+        program.update(model, {
+          name: `${model.name}Model`,
+        });
+      },
+    }),
+  ],
+});
+```
+
 #### Don'ts
 
 - ❌ Do not call `program.reportDiagnostic` or your library `reportDiagnostic` helper directly in a linter rule
@@ -92,39 +116,40 @@ context.reportDiagnostic({
 
 <!-- cspell:disable-next-line -->
 
-When defining your `$lib` with `createTypeSpecLibrary`([See](./basics.md#4-create-libts)) an additional entry for `linter` can be provided
+Export a `$linter` variable from your library entrypoint:
 
-```ts
+```ts title="index.ts"
+export { $linter } from "./linter.js";
+```
+
+```ts title="linter.ts"
+import { defineLinter } from "@typespec/compiler";
 // Import the rule defined previously
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
-export const $lib = createTypeSpecLibrary({
-  name: "@typespec/my-linter",
-  diagnostics: {},
-  linter: {
-    // Include all the rules your linter is defining here.
-    rules: [requiredDocRule],
+export const $linter = defineLinter({
+  // Include all the rules your linter is defining here.
+  rules: [requiredDocRule],
 
-    // Optionally a linter can provide a set of rulesets
-    ruleSets: {
-      recommended: {
-        // (optional) A ruleset takes a map of rules to explicitly enable
-        enable: { [`@typespec/my-linter:${requiredDocRule.name}`]: true },
+  // Optionally a linter can provide a set of rulesets
+  ruleSets: {
+    recommended: {
+      // (optional) A ruleset takes a map of rules to explicitly enable
+      enable: { [`@typespec/my-linter/${requiredDocRule.name}`]: true },
 
-        // (optional) A rule set can extend another rule set
-        extends: ["@typespec/best-practices:recommended"],
+      // (optional) A rule set can extend another rule set
+      extends: ["@typespec/best-practices/recommended"],
 
-        // (optional) A rule set can disable a rule enabled in a ruleset it extended.
-        disable: {
-          "`@typespec/best-practices:no-a": "This doesn't apply in this ruleset.",
-        },
+      // (optional) A rule set can disable a rule enabled in a ruleset it extended.
+      disable: {
+        "`@typespec/best-practices/no-a": "This doesn't apply in this ruleset.",
       },
     },
   },
 });
 ```
 
-When referencing a rule or ruleset(in `enable`, `extends`, `disable`) the rule or rule set id must be used which in this format: `<libraryName>:<ruleName>`
+When referencing a rule or ruleset(in `enable`, `extends`, `disable`) the rule or rule set id must be used which in this format: `<libraryName>/<ruleName>`
 
 ## Testing a linter
 
@@ -134,7 +159,7 @@ First you'll want to create an instance of the rule tester using `createLinterRu
 You can then provide different test checking the rule pass or fails.
 
 ```ts
-import { createLinterRuleTester, RuleTester, createTestRunner } from "@typespec/compiler/testing";
+import { RuleTester, createLinterRuleTester, createTestRunner } from "@typespec/compiler/testing";
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
 describe("required-doc rule", () => {
@@ -147,7 +172,7 @@ describe("required-doc rule", () => {
 
   it("emit diagnostics when using model named foo", async () => {
     await ruleTester.expect(`model Foo {}`).toEmitDiagnostics({
-      code: "@typespec/my-linter:no-foo-model",
+      code: "@typespec/my-linter/no-foo-model",
       message: "Cannot name a model with 'Foo'",
     });
   });
@@ -156,4 +181,27 @@ describe("required-doc rule", () => {
     await ruleTester.expect(`model Bar {}`).toBeValid();
   });
 });
+```
+
+### Testing linter with codefixes
+
+The linter rule tester provides an API to easily test a codefix. This is a different approach from the standalone codefix tester, which is more targeted at testing codefixes in isolation.
+
+This can be done with calling `applyCodeFix` with the fix id. It will expect a single diagnostic to be emitted with a codefix with the given id.
+Then calling `toEqual` with the expected code after the codefix is applied.
+
+:::note
+When using multi-line strings (with `\``) in typescript there is no de-indenting done so you will need to make sure the input and expected result are aligned to the left.
+:::
+
+```ts
+await tester
+  .expect(
+    `        
+    model Foo {}
+    `
+  )
+  .applyCodeFix("add-model-suffix").toEqual(`
+    model FooModel {}
+  `);
 ```

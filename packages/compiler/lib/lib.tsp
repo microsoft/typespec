@@ -11,7 +11,8 @@ scalar bytes;
 scalar numeric;
 
 /**
- * A whole number
+ * A whole number. This represent any `integer` value possible.
+ * It is commonly represented as `BigInteger` in some languages.
  */
 scalar integer extends numeric;
 
@@ -76,7 +77,8 @@ scalar float64 extends float;
 scalar float32 extends float64;
 
 /**
- * A decimal number with any length and precision.
+ * A decimal number with any length and precision. This represent any `decimal` value possible.
+ * It is commonly represented as `BigDecimal` in some languages.
  */
 scalar decimal extends numeric;
 
@@ -121,25 +123,32 @@ scalar duration;
 scalar boolean;
 
 /**
+ * Represent a 32-bit unix timestamp datetime with 1s of granularity.
+ * It measures time by the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+ */
+@encode("unixTimestamp", int32)
+scalar unixTimestamp32 extends utcDateTime;
+
+/**
  * Represent a model
  */
 // Deprecated June 2023 sprint
-@deprecated("object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array.")
+#deprecated "object is deprecated. Please use {} for an empty model, `Record<unknown>` for a record with unknown property types, `unknown[]` for an array."
 model object {}
 
 /**
- * @dev Array model type, equivalent to `T[]`
- * @template T The type of the array elements
+ * @dev Array model type, equivalent to `Element[]`
+ * @template Element The type of the array elements
  */
-@indexer(integer, T)
-model Array<T> {}
+@indexer(integer, Element)
+model Array<Element> {}
 
 /**
- * @dev Model with string properties where all the properties have type `T`
- * @template T The type of the properties
+ * @dev Model with string properties where all the properties have type `Property`
+ * @template Element The type of the properties
  */
-@indexer(string, T)
-model Record<T> {}
+@indexer(string, Element)
+model Record<Element> {}
 
 /**
  * Represent a URL string as described by https://url.spec.whatwg.org/
@@ -148,51 +157,56 @@ scalar url extends string;
 
 /**
  * Represents a collection of optional properties.
- * @template T An object whose spread properties are all optional.
+ *
+ * @template Source An object whose spread properties are all optional.
  */
 @doc("The template for adding optional properties.")
 @withOptionalProperties
-model OptionalProperties<T> {
-  ...T;
+model OptionalProperties<Source> {
+  ...Source;
 }
 
 /**
  * Represents a collection of updateable properties.
- * @template T An object whose spread properties are all updateable.
+ *
+ * @template Source An object whose spread properties are all updateable.
  */
 @doc("The template for adding updateable properties.")
 @withUpdateableProperties
-model UpdateableProperties<T> {
-  ...T;
+model UpdateableProperties<Source> {
+  ...Source;
 }
 
 /**
  * Represents a collection of omitted properties.
- * @template T An object whose properties are spread.
- * @template TKeys The property keys to omit.
+ *
+ * @template Source An object whose properties are spread.
+ * @template Keys The property keys to omit.
  */
 @doc("The template for omitting properties.")
-@withoutOmittedProperties(TKeys)
-model OmitProperties<T, TKeys extends string> {
-  ...T;
+@withoutOmittedProperties(Keys)
+model OmitProperties<Source, Keys extends string> {
+  ...Source;
 }
 
 /**
  * Represents a collection of properties with default values omitted.
- * @template T An object whose spread property defaults are all omitted.
+ *
+ * @template Source An object whose spread property defaults are all omitted.
  */
 @withoutDefaultValues
-model OmitDefaults<T> {
-  ...T;
+model OmitDefaults<Source> {
+  ...Source;
 }
 
 /**
- * Applies a visiblity setting to a collection of properties.
- * @template T An object whose properties are spread.
+ * Applies a visibility setting to a collection of properties.
+ *
+ * @template Source An object whose properties are spread.
  * @template Visibility The visibility to apply to all properties.
  */
 @doc("The template for setting the default visibility of key properties.")
 @withDefaultKeyVisibility(Visibility)
-model DefaultKeyVisibility<T, Visibility extends valueof string> {
-  ...T;
+model DefaultKeyVisibility<Source, Visibility extends valueof string> {
+  ...Source;
 }

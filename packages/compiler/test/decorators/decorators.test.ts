@@ -1,14 +1,28 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import { Model, Operation, Scalar, getVisibility, isSecret } from "../../src/index.js";
+import { beforeEach, describe, it } from "vitest";
+import {
+  Model,
+  ModelProperty,
+  Namespace,
+  Operation,
+  Scalar,
+  getVisibility,
+  isSecret,
+} from "../../src/index.js";
 import {
   getDoc,
   getEncode,
+  getErrorsDoc,
   getFriendlyName,
   getKeyName,
   getKnownValues,
   getOverloadedOperation,
   getOverloads,
+  getPattern,
+  getPatternData,
+  getReturnsDoc,
   isErrorModel,
+  resolveEncodedName,
 } from "../../src/lib/decorators.js";
 import {
   BasicTestRunner,
@@ -22,6 +36,75 @@ describe("compiler: built-in decorators", () => {
 
   beforeEach(async () => {
     runner = await createTestRunner();
+  });
+
+  describe("dev comment /** */", () => {
+    it("applies /** */ on blockless namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo;
+
+        model A {}
+        `
+      );
+
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+    });
+
+    it("applies /** */ on enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo {
+           model A {}
+        }
+        `
+      );
+
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+    });
+
+    it("applies /** */ on nested enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        // const { Foo, Foo_Bar } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo {
+          /** doc for namespace Bar */       
+          namespace Bar {
+            model A {};
+          }
+        }
+        `
+      );
+
+      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+    });
+
+    it("applies /** */ on nested blockless + enclosed namespace", async () => {
+      const { Foo } = await runner.compile(
+        `
+        @test
+        /** doc for namespace Foo */
+        namespace TestDoc.Foo;
+
+        /** doc for namespace Bar */       
+        namespace Bar {
+          model A {}
+        }
+        `
+      );
+
+      const Bar = (Foo as Namespace).namespaces.get("Bar")!;
+      strictEqual(getDoc(runner.program, Foo), "doc for namespace Foo");
+      strictEqual(getDoc(runner.program, Bar), "doc for namespace Bar");
+    });
   });
 
   describe("@doc", () => {
@@ -62,7 +145,7 @@ describe("compiler: built-in decorators", () => {
         `
         @test
         @doc("doc for namespace")
-        namespace TestDoc {
+        namespace Foo.TestDoc {
         }
         `
       );
@@ -144,6 +227,131 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
+  describe("@pattern", () => {
+    it("applies @pattern to scalar", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @pattern("^[a-z]+$")
+        scalar A extends string;
+        `
+      )) as { A: Scalar };
+
+      strictEqual(getPattern(runner.program, A), "^[a-z]+$");
+    });
+
+    it("applies @pattern to model property", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        model A {
+          @test
+          @pattern("^[a-z]+$")
+          prop: string;
+        }
+        `
+      )) as { A: Model };
+
+      const prop = A.properties.get("prop") as ModelProperty;
+      strictEqual(prop.kind, "ModelProperty");
+      strictEqual(getPattern(runner.program, prop), "^[a-z]+$");
+    });
+
+    it("emit diagnostic if pattern is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        model A {
+          @pattern(123)
+          prop: string;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+      });
+    });
+
+    it("optionally allows specifying a pattern validation message", async () => {
+      const { A, B } = (await runner.compile(
+        `
+        @test
+        @pattern("^[a-z]+$", "Must be all lowercase.")
+        scalar A extends string;
+
+        @test
+        @pattern("^[a-z]+$")
+        scalar B extends string;
+        `
+      )) as { A: Scalar; B: Scalar };
+
+      const pattern = getPattern(runner.program, A);
+      strictEqual(pattern, "^[a-z]+$");
+      const data = getPatternData(runner.program, A);
+      strictEqual(data?.pattern, pattern);
+      strictEqual(data?.validationMessage, "Must be all lowercase.");
+
+      const pattern2 = getPattern(runner.program, B);
+      strictEqual(pattern2, "^[a-z]+$");
+      const data2 = getPatternData(runner.program, B);
+      strictEqual(data2?.pattern, pattern2);
+      strictEqual(data2?.validationMessage, undefined);
+    });
+  });
+
+  describe("@returnsDoc", () => {
+    it("applies @returnsDoc on operation", async () => {
+      const { test } = (await runner.compile(
+        `
+        @test
+        @returnsDoc("A string")
+        op test(): string;
+        `
+      )) as { test: Operation };
+
+      strictEqual(getReturnsDoc(runner.program, test), "A string");
+    });
+
+    it("emit diagnostic if doc is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        @test
+        @returnsDoc(123)
+        op test(): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+      });
+    });
+  });
+
+  describe("@errorsDoc", () => {
+    it("applies @errorsDoc on operation", async () => {
+      const { test } = (await runner.compile(
+        `
+        @test
+        @errorsDoc("An error")
+        op test(): string;
+        `
+      )) as { test: Operation };
+
+      strictEqual(getErrorsDoc(runner.program, test), "An error");
+    });
+
+    it("emit diagnostic if doc is not a string", async () => {
+      const diagnostics = await runner.diagnose(`
+        @test
+        @errorsDoc(123)
+        op test(): string;
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-argument",
+        message: `Argument '123' is not assignable to parameter of type 'valueof string'`,
+      });
+    });
+  });
+
   describe("@friendlyName", () => {
     it("applies @friendlyName on model", async () => {
       const { A, B, C } = await runner.compile(`
@@ -177,6 +385,16 @@ describe("compiler: built-in decorators", () => {
         model A { }
       `);
       ok(isErrorModel(runner.program, A), "isError should be true");
+    });
+
+    it("applies @error on derived models", async () => {
+      const { B, C } = await runner.compile(`
+        @error model A { }
+        @test model B extends A { }
+        @test model C extends B { }
+      `);
+      ok(isErrorModel(runner.program, B), "isError should be true");
+      ok(isErrorModel(runner.program, C), "isError should be true");
     });
 
     it("emit diagnostic if error is not applied to a model", async () => {
@@ -431,14 +649,14 @@ describe("compiler: built-in decorators", () => {
           "unixTimestamp",
           "string",
           "invalid-encode",
-          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'.`,
+          `Encoding 'unixTimestamp' on type 's' is expected to be serialized as 'integer' but got 'string'. Set '@encode' 2nd parameter to be of type integer. e.g. '@encode("unixTimestamp", int32)'`,
         ],
         [
           "duration",
           "seconds",
           undefined,
           "invalid-encode",
-          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'.`,
+          `Encoding 'seconds' on type 's' is expected to be serialized as 'numeric' but got 'string'. Set '@encode' 2nd parameter to be of type numeric. e.g. '@encode("seconds", int32)'`,
         ],
         [
           "duration",
@@ -460,7 +678,7 @@ describe("compiler: built-in decorators", () => {
           '"int32"',
           // TODO: Arguably this should be improved.
           "invalid-argument",
-          `Argument 'int32' is not assignable to parameter of type 'Scalar'`,
+          `Argument '"int32"' is not assignable to parameter of type 'Scalar'`,
         ],
       ];
       describe("valid", () => {
@@ -577,73 +795,6 @@ describe("compiler: built-in decorators", () => {
     });
   });
 
-  describe("@deprecated", () => {
-    it("doesn't emit warning until it is used", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-        model Test  { }
-      `);
-      expectDiagnosticEmpty(diagnostics);
-    });
-
-    it("emit warning diagnostic when used via is", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test is Foo { }
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
-      });
-    });
-
-    it("emit warning diagnostic when used via extends", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test extends Foo { }
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
-      });
-    });
-
-    it("emit warning diagnostic when used via property type", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test { foo: Foo }
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
-      });
-    });
-
-    it("emit warning diagnostic when used via spread", async () => {
-      const diagnostics = await runner.diagnose(`
-        @deprecated("Foo is deprecated use Bar")
-        model Foo { }
-
-        model Test { ...Foo }
-      `);
-      expectDiagnostics(diagnostics, {
-        code: "deprecated",
-        message: "Deprecated: Foo is deprecated use Bar",
-        severity: "warning",
-      });
-    });
-  });
-
   describe("@overload", () => {
     it("emits an error when @overload is given something other than an operation", async () => {
       const diagnostics = await runner.diagnose(`
@@ -653,7 +804,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "invalid-argument",
-        message: "Argument 'foo' is not assignable to parameter of type 'Operation'",
+        message: `Argument '"foo"' is not assignable to parameter of type 'Operation'`,
         severity: "error",
       });
     });
@@ -953,7 +1104,7 @@ describe("compiler: built-in decorators", () => {
 
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @secret decorator to type it is not one of: string",
+        message: "Cannot apply @secret decorator to type it is not a string",
       });
     });
   });
@@ -1011,6 +1162,114 @@ describe("compiler: built-in decorators", () => {
           message: `Variant "a" type's discriminant property "kind" must be a string literal or string enum member.`,
         },
       ]);
+    });
+  });
+
+  describe("@encodedName", () => {
+    it("emit error if passing invalid mime type", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Cert {
+          @encodedName("foo/bar/baz", "exp")
+          expireAt: utcDateTime;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-mime-type",
+        message: `Invalid mime type 'foo/bar/baz'`,
+      });
+    });
+
+    it("emit error if passing mime type with suffix", async () => {
+      const diagnostics = await runner.diagnose(`
+        model Cert {
+          @encodedName("application/merge-patch+json", "exp")
+          expireAt: utcDateTime;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "no-mime-type-suffix",
+        message:
+          "Cannot use mime type 'application/merge-patch+json' with suffix 'json'. Use a simple mime `type/subtype` instead.",
+      });
+    });
+
+    describe("detect conflicts", () => {
+      it("emit error if encoded name is same as existing property ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            exp: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, {
+          code: "encoded-name-conflict",
+          message:
+            "Encoded name 'exp' conflicts with existing member name for mime type 'application/json'",
+        });
+      });
+
+      it("emit error if 2 properties use the same encoded name with the same mimeType ", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/json", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnostics(diagnostics, [
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+          {
+            code: "encoded-name-conflict",
+            message: "Same encoded name 'exp' is used for 2 members 'application/json'",
+          },
+        ]);
+      });
+
+      it("is ok if 2 different mime type have the same encoded name", async () => {
+        const diagnostics = await runner.diagnose(`
+          model Cert {
+            @encodedName("application/json", "exp")
+            expireAt: utcDateTime;
+            @encodedName("application/xml", "exp")
+            expireIn: string;
+          }
+        `);
+
+        expectDiagnosticEmpty(diagnostics);
+      });
+    });
+
+    it("resolve explicit encoded name", async () => {
+      const { expireAt } = (await runner.compile(`
+        model Cert {
+          @encodedName("application/json", "exp")
+          @test expireAt: utcDateTime;
+        }
+      `)) as { expireAt: ModelProperty };
+      strictEqual(resolveEncodedName(runner.program, expireAt, "application/json"), "exp");
+      strictEqual(
+        resolveEncodedName(runner.program, expireAt, "application/merge-patch+json"),
+        "exp"
+      );
+    });
+
+    it("resolve default name if no explicit encoded name", async () => {
+      const { expireAt } = (await runner.compile(`
+        model Cert {
+          @encodedName("application/json", "exp")
+          @test expireAt: utcDateTime;
+        }
+      `)) as { expireAt: ModelProperty };
+      strictEqual(resolveEncodedName(runner.program, expireAt, "application/xml"), "expireAt");
     });
   });
 });

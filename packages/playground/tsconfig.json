@@ -1,20 +1,25 @@
 {
-  "extends": "../tsconfig.json",
-  "references": [
-    { "path": "../compiler/tsconfig.json" },
-    { "path": "../rest/tsconfig.json" },
-    { "path": "../openapi/tsconfig.json" },
-    { "path": "../openapi3/tsconfig.json" }
-  ],
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "incremental": false,
+    "composite": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "sourceMap": false,
+    "resolveJsonModule": true,
     "outDir": "dist",
     "rootDir": ".",
-    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
     "skipLibCheck": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@emotion/react",
-    "lib": ["DOM"],
-    "types": ["@emotion/react"]
+    "lib": ["DOM"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "e2e/**/*.ts", "vite.config.ts"]
+  "include": [
+    "rollup.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "e2e/**/*.ts",
+    "vite.config.ts",
+    "definitions/*.d.ts"
+  ]
 }

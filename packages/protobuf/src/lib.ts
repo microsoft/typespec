@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
+import {
+  createTypeSpecLibrary,
+  DiagnosticTarget,
+  JSONSchemaType,
+  paramMessage,
+  Program,
+} from "@typespec/compiler";
 
 /**
  * Options that the Protobuf emitter accepts.
@@ -11,13 +17,33 @@ export interface ProtobufEmitterOptions {
    * Don't emit anything.
    */
   noEmit?: boolean;
+
+  /**
+   * Omit unreachable types.
+   *
+   * By default, types under a package namespace will be emitted if they are fully annotated with `@field` decorators.
+   * With this flag on, only types that are explicitly marked with `@message` or that are referenced by an operation
+   * in an interface decoarated with `@service` will be emitted.
+   */
+  "omit-unreachable-types"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    noEmit: { type: "boolean", nullable: true },
+    noEmit: {
+      type: "boolean",
+      nullable: true,
+      description:
+        "If set to `true`, this emitter will not write any files. It will still validate the TypeSpec sources to ensure they are compatible with Protobuf, but the files will simply not be written to the output directory.",
+    },
+    "omit-unreachable-types": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.",
+    },
   },
   required: [],
 };
@@ -129,6 +155,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         default: "anonymous models cannot be used in Protobuf messages",
       },
     },
+    "unspeakable-template-argument": {
+      severity: "error",
+      messages: {
+        default: paramMessage`template ${"name"} cannot be converted to a Protobuf message because it has an unspeakable argument (try using the '@friendlyName' decorator on the template)`,
+      },
+    },
     package: {
       severity: "error",
       messages: {
@@ -139,7 +171,46 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
   emitter: { options: EmitterOptionsSchema },
 });
 
-export const { reportDiagnostic } = TypeSpecProtobufLibrary;
+export type Diagnostic = Parameters<typeof TypeSpecProtobufLibrary.reportDiagnostic>[1];
+
+const __DIAGNOSTIC_CACHE = new WeakMap<Program, Map<DiagnosticTarget, Set<Diagnostic["code"]>>>();
+
+function getDiagnosticCache(program: Program) {
+  let cache = __DIAGNOSTIC_CACHE.get(program);
+  if (!cache) {
+    cache = new Map();
+    __DIAGNOSTIC_CACHE.set(program, cache);
+  }
+  return cache;
+}
+
+function getAppliedCodesForTarget(program: Program, target: DiagnosticTarget) {
+  const cache = getDiagnosticCache(program);
+  let codes = cache.get(target);
+  if (!codes) {
+    codes = new Set();
+    cache.set(target, codes);
+  }
+  return codes;
+}
+
+export const reportDiagnostic = Object.assign(TypeSpecProtobufLibrary.reportDiagnostic, {
+  /**
+   * Report a TypeSpec protobuf diagnostic, but only once per target per diagnostic code.
+   *
+   * This is useful in situations where a function that reports a recoverable diagnostic may be called multiple times.
+   */
+  once: function (program: Program, diagnostic: Diagnostic & { target: DiagnosticTarget }) {
+    const codes = getAppliedCodesForTarget(program, diagnostic.target);
+
+    if (codes.has(diagnostic.code)) {
+      return;
+    }
+
+    codes.add(diagnostic.code);
+    TypeSpecProtobufLibrary.reportDiagnostic(program, diagnostic);
+  },
+});
 
 export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
 

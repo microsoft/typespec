@@ -1,25 +1,10 @@
-[JS Api](../index.md) / RmOptions
+---
+jsApi: true
+title: "[I] RmOptions"
 
-# Interface: RmOptions
-
-## Table of contents
-
-### Properties
-
-- [recursive](RmOptions.md#recursive)
-
+---
 ## Properties
 
-### recursive
-
-• `Optional` **recursive**: `boolean`
-
-If `true`, perform a recursive directory removal. In
-recursive mode, errors are not reported if `path` does not exist, and
-operations are retried on failure.
-
-**`Default`**
-
-```ts
-false
-```
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `recursive?` | `boolean` | If `true`, perform a recursive directory removal. In<br />recursive mode, errors are not reported if `path` does not exist, and<br />operations are retried on failure.<br /><br />**Default**<br />` false ` |

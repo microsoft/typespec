@@ -1,4 +1,0 @@
-timeout: 5000
-require: source-map-support/register
-spec: "dist-dev/test/**/*.test.js"
-ignore: "dist-dev/test/manual/**/*.js"

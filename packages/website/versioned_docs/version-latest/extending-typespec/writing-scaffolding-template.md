@@ -10,6 +10,18 @@ typespec provides scaffolding functionality via the `tsp init` command.
 tsp init <templateUrl>
 ```
 
+## Specifying a minimum TypeSpec version
+
+If your template needs a functionality that was only added in a newer version of TypeSpec you might want to specify that in the template. This will warn the user that the template might not work as expected and prompt them to confirm that they want to continue.
+
+To do so you can set `compilerVersion` in the each template configuration. The value is the minimum semver version required.
+
+```json
+{
+  "compilerVersion": "0.51.0"
+}
+```
+
 ## Basic
 
 A scaffolding template is a `json` document that can be hosted locally or online.
@@ -38,12 +50,12 @@ Example:
 
 ## Adding libraries
 
-You can add a list of typespec libraries to include. This will automatically add those libraries to the `package.json` and imported in `main.tsp`.
+You can add a list of TypeSpec libraries to include. This will automatically add those libraries to the `package.json` and imported in `main.tsp`.
 
 ```json
 {
   "rest": {
-    "title": "Rest API",
+    "title": "REST API",
     "description": "Create a new project representing a REST API",
     "libraries": ["@typespec/rest", "@typespec/openapi3"]
   }
@@ -61,7 +73,7 @@ Each file need the following properties:
 ```json
 {
   "rest": {
-    "title": "Rest API",
+    "title": "REST API",
     "description": "Create a new project representing a REST API",
     "files": [{ "path": "./models.tsp", "destination": "./models.tsp" }]
   }
@@ -76,6 +88,30 @@ model {{parameters.ModelName}} {
 }
 ```
 
+### Interpolating values
+
+The template can interpolate values in the files. The values available are anything available in the template configuration referenced as it is.
+Examples:
+
+- Reference a parameter `{{parameters.ModelName}}`
+- Reference a the template title `{{title}}`
+
+Additionally the following values and functions are available:
+
+| Name                                  | Description                                                     |
+| ------------------------------------- | --------------------------------------------------------------- |
+| `directory`                           | Directory full path where the project should be initialized.    |
+| `folderName`                          | Folder name where the project should be initialized.            |
+| `name`                                | Name of the project.                                            |
+| `libraries`                           | List of libraries to include                                    |
+| `templateUri`                         | Path where this template was loaded from.                       |
+| Functions                             |                                                                 |
+| `toLowerCase(value: string)`          | Convert string to lower case                                    |
+| `normalizePackageName(value: string)` | Normalize package name. It replaces `.` with`-` and toLowerCase |
+| `casing.pascalCase(value: string)`    | Convert string to PascalCase                                    |
+| `casing.camelCase(value: string)`     | Convert string to camelCase                                     |
+| `casing.kebabCase(value: string)`     | Convert string to kebab-case                                    |
+
 ## Demanding additional input from the user
 
 When generating files there might be a need for additional inputs to be retrieved from the user. For example the model name.
@@ -84,7 +120,7 @@ The template takes in a map of inputs that will get prompted to the user during 
 ```json
 {
   "rest": {
-    "title": "Rest API",
+    "title": "REST API",
     "description": "Create a new project representing a REST API",
     "inputs": {
       "modelName": {

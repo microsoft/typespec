@@ -1,4 +1,4 @@
-import { Parser, SupportLanguage } from "prettier";
+import type { Parser, SupportLanguage } from "prettier";
 import { Node } from "../core/types.js";
 import { parse } from "./parser.js";
 import { typespecPrinter } from "./print/index.js";

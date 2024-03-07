@@ -1,4 +1,4 @@
-import { ESLintUtils, TSESLint, TSESTree } from "@typescript-eslint/utils";
+import { TSESLint, TSESTree } from "@typescript-eslint/utils";
 import ts from "typescript";
 import { createRule } from "../utils.js";
 
@@ -9,7 +9,10 @@ const messages = {
 
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   create(context) {
-    const parserServices = ESLintUtils.getParserServices(context);
+    const parserServices = context.sourceCode.parserServices;
+    if (!parserServices.program) {
+      return {};
+    }
     const checker = parserServices.program.getTypeChecker();
     return {
       CallExpression(node) {
@@ -49,7 +52,7 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   meta: {
     docs: {
       description: "Calling a TypeSpec decorator from JS/TS code should be done with context.call",
-      recommended: "warn",
+      recommended: "recommended",
     },
     hasSuggestions: true,
     messages,

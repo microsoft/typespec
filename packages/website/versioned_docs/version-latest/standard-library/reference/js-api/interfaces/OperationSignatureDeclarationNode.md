@@ -1,125 +1,23 @@
-[JS Api](../index.md) / OperationSignatureDeclarationNode
+---
+jsApi: true
+title: "[I] OperationSignatureDeclarationNode"
 
-# Interface: OperationSignatureDeclarationNode
-
-## Hierarchy
+---
+## Extends
 
 - [`BaseNode`](BaseNode.md)
 
-  ↳ **`OperationSignatureDeclarationNode`**
-
-## Table of contents
-
-### Properties
-
-- [directives](OperationSignatureDeclarationNode.md#directives)
-- [docs](OperationSignatureDeclarationNode.md#docs)
-- [end](OperationSignatureDeclarationNode.md#end)
-- [flags](OperationSignatureDeclarationNode.md#flags)
-- [kind](OperationSignatureDeclarationNode.md#kind)
-- [parameters](OperationSignatureDeclarationNode.md#parameters)
-- [parent](OperationSignatureDeclarationNode.md#parent)
-- [pos](OperationSignatureDeclarationNode.md#pos)
-- [returnType](OperationSignatureDeclarationNode.md#returntype)
-- [symbol](OperationSignatureDeclarationNode.md#symbol)
-
 ## Properties
 
-### directives
-
-• `Optional` `Readonly` **directives**: readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[]
-
-#### Inherited from
-
-[BaseNode](BaseNode.md).[directives](BaseNode.md#directives)
-
-___
-
-### docs
-
-• `Optional` `Readonly` **docs**: readonly [`DocNode`](DocNode.md)[]
-
-#### Inherited from
-
-[BaseNode](BaseNode.md).[docs](BaseNode.md#docs)
-
-___
-
-### end
-
-• `Readonly` **end**: `number`
-
-The ending position measured in UTF-16 code units from the start of the
-full string. Exclusive.
-
-#### Inherited from
-
-[BaseNode](BaseNode.md).[end](BaseNode.md#end)
-
-___
-
-### flags
-
-• `Readonly` **flags**: [`NodeFlags`](../enums/NodeFlags.md)
-
-#### Inherited from
-
-[BaseNode](BaseNode.md).[flags](BaseNode.md#flags)
-
-___
-
-### kind
-
-• `Readonly` **kind**: [`OperationSignatureDeclaration`](../enums/SyntaxKind.md#operationsignaturedeclaration)
-
-#### Overrides
-
-[BaseNode](BaseNode.md).[kind](BaseNode.md#kind)
-
-___
-
-### parameters
-
-• `Readonly` **parameters**: [`ModelExpressionNode`](ModelExpressionNode.md)
-
-___
-
-### parent
-
-• `Optional` `Readonly` **parent**: [`Node`](../index.md#node)
-
-#### Inherited from
-
-[BaseNode](BaseNode.md).[parent](BaseNode.md#parent)
-
-___
-
-### pos
-
-• `Readonly` **pos**: `number`
-
-The starting position of the ranger measured in UTF-16 code units from the
-start of the full string. Inclusive.
-
-#### Inherited from
-
-[BaseNode](BaseNode.md).[pos](BaseNode.md#pos)
-
-___
-
-### returnType
-
-• `Readonly` **returnType**: [`Expression`](../index.md#expression)
-
-___
-
-### symbol
-
-• `Readonly` **symbol**: [`Sym`](Sym.md)
-
-Could be undefined but making this optional creates a lot of noise. In practice,
-you will likely only access symbol in cases where you know the node has a symbol.
-
-#### Inherited from
-
-[BaseNode](BaseNode.md).[symbol](BaseNode.md#symbol)
+| Property | Modifier | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ | :------ |
+| `directives?` | `readonly` | readonly [`DirectiveExpressionNode`](DirectiveExpressionNode.md)[] | - | [`BaseNode`](BaseNode.md).`directives` | [`BaseNode`](BaseNode.md).`directives` |
+| `docs?` | `readonly` | readonly [`DocNode`](DocNode.md)[] | - | [`BaseNode`](BaseNode.md).`docs` | [`BaseNode`](BaseNode.md).`docs` |
+| `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`BaseNode`](BaseNode.md).`end` | [`BaseNode`](BaseNode.md).`end` |
+| `flags` | `readonly` | [`NodeFlags`](../enumerations/NodeFlags.md) | - | [`BaseNode`](BaseNode.md).`flags` | [`BaseNode`](BaseNode.md).`flags` |
+| `kind` | `readonly` | `OperationSignatureDeclaration` | - | [`BaseNode`](BaseNode.md).`kind` | [`BaseNode`](BaseNode.md).`kind` |
+| `parameters` | `readonly` | [`ModelExpressionNode`](ModelExpressionNode.md) | - | - | - |
+| `parent?` | `readonly` | [`Node`](../type-aliases/Node.md) | - | [`BaseNode`](BaseNode.md).`parent` | [`BaseNode`](BaseNode.md).`parent` |
+| `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`BaseNode`](BaseNode.md).`pos` | [`BaseNode`](BaseNode.md).`pos` |
+| `returnType` | `readonly` | [`Expression`](../type-aliases/Expression.md) | - | - | - |
+| `symbol` | `readonly` | [`Sym`](Sym.md) | Could be undefined but making this optional creates a lot of noise. In practice,<br />you will likely only access symbol in cases where you know the node has a symbol. | [`BaseNode`](BaseNode.md).`symbol` | [`BaseNode`](BaseNode.md).`symbol` |

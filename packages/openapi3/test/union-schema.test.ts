@@ -1,24 +1,9 @@
-import { deepStrictEqual, ok } from "assert";
-import { oapiForModel, openApiFor } from "./test-host.js";
+import { expectDiagnostics } from "@typespec/compiler/testing";
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
+import { diagnoseOpenApiFor, oapiForModel, openApiFor } from "./test-host.js";
 
 describe("openapi3: union type", () => {
-  it("makes nullable schema when union with null", async () => {
-    const res = await openApiFor(
-      `
-      model Thing {
-        id: string;
-        properties: Thing | null;
-      }
-      op doStuff(): Thing;
-      `
-    );
-    deepStrictEqual(res.components.schemas.Thing.properties.properties, {
-      type: "object",
-      allOf: [{ $ref: "#/components/schemas/Thing" }],
-      nullable: true,
-    });
-  });
-
   it("handles discriminated unions", async () => {
     const res = await openApiFor(
       `
@@ -206,6 +191,48 @@ describe("openapi3: union type", () => {
     ]);
   });
 
+  it("handles union declarations with anonymous variants", async () => {
+    const res = await openApiFor(
+      `
+      model A {
+        type: "ay";
+        a: string;
+      }
+
+      model B {
+        type: "bee";
+        b: string;
+      }
+
+      @discriminator("type")
+      union AorB {
+        A,
+        B
+      }
+
+      op foo(x: AorB): { thing: AorB };
+      `
+    );
+
+    deepStrictEqual(res.components.schemas.AorB, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/A",
+          bee: "#/components/schemas/B",
+        },
+      },
+    });
+  });
+
   it("handles enum unions", async () => {
     const res = await oapiForModel(
       "X",
@@ -233,25 +260,117 @@ describe("openapi3: union type", () => {
     ]);
   });
 
-  it("handles a nullable enum", async () => {
-    const res = await oapiForModel(
-      "X",
-      `
-      enum A {
-        a: 1
+  it("handles discriminated union mapping with multiple visibilities", async () => {
+    const res = await openApiFor(`
+      model A {
+        type: "ay";
+        a: string;
+        @visibility("create")
+        onACreate: string;
       }
-      
-      model X {
-        prop: A | null
+
+      model B {
+        type: "bee";
+        b: string;
+        @visibility("create")
+        onBCreate: string;
+      }
+
+      @discriminator("type")
+      union AorB {
+        a: A,
+        b: B
+      }
+
+      model Data {
+        thing: AorB
+      }
+
+      @get
+      op getFoo(): Data;
+      @post
+      op postFoo(@body data: Data): Data;
+    `);
+
+    deepStrictEqual(res.components.schemas.AorB, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/A",
+        },
+        {
+          $ref: "#/components/schemas/B",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/A",
+          bee: "#/components/schemas/B",
+        },
+      },
+    });
+    deepStrictEqual(res.components.schemas.AorBCreate, {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/ACreate",
+        },
+        {
+          $ref: "#/components/schemas/BCreate",
+        },
+      ],
+      discriminator: {
+        propertyName: "type",
+        mapping: {
+          ay: "#/components/schemas/ACreate",
+          bee: "#/components/schemas/BCreate",
+        },
+      },
+    });
+  });
+
+  it("throws diagnostics for empty enum definitions", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`union Pet {}`);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/empty-union",
+      message:
+        "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
+    });
+  });
+
+  it("supports description on unions that reduce to enums", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @doc("FooUnion")
+      union Foo {
+        "a";
+        "b";
+      }
+
+      `
+    );
+    strictEqual(res.schemas.Foo.description, "FooUnion");
+  });
+
+  it("supports summary on unions and union variants", async () => {
+    const res = await oapiForModel(
+      "Foo",
+      `
+      @summary("FooUnion")
+      union Foo {
+        int32;
+
+        Bar;
+      }
+
+      @summary("BarUnion")
+      union Bar {
+        string;
       }
       `
     );
-    ok(res.isRef);
-    deepStrictEqual(res.schemas.X.properties.prop.oneOf, [
-      {
-        $ref: "#/components/schemas/A",
-      },
-    ]);
-    ok(res.schemas.X.properties.prop.nullable);
+    strictEqual(res.schemas.Foo.title, "FooUnion");
+    strictEqual(res.schemas.Bar.title, "BarUnion");
   });
 });

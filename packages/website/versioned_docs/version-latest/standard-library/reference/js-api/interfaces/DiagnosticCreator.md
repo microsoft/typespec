@@ -1,79 +1,67 @@
-[JS Api](../index.md) / DiagnosticCreator
+---
+jsApi: true
+title: "[I] DiagnosticCreator"
 
-# Interface: DiagnosticCreator<T\>
-
+---
 ## Type parameters
 
-| Name | Type |
-| :------ | :------ |
-| `T` | extends `Object` |
-
-## Table of contents
-
-### Properties
-
-- [diagnostics](DiagnosticCreator.md#diagnostics)
-- [type](DiagnosticCreator.md#type)
-
-### Methods
-
-- [createDiagnostic](DiagnosticCreator.md#creatediagnostic)
-- [reportDiagnostic](DiagnosticCreator.md#reportdiagnostic)
+| Type parameter |
+| :------ |
+| `T` extends `Object` |
 
 ## Properties
 
-### diagnostics
-
-• `Readonly` **diagnostics**: [`DiagnosticMap`](../index.md#diagnosticmap)<`T`\>
-
-___
-
-### type
-
-• `Readonly` **type**: `T`
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `diagnostics` | `readonly` | [`DiagnosticMap`](../type-aliases/DiagnosticMap.md)<`T`\> |
+| `type` | `readonly` | `T` |
 
 ## Methods
 
-### createDiagnostic
+### createDiagnostic()
 
-▸ **createDiagnostic**<`C`, `M`\>(`diag`): [`Diagnostic`](Diagnostic.md)
+```ts
+createDiagnostic<C, M>(diag): Diagnostic
+```
 
 #### Type parameters
 
-| Name | Type |
+| Type parameter | Value |
 | :------ | :------ |
-| `C` | extends `string` \| `number` \| `symbol` |
-| `M` | extends `string` \| `number` \| `symbol` = ``"default"`` |
+| `C` extends `string` \| `number` \| `symbol` | - |
+| `M` extends `string` \| `number` \| `symbol` | `"default"` |
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `diag` | [`DiagnosticReport`](../index.md#diagnosticreport)<`T`, `C`, `M`\> |
+| `diag` | [`DiagnosticReport`](../type-aliases/DiagnosticReport.md)<`T`, `C`, `M`\> |
 
 #### Returns
 
 [`Diagnostic`](Diagnostic.md)
 
-___
+***
 
-### reportDiagnostic
+### reportDiagnostic()
 
-▸ **reportDiagnostic**<`C`, `M`\>(`program`, `diag`): `void`
+```ts
+reportDiagnostic<C, M>(program, diag): void
+```
 
 #### Type parameters
 
-| Name | Type |
+| Type parameter | Value |
 | :------ | :------ |
-| `C` | extends `string` \| `number` \| `symbol` |
-| `M` | extends `string` \| `number` \| `symbol` = ``"default"`` |
+| `C` extends `string` \| `number` \| `symbol` | - |
+| `M` extends `string` \| `number` \| `symbol` | `"default"` |
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `program` | [`Program`](Program.md) |
-| `diag` | [`DiagnosticReport`](../index.md#diagnosticreport)<`T`, `C`, `M`\> |
+| `diag` | [`DiagnosticReport`](../type-aliases/DiagnosticReport.md)<`T`, `C`, `M`\> |
 
 #### Returns
 

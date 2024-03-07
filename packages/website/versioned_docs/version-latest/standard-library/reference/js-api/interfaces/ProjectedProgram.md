@@ -1,192 +1,38 @@
-[JS Api](../index.md) / ProjectedProgram
+---
+jsApi: true
+title: "[I] ProjectedProgram"
 
-# Interface: ProjectedProgram
-
-## Hierarchy
+---
+## Extends
 
 - [`Program`](Program.md)
 
-  ↳ **`ProjectedProgram`**
-
-## Table of contents
-
-### Properties
-
-- [checker](ProjectedProgram.md#checker)
-- [compilerOptions](ProjectedProgram.md#compileroptions)
-- [diagnostics](ProjectedProgram.md#diagnostics)
-- [emitters](ProjectedProgram.md#emitters)
-- [host](ProjectedProgram.md#host)
-- [jsSourceFiles](ProjectedProgram.md#jssourcefiles)
-- [literalTypes](ProjectedProgram.md#literaltypes)
-- [mainFile](ProjectedProgram.md#mainfile)
-- [projectRoot](ProjectedProgram.md#projectroot)
-- [projector](ProjectedProgram.md#projector)
-- [sourceFiles](ProjectedProgram.md#sourcefiles)
-- [stateMaps](ProjectedProgram.md#statemaps)
-- [stateSets](ProjectedProgram.md#statesets)
-- [tracer](ProjectedProgram.md#tracer)
-
-### Methods
-
-- [getGlobalNamespaceType](ProjectedProgram.md#getglobalnamespacetype)
-- [getOption](ProjectedProgram.md#getoption)
-- [hasError](ProjectedProgram.md#haserror)
-- [loadTypeSpecScript](ProjectedProgram.md#loadtypespecscript)
-- [onValidate](ProjectedProgram.md#onvalidate)
-- [reportDiagnostic](ProjectedProgram.md#reportdiagnostic)
-- [reportDiagnostics](ProjectedProgram.md#reportdiagnostics)
-- [reportDuplicateSymbols](ProjectedProgram.md#reportduplicatesymbols)
-- [resolveTypeReference](ProjectedProgram.md#resolvetypereference)
-- [stateMap](ProjectedProgram.md#statemap)
-- [stateSet](ProjectedProgram.md#stateset)
-- [trace](ProjectedProgram.md#trace)
-
 ## Properties
 
-### checker
-
-• **checker**: [`Checker`](Checker.md)
-
-#### Inherited from
-
-[Program](Program.md).[checker](Program.md#checker)
-
-___
-
-### compilerOptions
-
-• **compilerOptions**: `CompilerOptions`
-
-#### Inherited from
-
-[Program](Program.md).[compilerOptions](Program.md#compileroptions)
-
-___
-
-### diagnostics
-
-• `Readonly` **diagnostics**: readonly [`Diagnostic`](Diagnostic.md)[]
-
-#### Inherited from
-
-[Program](Program.md).[diagnostics](Program.md#diagnostics)
-
-___
-
-### emitters
-
-• **emitters**: `EmitterRef`[]
-
-#### Inherited from
-
-[Program](Program.md).[emitters](Program.md#emitters)
-
-___
-
-### host
-
-• **host**: [`CompilerHost`](CompilerHost.md)
-
-#### Inherited from
-
-[Program](Program.md).[host](Program.md#host)
-
-___
-
-### jsSourceFiles
-
-• **jsSourceFiles**: `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\>
-
-#### Inherited from
-
-[Program](Program.md).[jsSourceFiles](Program.md#jssourcefiles)
-
-___
-
-### literalTypes
-
-• **literalTypes**: `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../index.md#literaltype)\>
-
-#### Inherited from
-
-[Program](Program.md).[literalTypes](Program.md#literaltypes)
-
-___
-
-### mainFile
-
-• `Optional` **mainFile**: [`TypeSpecScriptNode`](TypeSpecScriptNode.md)
-
-#### Inherited from
-
-[Program](Program.md).[mainFile](Program.md#mainfile)
-
-___
-
-### projectRoot
-
-• `Readonly` **projectRoot**: `string`
-
-Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
-
-#### Inherited from
-
-[Program](Program.md).[projectRoot](Program.md#projectroot)
-
-___
-
-### projector
-
-• **projector**: [`Projector`](Projector.md)
-
-___
-
-### sourceFiles
-
-• **sourceFiles**: `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
-
-All source files in the program, keyed by their file path.
-
-#### Inherited from
-
-[Program](Program.md).[sourceFiles](Program.md#sourcefiles)
-
-___
-
-### stateMaps
-
-• **stateMaps**: `Map`<`symbol`, `StateMap`\>
-
-#### Inherited from
-
-[Program](Program.md).[stateMaps](Program.md#statemaps)
-
-___
-
-### stateSets
-
-• **stateSets**: `Map`<`symbol`, `StateSet`\>
-
-#### Inherited from
-
-[Program](Program.md).[stateSets](Program.md#statesets)
-
-___
-
-### tracer
-
-• **tracer**: [`Tracer`](Tracer.md)
-
-#### Inherited from
-
-[Program](Program.md).[tracer](Program.md#tracer)
+| Property | Modifier | Type | Description | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `checker` | `public` | [`Checker`](Checker.md) | - | [`Program`](Program.md).`checker` |
+| `compilerOptions` | `public` | [`CompilerOptions`](CompilerOptions.md) | - | [`Program`](Program.md).`compilerOptions` |
+| `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] | - | [`Program`](Program.md).`diagnostics` |
+| `emitters` | `public` | `EmitterRef`[] | - | [`Program`](Program.md).`emitters` |
+| `host` | `public` | [`CompilerHost`](CompilerHost.md) | - | [`Program`](Program.md).`host` |
+| `jsSourceFiles` | `public` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - | [`Program`](Program.md).`jsSourceFiles` |
+| `literalTypes` | `public` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - | [`Program`](Program.md).`literalTypes` |
+| `mainFile?` | `public` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program`](Program.md).`mainFile` |
+| `projectRoot` | `readonly` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program`](Program.md).`projectRoot` |
+| `projector` | `public` | [`Projector`](Projector.md) | - | - |
+| `sourceFiles` | `public` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. | [`Program`](Program.md).`sourceFiles` |
+| `stateMaps` | `public` | `Map`<`symbol`, `StateMap`\> | - | [`Program`](Program.md).`stateMaps` |
+| `stateSets` | `public` | `Map`<`symbol`, `StateSet`\> | - | [`Program`](Program.md).`stateSets` |
+| `tracer` | `public` | [`Tracer`](Tracer.md) | - | [`Program`](Program.md).`tracer` |
 
 ## Methods
 
-### getGlobalNamespaceType
+### getGlobalNamespaceType()
 
-▸ **getGlobalNamespaceType**(): [`Namespace`](Namespace.md)
+```ts
+getGlobalNamespaceType(): Namespace
+```
 
 #### Returns
 
@@ -194,17 +40,19 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[getGlobalNamespaceType](Program.md#getglobalnamespacetype)
+[`Program`](Program.md).[`getGlobalNamespaceType`](Program.md#getglobalnamespacetype)
 
-___
+***
 
-### getOption
+### getOption()
 
-▸ **getOption**(`key`): `undefined` \| `string`
+```ts
+getOption(key): undefined | string
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `key` | `string` |
 
@@ -214,13 +62,39 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[getOption](Program.md#getoption)
+[`Program`](Program.md).[`getOption`](Program.md#getoption)
 
-___
+***
 
-### hasError
+### getSourceFileLocationContext()
 
-▸ **hasError**(): `boolean`
+```ts
+getSourceFileLocationContext(sourceFile): LocationContext
+```
+
+Return location context of the given source file.
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `sourceFile` | [`SourceFile`](SourceFile.md) |
+
+#### Returns
+
+[`LocationContext`](../type-aliases/LocationContext.md)
+
+#### Inherited from
+
+[`Program`](Program.md).[`getSourceFileLocationContext`](Program.md#getsourcefilelocationcontext)
+
+***
+
+### hasError()
+
+```ts
+hasError(): boolean
+```
 
 #### Returns
 
@@ -228,17 +102,19 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[hasError](Program.md#haserror)
+[`Program`](Program.md).[`hasError`](Program.md#haserror)
 
-___
+***
 
-### loadTypeSpecScript
+### loadTypeSpecScript()
 
-▸ **loadTypeSpecScript**(`typespecScript`): `Promise`<[`TypeSpecScriptNode`](TypeSpecScriptNode.md)\>
+```ts
+loadTypeSpecScript(typespecScript): Promise<TypeSpecScriptNode>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `typespecScript` | [`SourceFile`](SourceFile.md) |
 
@@ -248,19 +124,22 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[loadTypeSpecScript](Program.md#loadtypespecscript)
+[`Program`](Program.md).[`loadTypeSpecScript`](Program.md#loadtypespecscript)
 
-___
+***
 
-### onValidate
+### onValidate()
 
-▸ **onValidate**(`cb`): `void`
+```ts
+onValidate(cb, LibraryMetadata): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `cb` | (`program`: [`Program`](Program.md)) => `void` \| `Promise`<`void`\> |
+| `cb` | (`program`) => `void` \| `Promise`<`void`\> |
+| `LibraryMetadata` | [`LibraryMetadata`](../type-aliases/LibraryMetadata.md) |
 
 #### Returns
 
@@ -268,17 +147,19 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[onValidate](Program.md#onvalidate)
+[`Program`](Program.md).[`onValidate`](Program.md#onvalidate)
 
-___
+***
 
-### reportDiagnostic
+### reportDiagnostic()
 
-▸ **reportDiagnostic**(`diagnostic`): `void`
+```ts
+reportDiagnostic(diagnostic): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `diagnostic` | [`Diagnostic`](Diagnostic.md) |
 
@@ -288,17 +169,19 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[reportDiagnostic](Program.md#reportdiagnostic)
+[`Program`](Program.md).[`reportDiagnostic`](Program.md#reportdiagnostic)
 
-___
+***
 
-### reportDiagnostics
+### reportDiagnostics()
 
-▸ **reportDiagnostics**(`diagnostics`): `void`
+```ts
+reportDiagnostics(diagnostics): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] |
 
@@ -308,19 +191,21 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[reportDiagnostics](Program.md#reportdiagnostics)
+[`Program`](Program.md).[`reportDiagnostics`](Program.md#reportdiagnostics)
 
-___
+***
 
-### reportDuplicateSymbols
+### reportDuplicateSymbols()
 
-▸ **reportDuplicateSymbols**(`symbols`): `void`
+```ts
+reportDuplicateSymbols(symbols): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
-| `symbols` | `undefined` \| [`SymbolTable`](SymbolTable.md) |
+| `symbols` | `undefined` \| `SymbolTable` |
 
 #### Returns
 
@@ -328,77 +213,85 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[reportDuplicateSymbols](Program.md#reportduplicatesymbols)
+[`Program`](Program.md).[`reportDuplicateSymbols`](Program.md#reportduplicatesymbols)
 
-___
+***
 
-### resolveTypeReference
+### resolveTypeReference()
 
-▸ **resolveTypeReference**(`reference`): [`undefined` \| [`Type`](../index.md#type), readonly [`Diagnostic`](Diagnostic.md)[]]
+```ts
+resolveTypeReference(reference): [undefined | Type, readonly Diagnostic[]]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `reference` | `string` |
 
 #### Returns
 
-[`undefined` \| [`Type`](../index.md#type), readonly [`Diagnostic`](Diagnostic.md)[]]
+[`undefined` \| [`Type`](../type-aliases/Type.md), readonly [`Diagnostic`](Diagnostic.md)[]]
 
 #### Inherited from
 
-[Program](Program.md).[resolveTypeReference](Program.md#resolvetypereference)
+[`Program`](Program.md).[`resolveTypeReference`](Program.md#resolvetypereference)
 
-___
+***
 
-### stateMap
+### stateMap()
 
-▸ **stateMap**(`key`): `Map`<[`Type`](../index.md#type), `any`\>
+```ts
+stateMap(key): Map<Type, any>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `key` | `symbol` |
 
 #### Returns
 
-`Map`<[`Type`](../index.md#type), `any`\>
+`Map`<[`Type`](../type-aliases/Type.md), `any`\>
 
 #### Inherited from
 
-[Program](Program.md).[stateMap](Program.md#statemap)
+[`Program`](Program.md).[`stateMap`](Program.md#statemap)
 
-___
+***
 
-### stateSet
+### stateSet()
 
-▸ **stateSet**(`key`): `Set`<[`Type`](../index.md#type)\>
+```ts
+stateSet(key): Set<Type>
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `key` | `symbol` |
 
 #### Returns
 
-`Set`<[`Type`](../index.md#type)\>
+`Set`<[`Type`](../type-aliases/Type.md)\>
 
 #### Inherited from
 
-[Program](Program.md).[stateSet](Program.md#stateset)
+[`Program`](Program.md).[`stateSet`](Program.md#stateset)
 
-___
+***
 
-### trace
+### trace()
 
-▸ **trace**(`area`, `message`): `void`
+```ts
+trace(area, message): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `area` | `string` |
 | `message` | `string` |
@@ -409,4 +302,4 @@ ___
 
 #### Inherited from
 
-[Program](Program.md).[trace](Program.md#trace)
+[`Program`](Program.md).[`trace`](Program.md#trace)

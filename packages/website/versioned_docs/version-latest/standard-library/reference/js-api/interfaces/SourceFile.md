@@ -1,57 +1,33 @@
-[JS Api](../index.md) / SourceFile
+---
+jsApi: true
+title: "[I] SourceFile"
 
-# Interface: SourceFile
+---
+## Extended by
 
-## Hierarchy
-
-- **`SourceFile`**
-
-  ↳ [`ServerSourceFile`](ServerSourceFile.md)
-
-## Table of contents
-
-### Properties
-
-- [path](SourceFile.md#path)
-- [text](SourceFile.md#text)
-
-### Methods
-
-- [getLineAndCharacterOfPosition](SourceFile.md#getlineandcharacterofposition)
-- [getLineStarts](SourceFile.md#getlinestarts)
+- [`ServerSourceFile`](ServerSourceFile.md)
 
 ## Properties
 
-### path
-
-• `Readonly` **path**: `string`
-
-The source file path.
-
-This is used only for diagnostics. The command line compiler will populate
-it with the actual path from which the file was read, but it can actually
-be an arbitrary name for other scenarios.
-
-___
-
-### text
-
-• `Readonly` **text**: `string`
-
-The source code text.
+| Property | Modifier | Type | Description |
+| :------ | :------ | :------ | :------ |
+| `path` | `readonly` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. |
+| `text` | `readonly` | `string` | The source code text. |
 
 ## Methods
 
-### getLineAndCharacterOfPosition
+### getLineAndCharacterOfPosition()
 
-▸ **getLineAndCharacterOfPosition**(`position`): [`LineAndCharacter`](LineAndCharacter.md)
+```ts
+getLineAndCharacterOfPosition(position): LineAndCharacter
+```
 
 Converts a one-dimensional position in the document (measured in UTF-16
 code units) to line number and offset from line start.
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `position` | `number` |
 
@@ -59,11 +35,13 @@ code units) to line number and offset from line start.
 
 [`LineAndCharacter`](LineAndCharacter.md)
 
-___
+***
 
-### getLineStarts
+### getLineStarts()
 
-▸ **getLineStarts**(): readonly `number`[]
+```ts
+getLineStarts(): readonly number[]
+```
 
 Array of positions in the text where each line begins. There is one entry
 per line, in order of lines, and each entry represents the offset in UTF-16

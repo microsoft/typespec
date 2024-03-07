@@ -1,0 +1,59 @@
+openapi: 3.0.0
+info:
+  title: sample
+  version: 0.0.0
+tags: []
+paths:
+  /time:
+    get:
+      operationId: Time_get
+      description: Get time value "11:34:56"
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: string
+                format: time
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Time_put
+      description: Put time value "08:07:56"
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              format: time
+components:
+  schemas:
+    Error:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+          format: int32
+        message:
+          type: string
+      description: Error

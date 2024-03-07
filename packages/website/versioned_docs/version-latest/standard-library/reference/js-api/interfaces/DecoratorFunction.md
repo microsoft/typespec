@@ -1,33 +1,29 @@
-[JS Api](../index.md) / DecoratorFunction
+---
+jsApi: true
+title: "[I] DecoratorFunction"
 
-# Interface: DecoratorFunction
+---
+```ts
+interface DecoratorFunction(
+   program, 
+   target, ...
+   customArgs): void
+```
 
-## Callable
+## Parameters
 
-### DecoratorFunction
-
-▸ **DecoratorFunction**(`program`, `target`, `...customArgs`): `void`
-
-#### Parameters
-
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `program` | [`DecoratorContext`](DecoratorContext.md) |
 | `target` | `any` |
-| `...customArgs` | `any`[] |
+| ...`customArgs` | `any`[] |
 
-#### Returns
+## Returns
 
 `void`
 
-## Table of contents
-
-### Properties
-
-- [namespace](DecoratorFunction.md#namespace)
-
 ## Properties
 
-### namespace
-
-• `Optional` **namespace**: `string`
+| Property | Type |
+| :------ | :------ |
+| `namespace?` | `string` |

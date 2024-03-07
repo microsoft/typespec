@@ -1,76 +1,15 @@
-[JS Api](../index.md) / ServerHost
+---
+jsApi: true
+title: "[I] ServerHost"
 
-# Interface: ServerHost
-
-## Table of contents
-
-### Properties
-
-- [compilerHost](ServerHost.md#compilerhost)
-- [throwInternalErrors](ServerHost.md#throwinternalerrors)
-
-### Methods
-
-- [getOpenDocumentByURL](ServerHost.md#getopendocumentbyurl)
-- [log](ServerHost.md#log)
-- [sendDiagnostics](ServerHost.md#senddiagnostics)
-
+---
 ## Properties
 
-### compilerHost
-
-• **compilerHost**: [`CompilerHost`](CompilerHost.md)
-
-___
-
-### throwInternalErrors
-
-• `Optional` **throwInternalErrors**: `boolean`
-
-## Methods
-
-### getOpenDocumentByURL
-
-▸ **getOpenDocumentByURL**(`url`): `undefined` \| `TextDocument`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `url` | `string` |
-
-#### Returns
-
-`undefined` \| `TextDocument`
-
-___
-
-### log
-
-▸ **log**(`message`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `message` | `string` |
-
-#### Returns
-
-`void`
-
-___
-
-### sendDiagnostics
-
-▸ **sendDiagnostics**(`params`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `params` | `PublishDiagnosticsParams` |
-
-#### Returns
-
-`void`
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `applyEdit` | `readonly` | (`paramOrEdit`: `WorkspaceEdit` \| `ApplyWorkspaceEditParams`) => `Promise`<`ApplyWorkspaceEditResult`\> |
+| `compilerHost` | `readonly` | [`CompilerHost`](CompilerHost.md) |
+| `getOpenDocumentByURL` | `readonly` | (`url`: `string`) => `undefined` \| `TextDocument` |
+| `log` | `readonly` | (`message`: `string`) => `void` |
+| `sendDiagnostics` | `readonly` | (`params`: `PublishDiagnosticsParams`) => `void` |
+| `throwInternalErrors?` | `readonly` | `boolean` |

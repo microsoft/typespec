@@ -9,9 +9,9 @@ title: Type relations
 
 ```mermaid
 graph RL
-    record["Record<T>"] --> unknown
+    record["Record<Element>"] --> unknown
     customModel["Custom model with properties"] --> record["Record<T>"]
-    array["Array<T>"] --> unknown
+    array["Array<Element>"] --> unknown
     tuple["Tuple"] --> array
     numeric --> unknown
     subgraph numerics[For numeric types, a narrower type can be assigned to a wider one]
@@ -85,7 +85,7 @@ model S {
 
 ## `Record<T>`
 
-A record is a model indexed with a string with value of T. This means that it represents a model where all properties(string key) are assignable to the type T. You can assign a model expression where all the properties are of type T or another model that `is` also a `Record<T>`
+A record is a model indexed with a string with value of T. This means that it represents a model where all properties (string keys) are assignable to the type T. You can assign a model expression where all the properties are of type T or another model that `is` also a `Record<T>`
 
 ```typespec
 // Represent an object where all the values are int32.

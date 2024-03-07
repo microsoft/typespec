@@ -1,6 +1,7 @@
 import { deepStrictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { RekeyableMap } from "../src/core/index.js";
-import { createRekeyableMap } from "../src/core/util.js";
+import { createRekeyableMap } from "../src/utils/misc.js";
 
 describe("compiler: util", () => {
   describe("RekeyableMap", () => {
@@ -68,6 +69,26 @@ describe("compiler: util", () => {
           ["a", "pos 1"],
           ["renamed", "pos 2"],
           ["c", "pos 3"],
+          ["d", "pos 4"],
+        ]
+      );
+    });
+
+    it("rekeying to existing key override the target", () => {
+      const map = createRekeyableMap([
+        ["a", "pos 1"],
+        ["b", "pos 2"],
+        ["c", "pos 3"],
+        ["d", "pos 4"],
+      ]);
+
+      map.rekey("c", "b");
+
+      deepStrictEqual(
+        [...map.entries()],
+        [
+          ["a", "pos 1"],
+          ["b", "pos 3"],
           ["d", "pos 4"],
         ]
       );

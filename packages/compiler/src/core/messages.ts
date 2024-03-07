@@ -1,8 +1,7 @@
 // Static assert: this won't compile if one of the entries above is invalid.
-
-import { createDiagnosticCreator } from "./diagnostics.js";
-import { paramMessage } from "./library.js";
-import { TypeOfDiagnostics } from "./types.js";
+import { createDiagnosticCreator } from "./diagnostic-creator.js";
+import { paramMessage } from "./param-message.js";
+import type { TypeOfDiagnostics } from "./types.js";
 
 const diagnostics = {
   /**
@@ -211,6 +210,12 @@ const diagnostics = {
       default: "Required template parameters must not follow optional template parameters",
     },
   },
+  "invalid-template-argument-name": {
+    severity: "error",
+    messages: {
+      default: "Template parameter argument names must be valid, bare identifiers.",
+    },
+  },
   "invalid-template-default": {
     severity: "error",
     messages: {
@@ -256,9 +261,6 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: "Using must refer to a namespace",
-      decorator: "Can't use a decorator",
-      function: "Can't use a function",
-      projection: "Can't use a projection",
     },
   },
   "invalid-type-ref": {
@@ -274,8 +276,12 @@ const diagnostics = {
     messages: {
       default: "Invalid template arguments.",
       notTemplate: "Can't pass template arguments to non-templated type",
-      tooFew: "Too few template arguments provided.",
       tooMany: "Too many template arguments provided.",
+      unknownName: paramMessage`No parameter named '${"name"}' exists in the target template.`,
+      positionalAfterNamed:
+        "Positional template arguments cannot follow named arguments in the same argument list.",
+      missing: paramMessage`Template argument '${"name"}' is required and not specified.`,
+      specifiedAgain: paramMessage`Cannot specify template argument '${"name"}' again.`,
     },
   },
   "intersect-non-model": {
@@ -290,6 +296,18 @@ const diagnostics = {
       default: "Cannot intersect incompatible models.",
       never: "Cannot intersect a model that cannot hold properties.",
       array: "Cannot intersect an array model.",
+    },
+  },
+  "incompatible-indexer": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property is incompatible with indexer:\n${"message"}`,
+    },
+  },
+  "no-array-properties": {
+    severity: "error",
+    messages: {
+      default: "Array models cannot have any properties.",
     },
   },
   "intersect-duplicate-property": {
@@ -323,6 +341,7 @@ const diagnostics = {
       inDecorator: paramMessage`Cannot resolve ${"id"} in decorator`,
       underNamespace: paramMessage`Namespace ${"namespace"} doesn't have member ${"id"}`,
       underContainer: paramMessage`${"kind"} doesn't have member ${"id"}`,
+      metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
     },
   },
@@ -369,6 +388,7 @@ const diagnostics = {
     messages: {
       default: "Cannot spread properties of non-model type.",
       neverIndex: "Cannot spread type because it cannot hold properties.",
+      selfSpread: "Cannot spread type within its own declaration.",
     },
   },
   "unsupported-default": {
@@ -480,6 +500,19 @@ const diagnostics = {
       default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
     },
   },
+  "invalid-deprecation-argument": {
+    severity: "error",
+    messages: {
+      default: paramMessage`#deprecation directive is expecting a string literal as the message but got a "${"kind"}"`,
+      missing: "#deprecation directive is expecting a message argument but none was provided.",
+    },
+  },
+  "duplicate-deprecation": {
+    severity: "warning",
+    messages: {
+      default: "The #deprecated directive cannot be used more than once on the same declaration.",
+    },
+  },
 
   /**
    * Configuration
@@ -574,6 +607,13 @@ const diagnostics = {
         "Projections are experimental - your code will need to change as this feature evolves.",
     },
   },
+  "non-literal-string-template": {
+    severity: "error",
+    messages: {
+      default:
+        "Value interpolated in this string template cannot be converted to a string. Only literal types can be automatically interpolated.",
+    },
+  },
 
   /**
    * Binder
@@ -638,6 +678,16 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
+    },
+  },
+
+  /**
+   * Formatter
+   */
+  "format-failed": {
+    severity: "error",
+    messages: {
+      default: paramMessage`File '${"file"}' failed to format. ${"details"}`,
     },
   },
 
@@ -725,6 +775,27 @@ const diagnostics = {
       default: "Invalid encoding",
       wrongType: paramMessage`Encoding '${"encoding"}' cannot be used on type '${"type"}'. Expected: ${"expected"}.`,
       wrongEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'.`,
+      wrongNumericEncodingType: paramMessage`Encoding '${"encoding"}' on type '${"type"}' is expected to be serialized as '${"expected"}' but got '${"actual"}'. Set '@encode' 2nd parameter to be of type ${"expected"}. e.g. '@encode("${"encoding"}", int32)'`,
+    },
+  },
+
+  "invalid-mime-type": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Invalid mime type '${"mimeType"}'`,
+    },
+  },
+  "no-mime-type-suffix": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Cannot use mime type '${"mimeType"}' with suffix '${"suffix"}'. Use a simple mime \`type/subtype\` instead.`,
+    },
+  },
+  "encoded-name-conflict": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Encoded name '${"name"}' conflicts with existing member name for mime type '${"mimeType"}'`,
+      duplicate: paramMessage`Same encoded name '${"name"}' is used for 2 members '${"mimeType"}'`,
     },
   },
 
@@ -789,6 +860,12 @@ const diagnostics = {
       default: paramMessage`Type '${"typeName"}' recursively references itself as a base type.`,
     },
   },
+  "circular-constraint": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Type parameter '${"typeName"}' has a circular constraint.`,
+    },
+  },
   "circular-op-signature": {
     severity: "error",
     messages: {
@@ -801,12 +878,41 @@ const diagnostics = {
       default: paramMessage`Alias type '${"typeName"}' recursively references itself.`,
     },
   },
+  "circular-prop": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property '${"propName"}' recursively references itself.`,
+    },
+  },
   "conflict-marker": {
     severity: "error",
     messages: {
       default: "Conflict marker encountered.",
     },
   },
+
+  // #region CLI
+  "no-compatible-vs-installed": {
+    severity: "error",
+    messages: {
+      default: "No compatible version of Visual Studio found.",
+    },
+  },
+  "vs-extension-windows-only": {
+    severity: "error",
+    messages: {
+      default: "Visual Studio extension is not supported on non-Windows.",
+    },
+  },
+  "vscode-in-path": {
+    severity: "error",
+    messages: {
+      default:
+        "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.",
+      osx: "Couldn't find VS Code 'code' command in PATH. Make sure you have the VS Code executable added to the system PATH.\nSee instruction for Mac OS here https://code.visualstudio.com/docs/setup/mac",
+    },
+  },
+  // #endregion CLI
 } as const;
 
 export type CompilerDiagnostics = TypeOfDiagnostics<typeof diagnostics>;

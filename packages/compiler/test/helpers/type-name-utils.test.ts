@@ -1,5 +1,6 @@
 import { strictEqual } from "assert";
-import { getTypeName, TypeNameOptions } from "../../src/core/index.js";
+import { describe, it } from "vitest";
+import { TypeNameOptions, getTypeName } from "../../src/core/index.js";
 import { createTestRunner } from "../../src/testing/test-host.js";
 
 describe("compiler: TypeNameUtils", () => {
@@ -43,6 +44,12 @@ describe("compiler: TypeNameUtils", () => {
         `namespace Foo.TypeSpec {@test("target") scalar unreal; }`,
         "Foo.TypeSpec.unreal"
       ));
+  });
+
+  describe("union", () => {
+    it("simple named union", () => assertNameFor(`@test("target") union Pet {}`, "Pet"));
+    it("include namespace qualifier", () =>
+      assertNameFor(`namespace Foo { @test("target") union Pet {} }`, "Foo.Pet"));
   });
 
   describe("Standard library", () => {

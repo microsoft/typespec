@@ -1,10 +1,10 @@
 {
   "name": "typespec-vs",
   "author": "Microsoft Corporation",
-  "version": "0.45.0",
+  "version": "0.54.0",
   "description": "TypeSpec Language Support for Visual Studio",
-  "homepage": "https://microsoft.github.io/typespec",
-  "readme": "https://github.com/microsoft/typespec/blob/master/README.md",
+  "homepage": "https://typespec.io",
+  "readme": "https://github.com/microsoft/typespec/blob/main/README.md",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "files": [
     "Microsoft.TypeSpec.VS.vsix"
@@ -27,7 +27,7 @@
     "build": "node scripts/build.js"
   },
   "devDependencies": {
-    "typespec-vscode": "workspace:~0.45.0",
-    "@typespec/internal-build-utils": "workspace:~0.4.2"
+    "@typespec/internal-build-utils": "workspace:~",
+    "typespec-vscode": "workspace:~"
   }
 }

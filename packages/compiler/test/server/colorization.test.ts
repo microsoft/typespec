@@ -2,24 +2,14 @@ import { deepStrictEqual, ok } from "assert";
 import { readFile } from "fs/promises";
 import { createRequire } from "module";
 import { dirname, resolve } from "path";
-import { fileURLToPath } from "url";
+import { describe, it } from "vitest";
 import vscode_oniguruma from "vscode-oniguruma";
 import vscode_textmate, { IOnigLib, StateStack } from "vscode-textmate";
-import { createSourceFile } from "../../src/core/diagnostics.js";
-import { SemanticToken, SemanticTokenKind } from "../../src/server/serverlib.js";
+import { createSourceFile } from "../../src/core/source-file.js";
 import { TypeSpecScope } from "../../src/server/tmlanguage.js";
+import { SemanticToken, SemanticTokenKind } from "../../src/server/types.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
-
-// vscode-oniguruma depends on those type from the DOM library.
-// As we are only using this in this test it is better to not add the whole DOM library just for this.
-declare global {
-  type Response = any;
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace WebAssembly {
-    type WebAssemblyInstantiatedSource = any;
-    type ImportValue = any;
-  }
-}
+import { findTestPackageRoot } from "../../src/testing/test-utils.js";
 
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
@@ -69,6 +59,10 @@ const Token = {
     type: (name: string) => createToken(name, "entity.name.type.tsp"),
   },
 
+  tspdoc: {
+    tag: (name: string) => createToken(name, "keyword.tag.tspdoc"),
+  },
+
   operators: {
     assignment: createToken("=", "keyword.operator.assignment.tsp"),
     optional: createToken("?", "keyword.operator.optional.tsp"),
@@ -93,12 +87,22 @@ const Token = {
       begin: createToken("<", "punctuation.definition.typeparameters.begin.tsp"),
       end: createToken(">", "punctuation.definition.typeparameters.end.tsp"),
     },
+    templateExpression: {
+      begin: createToken("${", "punctuation.definition.template-expression.begin.tsp"),
+      end: createToken("}", "punctuation.definition.template-expression.end.tsp"),
+    },
   },
 
   literals: {
+    escape: (char: string) => createToken(`\\${char}`, "constant.character.escape.tsp"),
     numeric: (text: string) => createToken(text, "constant.numeric.tsp"),
-    string: (text: string) =>
-      createToken(text.startsWith('"') ? text : '"' + text + '"', "string.quoted.double.tsp"),
+    stringQuoted: (text: string) => createToken('"' + text + '"', "string.quoted.double.tsp"),
+    string: (text: string) => createToken(text, "string.quoted.double.tsp"),
+    stringTriple: (text: string) => createToken(text, "string.quoted.triple.tsp"),
+  },
+  comment: {
+    block: (text: string) => createToken(text, "comment.block.tsp"),
+    line: (text: string) => createToken(text, "comment.line.double-slash.tsp"),
   },
 } as const;
 
@@ -106,7 +110,143 @@ testColorization("semantic colorization", tokenizeSemantic);
 testColorization("tmlanguage", tokenizeTMLanguage);
 
 function testColorization(description: string, tokenize: Tokenize) {
+  function joinTokensInSemantic<T extends Token>(tokens: T[], separator: "" | "\n" = ""): T[] {
+    if (tokenize === tokenizeSemantic) {
+      return [createToken(tokens.map((x) => x.text).join(separator), tokens[0].scope)] as any;
+    }
+    return tokens;
+  }
+
   describe(`compiler: server: ${description}`, () => {
+    describe("strings", () => {
+      function templateTripleOrDouble(text: string): Token {
+        return tokenize === tokenizeSemantic
+          ? Token.literals.string(text)
+          : Token.literals.stringTriple(text);
+      }
+
+      describe("single line", () => {
+        it("tokenize template", async () => {
+          const tokens = await tokenize(`"Start \${123} end"`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic([Token.literals.string('"'), Token.literals.string("Start ")]),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            ...joinTokensInSemantic([Token.literals.string(" end"), Token.literals.string('"')]),
+          ]);
+        });
+
+        it("tokenize template with multiple interpolation", async () => {
+          const tokens = await tokenize(`"Start \${123} middle \${456} end"`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic([Token.literals.string('"'), Token.literals.string("Start ")]),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            Token.literals.string(" middle "),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("456"),
+            Token.punctuation.templateExpression.end,
+            ...joinTokensInSemantic([Token.literals.string(" end"), Token.literals.string('"')]),
+          ]);
+        });
+
+        it("tokenize as a string if the template expression are escaped", async () => {
+          const tokens = await tokenize(`"Start \\\${123} end"`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic([
+              Token.literals.string('"'),
+              Token.literals.string("Start "),
+              Token.literals.escape("$"),
+              Token.literals.string("{123} end"),
+              Token.literals.string('"'),
+            ]),
+          ]);
+        });
+
+        it("tokenize as a string if it is a simple string", async () => {
+          const tokens = await tokenize(`"Start end"`);
+          deepStrictEqual(tokens, [Token.literals.stringQuoted("Start end")]);
+        });
+      });
+
+      describe("multi line", () => {
+        it("tokenize template", async () => {
+          const tokens = await tokenize(`"""
+          Start \${123} 
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic(
+              [Token.literals.stringTriple('"""'), Token.literals.stringTriple("          Start ")],
+              "\n"
+            ),
+            Token.punctuation.templateExpression.begin,
+            Token.literals.numeric("123"),
+            Token.punctuation.templateExpression.end,
+            ...joinTokensInSemantic(
+              [
+                templateTripleOrDouble(" "),
+                templateTripleOrDouble("          end"),
+                ...joinTokensInSemantic([
+                  templateTripleOrDouble("          "),
+                  templateTripleOrDouble('"""'),
+                ]),
+              ],
+              "\n"
+            ),
+          ]);
+        });
+
+        it("tokenize as a string if the template expression are escaped", async () => {
+          const tokens = await tokenize(`"""
+          Start \\\${123} 
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic(
+              [
+                Token.literals.stringTriple('"""'),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          Start "),
+                  Token.literals.escape("$"),
+                  Token.literals.stringTriple("{123} "),
+                ]),
+                Token.literals.stringTriple("          end"),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          "),
+                  Token.literals.stringTriple('"""'),
+                ]),
+              ],
+              "\n"
+            ),
+          ]);
+        });
+
+        it("tokenize as a simple string", async () => {
+          const tokens = await tokenize(`"""
+          Start
+          end
+          """`);
+          deepStrictEqual(tokens, [
+            ...joinTokensInSemantic(
+              [
+                Token.literals.stringTriple(`"""`),
+                Token.literals.stringTriple("          Start"),
+                Token.literals.stringTriple("          end"),
+                ...joinTokensInSemantic([
+                  Token.literals.stringTriple("          "),
+                  Token.literals.stringTriple(`"""`),
+                ]),
+              ],
+              "\n"
+            ),
+          ]);
+        });
+      });
+    });
+
     describe("aliases", () => {
       it("simple alias", async () => {
         const tokens = await tokenize("alias Foo = string");
@@ -117,6 +257,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.type("string"),
         ]);
       });
+
       it("templated alias", async () => {
         const tokens = await tokenize("alias Foo<T> = T");
         deepStrictEqual(tokens, [
@@ -181,13 +322,13 @@ function testColorization(description: string, tokenize: Tokenize) {
     describe("decorators", () => {
       it("simple parameterless decorator", async () => {
         const tokens = await tokenize("@foo");
-        deepStrictEqual(tokens, [Token.identifiers.tag("@foo")]);
+        deepStrictEqual(tokens, [Token.identifiers.tag("@"), Token.identifiers.tag("foo")]);
       });
 
       it("fully qualified decorator name", async () => {
         const tokens = await tokenize("@Foo.bar");
         if (tokenize === tokenizeTMLanguage) {
-          deepStrictEqual(tokens, [Token.identifiers.tag("@Foo.bar")]);
+          deepStrictEqual(tokens, [Token.identifiers.tag("@"), Token.identifiers.tag("Foo.bar")]);
         } else {
           deepStrictEqual(tokens, [
             Token.identifiers.tag("@"),
@@ -201,9 +342,10 @@ function testColorization(description: string, tokenize: Tokenize) {
       it("decorator with parameters", async () => {
         const tokens = await tokenize(`@foo("param1", 123)`);
         deepStrictEqual(tokens, [
-          Token.identifiers.tag("@foo"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
           Token.punctuation.openParen,
-          Token.literals.string("param1"),
+          Token.literals.stringQuoted("param1"),
           Token.punctuation.comma,
           Token.literals.numeric("123"),
           Token.punctuation.closeParen,
@@ -216,7 +358,7 @@ function testColorization(description: string, tokenize: Tokenize) {
         Token.punctuation.openParen,
         Token.identifiers.type("MyModel"),
         Token.punctuation.comma,
-        Token.literals.string("param1"),
+        Token.literals.stringQuoted("param1"),
         Token.punctuation.comma,
         Token.literals.numeric("123"),
         Token.punctuation.closeParen,
@@ -224,22 +366,22 @@ function testColorization(description: string, tokenize: Tokenize) {
 
       it("decorator", async () => {
         const tokens = await tokenize(`@@foo(MyModel, "param1", 123)`);
-        if (tokenize === tokenizeTMLanguage) {
-          deepStrictEqual(tokens, [Token.identifiers.tag("@@foo"), ...params]);
-        } else {
-          deepStrictEqual(tokens, [
-            Token.identifiers.tag("@@"),
-            Token.identifiers.tag("foo"),
-            ...params,
-          ]);
-        }
+        deepStrictEqual(tokens, [
+          Token.identifiers.tag("@@"),
+          Token.identifiers.tag("foo"),
+          ...params,
+        ]);
       });
 
       it("fully qualified decorator name", async () => {
         const tokens = await tokenize(`@@Foo.bar(MyModel, "param1", 123)`);
 
         if (tokenize === tokenizeTMLanguage) {
-          deepStrictEqual(tokens, [Token.identifiers.tag("@@Foo.bar"), ...params]);
+          deepStrictEqual(tokens, [
+            Token.identifiers.tag("@@"),
+            Token.identifiers.tag("Foo.bar"),
+            ...params,
+          ]);
         } else {
           deepStrictEqual(tokens, [
             Token.identifiers.tag("@@"),
@@ -522,7 +664,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.operators.assignment,
-          Token.literals.string("my-default"),
+          Token.literals.stringQuoted("my-default"),
           Token.punctuation.semicolon,
           Token.punctuation.closeBrace,
         ]);
@@ -601,6 +743,28 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.semicolon,
         ]);
       });
+    });
+
+    it("named template argument list", async () => {
+      const tokens = await tokenize("alias X = Foo<boolean, T = string, U = int32>;");
+      deepStrictEqual(tokens, [
+        Token.keywords.alias,
+        Token.identifiers.type("X"),
+        Token.operators.assignment,
+        Token.identifiers.type("Foo"),
+        Token.punctuation.typeParameters.begin,
+        Token.identifiers.type("boolean"),
+        Token.punctuation.comma,
+        Token.identifiers.type("T"),
+        Token.operators.assignment,
+        Token.identifiers.type("string"),
+        Token.punctuation.comma,
+        Token.identifiers.type("U"),
+        Token.operators.assignment,
+        Token.identifiers.type("int32"),
+        Token.punctuation.typeParameters.end,
+        Token.punctuation.semicolon,
+      ]);
     });
 
     describe("namespaces", () => {
@@ -704,7 +868,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.operators.assignment,
-          Token.literals.string("my-default"),
+          Token.literals.stringQuoted("my-default"),
 
           Token.punctuation.closeParen,
           Token.operators.typeAnnotation,
@@ -721,13 +885,15 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.identifiers.functionName("foo"),
           Token.punctuation.openParen,
 
-          Token.identifiers.tag("@path"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("path"),
           Token.identifiers.variable("param1"),
           Token.operators.typeAnnotation,
           Token.identifiers.type("string"),
           Token.punctuation.comma,
 
-          Token.identifiers.tag("@query"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("query"),
           Token.identifiers.variable("param2"),
           Token.operators.optional,
           Token.operators.typeAnnotation,
@@ -805,6 +971,142 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.operators.typeAnnotation,
           Token.identifiers.type("StringLiteral"),
           Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    if (tokenize === tokenizeTMLanguage) {
+      describe("comments", () => {
+        it("tokenize empty line comment", async () => {
+          const tokens = await tokenize(`
+        //
+        `);
+          deepStrictEqual(tokens, [Token.comment.line("//")]);
+        });
+        it("tokenize line comment", async () => {
+          const tokens = await tokenize(`
+        // This is a line comment
+        `);
+          deepStrictEqual(tokens, [Token.comment.line("// This is a line comment")]);
+        });
+        it("tokenize line comment before statement", async () => {
+          const tokens = await tokenize(`
+        // Comment
+        model Foo {}
+        `);
+          deepStrictEqual(tokens, [
+            Token.comment.line("// Comment"),
+            Token.keywords.model,
+            Token.identifiers.type("Foo"),
+            Token.punctuation.openBrace,
+            Token.punctuation.closeBrace,
+          ]);
+        });
+
+        it("tokenize single line block comment", async () => {
+          const tokens = await tokenize(`
+          /* Comment */
+          `);
+          deepStrictEqual(tokens, [
+            Token.comment.block("/*"),
+            Token.comment.block(" Comment "),
+            Token.comment.block("*/"),
+          ]);
+        });
+
+        it("tokenize multi line block comment", async () => {
+          const tokens = await tokenize(`
+          /*
+            Comment
+            on multi line
+          */
+          `);
+          deepStrictEqual(tokens, [
+            Token.comment.block("/*"),
+            Token.comment.block("            Comment"),
+            Token.comment.block("            on multi line"),
+            Token.comment.block("          "),
+            Token.comment.block("*/"),
+          ]);
+        });
+      });
+    }
+
+    /**
+     * Doc comment
+     * @param foo Foo desc
+     */
+    describe("doc comments", () => {
+      async function tokenizeDocComment(text: string) {
+        const tokens = await tokenize(text);
+        return tokens.filter((x) => !(x.scope === "comment.block.tsp"));
+      }
+
+      const common = [
+        Token.keywords.alias,
+        Token.identifiers.type("A"),
+        Token.operators.assignment,
+        Token.literals.numeric("1"),
+        Token.punctuation.semicolon,
+      ];
+      it("tokenize @param", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @param foo Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [
+          Token.tspdoc.tag("@"),
+          Token.tspdoc.tag("param"),
+          Token.identifiers.variable("foo"),
+          ...common,
+        ]);
+      });
+
+      it("tokenize @template", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @template foo Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [
+          Token.tspdoc.tag("@"),
+          Token.tspdoc.tag("template"),
+          Token.identifiers.variable("foo"),
+          ...common,
+        ]);
+      });
+
+      it("tokenize @returns", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @returns Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [Token.tspdoc.tag("@"), Token.tspdoc.tag("returns"), ...common]);
+      });
+      it("tokenize @custom", async () => {
+        const tokens = await tokenizeDocComment(
+          `/**
+            * Doc comment
+            * @custom Foo desc
+            */
+          alias A = 1;`
+        );
+
+        deepStrictEqual(tokens, [
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("custom"),
+          ...common,
         ]);
       });
     });
@@ -951,25 +1253,27 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
   const semanticTokens = await host.server.getSemanticTokens({ textDocument: document });
   const tokens = [];
 
+  let templateStack = 0;
   for (const semanticToken of semanticTokens) {
     const text = file.text.substring(semanticToken.pos, semanticToken.end);
-    const token = convertSemanticToken(semanticToken, text);
-    if (token) {
-      tokens.push(token);
+    if (text === "${" && semanticToken.kind === SemanticTokenKind.Operator) {
+      templateStack++;
+      tokens.push(Token.punctuation.templateExpression.begin);
+    } else if (
+      templateStack > 0 &&
+      text === "}" &&
+      semanticToken.kind === SemanticTokenKind.Operator
+    ) {
+      templateStack--;
+      tokens.push(Token.punctuation.templateExpression.end);
+    } else {
+      const token = convertSemanticToken(semanticToken, text);
+      if (token) {
+        tokens.push(token);
+      }
     }
   }
 
-  // Make @myDec one token to match tmlanguage
-  for (let i = 0; i < tokens.length - 1; i++) {
-    if (
-      tokens[i].scope === "entity.name.tag.tsp" &&
-      tokens[i].text === "@" &&
-      tokens[i + 1].scope === "entity.name.tag.tsp"
-    ) {
-      tokens[i].text = "@" + tokens[i + 1].text;
-      tokens.splice(i + 1, 1);
-    }
-  }
   return tokens;
 
   function convertSemanticToken(token: SemanticToken, text: string): Token | undefined {
@@ -994,7 +1298,11 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
       case SemanticTokenKind.Keyword:
         return Token.keywords.other(text);
       case SemanticTokenKind.String:
-        return Token.literals.string(text);
+        return text.startsWith(`"""`)
+          ? Token.literals.stringTriple(text)
+          : Token.literals.string(text);
+      case SemanticTokenKind.Comment:
+        return Token.comment.block(text);
       case SemanticTokenKind.Number:
         return Token.literals.numeric(text);
       case SemanticTokenKind.Operator:
@@ -1003,6 +1311,8 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
         const punctuation = punctuationMap.get(text);
         ok(punctuation, `No tmlanguage equivalent for punctuation: "${text}".`);
         return punctuation;
+      case SemanticTokenKind.DocCommentTag:
+        return Token.tspdoc.tag(text);
       default:
         ok(false, "Unexpected SemanticTokenKind: " + SemanticTokenKind[token.kind]);
     }
@@ -1025,7 +1335,7 @@ const registry = new Registry({
   onigLib: createOnigLib(),
   loadGrammar: async () => {
     const data = await readFile(
-      resolve(dirname(fileURLToPath(import.meta.url)), "../../typespec.tmLanguage"),
+      resolve(await findTestPackageRoot(import.meta.url), "dist/typespec.tmLanguage"),
       "utf-8"
     );
     return parseRawGrammar(data);
@@ -1098,7 +1408,10 @@ interface Span {
 }
 
 class Input {
-  private constructor(public lines: string[], public span: Span) {}
+  private constructor(
+    public lines: string[],
+    public span: Span
+  ) {}
 
   public static fromText(text: string) {
     // ensure consistent line-endings irrelevant of OS
@@ -1125,7 +1438,9 @@ function getPunctuationMap(): ReadonlyMap<string, Token> {
       if ("text" in value) {
         map.set(value.text, value);
       } else {
-        visit(value);
+        if (value !== Token.punctuation.templateExpression) {
+          visit(value);
+        }
       }
     }
   }

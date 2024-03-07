@@ -1,13 +1,25 @@
 import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
+import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
+import {
+  deepEquals,
+  doIO,
+  findProjectRoot,
+  isDefined,
+  mapEquals,
+  mutate,
+  resolveTspMain,
+} from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { compilerAssert, createSourceFile } from "./diagnostics.js";
+import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
+import { compilerAssert } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
   resolveTypeSpecEntrypointForDir,
 } from "./entrypoint-resolution.js";
+import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
 import { createLinter } from "./linter.js";
 import { createLogger } from "./logger/index.js";
@@ -22,8 +34,9 @@ import {
 } from "./module-resolver.js";
 import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
-import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
+import { getDirectoryPath, joinPaths } from "./path-utils.js";
 import { createProjector } from "./projector.js";
+import { createSourceFile } from "./source-file.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -54,16 +67,6 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-import {
-  ExternalError,
-  deepEquals,
-  doIO,
-  findProjectRoot,
-  isDefined,
-  mapEquals,
-  mutate,
-  resolveTspMain,
-} from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;
@@ -89,7 +92,10 @@ export interface Program {
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
-  onValidate(cb: (program: Program) => void | Promise<void>): void;
+  onValidate(
+    cb: (program: Program) => void | Promise<void>,
+    LibraryMetadata: LibraryMetadata
+  ): void;
   getOption(key: string): string | undefined;
   stateSet(key: symbol): Set<Type>;
   stateSets: Map<symbol, StateSet>;
@@ -120,11 +126,19 @@ interface EmitterRef {
   options: Record<string, unknown>;
 }
 
+interface Validator {
+  metadata: LibraryMetadata;
+  callback: (program: Program) => void | Promise<void>;
+}
+
 class StateMap extends Map<undefined | Projector, Map<Type, unknown>> {}
 class StateSet extends Map<undefined | Projector, Set<Type>> {}
 
 class StateMapView<V> implements Map<Type, V> {
-  public constructor(private state: StateMap, private projector?: Projector) {}
+  public constructor(
+    private state: StateMap,
+    private projector?: Projector
+  ) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -185,7 +199,10 @@ class StateMapView<V> implements Map<Type, V> {
 }
 
 class StateSetView implements Set<Type> {
-  public constructor(private state: StateSet, private projector?: Projector) {}
+  public constructor(
+    private state: StateSet,
+    private projector?: Projector
+  ) {}
 
   has(t: Type) {
     return this.dispatch(t)?.has(t) ?? false;
@@ -260,7 +277,7 @@ export async function compile(
   options: CompilerOptions = {},
   oldProgram?: Program // NOTE: deliberately separate from options to avoid memory leak by chaining all old programs together.
 ): Promise<Program> {
-  const validateCbs: any = [];
+  const validateCbs: Validator[] = [];
   const stateMaps = new Map<symbol, StateMap>();
   const stateSets = new Map<symbol, StateSet>();
   const diagnostics: Diagnostic[] = [];
@@ -298,8 +315,8 @@ export async function compile(
     hasError() {
       return error;
     },
-    onValidate(cb) {
-      validateCbs.push(cb);
+    onValidate(cb, metadata) {
+      validateCbs.push({ callback: cb, metadata });
     },
     getGlobalNamespaceType,
     resolveTypeReference,
@@ -370,35 +387,9 @@ export async function compile(
     return program;
   }
   // onValidate stage
-  for (const cb of validateCbs) {
-    try {
-      await cb(program);
-    } catch (error: any) {
-      if (options.designTimeBuild) {
-        program.reportDiagnostic(
-          createDiagnostic({
-            code: "on-validate-fail",
-            format: { error: error.stack },
-            target: NoTarget,
-          })
-        );
-      } else {
-        throw error;
-      }
-    }
-  }
+  await runValidators();
 
-  for (const [requiredImport, emitterName] of requireImports) {
-    if (!loadedLibraries.has(requiredImport)) {
-      program.reportDiagnostic(
-        createDiagnostic({
-          code: "missing-import",
-          format: { requiredImport, emitterName },
-          target: NoTarget,
-        })
-      );
-    }
-  }
+  validateRequiredImports();
 
   await validateLoadedLibraries();
   if (program.hasError()) {
@@ -422,9 +413,11 @@ export async function compile(
     const loadedRoots = new Set<string>();
     // Check all the files that were loaded
     for (const fileUrl of getLibraryUrlsLoaded()) {
-      const root = await findProjectRoot(host, host.fileURLToPath(fileUrl));
-      if (root) {
-        loadedRoots.add(root);
+      if (fileUrl.startsWith("file:")) {
+        const root = await findProjectRoot(host.stat, host.fileURLToPath(fileUrl));
+        if (root) {
+          loadedRoots.add(root);
+        }
       }
     }
 
@@ -670,7 +663,7 @@ export async function compile(
   ): Promise<
     [
       { module: ModuleResolutionResult; entrypoint: JsSourceFileNode | undefined } | undefined,
-      readonly Diagnostic[]
+      readonly Diagnostic[],
     ]
   > {
     const locationContext: LocationContext = { type: "project" };
@@ -712,6 +705,7 @@ export async function compile(
       ...resolution,
       metadata,
       definition: libDefinition,
+      linter: entrypoint?.esmExports.$linter,
     };
   }
 
@@ -755,7 +749,13 @@ export async function compile(
       if (libDefinition?.emitter?.options) {
         const diagnostics = libDefinition?.emitterOptionValidator?.validate(
           emitterOptions,
-          NoTarget
+          options.configFile?.file
+            ? {
+                kind: "path-target",
+                path: ["options", emitterNameOrPath],
+                script: options.configFile.file,
+              }
+            : NoTarget
         );
         if (diagnostics && diagnostics.length > 0) {
           program.reportDiagnostics(diagnostics);
@@ -807,6 +807,9 @@ export async function compile(
     if (module.manifest.bugs?.url) {
       metadata.bugs = { url: module.manifest.bugs?.url };
     }
+    if (module.manifest.version) {
+      metadata.version = module.manifest.version;
+    }
 
     return metadata;
   }
@@ -826,25 +829,51 @@ export async function compile(
     try {
       await emitter.emitFunction(context);
     } catch (error: unknown) {
-      const msg = [`Emitter "${emitter.metadata.name ?? emitter.main}" failed!`];
-      if (emitter.metadata.bugs?.url) {
-        msg.push(`File issue at ${emitter.metadata.bugs?.url}`);
-      } else {
-        msg.push(`Please contact emitter author to report this issue.`);
-      }
-      msg.push("");
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "stack" in error &&
-        typeof error.stack === "string"
-      ) {
-        msg.push(error.stack);
-      } else {
-        msg.push(String(error));
-      }
+      throw new ExternalError({ kind: "emitter", metadata: emitter.metadata, error });
+    }
+  }
 
-      throw new ExternalError(msg.join("\n"));
+  async function runValidators() {
+    runCompilerValidators();
+    for (const validator of validateCbs) {
+      await runValidator(validator);
+    }
+  }
+
+  async function runValidator(validator: Validator) {
+    try {
+      await validator.callback(program);
+    } catch (error: any) {
+      if (options.designTimeBuild) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "on-validate-fail",
+            format: { error: error.stack },
+            target: NoTarget,
+          })
+        );
+      } else {
+        throw new ExternalError({ kind: "validator", metadata: validator.metadata, error });
+      }
+    }
+  }
+
+  /** Run the compiler built-in validators */
+  function runCompilerValidators() {
+    validateEncodedNamesConflicts(program);
+  }
+
+  function validateRequiredImports() {
+    for (const [requiredImport, emitterName] of requireImports) {
+      if (!loadedLibraries.has(requiredImport)) {
+        program.reportDiagnostic(
+          createDiagnostic({
+            code: "missing-import",
+            format: { requiredImport, emitterName },
+            target: NoTarget,
+          })
+        );
+      }
     }
   }
 
@@ -963,7 +992,7 @@ export async function compile(
   // It's important that we use the compiler version that resolves locally
   // from the input TypeSpec source location. Otherwise, there will be undefined
   // runtime behavior when decorators and handlers expect a
-  // different version of typespec than the current one. Abort the compilation
+  // different version of TypeSpec than the current one. Abort the compilation
   // with an error if the TypeSpec entry point resolves to a different local
   // compiler.
   async function checkForCompilerVersionMismatch(mainPath: string): Promise<boolean> {
@@ -994,17 +1023,14 @@ export async function compile(
       throw err;
     }
 
-    const expected = resolvePath(
-      await host.realpath(host.fileURLToPath(import.meta.url)),
-      "../index.js"
-    );
+    const expected = host.getExecutionRoot();
 
-    if (actual.mainFile !== expected && MANIFEST.version !== actual.manifest.version) {
+    if (actual.path !== expected && MANIFEST.version !== actual.manifest.version) {
       const betterTypeSpecServerPath = actual.path;
       program.reportDiagnostic(
         createDiagnostic({
           code: "compiler-version-mismatch",
-          format: { basedir: baseDir, betterTypeSpecServerPath, actual: actual.mainFile, expected },
+          format: { basedir: baseDir, betterTypeSpecServerPath, actual: actual.path, expected },
           target: NoTarget,
         })
       );
@@ -1021,6 +1047,11 @@ export async function compile(
   function reportDiagnostic(diagnostic: Diagnostic): void {
     if (shouldSuppress(diagnostic)) {
       return;
+    }
+
+    if (diagnostic.severity === "warning" && diagnostic.target !== NoTarget) {
+      mutate(diagnostic).codefixes ??= [];
+      mutate(diagnostic.codefixes).push(createSuppressCodeFix(diagnostic.target, diagnostic.code));
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {
@@ -1119,6 +1150,8 @@ export async function compile(
     switch (node.target.sv) {
       case "suppress":
         return { name: "suppress", code: args[0], message: args[1], node };
+      case "deprecated":
+        return { name: "deprecated", message: args[0], node };
       default:
         throw new Error("Unexpected directive name.");
     }

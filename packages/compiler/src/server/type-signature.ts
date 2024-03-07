@@ -10,6 +10,7 @@ import {
   FunctionType,
   ModelProperty,
   Operation,
+  StringTemplate,
   Sym,
   SyntaxKind,
   Type,
@@ -54,6 +55,10 @@ function getTypeSignature(type: Type | ValueType): string {
       return `(boolean)\n${fence(type.value ? "true" : "false")}`;
     case "Number":
       return `(number)\n${fence(type.value.toString())}`;
+    case "StringTemplate":
+      return `(string template)\n${fence(getStringTemplateSignature(type))}`;
+    case "StringTemplateSpan":
+      return `(string template span)\n${fence(getTypeName(type.type))}`;
     case "Intrinsic":
       return "";
     case "FunctionParameter":
@@ -103,6 +108,18 @@ function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
   return `${rest}${printId(parameter.name)}${optional}: ${getTypeName(parameter.type)}`;
+}
+
+function getStringTemplateSignature(stringTemplate: StringTemplate) {
+  return (
+    "`" +
+    [
+      stringTemplate.spans.map((span) => {
+        return span.isInterpolated ? "${" + getTypeName(span.type) + "}" : span.type.value;
+      }),
+    ].join("") +
+    "`"
+  );
 }
 
 function getModelPropertySignature(property: ModelProperty) {

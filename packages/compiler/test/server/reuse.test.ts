@@ -1,22 +1,23 @@
 import { ok } from "assert";
+import { describe, it } from "vitest";
 import { Program, SymbolTable, visitChildren } from "../../src/core/index.js";
-import { mutate } from "../../src/core/util.js";
 import {
   createTestServerHost,
   expectDiagnosticEmpty,
   resolveVirtualPath,
 } from "../../src/testing/index.js";
+import { mutate } from "../../src/utils/misc.js";
 
 describe("compiler: server: reuse", () => {
   it("reuses unchanged programs", async () => {
     const host = await createTestServerHost();
     const document = host.addOrUpdateDocument("main.tsp", "model M  {}");
-    const oldProgram = await host.server.compile(document);
-    ok(oldProgram);
-    expectDiagnosticEmpty(oldProgram.diagnostics);
-    const newProgram = await host.server.compile(document);
-    ok(newProgram);
-    expectSameProgram(oldProgram, newProgram);
+    const oldResult = await host.server.compile(document);
+    ok(oldResult);
+    expectDiagnosticEmpty(oldResult.program.diagnostics);
+    const newResult = await host.server.compile(document);
+    ok(newResult);
+    expectSameProgram(oldResult.program, newResult.program);
   });
 
   it("reuses unchanged files", async () => {
@@ -28,18 +29,18 @@ describe("compiler: server: reuse", () => {
 
     host.addOrUpdateDocument("other.tsp", otherSource);
 
-    const oldProgram = await host.server.compile(document);
-    ok(oldProgram);
-    expectDiagnosticEmpty(oldProgram.diagnostics);
+    const oldResult = await host.server.compile(document);
+    ok(oldResult);
+    expectDiagnosticEmpty(oldResult.program.diagnostics);
 
     host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
-    const newProgram = await host.server.compile(document);
-    ok(newProgram);
-    expectDiagnosticEmpty(newProgram.diagnostics);
+    const newResult = await host.server.compile(document);
+    ok(newResult);
+    expectDiagnosticEmpty(newResult.program.diagnostics);
 
-    expectNotSameProgram(oldProgram, newProgram);
-    expectNotSameSourceFile(oldProgram, newProgram, "other.tsp");
-    expectSameSourceFile(oldProgram, newProgram, "main.tsp");
+    expectNotSameProgram(oldResult.program, newResult.program);
+    expectNotSameSourceFile(oldResult.program, newResult.program, "other.tsp");
+    expectSameSourceFile(oldResult.program, newResult.program, "main.tsp");
   });
 
   it("does not mutate symbols when reusing unchanged files", async () => {
@@ -89,20 +90,20 @@ describe("compiler: server: reuse", () => {
     const host = await createTestServerHost();
     host.addOrUpdateDocument("other.tsp", otherSource);
     const document = host.addOrUpdateDocument("main.tsp", source);
-    const oldProgram = await host.server.compile(document);
-    ok(oldProgram);
-    expectDiagnosticEmpty(oldProgram.diagnostics);
+    const oldResult = await host.server.compile(document);
+    ok(oldResult);
+    expectDiagnosticEmpty(oldResult.program.diagnostics);
 
-    freezeSymbolTables(oldProgram);
+    freezeSymbolTables(oldResult.program);
 
     host.addOrUpdateDocument("other.tsp", otherSource + "// force change");
-    const newProgram = await host.server.compile(document);
-    ok(newProgram);
-    expectDiagnosticEmpty(newProgram.diagnostics);
+    const newResult = await host.server.compile(document);
+    ok(newResult);
+    expectDiagnosticEmpty(newResult.program.diagnostics);
 
-    expectNotSameProgram(oldProgram, newProgram);
-    expectNotSameSourceFile(oldProgram, newProgram, "other.tsp");
-    expectSameSourceFile(oldProgram, newProgram, "main.tsp");
+    expectNotSameProgram(oldResult.program, newResult.program);
+    expectNotSameSourceFile(oldResult.program, newResult.program, "other.tsp");
+    expectSameSourceFile(oldResult.program, newResult.program, "main.tsp");
   });
 });
 

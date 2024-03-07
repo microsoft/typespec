@@ -1,4 +1,5 @@
 import assert from "assert";
+import { describe, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
 describe("emitting scalars", () => {
@@ -31,5 +32,22 @@ describe("emitting scalars", () => {
     `);
 
     assert.strictEqual(schemas["Test.json"]["x-scalar"], true);
+  });
+
+  it("can use a scalar template", async () => {
+    const schemas = await emitSchema(`
+      scalar Test<T> extends uint8;
+
+      model TestModel {
+        test: Test<string>;
+      }
+    `);
+    assert.deepStrictEqual(schemas["TestString.json"], {
+      $id: "TestString.json",
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      type: "integer",
+      maximum: 255,
+      minimum: 0,
+    });
   });
 });

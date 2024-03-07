@@ -1,0 +1,90 @@
+openapi: 3.0.0
+info:
+  title: Binary sample
+  version: 0.0.0
+tags: []
+paths:
+  /test/base64:
+    post:
+      operationId: BytesMethod_jsonWithBase64
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HasBytes'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HasBytes'
+  /test/binaryFile:
+    post:
+      operationId: BytesMethod_genericBinaryFile
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+  /test/imagePng:
+    post:
+      operationId: BytesMethod_image
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+  /test/textPlain:
+    post:
+      operationId: BytesMethod_textPlain
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: byte
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              format: byte
+components:
+  schemas:
+    HasBytes:
+      type: object
+      required:
+        - bytes
+      properties:
+        bytes:
+          type: string
+          format: byte

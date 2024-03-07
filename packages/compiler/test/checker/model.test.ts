@@ -1,7 +1,8 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
 import { Model, ModelProperty, Type } from "../../src/core/types.js";
-import { Operation, isArrayModelType } from "../../src/index.js";
+import { Operation, getDoc, isArrayModelType, isRecordModelType } from "../../src/index.js";
 import {
   TestHost,
   createTestHost,
@@ -108,6 +109,7 @@ describe("compiler: models", () => {
       ["boolean", `true`, { kind: "Boolean", value: true, isFinished: false }],
       ["string", `"foo"`, { kind: "String", value: "foo", isFinished: false }],
       ["int32", `123`, { kind: "Number", value: 123, valueAsString: "123", isFinished: false }],
+      ["int32 | null", `null`, { kind: "Intrinsic", name: "null", isFinished: false }],
     ];
 
     for (const [type, defaultValue, expectedValue] of testCases) {
@@ -127,10 +129,10 @@ describe("compiler: models", () => {
   describe("doesn't allow a default of different type than the property type", () => {
     const testCases: [string, string, string][] = [
       ["string", "123", "Type '123' is not assignable to type 'string'"],
-      ["int32", `"foo"`, "Type 'foo' is not assignable to type 'int32'"],
-      ["boolean", `"foo"`, "Type 'foo' is not assignable to type 'boolean'"],
+      ["int32", `"foo"`, `Type '"foo"' is not assignable to type 'int32'`],
+      ["boolean", `"foo"`, `Type '"foo"' is not assignable to type 'boolean'`],
       ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'string'`],
-      [`"foo" | "bar"`, `"foo1"`, "Type 'foo1' is not assignable to type 'foo | bar'"],
+      [`"foo" | "bar"`, `"foo1"`, `Type '"foo1"' is not assignable to type '"foo" | "bar"'`],
     ];
 
     for (const [type, defaultValue, errorMessage] of testCases) {
@@ -643,6 +645,38 @@ describe("compiler: models", () => {
       strictEqual(A.indexer.value.kind, "Union");
     });
 
+    it("model is array cannot have properties", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A is string[] {
+          prop: string;
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "no-array-properties",
+        message: "Array models cannot have any properties.",
+      });
+    });
+
+    it("model extends array cannot have properties", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model A extends Array<string> {
+          prop: string;
+        }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "no-array-properties",
+        message: "Array models cannot have any properties.",
+      });
+    });
+
     it("doesn't allow duplicate properties", async () => {
       testHost.addTypeSpecFile(
         "main.tsp",
@@ -795,6 +829,149 @@ describe("compiler: models", () => {
       strictEqual((C as Model).properties.size, 2);
       strictEqual(((C as Model).properties.get("c")?.type as any).name, "int32");
       strictEqual(((C as Model).properties.get("b")?.type as any).name, "B");
+    });
+  });
+
+  describe("spread", () => {
+    it("can decorate spread properties independently", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Base {@doc("base doc") one: string}
+        @test model Spread {...Base}
+
+        @@doc(Spread.one, "override for spread");
+        `
+      );
+      const { Base, Spread } = (await testHost.compile("main.tsp")) as {
+        Base: Model;
+        Spread: Model;
+      };
+      strictEqual(getDoc(testHost.program, Spread.properties.get("one")!), "override for spread");
+      strictEqual(getDoc(testHost.program, Base.properties.get("one")!), "base doc");
+    });
+
+    it("can spread a Record<T>", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {...Record<int32>;}
+        `
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      strictEqual(Test.indexer?.key.name, "string");
+      strictEqual(Test.indexer?.value.kind, "Scalar");
+      strictEqual(Test.indexer?.value.name, "int32");
+    });
+
+    it("can spread a Record<T> with different value than existing props", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {
+          name: string;
+          ...Record<int32>;
+        }
+        `
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      const nameProp = Test.properties.get("name");
+      strictEqual(nameProp?.type.kind, "Scalar");
+      strictEqual(nameProp?.type.name, "string");
+      strictEqual(Test.indexer?.key.name, "string");
+      strictEqual(Test.indexer?.value.kind, "Scalar");
+      strictEqual(Test.indexer?.value.name, "int32");
+    });
+
+    it("can spread different records", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {
+          ...Record<int32>;
+          ...Record<string>;
+        }
+        `
+      );
+      const { Test } = (await testHost.compile("main.tsp")) as {
+        Test: Model;
+      };
+      ok(isRecordModelType(testHost.program, Test));
+      strictEqual(Test.indexer?.key.name, "string");
+      const indexerValue = Test.indexer?.value;
+      strictEqual(indexerValue.kind, "Union");
+      const options = [...indexerValue.variants.values()].map((x) => x.type);
+      strictEqual(options[0].kind, "Scalar");
+      strictEqual(options[0].name, "int32");
+      strictEqual(options[1].kind, "Scalar");
+      strictEqual(options[1].name, "string");
+    });
+
+    it("emit diagnostic if spreading an T[]", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        @test model Test {...Array<int32>;}
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "spread-model",
+        message: "Cannot spread properties of non-model type.",
+      });
+    });
+  });
+
+  describe("property circular references", () => {
+    it("emit diagnostics if property reference itself", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: A.a }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
+    });
+
+    it("emit diagnostics if property reference itself via another prop", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: B.a }
+        model B { a: A.a }
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
+    });
+
+    it("emit diagnostics if property reference itself via alias", async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { a: B.a }
+        model B { a: C }
+        alias C = A.a;
+        `
+      );
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-prop",
+        message: "Property 'a' recursively references itself.",
+      });
     });
   });
 });

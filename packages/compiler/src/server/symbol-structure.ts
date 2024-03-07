@@ -12,7 +12,7 @@ import {
   UnionStatementNode,
 } from "../core/index.js";
 import { NamespaceStatementNode, Node, SyntaxKind } from "../core/types.js";
-import { isArray, isDefined } from "../core/util.js";
+import { isArray, isDefined } from "../utils/misc.js";
 
 export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
   const file = ast.file;
@@ -59,7 +59,9 @@ export function getSymbolStructure(ast: TypeSpecScriptNode): DocumentSymbol[] {
       case SyntaxKind.UnionStatement:
         return getForUnion(node);
       case SyntaxKind.UnionVariant:
-        return createDocumentSymbol(node, getName(node.id), SymbolKind.EnumMember);
+        return node.id === undefined
+          ? undefined
+          : createDocumentSymbol(node, getName(node.id), SymbolKind.EnumMember);
       case SyntaxKind.EnumStatement:
         return getForEnum(node);
       case SyntaxKind.EnumMember:

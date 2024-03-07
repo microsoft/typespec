@@ -54,6 +54,14 @@ export interface OpenAPI3EmitterOptions {
    * @default "never"
    */
   "include-x-typespec-name"?: "inline-only" | "never";
+
+  /**
+   * How to handle safeint type. Options are:
+   *  - `double-int`: Will produce `type: integer, format: double-int`
+   *  - `int64`: Will produce `type: integer, format: int64`
+   * @default "int64"
+   */
+  "safeint-strategy"?: "double-int" | "int64";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
@@ -117,6 +125,19 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       description:
         "If the generated openapi types should have the `x-typespec-name` extension set with the name of the TypeSpec type that created it.\nThis extension is meant for debugging and should not be depended on.",
     },
+    "safeint-strategy": {
+      type: "string",
+      enum: ["double-int", "int64"],
+      nullable: true,
+      default: "int64",
+      description: [
+        "How to handle safeint type. Options are:",
+        " - `double-int`: Will produce `type: integer, format: double-int`",
+        " - `int64`: Will produce `type: integer, format: int64`",
+        "",
+        "Default: `int64`",
+      ].join("\n"),
+    },
   },
   required: [],
 };
@@ -124,10 +145,29 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
 export const libDef = {
   name: "@typespec/openapi3",
   diagnostics: {
+    "oneof-union": {
+      severity: "error",
+      messages: {
+        default:
+          "@oneOf decorator can only be used on a union or a model property which type is a union.",
+      },
+    },
+    "inconsistent-shared-route-request-visibility": {
+      severity: "error",
+      messages: {
+        default: "All operations with `@sharedRoutes` must have the same `@requestVisibility`.",
+      },
+    },
     "invalid-server-variable": {
       severity: "error",
       messages: {
         default: paramMessage`Server variable '${"propName"}' must be assignable to 'string'. It must either be a string, enum of string or union of strings.`,
+      },
+    },
+    "invalid-format": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Collection format '${"value"}' is not supported in OpenAPI3 ${"paramType"} parameters. Defaulting to type 'string'.`,
       },
     },
     "resource-namespace": {
@@ -160,6 +200,7 @@ export const libDef = {
         default: "a default response should not have an explicit status code",
       },
     },
+
     "invalid-schema": {
       severity: "error",
       messages: {
@@ -172,14 +213,24 @@ export const libDef = {
         default: "Cannot have a union containing only null types.",
       },
     },
-    "union-unsupported": {
+    "empty-union": {
       severity: "error",
       messages: {
-        default: "Unions are not supported unless all options are literals of the same type.",
-        type: paramMessage`Type "${"kind"}" cannot be used in unions`,
-        empty:
+        default:
           "Empty unions are not supported for OpenAPI v3 - enums must have at least one value.",
-        null: "Unions containing multiple model types cannot be emitted to OpenAPI v3 unless the union is between one model type and 'null'.",
+      },
+    },
+    "empty-enum": {
+      severity: "error",
+      messages: {
+        default:
+          "Empty enums are not supported for OpenAPI v3 - enums must have at least one value.",
+      },
+    },
+    "enum-unique-type": {
+      severity: "error",
+      messages: {
+        default: "Enums are not supported unless all options are literals of the same type.",
       },
     },
     "invalid-default": {
@@ -194,6 +245,18 @@ export const libDef = {
         default: paramMessage`Cycle detected in '${"type"}'. Use @friendlyName decorator to assign an OpenAPI definition name and make it non-inline.`,
       },
     },
+    "unsupported-status-code-range": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Status code range '${"start"} to '${"end"}' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX. Example: \`@minValue(400) @maxValue(499)\` for 4XX.`,
+      },
+    },
+    "unsupported-auth": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Authentication "${"authType"}" is not a known authentication by the openapi3 emitter, it will be ignored.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,
@@ -201,6 +264,6 @@ export const libDef = {
 } as const;
 
 export const $lib = createTypeSpecLibrary(libDef);
-export const { reportDiagnostic, createStateSymbol } = $lib;
+export const { createDiagnostic, reportDiagnostic, createStateSymbol } = $lib;
 
 export type OpenAPILibrary = typeof $lib;

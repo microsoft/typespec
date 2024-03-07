@@ -1,23 +1,10 @@
-[JS Api](../index.md) / NamespaceNavigationOptions
+---
+jsApi: true
+title: "[I] NamespaceNavigationOptions"
 
-# Interface: NamespaceNavigationOptions
-
-## Table of contents
-
-### Properties
-
-- [skipSubNamespaces](NamespaceNavigationOptions.md#skipsubnamespaces)
-
+---
 ## Properties
 
-### skipSubNamespaces
-
-• `Optional` **skipSubNamespaces**: `boolean`
-
-Recursively navigate sub namespaces.
-
-**`Default`**
-
-```ts
-false
-```
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `skipSubNamespaces?` | `boolean` | Recursively navigate sub namespaces.<br /><br />**Default**<br />` false ` |

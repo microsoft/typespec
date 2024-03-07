@@ -1,36 +1,14 @@
-[JS Api](../index.md) / Diagnostic
+---
+jsApi: true
+title: "[I] Diagnostic"
 
-# Interface: Diagnostic
-
-## Table of contents
-
-### Properties
-
-- [code](Diagnostic.md#code)
-- [message](Diagnostic.md#message)
-- [severity](Diagnostic.md#severity)
-- [target](Diagnostic.md#target)
-
+---
 ## Properties
 
-### code
-
-• **code**: `string`
-
-___
-
-### message
-
-• **message**: `string`
-
-___
-
-### severity
-
-• **severity**: [`DiagnosticSeverity`](../index.md#diagnosticseverity)
-
-___
-
-### target
-
-• **target**: [`DiagnosticTarget`](../index.md#diagnostictarget) \| typeof [`NoTarget`](../index.md#notarget)
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `code` | `public` | `string` |
+| `codefixes?` | `readonly` | readonly [`CodeFix`](CodeFix.md)[] |
+| `message` | `public` | `string` |
+| `severity` | `public` | [`DiagnosticSeverity`](../type-aliases/DiagnosticSeverity.md) |
+| `target` | `public` | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) |

@@ -7,9 +7,12 @@ import {
   MarkupKind,
   TextEdit,
 } from "vscode-languageserver";
+import { getDeprecationDetails } from "../core/deprecation.js";
 import {
+  CompilerHost,
   IdentifierNode,
   Node,
+  NodePackage,
   Program,
   StringLiteralNode,
   SymbolFlags,
@@ -24,9 +27,8 @@ import {
   hasTrailingDirectorySeparator,
   resolvePath,
 } from "../core/path-utils.js";
-import { findProjectRoot, loadFile, resolveTspMain } from "../core/util.js";
 import { printId } from "../formatter/print/printer.js";
-import { isDeprecated } from "../lib/decorators.js";
+import { findProjectRoot, loadFile, resolveTspMain } from "../utils/misc.js";
 import { getSymbolDetails } from "./type-details.js";
 
 export type CompletionContext = {
@@ -52,6 +54,7 @@ export async function resolveCompletion(
         addKeywordCompletion("namespace", completions);
         break;
       case SyntaxKind.Identifier:
+        addDirectiveCompletion(context, node);
         addIdentifierCompletion(context, node);
         break;
       case SyntaxKind.StringLiteral:
@@ -92,7 +95,7 @@ const keywords = [
   ["extends", { model: true }],
   ["is", { model: true }],
 
-  // On identifier`
+  // On identifier
   ["true", { identifier: true }],
   ["false", { identifier: true }],
   ["unknown", { identifier: true }],
@@ -113,18 +116,27 @@ function addKeywordCompletion(area: keyof KeywordArea, completions: CompletionLi
   }
 }
 
+async function loadPackageJson(host: CompilerHost, path: string): Promise<NodePackage> {
+  const [libPackageJson] = await loadFile(host, path, JSON.parse, () => {});
+  return libPackageJson;
+}
+/** Check if the folder given has a package.json which has a tspMain. */
+async function isTspLibraryPackage(host: CompilerHost, dir: string) {
+  const libPackageJson = await loadPackageJson(host, resolvePath(dir, "package.json"));
+
+  return resolveTspMain(libPackageJson) !== undefined;
+}
+
 async function addLibraryImportCompletion(
   { program, file, completions }: CompletionContext,
   node: StringLiteralNode
 ) {
   const documentPath = file.file.path;
-  const projectRoot = await findProjectRoot(program.host, documentPath);
+  const projectRoot = await findProjectRoot(program.host.stat, documentPath);
   if (projectRoot !== undefined) {
-    const [packagejson] = await loadFile(
+    const packagejson = await loadPackageJson(
       program.host,
-      resolvePath(projectRoot, "package.json"),
-      JSON.parse,
-      program.reportDiagnostic
+      resolvePath(projectRoot, "package.json")
     );
     let dependencies: string[] = [];
     if (packagejson.dependencies !== undefined) {
@@ -134,15 +146,8 @@ async function addLibraryImportCompletion(
       dependencies = dependencies.concat(Object.keys(packagejson.peerDependencies));
     }
     for (const dependency of dependencies) {
-      const nodeProjectRoot = resolvePath(projectRoot, "node_modules", dependency);
-      const [libPackageJson] = await loadFile(
-        program.host,
-        resolvePath(nodeProjectRoot, "package.json"),
-        JSON.parse,
-        program.reportDiagnostic
-      );
-
-      if (resolveTspMain(libPackageJson) !== undefined) {
+      const dependencyDir = resolvePath(projectRoot, "node_modules", dependency);
+      if (await isTspLibraryPackage(program.host, dependencyDir)) {
         const range = {
           start: file.file.getLineAndCharacterOfPosition(node.pos + 1),
           end: file.file.getLineAndCharacterOfPosition(node.end - 1),
@@ -165,6 +170,17 @@ async function addImportCompletion(context: CompletionContext, node: StringLiter
   }
 }
 
+async function tryListItemInDir(host: CompilerHost, path: string): Promise<string[]> {
+  try {
+    return await host.readDir(path);
+  } catch (e: any) {
+    if (e.code === "ENOENT") {
+      return [];
+    }
+    throw e;
+  }
+}
+
 async function addRelativePathCompletion(
   { program, completions, file }: CompletionContext,
   node: StringLiteralNode
@@ -172,30 +188,38 @@ async function addRelativePathCompletion(
   const documentPath = file.file.path;
   const documentFile = getBaseFileName(documentPath);
   const documentDir = getDirectoryPath(documentPath);
-  const nodevalueDir = hasTrailingDirectorySeparator(node.value)
+  const currentRelativePath = hasTrailingDirectorySeparator(node.value)
     ? node.value
     : getDirectoryPath(node.value);
-  const mainTypeSpec = resolvePath(documentDir, nodevalueDir);
-  const files = (await program.host.readDir(mainTypeSpec)).filter(
+  const currentAbsolutePath = resolvePath(documentDir, currentRelativePath);
+  const files = (await tryListItemInDir(program.host, currentAbsolutePath)).filter(
     (x) => x !== documentFile && x !== "node_modules"
   );
+
+  const lastSlash = node.value.lastIndexOf("/");
+  const offset = lastSlash === -1 ? 0 : lastSlash + 1;
+  const range = {
+    start: file.file.getLineAndCharacterOfPosition(node.pos + 1 + offset),
+    end: file.file.getLineAndCharacterOfPosition(node.end - 1),
+  };
   for (const file of files) {
     const extension = getAnyExtensionFromPath(file);
+
     switch (extension) {
       case ".tsp":
       case ".js":
       case ".mjs":
         completions.items.push({
           label: file,
-          commitCharacters: [],
           kind: CompletionItemKind.File,
+          textEdit: TextEdit.replace(range, file),
         });
         break;
       case "":
         completions.items.push({
           label: file,
-          commitCharacters: [],
           kind: CompletionItemKind.Folder,
+          textEdit: TextEdit.replace(range, file),
         });
         break;
     }
@@ -213,7 +237,7 @@ function addIdentifierCompletion(
   if (result.size === 0) {
     return;
   }
-  for (const [key, { sym, label }] of result) {
+  for (const [key, { sym, label, suffix }] of result) {
     let kind: CompletionItemKind;
     let deprecated = false;
     const type = sym.type ?? program.checker.getTypeForNode(sym.declarations[0]);
@@ -224,9 +248,12 @@ function addIdentifierCompletion(
       sym.declarations[0].kind !== SyntaxKind.NamespaceStatement
     ) {
       kind = CompletionItemKind.Module;
+    } else if (sym.declarations[0]?.kind === SyntaxKind.AliasStatement) {
+      kind = CompletionItemKind.Variable;
+      deprecated = getDeprecationDetails(program, sym.declarations[0]) !== undefined;
     } else {
       kind = getCompletionItemKind(program, type);
-      deprecated = isDeprecated(program, type);
+      deprecated = getDeprecationDetails(program, type) !== undefined;
     }
     const documentation = getSymbolDetails(program, sym);
     const item: CompletionItem = {
@@ -238,7 +265,7 @@ function addIdentifierCompletion(
           }
         : undefined,
       kind,
-      insertText: printId(key),
+      insertText: printId(key) + (suffix ?? ""),
     };
     if (deprecated) {
       item.tags = [CompletionItemTag.Deprecated];
@@ -248,6 +275,19 @@ function addIdentifierCompletion(
 
   if (node.parent?.kind === SyntaxKind.TypeReference) {
     addKeywordCompletion("identifier", completions);
+  }
+}
+
+const directiveNames = ["suppress", "deprecated"];
+function addDirectiveCompletion({ completions }: CompletionContext, node: IdentifierNode) {
+  if (!(node.parent?.kind === SyntaxKind.DirectiveExpression && node.parent.target === node)) {
+    return;
+  }
+  for (const directive of directiveNames) {
+    completions.items.push({
+      label: directive,
+      kind: CompletionItemKind.Keyword,
+    });
   }
 }
 

@@ -1,4 +1,5 @@
 import { ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { SyntaxKind, TypeSpecScriptNode } from "../src/core/index.js";
 import { getNodeAtPosition, parse } from "../src/core/parser.js";
 import { Node } from "../src/core/types.js";

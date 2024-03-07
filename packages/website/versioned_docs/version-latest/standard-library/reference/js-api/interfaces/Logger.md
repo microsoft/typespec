@@ -1,25 +1,19 @@
-[JS Api](../index.md) / Logger
+---
+jsApi: true
+title: "[I] Logger"
 
-# Interface: Logger
-
-## Table of contents
-
-### Methods
-
-- [error](Logger.md#error)
-- [log](Logger.md#log)
-- [trace](Logger.md#trace)
-- [warn](Logger.md#warn)
-
+---
 ## Methods
 
-### error
+### error()
 
-▸ **error**(`message`): `void`
+```ts
+error(message): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `message` | `string` |
 
@@ -27,15 +21,17 @@
 
 `void`
 
-___
+***
 
-### log
+### log()
 
-▸ **log**(`log`): `void`
+```ts
+log(log): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `log` | [`LogInfo`](LogInfo.md) |
 
@@ -43,15 +39,17 @@ ___
 
 `void`
 
-___
+***
 
-### trace
+### trace()
 
-▸ **trace**(`message`): `void`
+```ts
+trace(message): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `message` | `string` |
 
@@ -59,15 +57,17 @@ ___
 
 `void`
 
-___
+***
 
-### warn
+### warn()
 
-▸ **warn**(`message`): `void`
+```ts
+warn(message): void
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `message` | `string` |
 

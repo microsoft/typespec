@@ -1,4 +1,4 @@
-import { camelCase, paramCase, pascalCase, snakeCase } from "change-case";
+import { camelCase, kebabCase, pascalCase, snakeCase } from "change-case";
 import { Checker } from "./checker.js";
 import { ProjectionError, assertType } from "./diagnostics.js";
 import { ObjectType, Type, UnionVariant } from "./types.js";
@@ -405,7 +405,7 @@ export function createProjectionMembers(checker: Checker): {
       },
       toKebabCase(base) {
         return createFunctionType(() => {
-          return createLiteralType(paramCase(base.value));
+          return createLiteralType(kebabCase(base.value));
         });
       },
     },

@@ -1,45 +1,46 @@
-[JS Api](../index.md) / Tracer
+---
+jsApi: true
+title: "[I] Tracer"
 
-# Interface: Tracer
-
-## Table of contents
-
-### Methods
-
-- [sub](Tracer.md#sub)
-- [trace](Tracer.md#trace)
-
+---
 ## Methods
 
-### sub
+### sub()
 
-▸ **sub**(`subarea`): [`Tracer`](Tracer.md)
+```ts
+sub(subarea): Tracer
+```
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `subarea` | `string` |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `subarea` | `string` |  |
 
 #### Returns
 
 [`Tracer`](Tracer.md)
 
-___
+***
 
-### trace
+### trace()
 
-▸ **trace**(`area`, `message`, `target?`): `void`
+```ts
+trace(
+   area, 
+   message, 
+   target?): void
+```
 
 Trace
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `area` | `string` |
-| `message` | `string` |
-| `target?` | [`DiagnosticTarget`](../index.md#diagnostictarget) |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `area` | `string` |  |
+| `message` | `string` |  |
+| `target`? | [`DiagnosticTarget`](../type-aliases/DiagnosticTarget.md) | - |
 
 #### Returns
 

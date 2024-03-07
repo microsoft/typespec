@@ -1,7 +1,7 @@
 module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: { project: "./tsconfig.json" },
-  plugins: ["@typescript-eslint/eslint-plugin", "prettier", "unicorn", "mocha", "deprecation"],
+  plugins: ["@typescript-eslint/eslint-plugin", "prettier", "unicorn", "deprecation"],
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
   env: {
     node: true,
@@ -21,7 +21,9 @@ module.exports = {
       { varsIgnorePattern: "^_", argsIgnorePattern: ".*", ignoreRestSiblings: true },
     ],
     "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-misused-promises": "error",
+
+    // This rule is bugged https://github.com/typescript-eslint/typescript-eslint/issues/6538
+    "@typescript-eslint/no-misused-promises": "off",
 
     /**
      * Unicorn
@@ -32,14 +34,6 @@ module.exports = {
      * Unicorn
      */
     "unicorn/filename-case": ["error", { case: "kebabCase" }],
-
-    /**
-     * Mocha
-     */
-    "mocha/no-identical-title": "error",
-    "mocha/no-nested-tests": "error",
-    "mocha/no-empty-description": "error",
-    "mocha/no-exclusive-tests": "warn",
 
     /**
      * Core
@@ -63,11 +57,22 @@ module.exports = {
     // Symbols should have a description so it can be serialized.
     "symbol-description": "warn",
   },
-  ignorePatterns: ["dist/**/*", "dist-dev/**/*"],
+  ignorePatterns: ["dist/**/*", "dist-dev/**/*", "temp/**/*"],
   overrides: [
     {
-      files: ["test/**/*"],
+      /**
+       * Test files specific rules
+       */
+      files: ["**/*.test.ts"],
+      plugins: ["vitest"],
       rules: {
+        "vitest/no-focused-tests": "warn",
+        "vitest/no-identical-title": "error",
+        "vitest/no-commented-out-tests": "warn",
+        "vitest/no-import-node-test": "warn",
+        "vitest/require-local-test-context-for-concurrent-snapshots": "warn",
+        "vitest/valid-describe-callback": "warn",
+        "vitest/valid-expect": "warn",
         "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
       },
     },

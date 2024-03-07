@@ -1,6 +1,7 @@
 import { Operation } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
+import { describe, it } from "vitest";
 import { HttpOperation, getRoutePath } from "../src/index.js";
 import {
   compileOperations,
@@ -146,6 +147,30 @@ describe("http: routes", () => {
         );
         expectRouteIncluded(routes, ["/included"]);
       });
+    });
+  });
+
+  describe("path parameters when no explicit @route", () => {
+    it("uses the name of the parameter by default and wraps in {}", async () => {
+      const routes = await getRoutesFor(`op test(@path myParam: string): void;`);
+
+      deepStrictEqual(routes, [{ verb: "get", path: "/{myParam}", params: ["myParam"] }]);
+    });
+
+    it("respect the name provided by @path argument", async () => {
+      const routes = await getRoutesFor(`op test(@path("custom-name") myParam: string): void;`);
+
+      deepStrictEqual(routes, [{ verb: "get", path: "/{custom-name}", params: ["custom-name"] }]);
+    });
+
+    it("respect the name provided by @path argument when being explicit in the route", async () => {
+      const routes = await getRoutesFor(
+        `@route("/foo/{custom-name}") op test(@path("custom-name") myParam: string): void;`
+      );
+
+      deepStrictEqual(routes, [
+        { verb: "get", path: "/foo/{custom-name}", params: ["custom-name"] },
+      ]);
     });
   });
 

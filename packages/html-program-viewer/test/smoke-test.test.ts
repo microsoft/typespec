@@ -1,4 +1,5 @@
 import { BasicTestRunner } from "@typespec/compiler/testing";
+import { beforeEach, describe, it } from "vitest";
 import { createViewerTestRunner } from "./test-host.js";
 
 describe("html-program-viewer: smoke tests", () => {
@@ -10,5 +11,9 @@ describe("html-program-viewer: smoke tests", () => {
 
   it("create html view", async () => {
     await runner.compile(`op foo(): string;`);
+  });
+
+  it("compile unnamed union variant without error", async () => {
+    await runner.compile(`union Foo { "a", "b" }`);
   });
 });

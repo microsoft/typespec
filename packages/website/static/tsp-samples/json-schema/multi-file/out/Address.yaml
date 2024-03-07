@@ -1,0 +1,15 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: Address.yaml
+type: object
+properties:
+  street:
+    type: string
+  city:
+    type: string
+  country:
+    type: string
+required:
+  - street
+  - city
+  - country
+description: Respresent an address

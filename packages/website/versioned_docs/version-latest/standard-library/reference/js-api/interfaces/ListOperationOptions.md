@@ -1,23 +1,10 @@
-[JS Api](../index.md) / ListOperationOptions
+---
+jsApi: true
+title: "[I] ListOperationOptions"
 
-# Interface: ListOperationOptions
-
-## Table of contents
-
-### Properties
-
-- [recursive](ListOperationOptions.md#recursive)
-
+---
 ## Properties
 
-### recursive
-
-• `Optional` **recursive**: `boolean`
-
-If the container is a namespace look for operation in sub namespaces.
-
-**`Default`**
-
-```ts
-true
-```
+| Property | Type | Description |
+| :------ | :------ | :------ |
+| `recursive?` | `boolean` | If the container is a namespace look for operation in sub namespaces.<br /><br />**Default**<br />` true ` |

@@ -1,4 +1,5 @@
 import { strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import { filterModelProperties, getEffectiveModelType } from "../../src/core/checker.js";
 import { DecoratorContext, Model, ModelProperty, Type } from "../../src/core/types.js";
 import { TestHost, createTestHost, expectIdenticalTypes } from "../../src/testing/index.js";

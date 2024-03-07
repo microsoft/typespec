@@ -1,54 +1,21 @@
-[JS Api](../index.md) / DecoratorDefinition
+---
+jsApi: true
+title: "[I] DecoratorDefinition"
 
-# Interface: DecoratorDefinition<T, P, S\>
-
+---
 ## Type parameters
 
-| Name | Type |
+| Type parameter | Value |
 | :------ | :------ |
-| `T` | extends [`TypeKind`](../index.md#typekind) |
-| `P` | extends readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../index.md#typekind)\>[] |
-| `S` | extends [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../index.md#typekind)\> \| `undefined` = `undefined` |
-
-## Table of contents
-
-### Properties
-
-- [args](DecoratorDefinition.md#args)
-- [name](DecoratorDefinition.md#name)
-- [spreadArgs](DecoratorDefinition.md#spreadargs)
-- [target](DecoratorDefinition.md#target)
+| `T` extends [`TypeKind`](../type-aliases/TypeKind.md) | - |
+| `P` extends readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] | - |
+| `S` extends [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\> \| `undefined` | `undefined` |
 
 ## Properties
 
-### args
-
-• `Readonly` **args**: `P`
-
-List of positional arguments in the function.
-
-___
-
-### name
-
-• `Readonly` **name**: `string`
-
-Name of the decorator.
-
-___
-
-### spreadArgs
-
-• `Optional` `Readonly` **spreadArgs**: `S`
-
-**`Optional`**
-
-Type of the spread args at the end of the function if applicable.
-
-___
-
-### target
-
-• `Readonly` **target**: `T` \| readonly `T`[]
-
-Decorator target.
+| Property | Modifier | Type | Description |
+| :------ | :------ | :------ | :------ |
+| `args` | `readonly` | `P` | List of positional arguments in the function. |
+| `name` | `readonly` | `string` | Name of the decorator. |
+| `spreadArgs?` | `readonly` | `S` | **Optional**<br />Type of the spread args at the end of the function if applicable. |
+| `target` | `readonly` | `T` \| readonly `T`[] | Decorator target. |

@@ -1,29 +1,12 @@
-[JS Api](../index.md) / SemanticToken
+---
+jsApi: true
+title: "[I] SemanticToken"
 
-# Interface: SemanticToken
-
-## Table of contents
-
-### Properties
-
-- [end](SemanticToken.md#end)
-- [kind](SemanticToken.md#kind)
-- [pos](SemanticToken.md#pos)
-
+---
 ## Properties
 
-### end
-
-• **end**: `number`
-
-___
-
-### kind
-
-• **kind**: [`SemanticTokenKind`](../enums/SemanticTokenKind.md)
-
-___
-
-### pos
-
-• **pos**: `number`
+| Property | Type |
+| :------ | :------ |
+| `end` | `number` |
+| `kind` | [`SemanticTokenKind`](../enumerations/SemanticTokenKind.md) |
+| `pos` | `number` |

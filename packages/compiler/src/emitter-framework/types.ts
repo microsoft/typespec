@@ -13,10 +13,15 @@ import {
 } from "../core/index.js";
 import { Placeholder } from "./placeholder.js";
 import { TypeEmitter } from "./type-emitter.js";
+
 type AssetEmitterOptions<TOptions extends object> = {
   noEmit: boolean;
   emitterOutputDir: string;
 } & TOptions;
+
+export interface EmitTypeReferenceOptions {
+  readonly referenceContext?: Record<string, any>;
+}
 
 export interface AssetEmitter<T, TOptions extends object = Record<string, unknown>> {
   /**
@@ -28,9 +33,9 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   getContext(): Context;
   getOptions(): AssetEmitterOptions<TOptions>;
   getProgram(): Program;
-  emitTypeReference(type: Type): EmitEntity<T>;
+  emitTypeReference(type: Type, context?: EmitTypeReferenceOptions): EmitEntity<T>;
   emitDeclarationName(type: TypeSpecDeclaration): string | undefined;
-  emitType(type: Type): EmitEntity<T>;
+  emitType(type: Type, context?: Partial<ContextState>): EmitEntity<T>;
   emitProgram(options?: { emitGlobalNamespace?: boolean; emitTypeSpecNamespace?: boolean }): void;
   emitModelProperties(model: Model): EmitEntity<T>;
   emitModelProperty(prop: ModelProperty): EmitEntity<T>;
@@ -41,7 +46,7 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   emitEnumMembers(en: Enum): EmitEntity<T>;
   emitUnionVariants(union: Union): EmitEntity<T>;
   emitTupleLiteralValues(tuple: Tuple): EmitEntity<T>;
-  emitSourceFile(sourceFile: SourceFile<T>): EmittedSourceFile;
+  emitSourceFile(sourceFile: SourceFile<T>): Promise<EmittedSourceFile>;
   /**
    * Create a source file.
    *
@@ -57,6 +62,9 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
     none(): NoEmit;
   };
   writeOutput(): Promise<void>;
+
+  /** Get source files that have been scoped. */
+  getSourceFiles(): SourceFile<T>[];
 }
 
 export interface ScopeBase<T> {
@@ -103,7 +111,11 @@ export class Declaration<T> extends EmitterResult {
   public kind = "declaration" as const;
   public meta: Record<string, any> = {};
 
-  constructor(public name: string, public scope: Scope<T>, public value: T | Placeholder<T>) {
+  constructor(
+    public name: string,
+    public scope: Scope<T>,
+    public value: T | Placeholder<T>
+  ) {
     if (value instanceof Placeholder) {
       value.onValue((v) => (this.value = v));
     }
@@ -170,6 +182,7 @@ export type TypeEmitterMethod = keyof Omit<
   | "sourceFile"
   | "declarationName"
   | "reference"
+  | "circularReference"
   | "emitValue"
   | "writeOutput"
   | EndingWith<keyof TypeEmitter<any, any>, "Context">

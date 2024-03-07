@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="200 200 30 30" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <style bx:fonts="League Gothic">@import url(https://fonts.googleapis.com/css2?family=League+Gothic%3Aital%2Cwght%400%2C400&amp;display=swap);</style>
+  </defs>
+  <rect x="200" y="200" width="30" height="30" style="fill: rgb(74, 54, 101); paint-order: fill;"/>
+  <text style="fill: rgb(255, 255, 255); font-family: 'League Gothic'; font-size: 5.3px; white-space: pre;" transform="matrix(4.553588, 0, 0, 3.175088, -811.313782, -249.035522)" x="222.733" y="148.108">TSP</text>
+</svg>

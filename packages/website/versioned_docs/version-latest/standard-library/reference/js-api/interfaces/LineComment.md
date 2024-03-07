@@ -1,49 +1,16 @@
-[JS Api](../index.md) / LineComment
+---
+jsApi: true
+title: "[I] LineComment"
 
-# Interface: LineComment
-
-## Hierarchy
+---
+## Extends
 
 - [`TextRange`](TextRange.md)
 
-  ↳ **`LineComment`**
-
-## Table of contents
-
-### Properties
-
-- [end](LineComment.md#end)
-- [kind](LineComment.md#kind)
-- [pos](LineComment.md#pos)
-
 ## Properties
 
-### end
-
-• `Readonly` **end**: `number`
-
-The ending position measured in UTF-16 code units from the start of the
-full string. Exclusive.
-
-#### Inherited from
-
-[TextRange](TextRange.md).[end](TextRange.md#end)
-
-___
-
-### kind
-
-• `Readonly` **kind**: [`LineComment`](../enums/SyntaxKind.md#linecomment)
-
-___
-
-### pos
-
-• `Readonly` **pos**: `number`
-
-The starting position of the ranger measured in UTF-16 code units from the
-start of the full string. Inclusive.
-
-#### Inherited from
-
-[TextRange](TextRange.md).[pos](TextRange.md#pos)
+| Property | Modifier | Type | Description | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `end` | `readonly` | `number` | The ending position measured in UTF-16 code units from the start of the<br />full string. Exclusive. | [`TextRange`](TextRange.md).`end` |
+| `kind` | `readonly` | `LineComment` | - | - |
+| `pos` | `readonly` | `number` | The starting position of the ranger measured in UTF-16 code units from the<br />start of the full string. Inclusive. | [`TextRange`](TextRange.md).`pos` |

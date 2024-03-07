@@ -8,6 +8,7 @@ import {
   NoTarget,
   Program,
   Type,
+  TypeNameOptions,
 } from "@typespec/compiler";
 import { reportDiagnostic } from "./lib.js";
 import { Version } from "./types.js";
@@ -16,7 +17,11 @@ import {
   findVersionedNamespace,
   getAvailabilityMap,
   getMadeOptionalOn,
+  getRenamedFrom,
+  getReturnTypeChangedFrom,
+  getTypeChangedFrom,
   getUseDependencies,
+  getVersion,
   getVersionDependencies,
   getVersions,
 } from "./versioning.js";
@@ -24,7 +29,7 @@ import {
 export function $onValidate(program: Program) {
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 
-  function addDependency(source: Namespace | undefined, target: Type | undefined) {
+  function addNamespaceDependency(source: Namespace | undefined, target: Type | undefined) {
     if (!target || !("namespace" in target) || !target.namespace) {
       return;
     }
@@ -43,20 +48,28 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
-        addDependency(model.namespace, model.sourceModel);
-        addDependency(model.namespace, model.baseModel);
+        addNamespaceDependency(model.namespace, model.sourceModel);
+        addNamespaceDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
-          addDependency(model.namespace, prop.type);
+          addNamespaceDependency(model.namespace, prop.type);
 
           // Validate model -> property have correct versioning
-          validateTargetVersionCompatible(program, model, prop, { isTargetADependent: true });
+          validateTargetVersionCompatible(program, model, prop, {
+            isTargetADependent: true,
+          });
 
           // Validate model property -> type have correct versioning
-          validateReference(program, prop, prop.type);
+          const typeChangedFrom = getTypeChangedFrom(program, prop);
+          if (typeChangedFrom !== undefined) {
+            validateMultiTypeReference(program, prop);
+          } else {
+            validateReference(program, prop, prop.type);
+          }
 
           // Validate model property type is correct when madeOptional
           validateMadeOptional(program, prop);
         }
+        validateVersionedPropertyNames(program, model);
       },
       union: (union) => {
         // If this is an instantiated type we don't want to keep the mapping.
@@ -67,8 +80,9 @@ export function $onValidate(program: Program) {
           return;
         }
         for (const variant of union.variants.values()) {
-          addDependency(union.namespace, variant.type);
+          addNamespaceDependency(union.namespace, variant.type);
         }
+        validateVersionedPropertyNames(program, union);
       },
       operation: (op) => {
         // If this is an instantiated type we don't want to keep the mapping.
@@ -77,15 +91,11 @@ export function $onValidate(program: Program) {
         }
 
         const namespace = op.namespace ?? op.interface?.namespace;
-        addDependency(namespace, op.sourceOperation);
-        addDependency(namespace, op.parameters);
-        addDependency(namespace, op.returnType);
-
+        addNamespaceDependency(namespace, op.sourceOperation);
+        addNamespaceDependency(namespace, op.returnType);
         if (op.interface) {
-          // Validate model -> property have correct versioning
           validateTargetVersionCompatible(program, op.interface, op, { isTargetADependent: true });
         }
-
         validateReference(program, op, op.returnType);
       },
       interface: (iface) => {
@@ -97,11 +107,13 @@ export function $onValidate(program: Program) {
         const [_, versionMap] = getVersions(program, namespace);
         validateVersionEnumValuesUnique(program, namespace);
         const serviceProps = getService(program, namespace);
+        // eslint-disable-next-line deprecation/deprecation
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
             code: "no-service-fixed-version",
             format: {
               name: getNamespaceFullName(namespace),
+              // eslint-disable-next-line deprecation/deprecation
               version: serviceProps.version,
             },
             target: namespace,
@@ -140,6 +152,8 @@ export function $onValidate(program: Program) {
         }
       },
       enum: (en) => {
+        validateVersionedPropertyNames(program, en);
+
         // construct the list of tuples in the old format if version
         // information is placed in the Version enum members
         const useDependencies = getUseDependencies(program, en);
@@ -162,6 +176,161 @@ export function $onValidate(program: Program) {
     { includeTemplateDeclaration: true }
   );
   validateVersionedNamespaceUsage(program, namespaceDependencies);
+}
+
+function getAllVersions(p: Program, t: Type): Version[] | undefined {
+  const [namespace, _] = getVersions(p, t);
+  if (namespace === undefined) return undefined;
+
+  return getVersion(p, namespace)?.getVersions();
+}
+
+/**
+ * Ensures that properties whose type has changed with versioning are valid.
+ */
+function validateMultiTypeReference(program: Program, source: Type, options?: TypeNameOptions) {
+  const versionTypeMap = getVersionedTypeMap(program, source);
+  if (versionTypeMap === undefined) return;
+  for (const [version, type] of versionTypeMap!) {
+    if (type === undefined) continue;
+    const availMap = getAvailabilityMap(program, type);
+    const availability = availMap?.get(version.name) ?? Availability.Available;
+    if ([Availability.Added, Availability.Available].includes(availability)) {
+      continue;
+    }
+    reportDiagnostic(program, {
+      code: "incompatible-versioned-reference",
+      messageId: "doesNotExist",
+      format: {
+        sourceName: getTypeName(source, options),
+        targetName: getTypeName(type, options),
+        version: prettyVersion(version),
+      },
+      target: source,
+    });
+  }
+}
+
+/**
+ * Constructs a map of version to name for the the source.
+ */
+function getVersionedNameMap(
+  program: Program,
+  source: Type
+): Map<Version, string | undefined> | undefined {
+  const allVersions = getAllVersions(program, source);
+  if (allVersions === undefined) return undefined;
+
+  const map: Map<Version, string | undefined> = new Map(allVersions.map((v) => [v, undefined]));
+  const availMap = getAvailabilityMap(program, source);
+  const alwaysAvail = availMap === undefined;
+
+  // Populate the map with any RenamedFrom data, which may have holes.
+  // We will fill these holes in a later pass.
+  const renamedFrom = getRenamedFrom(program, source);
+  if (renamedFrom !== undefined) {
+    for (const rename of renamedFrom) {
+      const version = rename.version;
+      const oldName = rename.oldName;
+      const versionIndex = allVersions.indexOf(version);
+      if (versionIndex !== -1) {
+        map.set(allVersions[versionIndex - 1], oldName);
+      }
+    }
+  }
+  let lastName: string | undefined = undefined;
+  switch (source.kind) {
+    case "ModelProperty":
+      lastName = source.name;
+      break;
+    case "UnionVariant":
+      if (typeof source.name === "string") {
+        lastName = source.name;
+      }
+      break;
+    case "EnumMember":
+      lastName = source.name;
+      break;
+    default:
+      throw new Error(`Not implemented '${source.kind}'.`);
+  }
+  for (const version of allVersions.reverse()) {
+    const isAvail =
+      alwaysAvail ||
+      [Availability.Added, Availability.Available].includes(availMap.get(version.name)!);
+
+    // If property is unavailable in this version, it can't have a type
+    if (!isAvail) {
+      map.set(version, undefined);
+      continue;
+    }
+
+    // Working backwards, we fill in any holes from the last type we encountered. Since we expect
+    // to encounter a hole at the start, we use the raw property type
+    const mapType = map.get(version);
+    if (mapType !== undefined) {
+      lastName = mapType;
+    } else {
+      map.set(version, lastName);
+    }
+  }
+  return map;
+}
+
+/**
+ * Constructs a map of version to type for the the source.
+ */
+function getVersionedTypeMap(
+  program: Program,
+  source: Type
+): Map<Version, Type | undefined> | undefined {
+  const allVersions = getAllVersions(program, source);
+  if (allVersions === undefined) return undefined;
+
+  const map: Map<Version, Type | undefined> = new Map(allVersions.map((v) => [v, undefined]));
+  const availMap = getAvailabilityMap(program, source);
+  const alwaysAvail = availMap === undefined;
+
+  // Populate the map with any typeChangedFrom data, which may have holes.
+  // We will fill these holes in a later pass.
+  const typeChangedFrom = getTypeChangedFrom(program, source);
+  if (typeChangedFrom !== undefined) {
+    for (const [version, type] of typeChangedFrom) {
+      const versionIndex = allVersions.indexOf(version);
+      if (versionIndex !== -1) {
+        map.set(allVersions[versionIndex - 1], type);
+      }
+    }
+  }
+  let lastType: Type | undefined = undefined;
+  switch (source.kind) {
+    case "ModelProperty":
+      lastType = source.type;
+      break;
+    default:
+      throw new Error(`Not implemented '${source.kind}'.`);
+  }
+  for (const version of allVersions.reverse()) {
+    const isAvail =
+      alwaysAvail ||
+      [Availability.Added, Availability.Available].includes(availMap.get(version.name)!);
+
+    // If property is unavailable in this version, it can't have a type
+    if (!isAvail) {
+      map.set(version, undefined);
+      continue;
+    }
+
+    // Working backwards, we fill in any holes from the last type we encountered. Since we expect
+    // to encounter a hole at the start, we use the raw property type
+    const mapType = map.get(version);
+    if (mapType !== undefined) {
+      lastType = mapType;
+    } else {
+      map.set(version, lastType);
+    }
+  }
+  return map;
 }
 
 /**
@@ -201,6 +370,54 @@ function validateVersionedNamespaceUsage(
             targetNs: getNamespaceFullName(target),
           },
           target: source ?? NoTarget,
+        });
+      }
+    }
+  }
+}
+
+function validateVersionedPropertyNames(program: Program, source: Type) {
+  const allVersions = getAllVersions(program, source);
+  if (allVersions === undefined) return;
+
+  const versionedNameMap = new Map<Version, string[]>(allVersions.map((v) => [v, []]));
+
+  let values: Iterable<Type> = [];
+  if (source.kind === "Model") {
+    values = source.properties.values();
+  } else if (source.kind === "Enum") {
+    values = source.members.values();
+  } else if (source.kind === "Union") {
+    values = source.variants.values();
+  }
+  for (const value of values) {
+    const nameMap = getVersionedNameMap(program, value);
+    if (nameMap === undefined) continue;
+    for (const [version, name] of nameMap) {
+      if (name === undefined) continue;
+      versionedNameMap.get(version)?.push(name);
+    }
+  }
+
+  // for each version, ensure there are no duplicate property names
+  for (const [version, names] of versionedNameMap.entries()) {
+    // create a map with names to count of occurrences
+    const nameCounts = new Map<string, number>();
+    for (const name of names) {
+      const count = nameCounts.get(name) ?? 0;
+      nameCounts.set(name, count + 1);
+    }
+    // emit diagnostic for each duplicate name
+    for (const [name, count] of nameCounts.entries()) {
+      if (name === undefined) continue;
+      if (count > 1) {
+        reportDiagnostic(program, {
+          code: "renamed-duplicate-property",
+          format: {
+            name: name,
+            version: prettyVersion(version),
+          },
+          target: source,
         });
       }
     }
@@ -292,15 +509,13 @@ function getAvailabilityMapWithParentInfo(
     case "ModelProperty":
       const parentModel = type.model;
       if (parentModel) {
-        parentMap = getAvailabilityMap(program, parentModel);
+        parentMap = getAvailabilityMapWithParentInfo(program, parentModel);
       }
       break;
     default:
       break;
   }
-  if (!base && !parentMap) return undefined;
-  else if (!base && parentMap) return parentMap;
-  else return base;
+  return base ?? parentMap;
 }
 
 /**
@@ -449,7 +664,9 @@ function validateAvailabilityForRef(
   sourceAvail: Map<string, Availability> | undefined,
   targetAvail: Map<string, Availability>,
   source: Type,
-  target: Type
+  target: Type,
+  sourceOptions?: TypeNameOptions,
+  targetOptions?: TypeNameOptions
 ) {
   // if source is unversioned and target is versioned
   if (sourceAvail === undefined) {
@@ -466,8 +683,20 @@ function validateAvailabilityForRef(
     }
     return;
   }
-
-  const keySet = new Set([...sourceAvail.keys(), ...targetAvail.keys()]);
+  let keyValSource: string[] = [...sourceAvail.keys(), ...targetAvail.keys()];
+  const sourceTypeChanged = getTypeChangedFrom(program, source);
+  if (sourceTypeChanged !== undefined) {
+    const sourceTypeChangedKeys = [...sourceTypeChanged.keys()].map((item) => item.name);
+    keyValSource = [...keyValSource, ...sourceTypeChangedKeys];
+  }
+  const sourceReturnTypeChanged = getReturnTypeChangedFrom(program, source);
+  if (sourceReturnTypeChanged !== undefined) {
+    const sourceReturnTypeChangedKeys = [...sourceReturnTypeChanged.keys()].map(
+      (item) => item.name
+    );
+    keyValSource = [...keyValSource, ...sourceReturnTypeChangedKeys];
+  }
+  const keySet = new Set(keyValSource);
 
   for (const key of keySet) {
     const sourceVal = sourceAvail.get(key)!;
@@ -477,6 +706,7 @@ function validateAvailabilityForRef(
       [Availability.Removed, Availability.Unavailable].includes(targetVal)
     ) {
       const targetAddedOn = findAvailabilityAfterVersion(key, Availability.Added, targetAvail);
+
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
         messageId: "addedAfter",
@@ -502,8 +732,8 @@ function validateAvailabilityForRef(
         code: "incompatible-versioned-reference",
         messageId: "removedBefore",
         format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
+          sourceName: getTypeName(source, sourceOptions),
+          targetName: getTypeName(target, targetOptions),
           sourceRemovedOn: key,
           targetRemovedOn: targetRemovedOn!,
         },
@@ -518,7 +748,9 @@ function validateAvailabilityForContains(
   sourceAvail: Map<string, Availability> | undefined,
   targetAvail: Map<string, Availability>,
   source: Type,
-  target: Type
+  target: Type,
+  sourceOptions?: TypeNameOptions,
+  targetOptions?: TypeNameOptions
 ) {
   if (!sourceAvail) return;
 
@@ -536,8 +768,8 @@ function validateAvailabilityForContains(
         code: "incompatible-versioned-reference",
         messageId: "dependentAddedAfter",
         format: {
-          sourceName: getTypeName(source),
-          targetName: getTypeName(target),
+          sourceName: getTypeName(source, sourceOptions),
+          targetName: getTypeName(target, targetOptions),
           sourceAddedOn: sourceAddedOn!,
           targetAddedOn: key,
         },

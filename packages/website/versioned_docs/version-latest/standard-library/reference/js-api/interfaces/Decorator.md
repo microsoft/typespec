@@ -1,181 +1,52 @@
-[JS Api](../index.md) / Decorator
+---
+jsApi: true
+title: "[I] Decorator"
 
-# Interface: Decorator
-
-## Hierarchy
+---
+## Extends
 
 - [`BaseType`](BaseType.md)
 
-  ↳ **`Decorator`**
-
-## Table of contents
-
-### Properties
-
-- [implementation](Decorator.md#implementation)
-- [instantiationParameters](Decorator.md#instantiationparameters)
-- [isFinished](Decorator.md#isfinished)
-- [kind](Decorator.md#kind)
-- [name](Decorator.md#name)
-- [namespace](Decorator.md#namespace)
-- [node](Decorator.md#node)
-- [parameters](Decorator.md#parameters)
-- [projectionBase](Decorator.md#projectionbase)
-- [projectionSource](Decorator.md#projectionsource)
-- [projector](Decorator.md#projector)
-- [target](Decorator.md#target)
-
-### Accessors
-
-- [projections](Decorator.md#projections)
-
-### Methods
-
-- [projectionsByName](Decorator.md#projectionsbyname)
-
 ## Properties
 
-### implementation
-
-• **implementation**: (...`args`: `unknown`[]) => `void`
-
-#### Type declaration
-
-▸ (`...args`): `void`
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `...args` | `unknown`[] |
-
-##### Returns
-
-`void`
-
-___
-
-### instantiationParameters
-
-• `Optional` **instantiationParameters**: [`Type`](../index.md#type)[]
-
-#### Inherited from
-
-[BaseType](BaseType.md).[instantiationParameters](BaseType.md#instantiationparameters)
-
-___
-
-### isFinished
-
-• **isFinished**: `boolean`
-
-Reflect if a type has been finished(Decorators have been called).
-There is multiple reasons a type might not be finished:
-- a template declaration will not
-- a template instance that argument that are still template parameters
-- a template instance that is only partially instantiated(like a templated operation inside a templated interface)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[isFinished](BaseType.md#isfinished)
-
-___
-
-### kind
-
-• **kind**: ``"Decorator"``
-
-#### Overrides
-
-[BaseType](BaseType.md).[kind](BaseType.md#kind)
-
-___
-
-### name
-
-• **name**: \`@${string}\`
-
-___
-
-### namespace
-
-• **namespace**: [`Namespace`](Namespace.md)
-
-___
-
-### node
-
-• **node**: [`DecoratorDeclarationStatementNode`](DecoratorDeclarationStatementNode.md)
-
-#### Overrides
-
-[BaseType](BaseType.md).[node](BaseType.md#node)
-
-___
-
-### parameters
-
-• **parameters**: [`FunctionParameter`](FunctionParameter.md)[]
-
-___
-
-### projectionBase
-
-• `Optional` **projectionBase**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionBase](BaseType.md#projectionbase)
-
-___
-
-### projectionSource
-
-• `Optional` **projectionSource**: [`Type`](../index.md#type)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projectionSource](BaseType.md#projectionsource)
-
-___
-
-### projector
-
-• `Optional` **projector**: [`Projector`](Projector.md)
-
-#### Inherited from
-
-[BaseType](BaseType.md).[projector](BaseType.md#projector)
-
-___
-
-### target
-
-• **target**: [`FunctionParameter`](FunctionParameter.md)
+| Property | Type | Description | Overrides | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `implementation` | (...`args`: `unknown`[]) => `void` | - | - | - |
+| `instantiationParameters?` | [`Type`](../type-aliases/Type.md)[] | - | [`BaseType`](BaseType.md).`instantiationParameters` | [`BaseType`](BaseType.md).`instantiationParameters` |
+| `isFinished` | `boolean` | Reflect if a type has been finished(Decorators have been called).<br />There is multiple reasons a type might not be finished:<br />- a template declaration will not<br />- a template instance that argument that are still template parameters<br />- a template instance that is only partially instantiated(like a templated operation inside a templated interface) | [`BaseType`](BaseType.md).`isFinished` | [`BaseType`](BaseType.md).`isFinished` |
+| `kind` | `"Decorator"` | - | [`BaseType`](BaseType.md).`kind` | [`BaseType`](BaseType.md).`kind` |
+| `name` | \`@${string}\` | - | - | - |
+| `namespace` | [`Namespace`](Namespace.md) | - | - | - |
+| `node` | [`DecoratorDeclarationStatementNode`](DecoratorDeclarationStatementNode.md) | - | [`BaseType`](BaseType.md).`node` | [`BaseType`](BaseType.md).`node` |
+| `parameters` | [`FunctionParameter`](FunctionParameter.md)[] | - | - | - |
+| `projectionBase?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionBase` | [`BaseType`](BaseType.md).`projectionBase` |
+| `projectionSource?` | [`Type`](../type-aliases/Type.md) | - | [`BaseType`](BaseType.md).`projectionSource` | [`BaseType`](BaseType.md).`projectionSource` |
+| `projector?` | [`Projector`](Projector.md) | - | [`BaseType`](BaseType.md).`projector` | [`BaseType`](BaseType.md).`projector` |
+| `target` | [`FunctionParameter`](FunctionParameter.md) | - | - | - |
 
 ## Accessors
 
 ### projections
 
-• `get` **projections**(): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+get projections(): ProjectionStatementNode[]
+```
 
 #### Returns
 
 [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
 
-#### Inherited from
-
-BaseType.projections
-
 ## Methods
 
-### projectionsByName
+### projectionsByName()
 
-▸ **projectionsByName**(`name`): [`ProjectionStatementNode`](ProjectionStatementNode.md)[]
+```ts
+projectionsByName(name): ProjectionStatementNode[]
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `name` | `string` |
 
@@ -185,4 +56,4 @@ BaseType.projections
 
 #### Inherited from
 
-[BaseType](BaseType.md).[projectionsByName](BaseType.md#projectionsbyname)
+[`BaseType`](BaseType.md).[`projectionsByName`](BaseType.md#projectionsbyname)

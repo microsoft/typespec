@@ -2,6 +2,129 @@
   "name": "@typespec/http",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/http_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix: `@path` custom name not respected"
+          },
+          {
+            "comment": "Fix: Wrong route generated when path parameter is not alpha numeric(Either with a different name provided in `@path` or if the property name is not an identifier)"
+          },
+          {
+            "comment": "Migrate to new Internal/Public library definition"
+          },
+          {
+            "comment": "Rename template parameters in preparation for named template argument instantiation."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.51.0",
+      "tag": "@typespec/http_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add diagnostic when a namespace exists with routes, but no namespace is marked with `@service`."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.50.0",
+      "tag": "@typespec/http_v0.50.0",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files"
+          },
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.49.0",
+      "tag": "@typespec/http_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for `@returns` and `@errors` doc comment tags."
+          },
+          {
+            "comment": "Add support for status code ranges for http responses. **Change to API** Http responses can now also return a `HttpStatusCodeRange` object for their status codes"
+          },
+          {
+            "comment": "Emit error when multiple properties on a response model have the `@statusCode` decorator."
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/http_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Deprecated `getRequestVisibility`. Added methods `getDefaultVisibilityForVerb` and `resolveRequestVisibility`. Use either depending on the situation."
+          },
+          {
+            "comment": "Add validation step to check whether any operation references another operation with a route prefix defined on a parent container.  This helps avoid unexpected route changes when using operation references."
+          },
+          {
+            "comment": "Avoid runtime errors when `OAuth2Auth` is given invalid `OAuth2Flow` arguments"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.47.0",
+      "tag": "@typespec/http_v0.47.0",
+      "date": "Tue, 08 Aug 2023 22:32:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update doc for openapi developers"
+          },
+          {
+            "comment": "Add collection format support: simple, form, ssv, tsv, pipes"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.46.0",
+      "tag": "@typespec/http_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add documentation on `@header` auto header name resolution from property name."
+          },
+          {
+            "comment": "Support nested `@body`"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.0",
       "tag": "@typespec/http_v0.45.0",
       "date": "Tue, 06 Jun 2023 22:44:16 GMT",

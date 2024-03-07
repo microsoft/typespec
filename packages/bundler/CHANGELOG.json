@@ -1,0 +1,74 @@
+{
+  "name": "@typespec/bundler",
+  "entries": [
+    {
+      "version": "0.1.0-alpha.5",
+      "tag": "@typespec/bundler.1.0-alpha.5",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.4",
+      "tag": "@typespec/bundler.1.0-alpha.4",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.3",
+      "tag": "@typespec/bundler.1.0-alpha.3",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          },
+          {
+            "comment": "Add a new cli `typespec-bundler`"
+          },
+          {
+            "comment": "Expose a bundle manifest with the relative importmap, package name and version."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.2",
+      "tag": "@typespec/bundler.1.0-alpha.2",
+      "date": "Wed, 03 Oct 2023 18:00:18 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0-alpha.1",
+      "tag": "@typespec/bundler.1.0-alpha.1",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Initial release"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,11 +1,10 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "references": [{ "path": "../compiler/tsconfig.json" }, { "path": "../rest/tsconfig.json" }],
   "compilerOptions": {
-    "types": [],
     "outDir": "dist",
     "rootDir": ".",
     "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo"
   },
-  "include": ["rest-metadata-emitter/**/*.ts"]
+  "include": ["specs/rest-metadata-emitter/**/*.ts", "src/**/*.ts", "test/**/*.ts"]
 }

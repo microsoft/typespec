@@ -1,33 +1,33 @@
-[JS Api](../index.md) / DecoratorValidator
+---
+jsApi: true
+title: "[I] DecoratorValidator"
 
-# Interface: DecoratorValidator<T, P, S\>
-
+---
 ## Type parameters
 
-| Name | Type |
+| Type parameter | Value |
 | :------ | :------ |
-| `T` | extends [`TypeKind`](../index.md#typekind) |
-| `P` | extends readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../index.md#typekind)\>[] |
-| `S` | extends [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../index.md#typekind)\> \| `undefined` = `undefined` |
-
-## Table of contents
-
-### Methods
-
-- [validate](DecoratorValidator.md#validate)
+| `T` extends [`TypeKind`](../type-aliases/TypeKind.md) | - |
+| `P` extends readonly [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] | - |
+| `S` extends [`DecoratorParamDefinition`](DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\> \| `undefined` | `undefined` |
 
 ## Methods
 
-### validate
+### validate()
 
-▸ **validate**(`context`, `target`, `parameters`): `boolean`
+```ts
+validate(
+   context, 
+   target, 
+   parameters): boolean
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `context` | [`DecoratorContext`](DecoratorContext.md) |
-| `target` | [`InferredTypeSpecValue`](../index.md#inferredtypespecvalue)<`T`\> |
+| `target` | [`InferredTypeSpecValue`](../type-aliases/InferredTypeSpecValue.md)<`T`\> |
 | `parameters` | `InferParameters`<`P`, `S`\> |
 
 #### Returns

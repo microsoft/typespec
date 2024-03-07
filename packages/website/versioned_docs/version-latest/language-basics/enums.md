@@ -10,7 +10,7 @@ Enums allow a developer to define a set of named constants. Using enums can make
 ## Basics
 
 Enums are declared using the `enum` keyword.
-The enums members are comma `,` separated and can be typespec `identifier`s or `string literal`s.
+The enums members are comma `,` separated and can be TypeSpec `identifier`s or `string literal`s.
 
 ```typespec
 enum Direction {
@@ -51,10 +51,10 @@ or float
 
 ```typespec
 enum Hour {
-  Zero = 0,
-  Quarter = 0.25,
-  Half = 0.5,
-  ThreeQuarter = 0.75,
+  Zero: 0,
+  Quarter: 0.25,
+  Half: 0.5,
+  ThreeQuarter: 0.75,
 }
 ```
 

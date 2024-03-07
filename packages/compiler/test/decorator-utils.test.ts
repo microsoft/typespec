@@ -1,4 +1,5 @@
 import { deepStrictEqual, strictEqual } from "assert";
+import { beforeEach, describe, it } from "vitest";
 import {
   DecoratorContext,
   TypeSpecValue,
@@ -196,7 +197,7 @@ describe("compiler: decorator utils", () => {
         @bar
         model Foo {}
 
-        @@bar(Foo)
+        @@bar(Foo);
       `);
 
       expectDiagnosticEmpty(diagnostics);
@@ -293,7 +294,7 @@ describe("compiler: decorator utils", () => {
         @red
         model Foo {}
 
-        @@blue(Foo)
+        @@blue(Foo);
       `);
 
       expectDiagnostics(diagnostics, [

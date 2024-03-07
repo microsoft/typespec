@@ -1,0 +1,95 @@
+id: issues.inactivity
+name: GitOps.PullRequestIssueManagement
+description: Manage issues that need author response and are stale
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches:
+      - description: Mark issue with no-recent-activity label if it has been stale for 7 days and needs author feedback.
+        frequencies:
+          - hourly:
+              hour: 6
+        filters:
+          - isIssue
+          - isOpen
+          - isNotLabeledWith:
+              label: no-recent-activity
+          - hasLabel:
+              label: needs-author-feedback
+          - noActivitySince:
+              days: 7
+        actions:
+          - addLabel:
+              label: no-recent-activity
+
+      - description: Close issues needing author feedback that have been stale for 14 days
+        frequencies:
+          - hourly:
+              hour: 6
+        filters:
+          - isIssue
+          - isOpen
+          - hasLabel:
+              label: No-Recent-Activity
+          - hasLabel:
+              label: needs-author-feedback
+          - noActivitySince:
+              days: 7
+        actions:
+          - closeIssue
+          - addReply:
+              reply: >-
+                Hi @${issueAuthor}.
+                Since there hasn't been recent engagement, we're going to close this out.
+                Please feel free to reopen if you have any further questions or concerns.
+
+    eventResponderTasks:
+      - description: When the label "needs-author-feedback" is added to an issue assign back to the author
+        if:
+          - payloadType: Issues
+          - labelAdded:
+              label: needs-author-feedback
+          - isOpen
+        then:
+          - assignTo:
+              author: true
+        # The policy service should trigger even when the label was added by the policy service
+        triggerOnOwnActions: true
+
+      - description: >-
+          When the label "no-recent-activity" is added to an issue
+          * Add the issue specific reply notifying the issue author of pending closure
+        if:
+          - payloadType: Issues
+          - labelAdded:
+              label: no-recent-activity
+        then:
+          - addReply:
+              reply: >-
+                Hello @${issueAuthor},
+
+                This issue has been automatically marked as stale because it has been marked as requiring author feedback but has not had any activity for **7 days**. It will be closed if no further activity occurs **within 7 days of this comment**.
+
+        # The policy service should trigger even when the label was added by the policy service
+        triggerOnOwnActions: true
+
+      - description: Remove needs-author-feedback label when author comments on issue
+        if:
+          - payloadType: Issue_Comment
+          - isAction:
+              action: Created
+          - isActivitySender:
+              issueAuthor: True
+          - hasLabel:
+              label: needs-author-feedback
+          - isOpen
+        then:
+          - addLabel:
+              label: needs-team-attention
+          - removeLabel:
+              label: needs-author-feedback
+onFailure:
+onSuccess:

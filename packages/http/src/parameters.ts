@@ -16,7 +16,7 @@ import {
   isBody,
 } from "./decorators.js";
 import { createDiagnostic } from "./lib.js";
-import { gatherMetadata, getRequestVisibility, isMetadata } from "./metadata.js";
+import { gatherMetadata, isMetadata, resolveRequestVisibility } from "./metadata.js";
 import {
   HttpOperation,
   HttpOperationParameter,
@@ -59,7 +59,7 @@ function getOperationParametersForVerb(
   knownPathParamNames: string[]
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const visibility = getRequestVisibility(verb);
+  const visibility = resolveRequestVisibility(program, operation, verb);
   const rootPropertyMap = new Map<ModelProperty, ModelProperty>();
   const metadata = gatherMetadata(
     program,

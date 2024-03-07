@@ -1,5 +1,7 @@
-export const namespace = "TypeSpec.Http";
+export { $lib } from "./lib.js";
+export { $linter } from "./linter.js";
 
+export * from "./auth.js";
 export * from "./content-types.js";
 export * from "./decorators.js";
 export * from "./metadata.js";

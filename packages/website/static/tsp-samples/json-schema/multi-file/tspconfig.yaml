@@ -1,0 +1,4 @@
+emit: ["@typespec/json-schema"]
+options:
+  "@typespec/json-schema":
+    emitter-output-dir: "{project-root}/out"

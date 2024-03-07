@@ -1,5 +1,6 @@
 import { deepStrictEqual } from "assert";
-import { getService, listServices, Namespace } from "../../src/index.js";
+import { beforeEach, describe, it } from "vitest";
+import { Namespace, getService, listServices } from "../../src/index.js";
 import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
 
 describe("compiler: service", () => {
@@ -70,7 +71,10 @@ describe("compiler: service", () => {
 
   it("customize service version", async () => {
     const { S } = await runner.compile(`
-      @test @service({version: "1.2.3"}) namespace S {}
+      @test @service({
+        #suppress "deprecated" "test"
+        version: "1.2.3"
+      }) namespace S {}
 
     `);
 
@@ -90,7 +94,10 @@ describe("compiler: service", () => {
 
   it("emit diagnostic if service version is not a string", async () => {
     const diagnostics = await runner.diagnose(`
-      @test @service({version: 123}) namespace S {}
+      @test @service({
+        #suppress "deprecated" "test"
+        version: 123
+      }) namespace S {}
     `);
 
     expectDiagnostics(diagnostics, {

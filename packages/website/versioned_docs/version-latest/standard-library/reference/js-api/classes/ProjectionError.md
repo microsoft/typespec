@@ -1,134 +1,62 @@
-[JS Api](../index.md) / ProjectionError
+---
+jsApi: true
+title: "[C] ProjectionError"
 
-# Class: ProjectionError
-
+---
 Represents a failure while interpreting a projection.
 
-## Hierarchy
+## Extends
 
 - `Error`
 
-  ↳ **`ProjectionError`**
-
-## Table of contents
-
-### Constructors
-
-- [constructor](ProjectionError.md#constructor)
-
-### Properties
-
-- [message](ProjectionError.md#message)
-- [name](ProjectionError.md#name)
-- [stack](ProjectionError.md#stack)
-- [prepareStackTrace](ProjectionError.md#preparestacktrace)
-- [stackTraceLimit](ProjectionError.md#stacktracelimit)
-
-### Methods
-
-- [captureStackTrace](ProjectionError.md#capturestacktrace)
-
 ## Constructors
 
-### constructor
+### new ProjectionError(message)
 
-• **new ProjectionError**(`message`)
+```ts
+new ProjectionError(message): ProjectionError
+```
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `message` | `string` |
 
+#### Returns
+
+[`ProjectionError`](ProjectionError.md)
+
 #### Overrides
 
-Error.constructor
+`Error.constructor`
 
 ## Properties
 
-### message
-
-• **message**: `string`
-
-#### Inherited from
-
-Error.message
-
-___
-
-### name
-
-• **name**: `string`
-
-#### Inherited from
-
-Error.name
-
-___
-
-### stack
-
-• `Optional` **stack**: `string`
-
-#### Inherited from
-
-Error.stack
-
-___
-
-### prepareStackTrace
-
-▪ `Static` `Optional` **prepareStackTrace**: (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any`
-
-#### Type declaration
-
-▸ (`err`, `stackTraces`): `any`
-
-Optional override for formatting stack traces
-
-**`See`**
-
-https://v8.dev/docs/stack-trace-api#customizing-stack-traces
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `err` | `Error` |
-| `stackTraces` | `CallSite`[] |
-
-##### Returns
-
-`any`
-
-#### Inherited from
-
-Error.prepareStackTrace
-
-___
-
-### stackTraceLimit
-
-▪ `Static` **stackTraceLimit**: `number`
-
-#### Inherited from
-
-Error.stackTraceLimit
+| Property | Modifier | Type | Description | Inherited from |
+| :------ | :------ | :------ | :------ | :------ |
+| `message` | `public` | `string` | - | `Error.message` |
+| `name` | `public` | `string` | - | `Error.name` |
+| `stack?` | `public` | `string` | - | `Error.stack` |
+| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | Optional override for formatting stack traces<br /><br />**See**<br />https://v8.dev/docs/stack-trace-api#customizing-stack-traces | `Error.prepareStackTrace` |
+| `stackTraceLimit` | `static` | `number` | - | `Error.stackTraceLimit` |
 
 ## Methods
 
-### captureStackTrace
+### captureStackTrace()
 
-▸ `Static` **captureStackTrace**(`targetObject`, `constructorOpt?`): `void`
+```ts
+static captureStackTrace(targetObject, constructorOpt?): void
+```
 
 Create .stack property on a target object
 
 #### Parameters
 
-| Name | Type |
+| Parameter | Type |
 | :------ | :------ |
 | `targetObject` | `object` |
-| `constructorOpt?` | `Function` |
+| `constructorOpt`? | `Function` |
 
 #### Returns
 
@@ -136,4 +64,4 @@ Create .stack property on a target object
 
 #### Inherited from
 
-Error.captureStackTrace
+`Error.captureStackTrace`

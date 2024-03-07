@@ -2,6 +2,502 @@
   "name": "@typespec/compiler",
   "entries": [
     {
+      "version": "0.52.0",
+      "tag": "@typespec/compiler_v0.52.0",
+      "date": "Wed, 24 Jan 2024 05:46:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "add bytes encode to the general encode type"
+          },
+          {
+            "comment": "Added support for named template arguments (#2340)"
+          },
+          {
+            "comment": "Feature: Added encoded name decorator"
+          },
+          {
+            "comment": "Add a new init template for creating a new emitter"
+          },
+          {
+            "comment": "Added new `--template` option to `tsp init` command line action which lets user specify which template to choose from in the template list."
+          },
+          {
+            "comment": "IDE: Performance improvements to the language server."
+          },
+          {
+            "comment": "Fix: Compiler couldn't resolve files at a long path(256+) on windows"
+          },
+          {
+            "comment": "Stop warning user when `tsp init` a template without `compilerVersion` specified"
+          },
+          {
+            "comment": "Library declaration: Deprecated linter property on `$lib` in favor of a new `$linter` variable that can be exported. This was done to prevent circular reference caused by referencing linter rules in $lib."
+          },
+          {
+            "comment": "Library declaration: State symbols can now be declared in the library declaration(Prefereably internal declaration added above) to have a central place to define state symbols used in your libraries."
+          },
+          {
+            "comment": "Add a new `tsp init` template for setting up a library"
+          },
+          {
+            "comment": "Rename template parameters in preparation for named template argument instantiation."
+          },
+          {
+            "comment": "Add ability to use another template parameter as a constraint. e.g. `model Foo<A, B extends A>`"
+          },
+          {
+            "comment": "Add new helper function to change casing to the init templates"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.5.1` to `~0.5.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.51.0",
+      "tag": "@typespec/compiler_v0.51.0",
+      "date": "Wed, 06 Dec 2023 19:40:58 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "[API] Emitter framework: `emitTypeReference` function takes an optional reference context that can be used to patch the context for the target."
+          },
+          {
+            "comment": "Emitter API: Added `absolute-path` as a known format for emitter options which will validate the value passed by the user resolve to an absolute path."
+          },
+          {
+            "comment": "Linter rules can provide a url to the full documentation"
+          },
+          {
+            "comment": "**New language feature** **BREAKING** Added string template literal in typespec. Single and multi-line strings can be interpolated with `${` and `}`. Example `\\`Doc for url ${url} is here: ${location}\\``"
+          },
+          {
+            "comment": "Formatter: Fix: `valueof` expression with parentheses around will preserve them when they are meaningful(For example inside a union or array expression)"
+          },
+          {
+            "comment": "Emitter framework: allows scalar and enum declaration to provide a reference context."
+          },
+          {
+            "comment": "Fix: Union variant are now assignable to the parent union"
+          },
+          {
+            "comment": "Emitter framework: Allow passing a custom context when calling `emitType` "
+          },
+          {
+            "comment": "Upgrade formatter to prettier 3.1"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.5.0` to `~0.5.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.50.0",
+      "tag": "@typespec/compiler_v0.50.0",
+      "date": "Wed, 08 Nov 2023 00:07:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add new `unixTimestamp32` scalar to standard library"
+          },
+          {
+            "comment": "Fixing @doc and /** */ disappears from multi-segment or nested namespaces. #2642"
+          },
+          {
+            "comment": "Fix issue where using `@overload` could result in incorrect `unassignable` type errors."
+          },
+          {
+            "comment": "Add new hook for handling circular references"
+          },
+          {
+            "comment": "Fix: Issue where referencing a template in an alias might cause augment decorators to not be applied on types referenced in the aliased type."
+          },
+          {
+            "comment": "[Internal] Fix: `RekeyableMap` kept track of old value if rekeying to an existing item"
+          },
+          {
+            "comment": "Fix: Properties filtered with `@withVisibility` will have their visibility removed. This prevent visibility from being applied twice and rendering invalid models"
+          },
+          {
+            "comment": "`TypeEmitter` now supports Tuples."
+          },
+          {
+            "comment": "Issue error if a model spreads itself within its declaration."
+          },
+          {
+            "comment": "Stop showing empty code frame when diagnostic has no location"
+          },
+          {
+            "comment": "`TypeScript` use `types` entry under `exports` of `package.json` instead of legacy `typesVersions` to provide the definition files"
+          },
+          {
+            "comment": "**BREAKING CHANGE** Dropped support for node 16, minimum node version is now 18"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.5` to `~0.5.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.49.0",
+      "tag": "@typespec/compiler_v0.49.0",
+      "date": "Wed, 11 Oct 2023 23:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Handle hyphen in @param doc comment"
+          },
+          {
+            "comment": "The `never` type is now assignable to all types"
+          },
+          {
+            "comment": "Allow nullable types for constraint decorators(min/max value, length, etc)"
+          },
+          {
+            "comment": "Add support for `@returns` and `@errors` doc comment tags. `@returns`(or `@returnsDoc` decorator) can be used to describe the success return types of an operation. `@errors`(or `@errorsDoc` decorator) can be used to describe the error return types of an operation."
+          },
+          {
+            "comment": "Fix: Colorization of line comment was bleeding over to the next line(s)."
+          },
+          {
+            "comment": "Fix crash when using parenthesis on directives"
+          },
+          {
+            "comment": "Fix: Assigning negative and 0 to float64"
+          },
+          {
+            "comment": "`tsp format` now returns a non-zero exit code when it fails to format a file"
+          },
+          {
+            "comment": "Fix: Anonymous union variants were formatted with an extra leading `:`"
+          },
+          {
+            "comment": "Formatter: Unions and Enums members are now formatted following the same rules as model properties. An extra line will be added between members if the member is annotated with a decorator, directive or doc comment."
+          },
+          {
+            "comment": "Fix: Correct formatting of comments between a directive or doc and its node"
+          },
+          {
+            "comment": "Fix: `tsp init` was not creating the `tspconfig.yaml` file for templates that specified it"
+          },
+          {
+            "comment": "Fix: `tsp init` will create a placeholder `tspconfig.yaml` file for templates that don't specify an explicit one."
+          },
+          {
+            "comment": "Fix `tsp init` was ignoring the `files` specified in an init template"
+          },
+          {
+            "comment": "Fix: Language Server wasn't loading the `tspconfig.yaml` correctly resulting in some options being dropped like the linter configuration."
+          },
+          {
+            "comment": "Fix: Allow `null` to be assigned as a default value"
+          },
+          {
+            "comment": "Fix: Using `TypeSpec.Xyz` namespace shouldn't require the `TypeSpec Prefix`"
+          },
+          {
+            "comment": "Skip emit of `deprecated` diagnostic for a type reference that is used in a deprecated declaration statement"
+          },
+          {
+            "comment": "Update dependencies"
+          },
+          {
+            "comment": "Remove `decorators` export, import decorators individually"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.4` to `~0.4.5`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.1",
+      "tag": "@typespec/compiler_v0.48.1",
+      "date": "Tue, 19 Sep 2023 19:28:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Fix emitter framework issue causing reference context to be lost in certain cases."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Add typesVersions metadata for the emitter framework to package.json"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.48.0",
+      "tag": "@typespec/compiler_v0.48.0",
+      "date": "Tue, 12 Sep 2023 21:47:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "**Breaking Change** A semicolon is now required after augment decorator  statements."
+          },
+          {
+            "comment": "Added decorators `@parameterVisibility` and `@returnTypeVisibility`. Added methods `getParameterVisibility` and `getReturnTypeVisibility`. "
+          },
+          {
+            "comment": "Fix issue where --config would search the folder hierarchy looking for `tspconfig.yaml`."
+          },
+          {
+            "comment": "**Deprecation** `@deprecated` decorator has been marked as deprecated. Use `#deprecated` directive instead."
+          },
+          {
+            "comment": "**IDE** Add coloring for doc comment"
+          },
+          {
+            "comment": "Changed yaml parser from `js-yaml` to `yaml`"
+          },
+          {
+            "comment": "Parsing and validation of the tspconfig.yaml will not report the error location."
+          },
+          {
+            "comment": "**Fix** Stackoverflow when model property reference itself"
+          },
+          {
+            "comment": "**Fix** Compiler crash when using alias of namespace that has decorators"
+          },
+          {
+            "comment": "Fix: Compiler freeze when using invalid token between doc comment and type"
+          },
+          {
+            "comment": "**Added** validation making sure properties of model are compatible with a base model indexer (using `extends`)"
+          },
+          {
+            "comment": "Fix: Crash with when relating recursive types"
+          },
+          {
+            "comment": "Fix typo in 'format' error message"
+          },
+          {
+            "comment": "Expose `CompilerOptions` TypeScript type"
+          },
+          {
+            "comment": "Report library information when crash happen in $onValidate"
+          },
+          {
+            "comment": "Diagnostics reported on nodes with an `id` will see the diagnostic highlight the id instead of the whole node. For example it will show the error on the model name instead of highlighting the entire model."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.3` to `~0.4.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.47.1",
+      "tag": "@typespec/compiler_v0.47.1",
+      "date": "Thu, 10 Aug 2023 20:18:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "**Fix**: `--config` flag was being ignored."
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.47.0",
+      "tag": "@typespec/compiler_v0.47.0",
+      "date": "Tue, 08 Aug 2023 22:32:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Allow omitting variant names in union declarations"
+          },
+          {
+            "comment": "Internal: Refactoring of cli code"
+          },
+          {
+            "comment": "Other cli commands reuse the diagnostic system to report errors"
+          },
+          {
+            "comment": "Add `#deprecated` directive to replace `@deprecated` decorator"
+          },
+          {
+            "comment": "Add `--ignore-deprecated` CLI argument to suppress all `deprecated` diagnostics"
+          },
+          {
+            "comment": "**Breaking change** Emitter Framework: `sourceFile` method can return a `Promise`. This allows running async processes when generating the file content, a formatter for example. This result in a potential breaking change if calling `emitSourceFile` where you'll have to add `await` before."
+          },
+          {
+            "comment": "Add a new util `resolveCompilerOptions` to resolve compiler options from a given entrypoint. This will resolve the options from the tspconfig.yaml in the same way the cli would."
+          },
+          {
+            "comment": "Fix: Compiler version mismatch error would fire incorrectly"
+          },
+          {
+            "comment": "Fix crash when `using` non-namespace"
+          },
+          {
+            "comment": "Fix some issues with not reporting deprecation on template constraints"
+          },
+          {
+            "comment": "Emit diagnostic for an unresolved metatype property reference"
+          },
+          {
+            "comment": "**Fix** issue where using augment decorators on spread model properties, enum members or operations extended from parent interface wouldn't do anything."
+          },
+          {
+            "comment": "**Fix** issue where using augment decorator on operation parameters applied to source operation parameter as well."
+          },
+          {
+            "comment": "Fix: TypeEmitter missing interfaces methods causing crash"
+          },
+          {
+            "comment": "**Fix** `warn-as-error` in `tspconfig.yaml` was ignored"
+          },
+          {
+            "comment": "Improve compiler watch mode. Files loaded in previous compilation will be watched for changes."
+          },
+          {
+            "comment": "**Breaking change** `formatTypeSpec` is now async. Formatter was updated to use prettier 3.0."
+          },
+          {
+            "comment": "Allow library dependency versions to be specified in init templates using the form `{ name: \"the-lib\", version: \"1.0.0\" }`"
+          },
+          {
+            "comment": "Update init template version compare to be greaterThanAndEqual instead of greaterThan."
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.2` to `~0.4.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.46.0",
+      "tag": "@typespec/compiler_v0.46.0",
+      "date": "Tue, 11 Jul 2023 22:06:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix signature help after comment with no closing parenthesis or angle bracket"
+          },
+          {
+            "comment": "Internal: Reorganize sources inside `src/` folder"
+          },
+          {
+            "comment": "Fix: Doc comment `/** */` should override base type doc in `model is` or `op is`"
+          },
+          {
+            "comment": "Emitter Framework: add support for emitting enum member references."
+          },
+          {
+            "comment": "**Feature** New built-in linter system. Typespec libraries are able to define linting rules which can be configured in `tspconfig.yaml`. See documentation for configuring a [linter](https://microsoft.github.io/typespec/introduction/configuration#linter---configuring-linters) and [writing a linter](https://microsoft.github.io/typespec/extending-typespec/linters)"
+          },
+          {
+            "comment": "**Breaking** Minimum version of TypeScript updated to 5.0. TypeSpec is using new features available in TypeScript 5.0 which result in a definition file not parsable by older version. Note that this only affect compiling TypeScript code and is not breaking any JS or TypeSpec code. [See more information on typescript 5.0](https://devblogs.microsoft.com/typescript/announcing-typescript-5-0/)"
+          },
+          {
+            "comment": "Remove `mkdirp` dependencies and replace with built-in `mkdir({recursive: true})`."
+          },
+          {
+            "comment": "Compiler keeps track of the scope where a file is declared(User project, a library or the compiler)"
+          },
+          {
+            "comment": "Add support for `UTF-8 with bom` for other files loaded by typespec compiler. `.tsp` files already had support, this make it more available for any library/emitter using the compiler api to load a file."
+          },
+          {
+            "comment": "Allow annotations(Decorators, directives and doc comments) to be specified in any order"
+          },
+          {
+            "comment": "Fix: `entrypoints` folder wasn't included in package causing failure to resolve cli.js"
+          },
+          {
+            "comment": "Fix: Formatter incorrectly formatting `::` to `.`"
+          },
+          {
+            "comment": "Fix formatting issue with comment between decorator and scalar or interface"
+          },
+          {
+            "comment": "Fix: Stack overflow crash when having circular reference with `op is` inside an interface. "
+          },
+          {
+            "comment": "Fix IDE issue with squiggles in library code if the library had an entry point named something other than `main.tsp` and a library document was opened after another document that imported the library."
+          },
+          {
+            "comment": "Fix: Referencing decorator target in argument cause stack overflow for enum and union in checker and interface and operations in projection."
+          },
+          {
+            "comment": "**Fix** `getTypeName` include namespace prefix for unions as well"
+          },
+          {
+            "comment": "Formatter will now format doc comment above directives and decorators. This only applies to doc comments. Regular line comments and block comments will remain where they are"
+          },
+          {
+            "comment": "**Formatter**: Improve formatting for properties with comments and decorators. A property with a leading decorator on its own line or comment will be wrapped in blank lines."
+          },
+          {
+            "comment": "**Breaking change** Updating tsp init template schema for future extensibility. Older tsp version will fail validation."
+          },
+          {
+            "comment": "Emitter Framework: TypeEmitter can now implement `writeOutput` to customize how to write source files to disk."
+          },
+          {
+            "comment": "Emitter Framework: Source Files and Declarations have a new property `meta` which can store arbitrary metadata about those entities."
+          },
+          {
+            "comment": "Add support for new identifier characters from Unicode 15.0"
+          },
+          {
+            "comment": "**Deprecate** `@list` decorator in favor of `@listsResource` in `@typespec/rest`"
+          },
+          {
+            "comment": "**Deprecate** `isListOperation` function in favor of `isListOperation` in `@typespec/rest`"
+          },
+          {
+            "comment": "**Deprecate** `getListOperationType` function"
+          },
+          {
+            "comment": "Emitter Framework: Add new `TypeEmitter` methods for scalar instantiation."
+          },
+          {
+            "comment": "Emitter Framework: Fix that context was set incorrectly for some `TypeEmitter` methods, and add missing context methods for model properties, enum members, and union variants."
+          },
+          {
+            "comment": "Emitter Framework: Fix that some context methods were not being passed the expected parameters."
+          },
+          {
+            "comment": "Emitter Framework: Breaking change: Add support for templates instantiated with types without declared names. In such cases, `TypeEmitter`'s declarationName method may return `undefined`, and so the various `*Instantiation` methods might be called with an undefined name, and `AssetEmitter`'s `emitDeclarationName` method might return undefined."
+          },
+          {
+            "comment": "Fix: Wrong path for typescript types for main entrypoint"
+          },
+          {
+            "comment": "Update dependencies"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"tmlanguage-generator\" from `~0.4.1` to `~0.4.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.2",
       "tag": "@typespec/compiler_v0.45.2",
       "date": "Thu, 15 Jun 2023 17:00:33 GMT",

@@ -1,36 +1,13 @@
-[JS Api](../index.md) / DecoratorApplication
+---
+jsApi: true
+title: "[I] DecoratorApplication"
 
-# Interface: DecoratorApplication
-
-## Table of contents
-
-### Properties
-
-- [args](DecoratorApplication.md#args)
-- [decorator](DecoratorApplication.md#decorator)
-- [definition](DecoratorApplication.md#definition)
-- [node](DecoratorApplication.md#node)
-
+---
 ## Properties
 
-### args
-
-• **args**: [`DecoratorArgument`](DecoratorArgument.md)[]
-
-___
-
-### decorator
-
-• **decorator**: [`DecoratorFunction`](DecoratorFunction.md)
-
-___
-
-### definition
-
-• `Optional` **definition**: [`Decorator`](Decorator.md)
-
-___
-
-### node
-
-• `Optional` **node**: [`DecoratorExpressionNode`](DecoratorExpressionNode.md) \| [`AugmentDecoratorStatementNode`](AugmentDecoratorStatementNode.md)
+| Property | Type |
+| :------ | :------ |
+| `args` | [`DecoratorArgument`](DecoratorArgument.md)[] |
+| `decorator` | [`DecoratorFunction`](DecoratorFunction.md) |
+| `definition?` | [`Decorator`](Decorator.md) |
+| `node?` | [`DecoratorExpressionNode`](DecoratorExpressionNode.md) \| [`AugmentDecoratorStatementNode`](AugmentDecoratorStatementNode.md) |
