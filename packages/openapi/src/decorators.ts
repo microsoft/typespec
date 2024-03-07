@@ -18,7 +18,7 @@ import {
   ExternalDocsDecorator,
   InfoDecorator,
   OperationIdDecorator,
-} from "../definitions/decorators.js";
+} from "../generated-defs/decorators.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey } from "./types.js";
 

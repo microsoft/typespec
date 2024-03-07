@@ -31,7 +31,7 @@ export async function generateExternSignatures(
   });
   const prettierConfig = await prettier.resolveConfig(libraryPath);
 
-  const outDir = resolvePath(libraryPath, "definitions");
+  const outDir = resolvePath(libraryPath, "generated-defs");
   await host.mkdirp(outDir);
 
   const files = await generateExternDecorators(program, pkgJson.name, prettierConfig ?? undefined);
