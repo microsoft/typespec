@@ -115,6 +115,12 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
     if (type.kind === "Model" && isReflectionType(type)) {
       return useCompilerType(type.name);
+    } else if (
+      type.kind === "Union" &&
+      [...type.variants.values()].every((x) => isReflectionType(x.type))
+    ) {
+      const variants = [...type.variants.values()];
+      return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
     }
     return useCompilerType("TypeSpecValue");
   }
@@ -192,7 +198,7 @@ function isReflectionType(type: Type): type is Model {
 
 function getDocComment(type: Type): string {
   const docs = type.node?.docs;
-  if (docs === undefined) {
+  if (docs === undefined || docs.length === 0) {
     return "";
   }
 
