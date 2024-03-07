@@ -123,7 +123,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
       const variants = [...type.variants.values()];
       return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
     }
-    return useCompilerType("TypeSpecValue");
+    return useCompilerType("Type");
   }
 
   function getValueTSType(type: Type): string {

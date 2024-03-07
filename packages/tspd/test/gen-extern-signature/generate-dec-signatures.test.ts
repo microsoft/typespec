@@ -105,8 +105,8 @@ export type SimpleDecorator = (context: DecoratorContext, target: ${expected}) =
 
   describe("actual types", () => {
     it.each([
-      ["model Options { name: string, other: string }", "Options", "TypeSpecValue"],
-      ["enum Direction { up, down }", "Direction", "TypeSpecValue"],
+      ["model Options { name: string, other: string }", "Options", "Type"],
+      ["enum Direction { up, down }", "Direction", "Type"],
     ])("%s", async (code, ref, expected) => {
       await expectSignatures({
         code: `extern dec simple(target: ${ref});\n${code}`,
@@ -123,7 +123,7 @@ export type SimpleDecorator = (context: DecoratorContext, target: ${expected}) =
 describe("generate parameter type", () => {
   describe("single reflection type", () => {
     it.each([
-      ["unknown", "TypeSpecValue"],
+      ["unknown", "Type"],
       ["Model", "Model"],
       ["ModelProperty", "ModelProperty"],
       ["Operation", "Operation"],
@@ -183,8 +183,8 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
 
   describe("actual types", () => {
     it.each([
-      ["model Options { name: string, other: string }", "Options", "TypeSpecValue"],
-      ["enum Direction { up, down }", "Direction", "TypeSpecValue"],
+      ["model Options { name: string, other: string }", "Options", "Type"],
+      ["enum Direction { up, down }", "Direction", "Type"],
     ])("%s", async (code, ref, expected) => {
       await expectSignatures({
         code: `extern dec simple(target, arg1: ${ref});\n${code}`,
@@ -199,7 +199,6 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: ${
 });
 
 function importLine(imports: string[]) {
-  const all = ["DecoratorContext", ...imports];
-  all.sort();
-  return `import { ${all.join(", ")} } from "@typespec/compiler";`;
+  const all = new Set(["DecoratorContext", ...imports]);
+  return `import { ${[...all].sort().join(", ")} } from "@typespec/compiler";`;
 }
