@@ -12,7 +12,7 @@ variables:
   BlobFeedUrl: https://azuresdkartifacts.blob.core.windows.net/azure-sdk-tools/index.json
   OfficialBuildId: $(Build.BuildNumber)
   nugetMultiFeedWarnLevel: 'none'
-  SourceRoot: $(Build.SourcesDirectory)/typespec/packages/http-client-csharp-generator
+  SourceRoot: $(Pipeline.Workspace)/s/typespec/packages/http-client-csharp-generator
 
 resources:
   repositories:
