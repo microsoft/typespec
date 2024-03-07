@@ -1,0 +1,231 @@
+{
+ "$id": "1",
+ "Name": "ApiVersionInTsp",
+ "Description": "CADL project to test api versions.",
+ "ApiVersions": [
+  "v1.1",
+  "v1.2"
+ ],
+ "Enums": [
+  {
+   "$id": "2",
+   "Name": "APIVersion",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "v1_1",
+     "Value": "v1.1"
+    },
+    {
+     "$id": "4",
+     "Name": "v1_2",
+     "Value": "v1.2"
+    }
+   ],
+   "Namespace": "ApiVersionInTsp",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  },
+  {
+   "$id": "5",
+   "Kind": "Enum",
+   "Name": "Versions",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "6",
+     "Name": "v1_1",
+     "Value": "v1.1"
+    },
+    {
+     "$id": "7",
+     "Name": "v1_2",
+     "Value": "v1.2"
+    }
+   ],
+   "Namespace": "ApiVersionInTsp",
+   "Description": "",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  }
+ ],
+ "Models": [
+  {
+   "$id": "8",
+   "Kind": "Model",
+   "Name": "DetectionResult",
+   "Namespace": "ApiVersionInTsp",
+   "Description": "Detection results for the given resultId.",
+   "IsNullable": false,
+   "Usage": "Output",
+   "Properties": [
+    {
+     "$id": "9",
+     "Name": "resultId",
+     "SerializedName": "resultId",
+     "Description": "Result identifier, which is used to fetch the results of an inference call.",
+     "Type": {
+      "$id": "10",
+      "Kind": "Primitive",
+      "Name": "Guid",
+      "IsNullable": false
+     },
+     "IsRequired": true,
+     "IsReadOnly": false
+    }
+   ]
+  }
+ ],
+ "Clients": [
+  {
+   "$id": "11",
+   "Name": "ApiVersionInTspClient",
+   "Description": "CADL project to test api versions.",
+   "Operations": [
+    {
+     "$id": "12",
+     "Name": "GetBatchDetectionResult",
+     "ResourceName": "ApiVersionInTsp",
+     "Summary": "Get Multivariate Anomaly Detection Result",
+     "Description": "For asynchronous inference, get multivariate anomaly detection result based on\nresultId returned by the BatchDetectAnomaly api.",
+     "Parameters": [
+      {
+       "$id": "13",
+       "Name": "Endpoint",
+       "NameInRequest": "Endpoint",
+       "Description": "Supported Cognitive Services endpoints (protocol and hostname, for example:\nhttps://westus2.api.cognitive.microsoft.com).",
+       "Type": {
+        "$id": "14",
+        "Kind": "Primitive",
+        "Name": "Uri",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "15",
+       "Name": "ApiVersion",
+       "NameInRequest": "ApiVersion",
+       "Description": "Api Version",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Uri",
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "16",
+        "Type": {
+         "$id": "17",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "v1.2"
+       }
+      },
+      {
+       "$id": "18",
+       "Name": "resultId",
+       "NameInRequest": "resultId",
+       "Type": {
+        "$id": "19",
+        "Kind": "Primitive",
+        "Name": "Guid",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "20",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "21",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "22",
+        "Type": {
+         "$ref": "21"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "23",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$ref": "8"
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{Endpoint}/anomalydetector/{ApiVersion}",
+     "Path": "/multivariate/detect-batch/{resultId}",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "24"
+   },
+   "Creatable": true
+  }
+ ],
+ "Auth": {
+  "$id": "25",
+  "ApiKey": {
+   "$id": "26",
+   "Name": "Ocp-Apim-Subscription-Key"
+  }
+ }
+}

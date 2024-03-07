@@ -1,0 +1,1637 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PutNonRetry400Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonRetry400Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutNonRetry400Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonRetry400Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutNonRetry400Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNonRetry400(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonRetry400 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutNonRetry400(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonRetry400 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutNonRetry400(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNonRetry201Creating400Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonRetry201Creating400Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutNonRetry201Creating400Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonRetry201Creating400Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutNonRetry201Creating400Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNonRetry201Creating400(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonRetry201Creating400 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutNonRetry201Creating400(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonRetry201Creating400 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutNonRetry201Creating400(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNonRetry201Creating400InvalidJsonAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonRetry201Creating400InvalidJsonAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutNonRetry201Creating400InvalidJsonAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonRetry201Creating400InvalidJsonAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutNonRetry201Creating400InvalidJsonAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutNonRetry201Creating400InvalidJson(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutNonRetry201Creating400InvalidJson and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutNonRetry201Creating400InvalidJson(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutNonRetry201Creating400InvalidJson with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutNonRetry201Creating400InvalidJson(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetry400Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetry400Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetry400Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetry400Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetry400Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetry400(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetry400 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRelativeRetry400(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetry400 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRelativeRetry400(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="DeleteNonRetry400Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteNonRetry400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteNonRetry400Async(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteNonRetry400Async with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteNonRetry400Async(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteNonRetry400(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteNonRetry400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteNonRetry400(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteNonRetry400 with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteNonRetry400(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Delete202NonRetry400Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202NonRetry400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.Delete202NonRetry400Async(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete202NonRetry400Async with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.Delete202NonRetry400Async(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Delete202NonRetry400(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202NonRetry400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.Delete202NonRetry400(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete202NonRetry400 with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.Delete202NonRetry400(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetry400Async(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetry400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetry400Async(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetry400Async with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetry400Async(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetry400(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetry400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetry400(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetry400 with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetry400(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="PostNonRetry400Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostNonRetry400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostNonRetry400Async(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostNonRetry400Async with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostNonRetry400Async(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostNonRetry400(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostNonRetry400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostNonRetry400(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostNonRetry400 with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostNonRetry400(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202NonRetry400Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202NonRetry400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.Post202NonRetry400Async(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202NonRetry400Async with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.Post202NonRetry400Async(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202NonRetry400(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202NonRetry400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.Post202NonRetry400(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202NonRetry400 with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.Post202NonRetry400(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetry400Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetry400Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRelativeRetry400Async(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetry400Async with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRelativeRetry400Async(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetry400(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetry400.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRelativeRetry400(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetry400 with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRelativeRetry400(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PutError201NoProvisioningStatePayloadAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutError201NoProvisioningStatePayloadAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutError201NoProvisioningStatePayloadAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutError201NoProvisioningStatePayloadAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutError201NoProvisioningStatePayloadAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutError201NoProvisioningStatePayload(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutError201NoProvisioningStatePayload and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutError201NoProvisioningStatePayload(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutError201NoProvisioningStatePayload with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutError201NoProvisioningStatePayload(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryNoStatusAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryNoStatusAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryNoStatusAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryNoStatusAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryNoStatusAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryNoStatus(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryNoStatus and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryNoStatus(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryNoStatus with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryNoStatus(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryNoStatusPayloadAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryNoStatusPayloadAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryNoStatusPayloadAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryNoStatusPayloadAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryNoStatusPayloadAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryNoStatusPayload(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryNoStatusPayload and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryNoStatusPayload(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryNoStatusPayload with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryNoStatusPayload(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Delete204SucceededAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete204SucceededAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.Delete204SucceededAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete204SucceededAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.Delete204SucceededAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Delete204Succeeded(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete204Succeeded.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.Delete204Succeeded(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete204Succeeded with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.Delete204Succeeded(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetryNoStatusAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetryNoStatusAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetryNoStatusAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetryNoStatusAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetryNoStatusAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetryNoStatus(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetryNoStatus.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetryNoStatus(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetryNoStatus with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetryNoStatus(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Post202NoLocationAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202NoLocationAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.Post202NoLocationAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202NoLocationAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.Post202NoLocationAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202NoLocation(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202NoLocation.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.Post202NoLocation(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202NoLocation with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.Post202NoLocation(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetryNoPayloadAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetryNoPayloadAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRelativeRetryNoPayloadAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetryNoPayloadAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRelativeRetryNoPayloadAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetryNoPayload(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetryNoPayload.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRelativeRetryNoPayload(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetryNoPayload with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRelativeRetryNoPayload(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Put200InvalidJsonAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200InvalidJsonAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put200InvalidJsonAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200InvalidJsonAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put200InvalidJsonAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put200InvalidJson(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put200InvalidJson and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put200InvalidJson(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put200InvalidJson with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put200InvalidJson(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryInvalidHeaderAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryInvalidHeaderAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryInvalidHeaderAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryInvalidHeaderAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryInvalidHeaderAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryInvalidHeader(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryInvalidHeader and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryInvalidHeader(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryInvalidHeader with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryInvalidHeader(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryInvalidJsonPollingAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryInvalidJsonPollingAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRelativeRetryInvalidJsonPolling(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRelativeRetryInvalidJsonPolling and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryInvalidJsonPolling(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRelativeRetryInvalidJsonPolling with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRelativeRetryInvalidJsonPolling(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Delete202RetryInvalidHeaderAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202RetryInvalidHeaderAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.Delete202RetryInvalidHeaderAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete202RetryInvalidHeaderAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.Delete202RetryInvalidHeaderAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Delete202RetryInvalidHeader(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call Delete202RetryInvalidHeader.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.Delete202RetryInvalidHeader(WaitUntil.Completed);
+]]></code>
+This sample shows how to call Delete202RetryInvalidHeader with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.Delete202RetryInvalidHeader(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetryInvalidHeaderAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidHeaderAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetryInvalidHeaderAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidHeaderAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetryInvalidHeaderAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetryInvalidHeader(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidHeader.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetryInvalidHeader(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidHeader with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetryInvalidHeader(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidJsonPollingAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidJsonPollingAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = await client.DeleteAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="DeleteAsyncRelativeRetryInvalidJsonPolling(WaitUntil,RequestContext)">
+      <example>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidJsonPolling.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetryInvalidJsonPolling(WaitUntil.Completed);
+]]></code>
+This sample shows how to call DeleteAsyncRelativeRetryInvalidJsonPolling with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+Operation operation = client.DeleteAsyncRelativeRetryInvalidJsonPolling(WaitUntil.Completed);
+]]></code></example>
+    </member>
+    <member name="Post202RetryInvalidHeaderAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202RetryInvalidHeaderAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.Post202RetryInvalidHeaderAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202RetryInvalidHeaderAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.Post202RetryInvalidHeaderAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202RetryInvalidHeader(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202RetryInvalidHeader.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.Post202RetryInvalidHeader(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202RetryInvalidHeader with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.Post202RetryInvalidHeader(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetryInvalidHeaderAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetryInvalidHeaderAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRelativeRetryInvalidHeaderAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetryInvalidHeaderAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRelativeRetryInvalidHeaderAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetryInvalidHeader(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetryInvalidHeader.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRelativeRetryInvalidHeader(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetryInvalidHeader with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRelativeRetryInvalidHeader(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetryInvalidJsonPollingAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetryInvalidJsonPollingAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRelativeRetryInvalidJsonPollingAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRelativeRetryInvalidJsonPolling(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRelativeRetryInvalidJsonPolling.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRelativeRetryInvalidJsonPolling(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRelativeRetryInvalidJsonPolling with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LrosaDsClient client = new LrosaDsClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRelativeRetryInvalidJsonPolling(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+  </members>
+</doc>

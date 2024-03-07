@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="WithoutApiVersionAsync(RequestContext)">
+      <example>
+This sample shows how to call WithoutApiVersionAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = await client.WithoutApiVersionAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithoutApiVersionAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = await client.WithoutApiVersionAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithoutApiVersion(RequestContext)">
+      <example>
+This sample shows how to call WithoutApiVersion.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = client.WithoutApiVersion();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithoutApiVersion with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = client.WithoutApiVersion();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithQueryApiVersionAsync(string,RequestContext)">
+      <example>
+This sample shows how to call WithQueryApiVersionAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = await client.WithQueryApiVersionAsync("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithQueryApiVersionAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = await client.WithQueryApiVersionAsync("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithQueryApiVersion(string,RequestContext)">
+      <example>
+This sample shows how to call WithQueryApiVersion.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = client.WithQueryApiVersion("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithQueryApiVersion with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = client.WithQueryApiVersion("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithPathApiVersionAsync(string,RequestContext)">
+      <example>
+This sample shows how to call WithPathApiVersionAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = await client.WithPathApiVersionAsync("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithPathApiVersionAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = await client.WithPathApiVersionAsync("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithPathApiVersion(string,RequestContext)">
+      <example>
+This sample shows how to call WithPathApiVersion.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = client.WithPathApiVersion("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithPathApiVersion with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+NotVersionedClient client = new NotVersionedClient(endpoint);
+
+Response response = client.WithPathApiVersion("<apiVersion>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

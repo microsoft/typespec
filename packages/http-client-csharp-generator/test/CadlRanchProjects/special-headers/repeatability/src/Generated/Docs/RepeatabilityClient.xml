@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="ImmediateSuccessAsync(RequestContext)">
+      <example>
+This sample shows how to call ImmediateSuccessAsync.
+<code><![CDATA[
+RepeatabilityClient client = new RepeatabilityClient();
+
+Response response = await client.ImmediateSuccessAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ImmediateSuccessAsync with all request content.
+<code><![CDATA[
+RepeatabilityClient client = new RepeatabilityClient();
+
+Response response = await client.ImmediateSuccessAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ImmediateSuccess(RequestContext)">
+      <example>
+This sample shows how to call ImmediateSuccess.
+<code><![CDATA[
+RepeatabilityClient client = new RepeatabilityClient();
+
+Response response = client.ImmediateSuccess();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ImmediateSuccess with all request content.
+<code><![CDATA[
+RepeatabilityClient client = new RepeatabilityClient();
+
+Response response = client.ImmediateSuccess();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

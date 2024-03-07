@@ -1,0 +1,3111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PutBaseModelWithDiscriminatorDefinedOnBaseAsync(BaseModelWithDiscriminatorDefinedOnBase,CancellationToken)">
+      <example>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBaseAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+BaseModelWithDiscriminatorDefinedOnBase body = new DerivedWithDiscriminatorDefinedOnBase("<requiredString>");
+Response<BaseModelWithDiscriminatorDefinedOnBase> response = await client.PutBaseModelWithDiscriminatorDefinedOnBaseAsync(body);
+]]></code>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBaseAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+BaseModelWithDiscriminatorDefinedOnBase body = new DerivedWithDiscriminatorDefinedOnBase("<requiredString>")
+{
+    OptionalInt = 1234,
+    OptionalString = "<optionalString>",
+};
+Response<BaseModelWithDiscriminatorDefinedOnBase> response = await client.PutBaseModelWithDiscriminatorDefinedOnBaseAsync(body);
+]]></code></example>
+    </member>
+    <member name="PutBaseModelWithDiscriminatorDefinedOnBase(BaseModelWithDiscriminatorDefinedOnBase,CancellationToken)">
+      <example>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBase.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+BaseModelWithDiscriminatorDefinedOnBase body = new DerivedWithDiscriminatorDefinedOnBase("<requiredString>");
+Response<BaseModelWithDiscriminatorDefinedOnBase> response = client.PutBaseModelWithDiscriminatorDefinedOnBase(body);
+]]></code>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBase with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+BaseModelWithDiscriminatorDefinedOnBase body = new DerivedWithDiscriminatorDefinedOnBase("<requiredString>")
+{
+    OptionalInt = 1234,
+    OptionalString = "<optionalString>",
+};
+Response<BaseModelWithDiscriminatorDefinedOnBase> response = client.PutBaseModelWithDiscriminatorDefinedOnBase(body);
+]]></code></example>
+    </member>
+    <member name="PutBaseModelWithDiscriminatorDefinedOnBaseAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBaseAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    kind = "A",
+});
+Response response = await client.PutBaseModelWithDiscriminatorDefinedOnBaseAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBaseAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    optionalInt = 1234,
+    kind = "A",
+    optionalString = "<optionalString>",
+});
+Response response = await client.PutBaseModelWithDiscriminatorDefinedOnBaseAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("optionalString").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code></example>
+    </member>
+    <member name="PutBaseModelWithDiscriminatorDefinedOnBase(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBase and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    kind = "A",
+});
+Response response = client.PutBaseModelWithDiscriminatorDefinedOnBase(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call PutBaseModelWithDiscriminatorDefinedOnBase with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    optionalInt = 1234,
+    kind = "A",
+    optionalString = "<optionalString>",
+});
+Response response = client.PutBaseModelWithDiscriminatorDefinedOnBase(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("optionalString").ToString());
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code></example>
+    </member>
+    <member name="GetOutputDiscriminatorModelAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetOutputDiscriminatorModelAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputBaseModelWithDiscriminator> response = await client.GetOutputDiscriminatorModelAsync();
+]]></code>
+This sample shows how to call GetOutputDiscriminatorModelAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputBaseModelWithDiscriminator> response = await client.GetOutputDiscriminatorModelAsync();
+]]></code></example>
+    </member>
+    <member name="GetOutputDiscriminatorModel(CancellationToken)">
+      <example>
+This sample shows how to call GetOutputDiscriminatorModel.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputBaseModelWithDiscriminator> response = client.GetOutputDiscriminatorModel();
+]]></code>
+This sample shows how to call GetOutputDiscriminatorModel with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputBaseModelWithDiscriminator> response = client.GetOutputDiscriminatorModel();
+]]></code></example>
+    </member>
+    <member name="GetOutputDiscriminatorModelAsync(RequestContext)">
+      <example>
+This sample shows how to call GetOutputDiscriminatorModelAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.GetOutputDiscriminatorModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call GetOutputDiscriminatorModelAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.GetOutputDiscriminatorModelAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code></example>
+    </member>
+    <member name="GetOutputDiscriminatorModel(RequestContext)">
+      <example>
+This sample shows how to call GetOutputDiscriminatorModel and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.GetOutputDiscriminatorModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call GetOutputDiscriminatorModel with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.GetOutputDiscriminatorModel(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripAsync(InputModel,CancellationToken)">
+      <example>
+This sample shows how to call InputToRoundTripAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 });
+Response<RoundTripModel> response = await client.InputToRoundTripAsync(input);
+]]></code>
+This sample shows how to call InputToRoundTripAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 })
+{
+    NonRequiredNullableInt = 1234,
+    NonRequiredNullableString = "<nonRequiredNullableString>",
+    NonRequiredModelList = { default },
+    NonRequiredStringList = { "<nonRequiredStringList>" },
+    NonRequiredIntList = { 1234 },
+    NonRequiredNullableModelList = { default },
+    NonRequiredNullableStringList = { "<nonRequiredNullableStringList>" },
+    NonRequiredNullableIntList = { 1234 },
+};
+Response<RoundTripModel> response = await client.InputToRoundTripAsync(input);
+]]></code></example>
+    </member>
+    <member name="InputToRoundTrip(InputModel,CancellationToken)">
+      <example>
+This sample shows how to call InputToRoundTrip.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 });
+Response<RoundTripModel> response = client.InputToRoundTrip(input);
+]]></code>
+This sample shows how to call InputToRoundTrip with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 })
+{
+    NonRequiredNullableInt = 1234,
+    NonRequiredNullableString = "<nonRequiredNullableString>",
+    NonRequiredModelList = { default },
+    NonRequiredStringList = { "<nonRequiredStringList>" },
+    NonRequiredIntList = { 1234 },
+    NonRequiredNullableModelList = { default },
+    NonRequiredNullableStringList = { "<nonRequiredNullableStringList>" },
+    NonRequiredNullableIntList = { 1234 },
+};
+Response<RoundTripModel> response = client.InputToRoundTrip(input);
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputToRoundTripAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = await client.InputToRoundTripAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
+Console.WriteLine(result.GetProperty("requiredReadonlyInt").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedStringEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedIntEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredExtensibleEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredIntRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredStringRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredBytes").ToString());
+Console.WriteLine(result.GetProperty("requiredUint8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredUnknown").ToString());
+Console.WriteLine(result.GetProperty("requiredInt8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableStringList")[0].ToString());
+]]></code>
+This sample shows how to call InputToRoundTripAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    nonRequiredNullableInt = 1234,
+    nonRequiredNullableString = "<nonRequiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredModelList = new object[]
+    {
+        null
+    },
+    nonRequiredStringList = new object[]
+    {
+        "<nonRequiredStringList>"
+    },
+    nonRequiredIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredNullableModelList = new object[]
+    {
+        null
+    },
+    nonRequiredNullableStringList = new object[]
+    {
+        "<nonRequiredNullableStringList>"
+    },
+    nonRequiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = await client.InputToRoundTripAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredString").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableInt").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableString").ToString());
+Console.WriteLine(result.GetProperty("requiredReadonlyInt").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredReadonlyInt").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedStringEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedIntEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredExtensibleEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredIntRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredStringRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredBytes").ToString());
+Console.WriteLine(result.GetProperty("optionalBytes").ToString());
+Console.WriteLine(result.GetProperty("requiredUint8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalUint8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredUnknown").ToString());
+Console.WriteLine(result.GetProperty("optionalUnknown").ToString());
+Console.WriteLine(result.GetProperty("requiredInt8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalInt8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableStringList")[0].ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableStringList")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="InputToRoundTrip(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputToRoundTrip and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = client.InputToRoundTrip(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
+Console.WriteLine(result.GetProperty("requiredReadonlyInt").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedStringEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedIntEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredExtensibleEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredIntRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredStringRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredBytes").ToString());
+Console.WriteLine(result.GetProperty("requiredUint8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredUnknown").ToString());
+Console.WriteLine(result.GetProperty("requiredInt8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableStringList")[0].ToString());
+]]></code>
+This sample shows how to call InputToRoundTrip with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    nonRequiredNullableInt = 1234,
+    nonRequiredNullableString = "<nonRequiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredModelList = new object[]
+    {
+        null
+    },
+    nonRequiredStringList = new object[]
+    {
+        "<nonRequiredStringList>"
+    },
+    nonRequiredIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredNullableModelList = new object[]
+    {
+        null
+    },
+    nonRequiredNullableStringList = new object[]
+    {
+        "<nonRequiredNullableStringList>"
+    },
+    nonRequiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = client.InputToRoundTrip(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredString").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableInt").ToString());
+Console.WriteLine(result.GetProperty("requiredNullableString").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableInt").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableString").ToString());
+Console.WriteLine(result.GetProperty("requiredReadonlyInt").ToString());
+Console.WriteLine(result.GetProperty("nonRequiredReadonlyInt").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("optionalPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredModel").GetProperty("requiredPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedStringEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredFixedIntEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredExtensibleEnum").ToString());
+Console.WriteLine(result.GetProperty("requiredIntRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredStringRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("requiredBytes").ToString());
+Console.WriteLine(result.GetProperty("optionalBytes").ToString());
+Console.WriteLine(result.GetProperty("requiredUint8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalUint8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredUnknown").ToString());
+Console.WriteLine(result.GetProperty("optionalUnknown").ToString());
+Console.WriteLine(result.GetProperty("requiredInt8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalInt8Array")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("requiredNullableStringList")[0].ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("nonRequiredNullableStringList")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripPrimitiveAsync(InputModel,CancellationToken)">
+      <example>
+This sample shows how to call InputToRoundTripPrimitiveAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 });
+Response<RoundTripPrimitiveModel> response = await client.InputToRoundTripPrimitiveAsync(input);
+]]></code>
+This sample shows how to call InputToRoundTripPrimitiveAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 })
+{
+    NonRequiredNullableInt = 1234,
+    NonRequiredNullableString = "<nonRequiredNullableString>",
+    NonRequiredModelList = { default },
+    NonRequiredStringList = { "<nonRequiredStringList>" },
+    NonRequiredIntList = { 1234 },
+    NonRequiredNullableModelList = { default },
+    NonRequiredNullableStringList = { "<nonRequiredNullableStringList>" },
+    NonRequiredNullableIntList = { 1234 },
+};
+Response<RoundTripPrimitiveModel> response = await client.InputToRoundTripPrimitiveAsync(input);
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripPrimitive(InputModel,CancellationToken)">
+      <example>
+This sample shows how to call InputToRoundTripPrimitive.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 });
+Response<RoundTripPrimitiveModel> response = client.InputToRoundTripPrimitive(input);
+]]></code>
+This sample shows how to call InputToRoundTripPrimitive with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputModel input = new InputModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new BaseModel(),
+default,
+new int[] { 1234 },
+new string[] { "<requiredStringList>" },
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+new float?[] { 123.45F },
+new bool?[] { true },
+new CollectionItem[]
+{
+    default
+},
+new string[] { "<requiredNullableStringList>" },
+new int[] { 1234 })
+{
+    NonRequiredNullableInt = 1234,
+    NonRequiredNullableString = "<nonRequiredNullableString>",
+    NonRequiredModelList = { default },
+    NonRequiredStringList = { "<nonRequiredStringList>" },
+    NonRequiredIntList = { 1234 },
+    NonRequiredNullableModelList = { default },
+    NonRequiredNullableStringList = { "<nonRequiredNullableStringList>" },
+    NonRequiredNullableIntList = { 1234 },
+};
+Response<RoundTripPrimitiveModel> response = client.InputToRoundTripPrimitive(input);
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripPrimitiveAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputToRoundTripPrimitiveAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = await client.InputToRoundTripPrimitiveAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredInt64").ToString());
+Console.WriteLine(result.GetProperty("requiredSafeInt").ToString());
+Console.WriteLine(result.GetProperty("requiredFloat").ToString());
+Console.WriteLine(result.GetProperty("required_Double").ToString());
+Console.WriteLine(result.GetProperty("requiredBoolean").ToString());
+Console.WriteLine(result.GetProperty("requiredDateTimeOffset").ToString());
+Console.WriteLine(result.GetProperty("requiredTimeSpan").ToString());
+Console.WriteLine(result.GetProperty("requiredCollectionWithNullableFloatElement")[0].ToString());
+]]></code>
+This sample shows how to call InputToRoundTripPrimitiveAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    nonRequiredNullableInt = 1234,
+    nonRequiredNullableString = "<nonRequiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredModelList = new object[]
+    {
+        null
+    },
+    nonRequiredStringList = new object[]
+    {
+        "<nonRequiredStringList>"
+    },
+    nonRequiredIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredNullableModelList = new object[]
+    {
+        null
+    },
+    nonRequiredNullableStringList = new object[]
+    {
+        "<nonRequiredNullableStringList>"
+    },
+    nonRequiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = await client.InputToRoundTripPrimitiveAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredInt64").ToString());
+Console.WriteLine(result.GetProperty("requiredSafeInt").ToString());
+Console.WriteLine(result.GetProperty("requiredFloat").ToString());
+Console.WriteLine(result.GetProperty("required_Double").ToString());
+Console.WriteLine(result.GetProperty("requiredBoolean").ToString());
+Console.WriteLine(result.GetProperty("requiredDateTimeOffset").ToString());
+Console.WriteLine(result.GetProperty("requiredTimeSpan").ToString());
+Console.WriteLine(result.GetProperty("requiredCollectionWithNullableFloatElement")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripPrimitive(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputToRoundTripPrimitive and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = client.InputToRoundTripPrimitive(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredInt64").ToString());
+Console.WriteLine(result.GetProperty("requiredSafeInt").ToString());
+Console.WriteLine(result.GetProperty("requiredFloat").ToString());
+Console.WriteLine(result.GetProperty("required_Double").ToString());
+Console.WriteLine(result.GetProperty("requiredBoolean").ToString());
+Console.WriteLine(result.GetProperty("requiredDateTimeOffset").ToString());
+Console.WriteLine(result.GetProperty("requiredTimeSpan").ToString());
+Console.WriteLine(result.GetProperty("requiredCollectionWithNullableFloatElement")[0].ToString());
+]]></code>
+This sample shows how to call InputToRoundTripPrimitive with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    nonRequiredNullableInt = 1234,
+    nonRequiredNullableString = "<nonRequiredNullableString>",
+    requiredModel = new object(),
+    requiredIntList = new object[]
+    {
+        1234
+    },
+    requiredStringList = new object[]
+    {
+        "<requiredStringList>"
+    },
+    requiredModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredModelRecord = new { },
+    requiredCollectionWithNullableFloatElement = new object[]
+    {
+        123.45F
+    },
+    requiredCollectionWithNullableBooleanElement = new object[]
+    {
+        true
+    },
+    requiredNullableModelList = new object[]
+    {
+        null
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredModelList = new object[]
+    {
+        null
+    },
+    nonRequiredStringList = new object[]
+    {
+        "<nonRequiredStringList>"
+    },
+    nonRequiredIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredNullableModelList = new object[]
+    {
+        null
+    },
+    nonRequiredNullableStringList = new object[]
+    {
+        "<nonRequiredNullableStringList>"
+    },
+    nonRequiredNullableIntList = new object[]
+    {
+        1234
+    },
+});
+Response response = client.InputToRoundTripPrimitive(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+Console.WriteLine(result.GetProperty("requiredInt64").ToString());
+Console.WriteLine(result.GetProperty("requiredSafeInt").ToString());
+Console.WriteLine(result.GetProperty("requiredFloat").ToString());
+Console.WriteLine(result.GetProperty("required_Double").ToString());
+Console.WriteLine(result.GetProperty("requiredBoolean").ToString());
+Console.WriteLine(result.GetProperty("requiredDateTimeOffset").ToString());
+Console.WriteLine(result.GetProperty("requiredTimeSpan").ToString());
+Console.WriteLine(result.GetProperty("requiredCollectionWithNullableFloatElement")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripOptionalAsync(RoundTripOptionalModel,CancellationToken)">
+      <example>
+This sample shows how to call InputToRoundTripOptionalAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOptionalModel input = new RoundTripOptionalModel();
+Response<RoundTripOptionalModel> response = await client.InputToRoundTripOptionalAsync(input);
+]]></code>
+This sample shows how to call InputToRoundTripOptionalAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOptionalModel input = new RoundTripOptionalModel
+{
+    OptionalString = "<optionalString>",
+    OptionalInt = 1234,
+    OptionalStringList = { "<optionalStringList>" },
+    OptionalIntList = { 1234 },
+    OptionalModelList = {new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })},
+    OptionalModel = new DerivedModel(new CollectionItem[]
+    {
+        default
+    }),
+    OptionalModelWithPropertiesOnBase = new DerivedModelWithProperties(new CollectionItem[]
+    {
+        default
+    }),
+    OptionalFixedStringEnum = FixedStringEnum.One,
+    OptionalExtensibleEnum = ExtensibleEnum.One,
+    OptionalIntRecord =
+    {
+        ["key"] = 1234
+    },
+    OptionalStringRecord =
+    {
+        ["key"] = "<optionalStringRecord>"
+    },
+    OptionalModelRecord =
+    {
+        ["key"] = default
+    },
+    OptionalPlainDate = DateTimeOffset.Parse("2022-05-10"),
+    OptionalPlainTime = TimeSpan.Parse("01:23:45"),
+    OptionalCollectionWithNullableIntElement = { 1234 },
+};
+Response<RoundTripOptionalModel> response = await client.InputToRoundTripOptionalAsync(input);
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripOptional(RoundTripOptionalModel,CancellationToken)">
+      <example>
+This sample shows how to call InputToRoundTripOptional.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOptionalModel input = new RoundTripOptionalModel();
+Response<RoundTripOptionalModel> response = client.InputToRoundTripOptional(input);
+]]></code>
+This sample shows how to call InputToRoundTripOptional with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOptionalModel input = new RoundTripOptionalModel
+{
+    OptionalString = "<optionalString>",
+    OptionalInt = 1234,
+    OptionalStringList = { "<optionalStringList>" },
+    OptionalIntList = { 1234 },
+    OptionalModelList = {new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })},
+    OptionalModel = new DerivedModel(new CollectionItem[]
+    {
+        default
+    }),
+    OptionalModelWithPropertiesOnBase = new DerivedModelWithProperties(new CollectionItem[]
+    {
+        default
+    }),
+    OptionalFixedStringEnum = FixedStringEnum.One,
+    OptionalExtensibleEnum = ExtensibleEnum.One,
+    OptionalIntRecord =
+    {
+        ["key"] = 1234
+    },
+    OptionalStringRecord =
+    {
+        ["key"] = "<optionalStringRecord>"
+    },
+    OptionalModelRecord =
+    {
+        ["key"] = default
+    },
+    OptionalPlainDate = DateTimeOffset.Parse("2022-05-10"),
+    OptionalPlainTime = TimeSpan.Parse("01:23:45"),
+    OptionalCollectionWithNullableIntElement = { 1234 },
+};
+Response<RoundTripOptionalModel> response = client.InputToRoundTripOptional(input);
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripOptionalAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputToRoundTripOptionalAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.InputToRoundTripOptionalAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call InputToRoundTripOptionalAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    optionalString = "<optionalString>",
+    optionalInt = 1234,
+    optionalStringList = new object[]
+    {
+        "<optionalStringList>"
+    },
+    optionalIntList = new object[]
+    {
+        1234
+    },
+    optionalModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    optionalModel = new
+    {
+        requiredList = new object[]
+        {
+            null
+        },
+    },
+    optionalModelWithPropertiesOnBase = new
+    {
+        requiredList = new object[]
+        {
+            null
+        },
+        optionalPropertyOnBase = "<optionalPropertyOnBase>",
+    },
+    optionalFixedStringEnum = "1",
+    optionalExtensibleEnum = "1",
+    optionalIntRecord = new
+    {
+        key = 1234,
+    },
+    optionalStringRecord = new
+    {
+        key = "<optionalStringRecord>",
+    },
+    optionalModelRecord = new { },
+    optionalPlainDate = "2022-05-10",
+    optionalPlainTime = "01:23:45",
+    optionalCollectionWithNullableIntElement = new object[]
+    {
+        1234
+    },
+});
+Response response = await client.InputToRoundTripOptionalAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("optionalString").ToString());
+Console.WriteLine(result.GetProperty("optionalInt").ToString());
+Console.WriteLine(result.GetProperty("optionalStringList")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalModelWithPropertiesOnBase").GetProperty("optionalPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("optionalFixedStringEnum").ToString());
+Console.WriteLine(result.GetProperty("optionalExtensibleEnum").ToString());
+Console.WriteLine(result.GetProperty("optionalIntRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("optionalStringRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("optionalPlainDate").ToString());
+Console.WriteLine(result.GetProperty("optionalPlainTime").ToString());
+Console.WriteLine(result.GetProperty("optionalCollectionWithNullableIntElement")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="InputToRoundTripOptional(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputToRoundTripOptional and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.InputToRoundTripOptional(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call InputToRoundTripOptional with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    optionalString = "<optionalString>",
+    optionalInt = 1234,
+    optionalStringList = new object[]
+    {
+        "<optionalStringList>"
+    },
+    optionalIntList = new object[]
+    {
+        1234
+    },
+    optionalModelList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    optionalModel = new
+    {
+        requiredList = new object[]
+        {
+            null
+        },
+    },
+    optionalModelWithPropertiesOnBase = new
+    {
+        requiredList = new object[]
+        {
+            null
+        },
+        optionalPropertyOnBase = "<optionalPropertyOnBase>",
+    },
+    optionalFixedStringEnum = "1",
+    optionalExtensibleEnum = "1",
+    optionalIntRecord = new
+    {
+        key = 1234,
+    },
+    optionalStringRecord = new
+    {
+        key = "<optionalStringRecord>",
+    },
+    optionalModelRecord = new { },
+    optionalPlainDate = "2022-05-10",
+    optionalPlainTime = "01:23:45",
+    optionalCollectionWithNullableIntElement = new object[]
+    {
+        1234
+    },
+});
+Response response = client.InputToRoundTripOptional(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("optionalString").ToString());
+Console.WriteLine(result.GetProperty("optionalInt").ToString());
+Console.WriteLine(result.GetProperty("optionalStringList")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalIntList")[0].ToString());
+Console.WriteLine(result.GetProperty("optionalModelWithPropertiesOnBase").GetProperty("optionalPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("optionalFixedStringEnum").ToString());
+Console.WriteLine(result.GetProperty("optionalExtensibleEnum").ToString());
+Console.WriteLine(result.GetProperty("optionalIntRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("optionalStringRecord").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("optionalPlainDate").ToString());
+Console.WriteLine(result.GetProperty("optionalPlainTime").ToString());
+Console.WriteLine(result.GetProperty("optionalCollectionWithNullableIntElement")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutputAsync(RoundTripModel,CancellationToken)">
+      <example>
+This sample shows how to call RoundTripToOutputAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripModel input = new RoundTripModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new DerivedModelWithDiscriminatorA(1234, "<requiredString>"),
+FixedStringEnum.One,
+FixedIntEnum.One,
+ExtensibleEnum.One,
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, int>
+{
+    ["key"] = 1234
+},
+new Dictionary<string, string>
+{
+    ["key"] = "<requiredStringRecord>"
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+BinaryData.FromObjectAsJson(new object()),
+new byte[] { 123 },
+BinaryData.FromObjectAsJson(new object()),
+new sbyte[] { 123 },
+new int[] { 1234 },
+new string[] { "<requiredNullableStringList>" });
+Response<OutputModel> response = await client.RoundTripToOutputAsync(input);
+]]></code>
+This sample shows how to call RoundTripToOutputAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripModel input = new RoundTripModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new DerivedModelWithDiscriminatorA(1234, "<requiredString>")
+{
+    OptionalPropertyOnBase = "<optionalPropertyOnBase>",
+},
+FixedStringEnum.One,
+FixedIntEnum.One,
+ExtensibleEnum.One,
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, int>
+{
+    ["key"] = 1234
+},
+new Dictionary<string, string>
+{
+    ["key"] = "<requiredStringRecord>"
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+BinaryData.FromObjectAsJson(new object()),
+new byte[] { 123 },
+BinaryData.FromObjectAsJson(new object()),
+new sbyte[] { 123 },
+new int[] { 1234 },
+new string[] { "<requiredNullableStringList>" })
+{
+    NonRequiredString = "<nonRequiredString>",
+    NonRequiredInt = 1234,
+    NonRequiredNullableInt = 1234,
+    NonRequiredNullableString = "<nonRequiredNullableString>",
+    OptionalBytes = BinaryData.FromObjectAsJson(new object()),
+    OptionalUint8Array = { 123 },
+    OptionalUnknown = BinaryData.FromObjectAsJson(new object()),
+    OptionalInt8Array = { 123 },
+    NonRequiredNullableIntList = { 1234 },
+    NonRequiredNullableStringList = { "<nonRequiredNullableStringList>" },
+};
+Response<OutputModel> response = await client.RoundTripToOutputAsync(input);
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutput(RoundTripModel,CancellationToken)">
+      <example>
+This sample shows how to call RoundTripToOutput.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripModel input = new RoundTripModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new DerivedModelWithDiscriminatorA(1234, "<requiredString>"),
+FixedStringEnum.One,
+FixedIntEnum.One,
+ExtensibleEnum.One,
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, int>
+{
+    ["key"] = 1234
+},
+new Dictionary<string, string>
+{
+    ["key"] = "<requiredStringRecord>"
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+BinaryData.FromObjectAsJson(new object()),
+new byte[] { 123 },
+BinaryData.FromObjectAsJson(new object()),
+new sbyte[] { 123 },
+new int[] { 1234 },
+new string[] { "<requiredNullableStringList>" });
+Response<OutputModel> response = client.RoundTripToOutput(input);
+]]></code>
+This sample shows how to call RoundTripToOutput with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripModel input = new RoundTripModel(
+"<requiredString>",
+1234,
+1234,
+"<requiredNullableString>",
+new DerivedModelWithDiscriminatorA(1234, "<requiredString>")
+{
+    OptionalPropertyOnBase = "<optionalPropertyOnBase>",
+},
+FixedStringEnum.One,
+FixedIntEnum.One,
+ExtensibleEnum.One,
+new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+},
+new Dictionary<string, int>
+{
+    ["key"] = 1234
+},
+new Dictionary<string, string>
+{
+    ["key"] = "<requiredStringRecord>"
+},
+new Dictionary<string, RecordItem>
+{
+    ["key"] = default
+},
+BinaryData.FromObjectAsJson(new object()),
+new byte[] { 123 },
+BinaryData.FromObjectAsJson(new object()),
+new sbyte[] { 123 },
+new int[] { 1234 },
+new string[] { "<requiredNullableStringList>" })
+{
+    NonRequiredString = "<nonRequiredString>",
+    NonRequiredInt = 1234,
+    NonRequiredNullableInt = 1234,
+    NonRequiredNullableString = "<nonRequiredNullableString>",
+    OptionalBytes = BinaryData.FromObjectAsJson(new object()),
+    OptionalUint8Array = { 123 },
+    OptionalUnknown = BinaryData.FromObjectAsJson(new object()),
+    OptionalInt8Array = { 123 },
+    NonRequiredNullableIntList = { 1234 },
+    NonRequiredNullableStringList = { "<nonRequiredNullableStringList>" },
+};
+Response<OutputModel> response = client.RoundTripToOutput(input);
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutputAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RoundTripToOutputAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    requiredModel = new
+    {
+        requiredString = "<requiredString>",
+        discriminatorProperty = "A",
+        requiredPropertyOnBase = 1234,
+    },
+    requiredFixedStringEnum = "1",
+    requiredFixedIntEnum = 1,
+    requiredExtensibleEnum = "1",
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredIntRecord = new
+    {
+        key = 1234,
+    },
+    requiredStringRecord = new
+    {
+        key = "<requiredStringRecord>",
+    },
+    requiredModelRecord = new { },
+    requiredBytes = new object(),
+    requiredUint8Array = new object[]
+    {
+        123
+    },
+    requiredUnknown = new object(),
+    requiredInt8Array = new object[]
+    {
+        123
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+});
+Response response = await client.RoundTripToOutputAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code>
+This sample shows how to call RoundTripToOutputAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    nonRequiredString = "<nonRequiredString>",
+    nonRequiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    nonRequiredNullableInt = 1234,
+    nonRequiredNullableString = "<nonRequiredNullableString>",
+    requiredModel = new
+    {
+        requiredString = "<requiredString>",
+        discriminatorProperty = "A",
+        optionalPropertyOnBase = "<optionalPropertyOnBase>",
+        requiredPropertyOnBase = 1234,
+    },
+    requiredFixedStringEnum = "1",
+    requiredFixedIntEnum = 1,
+    requiredExtensibleEnum = "1",
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredIntRecord = new
+    {
+        key = 1234,
+    },
+    requiredStringRecord = new
+    {
+        key = "<requiredStringRecord>",
+    },
+    requiredModelRecord = new { },
+    requiredBytes = new object(),
+    optionalBytes = new object(),
+    requiredUint8Array = new object[]
+    {
+        123
+    },
+    optionalUint8Array = new object[]
+    {
+        123
+    },
+    requiredUnknown = new object(),
+    optionalUnknown = new object(),
+    requiredInt8Array = new object[]
+    {
+        123
+    },
+    optionalInt8Array = new object[]
+    {
+        123
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    nonRequiredNullableIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredNullableStringList = new object[]
+    {
+        "<nonRequiredNullableStringList>"
+    },
+});
+Response response = await client.RoundTripToOutputAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutput(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RoundTripToOutput and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    requiredModel = new
+    {
+        requiredString = "<requiredString>",
+        discriminatorProperty = "A",
+        requiredPropertyOnBase = 1234,
+    },
+    requiredFixedStringEnum = "1",
+    requiredFixedIntEnum = 1,
+    requiredExtensibleEnum = "1",
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredIntRecord = new
+    {
+        key = 1234,
+    },
+    requiredStringRecord = new
+    {
+        key = "<requiredStringRecord>",
+    },
+    requiredModelRecord = new { },
+    requiredBytes = new object(),
+    requiredUint8Array = new object[]
+    {
+        123
+    },
+    requiredUnknown = new object(),
+    requiredInt8Array = new object[]
+    {
+        123
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+});
+Response response = client.RoundTripToOutput(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code>
+This sample shows how to call RoundTripToOutput with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+    nonRequiredString = "<nonRequiredString>",
+    nonRequiredInt = 1234,
+    requiredNullableInt = 1234,
+    requiredNullableString = "<requiredNullableString>",
+    nonRequiredNullableInt = 1234,
+    nonRequiredNullableString = "<nonRequiredNullableString>",
+    requiredModel = new
+    {
+        requiredString = "<requiredString>",
+        discriminatorProperty = "A",
+        optionalPropertyOnBase = "<optionalPropertyOnBase>",
+        requiredPropertyOnBase = 1234,
+    },
+    requiredFixedStringEnum = "1",
+    requiredFixedIntEnum = 1,
+    requiredExtensibleEnum = "1",
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    requiredIntRecord = new
+    {
+        key = 1234,
+    },
+    requiredStringRecord = new
+    {
+        key = "<requiredStringRecord>",
+    },
+    requiredModelRecord = new { },
+    requiredBytes = new object(),
+    optionalBytes = new object(),
+    requiredUint8Array = new object[]
+    {
+        123
+    },
+    optionalUint8Array = new object[]
+    {
+        123
+    },
+    requiredUnknown = new object(),
+    optionalUnknown = new object(),
+    requiredInt8Array = new object[]
+    {
+        123
+    },
+    optionalInt8Array = new object[]
+    {
+        123
+    },
+    requiredNullableIntList = new object[]
+    {
+        1234
+    },
+    requiredNullableStringList = new object[]
+    {
+        "<requiredNullableStringList>"
+    },
+    nonRequiredNullableIntList = new object[]
+    {
+        1234
+    },
+    nonRequiredNullableStringList = new object[]
+    {
+        "<nonRequiredNullableStringList>"
+    },
+});
+Response response = client.RoundTripToOutput(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code></example>
+    </member>
+    <member name="InputRecursiveAsync(InputRecursiveModel,CancellationToken)">
+      <example>
+This sample shows how to call InputRecursiveAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputRecursiveModel input = new InputRecursiveModel("<message>");
+Response response = await client.InputRecursiveAsync(input);
+]]></code>
+This sample shows how to call InputRecursiveAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputRecursiveModel input = new InputRecursiveModel("<message>")
+{
+    Inner = default,
+};
+Response response = await client.InputRecursiveAsync(input);
+]]></code></example>
+    </member>
+    <member name="InputRecursive(InputRecursiveModel,CancellationToken)">
+      <example>
+This sample shows how to call InputRecursive.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputRecursiveModel input = new InputRecursiveModel("<message>");
+Response response = client.InputRecursive(input);
+]]></code>
+This sample shows how to call InputRecursive with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+InputRecursiveModel input = new InputRecursiveModel("<message>")
+{
+    Inner = default,
+};
+Response response = client.InputRecursive(input);
+]]></code></example>
+    </member>
+    <member name="InputRecursiveAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputRecursiveAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = await client.InputRecursiveAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call InputRecursiveAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = await client.InputRecursiveAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="InputRecursive(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call InputRecursive.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = client.InputRecursive(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call InputRecursive with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = client.InputRecursive(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RoundTripRecursiveAsync(RoundTripRecursiveModel,CancellationToken)">
+      <example>
+This sample shows how to call RoundTripRecursiveAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripRecursiveModel input = new RoundTripRecursiveModel("<message>");
+Response<RoundTripRecursiveModel> response = await client.RoundTripRecursiveAsync(input);
+]]></code>
+This sample shows how to call RoundTripRecursiveAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripRecursiveModel input = new RoundTripRecursiveModel("<message>")
+{
+    Inner = default,
+};
+Response<RoundTripRecursiveModel> response = await client.RoundTripRecursiveAsync(input);
+]]></code></example>
+    </member>
+    <member name="RoundTripRecursive(RoundTripRecursiveModel,CancellationToken)">
+      <example>
+This sample shows how to call RoundTripRecursive.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripRecursiveModel input = new RoundTripRecursiveModel("<message>");
+Response<RoundTripRecursiveModel> response = client.RoundTripRecursive(input);
+]]></code>
+This sample shows how to call RoundTripRecursive with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripRecursiveModel input = new RoundTripRecursiveModel("<message>")
+{
+    Inner = default,
+};
+Response<RoundTripRecursiveModel> response = client.RoundTripRecursive(input);
+]]></code></example>
+    </member>
+    <member name="RoundTripRecursiveAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RoundTripRecursiveAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = await client.RoundTripRecursiveAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+]]></code>
+This sample shows how to call RoundTripRecursiveAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = await client.RoundTripRecursiveAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("inner").GetProperty("message").ToString());
+]]></code></example>
+    </member>
+    <member name="RoundTripRecursive(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RoundTripRecursive and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = client.RoundTripRecursive(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+]]></code>
+This sample shows how to call RoundTripRecursive with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    message = "<message>",
+});
+Response response = client.RoundTripRecursive(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("inner").GetProperty("message").ToString());
+]]></code></example>
+    </member>
+    <member name="SelfReferenceAsync(CancellationToken)">
+      <example>
+This sample shows how to call SelfReferenceAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<ErrorModel> response = await client.SelfReferenceAsync();
+]]></code>
+This sample shows how to call SelfReferenceAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<ErrorModel> response = await client.SelfReferenceAsync();
+]]></code></example>
+    </member>
+    <member name="SelfReference(CancellationToken)">
+      <example>
+This sample shows how to call SelfReference.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<ErrorModel> response = client.SelfReference();
+]]></code>
+This sample shows how to call SelfReference with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<ErrorModel> response = client.SelfReference();
+]]></code></example>
+    </member>
+    <member name="SelfReferenceAsync(RequestContext)">
+      <example>
+This sample shows how to call SelfReferenceAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.SelfReferenceAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+]]></code>
+This sample shows how to call SelfReferenceAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.SelfReferenceAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("innerError").GetProperty("message").ToString());
+]]></code></example>
+    </member>
+    <member name="SelfReference(RequestContext)">
+      <example>
+This sample shows how to call SelfReference and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.SelfReference(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+]]></code>
+This sample shows how to call SelfReference with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.SelfReference(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("innerError").GetProperty("message").ToString());
+]]></code></example>
+    </member>
+    <member name="FixedFloatEnumAsync(FixedFloatEnum,CancellationToken)">
+      <example>
+This sample shows how to call FixedFloatEnumAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = await client.FixedFloatEnumAsync(FixedFloatEnum.One);
+]]></code>
+This sample shows how to call FixedFloatEnumAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = await client.FixedFloatEnumAsync(FixedFloatEnum.One);
+]]></code></example>
+    </member>
+    <member name="FixedFloatEnum(FixedFloatEnum,CancellationToken)">
+      <example>
+This sample shows how to call FixedFloatEnum.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = client.FixedFloatEnum(FixedFloatEnum.One);
+]]></code>
+This sample shows how to call FixedFloatEnum with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = client.FixedFloatEnum(FixedFloatEnum.One);
+]]></code></example>
+    </member>
+    <member name="FixedFloatEnumAsync(float,RequestContext)">
+      <example>
+This sample shows how to call FixedFloatEnumAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.FixedFloatEnumAsync(1.1F);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code>
+This sample shows how to call FixedFloatEnumAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.FixedFloatEnumAsync(1.1F);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code></example>
+    </member>
+    <member name="FixedFloatEnum(float,RequestContext)">
+      <example>
+This sample shows how to call FixedFloatEnum and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.FixedFloatEnum(1.1F);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code>
+This sample shows how to call FixedFloatEnum with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.FixedFloatEnum(1.1F);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code></example>
+    </member>
+    <member name="ExtenisbleIntEnumAsync(ExtensibleIntEnum,CancellationToken)">
+      <example>
+This sample shows how to call ExtenisbleIntEnumAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = await client.ExtenisbleIntEnumAsync(ExtensibleIntEnum.One);
+]]></code>
+This sample shows how to call ExtenisbleIntEnumAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = await client.ExtenisbleIntEnumAsync(ExtensibleIntEnum.One);
+]]></code></example>
+    </member>
+    <member name="ExtenisbleIntEnum(ExtensibleIntEnum,CancellationToken)">
+      <example>
+This sample shows how to call ExtenisbleIntEnum.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = client.ExtenisbleIntEnum(ExtensibleIntEnum.One);
+]]></code>
+This sample shows how to call ExtenisbleIntEnum with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<OutputModel> response = client.ExtenisbleIntEnum(ExtensibleIntEnum.One);
+]]></code></example>
+    </member>
+    <member name="ExtenisbleIntEnumAsync(int,RequestContext)">
+      <example>
+This sample shows how to call ExtenisbleIntEnumAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.ExtenisbleIntEnumAsync(1);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code>
+This sample shows how to call ExtenisbleIntEnumAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.ExtenisbleIntEnumAsync(1);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code></example>
+    </member>
+    <member name="ExtenisbleIntEnum(int,RequestContext)">
+      <example>
+This sample shows how to call ExtenisbleIntEnum and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.ExtenisbleIntEnum(1);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code>
+This sample shows how to call ExtenisbleIntEnum with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.ExtenisbleIntEnum(1);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredString").ToString());
+Console.WriteLine(result.GetProperty("requiredInt").ToString());
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutputWithNoUseBaseAsync(RoundTripOnNoUse,CancellationToken)">
+      <example>
+This sample shows how to call RoundTripToOutputWithNoUseBaseAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOnNoUse input = new RoundTripOnNoUse("<baseModelProp>", new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+});
+Response<RoundTripOnNoUse> response = await client.RoundTripToOutputWithNoUseBaseAsync(input);
+]]></code>
+This sample shows how to call RoundTripToOutputWithNoUseBaseAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOnNoUse input = new RoundTripOnNoUse("<baseModelProp>", new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+});
+Response<RoundTripOnNoUse> response = await client.RoundTripToOutputWithNoUseBaseAsync(input);
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutputWithNoUseBase(RoundTripOnNoUse,CancellationToken)">
+      <example>
+This sample shows how to call RoundTripToOutputWithNoUseBase.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOnNoUse input = new RoundTripOnNoUse("<baseModelProp>", new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+});
+Response<RoundTripOnNoUse> response = client.RoundTripToOutputWithNoUseBase(input);
+]]></code>
+This sample shows how to call RoundTripToOutputWithNoUseBase with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+RoundTripOnNoUse input = new RoundTripOnNoUse("<baseModelProp>", new CollectionItem[]
+{
+    new CollectionItem(new Dictionary<string, RecordItem>
+    {
+        ["key"] = new RecordItem(new CollectionItem[]
+        {
+            default
+        })
+    })
+});
+Response<RoundTripOnNoUse> response = client.RoundTripToOutputWithNoUseBase(input);
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutputWithNoUseBaseAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RoundTripToOutputWithNoUseBaseAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    baseModelProp = "<baseModelProp>",
+});
+Response response = await client.RoundTripToOutputWithNoUseBaseAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("baseModelProp").ToString());
+]]></code>
+This sample shows how to call RoundTripToOutputWithNoUseBaseAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    baseModelProp = "<baseModelProp>",
+});
+Response response = await client.RoundTripToOutputWithNoUseBaseAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("baseModelProp").ToString());
+]]></code></example>
+    </member>
+    <member name="RoundTripToOutputWithNoUseBase(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call RoundTripToOutputWithNoUseBase and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    baseModelProp = "<baseModelProp>",
+});
+Response response = client.RoundTripToOutputWithNoUseBase(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("baseModelProp").ToString());
+]]></code>
+This sample shows how to call RoundTripToOutputWithNoUseBase with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredList = new object[]
+    {
+        new
+        {
+            requiredModelRecord = new
+            {
+                key = new
+                {
+                    requiredList = new object[]
+                    {
+                        null
+                    },
+                },
+            },
+        }
+    },
+    baseModelProp = "<baseModelProp>",
+});
+Response response = client.RoundTripToOutputWithNoUseBase(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("baseModelProp").ToString());
+]]></code></example>
+    </member>
+    <member name="AnalyzeConversationAsync(CancellationToken)">
+      <example>
+This sample shows how to call AnalyzeConversationAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<BaseModelWithDiscriminator> response = await client.AnalyzeConversationAsync();
+]]></code>
+This sample shows how to call AnalyzeConversationAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<BaseModelWithDiscriminator> response = await client.AnalyzeConversationAsync();
+]]></code></example>
+    </member>
+    <member name="AnalyzeConversation(CancellationToken)">
+      <example>
+This sample shows how to call AnalyzeConversation.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<BaseModelWithDiscriminator> response = client.AnalyzeConversation();
+]]></code>
+This sample shows how to call AnalyzeConversation with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<BaseModelWithDiscriminator> response = client.AnalyzeConversation();
+]]></code></example>
+    </member>
+    <member name="AnalyzeConversationAsync(RequestContext)">
+      <example>
+This sample shows how to call AnalyzeConversationAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.AnalyzeConversationAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("requiredPropertyOnBase").ToString());
+]]></code>
+This sample shows how to call AnalyzeConversationAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.AnalyzeConversationAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("optionalPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredPropertyOnBase").ToString());
+]]></code></example>
+    </member>
+    <member name="AnalyzeConversation(RequestContext)">
+      <example>
+This sample shows how to call AnalyzeConversation and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.AnalyzeConversation(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("requiredPropertyOnBase").ToString());
+]]></code>
+This sample shows how to call AnalyzeConversation with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.AnalyzeConversation(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("discriminatorProperty").ToString());
+Console.WriteLine(result.GetProperty("optionalPropertyOnBase").ToString());
+Console.WriteLine(result.GetProperty("requiredPropertyOnBase").ToString());
+]]></code></example>
+    </member>
+    <member name="GetSingleBaseAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetSingleBaseAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<SingleBase> response = await client.GetSingleBaseAsync();
+]]></code>
+This sample shows how to call GetSingleBaseAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<SingleBase> response = await client.GetSingleBaseAsync();
+]]></code></example>
+    </member>
+    <member name="GetSingleBase(CancellationToken)">
+      <example>
+This sample shows how to call GetSingleBase.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<SingleBase> response = client.GetSingleBase();
+]]></code>
+This sample shows how to call GetSingleBase with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response<SingleBase> response = client.GetSingleBase();
+]]></code></example>
+    </member>
+    <member name="GetSingleBaseAsync(RequestContext)">
+      <example>
+This sample shows how to call GetSingleBaseAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.GetSingleBaseAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("size").ToString());
+]]></code>
+This sample shows how to call GetSingleBaseAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = await client.GetSingleBaseAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("size").ToString());
+]]></code></example>
+    </member>
+    <member name="GetSingleBase(RequestContext)">
+      <example>
+This sample shows how to call GetSingleBase and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.GetSingleBase(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("size").ToString());
+]]></code>
+This sample shows how to call GetSingleBase with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Response response = client.GetSingleBase(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("size").ToString());
+]]></code></example>
+    </member>
+    <member name="GenericTypeAsync(Int32ValuesFacet,CancellationToken)">
+      <example>
+This sample shows how to call GenericTypeAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Int32ValuesFacet input = new Int32ValuesFacet("<field>", new int[] { 1234 }, 1234);
+Response response = await client.GenericTypeAsync(input);
+]]></code>
+This sample shows how to call GenericTypeAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Int32ValuesFacet input = new Int32ValuesFacet("<field>", new int[] { 1234 }, 1234);
+Response response = await client.GenericTypeAsync(input);
+]]></code></example>
+    </member>
+    <member name="GenericType(Int32ValuesFacet,CancellationToken)">
+      <example>
+This sample shows how to call GenericType.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Int32ValuesFacet input = new Int32ValuesFacet("<field>", new int[] { 1234 }, 1234);
+Response response = client.GenericType(input);
+]]></code>
+This sample shows how to call GenericType with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+Int32ValuesFacet input = new Int32ValuesFacet("<field>", new int[] { 1234 }, 1234);
+Response response = client.GenericType(input);
+]]></code></example>
+    </member>
+    <member name="GenericTypeAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call GenericTypeAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "Int32Values",
+    values = new object[]
+    {
+        1234
+    },
+    value = 1234,
+    field = "<field>",
+});
+Response response = await client.GenericTypeAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GenericTypeAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "Int32Values",
+    values = new object[]
+    {
+        1234
+    },
+    value = 1234,
+    field = "<field>",
+});
+Response response = await client.GenericTypeAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GenericType(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call GenericType.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "Int32Values",
+    values = new object[]
+    {
+        1234
+    },
+    value = 1234,
+    field = "<field>",
+});
+Response response = client.GenericType(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GenericType with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelsTypeSpecClient client = new ModelsTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "Int32Values",
+    values = new object[]
+    {
+        1234
+    },
+    value = 1234,
+    field = "<field>",
+});
+Response response = client.GenericType(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="MultiAsync(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call MultiAsync.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.MultiAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call MultiAsync with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.MultiAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Multi(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call Multi.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Multi(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Multi with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Multi(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="SsvAsync(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call SsvAsync.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.SsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SsvAsync with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.SsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Ssv(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call Ssv.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Ssv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Ssv with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Ssv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="TsvAsync(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call TsvAsync.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.TsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call TsvAsync with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.TsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Tsv(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call Tsv.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Tsv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Tsv with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Tsv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PipesAsync(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call PipesAsync.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.PipesAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PipesAsync with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.PipesAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Pipes(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call Pipes.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Pipes(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Pipes with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Pipes(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CsvAsync(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call CsvAsync.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.CsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CsvAsync with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = await client.CsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Csv(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call Csv.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Csv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Csv with all parameters.
+<code><![CDATA[
+Query client = new CollectionFormatClient().GetQueryClient();
+
+Response response = client.Csv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

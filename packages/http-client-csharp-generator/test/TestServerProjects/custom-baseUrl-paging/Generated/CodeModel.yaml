@@ -1,0 +1,580 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Parameterized Host Test Paging Client
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ProductPropertiesId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_6
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ProductPropertiesName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ProductResultNextLink
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      defaultValue: host
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_10
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_12
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_8
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: !ObjectSchema &ref_4
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: 1.0.0
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_5
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: 1.0.0
+                    properties:
+                      - !Property 
+                        schema: *ref_1
+                        serializedName: id
+                        language: !Languages 
+                          default:
+                            name: id
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_2
+                        serializedName: name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: ProductProperties
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                  serializedName: properties
+                  language: !Languages 
+                    default:
+                      name: properties
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+              language: !Languages 
+                default:
+                  name: Product
+                  description: ''
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ProductResultValues
+                description: Array of Product
+            protocol: !Protocols {}
+          serializedName: values
+          language: !Languages 
+            default:
+              name: values
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ProductResult
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_4
+    - *ref_5
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_6
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_7
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_8
+globalParameters:
+  - !Parameter &ref_9
+    schema: *ref_0
+    clientDefaultValue: host
+    implementation: Client
+    required: true
+    extensions:
+      x-in: path
+      x-ms-priority: 0
+      x-ms-skip-url-encoding: true
+      x-name: host
+      x-required: true
+      x-type: string
+    language: !Languages 
+      default:
+        name: Host
+        description: A string value that is used as a global part of the parameterized host
+        serializedName: host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: Paging
+    operations:
+      - !Operation 
+        operationId: Paging_getPagesPartialUrl
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - !Parameter &ref_11
+            schema: *ref_0
+            implementation: Method
+            required: true
+            extensions:
+              x-in: path
+              x-ms-skip-url-encoding: true
+              x-name: accountName
+              x-required: true
+              x-type: string
+            language: !Languages 
+              default:
+                name: accountName
+                description: Account Name
+                serializedName: accountName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: uri
+          - *ref_9
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_10
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/customurl/partialnextlink
+                method: get
+                uri: http://{accountName}{host}
+        signatureParameters:
+          - *ref_11
+        responses:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Paging response with a fragment nextLink
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            Paging_getPagesPartialUrl:
+              parameters:
+                accountName: testaccount
+              responses:
+                '200':
+                  body:
+                    nextLink: /paging/customurl/partialnextlink/page/2
+                    values:
+                      - properties:
+                          name: Product
+                          id: 1
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetPagesPartialUrl
+            description: A paging operation that combines custom url, paging and partial URL and expect to concat after host
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Paging_getPagesPartialUrlOperation
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - !Parameter &ref_13
+            schema: *ref_0
+            implementation: Method
+            required: true
+            extensions:
+              x-in: path
+              x-ms-skip-url-encoding: true
+              x-name: accountName
+              x-required: true
+              x-type: string
+            language: !Languages 
+              default:
+                name: accountName
+                description: Account Name
+                serializedName: accountName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: uri
+          - *ref_9
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_10
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /paging/customurl/partialnextlinkop
+                method: get
+                uri: http://{accountName}{host}
+        signatureParameters:
+          - *ref_13
+        responses:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Paging response with a fragment nextLink
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            Paging_getPagesPartialUrlOperation:
+              parameters:
+                accountName: testaccount
+              responses:
+                '200':
+                  body:
+                    nextLink: partialnextlinkop/page/2
+                    values:
+                      - properties:
+                          name: Product
+                          id: 1
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+            operationName: Paging_getPagesPartialUrlOperationNext
+        language: !Languages 
+          default:
+            name: GetPagesPartialUrlOperation
+            description: A paging operation that combines custom url, paging and partial URL with next operation
+            paging:
+              group: Paging
+              itemName: values
+              member: GetPagesPartialUrlOperationNext
+              nextLinkName: nextLink
+              nextLinkOperation: !Operation &ref_17
+                operationId: Paging_getPagesPartialUrlOperationNext
+                apiVersions:
+                  - !ApiVersion 
+                    version: 1.0.0
+                parameters:
+                  - !Parameter &ref_15
+                    schema: *ref_0
+                    implementation: Method
+                    required: true
+                    extensions:
+                      x-in: path
+                      x-ms-skip-url-encoding: true
+                      x-name: accountName
+                      x-required: true
+                      x-type: string
+                    language: !Languages 
+                      default:
+                        name: accountName
+                        description: Account Name
+                        serializedName: accountName
+                    protocol: !Protocols 
+                      http: !HttpParameter 
+                        in: uri
+                  - *ref_9
+                  - !Parameter &ref_16
+                    schema: *ref_14
+                    implementation: Method
+                    required: true
+                    extensions:
+                      x-ms-skip-url-encoding: true
+                    language: !Languages 
+                      default:
+                        name: nextLink
+                        description: Next link for the list operation.
+                        serializedName: nextLink
+                    protocol: !Protocols 
+                      http: !HttpParameter 
+                        in: path
+                requests:
+                  - !Request 
+                    parameters:
+                      - !Parameter 
+                        schema: *ref_10
+                        implementation: Method
+                        origin: modelerfour:synthesized/accept
+                        required: true
+                        language: !Languages 
+                          default:
+                            name: accept
+                            description: Accept header
+                            serializedName: Accept
+                        protocol: !Protocols 
+                          http: !HttpParameter 
+                            in: header
+                    signatureParameters: []
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: ''
+                    protocol: !Protocols 
+                      http: !HttpRequest 
+                        path: /paging/customurl/{nextLink}
+                        method: get
+                        uri: http://{accountName}{host}
+                signatureParameters:
+                  - *ref_15
+                  - *ref_16
+                responses:
+                  - !SchemaResponse 
+                    schema: *ref_12
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Paging response with a fragment nextLink
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        knownMediaType: json
+                        mediaTypes:
+                          - application/json
+                        statusCodes:
+                          - '200'
+                exceptions:
+                  - !Response 
+                    language: !Languages 
+                      default:
+                        name: ''
+                        description: Unexpected error
+                    protocol: !Protocols 
+                      http: !HttpResponse 
+                        statusCodes:
+                          - default
+                extensions:
+                  x-ms-pageable:
+                    itemName: values
+                    nextLinkName: nextLink
+                    operationName: Paging_getPagesPartialUrlOperationNext
+                language: !Languages 
+                  default:
+                    name: GetPagesPartialUrlOperationNext
+                    description: A paging operation that combines custom url, paging and partial URL
+                    paging:
+                      group: Paging
+                      itemName: values
+                      member: GetPagesPartialUrlOperationNext
+                      nextLinkName: nextLink
+                      nextLinkOperation: *ref_17
+                protocol: !Protocols {}
+        protocol: !Protocols {}
+      - *ref_17
+    language: !Languages 
+      default:
+        name: Paging
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestParameterizedHostTestPagingClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

@@ -1,0 +1,1191 @@
+!CodeModel 
+info: !Info 
+  description: Use these REST APIs to test xml deserialization behavior.
+  title: MgmtXmlDeserialization
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_14
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      minimum: 1
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_15
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      minimum: 0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_6
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      precision: 64
+      language: !Languages 
+        default:
+          name: XmlCollectionCount
+          description: Total record count number across all pages.
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: ETag
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: The name of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: XmlCollectionNextLink
+          description: Next page link if any.
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: ErrorResponseBodyCode
+          description: Service-defined error code. This code serves as a sub-status for the HTTP error code specified in the response.
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: ErrorResponseBodyMessage
+          description: Human-readable representation of the error.
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      maxLength: 50
+      minLength: 1
+      pattern: ^[a-zA-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_30
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: ETag
+      protocol: !Protocols {}
+    - !StringSchema &ref_31
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: ETag
+      protocol: !Protocols {}
+    - !StringSchema &ref_38
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: ETag
+      protocol: !Protocols {}
+    - !StringSchema &ref_39
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_12
+      type: constant
+      value: !ConstantValue 
+        value: '2021-08-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20210801
+          description: Api Version (2021-08-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_18
+      type: constant
+      value: !ConstantValue 
+        value: application/json, application/xml
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json, application/xml'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_32
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_23
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_10
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-08-01'
+            elementType: !ObjectSchema &ref_1
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2021-08-01'
+              parents: !Relations 
+                all:
+                  - !ObjectSchema &ref_5
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2021-08-01'
+                    children: !Relations 
+                      all:
+                        - *ref_1
+                      immediate:
+                        - *ref_1
+                    properties:
+                      - !Property 
+                        schema: *ref_2
+                        readOnly: true
+                        serializedName: id
+                        language: !Languages 
+                          default:
+                            name: id
+                            description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_3
+                        readOnly: true
+                        serializedName: name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: The name of the resource
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_4
+                        readOnly: true
+                        serializedName: type
+                        language: !Languages 
+                          default:
+                            name: type
+                            description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                      - xml
+                    summary: Resource
+                    usage:
+                      - output
+                      - input
+                    extensions:
+                      x-ms-azure-resource: true
+                    language: !Languages 
+                      default:
+                        name: Resource
+                        description: Common fields that are returned in the response for all Azure Resource Manager resources
+                        namespace: ''
+                        summary: Resource
+                    protocol: !Protocols {}
+                immediate:
+                  - *ref_5
+              serializationFormats:
+                - json
+                - xml
+              usage:
+                - output
+                - input
+              language: !Languages 
+                default:
+                  name: XmlInstance
+                  description: Xml instance details.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: XmlCollectionValue
+                description: Page values.
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Page values.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          serializedName: count
+          language: !Languages 
+            default:
+              name: count
+              description: Total record count number across all pages.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_7
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Next page link if any.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+        - xml
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: XmlCollection
+          description: Paged Xml list representation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_1
+    - *ref_5
+    - !ObjectSchema &ref_24
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-08-01'
+      properties:
+        - !Property 
+          schema: *ref_8
+          flattenedNames:
+            - error
+            - code
+          serializedName: code
+          language: !Languages 
+            default:
+              name: code
+              description: Service-defined error code. This code serves as a sub-status for the HTTP error code specified in the response.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          flattenedNames:
+            - error
+            - message
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: Human-readable representation of the error.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+        - xml
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: ErrorResponse
+          description: Error Response.
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_10
+globalParameters:
+  - !Parameter &ref_17
+    schema: *ref_11
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 1
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call.
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_13
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_16
+    schema: *ref_12
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: XmlDeserialization
+    operations:
+      - !Operation 
+        operationId: XmlDeserialization_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-08-01'
+        parameters:
+          - *ref_13
+          - !Parameter &ref_19
+            schema: *ref_11
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_20
+            schema: *ref_11
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter to apply on the operation.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_21
+            schema: *ref_14
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: Number of records to return.
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_22
+            schema: *ref_15
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skip
+                description: Number of records to skip.
+                serializedName: $skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_16
+          - *ref_17
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_18
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.XmlDeserialization/xmls
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_19
+          - *ref_20
+          - *ref_21
+          - *ref_22
+        responses:
+          - !SchemaResponse 
+            schema: *ref_23
+            language: !Languages 
+              default:
+                name: ''
+                description: Lists a collection of xml entities.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_23
+            language: !Languages 
+              default:
+                name: ''
+                description: Lists a collection of xml entities.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/XmlInstance'
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List
+            description: Lists a collection of Xmls in the specified resource group instance.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: XmlDeserialization_GetEntityTag
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-08-01'
+        parameters:
+          - *ref_13
+          - !Parameter &ref_26
+            schema: *ref_11
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_27
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: xmlName
+                description: The name of the API Management service.
+                serializedName: xmlName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_16
+          - *ref_17
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_18
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.XmlDeserialization/xmls/{xmlName}
+                method: head
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_26
+          - *ref_27
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Specified Api Version Set entity exists and current entity state version is present in the ETag header.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_11
+                    header: ETag
+                    language:
+                      default:
+                        name: ETag
+                        description: Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetEntityTag
+            description: Gets the entity state (Etag) version of the Xml specified by its identifier.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: XmlDeserialization_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-08-01'
+        parameters:
+          - *ref_13
+          - !Parameter &ref_28
+            schema: *ref_11
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_29
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: xmlName
+                description: The name of the API Management service.
+                serializedName: xmlName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_16
+          - *ref_17
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_18
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.XmlDeserialization/xmls/{xmlName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_28
+          - *ref_29
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Gets the specified xml entity.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_30
+                    header: ETag
+                    language:
+                      default:
+                        name: ETag
+                        description: Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Gets the specified xml entity.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_30
+                    header: ETag
+                    language:
+                      default:
+                        name: ETag
+                        description: Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Get
+            description: Gets the details of the Xml specified by its identifier.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: XmlDeserialization_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-08-01'
+        parameters:
+          - *ref_13
+          - !Parameter &ref_35
+            schema: *ref_11
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_36
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: xmlName
+                description: The name of the API Management service.
+                serializedName: xmlName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_37
+            schema: *ref_31
+            implementation: Method
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: ETag of the Entity. Not required when creating an entity, but required when updating an entity.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_16
+          - *ref_17
+        requestMediaTypes:
+          application/json: !Request &ref_34
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_33
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Create or update parameters.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_18
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.XmlDeserialization/xmls/{xmlName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                  - application/xml
+                uri: '{$host}'
+          application/xml: *ref_34
+        requests:
+          - *ref_34
+        signatureParameters:
+          - *ref_35
+          - *ref_36
+          - *ref_37
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Xml was successfully updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_31
+                    header: ETag
+                    language:
+                      default:
+                        name: ETag
+                        description: Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Xml was successfully updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_31
+                    header: ETag
+                    language:
+                      default:
+                        name: ETag
+                        description: Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Xml was successfully created.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_38
+                    header: ETag
+                    language:
+                      default:
+                        name: ETag
+                        description: Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Xml was successfully created.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_38
+                    header: ETag
+                    language:
+                      default:
+                        name: ETag
+                        description: Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: Creates or Updates a Xml.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: XmlDeserialization_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-08-01'
+        parameters:
+          - *ref_13
+          - !Parameter &ref_40
+            schema: *ref_11
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_41
+            schema: *ref_25
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: xmlName
+                description: The name of the API Management service.
+                serializedName: xmlName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_42
+            schema: *ref_39
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: ifMatch
+                description: ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update.
+                serializedName: If-Match
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - *ref_16
+          - *ref_17
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_18
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.XmlDeserialization/xmls/{xmlName}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_40
+          - *ref_41
+          - *ref_42
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The Xml details were successfully deleted.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The Xml details were successfully deleted.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+          - !SchemaResponse 
+            schema: *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Delete
+            description: Deletes specific Xml.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: XmlDeserialization
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: MgmtXmlDeserialization
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

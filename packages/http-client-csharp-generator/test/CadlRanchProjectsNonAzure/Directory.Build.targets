@@ -1,0 +1,28 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"> 
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.354" Condition="'$(IsTestGenerationSrcProject)' != 'false'">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <AdditionalFiles Include="$(RepoEngPath)\stylecop.json">
+      <Visible>false</Visible>
+    </AdditionalFiles>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsTestGenerationSrcProject)' == 'true'">
+    <!-- Include analyzers so that we see issues in this repo before we do a regen preview-->
+    <PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.1" PrivateAssets="All" />
+    <PackageReference Update="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2" PrivateAssets="All" />
+  </ItemGroup>
+
+  <Target Name="_ValidateSourceFileNames"
+          BeforeTargets="CoreBuild">
+    <ItemGroup>
+      <!-- Prevent https://github.com/Azure/azure-sdk-for-net/issues/17164 from becoming an issue further in the build process -->
+      <_ContainsCurlyBraces Include="@(Compile)" Condition="$([MSBuild]::ValueOrDefault('%(Directory)%(Filename)', '').Contains('{')) or $([MSBuild]::ValueOrDefault('%(Directory)%(Filename)', '').Contains('}'))" />
+    </ItemGroup>
+    <Error
+      Text="File name '%(_ContainsCurlyBraces.FullPath)' cannot contain { or }; use OfT instead of {T} and disable SA1649 for the declaration, or elide {T} from file name entirely."
+      Condition="'@(_ContainsCurlyBraces)' != ''" />
+  </Target>
+</Project>

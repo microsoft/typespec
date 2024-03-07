@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PrepareVerifyAsync(CancellationToken)">
+      <example>
+This sample shows how to call PrepareVerifyAsync.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response<IReadOnlyList<decimal>> response = await client.PrepareVerifyAsync();
+]]></code>
+This sample shows how to call PrepareVerifyAsync with all parameters.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response<IReadOnlyList<decimal>> response = await client.PrepareVerifyAsync();
+]]></code></example>
+    </member>
+    <member name="PrepareVerify(CancellationToken)">
+      <example>
+This sample shows how to call PrepareVerify.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response<IReadOnlyList<decimal>> response = client.PrepareVerify();
+]]></code>
+This sample shows how to call PrepareVerify with all parameters.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response<IReadOnlyList<decimal>> response = client.PrepareVerify();
+]]></code></example>
+    </member>
+    <member name="PrepareVerifyAsync(RequestContext)">
+      <example>
+This sample shows how to call PrepareVerifyAsync and parse the result.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = await client.PrepareVerifyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call PrepareVerifyAsync with all parameters and parse the result.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = await client.PrepareVerifyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PrepareVerify(RequestContext)">
+      <example>
+This sample shows how to call PrepareVerify and parse the result.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = client.PrepareVerify(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call PrepareVerify with all parameters and parse the result.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = client.PrepareVerify(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="VerifyAsync(decimal,CancellationToken)">
+      <example>
+This sample shows how to call VerifyAsync.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = await client.VerifyAsync((decimal)default);
+]]></code>
+This sample shows how to call VerifyAsync with all parameters.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = await client.VerifyAsync((decimal)default);
+]]></code></example>
+    </member>
+    <member name="Verify(decimal,CancellationToken)">
+      <example>
+This sample shows how to call Verify.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = client.Verify((decimal)default);
+]]></code>
+This sample shows how to call Verify with all parameters.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+Response response = client.Verify((decimal)default);
+]]></code></example>
+    </member>
+    <member name="VerifyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call VerifyAsync.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.VerifyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call VerifyAsync with all request content.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.VerifyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Verify(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Verify.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Verify(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Verify with all request content.
+<code><![CDATA[
+Decimal128Verify client = new ScalarClient().GetDecimal128VerifyClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Verify(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

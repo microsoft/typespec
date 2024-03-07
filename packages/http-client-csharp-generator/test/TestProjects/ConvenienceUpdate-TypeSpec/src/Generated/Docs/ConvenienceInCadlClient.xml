@@ -1,0 +1,1537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="UpdateConvenienceAsync(CancellationToken)">
+      <example>
+This sample shows how to call UpdateConvenienceAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.UpdateConvenienceAsync();
+]]></code>
+This sample shows how to call UpdateConvenienceAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.UpdateConvenienceAsync();
+]]></code></example>
+    </member>
+    <member name="UpdateConvenience(CancellationToken)">
+      <example>
+This sample shows how to call UpdateConvenience.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.UpdateConvenience();
+]]></code>
+This sample shows how to call UpdateConvenience with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.UpdateConvenience();
+]]></code></example>
+    </member>
+    <member name="UpdateConvenienceAsync(RequestContext)">
+      <example>
+This sample shows how to call UpdateConvenienceAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.UpdateConvenienceAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call UpdateConvenienceAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.UpdateConvenienceAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="UpdateConvenience(RequestContext)">
+      <example>
+This sample shows how to call UpdateConvenience and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.UpdateConvenience(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call UpdateConvenience with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.UpdateConvenience(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalBeforeRequiredAsync(Model,int?,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalBeforeRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ConvenienceOptionalBeforeRequiredAsync(required);
+]]></code>
+This sample shows how to call ConvenienceOptionalBeforeRequiredAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ConvenienceOptionalBeforeRequiredAsync(required, optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalBeforeRequired(Model,int?,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalBeforeRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ConvenienceOptionalBeforeRequired(required);
+]]></code>
+This sample shows how to call ConvenienceOptionalBeforeRequired with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ConvenienceOptionalBeforeRequired(required, optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalBeforeRequiredAsync(RequestContent,int?,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalBeforeRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ConvenienceOptionalBeforeRequiredAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceOptionalBeforeRequiredAsync with all parameters and request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ConvenienceOptionalBeforeRequiredAsync(content, optional: 1234);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalBeforeRequired(RequestContent,int?,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalBeforeRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ConvenienceOptionalBeforeRequired(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceOptionalBeforeRequired with all parameters and request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ConvenienceOptionalBeforeRequired(content, optional: 1234);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="NoConvenienceAsync(RequestContext)">
+      <example>
+This sample shows how to call NoConvenienceAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.NoConvenienceAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call NoConvenienceAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.NoConvenienceAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="NoConvenience(RequestContext)">
+      <example>
+This sample shows how to call NoConvenience and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.NoConvenience(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call NoConvenience with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.NoConvenience(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="NoConvenienceRequiredBodyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call NoConvenienceRequiredBodyAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.NoConvenienceRequiredBodyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call NoConvenienceRequiredBodyAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.NoConvenienceRequiredBodyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="NoConvenienceRequiredBody(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call NoConvenienceRequiredBody.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.NoConvenienceRequiredBody(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call NoConvenienceRequiredBody with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.NoConvenienceRequiredBody(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="NoConvenienceOptionalBodyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call NoConvenienceOptionalBodyAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = await client.NoConvenienceOptionalBodyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call NoConvenienceOptionalBodyAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.NoConvenienceOptionalBodyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="NoConvenienceOptionalBody(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call NoConvenienceOptionalBody.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = client.NoConvenienceOptionalBody(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call NoConvenienceOptionalBody with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.NoConvenienceOptionalBody(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call ProtocolValueAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ProtocolValueAsync();
+]]></code>
+This sample shows how to call ProtocolValueAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ProtocolValueAsync();
+]]></code></example>
+    </member>
+    <member name="ProtocolValue(CancellationToken)">
+      <example>
+This sample shows how to call ProtocolValue.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ProtocolValue();
+]]></code>
+This sample shows how to call ProtocolValue with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ProtocolValue();
+]]></code></example>
+    </member>
+    <member name="ProtocolAsync(RequestContext)">
+      <example>
+This sample shows how to call ProtocolAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolAsync();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ProtocolAsync with all request content and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolAsync();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="Protocol(RequestContext)">
+      <example>
+This sample shows how to call Protocol and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.Protocol();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call Protocol with all request content and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.Protocol();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithOptionalValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceWithOptionalValueAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceWithOptionalValueAsync();
+]]></code>
+This sample shows how to call ConvenienceWithOptionalValueAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceWithOptionalValueAsync();
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithOptionalValue(CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceWithOptionalValue.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceWithOptionalValue();
+]]></code>
+This sample shows how to call ConvenienceWithOptionalValue with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceWithOptionalValue();
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithOptionalAsync(RequestContext)">
+      <example>
+This sample shows how to call ConvenienceWithOptionalAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceWithOptionalAsync();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceWithOptionalAsync with all request content and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceWithOptionalAsync();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithOptional(RequestContext)">
+      <example>
+This sample shows how to call ConvenienceWithOptional and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceWithOptional();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceWithOptional with all request content and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceWithOptional();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithRequiredAsync(CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceWithRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceWithRequiredAsync();
+]]></code>
+This sample shows how to call ConvenienceWithRequiredAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceWithRequiredAsync();
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithRequired(CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceWithRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceWithRequired();
+]]></code>
+This sample shows how to call ConvenienceWithRequired with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceWithRequired();
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithRequiredAsync(RequestContext)">
+      <example>
+This sample shows how to call ConvenienceWithRequiredAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceWithRequiredAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceWithRequiredAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceWithRequiredAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceWithRequired(RequestContext)">
+      <example>
+This sample shows how to call ConvenienceWithRequired and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceWithRequired(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceWithRequired with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceWithRequired(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceShouldNotGenerateAsync(RequestContext)">
+      <example>
+This sample shows how to call ConvenienceShouldNotGenerateAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceShouldNotGenerateAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceShouldNotGenerateAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceShouldNotGenerateAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceShouldNotGenerate(RequestContext)">
+      <example>
+This sample shows how to call ConvenienceShouldNotGenerate.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceShouldNotGenerate();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceShouldNotGenerate with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceShouldNotGenerate();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolShouldNotGenerateConvenienceAsync(RequestContext)">
+      <example>
+This sample shows how to call ProtocolShouldNotGenerateConvenienceAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolShouldNotGenerateConvenienceAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolShouldNotGenerateConvenienceAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolShouldNotGenerateConvenienceAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolShouldNotGenerateConvenience(RequestContext)">
+      <example>
+This sample shows how to call ProtocolShouldNotGenerateConvenience.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ProtocolShouldNotGenerateConvenience();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolShouldNotGenerateConvenience with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ProtocolShouldNotGenerateConvenience();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalQueryValueAsync(int?,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolOptionalQueryValueAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ProtocolOptionalQueryValueAsync();
+]]></code>
+This sample shows how to call ProtocolOptionalQueryValueAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ProtocolOptionalQueryValueAsync(optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalQueryValue(int?,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolOptionalQueryValue.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ProtocolOptionalQueryValue();
+]]></code>
+This sample shows how to call ProtocolOptionalQueryValue with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ProtocolOptionalQueryValue(optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalQueryAsync(int?,RequestContext)">
+      <example>
+This sample shows how to call ProtocolOptionalQueryAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolOptionalQueryAsync();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ProtocolOptionalQueryAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolOptionalQueryAsync(optional: 1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalQuery(int?,RequestContext)">
+      <example>
+This sample shows how to call ProtocolOptionalQuery and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ProtocolOptionalQuery();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ProtocolOptionalQuery with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ProtocolOptionalQuery(optional: 1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredQueryValueAsync(int,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolRequiredQueryValueAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ProtocolRequiredQueryValueAsync(1234);
+]]></code>
+This sample shows how to call ProtocolRequiredQueryValueAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ProtocolRequiredQueryValueAsync(1234);
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredQueryValue(int,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolRequiredQueryValue.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ProtocolRequiredQueryValue(1234);
+]]></code>
+This sample shows how to call ProtocolRequiredQueryValue with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ProtocolRequiredQueryValue(1234);
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredQueryAsync(int,RequestContext)">
+      <example>
+This sample shows how to call ProtocolRequiredQueryAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolRequiredQueryAsync(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ProtocolRequiredQueryAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolRequiredQueryAsync(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredQuery(int,RequestContext)">
+      <example>
+This sample shows how to call ProtocolRequiredQuery and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ProtocolRequiredQuery(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ProtocolRequiredQuery with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ProtocolRequiredQuery(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalModelAsync(Model,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolOptionalModelAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ProtocolOptionalModelAsync();
+]]></code>
+This sample shows how to call ProtocolOptionalModelAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model optional = new Model("<id>");
+Response response = await client.ProtocolOptionalModelAsync(optional: optional);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalModel(Model,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolOptionalModel.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ProtocolOptionalModel();
+]]></code>
+This sample shows how to call ProtocolOptionalModel with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model optional = new Model("<id>");
+Response response = client.ProtocolOptionalModel(optional: optional);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalModelAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ProtocolOptionalModelAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = await client.ProtocolOptionalModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolOptionalModelAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ProtocolOptionalModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalModel(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ProtocolOptionalModel.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = client.ProtocolOptionalModel(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolOptionalModel with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ProtocolOptionalModel(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredModelAsync(Model,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolRequiredModelAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ProtocolRequiredModelAsync(required);
+]]></code>
+This sample shows how to call ProtocolRequiredModelAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ProtocolRequiredModelAsync(required);
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredModel(Model,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolRequiredModel.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ProtocolRequiredModel(required);
+]]></code>
+This sample shows how to call ProtocolRequiredModel with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ProtocolRequiredModel(required);
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredModelAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ProtocolRequiredModelAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ProtocolRequiredModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolRequiredModelAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ProtocolRequiredModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolRequiredModel(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ProtocolRequiredModel.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ProtocolRequiredModel(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolRequiredModel with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ProtocolRequiredModel(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithOptionalValueAsync(int?,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithOptionalValueAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceOptionalQueryWithOptionalValueAsync();
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithOptionalValueAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceOptionalQueryWithOptionalValueAsync(optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithOptionalValue(int?,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithOptionalValue.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceOptionalQueryWithOptionalValue();
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithOptionalValue with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceOptionalQueryWithOptionalValue(optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithOptionalAsync(int?,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithOptionalAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceOptionalQueryWithOptionalAsync();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithOptionalAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceOptionalQueryWithOptionalAsync(optional: 1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithOptional(int?,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithOptional and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceOptionalQueryWithOptional();
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithOptional with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceOptionalQueryWithOptional(optional: 1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithOptionalValueAsync(int,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithOptionalValueAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceRequiredQueryWithOptionalValueAsync(1234);
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithOptionalValueAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceRequiredQueryWithOptionalValueAsync(1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithOptionalValue(int,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithOptionalValue.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceRequiredQueryWithOptionalValue(1234);
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithOptionalValue with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceRequiredQueryWithOptionalValue(1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithOptionalAsync(int,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithOptionalAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceRequiredQueryWithOptionalAsync(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithOptionalAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceRequiredQueryWithOptionalAsync(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithOptional(int,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithOptional and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceRequiredQueryWithOptional(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithOptional with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceRequiredQueryWithOptional(1234);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithRequiredAsync(int?,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceOptionalQueryWithRequiredAsync();
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithRequiredAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceOptionalQueryWithRequiredAsync(optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithRequired(int?,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceOptionalQueryWithRequired();
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithRequired with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceOptionalQueryWithRequired(optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithRequiredAsync(int?,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithRequiredAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceOptionalQueryWithRequiredAsync(null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithRequiredAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceOptionalQueryWithRequiredAsync(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalQueryWithRequired(int?,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalQueryWithRequired and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceOptionalQueryWithRequired(null, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceOptionalQueryWithRequired with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceOptionalQueryWithRequired(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithRequiredAsync(int,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceRequiredQueryWithRequiredAsync(1234);
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithRequiredAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = await client.ConvenienceRequiredQueryWithRequiredAsync(1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithRequired(int,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceRequiredQueryWithRequired(1234);
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithRequired with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response<Model> response = client.ConvenienceRequiredQueryWithRequired(1234);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithRequiredAsync(int,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithRequiredAsync and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceRequiredQueryWithRequiredAsync(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithRequiredAsync with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceRequiredQueryWithRequiredAsync(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredQueryWithRequired(int,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceRequiredQueryWithRequired and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceRequiredQueryWithRequired(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call ConvenienceRequiredQueryWithRequired with all parameters and parse the result.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceRequiredQueryWithRequired(1234, null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithOptionalAsync(Model,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithOptionalAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceOptionalModelWithOptionalAsync();
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithOptionalAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model optional = new Model("<id>");
+Response response = await client.ConvenienceOptionalModelWithOptionalAsync(optional: optional);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithOptional(Model,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithOptional.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceOptionalModelWithOptional();
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithOptional with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model optional = new Model("<id>");
+Response response = client.ConvenienceOptionalModelWithOptional(optional: optional);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithOptionalAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithOptionalAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = await client.ConvenienceOptionalModelWithOptionalAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithOptionalAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ConvenienceOptionalModelWithOptionalAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithOptional(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithOptional.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = client.ConvenienceOptionalModelWithOptional(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithOptional with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ConvenienceOptionalModelWithOptional(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredModelWithOptionalAsync(Model,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceRequiredModelWithOptionalAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ConvenienceRequiredModelWithOptionalAsync(required);
+]]></code>
+This sample shows how to call ConvenienceRequiredModelWithOptionalAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ConvenienceRequiredModelWithOptionalAsync(required);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredModelWithOptional(Model,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceRequiredModelWithOptional.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ConvenienceRequiredModelWithOptional(required);
+]]></code>
+This sample shows how to call ConvenienceRequiredModelWithOptional with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ConvenienceRequiredModelWithOptional(required);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredModelWithOptionalAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceRequiredModelWithOptionalAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ConvenienceRequiredModelWithOptionalAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceRequiredModelWithOptionalAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ConvenienceRequiredModelWithOptionalAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceRequiredModelWithOptional(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceRequiredModelWithOptional.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ConvenienceRequiredModelWithOptional(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceRequiredModelWithOptional with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ConvenienceRequiredModelWithOptional(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithRequiredAsync(Model,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = await client.ConvenienceOptionalModelWithRequiredAsync();
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithRequiredAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model optional = new Model("<id>");
+Response response = await client.ConvenienceOptionalModelWithRequiredAsync(optional: optional);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithRequired(Model,CancellationToken)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Response response = client.ConvenienceOptionalModelWithRequired();
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithRequired with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model optional = new Model("<id>");
+Response response = client.ConvenienceOptionalModelWithRequired(optional: optional);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithRequiredAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = await client.ConvenienceOptionalModelWithRequiredAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithRequiredAsync with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ConvenienceOptionalModelWithRequiredAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConvenienceOptionalModelWithRequired(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ConvenienceOptionalModelWithRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = null;
+Response response = client.ConvenienceOptionalModelWithRequired(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConvenienceOptionalModelWithRequired with all request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ConvenienceOptionalModelWithRequired(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalBeforeRequiredAsync(Model,int?,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolOptionalBeforeRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ProtocolOptionalBeforeRequiredAsync(required);
+]]></code>
+This sample shows how to call ProtocolOptionalBeforeRequiredAsync with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = await client.ProtocolOptionalBeforeRequiredAsync(required, optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalBeforeRequired(Model,int?,CancellationToken)">
+      <example>
+This sample shows how to call ProtocolOptionalBeforeRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ProtocolOptionalBeforeRequired(required);
+]]></code>
+This sample shows how to call ProtocolOptionalBeforeRequired with all parameters.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+Model required = new Model("<id>");
+Response response = client.ProtocolOptionalBeforeRequired(required, optional: 1234);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalBeforeRequiredAsync(RequestContent,int?,RequestContext)">
+      <example>
+This sample shows how to call ProtocolOptionalBeforeRequiredAsync.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ProtocolOptionalBeforeRequiredAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolOptionalBeforeRequiredAsync with all parameters and request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = await client.ProtocolOptionalBeforeRequiredAsync(content, optional: 1234);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ProtocolOptionalBeforeRequired(RequestContent,int?,RequestContext)">
+      <example>
+This sample shows how to call ProtocolOptionalBeforeRequired.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ProtocolOptionalBeforeRequired(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ProtocolOptionalBeforeRequired with all parameters and request content.
+<code><![CDATA[
+ConvenienceInCadlClient client = new ConvenienceInCadlClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = "<id>",
+});
+Response response = client.ProtocolOptionalBeforeRequired(content, optional: 1234);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

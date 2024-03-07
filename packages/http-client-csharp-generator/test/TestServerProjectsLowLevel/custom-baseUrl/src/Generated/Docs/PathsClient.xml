@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetEmptyAsync(string,RequestContext)">
+      <example>
+This sample shows how to call GetEmptyAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathsClient client = new PathsClient("host", credential);
+
+Response response = await client.GetEmptyAsync("<accountName>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetEmptyAsync with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathsClient client = new PathsClient("host", credential);
+
+Response response = await client.GetEmptyAsync("<accountName>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetEmpty(string,RequestContext)">
+      <example>
+This sample shows how to call GetEmpty.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathsClient client = new PathsClient("host", credential);
+
+Response response = client.GetEmpty("<accountName>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetEmpty with all parameters.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PathsClient client = new PathsClient("host", credential);
+
+Response response = client.GetEmpty("<accountName>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

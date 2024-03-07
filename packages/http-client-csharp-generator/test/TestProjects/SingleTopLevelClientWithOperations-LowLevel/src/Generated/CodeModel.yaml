@@ -1,0 +1,473 @@
+!CodeModel 
+info: !Info 
+  title: TopLevelClientWithOperation
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      language: !Languages 
+        default:
+          name: ItemsValueItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      language: !Languages 
+        default:
+          name: ItemsNextLink
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_6
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_8
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2021-10-19'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_3
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2021-10-19'
+            elementType: *ref_1
+            language: !Languages 
+              default:
+                name: ItemsValue
+                description: Array of ItemsValueItem
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: Items
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_3
+globalParameters:
+  - !Parameter &ref_9
+    schema: *ref_4
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+      x-ms-resource-identifier: true
+    language: !Languages 
+      default:
+        name: ClientParameter
+        description: ''
+        serializedName: clientParameter
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+  - !Parameter &ref_5
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: Client1
+    operations:
+      - !Operation 
+        operationId: Client1_Operation
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /client1
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Client1
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Client2
+    operations:
+      - !Operation 
+        operationId: Client2_Operation
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /client2
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Client2
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /client3
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Client4
+    operations:
+      - !Operation 
+        operationId: Client4_GetAll
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+          - !Parameter &ref_7
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: filter
+                description: ''
+                serializedName: filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /client4
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_7
+        responses:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetAll
+            description: 'Operation defined in resource client, but must be promoted to the top level client because it doesn''t have a parameter with `x-ms-resource-identifier: true`.'
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Client4_Patch
+        apiVersions:
+          - !ApiVersion 
+            version: '2021-10-19'
+        parameters:
+          - *ref_5
+          - !Parameter &ref_10
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: filter
+                description: ''
+                serializedName: filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_9
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /client4
+                method: patch
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_10
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Patch
+            description: 'Operation has a parameter with `x-ms-resource-identifier: true`, hence `Client4` will be codegen''ed as a resource client.'
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Client4
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: TopLevelClientWithOperation
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

@@ -1,0 +1,33 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!--Needed for inclusion in the autorest.csharp.sln-->
+    <IsTestGenerationSrcProject Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">true</IsTestGenerationSrcProject>
+    <IsTestGenerationTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests'))">true</IsTestGenerationTestProject>
+    <IsUnbranded>true</IsUnbranded>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--Needed for working inside autorest.chsarp repo-->
+    <RepoRoot>$(MSBuildThisFileDirectory)../../</RepoRoot>
+    <RepoEngPath>$(RepoRoot)eng/</RepoEngPath>
+    <IncludeGeneratorSharedCode>false</IncludeGeneratorSharedCode>
+    <ArtifactsDir Condition="'$(ArtifactsDir)' == ''">$(RepoRoot)artifacts\</ArtifactsDir>
+    <ArtifactsObjDir>$(ArtifactsDir)obj\</ArtifactsObjDir>
+    <ArtifactsBinDir>$(ArtifactsDir)bin\</ArtifactsBinDir>
+    <ArtifactsPackagesDir>$(ArtifactsDir)packages\$(Configuration)\</ArtifactsPackagesDir>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <OutDirName Condition="'$(OutDirName)' == ''">$(MSBuildProjectName)</OutDirName>
+
+    <BaseOutputPath Condition="'$(BaseOutputPath)' == ''">$([System.IO.Path]::GetFullPath('$(ArtifactsBinDir)$(OutDirName)\'))</BaseOutputPath>
+    <OutputPath Condition="'$(PlatformName)' == 'AnyCPU'">$(BaseOutputPath)$(Configuration)\</OutputPath>
+    <OutputPath Condition="'$(PlatformName)' != 'AnyCPU'">$(BaseOutputPath)$(PlatformName)\$(Configuration)\</OutputPath>
+
+    <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)' == ''">$([System.IO.Path]::GetFullPath('$(ArtifactsObjDir)$(OutDirName)\'))</BaseIntermediateOutputPath>
+    <IntermediateOutputPath Condition="'$(PlatformName)' == 'AnyCPU'">$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <IntermediateOutputPath Condition="'$(PlatformName)' != 'AnyCPU'">$(BaseIntermediateOutputPath)$(PlatformName)\$(Configuration)\</IntermediateOutputPath>
+
+    <PackageOutputPath>$(ArtifactsPackagesDir)</PackageOutputPath>
+
+    <CodeAnalysisRuleSet>$(RepoEngPath)\CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+</Project>

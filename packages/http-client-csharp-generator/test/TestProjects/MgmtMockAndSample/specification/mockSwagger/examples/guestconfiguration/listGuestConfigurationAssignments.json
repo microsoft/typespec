@@ -1,0 +1,59 @@
+{
+  "parameters": {
+    "subscriptionId": "mySubscriptionId",
+    "resourceGroupName": "myResourceGroupName",
+    "vmName": "myVMName",
+    "api-version": "2022-01-25"
+  },
+  "responses": {
+    "200": {
+      "headers": {},
+      "body": [
+        {
+          "location": "centraluseuap",
+          "id": "/subscriptions/subscriptionId/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/AuditSecureProtocol2",
+          "name": "AuditSecureProtocol2",
+          "properties": {
+            "complianceStatus": "Compliant",
+            "assignmentHash": "content hash",
+            "latestReportId": "/subscriptions/subscriptionId/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/AuditSecureProtocol2/reports/7367cbb8-ae99-47d0-a33b-a283564d2cb1",
+            "lastComplianceStatusChecked": "2018-08-29T22:14:13Z",
+            "context": null,
+            "guestConfiguration": {
+              "kind": null,
+              "name": "AuditSecureProtocol2",
+              "version": "1.0.0.3",
+              "contentUri": "https://mystorageaccount.blob.core.windows.net/builtinconfig/AuditSecureProtocol2/AuditSecureProtocol2_1.0.0.3.zip",
+              "contentHash": "content hash",
+              "configurationParameter": [],
+              "configurationSetting": null
+            },
+            "provisioningState": null
+          }
+        },
+        {
+          "location": "centraluseuap",
+          "id": "/subscriptions/subscriptionId/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/myAssignment",
+          "name": "myAssignment",
+          "properties": {
+            "complianceStatus": "Compliant",
+            "assignmentHash": "content hash",
+            "latestReportId": "/subscriptions/subscriptionId/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/myAssignment/reports/7367cbb8-ae99-47d0-a33b-a283564d2cb1",
+            "lastComplianceStatusChecked": "2018-08-29T22:14:13Z",
+            "context": null,
+            "guestConfiguration": {
+              "kind": null,
+              "name": "myAssignment",
+              "version": "1.0.0.3",
+              "contentUri": "https://mystorageaccount.blob.core.windows.net/builtinconfig/myAssignment/myAssignment.0.0.3.zip",
+              "contentHash": "content hash",
+              "configurationParameter": [],
+              "configurationSetting": null
+            },
+            "provisioningState": null
+          }
+        }
+      ]
+    }
+  }
+}

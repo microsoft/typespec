@@ -1,0 +1,2625 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Azure Special Parameters Test Client
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_4
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_0
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorConstantId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_30
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_7
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      precision: 32
+      language: !Languages 
+        default:
+          name: OdataFilterId
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_1
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: foo-request-id
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: foo-request-id
+      protocol: !Protocols {}
+    - !StringSchema &ref_37
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: foo-request-id
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      language: !Languages 
+        default:
+          name: OdataFilterName
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_5
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      value: !ConstantValue 
+        value: 1
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ErrorConstantId
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_12
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_10
+      type: constant
+      value: !ConstantValue 
+        value: 2015-07-01-preview
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: ApiVersion20150701Preview
+          description: Api Version (2015-07-01-preview)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_21
+      type: constant
+      value: !ConstantValue 
+        value: '2.0'
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant3
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_25
+      type: constant
+      value: !ConstantValue 
+        value: path1/path2/path3
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant4
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_29
+      type: constant
+      value: !ConstantValue 
+        value: value1&q2=value2&q3=value3
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: Constant5
+          description: ''
+      protocol: !Protocols {}
+  groups:
+    - !GroupSchema &ref_3
+      type: group
+      properties:
+        - !GroupProperty 
+          schema: *ref_2
+          originalParameter:
+            - !Parameter &ref_35
+              schema: *ref_2
+              groupedBy: !Parameter &ref_36
+                schema: *ref_3
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: headerCustomNamedRequestIdParamGroupingParameters
+                    description: Parameter group
+                protocol: !Protocols {}
+              implementation: Method
+              required: true
+              extensions:
+                x-ms-client-request-id: true
+              language: !Languages 
+                default:
+                  name: fooClientRequestId
+                  description: The fooRequestId
+                  serializedName: foo-client-request-id
+              protocol: !Protocols 
+                http: !HttpParameter 
+                  in: header
+          required: true
+          serializedName: foo-client-request-id
+          language: !Languages 
+            default:
+              name: fooClientRequestId
+              description: The fooRequestId
+          protocol: !Protocols {}
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: HeaderCustomNamedRequestIdParamGroupingParameters
+          description: Parameter group
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_14
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      properties:
+        - !Property 
+          schema: *ref_4
+          required: false
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_5
+          required: true
+          serializedName: constantId
+          language: !Languages 
+            default:
+              name: constantId
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          required: false
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 2015-07-01-preview
+      properties:
+        - !Property 
+          schema: *ref_7
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_8
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: OdataFilter
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_15
+    schema: *ref_9
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: The subscription id, which appears in the path, always modeled in credentials. The value is always '1234-5678-9012-3456'
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_11
+    schema: *ref_1
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_16
+    schema: *ref_10
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: x-ms-client-request-id
+    operations:
+      - !Operation 
+        operationId: x-ms-client-request-id_Get
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/overwrite/x-ms-client-request-id/method/
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '9C4D50EE-2D56-4CD3-8152-34347DC9F2B0' x-ms-client-request header
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Get
+            description: Get method that overwrites x-ms-client-request header with value 9C4D50EE-2D56-4CD3-8152-34347DC9F2B0.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: x-ms-client-request-id_ParamGet
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_13
+            schema: *ref_9
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: xMsClientRequestId
+                description: This should appear as a method parameter, use value '9C4D50EE-2D56-4CD3-8152-34347DC9F2B0'
+                serializedName: x-ms-client-request-id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/overwrite/x-ms-client-request-id/via-param/method/
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_13
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '9C4D50EE-2D56-4CD3-8152-34347DC9F2B0' x-ms-client-request header
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: ParamGet
+            description: Get method that overwrites x-ms-client-request header with value 9C4D50EE-2D56-4CD3-8152-34347DC9F2B0.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: XMsClientRequestId
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: subscriptionInCredentials
+    operations:
+      - !Operation 
+        operationId: subscriptionInCredentials_postMethodGlobalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_15
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/method/string/none/path/global/1234-5678-9012-3456/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '1234-5678-9012-3456' credential value from credentials
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostMethodGlobalValid
+            description: POST method with subscriptionId modeled in credentials.  Set the credential subscriptionId to '1234-5678-9012-3456' to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: subscriptionInCredentials_postMethodGlobalNull
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_15
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/method/string/none/path/global/null/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: This should never occur - you should be prevented from calling this method with null subscription Id in credentials
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostMethodGlobalNull
+            description: POST method with subscriptionId modeled in credentials.  Set the credential subscriptionId to null, and client-side validation should prevent you from making this call
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: subscriptionInCredentials_postMethodGlobalNotProvidedValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_15
+          - *ref_16
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/method/string/none/path/globalNotProvided/1234-5678-9012-3456/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '1234-5678-9012-3456' credential value from credentials
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostMethodGlobalNotProvidedValid
+            description: POST method with subscriptionId modeled in credentials.  Set the credential subscriptionId to '1234-5678-9012-3456' to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: subscriptionInCredentials_postPathGlobalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_15
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/path/string/none/path/global/1234-5678-9012-3456/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '1234-5678-9012-3456' credential value from credentials
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostPathGlobalValid
+            description: POST method with subscriptionId modeled in credentials.  Set the credential subscriptionId to '1234-5678-9012-3456' to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: subscriptionInCredentials_postSwaggerGlobalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_15
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/swagger/string/none/path/global/1234-5678-9012-3456/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '1234-5678-9012-3456' credential value from credentials
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostSwaggerGlobalValid
+            description: POST method with subscriptionId modeled in credentials.  Set the credential subscriptionId to '1234-5678-9012-3456' to succeed
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SubscriptionInCredentials
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: subscriptionInMethod
+    operations:
+      - !Operation 
+        operationId: subscriptionInMethod_postMethodLocalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_17
+            schema: *ref_9
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subscriptionId
+                description: This should appear as a method parameter, use value '1234-5678-9012-3456'
+                serializedName: subscriptionId
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/method/string/none/path/local/1234-5678-9012-3456/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_17
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '1234-5678-9012-3456' credential value from the local parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostMethodLocalValid
+            description: POST method with subscriptionId modeled in the method.  pass in subscription id = '1234-5678-9012-3456' to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: subscriptionInMethod_postMethodLocalNull
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_18
+            schema: *ref_9
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subscriptionId
+                description: This should appear as a method parameter, use value null, client-side validation should prvenet the call
+                serializedName: subscriptionId
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/method/string/none/path/local/null/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_18
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: You should not reach this response - client side validation should prevent yopu from sending a null subscriptionId
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostMethodLocalNull
+            description: POST method with subscriptionId modeled in the method.  pass in subscription id = null, client-side validation should prevent you from making this call
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: subscriptionInMethod_postPathLocalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_19
+            schema: *ref_9
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subscriptionId
+                description: Should appear as a method parameter -use value '1234-5678-9012-3456'
+                serializedName: subscriptionId
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/path/string/none/path/local/1234-5678-9012-3456/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_19
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '1234-5678-9012-3456' credential value from the local parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostPathLocalValid
+            description: POST method with subscriptionId modeled in the method.  pass in subscription id = '1234-5678-9012-3456' to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: subscriptionInMethod_postSwaggerLocalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_20
+            schema: *ref_9
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: subscriptionId
+                description: The subscriptionId, which appears in the path, the value is always '1234-5678-9012-3456'
+                serializedName: subscriptionId
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/subscriptionId/swagger/string/none/path/local/1234-5678-9012-3456/{subscriptionId}
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_20
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '1234-5678-9012-3456' credential value from the local parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PostSwaggerLocalValid
+            description: POST method with subscriptionId modeled in the method.  pass in subscription id = '1234-5678-9012-3456' to succeed
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SubscriptionInMethod
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: apiVersionDefault
+    operations:
+      - !Operation 
+        operationId: apiVersionDefault_getMethodGlobalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_16
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/method/string/none/query/global/2015-07-01-preview
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '2015-07-01-preview' api-version value from global client settings
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetMethodGlobalValid
+            description: GET method with api-version modeled in global settings.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: apiVersionDefault_getMethodGlobalNotProvidedValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_16
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/method/string/none/query/globalNotProvided/2015-07-01-preview
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '2015-07-01-preview' credential value from global client settings
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetMethodGlobalNotProvidedValid
+            description: GET method with api-version modeled in global settings.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: apiVersionDefault_getPathGlobalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_16
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/path/string/none/query/global/2015-07-01-preview
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '2015-07-01-preview' api-version value from global client settings
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetPathGlobalValid
+            description: GET method with api-version modeled in global settings.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: apiVersionDefault_getSwaggerGlobalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_16
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/swagger/string/none/query/global/2015-07-01-preview
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '2015-07-01-preview' api-version value from global client settings
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetSwaggerGlobalValid
+            description: GET method with api-version modeled in global settings.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ApiVersionDefault
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: apiVersionLocal
+    operations:
+      - !Operation 
+        operationId: apiVersionLocal_getMethodLocalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter 
+            schema: *ref_21
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: apiVersion
+                description: This should appear as a method parameter, use value '2.0'
+                serializedName: api-version
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/method/string/none/query/local/2.0
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '2.0' api-version value from the local parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetMethodLocalValid
+            description: Get method with api-version modeled in the method.  pass in api-version = '2.0' to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: apiVersionLocal_getMethodLocalNull
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_22
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: apiVersion
+                description: This should appear as a method parameter, use value null, this should result in no serialized parameter
+                serializedName: api-version
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/method/string/none/query/local/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_22
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no api-version value from the local parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetMethodLocalNull
+            description: Get method with api-version modeled in the method.  pass in api-version = null to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: apiVersionLocal_getPathLocalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter 
+            schema: *ref_21
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: apiVersion
+                description: This should appear as a method parameter, use value '2.0'
+                serializedName: api-version
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/path/string/none/query/local/2.0
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '2.0' api-version value from the local parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetPathLocalValid
+            description: Get method with api-version modeled in the method.  pass in api-version = '2.0' to succeed
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: apiVersionLocal_getSwaggerLocalValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter 
+            schema: *ref_21
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: apiVersion
+                description: The api version, which appears in the query, the value is always '2.0'
+                serializedName: api-version
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/apiVersion/swagger/string/none/query/local/2.0
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the '2.0' api-version value from the local parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetSwaggerLocalValid
+            description: Get method with api-version modeled in the method.  pass in api-version = '2.0' to succeed
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ApiVersionLocal
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: skipUrlEncoding
+    operations:
+      - !Operation 
+        operationId: skipUrlEncoding_getMethodPathValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_23
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: unencodedPathParam
+                description: Unencoded path parameter with value 'path1/path2/path3'
+                serializedName: unencodedPathParam
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/skipUrlEncoding/method/path/valid/{unencodedPathParam}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_23
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the path parameter with value 'path1/path2/path3'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetMethodPathValid
+            description: Get method with unencoded path parameter with value 'path1/path2/path3'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: skipUrlEncoding_getPathPathValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_24
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: unencodedPathParam
+                description: Unencoded path parameter with value 'path1/path2/path3'
+                serializedName: unencodedPathParam
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/skipUrlEncoding/path/path/valid/{unencodedPathParam}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_24
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the path parameter with value 'path1/path2/path3'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetPathValid
+            description: Get method with unencoded path parameter with value 'path1/path2/path3'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: skipUrlEncoding_getSwaggerPathValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter 
+            schema: *ref_25
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: unencodedPathParam
+                description: An unencoded path parameter with value 'path1/path2/path3'
+                serializedName: unencodedPathParam
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/skipUrlEncoding/swagger/path/valid/{unencodedPathParam}
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the path parameter with value 'path1/path2/path3'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetSwaggerPathValid
+            description: Get method with unencoded path parameter with value 'path1/path2/path3'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: skipUrlEncoding_getMethodQueryValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_26
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: q1
+                description: Unencoded query parameter with value 'value1&q2=value2&q3=value3'
+                serializedName: q1
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/skipUrlEncoding/method/query/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_26
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the unencoded query parameter with value 'value1&q2=value2&q3=value3'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetMethodQueryValid
+            description: Get method with unencoded query parameter with value 'value1&q2=value2&q3=value3'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: skipUrlEncoding_getMethodQueryNull
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_27
+            schema: *ref_9
+            implementation: Method
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: q1
+                description: Unencoded query parameter with value null
+                serializedName: q1
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/skipUrlEncoding/method/query/null
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_27
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received no query parameter
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetMethodQueryNull
+            description: Get method with unencoded query parameter with value null
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: skipUrlEncoding_getPathQueryValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_28
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: q1
+                description: Unencoded query parameter with value 'value1&q2=value2&q3=value3'
+                serializedName: q1
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/skipUrlEncoding/path/query/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_28
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the unencoded query parameter with value 'value1&q2=value2&q3=value3'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetPathQueryValid
+            description: Get method with unencoded query parameter with value 'value1&q2=value2&q3=value3'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: skipUrlEncoding_getSwaggerQueryValid
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter 
+            schema: *ref_29
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: q1
+                description: An unencoded query parameter with value 'value1&q2=value2&q3=value3'
+                serializedName: q1
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/skipUrlEncoding/swagger/query/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received the unencoded query parameter with value 'value1&q2=value2&q3=value3'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetSwaggerQueryValid
+            description: Get method with unencoded query parameter with value 'value1&q2=value2&q3=value3'
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: SkipUrlEncoding
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: odata
+    operations:
+      - !Operation 
+        operationId: odata_getWithFilter
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_31
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: filter
+                description: The filter parameter with value '$filter=id gt 5 and name eq 'foo''.
+                serializedName: $filter
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_32
+            schema: *ref_30
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: The top parameter with value 10.
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_33
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: orderby
+                description: The orderby parameter with value id.
+                serializedName: $orderby
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/odata/filter
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_31
+          - *ref_32
+          - *ref_33
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received filter parameter with value '$filter=id gt 5 and name eq 'foo'&$orderby=id&$top=10'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-odata: '#/components/schemas/OdataFilter'
+        language: !Languages 
+          default:
+            name: GetWithFilter
+            description: Specify filter parameter with value '$filter=id gt 5 and name eq 'foo'&$orderby=id&$top=10'
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Odata
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: header
+    operations:
+      - !Operation 
+        operationId: header_customNamedRequestId
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_34
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-request-id: true
+            language: !Languages 
+              default:
+                name: fooClientRequestId
+                description: The fooRequestId
+                serializedName: foo-client-request-id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/customNamedRequestId
+                method: post
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_34
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Gets the foo-request-id
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_9
+                    header: foo-request-id
+                    language:
+                      default:
+                        name: FooRequestId
+                        description: Gets the foo-request-id.
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-request-id: foo-request-id
+        language: !Languages 
+          default:
+            name: CustomNamedRequestId
+            description: Send foo-client-request-id = 9C4D50EE-2D56-4CD3-8152-34347DC9F2B0 in the header of the request
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_customNamedRequestIdParamGrouping
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - *ref_35
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - *ref_36
+            signatureParameters:
+              - *ref_36
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/customNamedRequestIdParamGrouping
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Gets the foo-request-id
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_2
+                    header: foo-request-id
+                    language:
+                      default:
+                        name: FooRequestId
+                        description: Gets the foo-request-id.
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-request-id: foo-request-id
+        language: !Languages 
+          default:
+            name: CustomNamedRequestIdParamGrouping
+            description: Send foo-client-request-id = 9C4D50EE-2D56-4CD3-8152-34347DC9F2B0 in the header of the request, via a parameter group
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: header_customNamedRequestIdHead
+        apiVersions:
+          - !ApiVersion 
+            version: 2015-07-01-preview
+        parameters:
+          - *ref_11
+          - !Parameter &ref_38
+            schema: *ref_37
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-request-id: true
+            language: !Languages 
+              default:
+                name: fooClientRequestId
+                description: The fooRequestId
+                serializedName: foo-client-request-id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /azurespecials/customNamedRequestIdHead
+                method: head
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_38
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Gets the foo-request-id
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_37
+                    header: foo-request-id
+                    language:
+                      default:
+                        name: FooRequestId
+                        description: Gets the foo-request-id.
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Gets the foo-request-id
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '404'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-request-id: foo-request-id
+        language: !Languages 
+          default:
+            name: CustomNamedRequestIdHead
+            description: Send foo-client-request-id = 9C4D50EE-2D56-4CD3-8152-34347DC9F2B0 in the header of the request
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Header
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestAzureSpecialParametersTestClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

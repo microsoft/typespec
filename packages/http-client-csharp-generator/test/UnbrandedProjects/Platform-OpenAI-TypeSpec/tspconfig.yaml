@@ -1,0 +1,4 @@
+options:
+  "@azure-tools/typespec-csharp":
+    branded: false
+    generate-test-project: true

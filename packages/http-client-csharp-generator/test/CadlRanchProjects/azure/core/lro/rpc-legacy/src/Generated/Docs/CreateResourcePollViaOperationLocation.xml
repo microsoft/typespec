@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetJobAsync(string,CancellationToken)">
+      <example>
+This sample shows how to call GetJobAsync.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response<JobResult> response = await client.GetJobAsync("<jobId>");
+]]></code>
+This sample shows how to call GetJobAsync with all parameters.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response<JobResult> response = await client.GetJobAsync("<jobId>");
+]]></code></example>
+    </member>
+    <member name="GetJob(string,CancellationToken)">
+      <example>
+This sample shows how to call GetJob.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response<JobResult> response = client.GetJob("<jobId>");
+]]></code>
+This sample shows how to call GetJob with all parameters.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response<JobResult> response = client.GetJob("<jobId>");
+]]></code></example>
+    </member>
+    <member name="GetJobAsync(string,RequestContext)">
+      <example>
+This sample shows how to call GetJobAsync and parse the result.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response response = await client.GetJobAsync("<jobId>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("jobId").ToString());
+Console.WriteLine(result.GetProperty("comment").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+]]></code>
+This sample shows how to call GetJobAsync with all parameters and parse the result.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response response = await client.GetJobAsync("<jobId>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("jobId").ToString());
+Console.WriteLine(result.GetProperty("comment").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("target").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("innererror").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("results")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetJob(string,RequestContext)">
+      <example>
+This sample shows how to call GetJob and parse the result.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response response = client.GetJob("<jobId>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("jobId").ToString());
+Console.WriteLine(result.GetProperty("comment").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+]]></code>
+This sample shows how to call GetJob with all parameters and parse the result.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+Response response = client.GetJob("<jobId>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("jobId").ToString());
+Console.WriteLine(result.GetProperty("comment").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("target").ToString());
+Console.WriteLine(result.GetProperty("errors")[0].GetProperty("error").GetProperty("innererror").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("results")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="CreateJobAsync(WaitUntil,JobData,CancellationToken)">
+      <example>
+This sample shows how to call CreateJobAsync.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+JobData jobData = new JobData("<comment>");
+Operation operation = await client.CreateJobAsync(WaitUntil.Completed, jobData);
+]]></code>
+This sample shows how to call CreateJobAsync with all parameters.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+JobData jobData = new JobData("<comment>");
+Operation operation = await client.CreateJobAsync(WaitUntil.Completed, jobData);
+]]></code></example>
+    </member>
+    <member name="CreateJob(WaitUntil,JobData,CancellationToken)">
+      <example>
+This sample shows how to call CreateJob.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+JobData jobData = new JobData("<comment>");
+Operation operation = client.CreateJob(WaitUntil.Completed, jobData);
+]]></code>
+This sample shows how to call CreateJob with all parameters.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+JobData jobData = new JobData("<comment>");
+Operation operation = client.CreateJob(WaitUntil.Completed, jobData);
+]]></code></example>
+    </member>
+    <member name="CreateJobAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateJobAsync.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    comment = "<comment>",
+});
+Operation operation = await client.CreateJobAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call CreateJobAsync with all parameters and request content.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    comment = "<comment>",
+});
+Operation operation = await client.CreateJobAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="CreateJob(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateJob.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    comment = "<comment>",
+});
+Operation operation = client.CreateJob(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call CreateJob with all parameters and request content.
+<code><![CDATA[
+CreateResourcePollViaOperationLocation client = new LegacyClient().GetCreateResourcePollViaOperationLocationClient(apiVersion: "2022-12-01-preview");
+
+using RequestContent content = RequestContent.Create(new
+{
+    comment = "<comment>",
+});
+Operation operation = client.CreateJob(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetPagesPartialUrlAsync(string,RequestContext)">
+      <example>
+This sample shows how to call GetPagesPartialUrlAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+await foreach (BinaryData item in client.GetPagesPartialUrlAsync("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPagesPartialUrlAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+await foreach (BinaryData item in client.GetPagesPartialUrlAsync("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("properties").GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("properties").GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPagesPartialUrl(string,RequestContext)">
+      <example>
+This sample shows how to call GetPagesPartialUrl and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+foreach (BinaryData item in client.GetPagesPartialUrl("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPagesPartialUrl with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+foreach (BinaryData item in client.GetPagesPartialUrl("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("properties").GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("properties").GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPagesPartialUrlOperationAsync(string,RequestContext)">
+      <example>
+This sample shows how to call GetPagesPartialUrlOperationAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+await foreach (BinaryData item in client.GetPagesPartialUrlOperationAsync("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPagesPartialUrlOperationAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+await foreach (BinaryData item in client.GetPagesPartialUrlOperationAsync("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("properties").GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("properties").GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPagesPartialUrlOperation(string,RequestContext)">
+      <example>
+This sample shows how to call GetPagesPartialUrlOperation and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+foreach (BinaryData item in client.GetPagesPartialUrlOperation("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPagesPartialUrlOperation with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+foreach (BinaryData item in client.GetPagesPartialUrlOperation("<accountName>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("properties").GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("properties").GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPagesPartialUrlOperationNextAsync(string,string,RequestContext)">
+      <example>
+This sample shows how to call GetPagesPartialUrlOperationNextAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+await foreach (BinaryData item in client.GetPagesPartialUrlOperationNextAsync("<accountName>", "<nextLink>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPagesPartialUrlOperationNextAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+await foreach (BinaryData item in client.GetPagesPartialUrlOperationNextAsync("<accountName>", "<nextLink>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("properties").GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("properties").GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPagesPartialUrlOperationNext(string,string,RequestContext)">
+      <example>
+This sample shows how to call GetPagesPartialUrlOperationNext and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+foreach (BinaryData item in client.GetPagesPartialUrlOperationNext("<accountName>", "<nextLink>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPagesPartialUrlOperationNext with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PagingClient client = new PagingClient("host", credential);
+
+foreach (BinaryData item in client.GetPagesPartialUrlOperationNext("<accountName>", "<nextLink>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("properties").GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("properties").GetProperty("name").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

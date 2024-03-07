@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PutAsync(Extension,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Extension input = new Extension(123);
+Response response = await client.PutAsync(input);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Extension input = new Extension(123);
+Response response = await client.PutAsync(input);
+]]></code></example>
+    </member>
+    <member name="Put(Extension,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Extension input = new Extension(123);
+Response response = client.Put(input);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Extension input = new Extension(123);
+Response response = client.Put(input);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    level = 123,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    level = 123,
+    extension = new object[]
+    {
+        null
+    },
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    level = 123,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    level = 123,
+    extension = new object[]
+    {
+        null
+    },
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetRecursiveAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetRecursiveAsync.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response<Extension> response = await client.GetRecursiveAsync();
+]]></code>
+This sample shows how to call GetRecursiveAsync with all parameters.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response<Extension> response = await client.GetRecursiveAsync();
+]]></code></example>
+    </member>
+    <member name="GetRecursive(CancellationToken)">
+      <example>
+This sample shows how to call GetRecursive.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response<Extension> response = client.GetRecursive();
+]]></code>
+This sample shows how to call GetRecursive with all parameters.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response<Extension> response = client.GetRecursive();
+]]></code></example>
+    </member>
+    <member name="GetRecursiveAsync(RequestContext)">
+      <example>
+This sample shows how to call GetRecursiveAsync and parse the result.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response response = await client.GetRecursiveAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("level").ToString());
+]]></code>
+This sample shows how to call GetRecursiveAsync with all parameters and parse the result.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response response = await client.GetRecursiveAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("level").ToString());
+Console.WriteLine(result.GetProperty("extension")[0].GetProperty("level").ToString());
+]]></code></example>
+    </member>
+    <member name="GetRecursive(RequestContext)">
+      <example>
+This sample shows how to call GetRecursive and parse the result.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response response = client.GetRecursive(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("level").ToString());
+]]></code>
+This sample shows how to call GetRecursive with all parameters and parse the result.
+<code><![CDATA[
+RecursiveClient client = new RecursiveClient();
+
+Response response = client.GetRecursive(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("level").ToString());
+Console.WriteLine(result.GetProperty("extension")[0].GetProperty("level").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

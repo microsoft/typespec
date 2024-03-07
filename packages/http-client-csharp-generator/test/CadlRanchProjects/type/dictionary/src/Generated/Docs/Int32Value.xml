@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetInt32ValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetInt32ValueAsync.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response<IReadOnlyDictionary<string, int>> response = await client.GetInt32ValueAsync();
+]]></code>
+This sample shows how to call GetInt32ValueAsync with all parameters.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response<IReadOnlyDictionary<string, int>> response = await client.GetInt32ValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetInt32Value(CancellationToken)">
+      <example>
+This sample shows how to call GetInt32Value.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response<IReadOnlyDictionary<string, int>> response = client.GetInt32Value();
+]]></code>
+This sample shows how to call GetInt32Value with all parameters.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response<IReadOnlyDictionary<string, int>> response = client.GetInt32Value();
+]]></code></example>
+    </member>
+    <member name="GetInt32ValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetInt32ValueAsync and parse the result.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = await client.GetInt32ValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetInt32ValueAsync with all parameters and parse the result.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = await client.GetInt32ValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetInt32Value(RequestContext)">
+      <example>
+This sample shows how to call GetInt32Value and parse the result.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = client.GetInt32Value(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetInt32Value with all parameters and parse the result.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = client.GetInt32Value(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IDictionary{string,int},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = await client.PutAsync(new Dictionary<string, int>
+{
+    ["key"] = 1234
+});
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = await client.PutAsync(new Dictionary<string, int>
+{
+    ["key"] = 1234
+});
+]]></code></example>
+    </member>
+    <member name="Put(IDictionary{string,int},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = client.Put(new Dictionary<string, int>
+{
+    ["key"] = 1234
+});
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+Response response = client.Put(new Dictionary<string, int>
+{
+    ["key"] = 1234
+});
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = 1234,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = 1234,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = 1234,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+Int32Value client = new DictionaryClient().GetInt32ValueClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    key = 1234,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

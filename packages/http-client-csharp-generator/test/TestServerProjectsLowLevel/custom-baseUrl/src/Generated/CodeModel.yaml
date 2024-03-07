@@ -1,0 +1,224 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Parameterized Host Test Client
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      defaultValue: host
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_4
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_6
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_3
+    schema: *ref_0
+    clientDefaultValue: host
+    implementation: Client
+    required: true
+    extensions:
+      x-in: path
+      x-ms-priority: 0
+      x-ms-skip-url-encoding: true
+      x-name: host
+      x-required: true
+      x-type: string
+    language: !Languages 
+      default:
+        name: Host
+        description: A string value that is used as a global part of the parameterized host
+        serializedName: host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: paths
+    operations:
+      - !Operation 
+        operationId: paths_getEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - !Parameter &ref_5
+            schema: *ref_0
+            implementation: Method
+            required: true
+            extensions:
+              x-in: path
+              x-ms-skip-url-encoding: true
+              x-name: accountName
+              x-required: true
+              x-type: string
+            language: !Languages 
+              default:
+                name: accountName
+                description: Account Name
+                serializedName: accountName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: uri
+          - *ref_3
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_4
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /customuri
+                method: get
+                uri: http://{accountName}{host}
+        signatureParameters:
+          - *ref_5
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received a 200 response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            paths_getEmpty:
+              parameters:
+                accountName: testaccount
+                host: host:3000
+              responses:
+                '200':
+                  body: ''
+        language: !Languages 
+          default:
+            name: GetEmpty
+            description: Get a 200 to test a valid base uri
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Paths
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: AutoRestParameterizedHostTestClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

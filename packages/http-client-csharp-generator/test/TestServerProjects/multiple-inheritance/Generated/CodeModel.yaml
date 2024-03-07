@@ -1,0 +1,1079 @@
+!CodeModel 
+info: !Info 
+  description: Service client for multiinheritance client testing
+  title: Multiple Inheritance Service Client
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_5
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_8
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 3.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 3.0.0
+      language: !Languages 
+        default:
+          name: PetName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 3.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_16
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 3.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_11
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_13
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_1
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 3.0.0
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_3
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 3.0.0
+            children: !Relations 
+              all:
+                - *ref_1
+                - !ObjectSchema &ref_2
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: 3.0.0
+                  children: !Relations 
+                    all:
+                      - !ObjectSchema &ref_4
+                        type: object
+                        apiVersions:
+                          - !ApiVersion 
+                            version: 3.0.0
+                        parents: !Relations 
+                          all:
+                            - *ref_2
+                            - *ref_3
+                            - !ObjectSchema &ref_6
+                              type: object
+                              apiVersions:
+                                - !ApiVersion 
+                                  version: 3.0.0
+                              children: !Relations 
+                                all:
+                                  - *ref_2
+                                  - *ref_4
+                                immediate:
+                                  - *ref_2
+                              properties:
+                                - !Property 
+                                  schema: *ref_5
+                                  serializedName: meows
+                                  language: !Languages 
+                                    default:
+                                      name: meows
+                                      description: ''
+                                  protocol: !Protocols {}
+                                - !Property 
+                                  schema: *ref_5
+                                  serializedName: hisses
+                                  language: !Languages 
+                                    default:
+                                      name: hisses
+                                      description: ''
+                                  protocol: !Protocols {}
+                              serializationFormats:
+                                - json
+                              usage:
+                                - output
+                                - input
+                              language: !Languages 
+                                default:
+                                  name: Feline
+                                  description: ''
+                                  namespace: ''
+                              protocol: !Protocols {}
+                          immediate:
+                            - *ref_2
+                        properties:
+                          - !Property 
+                            schema: *ref_5
+                            serializedName: eatsMiceYet
+                            language: !Languages 
+                              default:
+                                name: eatsMiceYet
+                                description: ''
+                            protocol: !Protocols {}
+                        serializationFormats:
+                          - json
+                        usage:
+                          - output
+                          - input
+                        language: !Languages 
+                          default:
+                            name: Kitten
+                            description: ''
+                            namespace: ''
+                        protocol: !Protocols {}
+                    immediate:
+                      - *ref_4
+                  parents: !Relations 
+                    all:
+                      - *ref_3
+                      - *ref_6
+                    immediate:
+                      - *ref_3
+                      - *ref_6
+                  properties:
+                    - !Property 
+                      schema: *ref_5
+                      serializedName: likesMilk
+                      language: !Languages 
+                        default:
+                          name: likesMilk
+                          description: ''
+                      protocol: !Protocols {}
+                  serializationFormats:
+                    - json
+                  usage:
+                    - output
+                    - input
+                  language: !Languages 
+                    default:
+                      name: Cat
+                      description: ''
+                      namespace: ''
+                  protocol: !Protocols {}
+                - *ref_4
+              immediate:
+                - *ref_1
+                - *ref_2
+            properties:
+              - !Property 
+                schema: *ref_7
+                required: true
+                serializedName: name
+                language: !Languages 
+                  default:
+                    name: name
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - output
+              - input
+            language: !Languages 
+              default:
+                name: Pet
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_3
+      properties:
+        - !Property 
+          schema: *ref_5
+          serializedName: isAShowHorse
+          language: !Languages 
+            default:
+              name: isAShowHorse
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: Horse
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_3
+    - !ObjectSchema &ref_12
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 3.0.0
+      properties:
+        - !Property 
+          schema: *ref_8
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_6
+    - *ref_2
+    - *ref_4
+globalParameters:
+  - !Parameter &ref_10
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: getHorse
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /multipleInheritance/horse
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Horse with name 'Fred' and isAShowHorse true
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetHorse
+            description: Get a horse with name 'Fred' and isAShowHorse true
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: putHorse
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requestMediaTypes:
+          application/json: !Request &ref_15
+            parameters:
+              - !Parameter 
+                schema: *ref_13
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_14
+                schema: *ref_1
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: horse
+                    description: Put a horse with name 'General' and isAShowHorse false
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /multipleInheritance/horse
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_15
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Received correct format
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PutHorse
+            description: Put a horse with name 'General' and isAShowHorse false
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: getPet
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /multipleInheritance/pet
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: Pet with name 'Peanut'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetPet
+            description: Get a pet with name 'Peanut'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: putPet
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requestMediaTypes:
+          application/json: !Request &ref_18
+            parameters:
+              - !Parameter 
+                schema: *ref_13
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_17
+                schema: *ref_3
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: pet
+                    description: Put a pet with name 'Butter'
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_17
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /multipleInheritance/pet
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_18
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Received correct format
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PutPet
+            description: Put a pet with name 'Butter'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: getFeline
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /multipleInheritance/feline
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_6
+            language: !Languages 
+              default:
+                name: ''
+                description: Feline where meows and hisses are true
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetFeline
+            description: Get a feline where meows and hisses are true
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: putFeline
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requestMediaTypes:
+          application/json: !Request &ref_20
+            parameters:
+              - !Parameter 
+                schema: *ref_13
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_19
+                schema: *ref_6
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: feline
+                    description: Put a feline who hisses and doesn't meow
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_19
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /multipleInheritance/feline
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_20
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Received correct format
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PutFeline
+            description: Put a feline who hisses and doesn't meow
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: getCat
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /multipleInheritance/cat
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_2
+            language: !Languages 
+              default:
+                name: ''
+                description: Cat with name 'Whiskers' where likesMilk, meows, and hisses is true
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetCat
+            description: Get a cat with name 'Whiskers' where likesMilk, meows, and hisses is true
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: putCat
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requestMediaTypes:
+          application/json: !Request &ref_22
+            parameters:
+              - !Parameter 
+                schema: *ref_13
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_21
+                schema: *ref_2
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: cat
+                    description: Put a cat with name 'Boots' where likesMilk and hisses is false, meows is true
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_21
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /multipleInheritance/cat
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_22
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Received correct format
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PutCat
+            description: Put a cat with name 'Boots' where likesMilk and hisses is false, meows is true
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: getKitten
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /multipleInheritance/kitten
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_4
+            language: !Languages 
+              default:
+                name: ''
+                description: Kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetKitten
+            description: Get a kitten with name 'Gatito' where likesMilk and meows is true, and hisses and eatsMiceYet is false
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: putKitten
+        apiVersions:
+          - !ApiVersion 
+            version: 3.0.0
+        parameters:
+          - *ref_10
+        requestMediaTypes:
+          application/json: !Request &ref_24
+            parameters:
+              - !Parameter 
+                schema: *ref_13
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_23
+                schema: *ref_4
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: kitten
+                    description: Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_23
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /multipleInheritance/kitten
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_24
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: Received correct format
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PutKitten
+            description: Put a kitten with name 'Kitty' where likesMilk and hisses is false, meows and eatsMiceYet is true
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: MultipleInheritanceServiceClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

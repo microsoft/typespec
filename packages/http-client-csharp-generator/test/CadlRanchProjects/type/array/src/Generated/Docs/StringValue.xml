@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetStringValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetStringValueAsync.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response<IReadOnlyList<string>> response = await client.GetStringValueAsync();
+]]></code>
+This sample shows how to call GetStringValueAsync with all parameters.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response<IReadOnlyList<string>> response = await client.GetStringValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetStringValue(CancellationToken)">
+      <example>
+This sample shows how to call GetStringValue.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response<IReadOnlyList<string>> response = client.GetStringValue();
+]]></code>
+This sample shows how to call GetStringValue with all parameters.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response<IReadOnlyList<string>> response = client.GetStringValue();
+]]></code></example>
+    </member>
+    <member name="GetStringValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringValueAsync and parse the result.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = await client.GetStringValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringValueAsync with all parameters and parse the result.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = await client.GetStringValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringValue(RequestContext)">
+      <example>
+This sample shows how to call GetStringValue and parse the result.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = client.GetStringValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringValue with all parameters and parse the result.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = client.GetStringValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IEnumerable{string},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = await client.PutAsync(new string[] { "<body>" });
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = await client.PutAsync(new string[] { "<body>" });
+]]></code></example>
+    </member>
+    <member name="Put(IEnumerable{string},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = client.Put(new string[] { "<body>" });
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+Response response = client.Put(new string[] { "<body>" });
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<body>"
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<body>"
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<body>"
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+StringValue client = new ArrayClient().GetStringValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<body>"
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

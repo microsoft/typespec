@@ -1,0 +1,539 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AuthorizationManagementClient",
+    "version": "2017-10-01-preview",
+    "description": "Role based access control provides you a way to apply granular level policy administration down to individual resources or resource groups. These operations enable you to manage role definitions and role assignments. A role definition describes the set of actions that can be performed on resources. A role assignment grants access to Azure Active Directory users."
+  },
+  "host": "management.azure.com",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "azure_auth": [
+        "user_impersonation"
+      ]
+    }
+  ],
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "description": "Azure Active Directory OAuth2 Flow",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    }
+  },
+  "paths": {
+    "/subscriptions/{subscriptionId}/resourcegroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{parentResourcePath}/{resourceType}/{resourceName}/providers/Microsoft.Authorization/roleAssignments": {
+      "get": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_ListForResource",
+        "description": "Gets role assignments for a resource.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ResourceGroupNameParameter"
+          },
+          {
+            "name": "resourceProviderNamespace",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The namespace of the resource provider."
+          },
+          {
+            "name": "parentResourcePath",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The parent resource identity.",
+            "x-ms-skip-url-encoding": true
+          },
+          {
+            "name": "resourceType",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The resource type of the resource.",
+            "x-ms-skip-url-encoding": true
+          },
+          {
+            "name": "resourceName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the resource to get role assignments for."
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "The filter to apply on the operation. Use $filter=atScope() to return all role assignments at or above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope for the specified principal."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns an array of role assignments.",
+            "schema": {
+              "$ref": "#/definitions/RoleAssignmentListResult"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-odata": "#/definitions/RoleAssignmentFilter",
+        "x-ms-examples": {
+          "List role assignments for resource": {
+            "$ref": "./examples/GetRoleAssignmentsForResource.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Authorization/roleAssignments": {
+      "get": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_ListForResourceGroup",
+        "description": "Gets role assignments for a resource group.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ResourceGroupNameParameter"
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "The filter to apply on the operation. Use $filter=atScope() to return all role assignments at or above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope for the specified principal."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns an array of role assignments.",
+            "schema": {
+              "$ref": "#/definitions/RoleAssignmentListResult"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-odata": "#/definitions/RoleAssignmentFilter",
+        "x-ms-examples": {
+          "List role assignments for resource group": {
+            "$ref": "./examples/GetRoleAssignmentsForResourceGroup.json"
+          }
+        }
+      }
+    },
+    "/{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}": {
+      "delete": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_Delete",
+        "description": "Deletes a role assignment.",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The scope of the role assignment to delete.",
+            "x-ms-skip-url-encoding": true
+          },
+          {
+            "name": "roleAssignmentName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the role assignment to delete."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns information about the role assignment.",
+            "schema": {
+              "$ref": "#/definitions/RoleAssignment"
+            }
+          },
+          "204": {
+            "description": "Role assignment already deleted or does not exist."
+          }
+        },
+        "x-ms-examples": {
+          "Delete role assignment by name": {
+            "$ref": "./examples/DeleteRoleAssignmentByName.json"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_Create",
+        "description": "Creates a role assignment.",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The scope of the role assignment to create. The scope can be any REST resource instance. For example, use '/subscriptions/{subscription-id}/' for a subscription, '/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}' for a resource group, and '/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}/providers/{resource-provider}/{resource-type}/{resource-name}' for a resource.",
+            "x-ms-skip-url-encoding": true
+          },
+          {
+            "name": "roleAssignmentName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "A GUID for the role assignment to create. The name must be unique and different for each role assignment."
+          },
+          {
+            "name": "parameters",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RoleAssignmentCreateParameters"
+            },
+            "description": "Parameters for the role assignment."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created - Returns information about the role assignment.",
+            "schema": {
+              "$ref": "#/definitions/RoleAssignment"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Create role assignment": {
+            "$ref": "./examples/PutRoleAssignment.json"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_Get",
+        "description": "Get the specified role assignment.",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The scope of the role assignment.",
+            "x-ms-skip-url-encoding": true
+          },
+          {
+            "name": "roleAssignmentName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the role assignment to get."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns information about the role assignment.",
+            "schema": {
+              "$ref": "#/definitions/RoleAssignment"
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Get role assignment by name": {
+            "$ref": "./examples/GetRoleAssignmentByName.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments": {
+      "get": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_List",
+        "description": "Gets all role assignments for the subscription.",
+        "parameters": [
+          {
+            "name": "$filter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "The filter to apply on the operation. Use $filter=atScope() to return all role assignments at or above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope for the specified principal."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns an array of role assignments.",
+            "schema": {
+              "$ref": "#/definitions/RoleAssignmentListResult"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-odata": "#/definitions/RoleAssignmentFilter",
+        "x-ms-examples": {
+          "List role assignments for subscription": {
+            "$ref": "./examples/GetAllRoleAssignments.json"
+          }
+        }
+      }
+    },
+    "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}/validate": {
+      "post": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_Validate",
+        "description": "Gets all role assignments for the subscription.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "$ref": "#/parameters/SubscriptionIdParameter"
+          },
+          {
+            "name": "roleAssignmentName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the role assignment to delete."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns an array of role assignments."
+          }
+        },
+        "x-ms-examples": {
+          "Validate role assignments for subscription": {
+            "$ref": "./examples/ValidateRoleAssignment.json"
+          }
+        }
+      }
+    },
+    "/{scope}/providers/Microsoft.Authorization/roleAssignments": {
+      "get": {
+        "tags": [
+          "RoleAssignments"
+        ],
+        "operationId": "RoleAssignments_ListForScope",
+        "description": "Gets role assignments for a scope.",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The scope of the role assignments.",
+            "x-ms-skip-url-encoding": true
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "description": "The filter to apply on the operation. Use $filter=atScope() to return all role assignments at or above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope for the specified principal."
+          },
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK - Returns an array of role assignments.",
+            "schema": {
+              "$ref": "#/definitions/RoleAssignmentListResult"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-odata": "#/definitions/RoleAssignmentFilter",
+        "x-ms-examples": {
+          "List role assignments for scope": {
+            "$ref": "./examples/GetRoleAssignmentByScope.json"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RoleAssignmentFilter": {
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "description": "Returns role assignment of the specific principal."
+        },
+        "canDelegate": {
+          "type": "boolean",
+          "description": "The Delegation flag for the role assignment"
+        }
+      },
+      "description": "Role Assignments filter"
+    },
+    "RoleAssignmentPropertiesWithScope": {
+      "properties": {
+        "scope": {
+          "type": "string",
+          "description": "The role assignment scope."
+        },
+        "roleDefinitionId": {
+          "type": "string",
+          "description": "The role definition ID."
+        },
+        "principalId": {
+          "type": "string",
+          "description": "The principal ID."
+        },
+        "canDelegate": {
+          "type": "boolean",
+          "description": "The Delegation flag for the role assignment"
+        }
+      },
+      "description": "Role assignment properties with scope."
+    },
+    "RoleAssignment": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "The role assignment ID."
+        },
+        "name": {
+          "type": "string",
+          "readOnly": true,
+          "description": "The role assignment name."
+        },
+        "type": {
+          "type": "string",
+          "readOnly": true,
+          "description": "The role assignment type."
+        },
+        "properties": {
+          "x-ms-client-flatten": true,
+          "$ref": "#/definitions/RoleAssignmentPropertiesWithScope",
+          "description": "Role assignment properties."
+        }
+      },
+      "description": "Role Assignments"
+    },
+    "RoleAssignmentListResult": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RoleAssignment"
+          },
+          "description": "Role assignment list."
+        },
+        "nextLink": {
+          "type": "string",
+          "description": "The URL to use for getting the next set of results."
+        }
+      },
+      "description": "Role assignment list operation result."
+    },
+    "RoleAssignmentProperties": {
+      "properties": {
+        "roleDefinitionId": {
+          "type": "string",
+          "description": "The role definition ID used in the role assignment."
+        },
+        "principalId": {
+          "type": "string",
+          "description": "The principal ID assigned to the role. This maps to the ID inside the Active Directory. It can point to a user, service principal, or security group."
+        },
+        "canDelegate": {
+          "type": "boolean",
+          "description": "The delegation flag used for creating a role assignment"
+        }
+      },
+      "description": "Role assignment properties."
+    },
+    "RoleAssignmentCreateParameters": {
+      "properties": {
+        "properties": {
+          "x-ms-client-flatten": true,
+          "$ref": "#/definitions/RoleAssignmentProperties",
+          "description": "Role assignment properties."
+        }
+      },
+      "description": "Role assignment create parameters."
+    }
+  },
+  "parameters": {
+    "SubscriptionIdParameter": {
+        "name": "subscriptionId",
+        "in": "path",
+        "required": true,
+        "type": "string",
+        "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+      },
+      "ApiVersionParameter": {
+        "name": "api-version",
+        "in": "query",
+        "required": true,
+        "type": "string",
+        "description": "Client Api Version."
+      },
+      "ResourceGroupNameParameter": {
+        "name": "resourceGroupName",
+        "in": "path",
+        "required": true,
+        "type": "string",
+        "description": "Name of the resource group that contains the key vault.",
+        "x-ms-parameter-location": "method"
+      }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "parameters": {
+    "subscriptionId": "{subscription-id}",
+    "resourceGroupName": "myResourceGroup",
+    "diskEncryptionSetName": "myDiskEncryptionSet",
+    "api-version": "2022-03-02"
+  },
+  "responses": {
+    "200": {},
+    "202": {},
+    "204": {}
+  }
+}

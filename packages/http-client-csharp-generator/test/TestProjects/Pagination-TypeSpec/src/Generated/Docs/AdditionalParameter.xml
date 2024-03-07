@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetMetricDimensionValuesAsync(string,string,string,Interval?,string,string,CancellationToken)">
+      <example>
+This sample shows how to call GetMetricDimensionValuesAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+await foreach (DimensionValueListItem item in client.GetMetricDimensionValuesAsync("<testRunId>", "<name>", "<metricNamespace>"))
+{
+}
+]]></code>
+This sample shows how to call GetMetricDimensionValuesAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+await foreach (DimensionValueListItem item in client.GetMetricDimensionValuesAsync("<testRunId>", "<name>", "<metricNamespace>", interval: Interval.PT5S, metricName: "<metricName>", timespan: "<timespan>"))
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetMetricDimensionValues(string,string,string,Interval?,string,string,CancellationToken)">
+      <example>
+This sample shows how to call GetMetricDimensionValues.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+foreach (DimensionValueListItem item in client.GetMetricDimensionValues("<testRunId>", "<name>", "<metricNamespace>"))
+{
+}
+]]></code>
+This sample shows how to call GetMetricDimensionValues with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+foreach (DimensionValueListItem item in client.GetMetricDimensionValues("<testRunId>", "<name>", "<metricNamespace>", interval: Interval.PT5S, metricName: "<metricName>", timespan: "<timespan>"))
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetMetricDimensionValuesAsync(string,string,string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetMetricDimensionValuesAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+await foreach (BinaryData item in client.GetMetricDimensionValuesAsync("<testRunId>", "<name>", "<metricNamespace>", null, null, null, null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("value")[0].ToString());
+}
+]]></code>
+This sample shows how to call GetMetricDimensionValuesAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+await foreach (BinaryData item in client.GetMetricDimensionValuesAsync("<testRunId>", "<name>", "<metricNamespace>", "PT5S", "<metricName>", "<timespan>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("value")[0].ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetMetricDimensionValues(string,string,string,string,string,string,RequestContext)">
+      <example>
+This sample shows how to call GetMetricDimensionValues and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+foreach (BinaryData item in client.GetMetricDimensionValues("<testRunId>", "<name>", "<metricNamespace>", null, null, null, null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("value")[0].ToString());
+}
+]]></code>
+This sample shows how to call GetMetricDimensionValues with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+AdditionalParameter client = new PaginationClient(endpoint, credential).GetAdditionalParameterClient();
+
+foreach (BinaryData item in client.GetMetricDimensionValues("<testRunId>", "<name>", "<metricNamespace>", "PT5S", "<metricName>", "<timespan>", null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("value")[0].ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

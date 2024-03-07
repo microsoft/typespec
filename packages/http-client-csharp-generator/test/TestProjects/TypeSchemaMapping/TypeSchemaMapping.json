@@ -1,0 +1,528 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Schema mapping",
+    "description": "Schema mapping",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+    "paths": {
+        "/Operation/": {
+            "put": {
+                "operationId": "Operation",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/Model"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/Model"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            }
+        },
+        "/OperationStruct/": {
+            "patch": {
+                "operationId": "OperationStruct",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ModelStruct"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ModelStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationSecondModel": {
+            "patch": {
+                "operationId": "OperationSecondModel",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/SecondModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/SecondModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationThirdModel": {
+            "patch": {
+                "operationId": "OperationThirdModel",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ThirdModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ThirdModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationModelWithArrayOfEnum": {
+            "patch": {
+                "operationId": "OperationModelWithArrayOfEnum",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ModelWithArrayOfEnum"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ModelWithArrayOfEnum"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationWithInternalModel": {
+            "post": {
+                "operationId": "OperationWithInternalModel",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ModelWithInternalModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationWithAbstractModel": {
+            "post": {
+                "operationId": "OperationWithAbstractModel",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ModelWithAbstractModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationWithListOfInternalModel": {
+            "post": {
+                "operationId": "OperationWithListOfInternalModel",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/ModelWithListOfInternalModel"
+                        }
+                    }
+                }
+            }
+        },
+        "/OperationWithPublicModelWithInternalProperty": {
+            "post": {
+                "operationId": "OperationWithPublicModelWithInternalProperty",
+                "description": "",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/PublicModelWithInternalProperty"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "AbstractModel": {
+            "type": "object",
+            "properties": {
+                "DiscriminatorProperty": { "type": "string" }
+            },
+            "discriminator": "DiscriminatorProperty",
+            "required": [ "DiscriminatorProperty" ]
+        },
+        "DerivedFromAbstractModel": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/AbstractModel"
+                }
+            ]
+        },
+        "ModelWithAbstractModel": {
+            "type": "object",
+            "properties": {
+                "AbstractModelProperty": {
+                    "$ref": "#/definitions/AbstractModel"
+                }
+            }
+        },
+        "InternalModel": {
+            "type": "object",
+            "properties": {
+                "StringProperty": {
+                    "type": "string"
+                }
+            }
+        },
+        "ModelWithInternalModel": {
+            "type": "object",
+            "properties": {
+                "InternalProperty": {
+                    "$ref": "#/definitions/InternalModel"
+                }
+            }
+        },
+        "ModelWithListOfInternalModel": {
+            "type": "object",
+            "properties": {
+                "StringProperty": {
+                    "type": "string",
+                    "readOnly": true
+                },
+                "InternalListProperty": {
+                    "type": "array",
+                    "items": { "$ref": "#/definitions/InternalModel" },
+                    "readOnly": true
+                }
+            }
+        },
+        "PublicModelWithInternalProperty": {
+            "type": "object",
+            "properties": {
+                "InternalProperty": {
+                    "type": "string"
+                },
+                "PublicProperty": {
+                    "type": "string"
+                }
+            }
+        },
+        "SecondModel": {
+            "type": "object",
+            "properties": {
+                "StringProperty": {
+                    "type": "string",
+                    "description": "."
+                },
+                "DictionaryProperty": {
+                    "type": "object",
+                    "description": ".",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "DaysOfWeek": {
+                    "type": "string",
+                    "description": "Day of week",
+                    "enum": [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday",
+                        "Sunday"
+                    ],
+                    "x-ms-enum": {
+                        "name": "DaysOfWeek",
+                        "modelAsString": true
+                    }
+                }
+            }
+        },
+        "ThirdModel": {
+            "type": "object",
+            "properties": {
+                "ETag": {
+                    "type": "string",
+                    "description": "ETag property"
+                },
+                "CreatedAt": {
+                    "type": "string",
+                    "description": "Creation date"
+                }
+            }
+        },
+        "Model": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "type": "string",
+                    "description": "."
+                },
+                "PropertyToField": {
+                    "type": "string",
+                    "description": "."
+                },
+                "Fruit": {
+                    "type": "string",
+                    "description": "Fruit",
+                    "enum": [
+                        "apple",
+                        "pear"
+                    ],
+                    "x-ms-enum": {
+                        "name": "Fruit",
+                        "modelAsString": true
+                    }
+                },
+                "DaysOfWeek": {
+                    "type": "string",
+                    "description": "Day of week",
+                    "enum": [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday",
+                        "Sunday"
+                    ],
+                    "x-ms-enum": {
+                        "name": "DaysOfWeek",
+                        "modelAsString": true
+                    }
+                }
+            },
+            "required": [
+                "DaysOfWeek",
+                "Fruit"
+            ]
+        },
+        "ModelStruct": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "type": "object",
+                    "$ref": "#/definitions/Model",
+                    "description": ".",
+                    "x-ms-client-flatten": true
+                }
+            }
+        },
+        "EnumWithCustomNamespace": {
+            "description": "Letters",
+            "type": "string",
+            "enum": [
+                "A",
+                "B",
+                "C"
+            ],
+            "x-namespace": "Very.Custom.Namespace.From.Swagger",
+            "x-accessibility": "internal"
+        },
+        "ModelWithCustomNamespace": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "type": "string",
+                    "description": "."
+                }
+            },
+            "x-namespace": "Very.Custom.Namespace.From.Swagger",
+            "x-accessibility": "internal"
+        },
+        "ModelWithArrayOfEnum": {
+            "type": "object",
+            "properties": {
+                "ArrayOfEnum": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "A",
+                            "B"
+                        ],
+                        "x-ms-enum": {
+                            "name": "EnumForModelWithArrayOfEnum",
+                            "modelAsString": false
+                        }
+                    }
+                },
+                "ArrayOfEnumCustomizedToNullable": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "A",
+                            "B"
+                        ],
+                        "x-ms-enum": {
+                            "name": "EnumForModelWithArrayOfEnum",
+                            "modelAsString": false
+                        }
+                    }
+                }
+            }
+        },
+        "ModelWithGuidProperty": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "format": "uuid",
+                    "description": ".",
+                    "type": "string",
+                    "readOnly": true,
+                    "x-nullable": false
+                }
+            },
+            "x-csharp-usage": "model,input,output",
+            "x-csharp-formats": "xml"
+        },
+        "ModelWithCustomUsage": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "type": "string",
+                    "description": "."
+                }
+            },
+            "x-csharp-usage": "model,input,output",
+            "x-csharp-formats": "xml, json, json"
+        },
+        "ModelWithCustomUsageViaAttribute": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "type": "string",
+                    "description": "."
+                }
+            }
+        },
+        "NonExtensibleEnum": {
+            "description": "More Letters",
+            "type": "string",
+            "enum": [
+                "A",
+                "B",
+                "C"
+            ],
+            "x-ms-enum": {
+                "name": "NonExtensibleEnum",
+                "modelAsString": false
+            }
+        },
+        "ModelWithUriProperty": {
+            "type": "object",
+            "properties": {
+                "Uri": {
+                    "type": "string",
+                    "description": "."
+                }
+            },
+            "x-csharp-usage": "model,input,output",
+            "x-csharp-formats": "json"
+        },
+        "UnexposedExtensibleEnum": {
+            "description": "More Letters",
+            "type": "string",
+            "enum": [
+                "A",
+                "B",
+                "C"
+            ],
+            "x-ms-enum": {
+                "name": "UnexposedExtensibleEnum",
+                "modelAsString": true
+            }
+        },
+        "UnexposedNonExtensibleEnum": {
+            "description": "More Letters",
+            "type": "string",
+            "enum": [
+                "A",
+                "B",
+                "C"
+            ],
+            "x-ms-enum": {
+                "name": "UnexposedNonExtensibleEnum",
+                "modelAsString": false
+            }
+        },
+        "ModelWithNullableObjectProperty": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "type": "object",
+                    "description": ".",
+                    "x-nullable": true
+                }
+            },
+            "x-csharp-usage": "model,input,output",
+            "x-csharp-formats": "json"
+        },
+        "ModelToBeSkipped": {
+            "type": "object",
+            "properties": {
+                "ModelProperty": {
+                    "type": "string"
+                }
+            }
+        },
+        "EnumToBeSkipped": {
+            "type": "string",
+            "enum": [
+                "1",
+                "2",
+                "3"
+            ],
+            "x-ms-enum": {
+                "name": "EnumToBeSkipped",
+                "modelAsString": false
+            }
+        }
+    }
+}

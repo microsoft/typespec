@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetUnionStringLiteralAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetUnionStringLiteralAsync.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response<UnionStringLiteralProperty> response = await client.GetUnionStringLiteralAsync();
+]]></code>
+This sample shows how to call GetUnionStringLiteralAsync with all parameters.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response<UnionStringLiteralProperty> response = await client.GetUnionStringLiteralAsync();
+]]></code></example>
+    </member>
+    <member name="GetUnionStringLiteral(CancellationToken)">
+      <example>
+This sample shows how to call GetUnionStringLiteral.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response<UnionStringLiteralProperty> response = client.GetUnionStringLiteral();
+]]></code>
+This sample shows how to call GetUnionStringLiteral with all parameters.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response<UnionStringLiteralProperty> response = client.GetUnionStringLiteral();
+]]></code></example>
+    </member>
+    <member name="GetUnionStringLiteralAsync(RequestContext)">
+      <example>
+This sample shows how to call GetUnionStringLiteralAsync and parse the result.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response response = await client.GetUnionStringLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetUnionStringLiteralAsync with all parameters and parse the result.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response response = await client.GetUnionStringLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetUnionStringLiteral(RequestContext)">
+      <example>
+This sample shows how to call GetUnionStringLiteral and parse the result.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response response = client.GetUnionStringLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetUnionStringLiteral with all parameters and parse the result.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+Response response = client.GetUnionStringLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(UnionStringLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+UnionStringLiteralProperty body = new UnionStringLiteralProperty(UnionStringLiteralPropertyProperty.Hello);
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+UnionStringLiteralProperty body = new UnionStringLiteralProperty(UnionStringLiteralPropertyProperty.Hello);
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(UnionStringLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+UnionStringLiteralProperty body = new UnionStringLiteralProperty(UnionStringLiteralPropertyProperty.Hello);
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+UnionStringLiteralProperty body = new UnionStringLiteralProperty(UnionStringLiteralPropertyProperty.Hello);
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = "hello",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = "hello",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = "hello",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+UnionStringLiteral client = new ValueTypesClient().GetUnionStringLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = "hello",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

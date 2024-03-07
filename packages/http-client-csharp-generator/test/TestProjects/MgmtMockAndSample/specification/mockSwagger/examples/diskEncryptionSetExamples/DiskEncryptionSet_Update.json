@@ -1,0 +1,75 @@
+{
+  "parameters": {
+    "subscriptionId": "{subscription-id}",
+    "resourceGroupName": "myResourceGroup",
+    "api-version": "2022-03-02",
+    "diskEncryptionSetName": "myDiskEncryptionSet",
+    "diskEncryptionSet": {
+      "properties": {
+        "activeKey": {
+          "sourceVault": {
+            "id": "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.KeyVault/vaults/myVMVault"
+          },
+          "keyUrl": "https://myvmvault.vault-int.azure-int.net/keys/keyName/keyVersion"
+        },
+        "encryptionType": "EncryptionAtRestWithCustomerKey"
+      },
+      "tags": {
+        "department": "Development",
+        "project": "Encryption"
+      }
+    }
+  },
+  "responses": {
+    "202": {
+      "headers": {
+        "Location": "https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/diskEncryptionSets/myDiskEncryptionSet?api-version=2021-04-01"
+      },
+      "body": {
+        "name": "myDiskEncryptionSet",
+        "location": "West US",
+        "identity": {
+          "type": "SystemAssigned"
+        },
+        "properties": {
+          "activeKey": {
+            "sourceVault": {
+              "id": "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.KeyVault/vaults/myVMVault"
+            },
+            "keyUrl": "https://myvmvault.vault-int.azure-int.net/keys/keyName/keyVersion"
+          },
+          "encryptionType": "EncryptionAtRestWithCustomerKey",
+          "previousKeys": []
+        },
+        "tags": {
+          "department": "Development",
+          "project": "Encryption"
+        }
+      }
+    },
+    "200": {
+      "body": {
+        "name": "myDiskEncryptionSet",
+        "location": "West US",
+        "identity": {
+          "type": "SystemAssigned"
+        },
+        "properties": {
+          "activeKey": {
+            "sourceVault": {
+              "id": "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.KeyVault/vaults/myVMVault"
+            },
+            "keyUrl": "https://myvmvault.vault-int.azure-int.net/keys/keyName/keyVersion"
+          },
+          "encryptionType": "EncryptionAtRestWithCustomerKey",
+          "previousKeys": [],
+          "lastKeyRotationTimestamp": "2021-04-01T04:41:35.079872+00:00"
+        },
+        "tags": {
+          "department": "Development",
+          "project": "Encryption"
+        }
+      }
+    }
+  }
+}

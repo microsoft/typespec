@@ -1,0 +1,988 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "MgmtPropertyChooser",
+        "description": "MgmtPropertyChooser",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines": {
+            "get": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "VirtualMachines_List",
+                "description": "Retrieves information about the model view or the instance view of a virtual machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation.",
+                        "enum": [
+                            "instanceView"
+                        ],
+                        "x-ms-enum": {
+                            "name": "InstanceViewTypes",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineListResult"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Get a Virtual Machine.": {
+                        "$ref": "./examples/GetVirtualMachine.json"
+                    },
+                    "Get a virtual machine placed on a dedicated host group through automatic placement": {
+                        "$ref": "./examples/GetVirtualMachineAutoPlacedOnDedicatedHostGroup.json"
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}": {
+            "put": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "VirtualMachines_CreateOrUpdate",
+                "description": "The operation to create or update a virtual machine. Please note some properties can be set only during virtual machine creation.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachine"
+                        },
+                        "description": "Parameters supplied to the Create Virtual Machine operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachine"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachine"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/CloudError"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "patch": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "VirtualMachines_Update",
+                "description": "The operation to update a virtual machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachineUpdate"
+                        },
+                        "description": "Parameters supplied to the Update Virtual Machine operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachine"
+                        }
+                    },
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachine"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-examples": {
+                    "Update a VM by detaching data disk": {
+                        "$ref": "./examples/UpdateVMDetachDataDiskUsingToBeDetachedProperty.json"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "VirtualMachines_Delete",
+                "description": "The operation to delete a virtual machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "forceDeletion",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean",
+                        "description": "Optional parameter to force delete virtual machines."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "202": {
+                        "description": "Accepted"
+                    },
+                    "204": {
+                        "description": "No Content"
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "get": {
+                "tags": [
+                    "VirtualMachines"
+                ],
+                "operationId": "VirtualMachines_Get",
+                "description": "Retrieves information about the model view or the instance view of a virtual machine.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "vmName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine."
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation.",
+                        "enum": [
+                            "instanceView"
+                        ],
+                        "x-ms-enum": {
+                            "name": "InstanceViewTypes",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/VirtualMachine"
+                        }
+                    }
+                },
+                "x-ms-examples": {
+                    "Get a Virtual Machine.": {
+                        "$ref": "./examples/GetVirtualMachine.json"
+                    },
+                    "Get a virtual machine placed on a dedicated host group through automatic placement": {
+                        "$ref": "./examples/GetVirtualMachineAutoPlacedOnDedicatedHostGroup.json"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "CloudError": {
+            "x-ms-external": true,
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/ErrorResponse"
+                },
+                "anotherError": {
+                    "$ref": "#/definitions/ErrorResponseWithAnotherName"
+                }
+            },
+            "description": "An error response for a resource management request."
+        },
+        "ErrorResponse": {
+            "title": "Error Response",
+            "description": "Common error response for all Azure Resource Manager APIs to return error details for failed operations. (This also follows the OData error response format.)",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error code."
+                },
+                "message": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error message."
+                },
+                "target": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error target."
+                },
+                "details": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorResponse"
+                    },
+                    "description": "The error details."
+                },
+                "additionalInfo": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorAdditionalInfo"
+                    },
+                    "description": "The error additional info."
+                }
+            }
+        },
+        "ErrorAdditionalInfo": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The additional info type."
+                },
+                "info": {
+                    "readOnly": true,
+                    "type": "object",
+                    "description": "The additional info."
+                }
+            },
+            "description": "The resource management error additional info."
+        },
+        "ErrorResponseWithAnotherName": {
+            "title": "Error Response",
+            "description": "Common error response for all Azure Resource Manager APIs to return error details for failed operations. (This also follows the OData error response format.)",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error code."
+                },
+                "message": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error message."
+                },
+                "target": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error target."
+                },
+                "details": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorResponseWithAnotherName"
+                    },
+                    "description": "The error details."
+                },
+                "additionalInfo": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorAdditionalInfo"
+                    },
+                    "description": "The error additional info."
+                }
+            }
+        },
+        "VirtualMachine": {
+            "properties": {
+                "plan": {
+                    "$ref": "#/definitions/Plan",
+                    "description": "Specifies information about the marketplace image used to create the virtual machine. This element is only used for marketplace images. Before you can use a marketplace image from an API, you must enable the image for programmatic use.  In the Azure portal, find the marketplace image that you want to use and then click **Want to deploy programmatically, Get Started ->**. Enter any required information and then click **Save**."
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/VirtualMachineProperties"
+                },
+                "resources": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/VirtualMachineExtension"
+                    },
+                    "description": "The virtual machine child extension resources."
+                },
+                "identity": {
+                    "$ref": "#/definitions/VirtualMachineIdentity",
+                    "description": "The identity of the virtual machine, if configured."
+                },
+                "identityWithRenamedProperty": {
+                    "$ref": "#/definitions/IdentityWithRenamedProperty",
+                    "description": "The identity of the virtual machine, if configured."
+                },
+                "identityWithDifferentPropertyType": {
+                    "$ref": "#/definitions/IdentityWithDifferentPropertyType",
+                    "description": "The identity of the virtual machine, if configured."
+                },
+                "identityWithNoUserIdentity": {
+                    "$ref": "#/definitions/IdentityWithNoUserIdentity",
+                    "description": "The identity of the virtual machine, if configured."
+                },
+                "identityWithNoSystemIdentity": {
+                    "$ref": "#/definitions/IdentityWithNoSystemIdentity",
+                    "description": "The identity of the virtual machine, if configured."
+                },
+                "identityV3": {
+                    "$ref": "#/definitions/IdentityV3",
+                    "description": "The identity of the virtual machine, if configured."
+                },
+                "zones": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The virtual machine zones."
+                },
+                "fakeResources": {
+                    "readOnly": true,
+                    "type":"array",
+                    "items": {
+                        "$ref": "#/definitions/Resource"
+                    },
+                    "description": "The fake resources for the virtual machine."
+                },
+                "fakeSubResource": {
+                    "$ref": "#/definitions/FakeSubResource",
+                    "description": "The fake subresource."
+                },
+                "fakeWritableSubResource": {
+                    "$ref": "#/definitions/FakeWritableSubResource",
+                    "description": "The fake writable subresource."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine."
+        },
+        "VirtualMachineUpdate": {
+            "properties": {
+                "plan": {
+                    "$ref": "#/definitions/Plan",
+                    "description": "Specifies information about the marketplace image used to create the virtual machine. This element is only used for marketplace images. Before you can use a marketplace image from an API, you must enable the image for programmatic use.  In the Azure portal, find the marketplace image that you want to use and then click **Want to deploy programmatically, Get Started ->**. Enter any required information and then click **Save**."
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/VirtualMachineProperties"
+                },
+                "identity": {
+                    "$ref": "#/definitions/VirtualMachineIdentity",
+                    "description": "The identity of the virtual machine, if configured."
+                },
+                "zones": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "The virtual machine zones."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/UpdateResource"
+                }
+            ],
+            "description": "Describes a Virtual Machine Update."
+        },
+        "VirtualMachineListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/VirtualMachine"
+                    },
+                    "description": "The list of virtual machines."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of VMs. Call ListNext() with this URI to fetch the next page of Virtual Machines."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Virtual Machine operation response."
+        },
+        "Plan": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The plan ID."
+                },
+                "publisher": {
+                    "type": "string",
+                    "description": "The publisher ID."
+                },
+                "product": {
+                    "type": "string",
+                    "description": "Specifies the product of the image from the marketplace. This is the same value as Offer under the imageReference element."
+                },
+                "promotionCode": {
+                    "type": "string",
+                    "description": "The promotion code."
+                },
+                "version": {
+                    "type": "string",
+                    "description": "The version."
+                }
+            },
+            "description": "Specifies information about the marketplace image used to create the virtual machine. This element is only used for marketplace images. Before you can use a marketplace image from an API, you must enable the image for programmatic use.  In the Azure portal, find the marketplace image that you want to use and then click **Want to deploy programmatically, Get Started ->**. Enter any required information and then click **Save**."
+        },
+        "VirtualMachineProperties": {
+            "properties": {
+                "provisioningState": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The provisioning state, which only appears in the response."
+                },
+                "licenseType": {
+                    "type": "string",
+                    "description": "Specifies that the image or disk that is being used was licensed on-premises. This element is only used for images that contain the Windows Server operating system. <br><br> Possible values are: <br><br> Windows_Client <br><br> Windows_Server <br><br> If this element is included in a request for an update, the value must match the initial value. This value cannot be updated. <br><br> For more information, see [Azure Hybrid Use Benefit for Windows Server](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-hybrid-use-benefit-licensing?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Minimum api-version: 2015-06-15"
+                },
+                "vmId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Specifies the VM unique ID which is a 128-bits identifier that is encoded and stored in all Azure IaaS VMs SMBIOS and can be read using platform BIOS commands."
+                },
+                "extensionsTimeBudget": {
+                    "type": "string",
+                    "description": "Specifies the time alloted for all extensions to start. The time duration should be between 15 minutes and 120 minutes (inclusive) and should be specified in ISO 8601 format. The default value is 90 minutes (PT1H30M). <br><br> Minimum api-version: 2020-06-01"
+                }
+            },
+            "description": "Describes the properties of a Virtual Machine."
+        },
+        "VirtualMachineExtension": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/VirtualMachineExtensionProperties"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes a Virtual Machine Extension."
+        },
+        "VirtualMachineExtensionProperties": {
+            "properties": {
+                "forceUpdateTag": {
+                    "type": "string",
+                    "description": "How the extension handler should be forced to update even if the extension configuration has not changed."
+                },
+                "publisher": {
+                    "type": "string",
+                    "description": "The name of the extension handler publisher."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Specifies the type of the extension; an example is \"CustomScriptExtension\"."
+                },
+                "typeHandlerVersion": {
+                    "type": "string",
+                    "description": "Specifies the version of the script handler."
+                },
+                "autoUpgradeMinorVersion": {
+                    "type": "boolean",
+                    "description": "Indicates whether the extension should use a newer minor version if one is available at deployment time. Once deployed, however, the extension will not upgrade minor versions unless redeployed, even with this property set to true."
+                },
+                "enableAutomaticUpgrade": {
+                    "type": "boolean",
+                    "description": "Indicates whether the extension should be automatically upgraded by the platform if there is a newer version of the extension available."
+                },
+                "settings": {
+                    "type": "object",
+                    "description": "Json formatted public settings for the extension."
+                },
+                "protectedSettings": {
+                    "type": "object",
+                    "description": "The extension can contain either protectedSettings or protectedSettingsFromKeyVault or no protected settings at all."
+                },
+                "provisioningState": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The provisioning state, which only appears in the response."
+                }
+            },
+            "description": "Describes the properties of a Virtual Machine Extension."
+        },
+        "IdentityWithRenamedProperty": {
+            "properties": {
+                "testPrincipalId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The principal id of virtual machine identity. This property will only be provided for a system assigned identity."
+                },
+                "tenantId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The tenant id associated with the virtual machine. This property will only be provided for a system assigned identity."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of identity used for the virtual machine. The type 'SystemAssigned, UserAssigned' includes both an implicitly created identity and a set of user assigned identities. The type 'None' will remove any identities from the virtual machine.",
+                    "enum": [
+                        "SystemAssigned",
+                        "UserAssigned",
+                        "SystemAssigned, UserAssigned",
+                        "None"
+                    ],
+                    "x-ms-enum": {
+                        "name": "ResourceIdentityType",
+                        "modelAsString": false
+                    }
+                },
+                "userAssignedIdentities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "principalId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The principal id of user assigned identity."
+                            },
+                            "clientId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The client id of user assigned identity."
+                            }
+                        }
+                    },
+                    "description": "The list of user identities associated with the Virtual Machine. The user identity dictionary key references will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'."
+                }
+            },
+            "description": "Identity for the virtual machine."
+        },
+        "IdentityWithDifferentPropertyType": {
+            "properties": {
+                "principalId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The principal id of virtual machine identity. This property will only be provided for a system assigned identity."
+                },
+                "tenantId": {
+                    "readOnly": true,
+                    "type": "integer",
+                    "description": "The tenant id associated with the virtual machine. This property will only be provided for a system assigned identity."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of identity used for the virtual machine. The type 'SystemAssigned, UserAssigned' includes both an implicitly created identity and a set of user assigned identities. The type 'None' will remove any identities from the virtual machine.",
+                    "enum": [
+                        "SystemAssigned",
+                        "UserAssigned",
+                        "SystemAssigned, UserAssigned",
+                        "None"
+                    ],
+                    "x-ms-enum": {
+                        "name": "ResourceIdentityType",
+                        "modelAsString": false
+                    }
+                },
+                "userAssignedIdentities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "principalId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The principal id of user assigned identity."
+                            },
+                            "clientId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The client id of user assigned identity."
+                            }
+                        }
+                    },
+                    "description": "The list of user identities associated with the Virtual Machine. The user identity dictionary key references will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'."
+                }
+            },
+            "description": "Identity for the virtual machine."
+        },
+        "IdentityWithNoUserIdentity": {
+            "properties": {
+                "principalId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The principal id of virtual machine identity. This property will only be provided for a system assigned identity."
+                },
+                "tenantId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The tenant id associated with the virtual machine. This property will only be provided for a system assigned identity."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of identity used for the virtual machine. The type 'None' will remove any identities from the virtual machine.",
+                    "enum": [
+                        "SystemAssigned",
+                        "None"
+                    ],
+                    "x-ms-enum": {
+                        "name": "SystemAssignedIdentityType",
+                        "modelAsString": false
+                    }
+                }
+            },
+            "description": "Identity for the virtual machine."
+        },
+        "IdentityWithNoSystemIdentity": {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "The type of identity used for the virtual machine. The type 'SystemAssigned, UserAssigned' includes both an implicitly created identity and a set of user assigned identities. The type 'None' will remove any identities from the virtual machine.",
+                    "enum": [
+                        "SystemAssigned",
+                        "UserAssigned",
+                        "SystemAssigned, UserAssigned",
+                        "None"
+                    ],
+                    "x-ms-enum": {
+                        "name": "ResourceIdentityType",
+                        "modelAsString": false
+                    }
+                },
+                "userAssignedIdentities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "principalId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The principal id of user assigned identity."
+                            },
+                            "clientId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The client id of user assigned identity."
+                            }
+                        }
+                    },
+                    "description": "The list of user identities associated with the Virtual Machine. The user identity dictionary key references will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'."
+                }
+            },
+            "description": "Identity for the virtual machine."
+        },
+        "VirtualMachineIdentity": {
+            "properties": {
+                "principalId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The principal id of virtual machine identity. This property will only be provided for a system assigned identity."
+                },
+                "tenantId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The tenant id associated with the virtual machine. This property will only be provided for a system assigned identity."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of identity used for the virtual machine. The type 'SystemAssigned, UserAssigned' includes both an implicitly created identity and a set of user assigned identities. The type 'None' will remove any identities from the virtual machine.",
+                    "enum": [
+                        "SystemAssigned",
+                        "UserAssigned",
+                        "SystemAssigned, UserAssigned",
+                        "None"
+                    ],
+                    "x-ms-enum": {
+                        "name": "ResourceIdentityType",
+                        "modelAsString": false
+                    }
+                },
+                "userAssignedIdentities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "principalId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The principal id of user assigned identity."
+                            },
+                            "clientId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The client id of user assigned identity."
+                            }
+                        }
+                    },
+                    "description": "The list of user identities associated with the Virtual Machine. The user identity dictionary key references will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'."
+                }
+            },
+            "description": "Identity for the virtual machine."
+        },
+        "IdentityV3": {
+            "properties": {
+                "principalId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The principal id of virtual machine identity. This property will only be provided for a system assigned identity."
+                },
+                "tenantId": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The tenant id associated with the virtual machine. This property will only be provided for a system assigned identity."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of identity used for the virtual machine. The type 'SystemAssigned, UserAssigned' includes both an implicitly created identity and a set of user assigned identities. The type 'None' will remove any identities from the virtual machine.",
+                    "enum": [
+                        "SystemAssigned",
+                        "UserAssigned",
+                        "SystemAssigned,UserAssigned",
+                        "None"
+                    ],
+                    "x-ms-enum": {
+                        "name": "ResourceIdentityV3Type",
+                        "modelAsString": true
+                    }
+                },
+                "userAssignedIdentities": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "principalId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The principal id of user assigned identity."
+                            },
+                            "clientId": {
+                                "readOnly": true,
+                                "type": "string",
+                                "description": "The client id of user assigned identity."
+                            }
+                        }
+                    },
+                    "description": "The list of user identities associated with the Virtual Machine. The user identity dictionary key references will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}'."
+                }
+            },
+            "description": "Identity for the virtual machine."
+        },
+        "UpdateResource": {
+            "description": "The Update Resource model definition.",
+            "properties": {
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            }
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            },
+            "required": [
+                "location"
+            ],
+            "x-ms-azure-resource": true
+        },
+        "FakeSubResource": {
+            "properties": {
+              "id": {
+                "readOnly": true,
+                "type": "string",
+                "description": "The ARM identifier for fake SubResource"
+              }
+            },
+            "description": "The fake SubResource."
+        },
+        "FakeWritableSubResource": {
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "The ARM identifier for fake writable SubResource"
+              }
+            },
+            "description": "The fake writable SubResource."
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        }
+    }
+}

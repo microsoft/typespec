@@ -1,0 +1,426 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ComputeManagementClient",
+        "description": "The Compute Management Client.",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Pets/petStore": {
+            "get": {
+                "description": "Gets an existing CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.",
+                "operationId": "PetStores_List",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/resourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/subscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/apiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded.",
+                        "schema": {
+                            "$ref": "#/definitions/PetStoreListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "CDN error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Pets/petStore/{name}": {
+            "get": {
+                "description": "Gets an existing CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.",
+                "operationId": "PetStores_Get",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/resourceGroupNameParameter"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Name of the endpoint under the profile which is unique globally.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/subscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/apiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded.",
+                        "schema": {
+                            "$ref": "#/definitions/PetStore"
+                        }
+                    },
+                    "default": {
+                        "description": "CDN error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Creates a new CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.",
+                "operationId": "PetStores_Create",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/resourceGroupNameParameter"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Name of the endpoint under the profile which is unique globally.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Endpoint properties",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PetStore"
+                        }
+                    },
+                    {
+                        "$ref": "#/parameters/subscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/apiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded.",
+                        "schema": {
+                            "$ref": "#/definitions/PetStore"
+                        }
+                    },
+                    "201": {
+                        "description": "Created. The request has been fulfilled and a new endpoint has been created.",
+                        "schema": {
+                            "$ref": "#/definitions/PetStore"
+                        }
+                    },
+                    "202": {
+                        "description": "Accepted and the operation will complete asynchronously.",
+                        "schema": {
+                            "$ref": "#/definitions/PetStore"
+                        }
+                    },
+                    "default": {
+                        "description": "CDN error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            },
+            "delete": {
+                "description": "Deletes an existing CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.",
+                "operationId": "PetStores_Delete",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/resourceGroupNameParameter"
+                    },
+                    {
+                        "name": "name",
+                        "in": "path",
+                        "description": "Name of the endpoint under the profile which is unique globally.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/subscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/apiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded."
+                    },
+                    "202": {
+                        "description": "Accepted and the operation will complete asynchronously."
+                    },
+                    "204": {
+                        "description": "No Content. The request has been accepted but the endpoint was not found."
+                    },
+                    "default": {
+                        "description": "CDN error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true
+            }
+        }
+    },
+    "definitions": {
+        "PetStore": {
+            "description": "A pet store",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "The resource id of this pet store",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "name": {
+                    "description": "Name of the pet store",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "type": {
+                    "description": "The resource type of this pet store",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "properties": {
+                    "description": "The properties",
+                    "type": "object",
+                    "properties": {
+                        "order": {
+                            "description": "The order",
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "pet": {
+                            "$ref": "#/definitions/Pet"
+                        }
+                    }
+                }
+            }
+        },
+        "PetStoreListResult": {
+            "description": "The list result of the rules",
+            "type": "object",
+            "properties": {
+                "value": {
+                    "description": "The values",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PetStore"
+                    }
+                }
+            }
+        },
+        "Pet": {
+            "description": "A pet",
+            "discriminator": "kind",
+            "required": [ "kind" ],
+            "properties": {
+                "kind": {
+                    "description": "The kind of the pet",
+                    "type": "string",
+                    "enum": [
+                        "Cat",
+                        "Dog"
+                    ],
+                    "x-ms-enum":{
+                        "name": "PetKind",
+                        "modelAsString": false
+                    }
+                },
+                "name": {
+                    "description": "The name of the pet",
+                    "type": "string",
+                    "readOnly": true
+                },
+                "size": {
+                    "description": "The size of the pet. This property here is mocking the following scenario:\nDespite in the swagger it has a type of string, in the real payload of this request, the service is actually sending using a number, therefore the type in this swagger here is wrong and we have to fix it using customization code.",
+                    "type": "string"
+                },
+                "dateOfBirth": {
+                    "description": "Pet date of birth",
+                    "type": "string"
+                }
+            }
+        },
+        "Cat": {
+            "description": "A cat",
+            "x-ms-discriminator-value": "Cat",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Pet"
+                }
+            ],
+            "properties": {
+                "sleep": {
+                    "description": "A cat can sleep",
+                    "type": "string"
+                },
+                "jump": {
+                    "description": "A cat can jump",
+                    "type": "string"
+                },
+                "meow": {
+                    "description": "A cat can meow",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "Dog": {
+            "description": "A dog",
+            "x-ms-discriminator-value": "Dog",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Pet"
+                }
+            ],
+            "properties": {
+                "bark": {
+                    "description": "A dog can bark",
+                    "type": "string"
+                },
+                "jump": {
+                    "description": "A dog can jump",
+                    "type": "string"
+                }
+            }
+        },
+        "ErrorResponse": {
+            "title": "Error response",
+            "description": "Error response indicates Azure Front Door Standard or Azure Front Door Premium or CDN service is not able to process the incoming request. The reason is provided in the error message.",
+            "type": "object",
+            "properties": {
+                "error": {
+                    "description": "The error object.",
+                    "$ref": "#/definitions/ErrorDetail"
+                }
+            }
+        },
+        "ErrorDetail": {
+            "description": "The error detail.",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error code."
+                },
+                "message": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error message."
+                },
+                "target": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The error target."
+                },
+                "details": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorDetail"
+                    },
+                    "x-ms-identifiers": [
+                        "message",
+                        "target"
+                    ],
+                    "description": "The error details."
+                },
+                "additionalInfo": {
+                    "readOnly": true,
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ErrorAdditionalInfo"
+                    },
+                    "x-ms-identifiers": [],
+                    "description": "The error additional info."
+                }
+            }
+        },
+        "ErrorAdditionalInfo": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The additional info type."
+                },
+                "info": {
+                    "readOnly": true,
+                    "type": "object",
+                    "description": "The additional info."
+                }
+            },
+            "description": "The resource management error additional info."
+        }
+    },
+    "parameters": {
+        "subscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "apiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        },
+        "resourceGroupNameParameter": {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "^[-\\w\\._\\(\\)]+$",
+            "minLength": 1,
+            "maxLength": 90,
+            "x-ms-parameter-location": "method",
+            "description": "Name of the Resource group within the Azure subscription."
+        }
+    }
+}

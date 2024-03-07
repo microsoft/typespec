@@ -1,0 +1,246 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "VM Insights Onboarding API",
+    "description": "API to manage VM Insights Onboarding",
+    "x-ms-code-generation-settings": {
+      "name": "MonitorManagementClient"
+    },
+    "version": "2018-11-27-preview"
+  },
+  "host": "management.azure.com",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "azure_auth": [
+        "user_impersonation"
+      ]
+    }
+  ],
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "description": "Azure Active Directory OAuth2 Flow",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    }
+  },
+  "paths": {
+    "/{resourceUri}/providers/Microsoft.Insights/vmInsightsOnboardingStatuses/default": {
+      "get": {
+        "tags": [
+          "VM Insights Onboarding"
+        ],
+        "operationId": "VMInsights_GetOnboardingStatus",
+        "description": "Retrieves the VM Insights onboarding status for the specified resource or resource scope.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "name": "resourceUri",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The fully qualified Azure Resource manager identifier of the resource, or scope, whose status to retrieve.",
+            "x-ms-skip-url-encoding": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation completed successfully.",
+            "schema": {
+              "$ref": "#/definitions/VMInsightsOnboardingStatus"
+            }
+          },
+          "default": {
+            "description": "An error occurred while processing the request. See the error.code parameter to identify the specific error.",
+            "schema": {
+              "$ref": "#/definitions/ResponseWithError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ProxyResource": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Azure resource Id"
+        },
+        "name": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Azure resource name"
+        },
+        "type": {
+          "type": "string",
+          "readOnly": true,
+          "description": "Azure resource type"
+        }
+      },
+      "x-ms-azure-resource": true,
+      "description": "An azure resource object"
+    },
+    "ResponseWithError": {
+      "type": "object",
+      "description": "An error response from the API.",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/Error",
+          "description": "Error information."
+        }
+      },
+      "required": [
+        "error"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "description": "Error details.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code identifying the specific error."
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message in the caller's locale."
+        }
+      },
+      "required": [
+        "code"
+      ]
+    },
+    "WorkspaceInfo": {
+      "type": "object",
+      "description": "Information about a Log Analytics Workspace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Azure Resource Manager identifier of the Log Analytics Workspace."
+        },
+        "location": {
+          "type": "string",
+          "description": "Location of the Log Analytics workspace."
+        },
+        "properties": {
+          "x-ms-client-flatten": true,
+          "type": "object",
+          "description": "Resource properties.",
+          "properties": {
+            "customerId": {
+              "type": "string",
+              "description": "Log Analytics workspace identifier."
+            }
+          },
+          "required": [
+            "customerId"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "location",
+        "properties"
+      ]
+    },
+    "DataContainer": {
+      "type": "object",
+      "description": "Information about a container with data for a given resource.",
+      "properties": {
+        "workspace": {
+          "$ref": "#/definitions/WorkspaceInfo",
+          "description": "Log Analytics workspace information."
+        }
+      },
+      "required": [
+        "workspace"
+      ]
+    },
+    "VMInsightsOnboardingStatus": {
+      "description": "VM Insights onboarding status for a resource.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ProxyResource"
+        }
+      ],
+      "properties": {
+        "properties": {
+          "x-ms-client-flatten": true,
+          "type": "object",
+          "description": "Resource properties.",
+          "properties": {
+            "resourceId": {
+              "type": "string",
+              "description": "Azure Resource Manager identifier of the resource whose onboarding status is being represented."
+            },
+            "onboardingStatus": {
+              "type": "string",
+              "enum": [
+                "onboarded",
+                "notOnboarded",
+                "unknown"
+              ],
+              "x-ms-enum": {
+                "name": "OnboardingStatus",
+                "modelAsString": true
+              },
+              "description": "The onboarding status for the resource. Note that, a higher level scope, e.g., resource group or subscription, is considered onboarded if at least one resource under it is onboarded."
+            },
+            "dataStatus": {
+              "type": "string",
+              "enum": [
+                "present",
+                "notPresent"
+              ],
+              "x-ms-enum": {
+                "name": "DataStatus",
+                "modelAsString": true
+              },
+              "description": "The status of VM Insights data from the resource. When reported as `present` the data array will contain information about the data containers to which data for the specified resource is being routed."
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/DataContainer"
+              },
+              "x-ms-identifiers": [
+                "/workspace/id"
+              ],
+              "description": "Containers that currently store VM Insights data for the specified resource."
+            }
+          },
+          "required": [
+            "resourceId",
+            "onboardingStatus",
+            "dataStatus"
+          ]
+        }
+      }
+    }
+  },
+  "parameters": {
+    "ApiVersionParameter": {
+        "name": "api-version",
+        "in": "query",
+        "required": true,
+        "type": "string",
+        "description": "The API version to use for the operation."
+      }
+  }
+}

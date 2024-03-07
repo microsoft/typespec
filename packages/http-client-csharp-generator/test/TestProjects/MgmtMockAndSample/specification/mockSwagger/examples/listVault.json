@@ -1,0 +1,24 @@
+{
+  "parameters": {
+    "$filter": "resourceType eq 'Microsoft.KeyVault/vaults'",
+    "$top": 1,
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2015-11-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault",
+            "name": "sample-vault",
+            "type": "Microsoft.KeyVault/vaults",
+            "location": "westus",
+            "tags": {}
+          }
+        ],
+        "nextLink": "https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resources?%24filter=resourceType+eq+%27Microsoft.KeyVault%2fvaults%27&%24top=4&api-version=2015-11-01&%24skiptoken=eyJuZXh0UGFydGl0aW9uS2V5IjoiMSE4IVEwTTJNVGMtIiwibmV4dFJvd0tleSI6IjEhMTMyIU5rUTRSVEU1UXpJelFUWXdORGd4UmpoRlFrSXhNVGhFUXpNd01EZEROVVJmVkVkT1RDMU5TVU5TVDFOUFJsUTZNa1ZMUlZsV1FWVk1WRG95UmxaQlZVeFVVeTFUVTFKSExVcEpUVG95UkZSRlUxUTZNa1JXUVZWTVZDMVhSVk5VVlZNLSJ9"
+      }
+    }
+  }
+}

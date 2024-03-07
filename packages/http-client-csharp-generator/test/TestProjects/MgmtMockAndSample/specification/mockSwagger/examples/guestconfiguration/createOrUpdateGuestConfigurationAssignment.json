@@ -1,0 +1,97 @@
+{
+  "parameters": {
+    "subscriptionId": "mySubscriptionId",
+    "resourceGroupName": "myResourceGroupName",
+    "vmName": "myVMName",
+    "guestConfigurationAssignmentName": "NotInstalledApplicationForWindows",
+    "api-version": "2022-01-25",
+    "parameters": {
+      "location": "westcentralus",
+      "name": "NotInstalledApplicationForWindows",
+      "properties": {
+        "context": "Azure policy",
+        "guestConfiguration": {
+          "name": "NotInstalledApplicationForWindows",
+          "version": "1.*",
+          "contentUri": "https://thisisfake/pacakge",
+          "contentHash": "123contenthash",
+          "assignmentType": "ApplyAndAutoCorrect",
+          "configurationParameter": [
+            {
+              "name": "[InstalledApplication]NotInstalledApplicationResource1;Name",
+              "value": "NotePad,sql"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "responses": {
+    "201": {
+      "headers": {},
+      "body": {
+        "location": "westcentralus",
+        "id": "/subscriptions/mysubscriptionid/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/NotInstalledApplicationForWindows",
+        "name": "NotInstalledApplicationForWindows",
+        "properties": {
+          "complianceStatus": "Pending",
+          "assignmentHash": null,
+          "latestReportId": null,
+          "lastComplianceStatusChecked": null,
+          "context": "Azure policy",
+          "resourceType": null,
+          "vmssVMList": null,
+          "guestConfiguration": {
+            "kind": null,
+            "name": "NotInstalledApplicationForWindows",
+            "version": "1.0.0.3",
+            "contentUri": null,
+            "contentHash": null,
+            "contentType": null,
+            "assignmentSource": "AzurePolicy",
+            "configurationParameter": [
+              {
+                "name": "[InstalledApplication]NotInstalledApplicationResource1;Name",
+                "value": "NotePad,sql"
+              }
+            ]
+          },
+          "provisioningState": "Succeeded"
+        }
+      }
+    },
+    "200": {
+      "headers": {},
+      "body": {
+        "location": "westcentralus",
+        "id": "/subscriptions/mysubscriptionid/resourceGroups/myResourceGroupName/providers/Microsoft.Compute/virtualMachines/myvm/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/NotInstalledApplicationForWindows",
+        "name": "NotInstalledApplicationForWindows",
+        "properties": {
+          "complianceStatus": "Pending",
+          "assignmentHash": null,
+          "latestReportId": null,
+          "lastComplianceStatusChecked": null,
+          "context": "Azure policy",
+          "resourceType": null,
+          "vmssVMList": null,
+          "guestConfiguration": {
+            "kind": null,
+            "name": "NotInstalledApplicationForWindows",
+            "version": "1.0.0.3",
+            "contentUri": null,
+            "contentHash": null,
+            "contentType": null,
+            "assignmentSource": "AzurePolicy",
+            "configurationParameter": [
+              {
+                "name": "[InstalledApplication]NotInstalledApplicationResource1;Name",
+                "value": "NotePad,sql"
+              }
+            ]
+          },
+          "provisioningState": "Succeeded"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,608 @@
+!CodeModel 
+info: !Info 
+  description: DPG Swagger that tests our ability to grow up.
+  title: DPGClient
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: InputHello
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ProductResultNextLink
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: LROProductProvisioningState
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_4
+      choices:
+        - !ChoiceValue 
+          value: raw
+          language:
+            default:
+              name: Raw
+              description: ''
+        - !ChoiceValue 
+          value: model
+          language:
+            default:
+              name: Model
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ProductReceived
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_10
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_12
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_1
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_3
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            parents: !Relations 
+              all:
+                - *ref_1
+              immediate:
+                - *ref_1
+            properties:
+              - !Property 
+                schema: *ref_2
+                required: true
+                serializedName: provisioningState
+                language: !Languages 
+                  default:
+                    name: provisioningState
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - output
+            language: !Languages 
+              default:
+                name: LROProduct
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_3
+      properties:
+        - !Property 
+          schema: *ref_4
+          required: true
+          serializedName: received
+          language: !Languages 
+            default:
+              name: received
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: Product
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_13
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_5
+          required: true
+          serializedName: hello
+          language: !Languages 
+            default:
+              name: hello
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: Input
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_18
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_7
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_1
+            language: !Languages 
+              default:
+                name: ProductResultValues
+                description: Array of Product
+            protocol: !Protocols {}
+          serializedName: values
+          language: !Languages 
+            default:
+              name: values
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ProductResult
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_3
+  arrays:
+    - *ref_7
+globalParameters:
+  - !Parameter &ref_8
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: getModel
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_8
+          - !Parameter &ref_11
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: mode
+                description: The mode with which you'll be handling your returned body. 'raw' for just dealing with the raw body, and 'model' if you are going to convert the raw body to a customized body before returning to users.
+                serializedName: mode
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_10
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /customization/model/{mode}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_11
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: 'Returns {''received'': <mode>}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-examples:
+            dpg_getModel:
+              parameters:
+                mode: uat
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: GetModel
+            description: Get models that you will either return to end users as a raw body, or with a model added during grow up.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: postModel
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_8
+          - !Parameter &ref_16
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: mode
+                description: The mode with which you'll be handling your returned body. 'raw' for just dealing with the raw body, and 'model' if you are going to convert the raw body to a customized body before returning to users.
+                serializedName: mode
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_15
+            parameters:
+              - !Parameter 
+                schema: *ref_12
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_14
+                schema: *ref_13
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: input
+                    description: 'Please put {''hello'': ''world!''}'
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_10
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_14
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /customization/model/{mode}
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_15
+        signatureParameters:
+          - *ref_16
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: 'Returns {''received'': <mode>}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-examples:
+            dpg_postModel:
+              parameters:
+                input:
+                  hello: test
+                mode: uat
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: PostModel
+            description: 'Post either raw response as a model and pass in ''raw'' for mode, or grow up your operation to take a model instead, and put in ''model'' as mode. '
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: getPages
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_8
+          - !Parameter &ref_17
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: mode
+                description: The mode with which you'll be handling your returned body. 'raw' for just dealing with the raw body, and 'model' if you are going to convert the raw body to a customized body before returning to users.
+                serializedName: mode
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_10
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /customization/paging/{mode}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_17
+        responses:
+          - !SchemaResponse 
+            schema: *ref_18
+            language: !Languages 
+              default:
+                name: ''
+                description: 'Returns two pages of {''received'': <mode>}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-examples:
+            dpg_nextLink:
+              parameters:
+                mode: prod
+              responses:
+                '200': {}
+          x-ms-pageable:
+            itemName: values
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: GetPages
+            description: Get pages that you will either return to users in pages of raw bodies, or pages of models following growup.
+            paging:
+              itemName: values
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: lro
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_8
+          - !Parameter &ref_19
+            schema: *ref_9
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: mode
+                description: The mode with which you'll be handling your returned body. 'raw' for just dealing with the raw body, and 'model' if you are going to convert the raw body to a customized body before returning to users.
+                serializedName: mode
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_10
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /customization/lro/{mode}
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_19
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: Initial response with ProvisioningState='Succeeded'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-examples:
+            dpg_lro:
+              parameters:
+                mode: prod
+              responses:
+                '200': {}
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: Lro
+            description: Long running put request that will either return to end users a final payload of a raw body, or a final payload of a model after the SDK has grown up.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: DPGClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

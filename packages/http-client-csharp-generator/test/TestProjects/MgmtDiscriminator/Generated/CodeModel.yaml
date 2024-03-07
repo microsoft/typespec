@@ -1,0 +1,4662 @@
+!CodeModel 
+info: !Info 
+  description: The Compute Management Client.
+  title: ComputeManagementClient
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_50
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: A bool property to verify bicep generation.
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_61
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Describes if this is negate condition or not
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_18
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Whether to preserve unmatched path. Default value is true.
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_55
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: DeliveryRuleNumber
+          description: A number property to verify bicep generation.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_57
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: DeliveryRulePropertiesOrder
+          description: >-
+            The order in which the rules are applied for the endpoint. Possible values {0,1,2,3,………}. A rule with a lesser order will be applied before a rule with a greater order. Rule with order 0 is a special rule. It does not require
+            any condition and actions listed in it will always be applied.
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_142
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      maxLength: 90
+      minLength: 1
+      pattern: ^[-\w\._\(\)]+$
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_139
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_47
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleId
+          description: The resource id of this rule
+      protocol: !Protocols {}
+    - !StringSchema &ref_48
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleName
+          description: Name of the rule
+      protocol: !Protocols {}
+    - !StringSchema &ref_49
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleType
+          description: The resource type of this rule
+      protocol: !Protocols {}
+    - !StringSchema &ref_51
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      extensions:
+        x-ms-format: azure-location
+      language: !Languages 
+        default:
+          name: DeliveryRuleLocation
+          description: A location property to verify bicep generation.
+      protocol: !Protocols {}
+    - !StringSchema &ref_52
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      extensions:
+        x-ms-format: azure-location
+      language: !Languages 
+        default:
+          name: DeliveryRuleLocationWithCustomSerialization
+          description: A location property to verify bicep generation.
+      protocol: !Protocols {}
+    - !StringSchema &ref_75
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleConditionFoo
+          description: For test
+      protocol: !Protocols {}
+    - !StringSchema &ref_44
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleActionFoo
+          description: for test
+      protocol: !Protocols {}
+    - !StringSchema &ref_85
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: PetId
+          description: The Id of the pet
+      protocol: !Protocols {}
+    - !StringSchema &ref_86
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRulePropertiesFoo
+          description: put a readonly property here so that this model will show up in the model factory
+      protocol: !Protocols {}
+    - !StringSchema &ref_89
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailCode
+          description: The error code.
+      protocol: !Protocols {}
+    - !StringSchema &ref_90
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailMessage
+          description: The error message.
+      protocol: !Protocols {}
+    - !StringSchema &ref_91
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailTarget
+          description: The error target.
+      protocol: !Protocols {}
+    - !StringSchema &ref_93
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorAdditionalInfoType
+          description: The additional info type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_99
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DerivedModelRequiredCollectionItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_97
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: BaseModelOptionalString
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_105
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: AzureResourceBaseId
+          description: String Id used to locate any resource on Azure.
+      protocol: !Protocols {}
+    - !StringSchema &ref_106
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: AzureResourceBaseType
+          description: Type of this resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_107
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: AzureResourceBaseName
+          description: Name of this resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_113
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ArtifactListNextLink
+          description: Link to the next page of results.
+      protocol: !Protocols {}
+    - !StringSchema &ref_78
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: CatMeow
+          description: A cat can meow
+      protocol: !Protocols {}
+    - !StringSchema &ref_79
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DogBark
+          description: A dog can bark
+      protocol: !Protocols {}
+    - !StringSchema &ref_62
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: RemoteAddressMatchConditionParametersMatchValuesItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_69
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: QueryStringMatchConditionParametersMatchValuesItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: UrlRedirectActionParametersCustomPath
+          description: The full path to redirect. Path cannot be empty and must start with /. Leave empty to use the incoming path as destination path.
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: UrlRedirectActionParametersCustomHostname
+          description: Host to redirect. Leave empty to use the incoming host as the destination host.
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: UrlRedirectActionParametersCustomQueryString
+          description: >-
+            The set of query strings to be placed in the redirect URL. Setting this value would replace any existing query string; leave empty to preserve the incoming query string. Query string must be in <key>=<value> format. ? and & will
+            be added automatically so do not include them.
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: UrlRedirectActionParametersCustomFragment
+          description: 'Fragment to add to the redirect URL. Fragment is the part of the URL that comes after #. Do not include the #.'
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: UrlSigningParamIdentifierParamName
+          description: Parameter name
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceReferenceId
+          description: Resource ID.
+      protocol: !Protocols {}
+    - !StringSchema &ref_16
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: UrlRewriteActionParametersSourcePattern
+          description: define a request URI pattern that identifies the type of requests that may be rewritten. If value is blank, all strings are matched.
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: UrlRewriteActionParametersDestination
+          description: Define the relative URL to which the above requests will be rewritten by.
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: HeaderActionParametersHeaderName
+          description: Name of the header to modify
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: HeaderActionParametersValue
+          description: Value for the specified action
+      protocol: !Protocols {}
+    - !StringSchema &ref_29
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: CacheKeyQueryStringActionParametersQueryParameters
+          description: query parameters to include or exclude (comma separated).
+      protocol: !Protocols {}
+    - !StringSchema &ref_108
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: TemplateArtifactPropertiesResourceGroup
+          description: If applicable, the name of the resource group placeholder to which the Resource Manager template blueprint artifact will be deployed.
+      protocol: !Protocols {}
+    - !StringSchema &ref_103
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: RoleAssignmentArtifactPropertiesRoleDefinitionId
+          description: Azure resource ID of the RoleDefinition.
+      protocol: !Protocols {}
+    - !StringSchema &ref_104
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: RoleAssignmentArtifactPropertiesResourceGroup
+          description: RoleAssignment will be scope to this resourceGroup. If empty, it scopes to the subscription.
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_73
+      choices:
+        - !ChoiceValue 
+          value: RemoteAddress
+          language:
+            default:
+              name: RemoteAddress
+              description: ''
+        - !ChoiceValue 
+          value: RequestMethod
+          language:
+            default:
+              name: RequestMethod
+              description: ''
+        - !ChoiceValue 
+          value: QueryString
+          language:
+            default:
+              name: QueryString
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: MatchVariable
+          description: The name of the condition for the delivery rule.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_42
+      choices:
+        - !ChoiceValue 
+          value: CacheExpiration
+          language:
+            default:
+              name: CacheExpiration
+              description: ''
+        - !ChoiceValue 
+          value: CacheKeyQueryString
+          language:
+            default:
+              name: CacheKeyQueryString
+              description: ''
+        - !ChoiceValue 
+          value: ModifyRequestHeader
+          language:
+            default:
+              name: ModifyRequestHeader
+              description: ''
+        - !ChoiceValue 
+          value: ModifyResponseHeader
+          language:
+            default:
+              name: ModifyResponseHeader
+              description: ''
+        - !ChoiceValue 
+          value: UrlRedirect
+          language:
+            default:
+              name: UrlRedirect
+              description: ''
+        - !ChoiceValue 
+          value: UrlRewrite
+          language:
+            default:
+              name: UrlRewrite
+              description: ''
+        - !ChoiceValue 
+          value: UrlSigning
+          language:
+            default:
+              name: UrlSigning
+              description: ''
+        - !ChoiceValue 
+          value: OriginGroupOverride
+          language:
+            default:
+              name: OriginGroupOverride
+              description: ''
+        - !ChoiceValue 
+          value: RouteConfigurationOverride
+          language:
+            default:
+              name: RouteConfigurationOverride
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: DeliveryRuleActionType
+          description: The name of the action for the delivery rule.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_111
+      choices:
+        - !ChoiceValue 
+          value: template
+          language:
+            default:
+              name: Template
+              description: ''
+        - !ChoiceValue 
+          value: roleAssignment
+          language:
+            default:
+              name: RoleAssignment
+              description: ''
+        - !ChoiceValue 
+          value: policyAssignment
+          language:
+            default:
+              name: PolicyAssignment
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ArtifactKind
+          description: Specifies the kind of blueprint artifact.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_59
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleRemoteAddressConditionParameters
+          language:
+            default:
+              name: DeliveryRuleRemoteAddressConditionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RemoteAddressMatchConditionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_60
+      choices:
+        - !ChoiceValue 
+          value: Any
+          language:
+            default:
+              name: Any
+              description: ''
+        - !ChoiceValue 
+          value: IPMatch
+          language:
+            default:
+              name: IPMatch
+              description: ''
+        - !ChoiceValue 
+          value: GeoMatch
+          language:
+            default:
+              name: GeoMatch
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RemoteAddressOperator
+          description: Describes operator to be matched
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_63
+      choices:
+        - !ChoiceValue 
+          value: Lowercase
+          language:
+            default:
+              name: Lowercase
+              description: ''
+        - !ChoiceValue 
+          value: Uppercase
+          language:
+            default:
+              name: Uppercase
+              description: ''
+        - !ChoiceValue 
+          value: Trim
+          language:
+            default:
+              name: Trim
+              description: ''
+        - !ChoiceValue 
+          value: UrlDecode
+          language:
+            default:
+              name: UrlDecode
+              description: ''
+        - !ChoiceValue 
+          value: UrlEncode
+          language:
+            default:
+              name: UrlEncode
+              description: ''
+        - !ChoiceValue 
+          value: RemoveNulls
+          language:
+            default:
+              name: RemoveNulls
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: Transform
+          description: Describes what transforms are applied before matching
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_64
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleRequestMethodConditionParameters
+          language:
+            default:
+              name: DeliveryRuleRequestMethodConditionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RequestMethodMatchConditionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_65
+      choices:
+        - !ChoiceValue 
+          value: Equal
+          language:
+            default:
+              name: Equal
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RequestMethodOperator
+          description: Describes operator to be matched
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_66
+      choices:
+        - !ChoiceValue 
+          value: GET
+          language:
+            default:
+              name: GET
+              description: ''
+        - !ChoiceValue 
+          value: HEAD
+          language:
+            default:
+              name: Head
+              description: ''
+        - !ChoiceValue 
+          value: POST
+          language:
+            default:
+              name: Post
+              description: ''
+        - !ChoiceValue 
+          value: PUT
+          language:
+            default:
+              name: PUT
+              description: ''
+        - !ChoiceValue 
+          value: DELETE
+          language:
+            default:
+              name: Delete
+              description: ''
+        - !ChoiceValue 
+          value: OPTIONS
+          language:
+            default:
+              name: Options
+              description: ''
+        - !ChoiceValue 
+          value: TRACE
+          language:
+            default:
+              name: Trace
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RequestMethodMatchConditionParametersMatchValuesItem
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_67
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleQueryStringConditionParameters
+          language:
+            default:
+              name: DeliveryRuleQueryStringConditionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: QueryStringMatchConditionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_68
+      choices:
+        - !ChoiceValue 
+          value: Any
+          language:
+            default:
+              name: Any
+              description: ''
+        - !ChoiceValue 
+          value: Equal
+          language:
+            default:
+              name: Equal
+              description: ''
+        - !ChoiceValue 
+          value: Contains
+          language:
+            default:
+              name: Contains
+              description: ''
+        - !ChoiceValue 
+          value: BeginsWith
+          language:
+            default:
+              name: BeginsWith
+              description: ''
+        - !ChoiceValue 
+          value: EndsWith
+          language:
+            default:
+              name: EndsWith
+              description: ''
+        - !ChoiceValue 
+          value: LessThan
+          language:
+            default:
+              name: LessThan
+              description: ''
+        - !ChoiceValue 
+          value: LessThanOrEqual
+          language:
+            default:
+              name: LessThanOrEqual
+              description: ''
+        - !ChoiceValue 
+          value: GreaterThan
+          language:
+            default:
+              name: GreaterThan
+              description: ''
+        - !ChoiceValue 
+          value: GreaterThanOrEqual
+          language:
+            default:
+              name: GreaterThanOrEqual
+              description: ''
+        - !ChoiceValue 
+          value: RegEx
+          language:
+            default:
+              name: RegEx
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: QueryStringOperator
+          description: Describes operator to be matched
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_2
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleUrlRedirectActionParameters
+          language:
+            default:
+              name: DeliveryRuleUrlRedirectActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: UrlRedirectActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_3
+      choices:
+        - !ChoiceValue 
+          value: Moved
+          language:
+            default:
+              name: Moved
+              description: ''
+        - !ChoiceValue 
+          value: Found
+          language:
+            default:
+              name: Found
+              description: ''
+        - !ChoiceValue 
+          value: TemporaryRedirect
+          language:
+            default:
+              name: TemporaryRedirect
+              description: ''
+        - !ChoiceValue 
+          value: PermanentRedirect
+          language:
+            default:
+              name: PermanentRedirect
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RedirectType
+          description: The redirect type the rule will use when redirecting traffic.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_4
+      choices:
+        - !ChoiceValue 
+          value: MatchRequest
+          language:
+            default:
+              name: MatchRequest
+              description: ''
+        - !ChoiceValue 
+          value: Http
+          language:
+            default:
+              name: Http
+              description: ''
+        - !ChoiceValue 
+          value: Https
+          language:
+            default:
+              name: Https
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: DestinationProtocol
+          description: Protocol to use for the redirect. The default value is MatchRequest
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_9
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleUrlSigningActionParameters
+          language:
+            default:
+              name: DeliveryRuleUrlSigningActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: UrlSigningActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_10
+      choices:
+        - !ChoiceValue 
+          value: SHA256
+          language:
+            default:
+              name: SHA256
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: Algorithm
+          description: Algorithm to use for URL signing
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_11
+      choices:
+        - !ChoiceValue 
+          value: Expires
+          language:
+            default:
+              name: Expires
+              description: ''
+        - !ChoiceValue 
+          value: KeyId
+          language:
+            default:
+              name: KeyId
+              description: ''
+        - !ChoiceValue 
+          value: Signature
+          language:
+            default:
+              name: Signature
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ParamIndicator
+          description: Indicates the purpose of the parameter
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_13
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleOriginGroupOverrideActionParameters
+          language:
+            default:
+              name: DeliveryRuleOriginGroupOverrideActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: OriginGroupOverrideActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_15
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleUrlRewriteActionParameters
+          language:
+            default:
+              name: DeliveryRuleUrlRewriteActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: UrlRewriteActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_19
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleHeaderActionParameters
+          language:
+            default:
+              name: DeliveryRuleHeaderActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: HeaderActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_20
+      choices:
+        - !ChoiceValue 
+          value: Append
+          language:
+            default:
+              name: Append
+              description: ''
+        - !ChoiceValue 
+          value: Overwrite
+          language:
+            default:
+              name: Overwrite
+              description: ''
+        - !ChoiceValue 
+          value: Delete
+          language:
+            default:
+              name: Delete
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: HeaderAction
+          description: Action to perform
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_24
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleCacheExpirationActionParameters
+          language:
+            default:
+              name: DeliveryRuleCacheExpirationActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: CacheExpirationActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_25
+      choices:
+        - !ChoiceValue 
+          value: BypassCache
+          language:
+            default:
+              name: BypassCache
+              description: ''
+        - !ChoiceValue 
+          value: Override
+          language:
+            default:
+              name: Override
+              description: ''
+        - !ChoiceValue 
+          value: SetIfMissing
+          language:
+            default:
+              name: SetIfMissing
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: CacheBehavior
+          description: Caching behavior for the requests
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_26
+      choices:
+        - !ChoiceValue 
+          value: All
+          language:
+            default:
+              name: All
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: CacheType
+          description: The level at which the content needs to be cached.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_27
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleCacheKeyQueryStringBehaviorActionParameters
+          language:
+            default:
+              name: DeliveryRuleCacheKeyQueryStringBehaviorActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: CacheKeyQueryStringActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_28
+      choices:
+        - !ChoiceValue 
+          value: Include
+          language:
+            default:
+              name: Include
+              description: ''
+        - !ChoiceValue 
+          value: IncludeAll
+          language:
+            default:
+              name: IncludeAll
+              description: ''
+        - !ChoiceValue 
+          value: Exclude
+          language:
+            default:
+              name: Exclude
+              description: ''
+        - !ChoiceValue 
+          value: ExcludeAll
+          language:
+            default:
+              name: ExcludeAll
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: QueryStringBehavior
+          description: Caching behavior for the requests
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_30
+      choices:
+        - !ChoiceValue 
+          value: DeliveryRuleRouteConfigurationOverrideActionParameters
+          language:
+            default:
+              name: DeliveryRuleRouteConfigurationOverrideActionParameters
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: RouteConfigurationOverrideActionParametersTypeName
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_32
+      choices:
+        - !ChoiceValue 
+          value: HttpOnly
+          language:
+            default:
+              name: HttpOnly
+              description: ''
+        - !ChoiceValue 
+          value: HttpsOnly
+          language:
+            default:
+              name: HttpsOnly
+              description: ''
+        - !ChoiceValue 
+          value: MatchRequest
+          language:
+            default:
+              name: MatchRequest
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ForwardingProtocol
+          description: Protocol this rule will use when forwarding traffic to backends.
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_83
+      choices:
+        - !ChoiceValue 
+          value: Cat
+          language:
+            default:
+              name: Cat
+              description: ''
+        - !ChoiceValue 
+          value: Dog
+          language:
+            default:
+              name: Dog
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: PetKind
+          description: The kind of the pet
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_80
+      choices:
+        - !ChoiceValue 
+          value: german Shepherd
+          language:
+            default:
+              name: GermanShepherd
+              description: ''
+        - !ChoiceValue 
+          value: golden Retriever
+          language:
+            default:
+              name: GoldenRetriever
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: DogKind
+          description: The kind of the dog
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_140
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_145
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_151
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_76
+      type: dictionary
+      elementType: !ObjectSchema &ref_1
+        type: object
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        children: !Relations 
+          all:
+            - !ObjectSchema &ref_33
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: UrlRedirect
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_117
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_2
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_3
+                        required: true
+                        serializedName: redirectType
+                        language: !Languages 
+                          default:
+                            name: redirectType
+                            description: The redirect type the rule will use when redirecting traffic.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_4
+                        required: false
+                        serializedName: destinationProtocol
+                        language: !Languages 
+                          default:
+                            name: destinationProtocol
+                            description: Protocol to use for the redirect. The default value is MatchRequest
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_5
+                        required: false
+                        serializedName: customPath
+                        language: !Languages 
+                          default:
+                            name: customPath
+                            description: The full path to redirect. Path cannot be empty and must start with /. Leave empty to use the incoming path as destination path.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_6
+                        required: false
+                        serializedName: customHostname
+                        language: !Languages 
+                          default:
+                            name: customHostname
+                            description: Host to redirect. Leave empty to use the incoming host as the destination host.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_7
+                        required: false
+                        serializedName: customQueryString
+                        language: !Languages 
+                          default:
+                            name: customQueryString
+                            description: >-
+                              The set of query strings to be placed in the redirect URL. Setting this value would replace any existing query string; leave empty to preserve the incoming query string. Query string must be in <key>=<value>
+                              format. ? and & will be added automatically so do not include them.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_8
+                        required: false
+                        serializedName: customFragment
+                        language: !Languages 
+                          default:
+                            name: customFragment
+                            description: 'Fragment to add to the redirect URL. Fragment is the part of the URL that comes after #. Do not include the #.'
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: UrlRedirectActionParameters
+                        description: Defines the parameters for the url redirect action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: UrlRedirect
+              language: !Languages 
+                default:
+                  name: UrlRedirectAction
+                  description: Defines the url redirect action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_34
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: UrlSigning
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_118
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_9
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_10
+                        required: false
+                        serializedName: algorithm
+                        language: !Languages 
+                          default:
+                            name: algorithm
+                            description: Algorithm to use for URL signing
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !ArraySchema &ref_138
+                          type: array
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          elementType: !ObjectSchema &ref_119
+                            type: object
+                            apiVersions:
+                              - !ApiVersion 
+                                version: '2020-06-01'
+                            properties:
+                              - !Property 
+                                schema: *ref_11
+                                required: true
+                                serializedName: paramIndicator
+                                language: !Languages 
+                                  default:
+                                    name: paramIndicator
+                                    description: Indicates the purpose of the parameter
+                                protocol: !Protocols {}
+                              - !Property 
+                                schema: *ref_12
+                                required: true
+                                serializedName: paramName
+                                language: !Languages 
+                                  default:
+                                    name: paramName
+                                    description: Parameter name
+                                protocol: !Protocols {}
+                            serializationFormats:
+                              - json
+                            usage:
+                              - output
+                              - input
+                            language: !Languages 
+                              default:
+                                name: UrlSigningParamIdentifier
+                                description: Defines how to identify a parameter for a specific purpose e.g. expires
+                                namespace: ''
+                            protocol: !Protocols {}
+                          extensions:
+                            x-ms-identifiers:
+                              - paramName
+                          language: !Languages 
+                            default:
+                              name: UrlSigningActionParametersParameterNameOverride
+                              description: 'Defines which query string parameters in the url to be considered for expires, key id etc. '
+                          protocol: !Protocols {}
+                        required: false
+                        serializedName: parameterNameOverride
+                        extensions:
+                          x-ms-identifiers:
+                            - paramName
+                        language: !Languages 
+                          default:
+                            name: parameterNameOverride
+                            description: 'Defines which query string parameters in the url to be considered for expires, key id etc. '
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: UrlSigningActionParameters
+                        description: Defines the parameters for the Url Signing action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: UrlSigning
+              language: !Languages 
+                default:
+                  name: UrlSigningAction
+                  description: Defines the url signing action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_35
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: OriginGroupOverride
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_120
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_13
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !ObjectSchema &ref_31
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          properties:
+                            - !Property 
+                              schema: *ref_14
+                              serializedName: id
+                              language: !Languages 
+                                default:
+                                  name: id
+                                  description: Resource ID.
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - json
+                          usage:
+                            - output
+                            - input
+                          extensions:
+                            x-ms-azure-resource: true
+                          language: !Languages 
+                            default:
+                              name: ResourceReference
+                              description: Reference to another resource.
+                              namespace: ''
+                          protocol: !Protocols {}
+                        required: true
+                        serializedName: originGroup
+                        language: !Languages 
+                          default:
+                            name: originGroup
+                            description: defines the OriginGroup that would override the DefaultOriginGroup.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: OriginGroupOverrideActionParameters
+                        description: Defines the parameters for the origin group override action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: OriginGroupOverride
+              language: !Languages 
+                default:
+                  name: OriginGroupOverrideAction
+                  description: Defines the origin group override action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_36
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: UrlRewrite
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_121
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_15
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_16
+                        required: true
+                        serializedName: sourcePattern
+                        language: !Languages 
+                          default:
+                            name: sourcePattern
+                            description: define a request URI pattern that identifies the type of requests that may be rewritten. If value is blank, all strings are matched.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_17
+                        required: true
+                        serializedName: destination
+                        language: !Languages 
+                          default:
+                            name: destination
+                            description: Define the relative URL to which the above requests will be rewritten by.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_18
+                        required: false
+                        serializedName: preserveUnmatchedPath
+                        language: !Languages 
+                          default:
+                            name: preserveUnmatchedPath
+                            description: Whether to preserve unmatched path. Default value is true.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: UrlRewriteActionParameters
+                        description: Defines the parameters for the url rewrite action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: UrlRewrite
+              language: !Languages 
+                default:
+                  name: UrlRewriteAction
+                  description: Defines the url rewrite action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_37
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: ModifyRequestHeader
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_23
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_19
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_20
+                        required: true
+                        serializedName: headerAction
+                        language: !Languages 
+                          default:
+                            name: headerAction
+                            description: Action to perform
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_21
+                        required: true
+                        serializedName: headerName
+                        language: !Languages 
+                          default:
+                            name: headerName
+                            description: Name of the header to modify
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_22
+                        required: false
+                        serializedName: value
+                        language: !Languages 
+                          default:
+                            name: value
+                            description: Value for the specified action
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: HeaderActionParameters
+                        description: Defines the parameters for the request header action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: ModifyRequestHeader
+              language: !Languages 
+                default:
+                  name: DeliveryRuleRequestHeaderAction
+                  description: Defines the request header action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_38
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: ModifyResponseHeader
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: *ref_23
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: ModifyResponseHeader
+              language: !Languages 
+                default:
+                  name: DeliveryRuleResponseHeaderAction
+                  description: Defines the response header action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_39
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: CacheExpiration
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_122
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_24
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_25
+                        required: true
+                        serializedName: cacheBehavior
+                        language: !Languages 
+                          default:
+                            name: cacheBehavior
+                            description: Caching behavior for the requests
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_26
+                        required: true
+                        serializedName: cacheType
+                        language: !Languages 
+                          default:
+                            name: cacheType
+                            description: The level at which the content needs to be cached.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !DurationSchema &ref_46
+                          type: duration
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          extensions:
+                            x-ms-format: duration-constant
+                          language: !Languages 
+                            default:
+                              name: CacheExpirationActionParametersCacheDuration
+                              description: The duration for which the content needs to be cached. Allowed format is [d.]hh:mm:ss
+                          protocol: !Protocols {}
+                        nullable: true
+                        required: false
+                        serializedName: cacheDuration
+                        extensions:
+                          x-ms-format: duration-constant
+                        language: !Languages 
+                          default:
+                            name: cacheDuration
+                            description: The duration for which the content needs to be cached. Allowed format is [d.]hh:mm:ss
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: CacheExpirationActionParameters
+                        description: Defines the parameters for the cache expiration action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: CacheExpiration
+              language: !Languages 
+                default:
+                  name: DeliveryRuleCacheExpirationAction
+                  description: Defines the cache expiration action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_40
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: CacheKeyQueryString
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_123
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_27
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_28
+                        required: true
+                        serializedName: queryStringBehavior
+                        language: !Languages 
+                          default:
+                            name: queryStringBehavior
+                            description: Caching behavior for the requests
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_29
+                        nullable: true
+                        required: false
+                        serializedName: queryParameters
+                        language: !Languages 
+                          default:
+                            name: queryParameters
+                            description: query parameters to include or exclude (comma separated).
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: CacheKeyQueryStringActionParameters
+                        description: Defines the parameters for the cache-key query string action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: CacheKeyQueryString
+              language: !Languages 
+                default:
+                  name: DeliveryRuleCacheKeyQueryStringAction
+                  description: Defines the cache-key query string action for the delivery rule.
+                  namespace: ''
+              protocol: !Protocols {}
+            - !ObjectSchema &ref_41
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              discriminatorValue: RouteConfigurationOverride
+              parents: !Relations 
+                all:
+                  - *ref_1
+                immediate:
+                  - *ref_1
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_124
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_30
+                        required: true
+                        serializedName: typeName
+                        language: !Languages 
+                          default:
+                            name: typeName
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !ObjectSchema &ref_125
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          properties:
+                            - !Property 
+                              schema: *ref_31
+                              serializedName: originGroup
+                              language: !Languages 
+                                default:
+                                  name: originGroup
+                                  description: defines the OriginGroup that would override the DefaultOriginGroup on route.
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_32
+                              serializedName: forwardingProtocol
+                              language: !Languages 
+                                default:
+                                  name: forwardingProtocol
+                                  description: Protocol this rule will use when forwarding traffic to backends.
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - json
+                          usage:
+                            - output
+                            - input
+                          language: !Languages 
+                            default:
+                              name: OriginGroupOverride
+                              description: Defines the parameters for the origin group override configuration.
+                              namespace: ''
+                          protocol: !Protocols {}
+                        required: false
+                        serializedName: originGroupOverride
+                        language: !Languages 
+                          default:
+                            name: originGroupOverride
+                            description: A reference to the origin group override configuration. Leave empty to use the default origin group on route.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: RouteConfigurationOverrideActionParameters
+                        description: Defines the parameters for the route configuration override action.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: parameters
+                  language: !Languages 
+                    default:
+                      name: parameters
+                      description: Defines the parameters for the action.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              extensions:
+                x-ms-discriminator-value: RouteConfigurationOverride
+              language: !Languages 
+                default:
+                  name: DeliveryRuleRouteConfigurationOverrideAction
+                  description: Defines the route configuration override action for the delivery rule. Only applicable to Frontdoor Standard/Premium Profiles.
+                  namespace: ''
+              protocol: !Protocols {}
+          immediate:
+            - *ref_33
+            - *ref_34
+            - *ref_35
+            - *ref_36
+            - *ref_37
+            - *ref_38
+            - *ref_39
+            - *ref_40
+            - *ref_41
+        discriminator: !Discriminator 
+          all:
+            CacheExpiration: *ref_39
+            CacheKeyQueryString: *ref_40
+            ModifyRequestHeader: *ref_37
+            ModifyResponseHeader: *ref_38
+            OriginGroupOverride: *ref_35
+            RouteConfigurationOverride: *ref_41
+            UrlRedirect: *ref_33
+            UrlRewrite: *ref_36
+            UrlSigning: *ref_34
+          immediate:
+            CacheExpiration: *ref_39
+            CacheKeyQueryString: *ref_40
+            ModifyRequestHeader: *ref_37
+            ModifyResponseHeader: *ref_38
+            OriginGroupOverride: *ref_35
+            RouteConfigurationOverride: *ref_41
+            UrlRedirect: *ref_33
+            UrlRewrite: *ref_36
+            UrlSigning: *ref_34
+          property: !Property &ref_43
+            schema: *ref_42
+            isDiscriminator: true
+            required: true
+            serializedName: name
+            language: !Languages 
+              default:
+                name: name
+                description: The name of the action for the delivery rule.
+            protocol: !Protocols {}
+        properties:
+          - *ref_43
+          - !Property 
+            schema: *ref_44
+            readOnly: true
+            required: false
+            serializedName: foo
+            language: !Languages 
+              default:
+                name: foo
+                description: for test
+            protocol: !Protocols {}
+        serializationFormats:
+          - json
+        usage:
+          - output
+          - input
+        language: !Languages 
+          default:
+            name: DeliveryRuleAction
+            description: An action for the delivery rule.
+            namespace: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DeliveryRulePropertiesExtraMappingInfo
+          description: A dictionary of mapping details about the actions that are executed when all the conditions of a rule are satisfied.
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_109
+      type: dictionary
+      elementType: !AnySchema &ref_45
+        type: any
+        language: !Languages 
+          default:
+            name: any
+            description: Anything
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: TemplateArtifactPropertiesParameters
+          description: Resource Manager template blueprint artifact parameter values.
+      protocol: !Protocols {}
+  any:
+    - *ref_45
+  anyObjects:
+    - !AnyObjectSchema &ref_94
+      type: any-object
+      language: !Languages 
+        default:
+          name: AnyObject
+          description: Any object
+      protocol: !Protocols {}
+  dateTimes:
+    - !DateTimeSchema &ref_53
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleDateTimeProperty
+          description: A datetime property to verify bicep generation.
+      protocol: !Protocols {}
+  durations:
+    - !DurationSchema &ref_54
+      type: duration
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleDuration
+          description: A duration property to verify bicep generation.
+      protocol: !Protocols {}
+    - *ref_46
+  uris:
+    - !UriSchema &ref_56
+      type: uri
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: DeliveryRuleUri
+          description: A number property to verify bicep generation.
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_147
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_127
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_87
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              properties:
+                - !Property 
+                  schema: *ref_47
+                  readOnly: true
+                  required: false
+                  serializedName: id
+                  language: !Languages 
+                    default:
+                      name: id
+                      description: The resource id of this rule
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_48
+                  readOnly: true
+                  required: false
+                  serializedName: name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: Name of the rule
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_49
+                  readOnly: true
+                  required: false
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: The resource type of this rule
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_50
+                  required: false
+                  serializedName: boolProperty
+                  language: !Languages 
+                    default:
+                      name: boolProperty
+                      description: A bool property to verify bicep generation.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_51
+                  required: false
+                  serializedName: location
+                  extensions:
+                    x-ms-format: azure-location
+                  language: !Languages 
+                    default:
+                      name: location
+                      description: A location property to verify bicep generation.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_52
+                  required: false
+                  serializedName: locationWithCustomSerialization
+                  extensions:
+                    x-ms-format: azure-location
+                  language: !Languages 
+                    default:
+                      name: locationWithCustomSerialization
+                      description: A location property to verify bicep generation.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_53
+                  required: false
+                  serializedName: dateTimeProperty
+                  language: !Languages 
+                    default:
+                      name: dateTimeProperty
+                      description: A datetime property to verify bicep generation.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_54
+                  required: false
+                  serializedName: duration
+                  language: !Languages 
+                    default:
+                      name: duration
+                      description: A duration property to verify bicep generation.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_55
+                  required: false
+                  serializedName: number
+                  language: !Languages 
+                    default:
+                      name: number
+                      description: A number property to verify bicep generation.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_56
+                  required: false
+                  serializedName: uri
+                  language: !Languages 
+                    default:
+                      name: uri
+                      description: A number property to verify bicep generation.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ObjectSchema &ref_88
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_57
+                        serializedName: order
+                        language: !Languages 
+                          default:
+                            name: order
+                            description: >-
+                              The order in which the rules are applied for the endpoint. Possible values {0,1,2,3,………}. A rule with a lesser order will be applied before a rule with a greater order. Rule with order 0 is a special rule. It
+                              does not require any condition and actions listed in it will always be applied.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !ObjectSchema &ref_58
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          children: !Relations 
+                            all:
+                              - !ObjectSchema &ref_70
+                                type: object
+                                apiVersions:
+                                  - !ApiVersion 
+                                    version: '2020-06-01'
+                                discriminatorValue: RemoteAddress
+                                parents: !Relations 
+                                  all:
+                                    - *ref_58
+                                  immediate:
+                                    - *ref_58
+                                properties:
+                                  - !Property 
+                                    schema: !ObjectSchema &ref_114
+                                      type: object
+                                      apiVersions:
+                                        - !ApiVersion 
+                                          version: '2020-06-01'
+                                      properties:
+                                        - !Property 
+                                          schema: *ref_59
+                                          required: true
+                                          serializedName: typeName
+                                          language: !Languages 
+                                            default:
+                                              name: typeName
+                                              description: ''
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_60
+                                          required: true
+                                          serializedName: operator
+                                          language: !Languages 
+                                            default:
+                                              name: operator
+                                              description: Describes operator to be matched
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_61
+                                          required: false
+                                          serializedName: negateCondition
+                                          language: !Languages 
+                                            default:
+                                              name: negateCondition
+                                              description: Describes if this is negate condition or not
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: !ArraySchema &ref_132
+                                            type: array
+                                            apiVersions:
+                                              - !ApiVersion 
+                                                version: '2020-06-01'
+                                            elementType: *ref_62
+                                            language: !Languages 
+                                              default:
+                                                name: RemoteAddressMatchConditionParametersMatchValues
+                                                description: >-
+                                                  Match values to match against. The operator will apply to each value in here with OR semantics. If any of them match the variable with the given operator this match condition is considered a
+                                                  match.
+                                            protocol: !Protocols {}
+                                          required: false
+                                          serializedName: matchValues
+                                          language: !Languages 
+                                            default:
+                                              name: matchValues
+                                              description: >-
+                                                Match values to match against. The operator will apply to each value in here with OR semantics. If any of them match the variable with the given operator this match condition is considered a
+                                                match.
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: !ArraySchema &ref_133
+                                            type: array
+                                            apiVersions:
+                                              - !ApiVersion 
+                                                version: '2020-06-01'
+                                            elementType: *ref_63
+                                            language: !Languages 
+                                              default:
+                                                name: RemoteAddressMatchConditionParametersTransforms
+                                                description: List of transforms
+                                            protocol: !Protocols {}
+                                          required: false
+                                          serializedName: transforms
+                                          language: !Languages 
+                                            default:
+                                              name: transforms
+                                              description: List of transforms
+                                          protocol: !Protocols {}
+                                      serializationFormats:
+                                        - json
+                                      usage:
+                                        - output
+                                        - input
+                                      language: !Languages 
+                                        default:
+                                          name: RemoteAddressMatchConditionParameters
+                                          description: Defines the parameters for RemoteAddress match conditions
+                                          namespace: ''
+                                      protocol: !Protocols {}
+                                    required: true
+                                    serializedName: parameters
+                                    language: !Languages 
+                                      default:
+                                        name: parameters
+                                        description: Defines the parameters for the condition.
+                                    protocol: !Protocols {}
+                                serializationFormats:
+                                  - json
+                                usage:
+                                  - output
+                                  - input
+                                extensions:
+                                  x-ms-discriminator-value: RemoteAddress
+                                language: !Languages 
+                                  default:
+                                    name: DeliveryRuleRemoteAddressCondition
+                                    description: Defines the RemoteAddress condition for the delivery rule.
+                                    namespace: ''
+                                protocol: !Protocols {}
+                              - !ObjectSchema &ref_71
+                                type: object
+                                apiVersions:
+                                  - !ApiVersion 
+                                    version: '2020-06-01'
+                                discriminatorValue: RequestMethod
+                                parents: !Relations 
+                                  all:
+                                    - *ref_58
+                                  immediate:
+                                    - *ref_58
+                                properties:
+                                  - !Property 
+                                    schema: !ObjectSchema &ref_115
+                                      type: object
+                                      apiVersions:
+                                        - !ApiVersion 
+                                          version: '2020-06-01'
+                                      properties:
+                                        - !Property 
+                                          schema: *ref_64
+                                          required: true
+                                          serializedName: typeName
+                                          language: !Languages 
+                                            default:
+                                              name: typeName
+                                              description: ''
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_65
+                                          required: true
+                                          serializedName: operator
+                                          language: !Languages 
+                                            default:
+                                              name: operator
+                                              description: Describes operator to be matched
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_61
+                                          required: false
+                                          serializedName: negateCondition
+                                          language: !Languages 
+                                            default:
+                                              name: negateCondition
+                                              description: Describes if this is negate condition or not
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: !ArraySchema &ref_134
+                                            type: array
+                                            apiVersions:
+                                              - !ApiVersion 
+                                                version: '2020-06-01'
+                                            elementType: *ref_63
+                                            language: !Languages 
+                                              default:
+                                                name: RequestMethodMatchConditionParametersTransforms
+                                                description: List of transforms
+                                            protocol: !Protocols {}
+                                          required: false
+                                          serializedName: transforms
+                                          language: !Languages 
+                                            default:
+                                              name: transforms
+                                              description: List of transforms
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: !ArraySchema &ref_135
+                                            type: array
+                                            apiVersions:
+                                              - !ApiVersion 
+                                                version: '2020-06-01'
+                                            elementType: *ref_66
+                                            language: !Languages 
+                                              default:
+                                                name: RequestMethodMatchConditionParametersMatchValues
+                                                description: The match value for the condition of the delivery rule
+                                            protocol: !Protocols {}
+                                          required: false
+                                          serializedName: matchValues
+                                          language: !Languages 
+                                            default:
+                                              name: matchValues
+                                              description: The match value for the condition of the delivery rule
+                                          protocol: !Protocols {}
+                                      serializationFormats:
+                                        - json
+                                      usage:
+                                        - output
+                                        - input
+                                      language: !Languages 
+                                        default:
+                                          name: RequestMethodMatchConditionParameters
+                                          description: Defines the parameters for RequestMethod match conditions
+                                          namespace: ''
+                                      protocol: !Protocols {}
+                                    required: true
+                                    serializedName: parameters
+                                    language: !Languages 
+                                      default:
+                                        name: parameters
+                                        description: Defines the parameters for the condition.
+                                    protocol: !Protocols {}
+                                serializationFormats:
+                                  - json
+                                usage:
+                                  - output
+                                  - input
+                                extensions:
+                                  x-ms-discriminator-value: RequestMethod
+                                language: !Languages 
+                                  default:
+                                    name: DeliveryRuleRequestMethodCondition
+                                    description: Defines the RequestMethod condition for the delivery rule.
+                                    namespace: ''
+                                protocol: !Protocols {}
+                              - !ObjectSchema &ref_72
+                                type: object
+                                apiVersions:
+                                  - !ApiVersion 
+                                    version: '2020-06-01'
+                                discriminatorValue: QueryString
+                                parents: !Relations 
+                                  all:
+                                    - *ref_58
+                                  immediate:
+                                    - *ref_58
+                                properties:
+                                  - !Property 
+                                    schema: !ObjectSchema &ref_116
+                                      type: object
+                                      apiVersions:
+                                        - !ApiVersion 
+                                          version: '2020-06-01'
+                                      properties:
+                                        - !Property 
+                                          schema: *ref_67
+                                          required: true
+                                          serializedName: typeName
+                                          language: !Languages 
+                                            default:
+                                              name: typeName
+                                              description: ''
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_68
+                                          required: true
+                                          serializedName: operator
+                                          language: !Languages 
+                                            default:
+                                              name: operator
+                                              description: Describes operator to be matched
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: *ref_61
+                                          required: false
+                                          serializedName: negateCondition
+                                          language: !Languages 
+                                            default:
+                                              name: negateCondition
+                                              description: Describes if this is negate condition or not
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: !ArraySchema &ref_136
+                                            type: array
+                                            apiVersions:
+                                              - !ApiVersion 
+                                                version: '2020-06-01'
+                                            elementType: *ref_69
+                                            language: !Languages 
+                                              default:
+                                                name: QueryStringMatchConditionParametersMatchValues
+                                                description: The match value for the condition of the delivery rule
+                                            protocol: !Protocols {}
+                                          required: false
+                                          serializedName: matchValues
+                                          language: !Languages 
+                                            default:
+                                              name: matchValues
+                                              description: The match value for the condition of the delivery rule
+                                          protocol: !Protocols {}
+                                        - !Property 
+                                          schema: !ArraySchema &ref_137
+                                            type: array
+                                            apiVersions:
+                                              - !ApiVersion 
+                                                version: '2020-06-01'
+                                            elementType: *ref_63
+                                            language: !Languages 
+                                              default:
+                                                name: QueryStringMatchConditionParametersTransforms
+                                                description: List of transforms
+                                            protocol: !Protocols {}
+                                          required: false
+                                          serializedName: transforms
+                                          language: !Languages 
+                                            default:
+                                              name: transforms
+                                              description: List of transforms
+                                          protocol: !Protocols {}
+                                      serializationFormats:
+                                        - json
+                                      usage:
+                                        - output
+                                        - input
+                                      language: !Languages 
+                                        default:
+                                          name: QueryStringMatchConditionParameters
+                                          description: Defines the parameters for QueryString match conditions
+                                          namespace: ''
+                                      protocol: !Protocols {}
+                                    required: true
+                                    serializedName: parameters
+                                    language: !Languages 
+                                      default:
+                                        name: parameters
+                                        description: Defines the parameters for the condition.
+                                    protocol: !Protocols {}
+                                serializationFormats:
+                                  - json
+                                usage:
+                                  - output
+                                  - input
+                                extensions:
+                                  x-ms-discriminator-value: QueryString
+                                language: !Languages 
+                                  default:
+                                    name: DeliveryRuleQueryStringCondition
+                                    description: Defines the QueryString condition for the delivery rule.
+                                    namespace: ''
+                                protocol: !Protocols {}
+                            immediate:
+                              - *ref_70
+                              - *ref_71
+                              - *ref_72
+                          discriminator: !Discriminator 
+                            all:
+                              QueryString: *ref_72
+                              RemoteAddress: *ref_70
+                              RequestMethod: *ref_71
+                            immediate:
+                              QueryString: *ref_72
+                              RemoteAddress: *ref_70
+                              RequestMethod: *ref_71
+                            property: !Property &ref_74
+                              schema: *ref_73
+                              isDiscriminator: true
+                              required: true
+                              serializedName: name
+                              language: !Languages 
+                                default:
+                                  name: name
+                                  description: The name of the condition for the delivery rule.
+                              protocol: !Protocols {}
+                          properties:
+                            - *ref_74
+                            - !Property 
+                              schema: *ref_75
+                              readOnly: true
+                              required: false
+                              serializedName: foo
+                              language: !Languages 
+                                default:
+                                  name: foo
+                                  description: For test
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - json
+                          usage:
+                            - output
+                            - input
+                          language: !Languages 
+                            default:
+                              name: DeliveryRuleCondition
+                              description: A condition for the delivery rule.
+                              namespace: ''
+                          protocol: !Protocols {}
+                        serializedName: conditions
+                        language: !Languages 
+                          default:
+                            name: conditions
+                            description: The condition that must be matched for the actions to be executed
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !ArraySchema &ref_126
+                          type: array
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          elementType: *ref_1
+                          extensions:
+                            x-ms-identifiers:
+                              - name
+                          language: !Languages 
+                            default:
+                              name: DeliveryRulePropertiesActions
+                              description: A list of actions that are executed when all the conditions of a rule are satisfied.
+                          protocol: !Protocols {}
+                        serializedName: actions
+                        extensions:
+                          x-ms-identifiers:
+                            - name
+                        language: !Languages 
+                          default:
+                            name: actions
+                            description: A list of actions that are executed when all the conditions of a rule are satisfied.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_76
+                        serializedName: extraMappingInfo
+                        language: !Languages 
+                          default:
+                            name: extraMappingInfo
+                            description: A dictionary of mapping details about the actions that are executed when all the conditions of a rule are satisfied.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !ObjectSchema &ref_77
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          children: !Relations 
+                            all:
+                              - !ObjectSchema &ref_81
+                                type: object
+                                apiVersions:
+                                  - !ApiVersion 
+                                    version: '2020-06-01'
+                                discriminatorValue: Cat
+                                parents: !Relations 
+                                  all:
+                                    - *ref_77
+                                  immediate:
+                                    - *ref_77
+                                properties:
+                                  - !Property 
+                                    schema: *ref_78
+                                    serializedName: meow
+                                    language: !Languages 
+                                      default:
+                                        name: meow
+                                        description: A cat can meow
+                                    protocol: !Protocols {}
+                                serializationFormats:
+                                  - json
+                                usage:
+                                  - output
+                                  - input
+                                extensions:
+                                  x-ms-discriminator-value: Cat
+                                language: !Languages 
+                                  default:
+                                    name: Cat
+                                    description: A cat
+                                    namespace: ''
+                                protocol: !Protocols {}
+                              - !ObjectSchema &ref_82
+                                type: object
+                                apiVersions:
+                                  - !ApiVersion 
+                                    version: '2020-06-01'
+                                discriminatorValue: Dog
+                                parents: !Relations 
+                                  all:
+                                    - *ref_77
+                                  immediate:
+                                    - *ref_77
+                                properties:
+                                  - !Property 
+                                    schema: *ref_79
+                                    serializedName: bark
+                                    language: !Languages 
+                                      default:
+                                        name: bark
+                                        description: A dog can bark
+                                    protocol: !Protocols {}
+                                  - !Property 
+                                    schema: *ref_80
+                                    serializedName: dogKind
+                                    language: !Languages 
+                                      default:
+                                        name: dogKind
+                                        description: The kind of the dog
+                                    protocol: !Protocols {}
+                                serializationFormats:
+                                  - json
+                                usage:
+                                  - output
+                                  - input
+                                extensions:
+                                  x-ms-discriminator-value: Dog
+                                language: !Languages 
+                                  default:
+                                    name: Dog
+                                    description: A dog
+                                    namespace: ''
+                                protocol: !Protocols {}
+                            immediate:
+                              - *ref_81
+                              - *ref_82
+                          discriminator: !Discriminator 
+                            all:
+                              Cat: *ref_81
+                              Dog: *ref_82
+                            immediate:
+                              Cat: *ref_81
+                              Dog: *ref_82
+                            property: !Property &ref_84
+                              schema: *ref_83
+                              isDiscriminator: true
+                              required: true
+                              serializedName: kind
+                              language: !Languages 
+                                default:
+                                  name: kind
+                                  description: The kind of the pet
+                              protocol: !Protocols {}
+                          properties:
+                            - *ref_84
+                            - !Property 
+                              schema: *ref_85
+                              readOnly: true
+                              required: false
+                              serializedName: id
+                              language: !Languages 
+                                default:
+                                  name: id
+                                  description: The Id of the pet
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - json
+                          usage:
+                            - output
+                            - input
+                          language: !Languages 
+                            default:
+                              name: Pet
+                              description: A pet
+                              namespace: ''
+                          protocol: !Protocols {}
+                        serializedName: pet
+                        language: !Languages 
+                          default:
+                            name: pet
+                            description: A pet
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_86
+                        readOnly: true
+                        serializedName: foo
+                        language: !Languages 
+                          default:
+                            name: foo
+                            description: put a readonly property here so that this model will show up in the model factory
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: DeliveryRuleProperties
+                        description: The properties
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: false
+                  serializedName: properties
+                  language: !Languages 
+                    default:
+                      name: properties
+                      description: The properties
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+                - input
+              language: !Languages 
+                default:
+                  name: DeliveryRule
+                  description: A rule that specifies a set of actions and conditions
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: DeliveryRuleListResultValue
+                description: The values
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: The values
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: DeliveryRuleListResult
+          description: The list result of the rules
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_87
+    - *ref_88
+    - *ref_58
+    - *ref_1
+    - *ref_77
+    - !ObjectSchema &ref_148
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_92
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            properties:
+              - !Property 
+                schema: *ref_89
+                readOnly: true
+                serializedName: code
+                language: !Languages 
+                  default:
+                    name: code
+                    description: The error code.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_90
+                readOnly: true
+                serializedName: message
+                language: !Languages 
+                  default:
+                    name: message
+                    description: The error message.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_91
+                readOnly: true
+                serializedName: target
+                language: !Languages 
+                  default:
+                    name: target
+                    description: The error target.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_128
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  elementType: *ref_92
+                  extensions:
+                    x-ms-identifiers:
+                      - message
+                      - target
+                  language: !Languages 
+                    default:
+                      name: ErrorDetailDetails
+                      description: The error details.
+                  protocol: !Protocols {}
+                readOnly: true
+                serializedName: details
+                extensions:
+                  x-ms-identifiers:
+                    - message
+                    - target
+                language: !Languages 
+                  default:
+                    name: details
+                    description: The error details.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_129
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  elementType: !ObjectSchema &ref_95
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_93
+                        readOnly: true
+                        serializedName: type
+                        language: !Languages 
+                          default:
+                            name: type
+                            description: The additional info type.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_94
+                        readOnly: true
+                        serializedName: info
+                        language: !Languages 
+                          default:
+                            name: info
+                            description: The additional info.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - exception
+                    language: !Languages 
+                      default:
+                        name: ErrorAdditionalInfo
+                        description: The resource management error additional info.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  extensions:
+                    x-ms-identifiers: []
+                  language: !Languages 
+                    default:
+                      name: ErrorDetailAdditionalInfo
+                      description: The error additional info.
+                  protocol: !Protocols {}
+                readOnly: true
+                serializedName: additionalInfo
+                extensions:
+                  x-ms-identifiers: []
+                language: !Languages 
+                  default:
+                    name: additionalInfo
+                    description: The error additional info.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - exception
+            language: !Languages 
+              default:
+                name: ErrorDetail
+                description: The error detail.
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: error
+          language: !Languages 
+            default:
+              name: error
+              description: The error object.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      summary: Error response
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: ErrorResponse
+          description: Error response indicates Azure Front Door Standard or Azure Front Door Premium or CDN service is not able to process the incoming request. The reason is provided in the error message.
+          namespace: ''
+          summary: Error response
+      protocol: !Protocols {}
+    - *ref_92
+    - *ref_95
+    - !ObjectSchema &ref_96
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_98
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            children: !Relations 
+              all:
+                - *ref_96
+              immediate:
+                - *ref_96
+            properties:
+              - !Property 
+                schema: *ref_97
+                serializedName: optionalString
+                language: !Languages 
+                  default:
+                    name: optionalString
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: BaseModel
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_98
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_130
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: *ref_99
+            language: !Languages 
+              default:
+                name: DerivedModelRequiredCollection
+                description: Array of DerivedModelRequiredCollectionItem
+            protocol: !Protocols {}
+          required: true
+          serializedName: requiredCollection
+          language: !Languages 
+            default:
+              name: requiredCollection
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: DerivedModel
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_98
+    - !ObjectSchema &ref_100
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_101
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            discriminatorValue: template
+            parents: !Relations 
+              all:
+                - *ref_100
+                - !ObjectSchema &ref_102
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  children: !Relations 
+                    all:
+                      - *ref_100
+                      - *ref_101
+                      - !ObjectSchema &ref_110
+                        type: object
+                        apiVersions:
+                          - !ApiVersion 
+                            version: '2020-06-01'
+                        discriminatorValue: roleAssignment
+                        parents: !Relations 
+                          all:
+                            - *ref_100
+                            - *ref_102
+                          immediate:
+                            - *ref_100
+                        properties:
+                          - !Property 
+                            schema: *ref_103
+                            flattenedNames:
+                              - properties
+                              - roleDefinitionId
+                            required: true
+                            serializedName: roleDefinitionId
+                            language: !Languages 
+                              default:
+                                name: roleDefinitionId
+                                description: Azure resource ID of the RoleDefinition.
+                            protocol: !Protocols {}
+                          - !Property 
+                            schema: *ref_45
+                            flattenedNames:
+                              - properties
+                              - principalIds
+                            required: true
+                            serializedName: principalIds
+                            language: !Languages 
+                              default:
+                                name: principalIds
+                                description: Array of user or group identities in Azure Active Directory. The roleDefinition will apply to each identity.
+                            protocol: !Protocols {}
+                          - !Property 
+                            schema: *ref_104
+                            flattenedNames:
+                              - properties
+                              - resourceGroup
+                            required: false
+                            serializedName: resourceGroup
+                            language: !Languages 
+                              default:
+                                name: resourceGroup
+                                description: RoleAssignment will be scope to this resourceGroup. If empty, it scopes to the subscription.
+                            protocol: !Protocols {}
+                        serializationFormats:
+                          - json
+                        usage:
+                          - input
+                          - output
+                        extensions:
+                          x-ms-discriminator-value: roleAssignment
+                        language: !Languages 
+                          default:
+                            name: RoleAssignmentArtifact
+                            description: Blueprint artifact that applies a Role assignment.
+                            namespace: ''
+                        protocol: !Protocols {}
+                    immediate:
+                      - *ref_100
+                  properties:
+                    - !Property 
+                      schema: *ref_105
+                      readOnly: true
+                      serializedName: id
+                      language: !Languages 
+                        default:
+                          name: id
+                          description: String Id used to locate any resource on Azure.
+                      protocol: !Protocols {}
+                    - !Property 
+                      schema: *ref_106
+                      readOnly: true
+                      serializedName: type
+                      language: !Languages 
+                        default:
+                          name: type
+                          description: Type of this resource.
+                      protocol: !Protocols {}
+                    - !Property 
+                      schema: *ref_107
+                      readOnly: true
+                      serializedName: name
+                      language: !Languages 
+                        default:
+                          name: name
+                          description: Name of this resource.
+                      protocol: !Protocols {}
+                  serializationFormats:
+                    - json
+                  usage:
+                    - input
+                    - output
+                  extensions:
+                    x-ms-azure-resource: true
+                  language: !Languages 
+                    default:
+                      name: AzureResourceBase
+                      description: Common properties for all Azure resources.
+                      namespace: ''
+                  protocol: !Protocols {}
+              immediate:
+                - *ref_100
+            properties:
+              - !Property 
+                schema: *ref_94
+                flattenedNames:
+                  - properties
+                  - template
+                required: true
+                serializedName: template
+                language: !Languages 
+                  default:
+                    name: template
+                    description: The Resource Manager template blueprint artifact body.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_108
+                flattenedNames:
+                  - properties
+                  - resourceGroup
+                required: false
+                serializedName: resourceGroup
+                language: !Languages 
+                  default:
+                    name: resourceGroup
+                    description: If applicable, the name of the resource group placeholder to which the Resource Manager template blueprint artifact will be deployed.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_109
+                flattenedNames:
+                  - properties
+                  - parameters
+                required: true
+                serializedName: parameters
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Resource Manager template blueprint artifact parameter values.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            extensions:
+              x-ms-discriminator-value: template
+            language: !Languages 
+              default:
+                name: TemplateArtifact
+                description: Blueprint artifact that deploys a Resource Manager template.
+                namespace: ''
+            protocol: !Protocols {}
+          - *ref_110
+        immediate:
+          - *ref_101
+          - *ref_110
+      discriminator: !Discriminator 
+        all:
+          roleAssignment: *ref_110
+          template: *ref_101
+        immediate:
+          roleAssignment: *ref_110
+          template: *ref_101
+        property: !Property &ref_112
+          schema: *ref_111
+          isDiscriminator: true
+          required: true
+          serializedName: kind
+          language: !Languages 
+            default:
+              name: kind
+              description: Specifies the kind of blueprint artifact.
+          protocol: !Protocols {}
+      parents: !Relations 
+        all:
+          - *ref_102
+        immediate:
+          - *ref_102
+      properties:
+        - *ref_112
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: Artifact
+          description: Represents a blueprint artifact.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_102
+    - !ObjectSchema &ref_171
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_131
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: *ref_100
+            language: !Languages 
+              default:
+                name: ArtifactListValue
+                description: List of blueprint artifacts.
+            protocol: !Protocols {}
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: List of blueprint artifacts.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_113
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Link to the next page of results.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ArtifactList
+          description: List of blueprint artifacts.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_81
+    - *ref_82
+    - *ref_70
+    - *ref_114
+    - *ref_71
+    - *ref_115
+    - *ref_72
+    - *ref_116
+    - *ref_33
+    - *ref_117
+    - *ref_34
+    - *ref_118
+    - *ref_119
+    - *ref_35
+    - *ref_120
+    - *ref_31
+    - *ref_36
+    - *ref_121
+    - *ref_37
+    - *ref_23
+    - *ref_38
+    - *ref_39
+    - *ref_122
+    - *ref_40
+    - *ref_123
+    - *ref_41
+    - *ref_124
+    - *ref_125
+    - *ref_101
+    - *ref_110
+  arrays:
+    - *ref_126
+    - *ref_127
+    - *ref_128
+    - *ref_129
+    - *ref_130
+    - *ref_131
+    - *ref_132
+    - *ref_133
+    - *ref_134
+    - *ref_135
+    - *ref_136
+    - *ref_137
+    - *ref_138
+globalParameters:
+  - !Parameter &ref_143
+    schema: *ref_139
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call.
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_141
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_144
+    schema: *ref_140
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: DeliveryRules
+    operations:
+      - !Operation 
+        operationId: DeliveryRules_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - !Parameter &ref_146
+            schema: *ref_142
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: Name of the Resource group within the Azure subscription.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_143
+          - *ref_144
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/deliveryRules
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_146
+        responses:
+          - !SchemaResponse 
+            schema: *ref_147
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The request has succeeded.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: CDN error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: List
+            description: Gets an existing CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: DeliveryRules_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - !Parameter &ref_149
+            schema: *ref_142
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: Name of the Resource group within the Azure subscription.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_150
+            schema: *ref_139
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: Name of the endpoint under the profile which is unique globally.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_143
+          - *ref_144
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/deliveryRules/{name}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_149
+          - *ref_150
+        responses:
+          - !SchemaResponse 
+            schema: *ref_87
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The request has succeeded.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: CDN error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Get
+            description: Gets an existing CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: DeliveryRules_Create
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - !Parameter &ref_154
+            schema: *ref_142
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: Name of the Resource group within the Azure subscription.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_155
+            schema: *ref_139
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: Name of the endpoint under the profile which is unique globally.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_143
+          - *ref_144
+        requestMediaTypes:
+          application/json: !Request &ref_153
+            parameters:
+              - !Parameter 
+                schema: *ref_151
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_152
+                schema: *ref_87
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: body
+                    description: Endpoint properties
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_152
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/deliveryRules/{name}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_153
+        signatureParameters:
+          - *ref_154
+          - *ref_155
+        responses:
+          - !SchemaResponse 
+            schema: *ref_87
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The request has succeeded.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_87
+            language: !Languages 
+              default:
+                name: ''
+                description: Created. The request has been fulfilled and a new endpoint has been created.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+          - !SchemaResponse 
+            schema: *ref_87
+            language: !Languages 
+              default:
+                name: ''
+                description: Accepted and the operation will complete asynchronously.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '202'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: CDN error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: Create
+            description: Creates a new CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: DeliveryRules_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - !Parameter &ref_156
+            schema: *ref_142
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: Name of the Resource group within the Azure subscription.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_157
+            schema: *ref_139
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: Name of the endpoint under the profile which is unique globally.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_143
+          - *ref_144
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/deliveryRules/{name}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_156
+          - *ref_157
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The request has succeeded.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Accepted and the operation will complete asynchronously.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '202'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: No Content. The request has been accepted but the endpoint was not found.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: CDN error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: Delete
+            description: Deletes an existing CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: DeliveryRules_Post
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - !Parameter &ref_160
+            schema: *ref_142
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: Name of the Resource group within the Azure subscription.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_161
+            schema: *ref_139
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: Name of the endpoint under the profile which is unique globally.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_143
+          - *ref_144
+        requestMediaTypes:
+          application/json: !Request &ref_159
+            parameters:
+              - !Parameter 
+                schema: *ref_151
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_158
+                schema: *ref_96
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: body
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_158
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Cdn/deliveryRules/{name}/post
+                method: get
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_159
+        signatureParameters:
+          - *ref_160
+          - *ref_161
+        responses:
+          - !SchemaResponse 
+            schema: *ref_96
+            language: !Languages 
+              default:
+                name: ''
+                description: OK. The request has succeeded.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: CDN error response describing why the operation failed.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Post
+            description: Gets an existing CDN endpoint with the specified endpoint name under the specified subscription, resource group and profile.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: DeliveryRules
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: Artifacts
+    operations:
+      - !Operation 
+        operationId: Artifacts_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - *ref_144
+          - !Parameter &ref_164
+            schema: *ref_139
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: resourceScope
+                description: 'The scope of the resource. Valid scopes are: management group (format: ''/providers/Microsoft.Management/managementGroups/{managementGroup}''), subscription (format: ''/subscriptions/{subscriptionId}'').'
+                serializedName: resourceScope
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_165
+            schema: *ref_139
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: artifactName
+                description: Name of the blueprint artifact.
+                serializedName: artifactName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_163
+            parameters:
+              - !Parameter 
+                schema: *ref_151
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_162
+                schema: *ref_100
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: artifact
+                    description: Blueprint artifact to create or update.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_162
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /{resourceScope}/providers/Microsoft.Blueprint/artifacts/{artifactName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_163
+        signatureParameters:
+          - *ref_164
+          - *ref_165
+        responses:
+          - !SchemaResponse 
+            schema: *ref_100
+            language: !Languages 
+              default:
+                name: ''
+                description: Created -- blueprint artifact created/updated.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: Blueprints error response.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: Create or update blueprint artifact.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Artifacts_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - *ref_144
+          - !Parameter &ref_166
+            schema: *ref_139
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: resourceScope
+                description: 'The scope of the resource. Valid scopes are: management group (format: ''/providers/Microsoft.Management/managementGroups/{managementGroup}''), subscription (format: ''/subscriptions/{subscriptionId}'').'
+                serializedName: resourceScope
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_167
+            schema: *ref_139
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: artifactName
+                description: Name of the blueprint artifact.
+                serializedName: artifactName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /{resourceScope}/providers/Microsoft.Blueprint/artifacts/{artifactName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_166
+          - *ref_167
+        responses:
+          - !SchemaResponse 
+            schema: *ref_100
+            language: !Languages 
+              default:
+                name: ''
+                description: OK -- blueprint artifact retrieved.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: Blueprints error response.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Get
+            description: Get a blueprint artifact.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Artifacts_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - *ref_144
+          - !Parameter &ref_168
+            schema: *ref_139
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: resourceScope
+                description: 'The scope of the resource. Valid scopes are: management group (format: ''/providers/Microsoft.Management/managementGroups/{managementGroup}''), subscription (format: ''/subscriptions/{subscriptionId}'').'
+                serializedName: resourceScope
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_169
+            schema: *ref_139
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: artifactName
+                description: Name of the blueprint artifact.
+                serializedName: artifactName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /{resourceScope}/providers/Microsoft.Blueprint/artifacts/{artifactName}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_168
+          - *ref_169
+        responses:
+          - !SchemaResponse 
+            schema: *ref_100
+            language: !Languages 
+              default:
+                name: ''
+                description: OK -- blueprint artifact deleted.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: No Content
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: Blueprints error response.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: Delete
+            description: Delete a blueprint artifact.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Artifacts_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_141
+          - *ref_144
+          - !Parameter &ref_170
+            schema: *ref_139
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-skip-url-encoding: true
+            language: !Languages 
+              default:
+                name: resourceScope
+                description: 'The scope of the resource. Valid scopes are: management group (format: ''/providers/Microsoft.Management/managementGroups/{managementGroup}''), subscription (format: ''/subscriptions/{subscriptionId}'').'
+                serializedName: resourceScope
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_145
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /{resourceScope}/providers/Microsoft.Blueprint/artifacts
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_170
+        responses:
+          - !SchemaResponse 
+            schema: *ref_171
+            language: !Languages 
+              default:
+                name: ''
+                description: OK -- blueprint artifacts retrieved.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_148
+            language: !Languages 
+              default:
+                name: ''
+                description: Blueprints error response.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List
+            description: List artifacts for a given blueprint definition.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Artifacts
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: ComputeManagementClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

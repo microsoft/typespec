@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetExtendsFloatAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetExtendsFloatAsync.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response<ExtendsFloatAdditionalProperties> response = await client.GetExtendsFloatAsync();
+]]></code>
+This sample shows how to call GetExtendsFloatAsync with all parameters.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response<ExtendsFloatAdditionalProperties> response = await client.GetExtendsFloatAsync();
+]]></code></example>
+    </member>
+    <member name="GetExtendsFloat(CancellationToken)">
+      <example>
+This sample shows how to call GetExtendsFloat.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response<ExtendsFloatAdditionalProperties> response = client.GetExtendsFloat();
+]]></code>
+This sample shows how to call GetExtendsFloat with all parameters.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response<ExtendsFloatAdditionalProperties> response = client.GetExtendsFloat();
+]]></code></example>
+    </member>
+    <member name="GetExtendsFloatAsync(RequestContext)">
+      <example>
+This sample shows how to call GetExtendsFloatAsync and parse the result.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response response = await client.GetExtendsFloatAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call GetExtendsFloatAsync with all parameters and parse the result.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response response = await client.GetExtendsFloatAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="GetExtendsFloat(RequestContext)">
+      <example>
+This sample shows how to call GetExtendsFloat and parse the result.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response response = client.GetExtendsFloat(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call GetExtendsFloat with all parameters and parse the result.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+Response response = client.GetExtendsFloat(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(ExtendsFloatAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+ExtendsFloatAdditionalProperties body = new ExtendsFloatAdditionalProperties(123.45F);
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+ExtendsFloatAdditionalProperties body = new ExtendsFloatAdditionalProperties(123.45F);
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(ExtendsFloatAdditionalProperties,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+ExtendsFloatAdditionalProperties body = new ExtendsFloatAdditionalProperties(123.45F);
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+ExtendsFloatAdditionalProperties body = new ExtendsFloatAdditionalProperties(123.45F);
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 123.45F,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 123.45F,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 123.45F,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+ExtendsFloat client = new AdditionalPropertiesClient().GetExtendsFloatClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 123.45F,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

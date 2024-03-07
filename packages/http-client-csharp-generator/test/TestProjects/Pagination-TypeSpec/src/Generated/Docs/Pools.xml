@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetPoolsAsync(string,IEnumerable{string},IEnumerable{string},CancellationToken)">
+      <example>
+This sample shows how to call GetPoolsAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+await foreach (BatchPool item in client.GetPoolsAsync())
+{
+}
+]]></code>
+This sample shows how to call GetPoolsAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+await foreach (BatchPool item in client.GetPoolsAsync(filter: "<$filter>", select: new string[] { "<$select>" }, expand: new string[] { "<$expand>" }))
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetPools(string,IEnumerable{string},IEnumerable{string},CancellationToken)">
+      <example>
+This sample shows how to call GetPools.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+foreach (BatchPool item in client.GetPools())
+{
+}
+]]></code>
+This sample shows how to call GetPools with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+foreach (BatchPool item in client.GetPools(filter: "<$filter>", select: new string[] { "<$select>" }, expand: new string[] { "<$expand>" }))
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetPoolsAsync(string,IEnumerable{string},IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call GetPoolsAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+await foreach (BinaryData item in client.GetPoolsAsync(null, null, null, null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPoolsAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+await foreach (BinaryData item in client.GetPoolsAsync("<$filter>", new string[] { "<$select>" }, new string[] { "<$expand>" }, null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("displayName").ToString());
+    Console.WriteLine(result.GetProperty("url").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPools(string,IEnumerable{string},IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call GetPools and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+foreach (BinaryData item in client.GetPools(null, null, null, null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.ToString());
+}
+]]></code>
+This sample shows how to call GetPools with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+Pools client = new PaginationClient(endpoint, credential).GetPoolsClient();
+
+foreach (BinaryData item in client.GetPools("<$filter>", new string[] { "<$select>" }, new string[] { "<$expand>" }, null))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("id").ToString());
+    Console.WriteLine(result.GetProperty("displayName").ToString());
+    Console.WriteLine(result.GetProperty("url").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,66 @@
+{
+  "parameters": {
+    "subscriptionId": "{subscription-id}",
+    "resourceGroupName": "myResourceGroup",
+    "api-version": "2022-03-02",
+    "diskEncryptionSetName": "myDiskEncryptionSet",
+    "diskEncryptionSet": {
+      "location": "West US",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}": {}
+        }
+      },
+      "properties": {
+        "activeKey": {
+          "keyUrl": "https://myvaultdifferenttenant.vault-int.azure-int.net/keys/{key}"
+        },
+        "encryptionType": "EncryptionAtRestWithCustomerKey",
+        "federatedClientId": "00000000-0000-0000-0000-000000000000"
+      }
+    }
+  },
+  "responses": {
+    "202": {
+      "body": {
+        "name": "myDiskEncryptionSet",
+        "location": "West US",
+        "identity": {
+          "type": "UserAssigned",
+          "userAssignedIdentities": {
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}": {}
+          }
+        },
+        "properties": {
+          "activeKey": {
+            "keyUrl": "https://myvaultdifferenttenant.vault-int.azure-int.net/keys/{key}"
+          },
+          "encryptionType": "EncryptionAtRestWithCustomerKey",
+          "federatedClientId": "00000000-0000-0000-0000-000000000000",
+          "previousKeys": []
+        }
+      }
+    },
+    "200": {
+      "body": {
+        "name": "myDiskEncryptionSet",
+        "location": "West US",
+        "identity": {
+          "type": "UserAssigned",
+          "userAssignedIdentities": {
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}": {}
+          }
+        },
+        "properties": {
+          "activeKey": {
+            "keyUrl": "https://myvaultdifferenttenant.vault-int.azure-int.net/keys/{key}"
+          },
+          "encryptionType": "EncryptionAtRestWithCustomerKey",
+          "federatedClientId": "00000000-0000-0000-0000-000000000000",
+          "previousKeys": []
+        }
+      }
+    }
+  }
+}

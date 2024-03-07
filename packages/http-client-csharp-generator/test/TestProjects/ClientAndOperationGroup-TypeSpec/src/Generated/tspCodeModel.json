@@ -1,0 +1,445 @@
+{
+ "$id": "1",
+ "Name": "ClientAndOperationGroup",
+ "ApiVersions": [],
+ "Enums": [],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "2",
+   "Name": "ClientAndOperationGroupClient",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "3",
+     "Name": "zero",
+     "ResourceName": "ClientAndOperationGroup",
+     "Parameters": [
+      {
+       "$id": "4",
+       "Name": "operationGroupServiceUrl",
+       "NameInRequest": "operationGroupServiceUrl",
+       "Type": {
+        "$id": "5",
+        "Kind": "Primitive",
+        "Name": "Uri",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "6",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "7",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "8",
+        "Type": {
+         "$ref": "7"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "9",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "10",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{operationGroupServiceUrl}",
+     "Path": "/top",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": false
+    },
+    {
+     "$id": "11",
+     "Name": "one",
+     "ResourceName": "Alpha",
+     "Parameters": [
+      {
+       "$ref": "4"
+      },
+      {
+       "$id": "12",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "13",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "14",
+        "Type": {
+         "$ref": "13"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "15",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "16",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{operationGroupServiceUrl}",
+     "Path": "/Alpha",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": false
+    }
+   ],
+   "Protocol": {
+    "$id": "17"
+   },
+   "Creatable": true
+  },
+  {
+   "$id": "18",
+   "Name": "Beta",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "19",
+     "Name": "two",
+     "ResourceName": "Beta",
+     "Parameters": [
+      {
+       "$ref": "4"
+      },
+      {
+       "$id": "20",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "21",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "22",
+        "Type": {
+         "$ref": "21"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "23",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "24",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{operationGroupServiceUrl}",
+     "Path": "/Beta",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": false
+    },
+    {
+     "$id": "25",
+     "Name": "three",
+     "ResourceName": "SubBeta",
+     "Parameters": [
+      {
+       "$ref": "4"
+      },
+      {
+       "$id": "26",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "27",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "28",
+        "Type": {
+         "$ref": "27"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "29",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "30",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{operationGroupServiceUrl}",
+     "Path": "/SubBeta",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": false
+    }
+   ],
+   "Protocol": {
+    "$id": "31"
+   },
+   "Creatable": false,
+   "Parent": "ClientAndOperationGroupClient"
+  },
+  {
+   "$id": "32",
+   "Name": "Gamma",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "33",
+     "Name": "four",
+     "ResourceName": "Gamma",
+     "Parameters": [
+      {
+       "$ref": "4"
+      },
+      {
+       "$id": "34",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "35",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "36",
+        "Type": {
+         "$ref": "35"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "37",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "38",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{operationGroupServiceUrl}",
+     "Path": "/Gamma",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": false
+    },
+    {
+     "$id": "39",
+     "Name": "five",
+     "ResourceName": "Gamma",
+     "Parameters": [
+      {
+       "$ref": "4"
+      },
+      {
+       "$id": "40",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "41",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "42",
+        "Type": {
+         "$ref": "41"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "43",
+       "StatusCodes": [
+        200
+       ],
+       "BodyType": {
+        "$id": "44",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false,
+       "ContentTypes": [
+        "application/json"
+       ]
+      }
+     ],
+     "HttpMethod": "PUT",
+     "RequestBodyMediaType": "None",
+     "Uri": "{operationGroupServiceUrl}",
+     "Path": "/Gamma",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": false
+    }
+   ],
+   "Protocol": {
+    "$id": "45"
+   },
+   "Creatable": false,
+   "Parent": "ClientAndOperationGroupClient"
+  }
+ ]
+}

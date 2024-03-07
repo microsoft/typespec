@@ -1,0 +1,100 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "Parameter Sequence",
+      "description": "Some cool documentation.",
+      "version": "2014-04-01-preview"
+    },
+    "host": "localhost:3000",
+    "schemes": [
+      "http"
+    ],
+    "produces": [ "application/json" ],
+    "consumes": [ "application/json" ],
+    "paths": {
+      "/{itemName}": {
+        "get": {
+          "operationId": "getItem",
+          "summary": "Get Item",
+          "description": "Get item.",
+          "parameters": [
+            {
+              "name": "itemName",
+              "in": "path",
+              "description": "item name.",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "origin",
+              "in": "query",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "in": "header",
+              "description": "version of the item",
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "/select/{itemName}": {
+        "get": {
+          "operationId": "selectItem",
+          "summary": "Select Item",
+          "description": "Select item.",
+          "parameters": [
+            {
+              "name": "itemName",
+              "in": "path",
+              "description": "item name.",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "in": "header",
+              "description": "version of the item",
+              "type": "string"
+            },
+            {
+              "name": "origin",
+              "in": "query",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {},
+    "parameters": {
+      "SubscriptionIdParamterer": {
+        "name": "subscriptionId",
+        "in": "path",
+        "description": "Subscription ID.",
+        "required": true,
+        "type": "string",
+        "enum": [ "123456" ]
+      }
+    }
+}
+  

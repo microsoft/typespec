@@ -1,0 +1,136 @@
+!CodeModel 
+info: !Info 
+  description: HeaderCollectionPrefix
+  title: HeaderCollectionPrefix
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_1
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_0
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_3
+      type: dictionary
+      elementType: *ref_0
+      language: !Languages 
+        default:
+          name: String
+          description: Dictionary of String
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_5
+      type: dictionary
+      elementType: *ref_0
+      language: !Languages 
+        default:
+          name: String
+          description: Dictionary of String
+          header: x-ms-meta
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_2
+    schema: *ref_1
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_2
+          - !Parameter &ref_4
+            schema: *ref_3
+            implementation: Method
+            extensions:
+              x-ms-header-collection-prefix: x-ms-meta-
+            language: !Languages 
+              default:
+                name: metadata
+                description: >-
+                  Optional. Include this parameter to specify that the queue's metadata be returned as part of the response body. Note that metadata requested with this parameter must be stored in accordance with the naming restrictions
+                  imposed by the 2009-09-19 version of the Queue service. Beginning with this version, all metadata names must adhere to the naming conventions for C# identifiers.
+                serializedName: x-ms-meta
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /Operation/
+                method: put
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_4
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_5
+                    header: x-ms-meta
+                    extensions:
+                      x-ms-header-collection-prefix: x-ms-meta-
+                    language:
+                      default:
+                        name: Metadata
+                        description: ''
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: HeaderCollectionPrefix
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

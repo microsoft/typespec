@@ -1,0 +1,119 @@
+{
+  "parameters": {
+    "api-version": "2021-02-01",
+    "subscriptionId": "subid",
+    "resourceGroupName": "rg1",
+    "firewallPolicyName": "firewallPolicy",
+    "ruleCollectionGroupName": "ruleCollectionGroup1",
+    "parameters": {
+      "properties": {
+        "priority": 110,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "Example-Filter-Rule-Collection",
+            "action": {
+              "type": "Deny"
+            },
+            "rules": [
+              {
+                "ruleType": "NetworkRule",
+                "name": "network-1",
+                "ipProtocols": [
+                  "TCP"
+                ],
+                "destinationPorts": [
+                  "*"
+                ],
+                "sourceIpGroups": [
+                  "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups1"
+                ],
+                "destinationIpGroups": [
+                  "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups2"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "ruleCollectionGroup1",
+        "id": "/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/firewallPolicies/firewallPolicy/ruleCollectionGroups/ruleCollectionGroup1",
+        "etag": "w/\\00000000-0000-0000-0000-000000000000\\",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "priority": 110,
+          "ruleCollections": [
+            {
+              "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+              "name": "Example-Filter-Rule-Collection",
+              "action": {
+                "type": "Deny"
+              },
+              "rules": [
+                {
+                  "ruleType": "NetworkRule",
+                  "name": "network-1",
+                  "ipProtocols": [
+                    "TCP"
+                  ],
+                  "destinationPorts": [
+                    "*"
+                  ],
+                  "sourceIpGroups": [
+                    "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups1"
+                  ],
+                  "destinationIpGroups": [
+                    "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups2"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "201": {
+      "body": {
+        "name": "firewallPolicy",
+        "id": "/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/firewallPolicies/firewallPolicy",
+        "etag": "w/\\00000000-0000-0000-0000-000000000000\\",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "priority": 110,
+          "ruleCollections": [
+            {
+              "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+              "name": "Example-Filter-Rule-Collection",
+              "action": {
+                "type": "Deny"
+              },
+              "rules": [
+                {
+                  "ruleType": "NetworkRule",
+                  "name": "network-1",
+                  "ipProtocols": [
+                    "TCP"
+                  ],
+                  "destinationPorts": [
+                    "*"
+                  ],
+                  "sourceIpGroups": [
+                    "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups1"
+                  ],
+                  "destinationIpGroups": [
+                    "/subscriptions/subid/providers/Microsoft.Network/resourceGroup/rg1/ipGroups/ipGroups2"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

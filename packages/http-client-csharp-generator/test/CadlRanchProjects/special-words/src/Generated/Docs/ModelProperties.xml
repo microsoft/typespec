@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="SameAsModelAsync(SameAsModel,CancellationToken)">
+      <example>
+This sample shows how to call SameAsModelAsync.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+SameAsModel body = new SameAsModel("<SameAsModel>");
+Response response = await client.SameAsModelAsync(body);
+]]></code>
+This sample shows how to call SameAsModelAsync with all parameters.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+SameAsModel body = new SameAsModel("<SameAsModel>");
+Response response = await client.SameAsModelAsync(body);
+]]></code></example>
+    </member>
+    <member name="SameAsModel(SameAsModel,CancellationToken)">
+      <example>
+This sample shows how to call SameAsModel.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+SameAsModel body = new SameAsModel("<SameAsModel>");
+Response response = client.SameAsModel(body);
+]]></code>
+This sample shows how to call SameAsModel with all parameters.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+SameAsModel body = new SameAsModel("<SameAsModel>");
+Response response = client.SameAsModel(body);
+]]></code></example>
+    </member>
+    <member name="SameAsModelAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SameAsModelAsync.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    SameAsModel = "<SameAsModel>",
+});
+Response response = await client.SameAsModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SameAsModelAsync with all request content.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    SameAsModel = "<SameAsModel>",
+});
+Response response = await client.SameAsModelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="SameAsModel(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SameAsModel.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    SameAsModel = "<SameAsModel>",
+});
+Response response = client.SameAsModel(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SameAsModel with all request content.
+<code><![CDATA[
+ModelProperties client = new SpecialWordsClient().GetModelPropertiesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    SameAsModel = "<SameAsModel>",
+});
+Response response = client.SameAsModel(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

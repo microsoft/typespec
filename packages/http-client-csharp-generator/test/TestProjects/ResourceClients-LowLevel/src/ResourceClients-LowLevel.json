@@ -1,0 +1,169 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2021-10-19",
+    "title": "LlcResourceClients",
+    "description": "Based on this swagger, autorest.csharp in data-plane:true mode should generate three clients: top level client `ServiceClient`, `Group` resource client which is subclient of `ServiceClient`, and `Item` resource client which is subclient of `Group`. However, with respect to the partial classes added in `Customizations.cs`, the names of the generated types must be `ResourceServiceClient`, `ResourceGroup` and `Resource`."
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [ "application/json" ],
+  "consumes": [ "application/json" ],
+  "paths": {
+    "/": {
+      "get": {
+        "description": "Method that belongs to the top level service",
+        "operationId": "Service_GetParameters",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/groups": {
+      "get": {
+        "description": "Get all groups. It is defined in `Group` subclient, but must be promoted to the `Service` client.",
+        "operationId": "Group_ListGroups",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Items"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        }
+      }
+    },
+    "/groups/{groupId}": {
+      "get": {
+        "description": "Get a group. Method should stay in `Group` subclient.",
+        "operationId": "Group_Get",
+        "parameters": [
+          {
+            "$ref": "#/parameters/groupId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/items": {
+      "get": {
+        "description": "Get all items. It is defined in `Item` subclient, but must be promoted to the `Service` client, because it has neither `groupId` nor `itemId` parameters.",
+        "operationId": "Item_ListAllItems",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Items"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        }
+      }
+    },
+    "/items/{groupId}": {
+      "get": {
+        "description": "Get items in group. It is defined in `Item` subclient, but must be promoted to the `Group` subclient.",
+        "operationId": "Item_ListItems",
+        "parameters": [
+          {
+            "$ref": "#/parameters/groupId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Items"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        } 
+      }
+    },
+    "/items/{groupId}/{itemId}": {
+      "get": {
+        "description": "Get an item. Method should stay in `Item` subclient.",
+        "operationId": "Item_Get",
+        "parameters": [
+          {
+            "$ref": "#/parameters/groupId"
+          },
+          {
+            "$ref": "#/parameters/itemId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Items": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nextLink": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": { 
+    "groupId": {
+      "in": "path",
+      "name": "groupId",
+      "description": "Group identifier",
+      "required": true,
+      "type": "string",
+      "x-ms-resource-identifier": true,
+      "x-ms-parameter-location": "client"
+    },
+    "itemId": {
+      "in": "path",
+      "name": "itemId",
+      "description": "Item identifier",
+      "required": true,
+      "type": "string",
+      "x-ms-resource-identifier": true,
+      "x-ms-parameter-location": "client"
+    }
+  },
+  "securityDefinitions": {},
+  "security": [],
+  "tags": []
+}

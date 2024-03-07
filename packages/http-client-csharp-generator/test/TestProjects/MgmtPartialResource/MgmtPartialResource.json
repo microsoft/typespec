@@ -1,0 +1,688 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Resource Name",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": ["https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "security": [
+        {
+            "azure_auth": ["user_impersonation"]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachineScaleSets/{virtualMachineScaleSetName}/publicipaddresses": {
+            "get": {
+                "operationId": "PublicIPAddresses_ListVirtualMachineScaleSetPublicIPAddresses",
+                "description": "Gets information about all public IP addresses on a virtual machine scale set level.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "virtualMachineScaleSetName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the virtual machine scale set."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. The operation returns a list of PublicIPInterface resources.",
+                        "schema": {
+                            "$ref": "#/definitions/PublicIPAddressListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/publicIPAddresses/{publicIpAddressName}": {
+            "delete": {
+                "tags": ["PublicIPAddresses"],
+                "operationId": "PublicIPAddresses_Delete",
+                "description": "Deletes the specified public IP address.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "publicIpAddressName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the public IP address."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request successful. Resource does not exist."
+                    },
+                    "202": {
+                        "description": "Accepted and the operation will complete asynchronously."
+                    },
+                    "200": {
+                        "description": "Delete successful."
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-long-running-operation-options": {
+                    "final-state-via": "location"
+                }
+            },
+            "get": {
+                "tags": ["PublicIPAddresses"],
+                "operationId": "PublicIPAddresses_Get",
+                "description": "Gets the specified public IP address in a specified resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "publicIpAddressName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the public IP address."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "Expands referenced resources."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. The operation returns the resulting PublicIPAddress resource.",
+                        "schema": {
+                            "$ref": "#/definitions/PublicIPAddress"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": ["PublicIPAddresses"],
+                "operationId": "PublicIPAddresses_CreateOrUpdate",
+                "description": "Creates or updates a static or dynamic public IP address.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "publicIpAddressName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the public IP address."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PublicIPAddress"
+                        },
+                        "description": "Parameters supplied to the create or update public IP address operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Create successful. The operation returns the resulting PublicIPAddress resource.",
+                        "schema": {
+                            "$ref": "#/definitions/PublicIPAddress"
+                        }
+                    },
+                    "200": {
+                        "description": "Update successful. The operation returns the resulting PublicIPAddress resource.",
+                        "schema": {
+                            "$ref": "#/definitions/PublicIPAddress"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": true,
+                "x-ms-long-running-operation-options": {
+                    "final-state-via": "azure-async-operation"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Network/publicIPAddresses": {
+            "get": {
+                "tags": ["PublicIPAddresses"],
+                "operationId": "PublicIPAddresses_ListAll",
+                "description": "Gets all the public IP addresses in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. The operation returns a list of PublicIPAddress resources.",
+                        "schema": {
+                            "$ref": "#/definitions/PublicIPAddressListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Network/publicIPAddresses": {
+            "get": {
+                "tags": ["PublicIPAddresses"],
+                "operationId": "PublicIPAddresses_List",
+                "description": "Gets all public IP addresses in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request successful. The operation returns a list of PublicIPAddress resources.",
+                        "schema": {
+                            "$ref": "#/definitions/PublicIPAddressListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.Automanage/configurationProfileAssignments/{configurationProfileAssignmentName}": {
+            "put": {
+                "tags": ["ConfigurationProfileAssignments"],
+                "operationId": "ConfigurationProfileAssignments_CreateOrUpdate",
+                "description": "Creates an association between a VM and Automanage configuration profile",
+                "parameters": [
+                    {
+                        "name": "configurationProfileAssignmentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name of the configuration profile assignment. Only default is supported."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ConfigurationProfileAssignment"
+                        },
+                        "description": "Parameters supplied to the create or update configuration profile assignment."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/VmNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The configuration profile assignment for the VM was updated successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/ConfigurationProfileAssignment"
+                        }
+                    },
+                    "201": {
+                        "description": "Created. The Automanage configuration profile assignment for the VM was created successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/ConfigurationProfileAssignment"
+                        }
+                    }
+                },
+                "x-ms-long-running-operation": false,
+                "produces": ["application/json"],
+                "consumes": ["application/json"]
+            },
+            "get": {
+                "tags": ["ConfigurationProfileAssignments"],
+                "operationId": "ConfigurationProfileAssignments_Get",
+                "description": "Get information about a configuration profile assignment",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "name": "configurationProfileAssignmentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The configuration profile assignment name."
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/VmNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The configuration profile assignment was returned successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/ConfigurationProfileAssignment"
+                        }
+                    }
+                },
+                "produces": ["application/json"],
+                "consumes": ["application/json"]
+            },
+            "delete": {
+                "tags": ["ConfigurationProfileAssignments"],
+                "operationId": "ConfigurationProfileAssignments_Delete",
+                "description": "Delete a configuration profile assignment",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "name": "configurationProfileAssignmentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name of the configuration profile assignment"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/VmNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "204": {
+                        "description": "OK"
+                    }
+                },
+                "x-ms-long-running-operation": false,
+                "produces": ["application/json"],
+                "consumes": ["application/json"]
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/virtualMachines/{vmName}/providers/Microsoft.Automanage/configurationProfileAssignments": {
+            "get": {
+                "tags": ["ConfigurationProfileAssignments"],
+                "operationId": "ConfigurationProfileAssignments_ListByVirtualMachines",
+                "description": "Get list of configuration profile assignments",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/VmNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The list of configuration profile assignments were returned successfully.",
+                        "schema": {
+                            "$ref": "#/definitions/ConfigurationProfileAssignmentList"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                },
+                "produces": ["application/json"],
+                "consumes": ["application/json"]
+            }
+        }
+    },
+    "definitions": {
+        "PublicIPAddressListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/PublicIPAddress"
+                    },
+                    "description": "A list of public IP addresses that exists in a resource group."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URL to get the next set of results."
+                }
+            },
+            "description": "Response for ListPublicIpAddresses API service call."
+        },
+        "PublicIPAddress": {
+            "properties": {
+                "sku": {
+                    "$ref": "#/definitions/PublicIPAddressSku",
+                    "description": "The public IP address SKU."
+                },
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/PublicIPAddressPropertiesFormat",
+                    "description": "Public IP address properties."
+                },
+                "etag": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "A unique read-only string that changes whenever the resource is updated."
+                },
+                "zones": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "A list of availability zones denoting the IP allocated for the resource needs to come from."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Public IP address resource."
+        },
+        "PublicIPAddressSku": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of a public IP address SKU.",
+                    "enum": ["Basic", "Standard"],
+                    "x-ms-enum": {
+                        "name": "PublicIPAddressSkuName",
+                        "modelAsString": true
+                    }
+                },
+                "tier": {
+                    "type": "string",
+                    "description": "Tier of a public IP address SKU.",
+                    "enum": ["Regional", "Global"],
+                    "x-ms-enum": {
+                        "name": "PublicIPAddressSkuTier",
+                        "modelAsString": true
+                    }
+                }
+            },
+            "description": "SKU of a public IP address."
+        },
+        "PublicIPAddressPropertiesFormat": {
+            "properties": {
+                "publicIPAllocationMethod": {
+                    "$ref": "#/definitions/IPAllocationMethod",
+                    "description": "The public IP address allocation method."
+                },
+                "publicIPAddressVersion": {
+                    "$ref": "#/definitions/IPVersion",
+                    "description": "The public IP address version."
+                },
+                "ipAddress": {
+                    "type": "string",
+                    "description": "The IP address associated with the public IP address resource."
+                },
+                "idleTimeoutInMinutes": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "The idle timeout of the public IP address."
+                },
+                "resourceGuid": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The resource GUID property of the public IP address resource."
+                },
+                "servicePublicIPAddress": {
+                    "$ref": "#/definitions/PublicIPAddress",
+                    "description": "The service public IP address of the public IP address resource."
+                },
+                "migrationPhase": {
+                    "type": "string",
+                    "description": "Migration phase of Public IP Address.",
+                    "enum": ["None", "Prepare", "Commit", "Abort", "Committed"],
+                    "x-ms-enum": {
+                        "name": "PublicIPAddressMigrationPhase",
+                        "modelAsString": true
+                    }
+                },
+                "linkedPublicIPAddress": {
+                    "$ref": "#/definitions/PublicIPAddress",
+                    "description": "The linked public IP address of the public IP address resource."
+                },
+                "deleteOption": {
+                    "type": "string",
+                    "description": "Specify what happens to the public IP address when the VM using it is deleted",
+                    "enum": ["Delete", "Detach"],
+                    "x-ms-enum": {
+                        "name": "DeleteOptions",
+                        "modelAsString": true
+                    }
+                }
+            },
+            "description": "Public IP address properties."
+        },
+        "IPAllocationMethod": {
+            "type": "string",
+            "description": "IP address allocation method.",
+            "enum": ["Static", "Dynamic"],
+            "x-ms-enum": {
+                "name": "IPAllocationMethod",
+                "modelAsString": true
+            }
+        },
+        "IPVersion": {
+            "type": "string",
+            "description": "IP address version.",
+            "enum": ["IPv4", "IPv6"],
+            "x-ms-enum": {
+                "name": "IPVersion",
+                "modelAsString": true
+            }
+        },
+        "ConfigurationProfileAssignmentList": {
+            "description": "The response of the list configuration profile assignment operation.",
+            "type": "object",
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ConfigurationProfileAssignment"
+                    },
+                    "description": "Result of the list configuration profile assignment operation."
+                }
+            }
+        },
+        "ConfigurationProfileAssignment": {
+            "description": "Configuration profile assignment is an association between a VM and automanage profile configuration.",
+            "type": "object",
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": false,
+                    "$ref": "#/definitions/ConfigurationProfileAssignmentProperties",
+                    "description": "Properties of the configuration profile assignment."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/TrackedResource"
+                }
+            ]
+        },
+        "ConfigurationProfileAssignmentProperties": {
+            "description": "Automanage configuration profile assignment properties.",
+            "type": "object",
+            "properties": {
+                "configurationProfile": {
+                    "type": "string",
+                    "description": "The Automanage configurationProfile ARM Resource URI."
+                },
+                "targetId": {
+                    "type": "string",
+                    "description": "The target VM resource URI"
+                },
+                "status": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "The status of onboarding, which only appears in the response."
+                }
+            }
+        },
+        "Resource": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string"
+                }
+            }
+        },
+        "TrackedResource": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "required": ["location"],
+            "properties": {
+                "location": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+        },
+        "ResourceGroupNameParameter": {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the resource group. The name is case insensitive.",
+            "minLength": 1,
+            "maxLength": 90,
+            "x-ms-parameter-location": "method"
+        },
+        "VmNameParameter": {
+            "name": "vmName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the virtual machine.",
+            "x-ms-parameter-location": "method"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetModelsOnlyAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetModelsOnlyAsync.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response<GetResponse5> response = await client.GetModelsOnlyAsync();
+]]></code>
+This sample shows how to call GetModelsOnlyAsync with all parameters.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response<GetResponse5> response = await client.GetModelsOnlyAsync();
+]]></code></example>
+    </member>
+    <member name="GetModelsOnly(CancellationToken)">
+      <example>
+This sample shows how to call GetModelsOnly.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response<GetResponse5> response = client.GetModelsOnly();
+]]></code>
+This sample shows how to call GetModelsOnly with all parameters.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response<GetResponse5> response = client.GetModelsOnly();
+]]></code></example>
+    </member>
+    <member name="GetModelsOnlyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetModelsOnlyAsync and parse the result.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = await client.GetModelsOnlyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code>
+This sample shows how to call GetModelsOnlyAsync with all parameters and parse the result.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = await client.GetModelsOnlyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code></example>
+    </member>
+    <member name="GetModelsOnly(RequestContext)">
+      <example>
+This sample shows how to call GetModelsOnly and parse the result.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = client.GetModelsOnly(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code>
+This sample shows how to call GetModelsOnly with all parameters and parse the result.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = client.GetModelsOnly(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("prop").ToString());
+]]></code></example>
+    </member>
+    <member name="SendAsync(BinaryData,CancellationToken)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = await client.SendAsync(BinaryData.FromObjectAsJson(new
+{
+    name = "<name>",
+}));
+]]></code>
+This sample shows how to call SendAsync with all parameters.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = await client.SendAsync(BinaryData.FromObjectAsJson(new
+{
+    name = "<name>",
+}));
+]]></code></example>
+    </member>
+    <member name="Send(BinaryData,CancellationToken)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = client.Send(BinaryData.FromObjectAsJson(new
+{
+    name = "<name>",
+}));
+]]></code>
+This sample shows how to call Send with all parameters.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+Response response = client.Send(BinaryData.FromObjectAsJson(new
+{
+    name = "<name>",
+}));
+]]></code></example>
+    </member>
+    <member name="SendAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SendAsync.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new
+    {
+        name = "<name>",
+    },
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SendAsync with all request content.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new
+    {
+        name = "<name>",
+    },
+});
+Response response = await client.SendAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Send(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Send.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new
+    {
+        name = "<name>",
+    },
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Send with all request content.
+<code><![CDATA[
+ModelsOnly client = new UnionClient().GetModelsOnlyClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    prop = new
+    {
+        name = "<name>",
+    },
+});
+Response response = client.Send(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

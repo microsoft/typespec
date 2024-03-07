@@ -1,0 +1,5 @@
+options:
+  "@azure-tools/typespec-csharp":
+    generate-convenience-methods: true
+    use-model-reader-writer: true
+    namespace: ModelReaderWriterValidationTypeSpec

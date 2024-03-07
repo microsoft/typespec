@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net461</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <Nullable>annotations</Nullable>
+    <NoWarn>SA1649;SA1633</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" />
+    <PackageReference Include="System.ClientModel" />
+
+    <PackageReference Include="nunit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Azure.ResourceManager" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../../src/assets/**/*.cs" />
+    <Compile Include="../../test/TestProjects/FirstTest-TypeSpec/src/Generated/Internal/**/*.cs" Link="Generated/Helpers/%(RecursiveDir)/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

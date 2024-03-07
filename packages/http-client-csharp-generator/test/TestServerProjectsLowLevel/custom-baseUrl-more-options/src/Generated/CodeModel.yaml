@@ -1,0 +1,295 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: AutoRest Parameterized Custom Host Test Client
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      defaultValue: v1
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      defaultValue: host
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_7
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_12
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_5
+    schema: *ref_3
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: The subscription id with value 'test12'.
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_4
+    schema: *ref_0
+    clientDefaultValue: host
+    implementation: Client
+    required: true
+    extensions:
+      x-in: path
+      x-ms-priority: 1
+      x-ms-skip-url-encoding: true
+      x-name: dnsSuffix
+      x-required: true
+      x-type: string
+    language: !Languages 
+      default:
+        name: DnsSuffix
+        description: A string value that is used as a global part of the parameterized host. Default value 'host'.
+        serializedName: dnsSuffix
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: paths
+    operations:
+      - !Operation 
+        operationId: paths_getEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - !Parameter &ref_8
+            schema: *ref_0
+            implementation: Method
+            required: true
+            extensions:
+              x-in: path
+              x-ms-skip-url-encoding: true
+              x-name: vault
+              x-required: true
+              x-type: string
+            language: !Languages 
+              default:
+                name: vault
+                description: The vault name, e.g. https://myvault
+                serializedName: vault
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: uri
+          - !Parameter &ref_9
+            schema: *ref_0
+            implementation: Method
+            required: true
+            extensions:
+              x-in: path
+              x-ms-skip-url-encoding: true
+              x-name: secret
+              x-required: true
+              x-type: string
+            language: !Languages 
+              default:
+                name: secret
+                description: Secret value.
+                serializedName: secret
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: uri
+          - *ref_4
+          - !Parameter &ref_10
+            schema: *ref_3
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: keyName
+                description: The key name with value 'key1'.
+                serializedName: keyName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_5
+          - !Parameter &ref_11
+            schema: *ref_6
+            implementation: Method
+            language: !Languages 
+              default:
+                name: keyVersion
+                description: The key version. Default value 'v1'.
+                serializedName: keyVersion
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_7
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /customuri/{subscriptionId}/{keyName}
+                method: get
+                uri: '{vault}{secret}{dnsSuffix}'
+        signatureParameters:
+          - *ref_8
+          - *ref_9
+          - *ref_10
+          - *ref_11
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully received a 200 response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetEmpty
+            description: Get a 200 to test a valid base uri
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Paths
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: AutoRestParameterizedCustomHostTestClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

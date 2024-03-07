@@ -1,0 +1,2539 @@
+!CodeModel 
+info: !Info 
+  title: MgmtExactMatchInheritance
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_39
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: ExactMatchModel9Id
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel1New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel1SupportingUrisItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      extensions:
+        x-ms-format: ip-address
+      language: !Languages 
+        default:
+          name: ExactMatchModel1Type3
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      extensions:
+        x-ms-format: object
+      language: !Languages 
+        default:
+          name: ExactMatchModel1Type4
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: LinkedServiceReferenceName
+          description: Reference LinkedService name.
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel1Type18Value
+          description: Value of secure string.
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SecretBaseType
+          description: Type of the secret.
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel6Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel6Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel6Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel1ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_30
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel2New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel7ID
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_27
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel7Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel7Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_36
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel3New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_32
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      extensions:
+        x-ms-format: arm-id
+      language: !Languages 
+        default:
+          name: ExactMatchModel8Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_33
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel8Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_34
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel8Bar
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_37
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel3ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_43
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel4New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_40
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel9Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_41
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel9Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_52
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel5New
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_49
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel10Id
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_50
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel10Location
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_46
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel11Name
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_47
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel11Type
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_53
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ExactMatchModel5ListResultNextLink
+          description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+      protocol: !Protocols {}
+    - !StringSchema &ref_54
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SeparateClassStringProperty
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_14
+      choices:
+        - !ChoiceValue 
+          value: LinkedServiceReference
+          language:
+            default:
+              name: LinkedServiceReference
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ReferenceType
+          description: Linked service reference type.
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_59
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_10
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      value: !ConstantValue 
+        value: Microsoft.Foo/bar
+      valueType: *ref_0
+      extensions:
+        x-ms-format: resource-type
+      language: !Languages 
+        default:
+          name: Type1
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_11
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      value: !ConstantValue 
+        value: foo
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Type2
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_63
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_66
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_16
+      type: dictionary
+      elementType: !AnyObjectSchema &ref_2
+        type: any-object
+        language: !Languages 
+          default:
+            name: AnyObject
+            description: Any object
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ParameterValueSpecification
+          description: An object mapping parameter names to argument values.
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_51
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: ExactMatchModel10Tags
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+  anyObjects:
+    - *ref_2
+  objects:
+    - !ObjectSchema &ref_65
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_56
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_3
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              parents: !Relations 
+                all:
+                  - !ObjectSchema &ref_7
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    children: !Relations 
+                      all:
+                        - *ref_3
+                      immediate:
+                        - *ref_3
+                    properties:
+                      - !Property 
+                        schema: *ref_4
+                        readOnly: true
+                        serializedName: id
+                        language: !Languages 
+                          default:
+                            name: id
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_5
+                        readOnly: true
+                        serializedName: name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_6
+                        readOnly: true
+                        serializedName: type
+                        language: !Languages 
+                          default:
+                            name: type
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: ExactMatchModel6
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                immediate:
+                  - *ref_7
+              properties:
+                - !Property 
+                  schema: *ref_8
+                  serializedName: new
+                  language: !Languages 
+                    default:
+                      name: new
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ArraySchema &ref_55
+                    type: array
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    elementType: *ref_9
+                    language: !Languages 
+                      default:
+                        name: ExactMatchModel1SupportingUris
+                        description: Array of ExactMatchModel1SupportingUrisItem
+                    protocol: !Protocols {}
+                  serializedName: supportingUris
+                  language: !Languages 
+                    default:
+                      name: supportingUris
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_10
+                  serializedName: type1
+                  extensions:
+                    x-ms-format: resource-type
+                  language: !Languages 
+                    default:
+                      name: type1
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_11
+                  serializedName: type2
+                  language: !Languages 
+                    default:
+                      name: type2
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_12
+                  serializedName: type3
+                  extensions:
+                    x-ms-format: ip-address
+                  language: !Languages 
+                    default:
+                      name: type3
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_13
+                  serializedName: type4
+                  extensions:
+                    x-ms-format: object
+                  language: !Languages 
+                    default:
+                      name: type4
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type5
+                  extensions:
+                    x-ms-format: dfe-string
+                  language: !Languages 
+                    default:
+                      name: type5
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type6
+                  extensions:
+                    x-ms-format: dfe-float
+                  language: !Languages 
+                    default:
+                      name: type6
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type7
+                  extensions:
+                    x-ms-format: dfe-bool
+                  language: !Languages 
+                    default:
+                      name: type7
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type8
+                  extensions:
+                    x-ms-format: dfe-int
+                  language: !Languages 
+                    default:
+                      name: type8
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type9
+                  extensions:
+                    x-ms-format: dfe-object
+                  language: !Languages 
+                    default:
+                      name: type9
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type10
+                  extensions:
+                    x-ms-format: dfe-list-generic
+                    x-ms-format-element-type: SeparateClass
+                  language: !Languages 
+                    default:
+                      name: type10
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type11
+                  extensions:
+                    x-ms-format: dfe-list-string
+                  language: !Languages 
+                    default:
+                      name: type11
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type12
+                  extensions:
+                    x-ms-format: dfe-key-value-pairs
+                  language: !Languages 
+                    default:
+                      name: type12
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type13
+                  extensions:
+                    x-ms-format: dfe-list-generic
+                    x-ms-format-element-type: '#/definitions/SeparateClass'
+                  language: !Languages 
+                    default:
+                      name: type13
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type14
+                  extensions:
+                    x-ms-format: dfe-date-time
+                  language: !Languages 
+                    default:
+                      name: type14
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type15
+                  extensions:
+                    x-ms-format: dfe-duration
+                  language: !Languages 
+                    default:
+                      name: type15
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type16
+                  extensions:
+                    x-ms-format: dfe-uri
+                  language: !Languages 
+                    default:
+                      name: type16
+                      description: Any object
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ObjectSchema &ref_19
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_14
+                        required: true
+                        serializedName: type
+                        language: !Languages 
+                          default:
+                            name: type
+                            description: Linked service reference type.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_15
+                        required: true
+                        serializedName: referenceName
+                        language: !Languages 
+                          default:
+                            name: referenceName
+                            description: Reference LinkedService name.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_16
+                        required: false
+                        serializedName: parameters
+                        language: !Languages 
+                          default:
+                            name: parameters
+                            description: Arguments for LinkedService.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: LinkedServiceReference
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                  serializedName: type17
+                  language: !Languages 
+                    default:
+                      name: type17
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ObjectSchema &ref_17
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    discriminatorValue: SecureString
+                    parents: !Relations 
+                      all:
+                        - !ObjectSchema &ref_18
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          children: !Relations 
+                            all:
+                              - *ref_17
+                              - !ObjectSchema &ref_20
+                                type: object
+                                apiVersions:
+                                  - !ApiVersion 
+                                    version: '2020-06-01'
+                                discriminatorValue: AzureKeyVaultSecret
+                                parents: !Relations 
+                                  all:
+                                    - *ref_18
+                                  immediate:
+                                    - *ref_18
+                                properties:
+                                  - !Property 
+                                    schema: *ref_19
+                                    required: true
+                                    serializedName: store
+                                    language: !Languages 
+                                      default:
+                                        name: store
+                                        description: The Azure Key Vault linked service reference.
+                                    protocol: !Protocols {}
+                                  - !Property 
+                                    schema: *ref_2
+                                    required: true
+                                    serializedName: secretName
+                                    extensions:
+                                      x-ms-format: dfe-string
+                                    language: !Languages 
+                                      default:
+                                        name: secretName
+                                        description: 'The name of the secret in Azure Key Vault. Type: string (or Expression with resultType string).'
+                                    protocol: !Protocols {}
+                                  - !Property 
+                                    schema: *ref_2
+                                    required: false
+                                    serializedName: secretVersion
+                                    extensions:
+                                      x-ms-format: dfe-string
+                                    language: !Languages 
+                                      default:
+                                        name: secretVersion
+                                        description: 'The version of the secret in Azure Key Vault. The default value is the latest version of the secret. Type: string (or Expression with resultType string).'
+                                    protocol: !Protocols {}
+                                serializationFormats:
+                                  - json
+                                usage:
+                                  - output
+                                  - input
+                                extensions:
+                                  x-ms-discriminator-value: AzureKeyVaultSecret
+                                language: !Languages 
+                                  default:
+                                    name: ExactMatchModel1Type19
+                                    description: Azure Key Vault secret reference.
+                                    namespace: ''
+                                protocol: !Protocols {}
+                            immediate:
+                              - *ref_17
+                              - *ref_20
+                          discriminator: !Discriminator 
+                            all:
+                              AzureKeyVaultSecret: *ref_20
+                              SecureString: *ref_17
+                            immediate:
+                              AzureKeyVaultSecret: *ref_20
+                              SecureString: *ref_17
+                            property: !Property &ref_22
+                              schema: *ref_21
+                              isDiscriminator: true
+                              required: true
+                              serializedName: type
+                              language: !Languages 
+                                default:
+                                  name: type
+                                  description: Type of the secret.
+                              protocol: !Protocols {}
+                          properties:
+                            - *ref_22
+                          serializationFormats:
+                            - json
+                          usage:
+                            - output
+                            - input
+                          language: !Languages 
+                            default:
+                              name: SecretBase
+                              description: The base definition of a secret type.
+                              namespace: ''
+                          protocol: !Protocols {}
+                      immediate:
+                        - *ref_18
+                    properties:
+                      - !Property 
+                        schema: *ref_23
+                        required: true
+                        serializedName: value
+                        language: !Languages 
+                          default:
+                            name: value
+                            description: Value of secure string.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    extensions:
+                      x-ms-discriminator-value: SecureString
+                    language: !Languages 
+                      default:
+                        name: ExactMatchModel1Type18
+                        description: Azure Data Factory secure string definition. The string value will be masked with asterisks '*' during Get or List API calls.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  serializedName: type18
+                  extensions:
+                    x-ms-discriminator-value: SecureString
+                  language: !Languages 
+                    default:
+                      name: type18
+                      description: Azure Data Factory secure string definition. The string value will be masked with asterisks '*' during Get or List API calls.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_20
+                  serializedName: type19
+                  extensions:
+                    x-ms-discriminator-value: AzureKeyVaultSecret
+                  language: !Languages 
+                    default:
+                      name: type19
+                      description: Azure Key Vault secret reference.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_2
+                  serializedName: type20
+                  extensions:
+                    x-ms-format: dfe-key-object-value-pairs
+                  language: !Languages 
+                    default:
+                      name: type20
+                      description: Any object
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: ExactMatchModel1
+                  description: ''
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ExactMatchModel1ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_24
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ExactMatchModel1ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_3
+    - *ref_19
+    - *ref_17
+    - *ref_18
+    - *ref_20
+    - *ref_7
+    - !ObjectSchema &ref_25
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_29
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            children: !Relations 
+              all:
+                - *ref_25
+              immediate:
+                - *ref_25
+            properties:
+              - !Property 
+                schema: *ref_26
+                serializedName: iD
+                language: !Languages 
+                  default:
+                    name: iD
+                    description: ''
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_27
+                serializedName: name
+                language: !Languages 
+                  default:
+                    name: name
+                    description: ''
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_28
+                serializedName: type
+                language: !Languages 
+                  default:
+                    name: type
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ExactMatchModel7
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_29
+      properties:
+        - !Property 
+          schema: *ref_30
+          serializedName: new
+          language: !Languages 
+            default:
+              name: new
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: ExactMatchModel2
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_29
+    - !ObjectSchema &ref_78
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_57
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_31
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              parents: !Relations 
+                all:
+                  - !ObjectSchema &ref_35
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    children: !Relations 
+                      all:
+                        - *ref_31
+                      immediate:
+                        - *ref_31
+                    properties:
+                      - !Property 
+                        schema: *ref_32
+                        serializedName: id
+                        extensions:
+                          x-ms-format: arm-id
+                        language: !Languages 
+                          default:
+                            name: id
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_33
+                        serializedName: name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_34
+                        serializedName: bar
+                        language: !Languages 
+                          default:
+                            name: bar
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: ExactMatchModel8
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                immediate:
+                  - *ref_35
+              properties:
+                - !Property 
+                  schema: *ref_36
+                  serializedName: new
+                  language: !Languages 
+                    default:
+                      name: new
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: ExactMatchModel3
+                  description: ''
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ExactMatchModel3ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_37
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ExactMatchModel3ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_31
+    - *ref_35
+    - !ObjectSchema &ref_38
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_42
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            children: !Relations 
+              all:
+                - *ref_38
+              immediate:
+                - *ref_38
+            properties:
+              - !Property 
+                schema: *ref_39
+                serializedName: id
+                language: !Languages 
+                  default:
+                    name: id
+                    description: ''
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_40
+                serializedName: name
+                language: !Languages 
+                  default:
+                    name: name
+                    description: ''
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_41
+                serializedName: type
+                language: !Languages 
+                  default:
+                    name: type
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ExactMatchModel9
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_42
+      properties:
+        - !Property 
+          schema: *ref_43
+          serializedName: new
+          language: !Languages 
+            default:
+              name: new
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: ExactMatchModel4
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_42
+    - !ObjectSchema &ref_90
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_58
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_44
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              parents: !Relations 
+                all:
+                  - !ObjectSchema &ref_45
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    children: !Relations 
+                      all:
+                        - *ref_44
+                      immediate:
+                        - *ref_44
+                    parents: !Relations 
+                      all:
+                        - !ObjectSchema &ref_48
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          children: !Relations 
+                            all:
+                              - *ref_45
+                              - *ref_44
+                            immediate:
+                              - *ref_45
+                          properties:
+                            - !Property 
+                              schema: *ref_46
+                              readOnly: true
+                              serializedName: name
+                              language: !Languages 
+                                default:
+                                  name: name
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_47
+                              readOnly: true
+                              serializedName: type
+                              language: !Languages 
+                                default:
+                                  name: type
+                                  description: ''
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - json
+                          usage:
+                            - output
+                            - input
+                          language: !Languages 
+                            default:
+                              name: ExactMatchModel11
+                              description: ''
+                              namespace: ''
+                          protocol: !Protocols {}
+                      immediate:
+                        - *ref_48
+                    properties:
+                      - !Property 
+                        schema: *ref_49
+                        readOnly: true
+                        serializedName: id
+                        language: !Languages 
+                          default:
+                            name: id
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_50
+                        serializedName: location
+                        language: !Languages 
+                          default:
+                            name: location
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_51
+                        serializedName: tags
+                        language: !Languages 
+                          default:
+                            name: tags
+                            description: Dictionary of <string>
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                      - input
+                    language: !Languages 
+                      default:
+                        name: ExactMatchModel10
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                  - *ref_48
+                immediate:
+                  - *ref_45
+              properties:
+                - !Property 
+                  schema: *ref_52
+                  serializedName: new
+                  language: !Languages 
+                    default:
+                      name: new
+                      description: ''
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - input
+                - output
+              language: !Languages 
+                default:
+                  name: ExactMatchModel5
+                  description: ''
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ExactMatchModel5ListResultValue
+                description: Gets the list of storage accounts and their properties.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Gets the list of storage accounts and their properties.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_53
+          readOnly: true
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Request URL that can be used to query next page of storage accounts. Returned when total number of requested storage accounts exceed maximum page size.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ExactMatchModel5ListResult
+          description: The response from the List Storage Accounts operation.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_44
+    - *ref_45
+    - *ref_48
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: *ref_54
+          serializedName: StringProperty
+          language: !Languages 
+            default:
+              name: stringProperty
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_45
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: SeparateClass
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_55
+    - *ref_56
+    - *ref_57
+    - *ref_58
+globalParameters:
+  - !Parameter &ref_62
+    schema: *ref_1
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: ''
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_60
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_61
+    schema: *ref_59
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: ExactMatchModel1s
+    operations:
+      - !Operation 
+        operationId: ExactMatchModel1s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_64
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel1s/
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_64
+        responses:
+          - !SchemaResponse 
+            schema: *ref_65
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ExactMatchModel1s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_69
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_70
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel1SName
+                description: ''
+                serializedName: exactMatchModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_68
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_67
+                schema: *ref_3
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_67
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel1s/{exactMatchModel1sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_68
+        signatureParameters:
+          - *ref_69
+          - *ref_70
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ExactMatchModel1s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_71
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_72
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel1SName
+                description: ''
+                serializedName: exactMatchModel1sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel1s/{exactMatchModel1sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_71
+          - *ref_72
+        responses:
+          - !SchemaResponse 
+            schema: *ref_3
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ExactMatchModel1S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ExactMatchModel2s
+    operations:
+      - !Operation 
+        operationId: ExactMatchModel2s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_75
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_76
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel2SName
+                description: ''
+                serializedName: exactMatchModel2sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_74
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_73
+                schema: *ref_25
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_73
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel2s/{exactMatchModel2sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_74
+        signatureParameters:
+          - *ref_75
+          - *ref_76
+        responses:
+          - !SchemaResponse 
+            schema: *ref_25
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ExactMatchModel2S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ExactMatchModel3s
+    operations:
+      - !Operation 
+        operationId: ExactMatchModel3s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_77
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel3s/
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_77
+        responses:
+          - !SchemaResponse 
+            schema: *ref_78
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ExactMatchModel3s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_81
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_82
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel3SName
+                description: ''
+                serializedName: exactMatchModel3sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_80
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_79
+                schema: *ref_31
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_79
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel3s/{exactMatchModel3sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_80
+        signatureParameters:
+          - *ref_81
+          - *ref_82
+        responses:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ExactMatchModel3s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_83
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_84
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel3SName
+                description: ''
+                serializedName: exactMatchModel3sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel3s/{exactMatchModel3sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_83
+          - *ref_84
+        responses:
+          - !SchemaResponse 
+            schema: *ref_31
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ExactMatchModel3S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ExactMatchModel4s
+    operations:
+      - !Operation 
+        operationId: ExactMatchModel4s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_87
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_88
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel4SName
+                description: ''
+                serializedName: exactMatchModel4sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_86
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_85
+                schema: *ref_38
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_85
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel4s/{exactMatchModel4sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_86
+        signatureParameters:
+          - *ref_87
+          - *ref_88
+        responses:
+          - !SchemaResponse 
+            schema: *ref_38
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ExactMatchModel4S
+        description: ''
+    protocol: !Protocols {}
+  - !OperationGroup 
+    $key: ExactMatchModel5s
+    operations:
+      - !Operation 
+        operationId: ExactMatchModel5s_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_89
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel5s/
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_89
+        responses:
+          - !SchemaResponse 
+            schema: *ref_90
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: List
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ExactMatchModel5s_Put
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_93
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: ''
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_94
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel5SName
+                description: ''
+                serializedName: exactMatchModel5sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requestMediaTypes:
+          application/json: !Request &ref_92
+            parameters:
+              - !Parameter 
+                schema: *ref_66
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_91
+                schema: *ref_44
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_91
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel5s/{exactMatchModel5sName}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_92
+        signatureParameters:
+          - *ref_93
+          - *ref_94
+        responses:
+          - !SchemaResponse 
+            schema: *ref_44
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Put
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ExactMatchModel5s_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_60
+          - !Parameter &ref_95
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_96
+            schema: *ref_1
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: exactMatchModel5SName
+                description: ''
+                serializedName: exactMatchModel5sName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_61
+          - *ref_62
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_63
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Compute/exactMatchModel5s/{exactMatchModel5sName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_95
+          - *ref_96
+        responses:
+          - !SchemaResponse 
+            schema: *ref_44
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ExactMatchModel5S
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: MgmtExactMatchInheritance
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

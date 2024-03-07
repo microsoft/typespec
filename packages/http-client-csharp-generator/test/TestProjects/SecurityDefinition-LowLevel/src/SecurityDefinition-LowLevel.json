@@ -1,0 +1,107 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "SecurityDefinitionClient",
+    "description": "Security definition client which supports oauth2 and apiKey credential type",
+    "version": "1.0.0"
+  },
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "azure_auth": [
+        "user_impersonation"
+      ]
+    },
+    {
+      "apim_key": []
+    }
+  ],
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "description": "Azure Active Directory OAuth2 Flow.",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    },
+    "apim_key": {
+      "type": "apiKey",
+      "name": "Ocp-Apim-Subscription-Key",
+      "in": "header"
+    }
+  },
+  "x-ms-parameterized-host": {
+    "hostTemplate": "{Endpoint}/securitydefinition/1.0.0",
+    "useSchemePrefix": false,
+    "parameters": [
+      {
+        "$ref": "#/parameters/Endpoint"
+      }
+    ]
+  },
+  "paths": {
+    "/op": {
+      "get": {
+        "operationId": "Operation",
+        "description": "",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TestModel"
+            }
+          },
+          {
+            "$ref": "#/parameters/ApiVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TestModel": {
+      "type": "object",
+      "properties": {
+        "Code": { "type": "string" },
+        "Status": { "type": "string" }
+      },
+      "description": "."
+    }
+  },
+  "parameters": {
+    "ApiVersion": {
+      "name": "api-version",
+      "in": "query",
+      "description": "The API version to be used with the HTTP request.",
+      "required": true,
+      "type": "string"
+    },
+    "Endpoint": {
+      "name": "Endpoint",
+      "description": "server parameter.",
+      "format": "url",
+      "x-ms-parameter-location": "client",
+      "required": true,
+      "type": "string",
+      "in": "path",
+      "x-ms-skip-url-encoding": true
+    }
+  }
+}

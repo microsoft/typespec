@@ -1,0 +1,16 @@
+{
+  "parameters": {
+    "resourceGroupName": "sample-resource-group",
+    "vaultName": "sample-vault",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "headers": {}
+    },
+    "204": {
+      "headers": {}
+    }
+  }
+}

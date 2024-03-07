@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="Head501Async(RequestContext)">
+      <example>
+This sample shows how to call Head501Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = await client.Head501Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head501Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = await client.Head501Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Head501(RequestContext)">
+      <example>
+This sample shows how to call Head501.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = client.Head501();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Head501 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = client.Head501();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get501Async(RequestContext)">
+      <example>
+This sample shows how to call Get501Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = await client.Get501Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get501Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = await client.Get501Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Get501(RequestContext)">
+      <example>
+This sample shows how to call Get501.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = client.Get501();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Get501 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+Response response = client.Get501();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post505Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post505Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Post505Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post505Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Post505Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Post505(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post505.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Post505(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Post505 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Post505(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete505Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete505Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = null;
+Response response = await client.Delete505Async(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete505Async with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = await client.Delete505Async(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Delete505(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Delete505.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = null;
+Response response = client.Delete505(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Delete505 with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpServerFailureClient client = new HttpServerFailureClient(credential);
+
+using RequestContent content = RequestContent.Create("true");
+Response response = client.Delete505(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetPaginationLedgerEntriesAsync(ListLedgerEntryInputBody,CancellationToken)">
+      <example>
+This sample shows how to call GetPaginationLedgerEntriesAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+ListLedgerEntryInputBody bodyInput = new ListLedgerEntryInputBody("<requiredString>", 1234);
+await foreach (LedgerEntry item in client.GetPaginationLedgerEntriesAsync(bodyInput))
+{
+}
+]]></code>
+This sample shows how to call GetPaginationLedgerEntriesAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+ListLedgerEntryInputBody bodyInput = new ListLedgerEntryInputBody("<requiredString>", 1234);
+await foreach (LedgerEntry item in client.GetPaginationLedgerEntriesAsync(bodyInput))
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetPaginationLedgerEntries(ListLedgerEntryInputBody,CancellationToken)">
+      <example>
+This sample shows how to call GetPaginationLedgerEntries.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+ListLedgerEntryInputBody bodyInput = new ListLedgerEntryInputBody("<requiredString>", 1234);
+foreach (LedgerEntry item in client.GetPaginationLedgerEntries(bodyInput))
+{
+}
+]]></code>
+This sample shows how to call GetPaginationLedgerEntries with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+ListLedgerEntryInputBody bodyInput = new ListLedgerEntryInputBody("<requiredString>", 1234);
+foreach (LedgerEntry item in client.GetPaginationLedgerEntries(bodyInput))
+{
+}
+]]></code></example>
+    </member>
+    <member name="GetPaginationLedgerEntriesAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call GetPaginationLedgerEntriesAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+});
+await foreach (BinaryData item in client.GetPaginationLedgerEntriesAsync(content))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code>
+This sample shows how to call GetPaginationLedgerEntriesAsync with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+});
+await foreach (BinaryData item in client.GetPaginationLedgerEntriesAsync(content))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code></example>
+    </member>
+    <member name="GetPaginationLedgerEntries(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call GetPaginationLedgerEntries and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+});
+foreach (BinaryData item in client.GetPaginationLedgerEntries(content))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code>
+This sample shows how to call GetPaginationLedgerEntries with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+TokenCredential credential = new DefaultAzureCredential();
+PaginationClient client = new PaginationClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredString = "<requiredString>",
+    requiredInt = 1234,
+});
+foreach (BinaryData item in client.GetPaginationLedgerEntries(content))
+{
+    JsonElement result = JsonDocument.Parse(item.ToStream()).RootElement;
+    Console.WriteLine(result.GetProperty("contents").ToString());
+    Console.WriteLine(result.GetProperty("collectionId").ToString());
+    Console.WriteLine(result.GetProperty("transactionId").ToString());
+}
+]]></code></example>
+    </member>
+  </members>
+</doc>

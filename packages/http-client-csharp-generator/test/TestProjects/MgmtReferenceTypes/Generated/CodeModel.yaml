@@ -1,0 +1,1602 @@
+!CodeModel 
+info: !Info 
+  title: ReferenceTypes
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_47
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Indicates if the resource name is available.
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_23
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      precision: 32
+      language: !Languages 
+        default:
+          name: SkuCapacity
+          description: If the SKU supports scale out/in then the capacity integer should be included. If scale out/in is not possible for the resource this may be omitted.
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_16
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: The name of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      extensions:
+        x-ms-mutability:
+          - read
+          - create
+      language: !Languages 
+        default:
+          name: TrackedResourceLocation
+          description: The geo-location where the resource lives
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: SkuName
+          description: The name of the SKU. Ex - P3. It is typically a letter+number code
+      protocol: !Protocols {}
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: SkuSize
+          description: 'The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code. '
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: SkuFamily
+          description: If the service has different generations of hardware, for the same SKU, then that can be captured here.
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: PlanName
+          description: A user defined name of the 3rd Party Artifact that is being procured.
+      protocol: !Protocols {}
+    - !StringSchema &ref_25
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: PlanPublisher
+          description: The publisher of the 3rd Party Artifact that is being bought. E.g. NewRelic
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: PlanProduct
+          description: 'The 3rd Party artifact that is being procured. E.g. NewRelic. Product maps to the OfferID specified for the artifact at the time of Data Market onboarding. '
+      protocol: !Protocols {}
+    - !StringSchema &ref_27
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: PlanPromotionCode
+          description: A publisher provided promotion code as provisioned in Data Market for the said product/artifact.
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: PlanVersion
+          description: The version of the desired product/artifact.
+      protocol: !Protocols {}
+    - !StringSchema &ref_29
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ErrorDetailCode
+          description: The error code.
+      protocol: !Protocols {}
+    - !StringSchema &ref_30
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ErrorDetailMessage
+          description: The error message.
+      protocol: !Protocols {}
+    - !StringSchema &ref_31
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ErrorDetailTarget
+          description: The error target.
+      protocol: !Protocols {}
+    - !StringSchema &ref_33
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ErrorAdditionalInfoType
+          description: The additional info type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_36
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: SystemDataCreatedBy
+          description: The identity that created the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_39
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: SystemDataLastModifiedBy
+          description: The identity that last modified the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_42
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: KeyVaultPropertiesKeyIdentifier
+          description: Key vault uri to access the encryption key.
+      protocol: !Protocols {}
+    - !StringSchema &ref_43
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: KeyVaultPropertiesIdentity
+          description: The client ID of the identity which will be used to access key vault.
+      protocol: !Protocols {}
+    - !StringSchema &ref_45
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: CheckNameAvailabilityRequestName
+          description: The name of the resource for which availability needs to be checked.
+      protocol: !Protocols {}
+    - !StringSchema &ref_46
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: CheckNameAvailabilityRequestType
+          description: The resource type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_49
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: CheckNameAvailabilityResponseMessage
+          description: Detailed reason why the given name is available.
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      minLength: 1
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      maxLength: 90
+      minLength: 1
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_50
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ResourceNonId
+          description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+      protocol: !Protocols {}
+    - !StringSchema &ref_51
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ResourceNonName
+          description: The name of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_52
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: ResourceNonType
+          description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      language: !Languages 
+        default:
+          name: PrivateEndpointId
+          description: The ARM identifier for Private Endpoint
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      language: !Languages 
+        default:
+          name: PrivateLinkServiceConnectionStateDescription
+          description: The reason for approval/rejection of the connection.
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      language: !Languages 
+        default:
+          name: PrivateLinkServiceConnectionStateActionsRequired
+          description: A message indicating if changes on the service provider require any updates on the consumer.
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      language: !Languages 
+        default:
+          name: PrivateLinkResourcePropertiesGroupId
+          description: The private link resource group id.
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      language: !Languages 
+        default:
+          name: PrivateLinkResourcePropertiesRequiredMembersItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      language: !Languages 
+        default:
+          name: PrivateLinkResourcePropertiesRequiredZoneNamesItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema 
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_37
+      choices:
+        - !ChoiceValue 
+          value: User
+          language:
+            default:
+              name: User
+              description: ''
+        - !ChoiceValue 
+          value: Application
+          language:
+            default:
+              name: Application
+              description: ''
+        - !ChoiceValue 
+          value: ManagedIdentity
+          language:
+            default:
+              name: ManagedIdentity
+              description: ''
+        - !ChoiceValue 
+          value: Key
+          language:
+            default:
+              name: Key
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      choiceType: *ref_0
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: CreatedByType
+          description: The type of identity that created the resource.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_41
+      choices:
+        - !ChoiceValue 
+          value: enabled
+          language:
+            default:
+              name: Enabled
+              description: ''
+        - !ChoiceValue 
+          value: disabled
+          language:
+            default:
+              name: Disabled
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      choiceType: *ref_0
+      extensions:
+        x-accessibility: public
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: EncryptionStatus
+          description: Indicates whether or not the encryption is enabled for container registry.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_48
+      choices:
+        - !ChoiceValue 
+          value: Invalid
+          language:
+            default:
+              name: Invalid
+              description: ''
+        - !ChoiceValue 
+          value: AlreadyExists
+          language:
+            default:
+              name: AlreadyExists
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      choiceType: *ref_0
+      extensions:
+        x-accessibility: public
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: CheckNameAvailabilityReason
+          description: The reason why the given name is not available.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_6
+      choices:
+        - !ChoiceValue 
+          value: Pending
+          language:
+            default:
+              name: Pending
+              description: ''
+        - !ChoiceValue 
+          value: Approved
+          language:
+            default:
+              name: Approved
+              description: ''
+        - !ChoiceValue 
+          value: Rejected
+          language:
+            default:
+              name: Rejected
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      choiceType: *ref_0
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-typeReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: PrivateEndpointServiceConnectionStatus
+          description: The private endpoint connection status.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_9
+      choices:
+        - !ChoiceValue 
+          value: Succeeded
+          language:
+            default:
+              name: Succeeded
+              description: ''
+        - !ChoiceValue 
+          value: Creating
+          language:
+            default:
+              name: Creating
+              description: ''
+        - !ChoiceValue 
+          value: Deleting
+          language:
+            default:
+              name: Deleting
+              description: ''
+        - !ChoiceValue 
+          value: Failed
+          language:
+            default:
+              name: Failed
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      choiceType: *ref_0
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-typeReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: PrivateEndpointConnectionProvisioningState
+          description: The current provisioning state.
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_20
+      choices:
+        - !ChoiceValue 
+          value: Free
+          language:
+            default:
+              name: Free
+              description: ''
+        - !ChoiceValue 
+          value: Basic
+          language:
+            default:
+              name: Basic
+              description: ''
+        - !ChoiceValue 
+          value: Standard
+          language:
+            default:
+              name: Standard
+              description: ''
+        - !ChoiceValue 
+          value: Premium
+          language:
+            default:
+              name: Premium
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      choiceType: *ref_0
+      extensions:
+        x-accessibility: public
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: SkuTier
+          description: This field is required to be implemented by the Resource Provider if the service has more than one tier, but is not required on a PUT.
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_3
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: TrackedResourceTags
+          description: Resource tags.
+      protocol: !Protocols {}
+  anyObjects:
+    - !AnyObjectSchema &ref_34
+      type: any-object
+      language: !Languages 
+        default:
+          name: AnyObject
+          description: Any object
+      protocol: !Protocols {}
+  dateTimes:
+    - !DateTimeSchema &ref_38
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: SystemDataCreatedAt
+          description: The timestamp of resource creation (UTC).
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_40
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      language: !Languages 
+        default:
+          name: SystemDataLastModifiedAt
+          description: The timestamp of resource last modification (UTC)
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_2
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      children: !Relations 
+        all:
+          - !ObjectSchema &ref_13
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2.0'
+            parents: !Relations 
+              all:
+                - *ref_2
+              immediate:
+                - *ref_2
+            properties:
+              - !Property 
+                schema: *ref_3
+                required: false
+                serializedName: tags
+                extensions:
+                  x-ms-mutability:
+                    - read
+                    - create
+                    - update
+                language: !Languages 
+                  default:
+                    name: tags
+                    description: Resource tags.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_4
+                required: true
+                serializedName: location
+                extensions:
+                  x-ms-mutability:
+                    - read
+                    - create
+                language: !Languages 
+                  default:
+                    name: location
+                    description: The geo-location where the resource lives
+                protocol: !Protocols {}
+            summary: Tracked Resource
+            extensions:
+              x-accessibility: public
+              x-csharp-formats: json
+              x-csharp-usage: model,input,output
+              x-ms-mgmt-propertyReferenceType: true
+              x-ms-mgmt-referenceType: true
+              x-namespace: Azure.ResourceManager.Fake.Models
+            language: !Languages 
+              default:
+                name: TrackedResource
+                description: The resource model definition for an Azure Resource Manager tracked top level resource which has 'tags' and a 'location'
+                namespace: ''
+                summary: Tracked Resource
+            protocol: !Protocols {}
+          - !ObjectSchema &ref_14
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '3.0'
+            parents: !Relations 
+              all:
+                - *ref_2
+              immediate:
+                - *ref_2
+            properties:
+              - !Property 
+                schema: !ObjectSchema &ref_53
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '3.0'
+                  properties:
+                    - !Property 
+                      schema: *ref_5
+                      readOnly: true
+                      serializedName: id
+                      language: !Languages 
+                        default:
+                          name: id
+                          description: The ARM identifier for Private Endpoint
+                      protocol: !Protocols {}
+                  extensions:
+                    x-accessibility: public
+                    x-csharp-formats: json
+                    x-csharp-usage: model,input,output
+                    x-ms-mgmt-typeReferenceType: true
+                    x-namespace: Azure.ResourceManager.Fake.Models
+                  language: !Languages 
+                    default:
+                      name: PrivateEndpoint
+                      description: The Private Endpoint resource.
+                      namespace: ''
+                  protocol: !Protocols {}
+                flattenedNames:
+                  - properties
+                  - privateEndpoint
+                serializedName: privateEndpoint
+                language: !Languages 
+                  default:
+                    name: privateEndpoint
+                    description: The resource of private end point.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ObjectSchema &ref_54
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '3.0'
+                  properties:
+                    - !Property 
+                      schema: *ref_6
+                      serializedName: status
+                      language: !Languages 
+                        default:
+                          name: status
+                          description: Indicates whether the connection has been Approved/Rejected/Removed by the owner of the service.
+                      protocol: !Protocols {}
+                    - !Property 
+                      schema: *ref_7
+                      serializedName: description
+                      language: !Languages 
+                        default:
+                          name: description
+                          description: The reason for approval/rejection of the connection.
+                      protocol: !Protocols {}
+                    - !Property 
+                      schema: *ref_8
+                      serializedName: actionsRequired
+                      language: !Languages 
+                        default:
+                          name: actionsRequired
+                          description: A message indicating if changes on the service provider require any updates on the consumer.
+                      protocol: !Protocols {}
+                  extensions:
+                    x-accessibility: public
+                    x-csharp-formats: json
+                    x-csharp-usage: model,input,output
+                    x-ms-mgmt-typeReferenceType: true
+                    x-namespace: Azure.ResourceManager.Fake.Models
+                  language: !Languages 
+                    default:
+                      name: PrivateLinkServiceConnectionState
+                      description: A collection of information about the state of the connection between service consumer and provider.
+                      namespace: ''
+                  protocol: !Protocols {}
+                flattenedNames:
+                  - properties
+                  - privateLinkServiceConnectionState
+                serializedName: privateLinkServiceConnectionState
+                language: !Languages 
+                  default:
+                    name: connectionState
+                    description: A collection of information about the state of the connection between service consumer and provider.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_9
+                flattenedNames:
+                  - properties
+                  - provisioningState
+                readOnly: true
+                serializedName: provisioningState
+                language: !Languages 
+                  default:
+                    name: provisioningState
+                    description: The provisioning state of the private endpoint connection resource.
+                protocol: !Protocols {}
+            extensions:
+              x-accessibility: public
+              x-csharp-formats: json
+              x-csharp-usage: model,input,output
+              x-ms-mgmt-typeReferenceType: true
+              x-namespace: Azure.ResourceManager.Fake.Models
+            language: !Languages 
+              default:
+                name: PrivateEndpointConnection
+                description: The Private Endpoint Connection resource.
+                namespace: ''
+            protocol: !Protocols {}
+          - !ObjectSchema &ref_15
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '3.0'
+            parents: !Relations 
+              all:
+                - *ref_2
+              immediate:
+                - *ref_2
+            properties:
+              - !Property 
+                schema: *ref_10
+                flattenedNames:
+                  - properties
+                  - groupId
+                readOnly: true
+                serializedName: groupId
+                language: !Languages 
+                  default:
+                    name: groupId
+                    description: The private link resource group id.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_57
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '3.0'
+                  elementType: *ref_11
+                  language: !Languages 
+                    default:
+                      name: PrivateLinkResourcePropertiesRequiredMembers
+                      description: The private link resource required member names.
+                  protocol: !Protocols {}
+                flattenedNames:
+                  - properties
+                  - requiredMembers
+                readOnly: true
+                serializedName: requiredMembers
+                language: !Languages 
+                  default:
+                    name: requiredMembers
+                    description: The private link resource required member names.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_58
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '3.0'
+                  elementType: *ref_12
+                  language: !Languages 
+                    default:
+                      name: PrivateLinkResourcePropertiesRequiredZoneNames
+                      description: The private link resource Private link DNS zone name.
+                  protocol: !Protocols {}
+                flattenedNames:
+                  - properties
+                  - requiredZoneNames
+                readOnly: true
+                serializedName: requiredZoneNames
+                language: !Languages 
+                  default:
+                    name: requiredZoneNames
+                    description: The private link resource Private link DNS zone name.
+                protocol: !Protocols {}
+            extensions:
+              x-accessibility: public
+              x-csharp-formats: json
+              x-csharp-usage: model,input,output
+              x-ms-mgmt-typeReferenceType: true
+              x-namespace: Azure.ResourceManager.Fake.Models
+            language: !Languages 
+              default:
+                name: PrivateLinkResource
+                description: A private link resource
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_13
+          - *ref_14
+          - *ref_15
+      properties:
+        - !Property 
+          schema: *ref_16
+          readOnly: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_17
+          readOnly: true
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: The name of the resource
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_18
+          readOnly: true
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+          protocol: !Protocols {}
+      summary: Resource
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-azure-resource: true
+        x-ms-mgmt-propertyReferenceType: true
+        x-ms-mgmt-referenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: Resource
+          description: Common fields that are returned in the response for all Azure Resource Manager resources
+          namespace: ''
+          summary: Resource
+      protocol: !Protocols {}
+    - *ref_13
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_19
+          required: true
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: The name of the SKU. Ex - P3. It is typically a letter+number code
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_20
+          required: false
+          serializedName: tier
+          extensions:
+            x-accessibility: public
+            x-namespace: Azure.ResourceManager.Fake.Models
+          language: !Languages 
+            default:
+              name: tier
+              description: This field is required to be implemented by the Resource Provider if the service has more than one tier, but is not required on a PUT.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_21
+          required: false
+          serializedName: size
+          language: !Languages 
+            default:
+              name: size
+              description: 'The SKU size. When the name field is the combination of tier and some other value, this would be the standalone code. '
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_22
+          required: false
+          serializedName: family
+          language: !Languages 
+            default:
+              name: family
+              description: If the service has different generations of hardware, for the same SKU, then that can be captured here.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_23
+          required: false
+          serializedName: capacity
+          language: !Languages 
+            default:
+              name: capacity
+              description: If the SKU supports scale out/in then the capacity integer should be included. If scale out/in is not possible for the resource this may be omitted.
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: Sku
+          description: The resource model definition representing SKU
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_24
+          required: true
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: A user defined name of the 3rd Party Artifact that is being procured.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_25
+          required: true
+          serializedName: publisher
+          language: !Languages 
+            default:
+              name: publisher
+              description: The publisher of the 3rd Party Artifact that is being bought. E.g. NewRelic
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_26
+          required: true
+          serializedName: product
+          language: !Languages 
+            default:
+              name: product
+              description: 'The 3rd Party artifact that is being procured. E.g. NewRelic. Product maps to the OfferID specified for the artifact at the time of Data Market onboarding. '
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_27
+          required: false
+          serializedName: promotionCode
+          language: !Languages 
+            default:
+              name: promotionCode
+              description: A publisher provided promotion code as provisioned in Data Market for the said product/artifact.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_28
+          required: false
+          serializedName: version
+          language: !Languages 
+            default:
+              name: version
+              description: The version of the desired product/artifact.
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: Plan
+          description: Plan for the resource.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_32
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_29
+          readOnly: true
+          serializedName: code
+          language: !Languages 
+            default:
+              name: code
+              description: The error code.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_30
+          readOnly: true
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: The error message.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_31
+          readOnly: true
+          serializedName: target
+          language: !Languages 
+            default:
+              name: target
+              description: The error target.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_55
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2.0'
+            elementType: *ref_32
+            language: !Languages 
+              default:
+                name: ErrorDetailDetails
+                description: The error details.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: details
+          language: !Languages 
+            default:
+              name: details
+              description: The error details.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_56
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2.0'
+            elementType: !ObjectSchema &ref_35
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2.0'
+              properties:
+                - !Property 
+                  schema: *ref_33
+                  readOnly: true
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: The additional info type.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_34
+                  readOnly: true
+                  serializedName: info
+                  language: !Languages 
+                    default:
+                      name: info
+                      description: The additional info.
+                  protocol: !Protocols {}
+              extensions:
+                x-accessibility: public
+                x-csharp-formats: json
+                x-csharp-usage: model,input,output
+                x-ms-mgmt-propertyReferenceType: true
+                x-namespace: Azure.ResourceManager.Fake.Models
+              language: !Languages 
+                default:
+                  name: ErrorAdditionalInfo
+                  description: The resource management error additional info.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: ErrorDetailAdditionalInfo
+                description: The error additional info.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: additionalInfo
+          language: !Languages 
+            default:
+              name: additionalInfo
+              description: The error additional info.
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model
+        x-ms-mgmt-propertyReferenceType: false
+        x-ms-mgmt-referenceType: false
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: ErrorDetail
+          description: The error detail.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_35
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_32
+          serializedName: error
+          language: !Languages 
+            default:
+              name: error
+              description: The error object.
+          protocol: !Protocols {}
+      summary: Error response
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: ErrorResponse
+          description: Common error response for all Azure Resource Manager APIs to return error details for failed operations. (This also follows the OData error response format.).
+          namespace: ''
+          summary: Error response
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_36
+          serializedName: createdBy
+          language: !Languages 
+            default:
+              name: createdBy
+              description: The identity that created the resource.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_37
+          serializedName: createdByType
+          language: !Languages 
+            default:
+              name: createdByType
+              description: The type of identity that created the resource.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_38
+          serializedName: createdAt
+          language: !Languages 
+            default:
+              name: createdAt
+              description: The timestamp of resource creation (UTC).
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_39
+          serializedName: lastModifiedBy
+          language: !Languages 
+            default:
+              name: lastModifiedBy
+              description: The identity that last modified the resource.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_37
+          serializedName: lastModifiedByType
+          language: !Languages 
+            default:
+              name: lastModifiedByType
+              description: The type of identity that last modified the resource.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_40
+          serializedName: lastModifiedAt
+          language: !Languages 
+            default:
+              name: lastModifiedAt
+              description: The timestamp of resource last modification (UTC)
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: SystemData
+          description: Metadata pertaining to creation and last modification of the resource.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_41
+          serializedName: status
+          extensions:
+            x-accessibility: public
+            x-namespace: Azure.ResourceManager.Fake.Models
+          language: !Languages 
+            default:
+              name: status
+              description: Indicates whether or not the encryption is enabled for container registry.
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_44
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2.0'
+            properties:
+              - !Property 
+                schema: *ref_42
+                serializedName: keyIdentifier
+                language: !Languages 
+                  default:
+                    name: keyIdentifier
+                    description: Key vault uri to access the encryption key.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_43
+                serializedName: identity
+                language: !Languages 
+                  default:
+                    name: identity
+                    description: The client ID of the identity which will be used to access key vault.
+                protocol: !Protocols {}
+            extensions:
+              x-accessibility: public
+              x-csharp-formats: json
+              x-csharp-usage: model,input,output
+              x-ms-mgmt-propertyReferenceType: true
+              x-namespace: Azure.ResourceManager.Fake.Models
+            language: !Languages 
+              default:
+                name: KeyVaultProperties
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: keyVaultProperties
+          language: !Languages 
+            default:
+              name: keyVaultProperties
+              description: Key vault properties.
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: EncryptionProperties
+          description: Configuration of key for data encryption
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_44
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_45
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: The name of the resource for which availability needs to be checked.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_46
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: The resource type.
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: CheckNameAvailabilityRequest
+          description: The check availability request body.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_47
+          serializedName: nameAvailable
+          language: !Languages 
+            default:
+              name: nameAvailable
+              description: Indicates if the resource name is available.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_48
+          serializedName: reason
+          extensions:
+            x-accessibility: public
+            x-namespace: Azure.ResourceManager.Fake.Models
+          language: !Languages 
+            default:
+              name: reason
+              description: The reason why the given name is not available.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_49
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: Detailed reason why the given name is available.
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-propertyReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: CheckNameAvailabilityResponse
+          description: The check availability result.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2.0'
+      properties:
+        - !Property 
+          schema: *ref_50
+          readOnly: true
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_51
+          readOnly: true
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: The name of the resource
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_52
+          readOnly: true
+          serializedName: type
+          language: !Languages 
+            default:
+              name: type
+              description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+          protocol: !Protocols {}
+      summary: ResourceNon
+      extensions:
+        x-ms-azure-resource: true
+      language: !Languages 
+        default:
+          name: ResourceNon
+          description: Common fields that are returned in the response for all Azure Resource Manager resources
+          namespace: ''
+          summary: ResourceNon
+      protocol: !Protocols {}
+    - *ref_53
+    - *ref_14
+    - *ref_54
+    - *ref_15
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_59
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '3.0'
+            elementType: *ref_14
+            language: !Languages 
+              default:
+                name: PrivateEndpointConnectionListResultValue
+                description: Array of private endpoint connections
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Array of private endpoint connections
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-typeReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: PrivateEndpointConnectionListResult
+          description: List of private endpoint connection associated with the specified storage account
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '3.0'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_60
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '3.0'
+            elementType: *ref_15
+            language: !Languages 
+              default:
+                name: PrivateLinkResourceListResultValue
+                description: Array of private link resources
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: Array of private link resources
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: public
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+        x-ms-mgmt-typeReferenceType: true
+        x-namespace: Azure.ResourceManager.Fake.Models
+      language: !Languages 
+        default:
+          name: PrivateLinkResourceListResult
+          description: A list of private link resources
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_55
+    - *ref_56
+    - *ref_57
+    - *ref_58
+    - *ref_59
+    - *ref_60
+operationGroups: []
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: ReferenceTypes
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

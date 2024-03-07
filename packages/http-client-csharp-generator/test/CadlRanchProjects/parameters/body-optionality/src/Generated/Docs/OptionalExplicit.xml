@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="SetAsync(BodyModel,CancellationToken)">
+      <example>
+This sample shows how to call SetAsync.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+Response response = await client.SetAsync();
+]]></code>
+This sample shows how to call SetAsync with all parameters.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+BodyModel body = new BodyModel("<name>");
+Response response = await client.SetAsync(body: body);
+]]></code></example>
+    </member>
+    <member name="Set(BodyModel,CancellationToken)">
+      <example>
+This sample shows how to call Set.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+Response response = client.Set();
+]]></code>
+This sample shows how to call Set with all parameters.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+BodyModel body = new BodyModel("<name>");
+Response response = client.Set(body: body);
+]]></code></example>
+    </member>
+    <member name="SetAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call SetAsync.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = null;
+Response response = await client.SetAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call SetAsync with all request content.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.SetAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Set(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Set.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = null;
+Response response = client.Set(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Set with all request content.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.Set(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="OmitAsync(BodyModel,CancellationToken)">
+      <example>
+This sample shows how to call OmitAsync.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+Response response = await client.OmitAsync();
+]]></code>
+This sample shows how to call OmitAsync with all parameters.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+BodyModel body = new BodyModel("<name>");
+Response response = await client.OmitAsync(body: body);
+]]></code></example>
+    </member>
+    <member name="Omit(BodyModel,CancellationToken)">
+      <example>
+This sample shows how to call Omit.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+Response response = client.Omit();
+]]></code>
+This sample shows how to call Omit with all parameters.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+BodyModel body = new BodyModel("<name>");
+Response response = client.Omit(body: body);
+]]></code></example>
+    </member>
+    <member name="OmitAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call OmitAsync.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = null;
+Response response = await client.OmitAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call OmitAsync with all request content.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.OmitAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Omit(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Omit.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = null;
+Response response = client.Omit(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Omit with all request content.
+<code><![CDATA[
+OptionalExplicit client = new BodyOptionalityClient().GetOptionalExplicitClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.Omit(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

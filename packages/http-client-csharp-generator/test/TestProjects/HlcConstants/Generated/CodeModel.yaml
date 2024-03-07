@@ -1,0 +1,608 @@
+!CodeModel 
+info: !Info 
+  description: I have to name this HlcConstants instead of just Constants because we have a test server project called Constants.
+  title: HlcConstants
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_1
+      type: boolean
+      language: !Languages 
+        default:
+          name: Bool
+          description: simple boolean
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_2
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: IntConstant
+          description: A constant based on integer
+      protocol: !Protocols {}
+    - !NumberSchema &ref_3
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: FloatConstant
+          description: A constant based on float
+      protocol: !Protocols {}
+    - !NumberSchema &ref_4
+      type: integer
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_5
+      type: number
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_13
+      type: constant
+      value: !ConstantValue 
+        value: default
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: StringConstant
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_14
+      type: constant
+      value: !ConstantValue 
+        value: true
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: BooleanConstant
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_6
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: default
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: StringConstant
+          description: A constant based on string, the only allowable value is default.
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_8
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: true
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: BooleanConstant
+          description: A constant based on boolean
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_15
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_7
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 0
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: IntConstant
+          description: A constant based on integer
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_9
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      value: !ConstantValue 
+        value: 3.14
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: FloatConstant
+          description: A constant based on float
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_17
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_20
+      type: constant
+      value: !ConstantValue 
+        value: 0
+      valueType: *ref_4
+      language: !Languages 
+        default:
+          name: IntConstant
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_21
+      type: constant
+      value: !ConstantValue 
+        value: 3.14
+      valueType: *ref_5
+      language: !Languages 
+        default:
+          name: FloatConstant
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_16
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_10
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_6
+                required: true
+                serializedName: requiredStringConstant
+                language: !Languages 
+                  default:
+                    name: requiredStringConstant
+                    description: A constant based on string, the only allowable value is default.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_7
+                required: true
+                serializedName: requiredIntConstant
+                language: !Languages 
+                  default:
+                    name: requiredIntConstant
+                    description: A constant based on integer
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_8
+                required: true
+                serializedName: requiredBooleanConstant
+                language: !Languages 
+                  default:
+                    name: requiredBooleanConstant
+                    description: A constant based on boolean
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_9
+                required: true
+                serializedName: requiredFloatConstant
+                language: !Languages 
+                  default:
+                    name: requiredFloatConstant
+                    description: A constant based on float
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ModelWithRequiredConstant
+                description: Describes Protocol and thumbprint of Windows Remote Management listener
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: requiredConstantModel
+          language: !Languages 
+            default:
+              name: requiredConstantModel
+              description: Describes Protocol and thumbprint of Windows Remote Management listener
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_11
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_6
+                serializedName: optionalStringConstant
+                language: !Languages 
+                  default:
+                    name: optionalStringConstant
+                    description: A constant based on string, the only allowable value is default.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_7
+                serializedName: optionalIntConstant
+                language: !Languages 
+                  default:
+                    name: optionalIntConstant
+                    description: A constant based on integer
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_8
+                serializedName: optionalBooleanConstant
+                language: !Languages 
+                  default:
+                    name: optionalBooleanConstant
+                    description: A constant based on boolean
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_9
+                serializedName: optionalFloatConstant
+                language: !Languages 
+                  default:
+                    name: optionalFloatConstant
+                    description: A constant based on float
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ModelWithOptionalConstant
+                description: >-
+                  Specifies additional XML formatted information that can be included in the Unattend.xml file, which is used by Windows Setup. Contents are defined by setting name, component name, and the pass in which the content is
+                  applied.
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: optionalConstantModel
+          language: !Languages 
+            default:
+              name: optionalConstantModel
+              description: >-
+                Specifies additional XML formatted information that can be included in the Unattend.xml file, which is used by Windows Setup. Contents are defined by setting name, component name, and the pass in which the content is
+                applied.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: RoundTripModel
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_10
+    - *ref_11
+globalParameters:
+  - !Parameter &ref_12
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: mixed
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_12
+          - !Parameter 
+            schema: *ref_13
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredStringQuery
+                description: ''
+                serializedName: required-string-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_14
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredBooleanQuery
+                description: ''
+                serializedName: required-boolean-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_6
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalStringQuery
+                description: ''
+                serializedName: optional-string-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_8
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalBooleanQuery
+                description: ''
+                serializedName: optional-boolean-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requestMediaTypes:
+          application/json: !Request &ref_19
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_18
+                schema: *ref_16
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: value
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_17
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_18
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /op
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_19
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Mixed
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: postSomething
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_12
+          - !Parameter 
+            schema: *ref_20
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredIntQuery
+                description: ''
+                serializedName: required-int-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_21
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredFloatQuery
+                description: ''
+                serializedName: required-float-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_7
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalIntQuery
+                description: ''
+                serializedName: optional-int-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_9
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalFloatQuery
+                description: ''
+                serializedName: optional-float-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requestMediaTypes:
+          application/json: !Request &ref_23
+            parameters:
+              - !Parameter 
+                schema: *ref_15
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_22
+                schema: *ref_16
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: value
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_17
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_22
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /op2
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_23
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: PostSomething
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: HlcConstants
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

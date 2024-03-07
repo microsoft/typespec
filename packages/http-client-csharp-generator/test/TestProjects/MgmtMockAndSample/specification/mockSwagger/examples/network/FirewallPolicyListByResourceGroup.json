@@ -1,0 +1,50 @@
+{
+  "parameters": {
+    "api-version": "2021-02-01",
+    "subscriptionId": "subid",
+    "resourceGroupName": "rg1"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "name": "firewallPolicy",
+            "id": "/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/firewallPolicies/firewallPolicy",
+            "type": "Microsoft.Network/firewallPolicies",
+            "etag": "w/\\00000000-0000-0000-0000-000000000000\\",
+            "location": "West US",
+            "tags": {
+              "key1": "value1"
+            },
+            "properties": {
+              "provisioningState": "Succeeded",
+              "threatIntelMode": "Alert",
+              "ruleCollectionGroups": [
+                {
+                  "id": "/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/firewallPolicies/firewallPolicy/ruleCollectionGroups/ruleCollectionGroup1"
+                }
+              ],
+              "firewalls": [],
+              "snat": {
+                "privateRanges": [
+                  "IANAPrivateRanges"
+                ]
+              },
+              "dnsSettings": {
+                "servers": [
+                  "30.3.4.5"
+                ],
+                "enableProxy": true,
+                "requireProxyForNetworkRules": false
+              },
+              "sku": {
+                "tier": "Standard"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

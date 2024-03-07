@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetJobAsync(Guid,string,RequestContext)">
+      <example>
+This sample shows how to call GetJobAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+Response response = await client.GetJobAsync(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), "<apiVersion>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+]]></code>
+This sample shows how to call GetJobAsync with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+Response response = await client.GetJobAsync(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), "<apiVersion>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("expirationDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastUpdateDateTime").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("target").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("innererror").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("result").GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="GetJob(Guid,string,RequestContext)">
+      <example>
+This sample shows how to call GetJob and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+Response response = client.GetJob(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), "<apiVersion>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+]]></code>
+This sample shows how to call GetJob with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+Response response = client.GetJob(Guid.Parse("73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"), "<apiVersion>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("status").ToString());
+Console.WriteLine(result.GetProperty("createdDateTime").ToString());
+Console.WriteLine(result.GetProperty("expirationDateTime").ToString());
+Console.WriteLine(result.GetProperty("lastUpdateDateTime").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("message").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("target").ToString());
+Console.WriteLine(result.GetProperty("error").GetProperty("innererror").GetProperty("code").ToString());
+Console.WriteLine(result.GetProperty("result").GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="CreateJobAsync(WaitUntil,string,RadiologyInsightsData,CancellationToken)">
+      <example>
+This sample shows how to call CreateJobAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+RadiologyInsightsData radiologyInsightsData = new RadiologyInsightsData(new string[] { "<patients>" });
+Operation<RadiologyInsightsInferenceResult> operation = await client.CreateJobAsync(WaitUntil.Completed, "<apiVersion>", radiologyInsightsData);
+RadiologyInsightsInferenceResult responseData = operation.Value;
+]]></code>
+This sample shows how to call CreateJobAsync with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+RadiologyInsightsData radiologyInsightsData = new RadiologyInsightsData(new string[] { "<patients>" })
+{
+    Configuration = "<configuration>",
+};
+Operation<RadiologyInsightsInferenceResult> operation = await client.CreateJobAsync(WaitUntil.Completed, "<apiVersion>", radiologyInsightsData);
+RadiologyInsightsInferenceResult responseData = operation.Value;
+]]></code></example>
+    </member>
+    <member name="CreateJob(WaitUntil,string,RadiologyInsightsData,CancellationToken)">
+      <example>
+This sample shows how to call CreateJob.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+RadiologyInsightsData radiologyInsightsData = new RadiologyInsightsData(new string[] { "<patients>" });
+Operation<RadiologyInsightsInferenceResult> operation = client.CreateJob(WaitUntil.Completed, "<apiVersion>", radiologyInsightsData);
+RadiologyInsightsInferenceResult responseData = operation.Value;
+]]></code>
+This sample shows how to call CreateJob with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+RadiologyInsightsData radiologyInsightsData = new RadiologyInsightsData(new string[] { "<patients>" })
+{
+    Configuration = "<configuration>",
+};
+Operation<RadiologyInsightsInferenceResult> operation = client.CreateJob(WaitUntil.Completed, "<apiVersion>", radiologyInsightsData);
+RadiologyInsightsInferenceResult responseData = operation.Value;
+]]></code></example>
+    </member>
+    <member name="CreateJobAsync(WaitUntil,string,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateJobAsync and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    patients = new object[]
+    {
+        "<patients>"
+    },
+});
+Operation<BinaryData> operation = await client.CreateJobAsync(WaitUntil.Completed, "<apiVersion>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call CreateJobAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    patients = new object[]
+    {
+        "<patients>"
+    },
+    configuration = "<configuration>",
+});
+Operation<BinaryData> operation = await client.CreateJobAsync(WaitUntil.Completed, "<apiVersion>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="CreateJob(WaitUntil,string,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CreateJob and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    patients = new object[]
+    {
+        "<patients>"
+    },
+});
+Operation<BinaryData> operation = client.CreateJob(WaitUntil.Completed, "<apiVersion>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call CreateJob with all parameters and request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LegacyLro client = new LroClient(endpoint, credential).GetLegacyLroClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    patients = new object[]
+    {
+        "<patients>"
+    },
+    configuration = "<configuration>",
+});
+Operation<BinaryData> operation = client.CreateJob(WaitUntil.Completed, "<apiVersion>", content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

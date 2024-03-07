@@ -1,0 +1,10 @@
+{
+  "output-folder": ".",
+  "namespace": "Encode.Bytes",
+  "library-name": "Encode.Bytes",
+  "shared-source-folders": [
+    "../../../../../../artifacts/bin/AutoRest.CSharp/Debug/net7.0/Generator.Shared",
+    "../../../../../../artifacts/bin/AutoRest.CSharp/Debug/net7.0/Azure.Core.Shared"
+  ],
+  "use-model-reader-writer": true
+}

@@ -1,0 +1,13 @@
+{
+  "parameters": {
+    "api-version": "2021-02-01",
+    "subscriptionId": "subid",
+    "resourceGroupName": "rg1",
+    "firewallPolicyName": "firewallPolicy"
+  },
+  "responses": {
+    "200": {},
+    "202": {},
+    "204": {}
+  }
+}

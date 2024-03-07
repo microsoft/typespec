@@ -1,0 +1,208 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "MonitorManagementClient",
+    "x-ms-code-generation-settings": {
+      "name": "MonitorManagementClient"
+    },
+    "version": "2015-04-01"
+  },
+  "host": "management.azure.com",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "azure_auth": [
+        "user_impersonation"
+      ]
+    }
+  ],
+  "securityDefinitions": {
+    "azure_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "description": "Azure Active Directory OAuth2 Flow",
+      "scopes": {
+        "user_impersonation": "impersonate your user account"
+      }
+    }
+  },
+  "paths": {
+    "/providers/Microsoft.Insights/eventtypes/management/values": {
+      "get": {
+        "tags": [
+          "TenantActivityLogs"
+        ],
+        "operationId": "TenantActivityLogs_List",
+        "description": "Gets the Activity Logs for the Tenant.<br>Everything that is applicable to the API to get the Activity Logs for the subscription is applicable to this API (the parameters, $filter, etc.).<br>One thing to point out here is that this API does *not* retrieve the logs at the individual subscription of the tenant but only surfaces the logs that were generated at the tenant level.",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ApiVersionParameter"
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "Reduces the set of data collected. <br>The **$filter** is very restricted and allows only the following patterns.<br>- List events for a resource group: $filter=eventTimestamp ge '<Start Time>' and eventTimestamp le '<End Time>' and eventChannels eq 'Admin, Operation' and resourceGroupName eq '<ResourceGroupName>'.<br>- List events for resource: $filter=eventTimestamp ge '<Start Time>' and eventTimestamp le '<End Time>' and eventChannels eq 'Admin, Operation' and resourceUri eq '<ResourceURI>'.<br>- List events for a subscription: $filter=eventTimestamp ge '<Start Time>' and eventTimestamp le '<End Time>' and eventChannels eq 'Admin, Operation'.<br>- List events for a resource provider: $filter=eventTimestamp ge '<Start Time>' and eventTimestamp le '<End Time>' and eventChannels eq 'Admin, Operation' and resourceProvider eq '<ResourceProviderName>'.<br>- List events for a correlation Id: api-version=2014-04-01&$filter=eventTimestamp ge '2014-07-16T04:36:37.6407898Z' and eventTimestamp le '2014-07-20T04:36:37.6407898Z' and eventChannels eq 'Admin, Operation' and correlationId eq '<CorrelationID>'.<br>**NOTE**: No other syntax is allowed."
+          },
+          {
+            "$ref": "#/parameters/SelectParameter"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Error response describing why the operation failed.",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "200": {
+            "description": "Successful request to get a page of events in the tenant activity logs",
+            "schema": {
+              "$ref": "#/definitions/EventDataCollection"
+            }
+          }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
+        },
+        "x-ms-odata": "#/definitions/EventData",
+        "x-ms-examples": {
+          "Get Tenant Activity Logs without filter or select": {
+            "$ref": "./examples/GetTenantActivityLogsNoParams.json"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "LocalizableString": {
+      "required": [
+        "value"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "the invariant value."
+        },
+        "localizedValue": {
+          "type": "string",
+          "description": "the locale specific value."
+        }
+      },
+      "description": "The localizable string class."
+    },
+    "SenderAuthorization": {
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "the permissible actions. For instance: microsoft.support/supporttickets/write"
+        },
+        "role": {
+          "type": "string",
+          "description": "the role of the user. For instance: Subscription Admin"
+        },
+        "scope": {
+          "type": "string",
+          "description": "the scope."
+        }
+      },
+      "description": "the authorization used by the user who has performed the operation that led to this event. This captures the RBAC properties of the event. These usually include the 'action', 'role' and the 'scope'"
+    },
+    "HttpRequestInfo": {
+      "properties": {
+        "clientRequestId": {
+          "type": "string",
+          "description": "the client request id."
+        },
+        "clientIpAddress": {
+          "type": "string",
+          "description": "the client Ip Address"
+        },
+        "method": {
+          "type": "string",
+          "description": "the Http request method."
+        },
+        "uri": {
+          "type": "string",
+          "description": "the Uri."
+        }
+      },
+      "description": "The Http request info."
+    },
+    "EventData": {
+      "properties": {
+        "authorization": {
+          "readOnly": true,
+          "$ref": "#/definitions/SenderAuthorization",
+          "description": "The sender authorization information."
+        },
+        "tenantId": {
+          "readOnly": true,
+          "type": "string",
+          "description": "the Azure tenant Id"
+        }
+      },
+      "description": "The Azure event log entries are of type EventData"
+    },
+    "EventDataCollection": {
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EventData"
+          },
+          "description": "this list that includes the Azure audit logs."
+        },
+        "nextLink": {
+          "type": "string",
+          "description": "Provides the link to retrieve the next set of events."
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "description": "Represents collection of events."
+    },
+    "ErrorResponse": {
+      "description": "Describes the format of Error response.",
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Error code",
+          "type": "string"
+        },
+        "message": {
+          "description": "Error message indicating why the operation failed.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "SelectParameter": {
+      "name": "$select",
+      "in": "query",
+      "required": false,
+      "type": "string",
+      "description": "Used to fetch events with only the given properties.<br>The **$select** argument is a comma separated list of property names to be returned. Possible values are: *authorization*, *claims*, *correlationId*, *description*, *eventDataId*, *eventName*, *eventTimestamp*, *httpRequest*, *level*, *operationId*, *operationName*, *properties*, *resourceGroupName*, *resourceProviderName*, *resourceId*, *status*, *submissionTimestamp*, *subStatus*, *subscriptionId*",
+      "x-ms-parameter-location": "method"
+    },
+    "ApiVersionParameter": {
+      "name": "api-version",
+      "in": "query",
+      "required": true,
+      "type": "string",
+      "description": "Client Api Version."
+    }
+  }
+}

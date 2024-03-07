@@ -1,0 +1,23 @@
+{
+  "parameters": {
+    "api-version": "2015-04-01",
+    "subscriptionId": "089bd33f-d4ec-47fe-8ba5-0753aa5c5b33"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "authorization": {
+              "action": "microsoft.support/supporttickets/write",
+              "role": "Subscription Admin",
+              "scope": "/subscriptions/089bd33f-d4ec-47fe-8ba5-0753aa5c5b33/resourceGroups/MSSupportGroup/providers/microsoft.support/supporttickets/115012112305841"
+            },
+            "tenantId": "089bd33f-d4ec-47fe-8ba5-0753aa5c5b33"
+          }
+        ],
+        "nextLink": "https://management.azure.com/########-####-####-####-############$skiptoken=######"
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "output-folder": ".",
+  "namespace": "MgmtMockAndSample",
+  "library-name": "MgmtMockAndSample",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "azure-arm": true,
+  "public-clients": true,
+  "head-as-boolean": true,
+  "skip-csproj-packagereference": true,
+  "models-to-treat-empty-string-as-null": [
+    "EventData",
+    "ManagedHsmProperties"
+  ],
+  "intrinsic-types-to-treat-empty-string-as-null": [
+    "Uri",
+    "Guid",
+    "ResourceIdentifier",
+    "DateTimeOffset"
+  ],
+  "ListException": [
+    "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/locations/{location}/deletedVaults/{vaultName}",
+    "/subscriptions/{subscriptionId}/providers/Microsoft.KeyVault/locations/{location}/deletedManagedHSMs/{name}"
+  ],
+  "GenerateArmResourceExtensions": [
+    "/{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}"
+  ],
+  "RequestPathToParent": {
+    "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}/validate": "/{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}"
+  },
+  "FormatByNameRules": {
+    "tenantId": "uuid",
+    "resourceType": "resource-type",
+    "location": "azure-location",
+    "ETag": "etag",
+    "*Uri": "Uri",
+    "*Uris": "Uri"
+  },
+  "RenameMapping": {
+    "Type": "EncryptionType",
+    "FirewallPolicyThreatIntelWhitelist.ipAddresses": "-|ip-address"
+  },
+  "PrivilegedOperations": {
+    "Vaults_CreateOrUpdate": "Test for privileged operations configuration"
+  },
+  "sample-gen": {
+    "SkippedOperations": [
+      "Vaults_GetDeleted",
+      "Vaults_Update"
+    ],
+    "Mock": true,
+    "Sample": true
+  },
+  "generate-test-project": true
+}

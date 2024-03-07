@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetIsUnknownDerivedAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetIsUnknownDerivedAsync.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response<IsUnknownAdditionalPropertiesDerived> response = await client.GetIsUnknownDerivedAsync();
+]]></code>
+This sample shows how to call GetIsUnknownDerivedAsync with all parameters.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response<IsUnknownAdditionalPropertiesDerived> response = await client.GetIsUnknownDerivedAsync();
+]]></code></example>
+    </member>
+    <member name="GetIsUnknownDerived(CancellationToken)">
+      <example>
+This sample shows how to call GetIsUnknownDerived.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response<IsUnknownAdditionalPropertiesDerived> response = client.GetIsUnknownDerived();
+]]></code>
+This sample shows how to call GetIsUnknownDerived with all parameters.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response<IsUnknownAdditionalPropertiesDerived> response = client.GetIsUnknownDerived();
+]]></code></example>
+    </member>
+    <member name="GetIsUnknownDerivedAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIsUnknownDerivedAsync and parse the result.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response response = await client.GetIsUnknownDerivedAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("index").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetIsUnknownDerivedAsync with all parameters and parse the result.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response response = await client.GetIsUnknownDerivedAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("index").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="GetIsUnknownDerived(RequestContext)">
+      <example>
+This sample shows how to call GetIsUnknownDerived and parse the result.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response response = client.GetIsUnknownDerived(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("index").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code>
+This sample shows how to call GetIsUnknownDerived with all parameters and parse the result.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+Response response = client.GetIsUnknownDerived(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("index").ToString());
+Console.WriteLine(result.GetProperty("age").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IsUnknownAdditionalPropertiesDerived,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+IsUnknownAdditionalPropertiesDerived body = new IsUnknownAdditionalPropertiesDerived("<name>", 1234);
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+IsUnknownAdditionalPropertiesDerived body = new IsUnknownAdditionalPropertiesDerived("<name>", 1234)
+{
+    Age = 123.45F,
+};
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(IsUnknownAdditionalPropertiesDerived,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+IsUnknownAdditionalPropertiesDerived body = new IsUnknownAdditionalPropertiesDerived("<name>", 1234);
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+IsUnknownAdditionalPropertiesDerived body = new IsUnknownAdditionalPropertiesDerived("<name>", 1234)
+{
+    Age = 123.45F,
+};
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    name = "<name>",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    age = 123.45F,
+    name = "<name>",
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    name = "<name>",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+IsUnknownDerived client = new AdditionalPropertiesClient().GetIsUnknownDerivedClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    index = 1234,
+    age = 123.45F,
+    name = "<name>",
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

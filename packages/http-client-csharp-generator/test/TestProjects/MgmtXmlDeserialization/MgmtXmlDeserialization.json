@@ -1,0 +1,423 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "XmlDeserialization",
+        "description": "Use these REST APIs to test xml deserialization behavior.",
+        "version": "2021-08-01"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json",
+        "application/xml"
+    ],
+    "produces": [
+        "application/json",
+        "application/xml"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow.",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.XmlDeserialization/xmls": {
+            "get": {
+                "tags": [
+                    "XmlDeserialization"
+                ],
+                "operationId": "XmlDeserialization_List",
+                "description": "Lists a collection of Xmls in the specified resource group instance.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "name": "$filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The filter to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/TopQueryParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SkipQueryParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lists a collection of xml entities.",
+                        "schema": {
+                            "$ref": "#/definitions/XmlCollection"
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                },
+                "x-ms-odata": "#/definitions/XmlInstance"
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.XmlDeserialization/xmls/{xmlName}": {
+            "head": {
+                "tags": [
+                    "XmlDeserialization"
+                ],
+                "operationId": "XmlDeserialization_GetEntityTag",
+                "description": "Gets the entity state (Etag) version of the Xml specified by its identifier.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/XmlNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Specified Api Version Set entity exists and current entity state version is present in the ETag header.",
+                        "headers": {
+                            "ETag": {
+                                "description": "Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "XmlDeserialization"
+                ],
+                "operationId": "XmlDeserialization_Get",
+                "description": "Gets the details of the Xml specified by its identifier.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/XmlNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Gets the specified xml entity.",
+                        "schema": {
+                            "$ref": "#/definitions/XmlInstance"
+                        },
+                        "headers": {
+                            "ETag": {
+                                "description": "Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "XmlDeserialization"
+                ],
+                "operationId": "XmlDeserialization_CreateOrUpdate",
+                "description": "Creates or Updates a Xml.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/XmlNameParameter"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/XmlInstance"
+                        },
+                        "description": "Create or update parameters."
+                    },
+                    {
+                        "$ref": "#/parameters/IfMatchOptionalParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Xml was successfully created.",
+                        "schema": {
+                            "$ref": "#/definitions/XmlInstance"
+                        },
+                        "headers": {
+                            "ETag": {
+                                "description": "Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Xml was successfully updated.",
+                        "schema": {
+                            "$ref": "#/definitions/XmlInstance"
+                        },
+                        "headers": {
+                            "ETag": {
+                                "description": "Current entity state version. Should be treated as opaque and used to make conditional HTTP requests.",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "XmlDeserialization"
+                ],
+                "operationId": "XmlDeserialization_Delete",
+                "description": "Deletes specific Xml.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/XmlNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/IfMatchRequiredParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Xml details were successfully deleted."
+                    },
+                    "204": {
+                        "description": "The Xml details were successfully deleted."
+                    },
+                    "default": {
+                        "description": "Error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "XmlCollection": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/XmlInstance"
+                    },
+                    "description": "Page values."
+                },
+                "count": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "Total record count number across all pages."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Next page link if any."
+                }
+            },
+            "description": "Paged Xml list representation."
+        },
+        "XmlInstance": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Xml instance details."
+        },
+        "Resource": {
+            "title": "Resource",
+            "description": "Common fields that are returned in the response for all Azure Resource Manager resources",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The name of the resource"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The type of the resource. E.g. \"Microsoft.Compute/virtualMachines\" or \"Microsoft.Storage/storageAccounts\""
+                }
+            },
+            "x-ms-azure-resource": true
+        },
+        "ErrorResponse": {
+            "properties": {
+                "error": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/ErrorResponseBody",
+                    "description": "Properties of the Error Response."
+                }
+            },
+            "description": "Error Response."
+        },
+        "ErrorResponseBody": {
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "description": "Service-defined error code. This code serves as a sub-status for the HTTP error code specified in the response."
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Human-readable representation of the error."
+                }
+            },
+            "description": "Error Body contract."
+        }
+    },
+    "parameters": {
+        "ResourceGroupNameParameter": {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the resource group.",
+            "x-ms-parameter-location": "method"
+        },
+        "TopQueryParameter": {
+            "name": "$top",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of records to return.",
+            "minimum": 1,
+            "x-ms-parameter-location": "method"
+        },
+        "SkipQueryParameter": {
+            "name": "$skip",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of records to skip.",
+            "minimum": 0,
+            "x-ms-parameter-location": "method"
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Version of the API to be used with the client request."
+        },
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "XmlNameParameter": {
+            "name": "xmlName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The name of the API Management service.",
+            "minLength": 1,
+            "maxLength": 50,
+            "pattern": "^[a-zA-Z](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$",
+            "x-ms-parameter-location": "method"
+        },
+        "IfMatchOptionalParameter": {
+            "name": "If-Match",
+            "in": "header",
+            "required": false,
+            "description": "ETag of the Entity. Not required when creating an entity, but required when updating an entity.",
+            "type": "string",
+            "x-ms-parameter-location": "method"
+        },
+        "IfMatchRequiredParameter": {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "description": "ETag of the Entity. ETag should match the current entity state from the header response of the GET request or it should be * for unconditional update.",
+            "type": "string",
+            "x-ms-parameter-location": "method"
+        }
+    }
+}

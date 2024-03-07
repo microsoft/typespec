@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="OneAsync(RequestContext)">
+      <example>
+This sample shows how to call OneAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = await client.OneAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call OneAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = await client.OneAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="One(RequestContext)">
+      <example>
+This sample shows how to call One.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = client.One();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call One with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = client.One();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ThreeAsync(RequestContext)">
+      <example>
+This sample shows how to call ThreeAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = await client.ThreeAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ThreeAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = await client.ThreeAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Three(RequestContext)">
+      <example>
+This sample shows how to call Three.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = client.Three();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Three with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = client.Three();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="FourAsync(RequestContext)">
+      <example>
+This sample shows how to call FourAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = await client.FourAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call FourAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = await client.FourAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Four(RequestContext)">
+      <example>
+This sample shows how to call Four.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = client.Four();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Four with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+Group1 client = new TwoOperationGroupClient(endpoint).GetGroup1Client("default");
+
+Response response = client.Four();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

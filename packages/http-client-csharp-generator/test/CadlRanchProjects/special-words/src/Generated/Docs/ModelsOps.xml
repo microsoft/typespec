@@ -1,0 +1,2909 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="WithAndAsync(And,CancellationToken)">
+      <example>
+This sample shows how to call WithAndAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+And body = new And("<name>");
+Response response = await client.WithAndAsync(body);
+]]></code>
+This sample shows how to call WithAndAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+And body = new And("<name>");
+Response response = await client.WithAndAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithAnd(And,CancellationToken)">
+      <example>
+This sample shows how to call WithAnd.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+And body = new And("<name>");
+Response response = client.WithAnd(body);
+]]></code>
+This sample shows how to call WithAnd with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+And body = new And("<name>");
+Response response = client.WithAnd(body);
+]]></code></example>
+    </member>
+    <member name="WithAndAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAndAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAndAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAndAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAndAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAnd(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAnd.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAnd(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAnd with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAnd(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAsAsync(As,CancellationToken)">
+      <example>
+This sample shows how to call WithAsAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+As body = new As("<name>");
+Response response = await client.WithAsAsync(body);
+]]></code>
+This sample shows how to call WithAsAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+As body = new As("<name>");
+Response response = await client.WithAsAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithAs(As,CancellationToken)">
+      <example>
+This sample shows how to call WithAs.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+As body = new As("<name>");
+Response response = client.WithAs(body);
+]]></code>
+This sample shows how to call WithAs with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+As body = new As("<name>");
+Response response = client.WithAs(body);
+]]></code></example>
+    </member>
+    <member name="WithAsAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAsAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAsAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAsAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAsAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAs(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAs.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAs(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAs with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAs(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAssertAsync(Assert,CancellationToken)">
+      <example>
+This sample shows how to call WithAssertAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Assert body = new Assert("<name>");
+Response response = await client.WithAssertAsync(body);
+]]></code>
+This sample shows how to call WithAssertAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Assert body = new Assert("<name>");
+Response response = await client.WithAssertAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithAssert(Assert,CancellationToken)">
+      <example>
+This sample shows how to call WithAssert.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Assert body = new Assert("<name>");
+Response response = client.WithAssert(body);
+]]></code>
+This sample shows how to call WithAssert with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Assert body = new Assert("<name>");
+Response response = client.WithAssert(body);
+]]></code></example>
+    </member>
+    <member name="WithAssertAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAssertAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAssertAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAssertAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAssertAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAssert(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAssert.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAssert(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAssert with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAssert(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAsyncAsync(Async,CancellationToken)">
+      <example>
+This sample shows how to call WithAsyncAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Async body = new Async("<name>");
+Response response = await client.WithAsyncAsync(body);
+]]></code>
+This sample shows how to call WithAsyncAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Async body = new Async("<name>");
+Response response = await client.WithAsyncAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithAsync(Async,CancellationToken)">
+      <example>
+This sample shows how to call WithAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Async body = new Async("<name>");
+Response response = client.WithAsync(body);
+]]></code>
+This sample shows how to call WithAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Async body = new Async("<name>");
+Response response = client.WithAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithAsyncAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAsyncAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAsyncAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAsyncAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAsyncAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAwaitAsync(Await,CancellationToken)">
+      <example>
+This sample shows how to call WithAwaitAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Await body = new Await("<name>");
+Response response = await client.WithAwaitAsync(body);
+]]></code>
+This sample shows how to call WithAwaitAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Await body = new Await("<name>");
+Response response = await client.WithAwaitAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithAwait(Await,CancellationToken)">
+      <example>
+This sample shows how to call WithAwait.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Await body = new Await("<name>");
+Response response = client.WithAwait(body);
+]]></code>
+This sample shows how to call WithAwait with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Await body = new Await("<name>");
+Response response = client.WithAwait(body);
+]]></code></example>
+    </member>
+    <member name="WithAwaitAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAwaitAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAwaitAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAwaitAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithAwaitAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAwait(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithAwait.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAwait(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAwait with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithAwait(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithBreakAsync(Break,CancellationToken)">
+      <example>
+This sample shows how to call WithBreakAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Break body = new Break("<name>");
+Response response = await client.WithBreakAsync(body);
+]]></code>
+This sample shows how to call WithBreakAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Break body = new Break("<name>");
+Response response = await client.WithBreakAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithBreak(Break,CancellationToken)">
+      <example>
+This sample shows how to call WithBreak.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Break body = new Break("<name>");
+Response response = client.WithBreak(body);
+]]></code>
+This sample shows how to call WithBreak with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Break body = new Break("<name>");
+Response response = client.WithBreak(body);
+]]></code></example>
+    </member>
+    <member name="WithBreakAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithBreakAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithBreakAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithBreakAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithBreakAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithBreak(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithBreak.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithBreak(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithBreak with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithBreak(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithClassAsync(Class,CancellationToken)">
+      <example>
+This sample shows how to call WithClassAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Class body = new Class("<name>");
+Response response = await client.WithClassAsync(body);
+]]></code>
+This sample shows how to call WithClassAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Class body = new Class("<name>");
+Response response = await client.WithClassAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithClass(Class,CancellationToken)">
+      <example>
+This sample shows how to call WithClass.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Class body = new Class("<name>");
+Response response = client.WithClass(body);
+]]></code>
+This sample shows how to call WithClass with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Class body = new Class("<name>");
+Response response = client.WithClass(body);
+]]></code></example>
+    </member>
+    <member name="WithClassAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithClassAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithClassAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithClassAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithClassAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithClass(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithClass.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithClass(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithClass with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithClass(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithConstructorAsync(Constructor,CancellationToken)">
+      <example>
+This sample shows how to call WithConstructorAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Constructor body = new Constructor("<name>");
+Response response = await client.WithConstructorAsync(body);
+]]></code>
+This sample shows how to call WithConstructorAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Constructor body = new Constructor("<name>");
+Response response = await client.WithConstructorAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithConstructor(Constructor,CancellationToken)">
+      <example>
+This sample shows how to call WithConstructor.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Constructor body = new Constructor("<name>");
+Response response = client.WithConstructor(body);
+]]></code>
+This sample shows how to call WithConstructor with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Constructor body = new Constructor("<name>");
+Response response = client.WithConstructor(body);
+]]></code></example>
+    </member>
+    <member name="WithConstructorAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithConstructorAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithConstructorAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithConstructorAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithConstructorAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithConstructor(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithConstructor.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithConstructor(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithConstructor with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithConstructor(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithContinueAsync(Continue,CancellationToken)">
+      <example>
+This sample shows how to call WithContinueAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Continue body = new Continue("<name>");
+Response response = await client.WithContinueAsync(body);
+]]></code>
+This sample shows how to call WithContinueAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Continue body = new Continue("<name>");
+Response response = await client.WithContinueAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithContinue(Continue,CancellationToken)">
+      <example>
+This sample shows how to call WithContinue.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Continue body = new Continue("<name>");
+Response response = client.WithContinue(body);
+]]></code>
+This sample shows how to call WithContinue with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Continue body = new Continue("<name>");
+Response response = client.WithContinue(body);
+]]></code></example>
+    </member>
+    <member name="WithContinueAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithContinueAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithContinueAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithContinueAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithContinueAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithContinue(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithContinue.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithContinue(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithContinue with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithContinue(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithDefAsync(Def,CancellationToken)">
+      <example>
+This sample shows how to call WithDefAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Def body = new Def("<name>");
+Response response = await client.WithDefAsync(body);
+]]></code>
+This sample shows how to call WithDefAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Def body = new Def("<name>");
+Response response = await client.WithDefAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithDef(Def,CancellationToken)">
+      <example>
+This sample shows how to call WithDef.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Def body = new Def("<name>");
+Response response = client.WithDef(body);
+]]></code>
+This sample shows how to call WithDef with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Def body = new Def("<name>");
+Response response = client.WithDef(body);
+]]></code></example>
+    </member>
+    <member name="WithDefAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithDefAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithDefAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithDefAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithDefAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithDef(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithDef.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithDef(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithDef with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithDef(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithDelAsync(Del,CancellationToken)">
+      <example>
+This sample shows how to call WithDelAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Del body = new Del("<name>");
+Response response = await client.WithDelAsync(body);
+]]></code>
+This sample shows how to call WithDelAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Del body = new Del("<name>");
+Response response = await client.WithDelAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithDel(Del,CancellationToken)">
+      <example>
+This sample shows how to call WithDel.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Del body = new Del("<name>");
+Response response = client.WithDel(body);
+]]></code>
+This sample shows how to call WithDel with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Del body = new Del("<name>");
+Response response = client.WithDel(body);
+]]></code></example>
+    </member>
+    <member name="WithDelAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithDelAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithDelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithDelAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithDelAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithDel(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithDel.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithDel(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithDel with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithDel(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithElifAsync(Elif,CancellationToken)">
+      <example>
+This sample shows how to call WithElifAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Elif body = new Elif("<name>");
+Response response = await client.WithElifAsync(body);
+]]></code>
+This sample shows how to call WithElifAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Elif body = new Elif("<name>");
+Response response = await client.WithElifAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithElif(Elif,CancellationToken)">
+      <example>
+This sample shows how to call WithElif.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Elif body = new Elif("<name>");
+Response response = client.WithElif(body);
+]]></code>
+This sample shows how to call WithElif with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Elif body = new Elif("<name>");
+Response response = client.WithElif(body);
+]]></code></example>
+    </member>
+    <member name="WithElifAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithElifAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithElifAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithElifAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithElifAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithElif(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithElif.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithElif(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithElif with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithElif(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithElseAsync(Else,CancellationToken)">
+      <example>
+This sample shows how to call WithElseAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Else body = new Else("<name>");
+Response response = await client.WithElseAsync(body);
+]]></code>
+This sample shows how to call WithElseAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Else body = new Else("<name>");
+Response response = await client.WithElseAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithElse(Else,CancellationToken)">
+      <example>
+This sample shows how to call WithElse.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Else body = new Else("<name>");
+Response response = client.WithElse(body);
+]]></code>
+This sample shows how to call WithElse with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Else body = new Else("<name>");
+Response response = client.WithElse(body);
+]]></code></example>
+    </member>
+    <member name="WithElseAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithElseAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithElseAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithElseAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithElseAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithElse(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithElse.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithElse(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithElse with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithElse(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithExceptAsync(Except,CancellationToken)">
+      <example>
+This sample shows how to call WithExceptAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Except body = new Except("<name>");
+Response response = await client.WithExceptAsync(body);
+]]></code>
+This sample shows how to call WithExceptAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Except body = new Except("<name>");
+Response response = await client.WithExceptAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithExcept(Except,CancellationToken)">
+      <example>
+This sample shows how to call WithExcept.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Except body = new Except("<name>");
+Response response = client.WithExcept(body);
+]]></code>
+This sample shows how to call WithExcept with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Except body = new Except("<name>");
+Response response = client.WithExcept(body);
+]]></code></example>
+    </member>
+    <member name="WithExceptAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithExceptAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithExceptAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithExceptAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithExceptAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithExcept(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithExcept.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithExcept(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithExcept with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithExcept(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithExecAsync(Exec,CancellationToken)">
+      <example>
+This sample shows how to call WithExecAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Exec body = new Exec("<name>");
+Response response = await client.WithExecAsync(body);
+]]></code>
+This sample shows how to call WithExecAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Exec body = new Exec("<name>");
+Response response = await client.WithExecAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithExec(Exec,CancellationToken)">
+      <example>
+This sample shows how to call WithExec.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Exec body = new Exec("<name>");
+Response response = client.WithExec(body);
+]]></code>
+This sample shows how to call WithExec with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Exec body = new Exec("<name>");
+Response response = client.WithExec(body);
+]]></code></example>
+    </member>
+    <member name="WithExecAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithExecAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithExecAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithExecAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithExecAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithExec(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithExec.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithExec(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithExec with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithExec(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithFinallyAsync(Finally,CancellationToken)">
+      <example>
+This sample shows how to call WithFinallyAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Finally body = new Finally("<name>");
+Response response = await client.WithFinallyAsync(body);
+]]></code>
+This sample shows how to call WithFinallyAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Finally body = new Finally("<name>");
+Response response = await client.WithFinallyAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithFinally(Finally,CancellationToken)">
+      <example>
+This sample shows how to call WithFinally.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Finally body = new Finally("<name>");
+Response response = client.WithFinally(body);
+]]></code>
+This sample shows how to call WithFinally with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Finally body = new Finally("<name>");
+Response response = client.WithFinally(body);
+]]></code></example>
+    </member>
+    <member name="WithFinallyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithFinallyAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithFinallyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithFinallyAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithFinallyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithFinally(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithFinally.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithFinally(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithFinally with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithFinally(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithForAsync(For,CancellationToken)">
+      <example>
+This sample shows how to call WithForAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+For body = new For("<name>");
+Response response = await client.WithForAsync(body);
+]]></code>
+This sample shows how to call WithForAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+For body = new For("<name>");
+Response response = await client.WithForAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithFor(For,CancellationToken)">
+      <example>
+This sample shows how to call WithFor.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+For body = new For("<name>");
+Response response = client.WithFor(body);
+]]></code>
+This sample shows how to call WithFor with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+For body = new For("<name>");
+Response response = client.WithFor(body);
+]]></code></example>
+    </member>
+    <member name="WithForAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithForAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithForAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithForAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithForAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithFor(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithFor.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithFor(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithFor with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithFor(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithFromAsync(From,CancellationToken)">
+      <example>
+This sample shows how to call WithFromAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+From body = new From("<name>");
+Response response = await client.WithFromAsync(body);
+]]></code>
+This sample shows how to call WithFromAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+From body = new From("<name>");
+Response response = await client.WithFromAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithFrom(From,CancellationToken)">
+      <example>
+This sample shows how to call WithFrom.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+From body = new From("<name>");
+Response response = client.WithFrom(body);
+]]></code>
+This sample shows how to call WithFrom with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+From body = new From("<name>");
+Response response = client.WithFrom(body);
+]]></code></example>
+    </member>
+    <member name="WithFromAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithFromAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithFromAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithFromAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithFromAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithFrom(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithFrom.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithFrom(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithFrom with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithFrom(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithGlobalAsync(Global,CancellationToken)">
+      <example>
+This sample shows how to call WithGlobalAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Global body = new Global("<name>");
+Response response = await client.WithGlobalAsync(body);
+]]></code>
+This sample shows how to call WithGlobalAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Global body = new Global("<name>");
+Response response = await client.WithGlobalAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithGlobal(Global,CancellationToken)">
+      <example>
+This sample shows how to call WithGlobal.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Global body = new Global("<name>");
+Response response = client.WithGlobal(body);
+]]></code>
+This sample shows how to call WithGlobal with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Global body = new Global("<name>");
+Response response = client.WithGlobal(body);
+]]></code></example>
+    </member>
+    <member name="WithGlobalAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithGlobalAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithGlobalAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithGlobalAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithGlobalAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithGlobal(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithGlobal.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithGlobal(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithGlobal with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithGlobal(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithIfAsync(If,CancellationToken)">
+      <example>
+This sample shows how to call WithIfAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+If body = new If("<name>");
+Response response = await client.WithIfAsync(body);
+]]></code>
+This sample shows how to call WithIfAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+If body = new If("<name>");
+Response response = await client.WithIfAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithIf(If,CancellationToken)">
+      <example>
+This sample shows how to call WithIf.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+If body = new If("<name>");
+Response response = client.WithIf(body);
+]]></code>
+This sample shows how to call WithIf with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+If body = new If("<name>");
+Response response = client.WithIf(body);
+]]></code></example>
+    </member>
+    <member name="WithIfAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithIfAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithIfAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithIfAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithIfAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithIf(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithIf.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithIf(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithIf with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithIf(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithImportAsync(Import,CancellationToken)">
+      <example>
+This sample shows how to call WithImportAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Import body = new Import("<name>");
+Response response = await client.WithImportAsync(body);
+]]></code>
+This sample shows how to call WithImportAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Import body = new Import("<name>");
+Response response = await client.WithImportAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithImport(Import,CancellationToken)">
+      <example>
+This sample shows how to call WithImport.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Import body = new Import("<name>");
+Response response = client.WithImport(body);
+]]></code>
+This sample shows how to call WithImport with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Import body = new Import("<name>");
+Response response = client.WithImport(body);
+]]></code></example>
+    </member>
+    <member name="WithImportAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithImportAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithImportAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithImportAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithImportAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithImport(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithImport.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithImport(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithImport with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithImport(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithInAsync(In,CancellationToken)">
+      <example>
+This sample shows how to call WithInAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+In body = new In("<name>");
+Response response = await client.WithInAsync(body);
+]]></code>
+This sample shows how to call WithInAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+In body = new In("<name>");
+Response response = await client.WithInAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithIn(In,CancellationToken)">
+      <example>
+This sample shows how to call WithIn.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+In body = new In("<name>");
+Response response = client.WithIn(body);
+]]></code>
+This sample shows how to call WithIn with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+In body = new In("<name>");
+Response response = client.WithIn(body);
+]]></code></example>
+    </member>
+    <member name="WithInAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithInAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithInAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithInAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithInAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithIn(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithIn.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithIn(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithIn with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithIn(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithIsAsync(Is,CancellationToken)">
+      <example>
+This sample shows how to call WithIsAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Is body = new Is("<name>");
+Response response = await client.WithIsAsync(body);
+]]></code>
+This sample shows how to call WithIsAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Is body = new Is("<name>");
+Response response = await client.WithIsAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithIs(Is,CancellationToken)">
+      <example>
+This sample shows how to call WithIs.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Is body = new Is("<name>");
+Response response = client.WithIs(body);
+]]></code>
+This sample shows how to call WithIs with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Is body = new Is("<name>");
+Response response = client.WithIs(body);
+]]></code></example>
+    </member>
+    <member name="WithIsAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithIsAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithIsAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithIsAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithIsAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithIs(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithIs.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithIs(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithIs with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithIs(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithLambdaAsync(Lambda,CancellationToken)">
+      <example>
+This sample shows how to call WithLambdaAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Lambda body = new Lambda("<name>");
+Response response = await client.WithLambdaAsync(body);
+]]></code>
+This sample shows how to call WithLambdaAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Lambda body = new Lambda("<name>");
+Response response = await client.WithLambdaAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithLambda(Lambda,CancellationToken)">
+      <example>
+This sample shows how to call WithLambda.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Lambda body = new Lambda("<name>");
+Response response = client.WithLambda(body);
+]]></code>
+This sample shows how to call WithLambda with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Lambda body = new Lambda("<name>");
+Response response = client.WithLambda(body);
+]]></code></example>
+    </member>
+    <member name="WithLambdaAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithLambdaAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithLambdaAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithLambdaAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithLambdaAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithLambda(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithLambda.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithLambda(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithLambda with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithLambda(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithNotAsync(Not,CancellationToken)">
+      <example>
+This sample shows how to call WithNotAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Not body = new Not("<name>");
+Response response = await client.WithNotAsync(body);
+]]></code>
+This sample shows how to call WithNotAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Not body = new Not("<name>");
+Response response = await client.WithNotAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithNot(Not,CancellationToken)">
+      <example>
+This sample shows how to call WithNot.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Not body = new Not("<name>");
+Response response = client.WithNot(body);
+]]></code>
+This sample shows how to call WithNot with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Not body = new Not("<name>");
+Response response = client.WithNot(body);
+]]></code></example>
+    </member>
+    <member name="WithNotAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithNotAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithNotAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithNotAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithNotAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithNot(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithNot.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithNot(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithNot with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithNot(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithOrAsync(Or,CancellationToken)">
+      <example>
+This sample shows how to call WithOrAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Or body = new Or("<name>");
+Response response = await client.WithOrAsync(body);
+]]></code>
+This sample shows how to call WithOrAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Or body = new Or("<name>");
+Response response = await client.WithOrAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithOr(Or,CancellationToken)">
+      <example>
+This sample shows how to call WithOr.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Or body = new Or("<name>");
+Response response = client.WithOr(body);
+]]></code>
+This sample shows how to call WithOr with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Or body = new Or("<name>");
+Response response = client.WithOr(body);
+]]></code></example>
+    </member>
+    <member name="WithOrAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithOrAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithOrAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithOrAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithOrAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithOr(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithOr.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithOr(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithOr with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithOr(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithPassAsync(Pass,CancellationToken)">
+      <example>
+This sample shows how to call WithPassAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Pass body = new Pass("<name>");
+Response response = await client.WithPassAsync(body);
+]]></code>
+This sample shows how to call WithPassAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Pass body = new Pass("<name>");
+Response response = await client.WithPassAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithPass(Pass,CancellationToken)">
+      <example>
+This sample shows how to call WithPass.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Pass body = new Pass("<name>");
+Response response = client.WithPass(body);
+]]></code>
+This sample shows how to call WithPass with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Pass body = new Pass("<name>");
+Response response = client.WithPass(body);
+]]></code></example>
+    </member>
+    <member name="WithPassAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithPassAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithPassAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithPassAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithPassAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithPass(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithPass.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithPass(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithPass with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithPass(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithRaiseAsync(Raise,CancellationToken)">
+      <example>
+This sample shows how to call WithRaiseAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Raise body = new Raise("<name>");
+Response response = await client.WithRaiseAsync(body);
+]]></code>
+This sample shows how to call WithRaiseAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Raise body = new Raise("<name>");
+Response response = await client.WithRaiseAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithRaise(Raise,CancellationToken)">
+      <example>
+This sample shows how to call WithRaise.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Raise body = new Raise("<name>");
+Response response = client.WithRaise(body);
+]]></code>
+This sample shows how to call WithRaise with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Raise body = new Raise("<name>");
+Response response = client.WithRaise(body);
+]]></code></example>
+    </member>
+    <member name="WithRaiseAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithRaiseAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithRaiseAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithRaiseAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithRaiseAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithRaise(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithRaise.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithRaise(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithRaise with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithRaise(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithReturnAsync(Return,CancellationToken)">
+      <example>
+This sample shows how to call WithReturnAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Return body = new Return("<name>");
+Response response = await client.WithReturnAsync(body);
+]]></code>
+This sample shows how to call WithReturnAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Return body = new Return("<name>");
+Response response = await client.WithReturnAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithReturn(Return,CancellationToken)">
+      <example>
+This sample shows how to call WithReturn.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Return body = new Return("<name>");
+Response response = client.WithReturn(body);
+]]></code>
+This sample shows how to call WithReturn with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Return body = new Return("<name>");
+Response response = client.WithReturn(body);
+]]></code></example>
+    </member>
+    <member name="WithReturnAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithReturnAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithReturnAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithReturnAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithReturnAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithReturn(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithReturn.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithReturn(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithReturn with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithReturn(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithTryAsync(Try,CancellationToken)">
+      <example>
+This sample shows how to call WithTryAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Try body = new Try("<name>");
+Response response = await client.WithTryAsync(body);
+]]></code>
+This sample shows how to call WithTryAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Try body = new Try("<name>");
+Response response = await client.WithTryAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithTry(Try,CancellationToken)">
+      <example>
+This sample shows how to call WithTry.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Try body = new Try("<name>");
+Response response = client.WithTry(body);
+]]></code>
+This sample shows how to call WithTry with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Try body = new Try("<name>");
+Response response = client.WithTry(body);
+]]></code></example>
+    </member>
+    <member name="WithTryAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithTryAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithTryAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithTryAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithTryAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithTry(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithTry.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithTry(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithTry with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithTry(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithWhileAsync(While,CancellationToken)">
+      <example>
+This sample shows how to call WithWhileAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+While body = new While("<name>");
+Response response = await client.WithWhileAsync(body);
+]]></code>
+This sample shows how to call WithWhileAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+While body = new While("<name>");
+Response response = await client.WithWhileAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithWhile(While,CancellationToken)">
+      <example>
+This sample shows how to call WithWhile.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+While body = new While("<name>");
+Response response = client.WithWhile(body);
+]]></code>
+This sample shows how to call WithWhile with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+While body = new While("<name>");
+Response response = client.WithWhile(body);
+]]></code></example>
+    </member>
+    <member name="WithWhileAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithWhileAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithWhileAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithWhileAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithWhileAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithWhile(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithWhile.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithWhile(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithWhile with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithWhile(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithWithAsync(With,CancellationToken)">
+      <example>
+This sample shows how to call WithWithAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+With body = new With("<name>");
+Response response = await client.WithWithAsync(body);
+]]></code>
+This sample shows how to call WithWithAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+With body = new With("<name>");
+Response response = await client.WithWithAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithWith(With,CancellationToken)">
+      <example>
+This sample shows how to call WithWith.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+With body = new With("<name>");
+Response response = client.WithWith(body);
+]]></code>
+This sample shows how to call WithWith with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+With body = new With("<name>");
+Response response = client.WithWith(body);
+]]></code></example>
+    </member>
+    <member name="WithWithAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithWithAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithWithAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithWithAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithWithAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithWith(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithWith.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithWith(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithWith with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithWith(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithYieldAsync(Yield,CancellationToken)">
+      <example>
+This sample shows how to call WithYieldAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Yield body = new Yield("<name>");
+Response response = await client.WithYieldAsync(body);
+]]></code>
+This sample shows how to call WithYieldAsync with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Yield body = new Yield("<name>");
+Response response = await client.WithYieldAsync(body);
+]]></code></example>
+    </member>
+    <member name="WithYield(Yield,CancellationToken)">
+      <example>
+This sample shows how to call WithYield.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Yield body = new Yield("<name>");
+Response response = client.WithYield(body);
+]]></code>
+This sample shows how to call WithYield with all parameters.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+Yield body = new Yield("<name>");
+Response response = client.WithYield(body);
+]]></code></example>
+    </member>
+    <member name="WithYieldAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithYieldAsync.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithYieldAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithYieldAsync with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = await client.WithYieldAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithYield(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call WithYield.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithYield(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithYield with all request content.
+<code><![CDATA[
+ModelsOps client = new SpecialWordsClient().GetModelsOpsClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+});
+Response response = client.WithYield(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

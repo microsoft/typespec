@@ -1,0 +1,14 @@
+{
+  "parameters": {
+    "ruleCollectionGroupName": "ruleCollectionGroup1",
+    "firewallPolicyName": "firewallPolicy",
+    "resourceGroupName": "rg1",
+    "api-version": "2021-02-01",
+    "subscriptionId": "subid"
+  },
+  "responses": {
+    "200": {},
+    "202": {},
+    "204": {}
+  }
+}

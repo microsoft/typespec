@@ -1,0 +1,99 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>Microsoft.Azure.AutoRest.CSharp</PackageId>
+    <OutputType>Exe</OutputType>
+    <Version>3.0.0</Version>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+    <PackAsTool>true</PackAsTool>
+    <RollForward>Minor</RollForward>
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL</DefineConstants>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" />
+    <PackageReference Include="Azure.Core.Expressions.DataFactory" />
+    <PackageReference Include="Azure.Core.Experimental" />
+    <PackageReference Include="Azure.ResourceManager" />
+    <PackageReference Include="CommandLineParser" />
+    <PackageReference Include="Humanizer.Core" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="YamlDotNet" />
+    <PackageReference Include="nunit" />
+    <!-- Any stable version of System.Memory should work here. -->
+    <PackageReference Include="System.Memory" />
+    <PackageReference Include="NuGet.Configuration" />
+    <PackageReference Include="Microsoft.Build" />
+    <PackageReference Include="System.ClientModel" />
+  </ItemGroup>
+
+  <!-- Enable SourceLink  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../../src/assets/**/*.cs" />
+    <TfmSpecificPackageFile Include="../../src/assets/" PackagePath="content" />
+
+    <Content Include="../../node_modules/autorest/**/*" PackagePath="tools\autorest" />
+
+    <Content Include="build\CodeGeneration.targets" PackagePath="build\Microsoft.Azure.AutoRest.CSharp.targets" />
+    <Content Include="build\CodeGeneration.targets" PackagePath="buildMultiTargeting\Microsoft.Azure.AutoRest.CSharp.targets" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../src/assets/**/*.cs" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="package.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="readme.md" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="index.d.ts" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="index.mjs" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="PreparePropsFile" BeforeTargets="GenerateNuspec;_GetPackageFiles" DependsOnTargets="GenerateSourceLinkFile" Condition="'$(TargetFrameworks)' == '' or '$(IsCrossTargetingBuild)' == 'true'" Outputs="$(_SourcePackagePropsFilePath)">
+
+    <PropertyGroup>
+      <PackageType></PackageType>
+      <_RepoRoot>$(MSBuildThisFileDirectory)../../</_RepoRoot>
+      <_RelativePath>$([MSBuild]::MakeRelative($(_RepoRoot), '$(MSBuildProjectDirectory)/../assets'))</_RelativePath>
+      <_SourceRoot>$([System.String]::Copy('%(SourceRoot.SourceLinkUrl)').Replace('*', ''))</_SourceRoot>
+      <_RawUrl>$(_SourceRoot)$(_RelativePath.Replace('\', '/'))/*</_RawUrl>
+      <_ReadmeMdPath>$(_RepoRoot)readme.md</_ReadmeMdPath>
+      <_GeneratedPropsFilePath>$(IntermediateOutputPath)/Microsoft.Azure.AutoRest.CSharp.props</_GeneratedPropsFilePath>
+
+      <_ReadmeMdLines>$([System.IO.File]::ReadAllText($(_ReadmeMdPath)))</_ReadmeMdLines>
+    </PropertyGroup>
+
+    <PropertyGroup>
+      <_CoreVersion>$([System.Text.RegularExpressions.Regex]::Match('$(_ReadmeMdLines)', 'version: ([\.\d]+)').get_Groups().get_Item(1))</_CoreVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_GeneratedPropsFileLines Include="&lt;Project&gt;" />
+      <_GeneratedPropsFileLines Include="&lt;ItemGroup&gt;" />
+      <_GeneratedPropsFileLines Include="&lt;SourceRoot Include=&quot;%24([System.IO.Path]::GetFullPath('%24(MSBuildThisFileDirectory)..\contentFiles\any\$(TargetFramework)\'))&quot; SourceLinkUrl=&quot;$(_RawUrl)&quot;/&gt;" />
+      <_GeneratedPropsFileLines Include="&lt;/ItemGroup&gt;" />
+      <_GeneratedPropsFileLines Include="&lt;PropertyGroup&gt;" />
+      <_GeneratedPropsFileLines Include="&lt;AutoRestCoreVersion&gt;$(_CoreVersion)&lt;/AutoRestCoreVersion&gt;" />
+      <_GeneratedPropsFileLines Include="&lt;/PropertyGroup&gt;" />
+      <_GeneratedPropsFileLines Include="&lt;/Project&gt;" />
+    </ItemGroup>
+
+
+    <WriteLinesToFile Overwrite="true" File="$(_GeneratedPropsFilePath)" Lines="@(_GeneratedPropsFileLines)" />
+
+    <ItemGroup>
+      <Content Include="$(_GeneratedPropsFilePath)" PackagePath="build\" />
+      <Content Include="$(_GeneratedPropsFilePath)" PackagePath="buildMultiTargeting\" />
+    </ItemGroup>
+
+    <Message Text="##vso[task.setvariable variable=AutorestCSharpVersion;isOutput=true]$(Version)" Importance="High" />
+  </Target>
+
+</Project>

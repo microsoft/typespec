@@ -1,0 +1,951 @@
+!CodeModel 
+info: !Info 
+  description: Test
+  title: Parameters-Lowlevel
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_4
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelCode
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: TestModelStatus
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_6
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_11
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  dateTimes:
+    - !DateTimeSchema &ref_32
+      type: date-time
+      format: date-time-rfc1123
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: DateTime
+          description: ''
+      protocol: !Protocols {}
+  uuids:
+    - !UuidSchema &ref_31
+      type: uuid
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Uuid
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_12
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_1
+          serializedName: Code
+          language: !Languages 
+            default:
+              name: code
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          serializedName: Status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: TestModel
+          description: .
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_3
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: NoRequestBodyResponseBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_7
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: Query parameter top
+                serializedName: $top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_8
+            schema: *ref_4
+            implementation: Method
+            required: true
+            extensions:
+              x-nullable: true
+            language: !Languages 
+              default:
+                name: id
+                description: Query parameter Id
+                serializedName: id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_9
+            schema: *ref_4
+            clientDefaultValue: 12
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: 12
+            language: !Languages 
+              default:
+                name: skip
+                description: Query parameter skip
+                serializedName: skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_10
+            schema: *ref_5
+            clientDefaultValue: start
+            implementation: Method
+            extensions:
+              x-ms-client-default: start
+            language: !Languages 
+              default:
+                name: status
+                description: Query parameter status
+                serializedName: status
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /test1
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_7
+          - *ref_8
+          - *ref_9
+          - *ref_10
+        responses:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: String Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: NoRequestBodyResponseBody
+            description: No RequestBody and ResponseBody
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RequestBodyResponseBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requestMediaTypes:
+          application/json: !Request &ref_14
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_13
+                schema: *ref_12
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: model
+                    description: body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_13
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /test1
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_14
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_12
+            language: !Languages 
+              default:
+                name: ''
+                description: String Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: RequestBodyResponseBody
+            description: RequestBody and ResponseBody
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: DeleteNoRequestBodyResponseBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_15
+            schema: *ref_5
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceName
+                description: name
+                serializedName: resourceName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /test1
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_15
+        responses:
+          - !SchemaResponse 
+            schema: *ref_5
+            language: !Languages 
+              default:
+                name: ''
+                description: String Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: DeleteNoRequestBodyResponseBody
+            description: Delete
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: NoRequestBodyNoResponseBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /test2
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: NoRequestBodyNoResponseBody
+            description: No RequestBody and No ResponseBody
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: RequestBodyNoResponseBody
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+        requestMediaTypes:
+          application/json: !Request &ref_17
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_16
+                schema: *ref_5
+                implementation: Method
+                nullable: true
+                required: false
+                language: !Languages 
+                  default:
+                    name: stringBody
+                    description: string body
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_16
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /test2
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_17
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: RequestBodyNoResponseBody
+            description: RequestBody and No ResponseBody
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: optionalPathParameters
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_18
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: id
+                description: Query parameter Id
+                serializedName: id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_19
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: skip
+                description: Query parameter skip
+                serializedName: skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_20
+            schema: *ref_5
+            clientDefaultValue: start
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: start
+            language: !Languages 
+              default:
+                name: name
+                description: Query parameter status
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /test3/{id}/{name}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_18
+          - *ref_19
+          - *ref_20
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OptionalPathParameters
+            description: Optional PathParameters
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: optionalPathParametersWithMixedSequence
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_21
+            schema: *ref_5
+            clientDefaultValue: start
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: start
+            language: !Languages 
+              default:
+                name: name
+                description: Query parameter status
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_22
+            schema: *ref_4
+            clientDefaultValue: 12
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: 12
+            language: !Languages 
+              default:
+                name: skip
+                description: Query parameter skip
+                serializedName: skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_23
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: id
+                description: Query parameter Id
+                serializedName: id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /test4/{id}/{name}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_21
+          - *ref_22
+          - *ref_23
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OptionalPathParametersWithMixedSequence
+            description: Optional path parameters with mixed sequence
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: optionalPathBodyParametersWithMixedSequence
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_26
+            schema: *ref_4
+            clientDefaultValue: 123
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: 123
+            language: !Languages 
+              default:
+                name: id
+                description: Query parameter Id
+                serializedName: id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_27
+            schema: *ref_4
+            implementation: Method
+            language: !Languages 
+              default:
+                name: top
+                description: Query parameter top
+                serializedName: top
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_28
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: skip
+                description: Query parameter skip
+                serializedName: skip
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_29
+            schema: *ref_4
+            clientDefaultValue: 50
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: 50
+            language: !Languages 
+              default:
+                name: max
+                description: Query parameter max
+                serializedName: max
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_30
+            schema: *ref_5
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: Query parameter status
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requestMediaTypes:
+          application/json: !Request &ref_25
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_24
+                schema: *ref_12
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: content
+                    description: Request content
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_24
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /test5/{id}/{name}
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_25
+        signatureParameters:
+          - *ref_26
+          - *ref_27
+          - *ref_28
+          - *ref_29
+          - *ref_30
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OptionalPathBodyParametersWithMixedSequence
+            description: Optional path/body parameters with mixed sequence
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: repeatableAction
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_3
+          - !Parameter &ref_35
+            schema: *ref_4
+            clientDefaultValue: 123
+            implementation: Method
+            required: true
+            extensions:
+              x-ms-client-default: 123
+            language: !Languages 
+              default:
+                name: id
+                description: Query parameter Id
+                serializedName: id
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_36
+            schema: *ref_5
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: Query parameter status
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_37
+            schema: *ref_31
+            implementation: Method
+            language: !Languages 
+              default:
+                name: repeatabilityRequestID
+                description: >-
+                  If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate response without the server
+                  executing the request multiple times. The value of the Repeatability-Request-Id is an opaque string representing a client-generated unique identifier for the request. It is a version 4 (random) UUID.
+                serializedName: Repeatability-Request-ID
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+          - !Parameter &ref_38
+            schema: *ref_32
+            implementation: Method
+            language: !Languages 
+              default:
+                name: repeatabilityFirstSent
+                description: >-
+                  If Repeatability-Request-ID header is specified, then Repeatability-First-Sent header must also be specified. The value should be the date and time at which the request was first created, expressed using the IMF-fixdate
+                  form of HTTP-date. Example: Sun, 06 Nov 1994 08:49:37 GMT.
+                serializedName: Repeatability-First-Sent
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: header
+        requestMediaTypes:
+          application/json: !Request &ref_34
+            parameters:
+              - !Parameter 
+                schema: *ref_11
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_33
+                schema: *ref_12
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: content
+                    description: Request content
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /test6/{id}/{name}
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_34
+        signatureParameters:
+          - *ref_35
+          - *ref_36
+          - *ref_37
+          - *ref_38
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: RepeatableAction
+            description: OASIS repeatable action
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: ParametersLowlevel
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

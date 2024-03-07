@@ -1,0 +1,229 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest
+  title: HeadAsBooleanTrue
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_1
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: httpSuccess
+    operations:
+      - !Operation 
+        operationId: httpSuccess_head200
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_1
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /http/success/200
+                method: head
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully returns the true boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully returns the false boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '404'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            httpSuccess_head200:
+              parameters: {}
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: Head200
+            description: Return 200 status code if successful
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: httpSuccess_head204
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_1
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /http/success/204
+                method: head
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully returns the true boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully returns the false boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '404'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            httpSuccess_head204:
+              parameters: {}
+              responses:
+                '204': {}
+        language: !Languages 
+          default:
+            name: Head204
+            description: Return 204 status code if successful
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: httpSuccess_head404
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_1
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /http/success/404
+                method: head
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully returns the true boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Successfully returns the false boolean value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '404'
+        exceptions:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-examples:
+            httpSuccess_head404:
+              parameters: {}
+              responses:
+                '204': {}
+        language: !Languages 
+          default:
+            name: Head404
+            description: Return 404 status code if successful
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: HttpSuccess
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !KeySecurityScheme 
+      name: Fake-Subscription-Key
+      type: Key
+      in: header
+language: !Languages 
+  default:
+    name: HeadAsBooleanTrue
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

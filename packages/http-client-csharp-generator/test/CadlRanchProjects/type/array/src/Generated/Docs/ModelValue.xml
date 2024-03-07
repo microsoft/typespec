@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetModelValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetModelValueAsync.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response<IReadOnlyList<InnerModel>> response = await client.GetModelValueAsync();
+]]></code>
+This sample shows how to call GetModelValueAsync with all parameters.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response<IReadOnlyList<InnerModel>> response = await client.GetModelValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetModelValue(CancellationToken)">
+      <example>
+This sample shows how to call GetModelValue.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response<IReadOnlyList<InnerModel>> response = client.GetModelValue();
+]]></code>
+This sample shows how to call GetModelValue with all parameters.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response<IReadOnlyList<InnerModel>> response = client.GetModelValue();
+]]></code></example>
+    </member>
+    <member name="GetModelValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetModelValueAsync and parse the result.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = await client.GetModelValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetModelValueAsync with all parameters and parse the result.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = await client.GetModelValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("property").ToString());
+Console.WriteLine(result[0].GetProperty("children")[0].GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetModelValue(RequestContext)">
+      <example>
+This sample shows how to call GetModelValue and parse the result.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = client.GetModelValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetModelValue with all parameters and parse the result.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = client.GetModelValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("property").ToString());
+Console.WriteLine(result[0].GetProperty("children")[0].GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IEnumerable{InnerModel},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = await client.PutAsync(new InnerModel[]
+{
+    new InnerModel("<property>")
+});
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = await client.PutAsync(new InnerModel[]
+{
+    new InnerModel("<property>")
+    {
+        Children = {default},
+    }
+});
+]]></code></example>
+    </member>
+    <member name="Put(IEnumerable{InnerModel},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = client.Put(new InnerModel[]
+{
+    new InnerModel("<property>")
+});
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+Response response = client.Put(new InnerModel[]
+{
+    new InnerModel("<property>")
+    {
+        Children = {default},
+    }
+});
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        property = "<property>",
+    }
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        property = "<property>",
+        children = new object[]
+        {
+            null
+        },
+    }
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        property = "<property>",
+    }
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+ModelValue client = new ArrayClient().GetModelValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        property = "<property>",
+        children = new object[]
+        {
+            null
+        },
+    }
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

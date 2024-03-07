@@ -1,0 +1,4 @@
+options:
+  "@azure-tools/typespec-csharp":
+    generate-convenience-methods: false
+    namespace: "Azure.NewProject.TypeSpec"

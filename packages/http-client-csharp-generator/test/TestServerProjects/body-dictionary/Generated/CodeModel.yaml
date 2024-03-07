@@ -1,0 +1,5754 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest Swagger BAT
+  title: AutoRest Swagger BAT dictionary Service
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_3
+      type: boolean
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_26
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_4
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_5
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_6
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_11
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: WidgetInteger
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_27
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: WidgetString
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_14
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: Get200ApplicationJsonAdditionalPropertiesItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PutContentSchemaItemsItem
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_35
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_39
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_36
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: The null dictionary value
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_38
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: The empty dictionary value {}
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_40
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: The empty dictionary value {}
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_43
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_44
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_45
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_46
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_47
+      type: dictionary
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: DictionaryOfBoolean
+          description: 'The dictionary value {"0": true, "1": false, "2": false, "3": true }'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_48
+      type: dictionary
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: DictionaryOfBoolean
+          description: 'The dictionary value {"0": true, "1": false, "2": false, "3": true }'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_51
+      type: dictionary
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: DictionaryOfBoolean
+          description: 'The dictionary value {"0": true, "1": null, "2": false }'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_52
+      type: dictionary
+      elementType: *ref_3
+      language: !Languages 
+        default:
+          name: DictionaryOfBoolean
+          description: The dictionary value [true, 'boolean', false]
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_53
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_54
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_57
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": null, "2": 0}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_58
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": "integer", "2": 0}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_59
+      type: dictionary
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_60
+      type: dictionary
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_63
+      type: dictionary
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": null, "2": 0}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_64
+      type: dictionary
+      elementType: *ref_4
+      language: !Languages 
+        default:
+          name: DictionaryOfInteger
+          description: 'The dictionary value {"0": 1, "1": "integer", "2": 0}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_65
+      type: dictionary
+      elementType: *ref_5
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_66
+      type: dictionary
+      elementType: *ref_5
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_69
+      type: dictionary
+      elementType: *ref_5
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 0.0, "1": null, "2": 1.2e20}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_70
+      type: dictionary
+      elementType: *ref_5
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 1.0, "1": "number", "2": 0.0}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_71
+      type: dictionary
+      elementType: *ref_6
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_72
+      type: dictionary
+      elementType: *ref_6
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_75
+      type: dictionary
+      elementType: *ref_6
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 0.0, "1": null, "2": 1.2e20}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_76
+      type: dictionary
+      elementType: *ref_6
+      language: !Languages 
+        default:
+          name: DictionaryOfNumber
+          description: 'The dictionary value {"0": 1.0, "1": "number", "2": 0.0}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_77
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'The dictionary value {"0": "foo1", "1": "foo2", "2": "foo3"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_78
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'The dictionary value {"0": "foo1", "1": "foo2", "2": "foo3"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_81
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'The dictionary value {"0": "foo", "1": null, "2": "foo2"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_82
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'The dictionary value {"0": "foo", "1": 123, "2": "foo2"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_83
+      type: dictionary
+      elementType: !DateSchema &ref_7
+        type: date
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: Date
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfDate
+          description: 'The dictionary value {"0": "2000-12-01", "1": "1980-01-02", "2": "1492-10-12"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_84
+      type: dictionary
+      elementType: *ref_7
+      language: !Languages 
+        default:
+          name: DictionaryOfDate
+          description: 'The dictionary value {"0": "2000-12-01", "1": "1980-01-02", "2": "1492-10-12"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_87
+      type: dictionary
+      elementType: *ref_7
+      language: !Languages 
+        default:
+          name: DictionaryOfDate
+          description: 'The dictionary value {"0": "2012-01-01", "1": null, "2": "1776-07-04"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_88
+      type: dictionary
+      elementType: *ref_7
+      language: !Languages 
+        default:
+          name: DictionaryOfDate
+          description: 'The dictionary value {"0": "2011-03-22", "1": "date"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_89
+      type: dictionary
+      elementType: !DateTimeSchema &ref_8
+        type: date-time
+        format: date-time
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: DateTime
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfDateTime
+          description: 'The dictionary value {"0": "2000-12-01t00:00:01z", "1": "1980-01-02T00:11:35+01:00", "2": "1492-10-12T10:15:01-08:00"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_90
+      type: dictionary
+      elementType: *ref_8
+      language: !Languages 
+        default:
+          name: DictionaryOfDateTime
+          description: 'The dictionary value {"0": "2000-12-01t00:00:01z", "1": "1980-01-02T00:11:35+01:00", "2": "1492-10-12T10:15:01-08:00"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_93
+      type: dictionary
+      elementType: *ref_8
+      language: !Languages 
+        default:
+          name: DictionaryOfDateTime
+          description: 'The dictionary value {"0": "2000-12-01t00:00:01z", "1": null}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_94
+      type: dictionary
+      elementType: *ref_8
+      language: !Languages 
+        default:
+          name: DictionaryOfDateTime
+          description: 'The dictionary value {"0": "2000-12-01t00:00:01z", "1": "date-time"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_95
+      type: dictionary
+      elementType: !DateTimeSchema &ref_9
+        type: date-time
+        format: date-time-rfc1123
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: DateTime
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfDateTime
+          description: 'The dictionary value {"0": "Fri, 01 Dec 2000 00:00:01 GMT", "1": "Wed, 02 Jan 1980 00:11:35 GMT", "2": "Wed, 12 Oct 1492 10:15:01 GMT"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_96
+      type: dictionary
+      elementType: *ref_9
+      language: !Languages 
+        default:
+          name: DictionaryOfDateTime
+          description: 'The dictionary value {"0": "Fri, 01 Dec 2000 00:00:01 GMT", "1": "Wed, 02 Jan 1980 00:11:35 GMT", "2": "Wed, 12 Oct 1492 10:15:01 GMT"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_99
+      type: dictionary
+      elementType: !DurationSchema &ref_10
+        type: duration
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: Duration
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfDuration
+          description: 'The dictionary value {"0": "P123DT22H14M12.011S", "1": "P5DT1H0M0S"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_100
+      type: dictionary
+      elementType: *ref_10
+      language: !Languages 
+        default:
+          name: DictionaryOfDuration
+          description: 'The dictionary value {"0": "P123DT22H14M12.011S", "1": "P5DT1H0M0S"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_103
+      type: dictionary
+      elementType: !ByteArraySchema &ref_22
+        type: byte-array
+        format: byte
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: ByteArray
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfByteArray
+          description: 'The dictionary value {"0": hex(FF FF FF FA), "1": hex(01 02 03), "2": hex (25, 29, 43)} with each elementencoded in base 64'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_104
+      type: dictionary
+      elementType: !ByteArraySchema &ref_23
+        type: byte-array
+        format: byte
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: ByteArray
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfByteArray
+          description: 'The dictionary value {"0": hex(FF FF FF FA), "1": hex(01 02 03), "2": hex (25, 29, 43)} with each elementencoded in base 64'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_107
+      type: dictionary
+      elementType: !ByteArraySchema &ref_24
+        type: byte-array
+        format: byte
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: ByteArray
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfByteArray
+          description: 'The byte dictionary value {"0": hex(FF FF FF FA), "1": null} with the first item base64 encoded'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_108
+      type: dictionary
+      elementType: !ByteArraySchema &ref_25
+        type: byte-array
+        format: base64url
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        language: !Languages 
+          default:
+            name: ByteArray
+            description: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfByteArray
+          description: 'The base64url dictionary value {"0": "a string that gets encoded with base64url", "1": "test string", "2": "Lorem ipsum"}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_109
+      type: dictionary
+      elementType: !ObjectSchema &ref_13
+        type: object
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        properties:
+          - !Property 
+            schema: *ref_11
+            serializedName: integer
+            language: !Languages 
+              default:
+                name: integer
+                description: ''
+            protocol: !Protocols {}
+          - !Property 
+            schema: *ref_12
+            serializedName: string
+            language: !Languages 
+              default:
+                name: string
+                description: ''
+            protocol: !Protocols {}
+        serializationFormats:
+          - json
+        usage:
+          - output
+          - input
+        language: !Languages 
+          default:
+            name: Widget
+            description: ''
+            namespace: ''
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfWidget
+          description: Dictionary of complex type with null value
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_110
+      type: dictionary
+      elementType: *ref_13
+      language: !Languages 
+        default:
+          name: DictionaryOfWidget
+          description: Empty dictionary of complex type {}
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_111
+      type: dictionary
+      elementType: *ref_13
+      nullableItems: true
+      language: !Languages 
+        default:
+          name: DictionaryOfWidget
+          description: 'Dictionary of complex type with null item [{''integer'': 1 ''string'': ''2''}, null, {''integer'': 5, ''string'': ''6''}]'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_112
+      type: dictionary
+      elementType: *ref_13
+      language: !Languages 
+        default:
+          name: DictionaryOfWidget
+          description: 'Dictionary of complex type with empty item [{''integer'': 1 ''string'': ''2''}, {}, {''integer'': 5, ''string'': ''6''}]'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_113
+      type: dictionary
+      elementType: *ref_13
+      language: !Languages 
+        default:
+          name: DictionaryOfWidget
+          description: 'Dictionary of complex type with [{''integer'': 1 ''string'': ''2''}, {''integer'': 3, ''string'': ''4''}, {''integer'': 5, ''string'': ''6''}]'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_114
+      type: dictionary
+      elementType: *ref_13
+      language: !Languages 
+        default:
+          name: DictionaryOfWidget
+          description: 'Dictionary of complex type with {"0": {"integer": 1, "string": "2"}, "1": {"integer": 3, "string": "4"}, "2": {"integer": 5, "string": "6"}}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_117
+      type: dictionary
+      elementType: !ArraySchema &ref_28
+        type: array
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        elementType: *ref_14
+        language: !Languages 
+          default:
+            name: ArrayOfGet200ApplicationJsonAdditionalPropertiesItem
+            description: Array of Get200ApplicationJsonAdditionalPropertiesItem
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfpaths1Y9Iid6DictionaryArrayNullGetResponses200ContentApplicationJsonSchemaAdditionalproperties
+          description: a null array
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_118
+      type: dictionary
+      elementType: !ArraySchema &ref_29
+        type: array
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        elementType: *ref_2
+        language: !Languages 
+          default:
+            name: ArrayOfString
+            description: Array of String
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfpathsAfa1HvDictionaryArrayEmptyGetResponses200ContentApplicationJsonSchemaAdditionalproperties
+          description: An empty dictionary {}
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_119
+      type: dictionary
+      elementType: !ArraySchema &ref_30
+        type: array
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        elementType: *ref_2
+        language: !Languages 
+          default:
+            name: ArrayOfString
+            description: Array of String
+        protocol: !Protocols {}
+      nullableItems: true
+      language: !Languages 
+        default:
+          name: DictionaryOfpaths1Xk9Za9DictionaryArrayItemnullGetResponses200ContentApplicationJsonSchemaAdditionalproperties
+          description: 'An array of array of strings {"0": ["1", "2", "3"], "1": null, "2": ["7", "8", "9"]}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_120
+      type: dictionary
+      elementType: !ArraySchema &ref_31
+        type: array
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        elementType: *ref_2
+        language: !Languages 
+          default:
+            name: ArrayOfString
+            description: Array of String
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfpaths3Bo0LmDictionaryArrayItememptyGetResponses200ContentApplicationJsonSchemaAdditionalproperties
+          description: 'An array of array of strings {"0": ["1", "2", "3"], "1": [], "2": ["7", "8", "9"]}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_121
+      type: dictionary
+      elementType: !ArraySchema &ref_32
+        type: array
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        elementType: *ref_2
+        language: !Languages 
+          default:
+            name: ArrayOfString
+            description: Array of String
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfpathsEx22ApDictionaryArrayValidGetResponses200ContentApplicationJsonSchemaAdditionalproperties
+          description: 'An array of array of strings {"0": ["1", "2", "3"], "1": ["4", "5", "6"], "2": ["7", "8", "9"]}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_122
+      type: dictionary
+      elementType: !ArraySchema &ref_33
+        type: array
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        elementType: *ref_15
+        language: !Languages 
+          default:
+            name: ArrayOfPutContentSchemaItemsItem
+            description: Array of PutContentSchemaItemsItem
+        protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: DictionaryOfpaths1Dxz488DictionaryArrayValidPutRequestbodyContentApplicationJsonSchemaAdditionalproperties
+          description: 'An array of array of strings {"0": ["1", "2", "3"], "1": ["4", "5", "6"], "2": ["7", "8", "9"]}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_16
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_125
+      type: dictionary
+      elementType: *ref_16
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: An dictionaries of dictionaries with value null
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_17
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_126
+      type: dictionary
+      elementType: *ref_17
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: An dictionaries of dictionaries of type <string, string> with value {}
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_18
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_127
+      type: dictionary
+      elementType: *ref_18
+      nullableItems: true
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'An dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": null, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_19
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_128
+      type: dictionary
+      elementType: *ref_19
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'An dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_20
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_129
+      type: dictionary
+      elementType: *ref_20
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'An dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {"4": "four", "5": "five", "6": "six"}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_21
+      type: dictionary
+      elementType: *ref_2
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_130
+      type: dictionary
+      elementType: *ref_21
+      language: !Languages 
+        default:
+          name: DictionaryOfString
+          description: 'An dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {"4": "four", "5": "five", "6": "six"}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+      protocol: !Protocols {}
+  byteArrays:
+    - *ref_22
+    - *ref_23
+    - *ref_24
+    - *ref_25
+  dateTimes:
+    - *ref_8
+    - *ref_9
+  dates:
+    - *ref_7
+  durations:
+    - *ref_10
+  objects:
+    - !ObjectSchema &ref_37
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_26
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_27
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_13
+  arrays:
+    - *ref_28
+    - *ref_29
+    - *ref_30
+    - *ref_31
+    - *ref_32
+    - *ref_33
+globalParameters:
+  - !Parameter &ref_34
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: dictionary
+    operations:
+      - !Operation 
+        operationId: dictionary_getNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/null
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_36
+            language: !Languages 
+              default:
+                name: ''
+                description: The null dictionary value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetNull
+            description: Get null dictionary value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_38
+            language: !Languages 
+              default:
+                name: ''
+                description: The empty dictionary value {}
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetEmpty
+            description: Get empty dictionary value {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_42
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_41
+                schema: *ref_40
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_41
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/empty
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_42
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutEmpty
+            description: Set dictionary value empty {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getNullValue
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/nullvalue
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_43
+            language: !Languages 
+              default:
+                name: ''
+                description: The Dictionary with null value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetNullValue
+            description: Get Dictionary with null value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getNullKey
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/nullkey
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_44
+            language: !Languages 
+              default:
+                name: ''
+                description: The Dictionary with null key
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetNullKey
+            description: Get Dictionary with null key
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getEmptyStringKey
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/keyemptystring
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_45
+            language: !Languages 
+              default:
+                name: ''
+                description: The Dictionary with key as empty string
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetEmptyStringKey
+            description: Get Dictionary with key as empty string
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getInvalid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/invalid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_46
+            language: !Languages 
+              default:
+                name: ''
+                description: The invalid Dictionary value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetInvalid
+            description: Get invalid Dictionary value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getBooleanTfft
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/boolean/tfft
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_47
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": true, "1": false, "2": false, "3": true }'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanTfft
+            description: 'Get boolean dictionary value {"0": true, "1": false, "2": false, "3": true }'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putBooleanTfft
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_50
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_49
+                schema: *ref_48
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_49
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/boolean/tfft
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_50
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutBooleanTfft
+            description: 'Set dictionary value empty {"0": true, "1": false, "2": false, "3": true }'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getBooleanInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/boolean/true.null.false
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": true, "1": null, "2": false }'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanInvalidNull
+            description: 'Get boolean dictionary value {"0": true, "1": null, "2": false }'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getBooleanInvalidString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/boolean/true.boolean.false
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_52
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value ''{"0": true, "1": "boolean", "2": false}'''
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBooleanInvalidString
+            description: 'Get boolean dictionary value ''{"0": true, "1": "boolean", "2": false}'''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getIntegerValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/integer/1.-1.3.300
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_53
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntegerValid
+            description: 'Get integer dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putIntegerValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_56
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_55
+                schema: *ref_54
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_55
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/integer/1.-1.3.300
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_56
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutIntegerValid
+            description: 'Set dictionary value empty {"0": 1, "1": -1, "2": 3, "3": 300}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getIntInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/integer/1.null.zero
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_57
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1, "1": null, "2": 0}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntInvalidNull
+            description: 'Get integer dictionary value {"0": 1, "1": null, "2": 0}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getIntInvalidString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/integer/1.integer.0
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_58
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1, "1": "integer", "2": 0}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetIntInvalidString
+            description: 'Get integer dictionary value {"0": 1, "1": "integer", "2": 0}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getLongValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/long/1.-1.3.300
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_59
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLongValid
+            description: 'Get integer dictionary value {"0": 1, "1": -1, "2": 3, "3": 300}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putLongValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_62
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_61
+                schema: *ref_60
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_61
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/long/1.-1.3.300
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_62
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutLongValid
+            description: 'Set dictionary value empty {"0": 1, "1": -1, "2": 3, "3": 300}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getLongInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/long/1.null.zero
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_63
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1, "1": null, "2": 0}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLongInvalidNull
+            description: 'Get long dictionary value {"0": 1, "1": null, "2": 0}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getLongInvalidString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/long/1.integer.0
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_64
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1, "1": "integer", "2": 0}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetLongInvalidString
+            description: 'Get long dictionary value {"0": 1, "1": "integer", "2": 0}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getFloatValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/float/0--0.01-1.2e20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_65
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetFloatValid
+            description: 'Get float dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putFloatValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_68
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_67
+                schema: *ref_66
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_67
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/float/0--0.01-1.2e20
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_68
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutFloatValid
+            description: 'Set dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getFloatInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/float/0.0-null-1.2e20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_69
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 0.0, "1": null, "2": 1.2e20}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetFloatInvalidNull
+            description: 'Get float dictionary value {"0": 0.0, "1": null, "2": 1.2e20}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getFloatInvalidString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/float/1.number.0
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_70
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1.0, "1": "number", "2": 0.0}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetFloatInvalidString
+            description: 'Get boolean dictionary value {"0": 1.0, "1": "number", "2": 0.0}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDoubleValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/double/0--0.01-1.2e20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_71
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDoubleValid
+            description: 'Get float dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putDoubleValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_74
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_73
+                schema: *ref_72
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_73
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/double/0--0.01-1.2e20
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_74
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutDoubleValid
+            description: 'Set dictionary value {"0": 0, "1": -0.01, "2": 1.2e20}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDoubleInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/double/0.0-null-1.2e20
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_75
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 0.0, "1": null, "2": 1.2e20}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDoubleInvalidNull
+            description: 'Get float dictionary value {"0": 0.0, "1": null, "2": 1.2e20}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDoubleInvalidString
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/double/1.number.0
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_76
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": 1.0, "1": "number", "2": 0.0}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDoubleInvalidString
+            description: 'Get boolean dictionary value {"0": 1.0, "1": "number", "2": 0.0}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getStringValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/string/foo1.foo2.foo3
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_77
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "foo1", "1": "foo2", "2": "foo3"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetStringValid
+            description: 'Get string dictionary value {"0": "foo1", "1": "foo2", "2": "foo3"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putStringValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_80
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_79
+                schema: *ref_78
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_79
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/string/foo1.foo2.foo3
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_80
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutStringValid
+            description: 'Set dictionary value {"0": "foo1", "1": "foo2", "2": "foo3"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getStringWithNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/string/foo.null.foo2
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_81
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "foo", "1": null, "2": "foo2"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetStringWithNull
+            description: 'Get string dictionary value {"0": "foo", "1": null, "2": "foo2"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getStringWithInvalid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/string/foo.123.foo2
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_82
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "foo", "1": 123, "2": "foo2"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetStringWithInvalid
+            description: 'Get string dictionary value {"0": "foo", "1": 123, "2": "foo2"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDateValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/date/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_83
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "2000-12-01", "1": "1980-01-02", "2": "1492-10-12"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDateValid
+            description: 'Get integer dictionary value {"0": "2000-12-01", "1": "1980-01-02", "2": "1492-10-12"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putDateValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_86
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_85
+                schema: *ref_84
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_85
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/date/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_86
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutDateValid
+            description: 'Set dictionary value  {"0": "2000-12-01", "1": "1980-01-02", "2": "1492-10-12"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDateInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/date/invalidnull
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_87
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "2012-01-01", "1": null, "2": "1776-07-04"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDateInvalidNull
+            description: 'Get date dictionary value {"0": "2012-01-01", "1": null, "2": "1776-07-04"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDateInvalidChars
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/date/invalidchars
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_88
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "2011-03-22", "1": "date"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDateInvalidChars
+            description: 'Get date dictionary value {"0": "2011-03-22", "1": "date"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDateTimeValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/date-time/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_89
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "2000-12-01t00:00:01z", "1": "1980-01-02T00:11:35+01:00", "2": "1492-10-12T10:15:01-08:00"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDateTimeValid
+            description: 'Get date-time dictionary value {"0": "2000-12-01t00:00:01z", "1": "1980-01-02T00:11:35+01:00", "2": "1492-10-12T10:15:01-08:00"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putDateTimeValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_92
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_91
+                schema: *ref_90
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_91
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/date-time/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_92
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutDateTimeValid
+            description: 'Set dictionary value  {"0": "2000-12-01t00:00:01z", "1": "1980-01-02T00:11:35+01:00", "2": "1492-10-12T10:15:01-08:00"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDateTimeInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/date-time/invalidnull
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_93
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "2000-12-01t00:00:01z", "1": null}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDateTimeInvalidNull
+            description: 'Get date dictionary value {"0": "2000-12-01t00:00:01z", "1": null}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDateTimeInvalidChars
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/date-time/invalidchars
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_94
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "2000-12-01t00:00:01z", "1": "date-time"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDateTimeInvalidChars
+            description: 'Get date dictionary value {"0": "2000-12-01t00:00:01z", "1": "date-time"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDateTimeRfc1123Valid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/date-time-rfc1123/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_95
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "Fri, 01 Dec 2000 00:00:01 GMT", "1": "Wed, 02 Jan 1980 00:11:35 GMT", "2": "Wed, 12 Oct 1492 10:15:01 GMT"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDateTimeRfc1123Valid
+            description: 'Get date-time-rfc1123 dictionary value {"0": "Fri, 01 Dec 2000 00:00:01 GMT", "1": "Wed, 02 Jan 1980 00:11:35 GMT", "2": "Wed, 12 Oct 1492 10:15:01 GMT"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putDateTimeRfc1123Valid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_98
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_97
+                schema: *ref_96
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_97
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/date-time-rfc1123/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_98
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutDateTimeRfc1123Valid
+            description: 'Set dictionary value empty {"0": "Fri, 01 Dec 2000 00:00:01 GMT", "1": "Wed, 02 Jan 1980 00:11:35 GMT", "2": "Wed, 12 Oct 1492 10:15:01 GMT"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDurationValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/duration/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_99
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": "P123DT22H14M12.011S", "1": "P5DT1H0M0S"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDurationValid
+            description: 'Get duration dictionary value {"0": "P123DT22H14M12.011S", "1": "P5DT1H0M0S"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putDurationValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_102
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_101
+                schema: *ref_100
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_101
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/duration/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_102
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutDurationValid
+            description: 'Set dictionary value  {"0": "P123DT22H14M12.011S", "1": "P5DT1H0M0S"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getByteValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/byte/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_103
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The dictionary value {"0": hex(FF FF FF FA), "1": hex(01 02 03), "2": hex (25, 29, 43)} with each elementencoded in base 64'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetByteValid
+            description: 'Get byte dictionary value {"0": hex(FF FF FF FA), "1": hex(01 02 03), "2": hex (25, 29, 43)} with each item encoded in base64'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putByteValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_106
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_105
+                schema: *ref_104
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_105
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/prim/byte/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_106
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutByteValid
+            description: 'Put the dictionary value {"0": hex(FF FF FF FA), "1": hex(01 02 03), "2": hex (25, 29, 43)} with each elementencoded in base 64'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getByteInvalidNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/byte/invalidnull
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_107
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The byte dictionary value {"0": hex(FF FF FF FA), "1": null} with the first item base64 encoded'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetByteInvalidNull
+            description: 'Get byte dictionary value {"0": hex(FF FF FF FA), "1": null} with the first item base64 encoded'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getBase64Url
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/prim/base64url/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_108
+            language: !Languages 
+              default:
+                name: ''
+                description: 'The base64url dictionary value {"0": "a string that gets encoded with base64url", "1": "test string", "2": "Lorem ipsum"}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBase64Url
+            description: 'Get base64url dictionary value {"0": "a string that gets encoded with base64url", "1": "test string", "2": "Lorem ipsum"}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getComplexNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/complex/null
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_109
+            nullable: true
+            language: !Languages 
+              default:
+                name: ''
+                description: Dictionary of complex type with null value
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetComplexNull
+            description: Get dictionary of complex type null value
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getComplexEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/complex/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_110
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty dictionary of complex type {}
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetComplexEmpty
+            description: Get empty dictionary of complex type {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getComplexItemNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/complex/itemnull
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_111
+            language: !Languages 
+              default:
+                name: ''
+                description: 'Dictionary of complex type with null item {"0": {"integer": 1, "string": "2"}, "1": null, "2": {"integer": 5, "string": "6"}}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetComplexItemNull
+            description: 'Get dictionary of complex type with null item {"0": {"integer": 1, "string": "2"}, "1": null, "2": {"integer": 5, "string": "6"}}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getComplexItemEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/complex/itemempty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_112
+            language: !Languages 
+              default:
+                name: ''
+                description: 'Dictionary of complex type with empty item {"0": {"integer": 1, "string": "2"}, "1:" {}, "2": {"integer": 5, "string": "6"}}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetComplexItemEmpty
+            description: 'Get dictionary of complex type with empty item {"0": {"integer": 1, "string": "2"}, "1:" {}, "2": {"integer": 5, "string": "6"}}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getComplexValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/complex/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_113
+            language: !Languages 
+              default:
+                name: ''
+                description: 'Dictionary of complex type with {"0": {"integer": 1, "string": "2"}, "1": {"integer": 3, "string": "4"}, "2": {"integer": 5, "string": "6"}}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetComplexValid
+            description: 'Get dictionary of complex type with {"0": {"integer": 1, "string": "2"}, "1": {"integer": 3, "string": "4"}, "2": {"integer": 5, "string": "6"}}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putComplexValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_116
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_115
+                schema: *ref_114
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_115
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/complex/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_116
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutComplexValid
+            description: 'Put an dictionary of complex type with values {"0": {"integer": 1, "string": "2"}, "1": {"integer": 3, "string": "4"}, "2": {"integer": 5, "string": "6"}}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getArrayNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/array/null
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_117
+            nullable: true
+            language: !Languages 
+              default:
+                name: ''
+                description: null array
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetArrayNull
+            description: Get a null array
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getArrayEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/array/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_118
+            language: !Languages 
+              default:
+                name: ''
+                description: An empty dictionary {}
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetArrayEmpty
+            description: Get an empty dictionary {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getArrayItemNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/array/itemnull
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_119
+            language: !Languages 
+              default:
+                name: ''
+                description: 'An array of array of strings {"0": ["1", "2", "3"], "1": null, "2": ["7", "8", "9"]}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetArrayItemNull
+            description: 'Get an dictionary of array of strings {"0": ["1", "2", "3"], "1": null, "2": ["7", "8", "9"]}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getArrayItemEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/array/itemempty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_120
+            language: !Languages 
+              default:
+                name: ''
+                description: 'An array of array of strings {"0": ["1", "2", "3"], "1": [], "2": ["7", "8", "9"]}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetArrayItemEmpty
+            description: 'Get an array of array of strings [{"0": ["1", "2", "3"], "1": [], "2": ["7", "8", "9"]}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getArrayValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/array/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_121
+            language: !Languages 
+              default:
+                name: ''
+                description: 'An array of array of strings {"0": ["1", "2", "3"], "1": ["4", "5", "6"], "2": ["7", "8", "9"]}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetArrayValid
+            description: 'Get an array of array of strings {"0": ["1", "2", "3"], "1": ["4", "5", "6"], "2": ["7", "8", "9"]}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putArrayValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_124
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_123
+                schema: *ref_122
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_123
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/array/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_124
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutArrayValid
+            description: 'Put An array of array of strings {"0": ["1", "2", "3"], "1": ["4", "5", "6"], "2": ["7", "8", "9"]}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDictionaryNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/dictionary/null
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_125
+            language: !Languages 
+              default:
+                name: ''
+                description: An dictionaries of dictionaries with value null
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDictionaryNull
+            description: Get an dictionaries of dictionaries with value null
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDictionaryEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/dictionary/empty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_126
+            language: !Languages 
+              default:
+                name: ''
+                description: An dictionaries of dictionaries of type <string, string> with value {}
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDictionaryEmpty
+            description: Get an dictionaries of dictionaries of type <string, string> with value {}
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDictionaryItemNull
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/dictionary/itemnull
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_127
+            language: !Languages 
+              default:
+                name: ''
+                description: 'An dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": null, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDictionaryItemNull
+            description: 'Get an dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": null, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDictionaryItemEmpty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/dictionary/itemempty
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_128
+            language: !Languages 
+              default:
+                name: ''
+                description: 'An dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDictionaryItemEmpty
+            description: 'Get an dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_getDictionaryValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /dictionary/dictionary/valid
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_129
+            language: !Languages 
+              default:
+                name: ''
+                description: 'An dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {"4": "four", "5": "five", "6": "six"}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetDictionaryValid
+            description: 'Get an dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {"4": "four", "5": "five", "6": "six"}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: dictionary_putDictionaryValid
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_34
+        requestMediaTypes:
+          application/json: !Request &ref_132
+            parameters:
+              - !Parameter 
+                schema: *ref_39
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_131
+                schema: *ref_130
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: arrayBody
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_35
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_131
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /dictionary/dictionary/valid
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_132
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Empty Response
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutDictionaryValid
+            description: 'Get an dictionaries of dictionaries of type <string, string> with value {"0": {"1": "one", "2": "two", "3": "three"}, "1": {"4": "four", "5": "five", "6": "six"}, "2": {"7": "seven", "8": "eight", "9": "nine"}}'
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Dictionary
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestSwaggerBATDictionaryService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

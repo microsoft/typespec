@@ -1,0 +1,63 @@
+{
+  "parameters": {
+    "subscriptionId": "{subscription-id}",
+    "resourceGroupName": "myResourceGroup",
+    "api-version": "2022-03-02",
+    "diskEncryptionSetName": "myDiskEncryptionSet",
+    "diskEncryptionSet": {
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "activeKey": {
+          "keyUrl": "https://myvaultdifferentsub.vault-int.azure-int.net/keys/keyName/keyVersion1"
+        },
+        "encryptionType": "EncryptionAtRestWithCustomerKey",
+        "rotationToLatestKeyVersionEnabled": true
+      }
+    }
+  },
+  "responses": {
+    "202": {
+      "headers": {
+        "Location": "https://management.azure.com/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/diskEncryptionSets/myDiskEncryptionSet?api-version=2021-04-01"
+      },
+      "body": {
+        "name": "myDiskEncryptionSet",
+        "id": "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/diskEncryptionSets/myDiskEncryptionSet",
+        "type": "Microsoft.Compute/diskEncryptionSets",
+        "location": "West US",
+        "identity": {
+          "type": "SystemAssigned"
+        },
+        "properties": {
+          "activeKey": {
+            "keyUrl": "https://myvaultdifferentsub.vault-int.azure-int.net/keys/keyName/keyVersion1"
+          },
+          "encryptionType": "EncryptionAtRestWithCustomerKey",
+          "previousKeys": []
+        }
+      }
+    },
+    "200": {
+      "body": {
+        "name": "myDiskEncryptionSet",
+        "id": "/subscriptions/{subscriptionId}/resourceGroups/myResourceGroup/providers/Microsoft.Compute/diskEncryptionSets/myDiskEncryptionSet",
+        "type": "Microsoft.Compute/diskEncryptionSets",
+        "location": "West US",
+        "identity": {
+          "type": "SystemAssigned"
+        },
+        "properties": {
+          "activeKey": {
+            "keyUrl": "https://myvaultdifferentsub.vault-int.azure-int.net/keys/keyName/KeyVersion2"
+          },
+          "encryptionType": "EncryptionAtRestWithCustomerKey",
+          "rotationToLatestKeyVersionEnabled": true,
+          "provisioningState": "Succeeded",
+          "lastKeyRotationTimestamp": "2021-04-01T04:41:35.079872+00:00"
+        }
+      }
+    }
+  }
+}

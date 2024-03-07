@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetByteAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetByteAsync.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response<BytesProperty> response = await client.GetByteAsync();
+]]></code>
+This sample shows how to call GetByteAsync with all parameters.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response<BytesProperty> response = await client.GetByteAsync();
+]]></code></example>
+    </member>
+    <member name="GetByte(CancellationToken)">
+      <example>
+This sample shows how to call GetByte.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response<BytesProperty> response = client.GetByte();
+]]></code>
+This sample shows how to call GetByte with all parameters.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response<BytesProperty> response = client.GetByte();
+]]></code></example>
+    </member>
+    <member name="GetByteAsync(RequestContext)">
+      <example>
+This sample shows how to call GetByteAsync and parse the result.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response response = await client.GetByteAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetByteAsync with all parameters and parse the result.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response response = await client.GetByteAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetByte(RequestContext)">
+      <example>
+This sample shows how to call GetByte and parse the result.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response response = client.GetByte(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetByte with all parameters and parse the result.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+Response response = client.GetByte(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(BytesProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+BytesProperty body = new BytesProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+BytesProperty body = new BytesProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(BytesProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+BytesProperty body = new BytesProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+BytesProperty body = new BytesProperty(BinaryData.FromObjectAsJson(new object()));
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+Bytes client = new ValueTypesClient().GetBytesClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object(),
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

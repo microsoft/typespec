@@ -1,0 +1,221 @@
+{
+ "$id": "1",
+ "Name": "Server.Path.Multiple",
+ "ApiVersions": [
+  "v1.0"
+ ],
+ "Enums": [
+  {
+   "$id": "2",
+   "Kind": "Enum",
+   "Name": "Versions",
+   "EnumValueType": "String",
+   "AllowedValues": [
+    {
+     "$id": "3",
+     "Name": "v1_0",
+     "Value": "v1.0",
+     "Description": "Version 1.0"
+    }
+   ],
+   "Namespace": "Server.Path.Multiple",
+   "Description": "Service versions",
+   "IsExtensible": true,
+   "IsNullable": false,
+   "Usage": "None"
+  }
+ ],
+ "Models": [],
+ "Clients": [
+  {
+   "$id": "4",
+   "Name": "MultipleClient",
+   "Description": "",
+   "Operations": [
+    {
+     "$id": "5",
+     "Name": "noOperationParams",
+     "ResourceName": "Multiple",
+     "Parameters": [
+      {
+       "$id": "6",
+       "Name": "endpoint",
+       "NameInRequest": "endpoint",
+       "Description": "Pass in http://localhost:3000 for endpoint.",
+       "Type": {
+        "$id": "7",
+        "Kind": "Primitive",
+        "Name": "Uri",
+        "IsNullable": false
+       },
+       "Location": "Uri",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": true,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client"
+      },
+      {
+       "$id": "8",
+       "Name": "apiVersion",
+       "NameInRequest": "apiVersion",
+       "Description": "Pass in v1.0 for API version.",
+       "Type": {
+        "$ref": "2"
+       },
+       "Location": "Uri",
+       "IsApiVersion": true,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Client",
+       "DefaultValue": {
+        "$id": "9",
+        "Type": {
+         "$id": "10",
+         "Kind": "Primitive",
+         "Name": "String",
+         "IsNullable": false
+        },
+        "Value": "v1.0"
+       }
+      },
+      {
+       "$id": "11",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "12",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "13",
+        "Type": {
+         "$ref": "12"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "14",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
+     "Path": "/",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    },
+    {
+     "$id": "15",
+     "Name": "withOperationPathParam",
+     "ResourceName": "Multiple",
+     "Parameters": [
+      {
+       "$ref": "6"
+      },
+      {
+       "$ref": "8"
+      },
+      {
+       "$id": "16",
+       "Name": "keyword",
+       "NameInRequest": "keyword",
+       "Type": {
+        "$id": "17",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Path",
+       "IsRequired": true,
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Method"
+      },
+      {
+       "$id": "18",
+       "Name": "accept",
+       "NameInRequest": "Accept",
+       "Type": {
+        "$id": "19",
+        "Kind": "Primitive",
+        "Name": "String",
+        "IsNullable": false
+       },
+       "Location": "Header",
+       "IsApiVersion": false,
+       "IsResourceParameter": false,
+       "IsContentType": false,
+       "IsRequired": true,
+       "IsEndpoint": false,
+       "SkipUrlEncoding": false,
+       "Explode": false,
+       "Kind": "Constant",
+       "DefaultValue": {
+        "$id": "20",
+        "Type": {
+         "$ref": "19"
+        },
+        "Value": "application/json"
+       }
+      }
+     ],
+     "Responses": [
+      {
+       "$id": "21",
+       "StatusCodes": [
+        204
+       ],
+       "BodyMediaType": "Json",
+       "Headers": [],
+       "IsErrorResponse": false
+      }
+     ],
+     "HttpMethod": "GET",
+     "RequestBodyMediaType": "None",
+     "Uri": "{endpoint}/server/path/multiple/{apiVersion}",
+     "Path": "/{keyword}",
+     "BufferResponse": true,
+     "GenerateProtocolMethod": true,
+     "GenerateConvenienceMethod": true
+    }
+   ],
+   "Protocol": {
+    "$id": "22"
+   },
+   "Creatable": true
+  }
+ ]
+}

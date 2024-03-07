@@ -1,0 +1,149 @@
+{
+  "parameters": {
+    "resourceGroupName": "sample-resource-group",
+    "vaultName": "sample-vault",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2021-10-01",
+    "parameters": {
+      "location": "westus",
+      "properties": {
+        "tenantId": "00000000-0000-0000-0000-000000000000",
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "networkAcls": {
+          "defaultAction": "Deny",
+          "bypass": "AzureServices",
+          "ipRules": [
+            {
+              "value": "124.56.78.91"
+            },
+            {
+              "value": "'10.91.4.0/24'"
+            }
+          ],
+          "virtualNetworkRules": [
+            {
+              "id": "/subscriptions/subid/resourceGroups/rg1/providers/Microsoft.Network/virtualNetworks/test-vnet/subnets/subnet1"
+            }
+          ]
+        },
+        "enabledForDeployment": true,
+        "enabledForDiskEncryption": true,
+        "enabledForTemplateDeployment": true,
+        "readWriteSingleStringProperty": {
+          "something": "test"
+        },
+        "readOnlySingleStringProperty": {
+          "readOnlySomething": "test-read-only"
+        },
+        "extremelyDeepStringProperty": {
+          "extreme": {
+            "super": {
+              "very": {
+                "deep": {
+                  "something": "deep-value"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-resource-group/providers/Microsoft.KeyVault/vaults/sample-vault",
+        "name": "sample-vault",
+        "type": "Microsoft.KeyVault/vaults",
+        "location": "westus",
+        "tags": {},
+        "systemData": {
+          "createdBy": "keyVaultUser1",
+          "createdByType": "User",
+          "createdAt": "2020-01-01T12:00:00.0000000Z",
+          "lastModifiedBy": "keyVaultUser2",
+          "lastModifiedByType": "User",
+          "lastModifiedAt": "2020-01-01T12:00:00.0000000Z"
+        },
+        "properties": {
+          "sku": {
+            "family": "A",
+            "name": "standard"
+          },
+          "tenantId": "00000000-0000-0000-0000-000000000000",
+          "networkAcls": {
+            "defaultAction": "Deny",
+            "bypass": "AzureServices",
+            "ipRules": [
+              {
+                "value": "124.56.78.91/32"
+              },
+              {
+                "value": "'10.91.4.0/24'"
+              }
+            ],
+            "virtualNetworkRules": [
+              {
+                "id": "/subscriptions/subid/resourcegroups/rg1/providers/microsoft.network/virtualnetworks/test-vnet/subnets/subnet1"
+              }
+            ]
+          },
+          "enabledForDeployment": true,
+          "enabledForDiskEncryption": true,
+          "enabledForTemplateDeployment": true,
+          "hsmPoolResourceId": "00000000-0000-0000-0000-000000000000",
+          "vaultUri": "https://sample-vault.vault.azure.net"
+        }
+      }
+    },
+    "201": {
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-resource-group/providers/Microsoft.KeyVault/vaults/sample-vault",
+        "name": "sample-vault",
+        "type": "Microsoft.KeyVault/vaults",
+        "location": "westus",
+        "tags": {},
+        "systemData": {
+          "createdBy": "keyVaultUser1",
+          "createdByType": "User",
+          "createdAt": "2020-01-01T12:00:00.0000000Z",
+          "lastModifiedBy": "keyVaultUser2",
+          "lastModifiedByType": "User",
+          "lastModifiedAt": "2020-01-01T12:00:00.0000000Z"
+        },
+        "properties": {
+          "sku": {
+            "family": "A",
+            "name": "standard"
+          },
+          "tenantId": "00000000-0000-0000-0000-000000000000",
+          "networkAcls": {
+            "defaultAction": "Deny",
+            "bypass": "AzureServices",
+            "ipRules": [
+              {
+                "value": "124.56.78.91/32"
+              },
+              {
+                "value": "'10.91.4.0/24'"
+              }
+            ],
+            "virtualNetworkRules": [
+              {
+                "id": "/subscriptions/subid/resourcegroups/rg1/providers/microsoft.network/virtualnetworks/test-vnet/subnets/subnet1"
+              }
+            ]
+          },
+          "enabledForDeployment": true,
+          "enabledForDiskEncryption": true,
+          "enabledForTemplateDeployment": true,
+          "hsmPoolResourceId": "00000000-0000-0000-0000-000000000000",
+          "vaultUri": "https://sample-vault.vault.azure.net"
+        }
+      }
+    }
+  }
+}

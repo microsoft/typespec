@@ -1,0 +1,59 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2021-10-19",
+    "title": "TopLevelClientWithoutOperation"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [ "application/json" ],
+  "consumes": [ "application/json" ],
+  "paths": {
+    "/client5": {
+      "get": {
+        "operationId": "Client5_Operation",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/client6": {
+      "get": {
+        "operationId": "Client6_Operation",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/client7": {
+      "get": {
+        "operationId": "Client7_Operation",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": { },
+  "parameters": { },
+  "securityDefinitions": {},
+  "security": [],
+  "tags": []
+}

@@ -1,0 +1,256 @@
+﻿{
+    "swagger": "2.0",
+    "info": {
+        "title": "HlcConstants",
+        "description": "I have to name this HlcConstants instead of just Constants because we have a test server project called Constants.",
+        "version": "1.0.0"
+    },
+    "host": "localhost:3000",
+    "schemes": ["http"],
+    "produces": ["application/json"],
+    "consumes": ["application/json"],
+    "paths": {
+        "/op": {
+            "put": {
+                "operationId": "mixed",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RoundTripModel"
+                        }
+                    },
+                    {
+                        "name": "required-string-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "string",
+                        "enum": [
+                            "default"
+                        ],
+                        "x-ms-enum": {
+                            "name": "StringConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "required-boolean-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "boolean",
+                        "enum": [
+                            true
+                        ],
+                        "x-ms-enum": {
+                            "name": "BooleanConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-string-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "enum": [
+                            "default"
+                        ],
+                        "x-ms-enum": {
+                            "name": "StringConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-boolean-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean",
+                        "enum": [
+                            true
+                        ],
+                        "x-ms-enum": {
+                            "name": "BooleanConstant",
+                            "modelAsString": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/RoundTripModel"
+                        }
+                    }
+                }
+            }
+        },
+        
+        "/op2": {
+            "post": {
+                "operationId": "postSomething",
+                "description": "",
+                "parameters": [
+                    {
+                        "name": "value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RoundTripModel"
+                        }
+                    },
+                    {
+                        "name": "required-int-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "integer",
+                        "enum": [
+                            0
+                        ],
+                        "x-ms-enum": {
+                            "name": "IntConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "required-float-query",
+                        "in": "query",
+                        "required": true,
+                        "type": "number",
+                        "enum": [
+                            3.14
+                        ],
+                        "x-ms-enum": {
+                            "name": "FloatConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-int-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "enum": [
+                            0
+                        ],
+                        "x-ms-enum": {
+                            "name": "IntConstant",
+                            "modelAsString": false
+                        }
+                    },
+                    {
+                        "name": "optional-float-query",
+                        "in": "query",
+                        "required": false,
+                        "type": "number",
+                        "enum": [
+                            3.14
+                        ],
+                        "x-ms-enum": {
+                            "name": "FloatConstant",
+                            "modelAsString": false
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/RoundTripModel"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ConstantSchema": {
+            "type": "string",
+            "description": "A constant based on string, the only allowable value is default.",
+            "enum": ["default"],
+            "x-ms-enum": {
+                "name": "StringConstant",
+                "modelAsString": false
+            }
+        },
+        "IntConstantSchema": {
+            "type": "integer",
+            "description": "A constant based on integer",
+            "enum": [0],
+            "x-ms-enum": {
+                "name": "IntConstant",
+                "modelAsString": false
+            }
+        },
+        "BooleanConstantSchema": {
+            "type": "boolean",
+            "description": "A constant based on boolean",
+            "enum": [true],
+            "x-ms-enum": {
+                "name": "BooleanConstant",
+                "modelAsString": false
+            }
+        },
+        "FloatConstantSchema": {
+            "type": "number",
+            "description": "A constant based on float",
+            "enum": [3.14],
+            "x-ms-enum": {
+                "name": "FloatConstant",
+                "modelAsString": false
+            }
+        },
+        "ModelWithOptionalConstant": {
+            "properties": {
+                "optionalStringConstant": {
+                    "$ref": "#/definitions/ConstantSchema"
+                },
+                "optionalIntConstant": {
+                    "$ref": "#/definitions/IntConstantSchema"
+                },
+                "optionalBooleanConstant": {
+                    "$ref": "#/definitions/BooleanConstantSchema"
+                },
+                "optionalFloatConstant": {
+                    "$ref": "#/definitions/FloatConstantSchema"
+                }
+            },
+            "description": "Specifies additional XML formatted information that can be included in the Unattend.xml file, which is used by Windows Setup. Contents are defined by setting name, component name, and the pass in which the content is applied."
+        },
+        "ModelWithRequiredConstant": {
+            "properties": {
+                "requiredStringConstant": {
+                    "$ref": "#/definitions/ConstantSchema"
+                },
+                "requiredIntConstant": {
+                    "$ref": "#/definitions/IntConstantSchema"
+                },
+                "requiredBooleanConstant": {
+                    "$ref": "#/definitions/BooleanConstantSchema"
+                },
+                "requiredFloatConstant": {
+                    "$ref": "#/definitions/FloatConstantSchema"
+                }
+            },
+            "description": "Describes Protocol and thumbprint of Windows Remote Management listener",
+            "required": [
+                "requiredStringConstant",
+                "requiredIntConstant",
+                "requiredBooleanConstant",
+                "requiredFloatConstant"
+            ]
+        },
+        "RoundTripModel": {
+            "type": "object",
+            "properties": {
+                "requiredConstantModel": {
+                    "$ref": "#/definitions/ModelWithRequiredConstant"
+                },
+                "optionalConstantModel": {
+                    "$ref": "#/definitions/ModelWithOptionalConstant"
+                }
+            }
+        }
+    }
+}

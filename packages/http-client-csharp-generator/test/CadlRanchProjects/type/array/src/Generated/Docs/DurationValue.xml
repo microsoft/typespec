@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetDurationValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetDurationValueAsync.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response<IReadOnlyList<TimeSpan>> response = await client.GetDurationValueAsync();
+]]></code>
+This sample shows how to call GetDurationValueAsync with all parameters.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response<IReadOnlyList<TimeSpan>> response = await client.GetDurationValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetDurationValue(CancellationToken)">
+      <example>
+This sample shows how to call GetDurationValue.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response<IReadOnlyList<TimeSpan>> response = client.GetDurationValue();
+]]></code>
+This sample shows how to call GetDurationValue with all parameters.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response<IReadOnlyList<TimeSpan>> response = client.GetDurationValue();
+]]></code></example>
+    </member>
+    <member name="GetDurationValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDurationValueAsync and parse the result.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = await client.GetDurationValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDurationValueAsync with all parameters and parse the result.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = await client.GetDurationValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDurationValue(RequestContext)">
+      <example>
+This sample shows how to call GetDurationValue and parse the result.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = client.GetDurationValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDurationValue with all parameters and parse the result.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = client.GetDurationValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IEnumerable{TimeSpan},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = await client.PutAsync(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = await client.PutAsync(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+]]></code></example>
+    </member>
+    <member name="Put(IEnumerable{TimeSpan},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = client.Put(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+Response response = client.Put(new TimeSpan[] { XmlConvert.ToTimeSpan("PT1H23M45S") });
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+DurationValue client = new ArrayClient().GetDurationValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

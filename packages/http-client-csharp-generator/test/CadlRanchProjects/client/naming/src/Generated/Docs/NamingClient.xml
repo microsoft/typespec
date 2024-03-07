@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="ClientNameAsync(RequestContext)">
+      <example>
+This sample shows how to call ClientNameAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.ClientNameAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ClientNameAsync with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.ClientNameAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ClientName(RequestContext)">
+      <example>
+This sample shows how to call ClientName.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.ClientName();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ClientName with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.ClientName();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ParameterAsync(string,RequestContext)">
+      <example>
+This sample shows how to call ParameterAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.ParameterAsync("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ParameterAsync with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.ParameterAsync("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Parameter(string,RequestContext)">
+      <example>
+This sample shows how to call Parameter.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.Parameter("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Parameter with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.Parameter("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ClientAsync(ClientNameModel,CancellationToken)">
+      <example>
+This sample shows how to call ClientAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameModel clientNameModel = new ClientNameModel(true);
+Response response = await client.ClientAsync(clientNameModel);
+]]></code>
+This sample shows how to call ClientAsync with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameModel clientNameModel = new ClientNameModel(true);
+Response response = await client.ClientAsync(clientNameModel);
+]]></code></example>
+    </member>
+    <member name="Client(ClientNameModel,CancellationToken)">
+      <example>
+This sample shows how to call Client.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameModel clientNameModel = new ClientNameModel(true);
+Response response = client.Client(clientNameModel);
+]]></code>
+This sample shows how to call Client with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameModel clientNameModel = new ClientNameModel(true);
+Response response = client.Client(clientNameModel);
+]]></code></example>
+    </member>
+    <member name="ClientAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ClientAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.ClientAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ClientAsync with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.ClientAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Client(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Client.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Client(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Client with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Client(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="LanguageAsync(LanguageClientNameModel,CancellationToken)">
+      <example>
+This sample shows how to call LanguageAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+LanguageClientNameModel languageClientNameModel = new LanguageClientNameModel(true);
+Response response = await client.LanguageAsync(languageClientNameModel);
+]]></code>
+This sample shows how to call LanguageAsync with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+LanguageClientNameModel languageClientNameModel = new LanguageClientNameModel(true);
+Response response = await client.LanguageAsync(languageClientNameModel);
+]]></code></example>
+    </member>
+    <member name="Language(LanguageClientNameModel,CancellationToken)">
+      <example>
+This sample shows how to call Language.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+LanguageClientNameModel languageClientNameModel = new LanguageClientNameModel(true);
+Response response = client.Language(languageClientNameModel);
+]]></code>
+This sample shows how to call Language with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+LanguageClientNameModel languageClientNameModel = new LanguageClientNameModel(true);
+Response response = client.Language(languageClientNameModel);
+]]></code></example>
+    </member>
+    <member name="LanguageAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call LanguageAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.LanguageAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call LanguageAsync with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = await client.LanguageAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Language(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Language.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Language(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Language with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    defaultName = true,
+});
+Response response = client.Language(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CompatibleWithEncodedNameAsync(ClientNameAndJsonEncodedNameModel,CancellationToken)">
+      <example>
+This sample shows how to call CompatibleWithEncodedNameAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameAndJsonEncodedNameModel clientNameAndJsonEncodedNameModel = new ClientNameAndJsonEncodedNameModel(true);
+Response response = await client.CompatibleWithEncodedNameAsync(clientNameAndJsonEncodedNameModel);
+]]></code>
+This sample shows how to call CompatibleWithEncodedNameAsync with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameAndJsonEncodedNameModel clientNameAndJsonEncodedNameModel = new ClientNameAndJsonEncodedNameModel(true);
+Response response = await client.CompatibleWithEncodedNameAsync(clientNameAndJsonEncodedNameModel);
+]]></code></example>
+    </member>
+    <member name="CompatibleWithEncodedName(ClientNameAndJsonEncodedNameModel,CancellationToken)">
+      <example>
+This sample shows how to call CompatibleWithEncodedName.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameAndJsonEncodedNameModel clientNameAndJsonEncodedNameModel = new ClientNameAndJsonEncodedNameModel(true);
+Response response = client.CompatibleWithEncodedName(clientNameAndJsonEncodedNameModel);
+]]></code>
+This sample shows how to call CompatibleWithEncodedName with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+ClientNameAndJsonEncodedNameModel clientNameAndJsonEncodedNameModel = new ClientNameAndJsonEncodedNameModel(true);
+Response response = client.CompatibleWithEncodedName(clientNameAndJsonEncodedNameModel);
+]]></code></example>
+    </member>
+    <member name="CompatibleWithEncodedNameAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CompatibleWithEncodedNameAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = await client.CompatibleWithEncodedNameAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CompatibleWithEncodedNameAsync with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = await client.CompatibleWithEncodedNameAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="CompatibleWithEncodedName(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call CompatibleWithEncodedName.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = client.CompatibleWithEncodedName(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CompatibleWithEncodedName with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    wireName = true,
+});
+Response response = client.CompatibleWithEncodedName(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RequestAsync(string,RequestContext)">
+      <example>
+This sample shows how to call RequestAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.RequestAsync("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RequestAsync with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.RequestAsync("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Request(string,RequestContext)">
+      <example>
+This sample shows how to call Request.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.Request("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Request with all parameters.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.Request("<clientName>");
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ResponseAsync(RequestContext)">
+      <example>
+This sample shows how to call ResponseAsync.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.ResponseAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ResponseAsync with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = await client.ResponseAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Response(RequestContext)">
+      <example>
+This sample shows how to call Response.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.Response();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Response with all request content.
+<code><![CDATA[
+NamingClient client = new NamingClient();
+
+Response response = client.Response();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,13 @@
+{
+  "output-folder": ".",
+  "namespace": "ModelNamespace",
+  "library-name": "ModelNamespace",
+  "shared-source-folders": [
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Generator.Shared",
+    "..\\..\\..\\..\\artifacts\\bin\\AutoRest.CSharp\\Debug\\net7.0\\Azure.Core.Shared"
+  ],
+  "public-clients": true,
+  "model-namespace": false,
+  "skip-csproj-packagereference": true,
+  "generation1-convenience-client": true
+}

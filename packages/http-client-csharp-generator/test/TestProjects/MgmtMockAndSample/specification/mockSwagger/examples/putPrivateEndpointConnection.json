@@ -1,0 +1,39 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "vaultName": "sample-vault",
+    "privateEndpointConnectionName": "sample-pec",
+    "api-version": "2018-02-14",
+    "properties": {
+      "etag": "",
+      "properties": {
+        "privateLinkServiceConnectionState": {
+          "status": "Approved",
+          "description": "My name is Joe and I'm approving this."
+        }
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault/privateEndpointConnections/sample-pec",
+        "name": "sample-pec",
+        "type": "Microsoft.KeyVault/vaults/privateEndpointConnections",
+        "etag": "",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "privateEndpoint": {
+            "id": "/subscriptions/00000000-0000-0000-1234-000000000000/resourceGroups/sample-group/providers/Microsoft.Network/privateEndpoints/sample-pe"
+          },
+          "privateLinkServiceConnectionState": {
+            "status": "Approved",
+            "description": "My name is Joe and I'm approving this.",
+            "actionsRequired": "None"
+          }
+        }
+      }
+    }
+  }
+}

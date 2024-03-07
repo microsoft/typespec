@@ -1,0 +1,63 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2021-10-19",
+    "title": "LlcSubClients"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [ "application/json" ],
+  "consumes": [ "application/json" ],
+  "paths": {
+    "/root/{cachedParameter}": {
+      "get": {
+        "operationId": "Root_GetCachedParameter",
+        "parameters": [
+          {
+            "name": "cachedParameter",
+            "type": "string",
+            "in": "path",
+            "required": true,
+            "x-ms-parameter-location": "client"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    },
+    "/parameter/{subParameter}": {
+      "get": {
+        "operationId": "Parameter_GetSubParameter",
+        "parameters": [
+          {
+            "name": "subParameter",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type":"string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": { },
+  "parameters": { },
+  "securityDefinitions": {},
+  "security": [],
+  "tags": []
+}

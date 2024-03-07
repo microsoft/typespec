@@ -1,0 +1,3437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetNull(RequestContext)">
+      <example>
+This sample shows how to call GetNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetInvalidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetInvalidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetInvalidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetInvalidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetInvalidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetInvalid(RequestContext)">
+      <example>
+This sample shows how to call GetInvalid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetInvalid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetInvalid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetInvalid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutEmptyAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutEmptyAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = await client.PutEmptyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutEmptyAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = await client.PutEmptyAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutEmpty(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutEmpty.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = client.PutEmpty(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutEmpty with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = client.PutEmpty(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetBooleanTfftAsync(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanTfftAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBooleanTfftAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBooleanTfftAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBooleanTfftAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetBooleanTfft(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanTfft and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBooleanTfft(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBooleanTfft with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBooleanTfft(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutBooleanTfftAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutBooleanTfftAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    true
+});
+Response response = await client.PutBooleanTfftAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutBooleanTfftAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    true
+});
+Response response = await client.PutBooleanTfftAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutBooleanTfft(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutBooleanTfft.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    true
+});
+Response response = client.PutBooleanTfft(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutBooleanTfft with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    true
+});
+Response response = client.PutBooleanTfft(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetBooleanInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBooleanInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBooleanInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBooleanInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetBooleanInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBooleanInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBooleanInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBooleanInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetBooleanInvalidStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanInvalidStringAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBooleanInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBooleanInvalidStringAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBooleanInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetBooleanInvalidString(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanInvalidString and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBooleanInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBooleanInvalidString with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBooleanInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetIntegerValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIntegerValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetIntegerValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetIntegerValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetIntegerValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetIntegerValid(RequestContext)">
+      <example>
+This sample shows how to call GetIntegerValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetIntegerValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetIntegerValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetIntegerValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutIntegerValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutIntegerValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234
+});
+Response response = await client.PutIntegerValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutIntegerValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234
+});
+Response response = await client.PutIntegerValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutIntegerValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutIntegerValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234
+});
+Response response = client.PutIntegerValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutIntegerValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234
+});
+Response response = client.PutIntegerValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetIntInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIntInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetIntInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetIntInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetIntInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetIntInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetIntInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetIntInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetIntInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetIntInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetIntInvalidStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetIntInvalidStringAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetIntInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetIntInvalidStringAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetIntInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetIntInvalidString(RequestContext)">
+      <example>
+This sample shows how to call GetIntInvalidString and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetIntInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetIntInvalidString with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetIntInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetLongValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetLongValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetLongValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetLongValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetLongValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetLongValid(RequestContext)">
+      <example>
+This sample shows how to call GetLongValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetLongValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetLongValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetLongValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutLongValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutLongValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = await client.PutLongValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutLongValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = await client.PutLongValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutLongValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutLongValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = client.PutLongValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutLongValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = client.PutLongValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetLongInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetLongInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetLongInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetLongInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetLongInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetLongInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetLongInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetLongInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetLongInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetLongInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetLongInvalidStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetLongInvalidStringAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetLongInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetLongInvalidStringAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetLongInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetLongInvalidString(RequestContext)">
+      <example>
+This sample shows how to call GetLongInvalidString and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetLongInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetLongInvalidString with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetLongInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetFloatValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFloatValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetFloatValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetFloatValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetFloatValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetFloatValid(RequestContext)">
+      <example>
+This sample shows how to call GetFloatValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetFloatValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetFloatValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetFloatValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutFloatValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutFloatValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45F
+});
+Response response = await client.PutFloatValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutFloatValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45F
+});
+Response response = await client.PutFloatValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutFloatValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutFloatValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45F
+});
+Response response = client.PutFloatValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutFloatValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45F
+});
+Response response = client.PutFloatValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetFloatInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFloatInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetFloatInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetFloatInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetFloatInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetFloatInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetFloatInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetFloatInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetFloatInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetFloatInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetFloatInvalidStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFloatInvalidStringAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetFloatInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetFloatInvalidStringAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetFloatInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetFloatInvalidString(RequestContext)">
+      <example>
+This sample shows how to call GetFloatInvalidString and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetFloatInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetFloatInvalidString with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetFloatInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDoubleValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDoubleValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDoubleValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDoubleValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDoubleValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDoubleValid(RequestContext)">
+      <example>
+This sample shows how to call GetDoubleValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDoubleValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDoubleValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDoubleValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutDoubleValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDoubleValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45
+});
+Response response = await client.PutDoubleValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDoubleValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45
+});
+Response response = await client.PutDoubleValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDoubleValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDoubleValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45
+});
+Response response = client.PutDoubleValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDoubleValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    123.45
+});
+Response response = client.PutDoubleValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDoubleInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDoubleInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDoubleInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDoubleInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDoubleInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDoubleInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetDoubleInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDoubleInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDoubleInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDoubleInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDoubleInvalidStringAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDoubleInvalidStringAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDoubleInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDoubleInvalidStringAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDoubleInvalidStringAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDoubleInvalidString(RequestContext)">
+      <example>
+This sample shows how to call GetDoubleInvalidString and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDoubleInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDoubleInvalidString with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDoubleInvalidString(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringValid(RequestContext)">
+      <example>
+This sample shows how to call GetStringValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutStringValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutStringValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = await client.PutStringValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutStringValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = await client.PutStringValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutStringValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutStringValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = client.PutStringValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutStringValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "<arrayBody>"
+});
+Response response = client.PutStringValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetEnumValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetEnumValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetEnumValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetEnumValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetEnumValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetEnumValid(RequestContext)">
+      <example>
+This sample shows how to call GetEnumValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetEnumValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetEnumValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetEnumValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutEnumValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutEnumValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = await client.PutEnumValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutEnumValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = await client.PutEnumValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutEnumValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutEnumValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = client.PutEnumValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutEnumValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = client.PutEnumValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetStringEnumValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringEnumValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringEnumValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringEnumValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringEnumValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringEnumValid(RequestContext)">
+      <example>
+This sample shows how to call GetStringEnumValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringEnumValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringEnumValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringEnumValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutStringEnumValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutStringEnumValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = await client.PutStringEnumValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutStringEnumValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = await client.PutStringEnumValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutStringEnumValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutStringEnumValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = client.PutStringEnumValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutStringEnumValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "foo1"
+});
+Response response = client.PutStringEnumValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetStringWithNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringWithNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringWithNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringWithNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringWithNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringWithNull(RequestContext)">
+      <example>
+This sample shows how to call GetStringWithNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringWithNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringWithNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringWithNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringWithInvalidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetStringWithInvalidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringWithInvalidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringWithInvalidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetStringWithInvalidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetStringWithInvalid(RequestContext)">
+      <example>
+This sample shows how to call GetStringWithInvalid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringWithInvalid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetStringWithInvalid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetStringWithInvalid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetUuidValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetUuidValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetUuidValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetUuidValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetUuidValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetUuidValid(RequestContext)">
+      <example>
+This sample shows how to call GetUuidValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetUuidValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetUuidValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetUuidValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutUuidValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutUuidValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"
+});
+Response response = await client.PutUuidValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutUuidValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"
+});
+Response response = await client.PutUuidValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutUuidValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutUuidValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"
+});
+Response response = client.PutUuidValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutUuidValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "73f411fe-4f43-4b4b-9cbd-6828d8f4cf9a"
+});
+Response response = client.PutUuidValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetUuidInvalidCharsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetUuidInvalidCharsAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetUuidInvalidCharsAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetUuidInvalidCharsAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetUuidInvalidCharsAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetUuidInvalidChars(RequestContext)">
+      <example>
+This sample shows how to call GetUuidInvalidChars and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetUuidInvalidChars(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetUuidInvalidChars with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetUuidInvalidChars(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateValid(RequestContext)">
+      <example>
+This sample shows how to call GetDateValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutDateValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10"
+});
+Response response = await client.PutDateValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10"
+});
+Response response = await client.PutDateValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDateValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10"
+});
+Response response = client.PutDateValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10"
+});
+Response response = client.PutDateValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDateInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetDateInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateInvalidCharsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateInvalidCharsAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateInvalidCharsAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateInvalidCharsAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateInvalidCharsAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateInvalidChars(RequestContext)">
+      <example>
+This sample shows how to call GetDateInvalidChars and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateInvalidChars(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateInvalidChars with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateInvalidChars(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeValid(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutDateTimeValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTimeValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10T18:57:31.2311892Z"
+});
+Response response = await client.PutDateTimeValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTimeValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10T18:57:31.2311892Z"
+});
+Response response = await client.PutDateTimeValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDateTimeValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTimeValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10T18:57:31.2311892Z"
+});
+Response response = client.PutDateTimeValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTimeValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "2022-05-10T18:57:31.2311892Z"
+});
+Response response = client.PutDateTimeValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDateTimeInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeInvalidCharsAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeInvalidCharsAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeInvalidCharsAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeInvalidCharsAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeInvalidCharsAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeInvalidChars(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeInvalidChars and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeInvalidChars(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeInvalidChars with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeInvalidChars(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeRfc1123ValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeRfc1123ValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeRfc1123ValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeRfc1123ValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDateTimeRfc1123ValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDateTimeRfc1123Valid(RequestContext)">
+      <example>
+This sample shows how to call GetDateTimeRfc1123Valid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeRfc1123Valid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDateTimeRfc1123Valid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDateTimeRfc1123Valid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutDateTimeRfc1123ValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTimeRfc1123ValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "Tue, 10 May 2022 18:57:31 GMT"
+});
+Response response = await client.PutDateTimeRfc1123ValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTimeRfc1123ValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "Tue, 10 May 2022 18:57:31 GMT"
+});
+Response response = await client.PutDateTimeRfc1123ValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDateTimeRfc1123Valid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDateTimeRfc1123Valid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "Tue, 10 May 2022 18:57:31 GMT"
+});
+Response response = client.PutDateTimeRfc1123Valid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDateTimeRfc1123Valid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "Tue, 10 May 2022 18:57:31 GMT"
+});
+Response response = client.PutDateTimeRfc1123Valid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDurationValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDurationValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDurationValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDurationValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDurationValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetDurationValid(RequestContext)">
+      <example>
+This sample shows how to call GetDurationValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDurationValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetDurationValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDurationValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutDurationValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDurationValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = await client.PutDurationValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDurationValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = await client.PutDurationValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDurationValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDurationValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = client.PutDurationValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDurationValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    "PT1H23M45S"
+});
+Response response = client.PutDurationValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetByteValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetByteValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetByteValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetByteValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetByteValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetByteValid(RequestContext)">
+      <example>
+This sample shows how to call GetByteValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetByteValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetByteValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetByteValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutByteValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutByteValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = await client.PutByteValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutByteValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = await client.PutByteValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutByteValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutByteValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = client.PutByteValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutByteValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = client.PutByteValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetByteInvalidNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetByteInvalidNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetByteInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetByteInvalidNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetByteInvalidNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetByteInvalidNull(RequestContext)">
+      <example>
+This sample shows how to call GetByteInvalidNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetByteInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetByteInvalidNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetByteInvalidNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetBase64UrlAsync(RequestContext)">
+      <example>
+This sample shows how to call GetBase64UrlAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBase64UrlAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBase64UrlAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetBase64UrlAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetBase64Url(RequestContext)">
+      <example>
+This sample shows how to call GetBase64Url and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBase64Url(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetBase64Url with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetBase64Url(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComplexNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexNull(RequestContext)">
+      <example>
+This sample shows how to call GetComplexNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComplexEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetComplexEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexItemNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComplexItemNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexItemNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexItemNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexItemNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexItemNull(RequestContext)">
+      <example>
+This sample shows how to call GetComplexItemNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexItemNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexItemNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexItemNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexItemEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComplexItemEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexItemEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexItemEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexItemEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexItemEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetComplexItemEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexItemEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexItemEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexItemEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComplexValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetComplexValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplexValid(RequestContext)">
+      <example>
+This sample shows how to call GetComplexValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetComplexValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetComplexValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("integer").ToString());
+Console.WriteLine(result[0].GetProperty("string").ToString());
+]]></code></example>
+    </member>
+    <member name="PutComplexValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutComplexValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = await client.PutComplexValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutComplexValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new Dictionary<string, object>
+    {
+        ["integer"] = 1234,
+        ["string"] = "<string>"
+    }
+});
+Response response = await client.PutComplexValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutComplexValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutComplexValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = client.PutComplexValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutComplexValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new Dictionary<string, object>
+    {
+        ["integer"] = 1234,
+        ["string"] = "<string>"
+    }
+});
+Response response = client.PutComplexValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetArrayNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetArrayNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayNull(RequestContext)">
+      <example>
+This sample shows how to call GetArrayNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetArrayEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetArrayEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayItemNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetArrayItemNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayItemNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayItemNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayItemNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayItemNull(RequestContext)">
+      <example>
+This sample shows how to call GetArrayItemNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayItemNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayItemNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayItemNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayItemEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetArrayItemEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayItemEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayItemEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayItemEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayItemEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetArrayItemEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayItemEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayItemEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayItemEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetArrayValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetArrayValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetArrayValid(RequestContext)">
+      <example>
+This sample shows how to call GetArrayValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code>
+This sample shows how to call GetArrayValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetArrayValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0][0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutArrayValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutArrayValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object[]
+    {
+        "<arrayBody>"
+    }
+});
+Response response = await client.PutArrayValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutArrayValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object[]
+    {
+        "<arrayBody>"
+    }
+});
+Response response = await client.PutArrayValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutArrayValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutArrayValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object[]
+    {
+        "<arrayBody>"
+    }
+});
+Response response = client.PutArrayValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutArrayValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object[]
+    {
+        "<arrayBody>"
+    }
+});
+Response response = client.PutArrayValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDictionaryNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryNull(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryItemNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryItemNullAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryItemNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryItemNullAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryItemNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryItemNull(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryItemNull and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryItemNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryItemNull with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryItemNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryItemEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryItemEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryItemEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryItemEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryItemEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryItemEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryItemEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryItemEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryItemEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryItemEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = await client.GetDictionaryValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDictionaryValid(RequestContext)">
+      <example>
+This sample shows how to call GetDictionaryValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code>
+This sample shows how to call GetDictionaryValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+Response response = client.GetDictionaryValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="PutDictionaryValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDictionaryValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        key = "<arrayBody>",
+    }
+});
+Response response = await client.PutDictionaryValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDictionaryValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        key = "<arrayBody>",
+    }
+});
+Response response = await client.PutDictionaryValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutDictionaryValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutDictionaryValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        key = "<arrayBody>",
+    }
+});
+Response response = client.PutDictionaryValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutDictionaryValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+ArrayClient client = new ArrayClient(credential);
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new
+    {
+        key = "<arrayBody>",
+    }
+});
+Response response = client.PutDictionaryValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

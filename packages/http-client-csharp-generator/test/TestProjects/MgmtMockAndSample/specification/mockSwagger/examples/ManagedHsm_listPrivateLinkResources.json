@@ -1,0 +1,30 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "name": "sample-mhsm",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-resource-group/providers/Microsoft.KeyVault/managedhsms/sample-mhsm/privateLinkResources/managedhsm",
+            "name": "managedhsm",
+            "type": "Microsoft.KeyVault/managedhsms/privateLinkResources",
+            "properties": {
+              "groupId": "managedhsms",
+              "requiredMembers": [
+                "default"
+              ],
+              "requiredZoneNames": [
+                "privatelink.managedhsm.azure.net"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetUnknownAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetUnknownAsync.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response<BinaryData> response = await client.GetUnknownAsync();
+]]></code>
+This sample shows how to call GetUnknownAsync with all parameters.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response<BinaryData> response = await client.GetUnknownAsync();
+]]></code></example>
+    </member>
+    <member name="GetUnknown(CancellationToken)">
+      <example>
+This sample shows how to call GetUnknown.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response<BinaryData> response = client.GetUnknown();
+]]></code>
+This sample shows how to call GetUnknown with all parameters.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response<BinaryData> response = client.GetUnknown();
+]]></code></example>
+    </member>
+    <member name="GetUnknownAsync(RequestContext)">
+      <example>
+This sample shows how to call GetUnknownAsync and parse the result.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = await client.GetUnknownAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetUnknownAsync with all parameters and parse the result.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = await client.GetUnknownAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetUnknown(RequestContext)">
+      <example>
+This sample shows how to call GetUnknown and parse the result.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = client.GetUnknown(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetUnknown with all parameters and parse the result.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = client.GetUnknown(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(BinaryData,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = await client.PutAsync(BinaryData.FromObjectAsJson(new object()));
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = await client.PutAsync(BinaryData.FromObjectAsJson(new object()));
+]]></code></example>
+    </member>
+    <member name="Put(BinaryData,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = client.Put(BinaryData.FromObjectAsJson(new object()));
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+Response response = client.Put(BinaryData.FromObjectAsJson(new object()));
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+Unknown client = new ScalarClient().GetUnknownClient();
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

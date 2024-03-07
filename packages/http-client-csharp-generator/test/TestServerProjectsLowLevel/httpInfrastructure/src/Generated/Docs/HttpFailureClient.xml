@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetEmptyErrorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetEmptyErrorAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = await client.GetEmptyErrorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetEmptyErrorAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = await client.GetEmptyErrorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetEmptyError(RequestContext)">
+      <example>
+This sample shows how to call GetEmptyError and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = client.GetEmptyError(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetEmptyError with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = client.GetEmptyError(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetNoModelErrorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetNoModelErrorAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = await client.GetNoModelErrorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetNoModelErrorAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = await client.GetNoModelErrorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetNoModelError(RequestContext)">
+      <example>
+This sample shows how to call GetNoModelError and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = client.GetNoModelError(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetNoModelError with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = client.GetNoModelError(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetNoModelEmptyAsync(RequestContext)">
+      <example>
+This sample shows how to call GetNoModelEmptyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = await client.GetNoModelEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetNoModelEmptyAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = await client.GetNoModelEmptyAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="GetNoModelEmpty(RequestContext)">
+      <example>
+This sample shows how to call GetNoModelEmpty and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = client.GetNoModelEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetNoModelEmpty with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+HttpFailureClient client = new HttpFailureClient(credential);
+
+Response response = client.GetNoModelEmpty(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

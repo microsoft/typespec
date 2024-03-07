@@ -1,0 +1,69 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "AutoRest Second Input Service",
+    "version": "1.0"
+  },
+  "x-ms-parameterized-host": {
+    "hostTemplate": "{source}.fakeendpoint.azure.com",
+    "parameters": [
+      {
+        "$ref": "common.json#/parameters/SourceEnum"
+      }
+    ]
+  },
+  "schemes": [
+    "https"
+  ],
+  "consumes": [],
+  "produces": [
+    "application/json"
+  ],
+  "securityDefinitions": {
+    "AADToken": {
+      "type": "oauth2",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+      "flow": "implicit",
+      "scopes": {
+        "https://fakeendpoint.azure.com/.default": "https://fakeendpoint.azure.com/.default"
+      }
+    },
+    "AzureKey": {
+      "type": "apiKey",
+      "name": "subscription-key",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "AADToken": [
+        "https://fakeendpoint.azure.com/.default"
+      ]
+    },
+    {
+      "AzureKey": []
+    }
+  ],
+  "paths": {
+    "/operation2": {
+      "get": {
+        "operationId": "Operation2",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "common.json#/definitions/TestModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  }
+}

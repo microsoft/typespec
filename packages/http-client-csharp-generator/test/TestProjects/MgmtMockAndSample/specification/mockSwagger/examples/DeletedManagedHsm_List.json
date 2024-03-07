@@ -1,0 +1,47 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.KeyVault/locations/westus/deletedManagedHSMs/hsm1",
+            "name": "vault-agile-drawer-6404",
+            "type": "Microsoft.KeyVault/deletedManagedHSMs",
+            "properties": {
+              "mhsmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.KeyVault/managedHSMs/hsm1",
+              "location": "westus",
+              "deletionDate": "2021-04-01T00:00:59Z",
+              "scheduledPurgeDate": "2021-04-01T00:00:59Z",
+              "purgeProtectionEnabled": true,
+              "tags": {
+                "Dept": "hsm",
+                "Environment": "production"
+              }
+            }
+          },
+          {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.KeyVault/locations/westus/deletedManagedHSMs/hsm2",
+            "name": "vault-agile-drawer-6404",
+            "type": "Microsoft.KeyVault/deletedManagedHSMs",
+            "properties": {
+              "mhsmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.KeyVault/managedHSMs/hsm2",
+              "location": "westus",
+              "deletionDate": "2021-04-01T00:00:59Z",
+              "scheduledPurgeDate": "2021-04-01T00:00:59Z",
+              "purgeProtectionEnabled": true,
+              "tags": {
+                "Dept": "hsm",
+                "Environment": "production"
+              }
+            }
+          }
+        ],
+        "nextLink": "https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.KeyVault/deletedManagedHSMs?api-version=2021-10-01&$skiptoken=dmF1bHQtcGVza3ktanVyeS03MzA3Ng=="
+      }
+    }
+  }
+}

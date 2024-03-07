@@ -1,0 +1,1369 @@
+!CodeModel 
+info: !Info 
+  description: The Compute Management Client.
+  title: ComputeManagementClient
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_1
+      type: boolean
+      language: !Languages 
+        default:
+          name: Bool
+          description: simple boolean
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_43
+      type: boolean
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_2
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: IntConstant
+          description: A constant based on integer
+      protocol: !Protocols {}
+    - !NumberSchema &ref_3
+      type: number
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      precision: 32
+      language: !Languages 
+        default:
+          name: FloatConstant
+          description: A constant based on float
+      protocol: !Protocols {}
+    - !NumberSchema &ref_4
+      type: integer
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_5
+      type: number
+      precision: 32
+      language: !Languages 
+        default:
+          name: Number
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: Resource Id
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: Resource name
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: Resource type
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceLocation
+          description: Resource location
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: OptionalMachineListResultNextLink
+          description: The URI to fetch the next page of VMs. Call ListNext() with this URI to fetch the next page of Virtual Machines.
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_27
+      type: constant
+      value: !ConstantValue 
+        value: default
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: StringConstant
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_28
+      type: constant
+      value: !ConstantValue 
+        value: true
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: BooleanConstant
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_14
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      value: !ConstantValue 
+        value: default
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: StringConstant
+          description: A constant based on string, the only allowable value is default.
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_16
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      value: !ConstantValue 
+        value: true
+      valueType: *ref_1
+      language: !Languages 
+        default:
+          name: BooleanConstant
+          description: A constant based on boolean
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_25
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_31
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_15
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      value: !ConstantValue 
+        value: 0
+      valueType: *ref_2
+      language: !Languages 
+        default:
+          name: IntConstant
+          description: A constant based on integer
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_17
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      value: !ConstantValue 
+        value: 3.14
+      valueType: *ref_3
+      language: !Languages 
+        default:
+          name: FloatConstant
+          description: A constant based on float
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_32
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_37
+      type: constant
+      value: !ConstantValue 
+        value: 0
+      valueType: *ref_4
+      language: !Languages 
+        default:
+          name: IntConstant
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_38
+      type: constant
+      value: !ConstantValue 
+        value: 3.14
+      valueType: *ref_5
+      language: !Languages 
+        default:
+          name: FloatConstant
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_47
+      type: constant
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      value: !ConstantValue 
+        value: instanceView
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: OptionalMachineExpand
+          description: ''
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_12
+      type: dictionary
+      elementType: *ref_6
+      language: !Languages 
+        default:
+          name: ResourceTags
+          description: Resource tags
+      protocol: !Protocols {}
+    - !DictionarySchema &ref_21
+      type: dictionary
+      elementType: *ref_6
+      language: !Languages 
+        default:
+          name: UpdateResourceTags
+          description: Resource tags
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_7
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_13
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            children: !Relations 
+              all:
+                - *ref_7
+              immediate:
+                - *ref_7
+            properties:
+              - !Property 
+                schema: *ref_8
+                readOnly: true
+                required: false
+                serializedName: id
+                language: !Languages 
+                  default:
+                    name: id
+                    description: Resource Id
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_9
+                readOnly: true
+                required: false
+                serializedName: name
+                language: !Languages 
+                  default:
+                    name: name
+                    description: Resource name
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_10
+                readOnly: true
+                required: false
+                serializedName: type
+                language: !Languages 
+                  default:
+                    name: type
+                    description: Resource type
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_11
+                required: true
+                serializedName: location
+                language: !Languages 
+                  default:
+                    name: location
+                    description: Resource location
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_12
+                required: false
+                serializedName: tags
+                language: !Languages 
+                  default:
+                    name: tags
+                    description: Resource tags
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            extensions:
+              x-ms-azure-resource: true
+            language: !Languages 
+              default:
+                name: Resource
+                description: The Resource model definition.
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_13
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_18
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            properties:
+              - !Property 
+                schema: *ref_14
+                required: true
+                serializedName: requiredStringConstant
+                language: !Languages 
+                  default:
+                    name: requiredStringConstant
+                    description: A constant based on string, the only allowable value is default.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_15
+                required: true
+                serializedName: requiredIntConstant
+                language: !Languages 
+                  default:
+                    name: requiredIntConstant
+                    description: A constant based on integer
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_16
+                required: true
+                serializedName: requiredBooleanConstant
+                language: !Languages 
+                  default:
+                    name: requiredBooleanConstant
+                    description: A constant based on boolean
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_17
+                required: true
+                serializedName: requiredFloatConstant
+                language: !Languages 
+                  default:
+                    name: requiredFloatConstant
+                    description: A constant based on float
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ModelWithRequiredConstant
+                description: Describes Protocol and thumbprint of Windows Remote Management listener
+                namespace: ''
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - listener
+          serializedName: listener
+          language: !Languages 
+            default:
+              name: listener
+              description: Describes Protocol and thumbprint of Windows Remote Management listener
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_19
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            properties:
+              - !Property 
+                schema: *ref_14
+                serializedName: optionalStringConstant
+                language: !Languages 
+                  default:
+                    name: optionalStringConstant
+                    description: A constant based on string, the only allowable value is default.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_15
+                serializedName: optionalIntConstant
+                language: !Languages 
+                  default:
+                    name: optionalIntConstant
+                    description: A constant based on integer
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_16
+                serializedName: optionalBooleanConstant
+                language: !Languages 
+                  default:
+                    name: optionalBooleanConstant
+                    description: A constant based on boolean
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_17
+                serializedName: optionalFloatConstant
+                language: !Languages 
+                  default:
+                    name: optionalFloatConstant
+                    description: A constant based on float
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+              - output
+            language: !Languages 
+              default:
+                name: ModelWithOptionalConstant
+                description: >-
+                  Specifies additional XML formatted information that can be included in the Unattend.xml file, which is used by Windows Setup. Contents are defined by setting name, component name, and the pass in which the content is
+                  applied.
+                namespace: ''
+            protocol: !Protocols {}
+          flattenedNames:
+            - properties
+            - content
+          serializedName: content
+          language: !Languages 
+            default:
+              name: content
+              description: >-
+                Specifies additional XML formatted information that can be included in the Unattend.xml file, which is used by Windows Setup. Contents are defined by setting name, component name, and the pass in which the content is
+                applied.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: OptionalMachine
+          description: Describes a Virtual Machine.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_18
+    - *ref_19
+    - *ref_13
+    - !ObjectSchema &ref_20
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      parents: !Relations 
+        all:
+          - !ObjectSchema &ref_22
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            children: !Relations 
+              all:
+                - *ref_20
+              immediate:
+                - *ref_20
+            properties:
+              - !Property 
+                schema: *ref_21
+                serializedName: tags
+                language: !Languages 
+                  default:
+                    name: tags
+                    description: Resource tags
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - input
+            language: !Languages 
+              default:
+                name: UpdateResource
+                description: The Update Resource model definition.
+                namespace: ''
+            protocol: !Protocols {}
+        immediate:
+          - *ref_22
+      properties:
+        - !Property 
+          schema: *ref_18
+          flattenedNames:
+            - properties
+            - listener
+          serializedName: listener
+          language: !Languages 
+            default:
+              name: listener
+              description: Describes Protocol and thumbprint of Windows Remote Management listener
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_19
+          flattenedNames:
+            - properties
+            - content
+          serializedName: content
+          language: !Languages 
+            default:
+              name: content
+              description: >-
+                Specifies additional XML formatted information that can be included in the Unattend.xml file, which is used by Windows Setup. Contents are defined by setting name, component name, and the pass in which the content is
+                applied.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: OptionalMachineUpdate
+          description: Describes a Virtual Machine Update.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_22
+    - !ObjectSchema &ref_51
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_24
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: *ref_7
+            language: !Languages 
+              default:
+                name: OptionalMachineListResultValue
+                description: The list of virtual machines.
+            protocol: !Protocols {}
+          required: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: The list of virtual machines.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_23
+          required: false
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: The URI to fetch the next page of VMs. Call ListNext() with this URI to fetch the next page of Virtual Machines.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: OptionalMachineListResult
+          description: The List Virtual Machine operation response.
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_24
+globalParameters:
+  - !Parameter &ref_30
+    schema: *ref_6
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call.
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_26
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_29
+    schema: *ref_25
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: Optionals
+    operations:
+      - !Operation 
+        operationId: Optionals_CreateOrUpdate
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_26
+          - !Parameter &ref_35
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_36
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: The name of the virtual machine.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter 
+            schema: *ref_27
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredStringQuery
+                description: ''
+                serializedName: required-string-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_28
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredBooleanQuery
+                description: ''
+                serializedName: required-boolean-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_14
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalStringQuery
+                description: ''
+                serializedName: optional-string-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_16
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalBooleanQuery
+                description: ''
+                serializedName: optional-boolean-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+        requestMediaTypes:
+          application/json: !Request &ref_34
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_33
+                schema: *ref_7
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the Create Virtual Machine operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_33
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Constant/optionalMachines/{name}
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_34
+        signatureParameters:
+          - *ref_35
+          - *ref_36
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Created
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: CreateOrUpdate
+            description: The operation to create or update a virtual machine. Please note some properties can be set only during virtual machine creation.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Optionals_Update
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_26
+          - !Parameter &ref_41
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_42
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: The name of the virtual machine.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter 
+            schema: *ref_37
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredIntQuery
+                description: ''
+                serializedName: required-int-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_38
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: requiredFloatQuery
+                description: ''
+                serializedName: required-float-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_15
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalIntQuery
+                description: ''
+                serializedName: optional-int-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_17
+            implementation: Method
+            language: !Languages 
+              default:
+                name: optionalFloatQuery
+                description: ''
+                serializedName: optional-float-query
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+        requestMediaTypes:
+          application/json: !Request &ref_40
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_39
+                schema: *ref_20
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: parameters
+                    description: Parameters supplied to the Update Virtual Machine operation.
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_39
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Constant/optionalMachines/{name}
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_40
+        signatureParameters:
+          - *ref_41
+          - *ref_42
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: Created
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '201'
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: Update
+            description: The operation to update a virtual machine.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Optionals_Delete
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_26
+          - !Parameter &ref_44
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_45
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: The name of the virtual machine.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_46
+            schema: *ref_43
+            implementation: Method
+            language: !Languages 
+              default:
+                name: forceDeletion
+                description: Optional parameter to force delete virtual machines.
+                serializedName: forceDeletion
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Constant/optionalMachines/{name}
+                method: delete
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_44
+          - *ref_45
+          - *ref_46
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Accepted
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '202'
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: No Content
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '204'
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: Delete
+            description: The operation to delete a virtual machine.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Optionals_Get
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_26
+          - !Parameter &ref_48
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_49
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: name
+                description: The name of the virtual machine.
+                serializedName: name
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter 
+            schema: *ref_47
+            implementation: Method
+            language: !Languages 
+              default:
+                name: expand
+                description: The expand expression to apply on the operation.
+                serializedName: $expand
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - *ref_29
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Constant/optionalMachines/{name}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_48
+          - *ref_49
+        responses:
+          - !SchemaResponse 
+            schema: *ref_7
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Get
+            description: Retrieves information about the model view or the instance view of a virtual machine.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Optionals_List
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_26
+          - !Parameter &ref_50
+            schema: *ref_6
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_29
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Constant/optionalMachines
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_50
+        responses:
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: List
+            description: Lists all of the virtual machines in the specified resource group. Use the nextLink property in the response to get the next page of virtual machines.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Optionals_ListAll
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_26
+          - *ref_29
+          - *ref_30
+          - !Parameter &ref_52
+            schema: *ref_6
+            implementation: Method
+            language: !Languages 
+              default:
+                name: statusOnly
+                description: statusOnly=true enables fetching run time status of all Virtual Machines in the subscription.
+                serializedName: statusOnly
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_32
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/providers/Microsoft.Constant/optionalMachines
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_52
+        responses:
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListAll
+            description: Lists all of the virtual machines in the specified subscription. Use the nextLink property in the response to get the next page of virtual machines.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Optionals
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: ComputeManagementClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

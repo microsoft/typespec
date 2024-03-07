@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PatchAsync(string,RequestContext)">
+      <example>
+This sample shows how to call PatchAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Client4 client = new TopLevelClientWithOperationClient(credential).GetClient4("<ClientParameter>");
+
+Response response = await client.PatchAsync("<filter>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PatchAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Client4 client = new TopLevelClientWithOperationClient(credential).GetClient4("<ClientParameter>");
+
+Response response = await client.PatchAsync("<filter>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="Patch(string,RequestContext)">
+      <example>
+This sample shows how to call Patch and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Client4 client = new TopLevelClientWithOperationClient(credential).GetClient4("<ClientParameter>");
+
+Response response = client.Patch("<filter>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Patch with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+Client4 client = new TopLevelClientWithOperationClient(credential).GetClient4("<ClientParameter>");
+
+Response response = client.Patch("<filter>", null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

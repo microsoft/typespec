@@ -1,0 +1,391 @@
+!CodeModel 
+info: !Info 
+  description: PetStore
+  title: PetStore Inc
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2016-07-07'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2016-07-07'
+      language: !Languages 
+        default:
+          name: PetName
+          description: name
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_2
+      choices:
+        - !ChoiceValue 
+          value: Monday
+          language:
+            default:
+              name: Monday
+              description: ''
+        - !ChoiceValue 
+          value: Tuesday
+          language:
+            default:
+              name: Tuesday
+              description: ''
+        - !ChoiceValue 
+          value: Wednesday
+          language:
+            default:
+              name: Wednesday
+              description: ''
+        - !ChoiceValue 
+          value: Thursday
+          language:
+            default:
+              name: Thursday
+              description: ''
+        - !ChoiceValue 
+          value: Friday
+          language:
+            default:
+              name: Friday
+              description: ''
+        - !ChoiceValue 
+          value: Saturday
+          language:
+            default:
+              name: Saturday
+              description: ''
+        - !ChoiceValue 
+          value: Sunday
+          language:
+            default:
+              name: Sunday
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2016-07-07'
+      choiceType: *ref_0
+      defaultValue: Friday
+      language: !Languages 
+        default:
+          name: DaysOfWeekExtensibleEnum
+          description: Type of Pet
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_3
+      choices:
+        - !ChoiceValue 
+          value: '1'
+          language:
+            default:
+              name: One
+              description: This is a really long comment to see what wrapping looks like. This comment is really long and it should wrap for readability. Please wrap. This should wrap.
+        - !ChoiceValue 
+          value: '2'
+          language:
+            default:
+              name: Two
+              description: two
+        - !ChoiceValue 
+          value: '3'
+          language:
+            default:
+              name: Three
+              description: three
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2016-07-07'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: IntEnum
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_6
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_9
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_8
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2016-07-07'
+      properties:
+        - !Property 
+          schema: *ref_1
+          required: false
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: name
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_2
+          required: false
+          serializedName: DaysOfWeek
+          language: !Languages 
+            default:
+              name: daysOfWeek
+              description: Type of Pet
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          required: true
+          serializedName: IntEnum
+          language: !Languages 
+            default:
+              name: intEnum
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: Pet
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_4
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: Pet
+    operations:
+      - !Operation 
+        operationId: Pet_GetByPetId
+        apiVersions:
+          - !ApiVersion 
+            version: '2016-07-07'
+        parameters:
+          - *ref_4
+          - !Parameter &ref_7
+            schema: *ref_5
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: petId
+                description: Pet id
+                serializedName: petId
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /extensibleenums/pet/{petId}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_7
+        responses:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-examples:
+            Pet_GetByPetId:
+              parameters:
+                petId: tommy
+              responses:
+                '200':
+                  body:
+                    name: Retriever
+                    DaysOfWeek: Monday
+                    IntEnum: '1'
+        language: !Languages 
+          default:
+            name: GetByPetId
+            description: get pet by id
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: Pet_AddPet
+        apiVersions:
+          - !ApiVersion 
+            version: '2016-07-07'
+        parameters:
+          - *ref_4
+        requestMediaTypes:
+          application/json: !Request &ref_11
+            parameters:
+              - !Parameter 
+                schema: *ref_9
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_10
+                schema: *ref_8
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: petParam
+                    description: pet param
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_6
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_10
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /extensibleenums/pet/addPet
+                method: post
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_11
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_8
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-examples:
+            Pet_AddPet:
+              parameters:
+                petParam:
+                  name: Retriever
+                  DaysOfWeek: Monday
+                  IntEnum: '1'
+              responses:
+                '200': {}
+        language: !Languages 
+          default:
+            name: AddPet
+            description: add pet
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Pet
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: PetStoreInc
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

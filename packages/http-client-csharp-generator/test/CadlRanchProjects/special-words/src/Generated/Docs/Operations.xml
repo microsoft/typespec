@@ -1,0 +1,1259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="AndAsync(RequestContext)">
+      <example>
+This sample shows how to call AndAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AndAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AndAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AndAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="And(RequestContext)">
+      <example>
+This sample shows how to call And.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.And();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call And with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.And();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="AsAsync(RequestContext)">
+      <example>
+This sample shows how to call AsAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AsAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AsAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AsAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="As(RequestContext)">
+      <example>
+This sample shows how to call As.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.As();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call As with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.As();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="AssertAsync(RequestContext)">
+      <example>
+This sample shows how to call AssertAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AssertAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AssertAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AssertAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Assert(RequestContext)">
+      <example>
+This sample shows how to call Assert.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Assert();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Assert with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Assert();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="AsyncAsync(RequestContext)">
+      <example>
+This sample shows how to call AsyncAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AsyncAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AsyncAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AsyncAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Async(RequestContext)">
+      <example>
+This sample shows how to call Async.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Async();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Async with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Async();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="AwaitAsync(RequestContext)">
+      <example>
+This sample shows how to call AwaitAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AwaitAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AwaitAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.AwaitAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Await(RequestContext)">
+      <example>
+This sample shows how to call Await.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Await();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Await with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Await();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="BreakAsync(RequestContext)">
+      <example>
+This sample shows how to call BreakAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.BreakAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call BreakAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.BreakAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Break(RequestContext)">
+      <example>
+This sample shows how to call Break.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Break();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Break with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Break();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ClassAsync(RequestContext)">
+      <example>
+This sample shows how to call ClassAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ClassAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ClassAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ClassAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Class(RequestContext)">
+      <example>
+This sample shows how to call Class.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Class();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Class with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Class();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ConstructorAsync(RequestContext)">
+      <example>
+This sample shows how to call ConstructorAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ConstructorAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ConstructorAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ConstructorAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Constructor(RequestContext)">
+      <example>
+This sample shows how to call Constructor.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Constructor();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Constructor with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Constructor();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ContinueAsync(RequestContext)">
+      <example>
+This sample shows how to call ContinueAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ContinueAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ContinueAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ContinueAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Continue(RequestContext)">
+      <example>
+This sample shows how to call Continue.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Continue();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Continue with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Continue();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="DefAsync(RequestContext)">
+      <example>
+This sample shows how to call DefAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.DefAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call DefAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.DefAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Def(RequestContext)">
+      <example>
+This sample shows how to call Def.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Def();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Def with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Def();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="DelAsync(RequestContext)">
+      <example>
+This sample shows how to call DelAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.DelAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call DelAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.DelAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Del(RequestContext)">
+      <example>
+This sample shows how to call Del.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Del();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Del with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Del();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ElifAsync(RequestContext)">
+      <example>
+This sample shows how to call ElifAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ElifAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ElifAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ElifAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Elif(RequestContext)">
+      <example>
+This sample shows how to call Elif.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Elif();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Elif with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Elif();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ElseAsync(RequestContext)">
+      <example>
+This sample shows how to call ElseAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ElseAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ElseAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ElseAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Else(RequestContext)">
+      <example>
+This sample shows how to call Else.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Else();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Else with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Else();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ExceptAsync(RequestContext)">
+      <example>
+This sample shows how to call ExceptAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ExceptAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ExceptAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ExceptAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Except(RequestContext)">
+      <example>
+This sample shows how to call Except.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Except();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Except with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Except();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ExecAsync(RequestContext)">
+      <example>
+This sample shows how to call ExecAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ExecAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ExecAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ExecAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Exec(RequestContext)">
+      <example>
+This sample shows how to call Exec.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Exec();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Exec with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Exec();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="FinallyAsync(RequestContext)">
+      <example>
+This sample shows how to call FinallyAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.FinallyAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call FinallyAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.FinallyAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Finally(RequestContext)">
+      <example>
+This sample shows how to call Finally.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Finally();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Finally with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Finally();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ForAsync(RequestContext)">
+      <example>
+This sample shows how to call ForAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ForAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ForAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ForAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="For(RequestContext)">
+      <example>
+This sample shows how to call For.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.For();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call For with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.For();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="FromAsync(RequestContext)">
+      <example>
+This sample shows how to call FromAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.FromAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call FromAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.FromAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="From(RequestContext)">
+      <example>
+This sample shows how to call From.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.From();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call From with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.From();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GlobalAsync(RequestContext)">
+      <example>
+This sample shows how to call GlobalAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.GlobalAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GlobalAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.GlobalAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Global(RequestContext)">
+      <example>
+This sample shows how to call Global.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Global();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Global with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Global();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="IfAsync(RequestContext)">
+      <example>
+This sample shows how to call IfAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.IfAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call IfAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.IfAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="If(RequestContext)">
+      <example>
+This sample shows how to call If.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.If();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call If with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.If();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ImportAsync(RequestContext)">
+      <example>
+This sample shows how to call ImportAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ImportAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ImportAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ImportAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Import(RequestContext)">
+      <example>
+This sample shows how to call Import.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Import();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Import with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Import();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="InAsync(RequestContext)">
+      <example>
+This sample shows how to call InAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.InAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call InAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.InAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="In(RequestContext)">
+      <example>
+This sample shows how to call In.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.In();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call In with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.In();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="IsAsync(RequestContext)">
+      <example>
+This sample shows how to call IsAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.IsAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call IsAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.IsAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Is(RequestContext)">
+      <example>
+This sample shows how to call Is.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Is();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Is with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Is();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="LambdaAsync(RequestContext)">
+      <example>
+This sample shows how to call LambdaAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.LambdaAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call LambdaAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.LambdaAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Lambda(RequestContext)">
+      <example>
+This sample shows how to call Lambda.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Lambda();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Lambda with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Lambda();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="NotAsync(RequestContext)">
+      <example>
+This sample shows how to call NotAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.NotAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call NotAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.NotAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Not(RequestContext)">
+      <example>
+This sample shows how to call Not.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Not();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Not with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Not();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="OrAsync(RequestContext)">
+      <example>
+This sample shows how to call OrAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.OrAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call OrAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.OrAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Or(RequestContext)">
+      <example>
+This sample shows how to call Or.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Or();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Or with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Or();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PassAsync(RequestContext)">
+      <example>
+This sample shows how to call PassAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.PassAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PassAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.PassAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Pass(RequestContext)">
+      <example>
+This sample shows how to call Pass.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Pass();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Pass with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Pass();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RaiseAsync(RequestContext)">
+      <example>
+This sample shows how to call RaiseAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.RaiseAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RaiseAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.RaiseAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Raise(RequestContext)">
+      <example>
+This sample shows how to call Raise.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Raise();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Raise with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Raise();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ReturnAsync(RequestContext)">
+      <example>
+This sample shows how to call ReturnAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ReturnAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call ReturnAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.ReturnAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Return(RequestContext)">
+      <example>
+This sample shows how to call Return.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Return();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Return with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Return();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="TryAsync(RequestContext)">
+      <example>
+This sample shows how to call TryAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.TryAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call TryAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.TryAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Try(RequestContext)">
+      <example>
+This sample shows how to call Try.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Try();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Try with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Try();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WhileAsync(RequestContext)">
+      <example>
+This sample shows how to call WhileAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.WhileAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WhileAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.WhileAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="While(RequestContext)">
+      <example>
+This sample shows how to call While.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.While();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call While with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.While();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="WithAsync(RequestContext)">
+      <example>
+This sample shows how to call WithAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.WithAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call WithAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.WithAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="With(RequestContext)">
+      <example>
+This sample shows how to call With.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.With();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call With with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.With();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="YieldAsync(RequestContext)">
+      <example>
+This sample shows how to call YieldAsync.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.YieldAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call YieldAsync with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = await client.YieldAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Yield(RequestContext)">
+      <example>
+This sample shows how to call Yield.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Yield();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Yield with all request content.
+<code><![CDATA[
+Operations client = new SpecialWordsClient().GetOperationsClient();
+
+Response response = client.Yield();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

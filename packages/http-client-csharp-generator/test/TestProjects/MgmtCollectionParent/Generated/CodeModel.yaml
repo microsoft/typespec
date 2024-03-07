@@ -1,0 +1,1232 @@
+!CodeModel 
+info: !Info 
+  description: The Compute Management Client.
+  title: ComputeManagementClient
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_32
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: OrderPropertiesOrderItemIdsItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: StageDetailsDisplayName
+          description: Display name of the resource stage.
+      protocol: !Protocols {}
+    - !StringSchema &ref_7
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SystemDataCreatedBy
+          description: The identity that created the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SystemDataLastModifiedBy
+          description: The identity that last modified the resource.
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceId
+          description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+      protocol: !Protocols {}
+    - !StringSchema &ref_4
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceName
+          description: The name of the resource
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ResourceType
+          description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: OrderResourceListNextLink
+          description: Link for the next set of order resources.
+      protocol: !Protocols {}
+    - !StringSchema &ref_20
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailCode
+          description: The error code.
+      protocol: !Protocols {}
+    - !StringSchema &ref_21
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailMessage
+          description: The error message.
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorDetailTarget
+          description: The error target.
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: ErrorAdditionalInfoType
+          description: The additional info type.
+      protocol: !Protocols {}
+    - !StringSchema &ref_41
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      maxLength: 90
+      minLength: 1
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_44
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      minLength: 1
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_13
+      choices:
+        - !ChoiceValue 
+          value: None
+          language:
+            default:
+              name: None
+              description: No status available yet.
+        - !ChoiceValue 
+          value: InProgress
+          language:
+            default:
+              name: InProgress
+              description: Stage is in progress.
+        - !ChoiceValue 
+          value: Succeeded
+          language:
+            default:
+              name: Succeeded
+              description: Stage has succeeded.
+        - !ChoiceValue 
+          value: Failed
+          language:
+            default:
+              name: Failed
+              description: Stage has failed.
+        - !ChoiceValue 
+          value: Cancelled
+          language:
+            default:
+              name: Cancelled
+              description: Stage has been cancelled.
+        - !ChoiceValue 
+          value: Cancelling
+          language:
+            default:
+              name: Cancelling
+              description: Stage is cancelling.
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: StageStatus
+          description: Stage status.
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_14
+      choices:
+        - !ChoiceValue 
+          value: Placed
+          language:
+            default:
+              name: Placed
+              description: Currently in draft mode and can still be cancelled
+        - !ChoiceValue 
+          value: InReview
+          language:
+            default:
+              name: InReview
+              description: Order is currently in draft mode and can still be cancelled
+        - !ChoiceValue 
+          value: Confirmed
+          language:
+            default:
+              name: Confirmed
+              description: Order is confirmed
+        - !ChoiceValue 
+          value: ReadyToShip
+          language:
+            default:
+              name: ReadyToShip
+              description: Order is ready to ship
+        - !ChoiceValue 
+          value: Shipped
+          language:
+            default:
+              name: Shipped
+              description: Order is in transit to customer
+        - !ChoiceValue 
+          value: Delivered
+          language:
+            default:
+              name: Delivered
+              description: Order is delivered to customer
+        - !ChoiceValue 
+          value: InUse
+          language:
+            default:
+              name: InUse
+              description: Order is in use at customer site
+        - !ChoiceValue 
+          value: ReturnInitiated
+          language:
+            default:
+              name: ReturnInitiated
+              description: Return has been initiated by customer.
+        - !ChoiceValue 
+          value: ReturnPickedUp
+          language:
+            default:
+              name: ReturnPickedUp
+              description: Order is in transit from customer to microsoft.
+        - !ChoiceValue 
+          value: ReturnedToMicrosoft
+          language:
+            default:
+              name: ReturnedToMicrosoft
+              description: Order has been received back to microsoft.
+        - !ChoiceValue 
+          value: ReturnCompleted
+          language:
+            default:
+              name: ReturnCompleted
+              description: Return has now completed.
+        - !ChoiceValue 
+          value: Cancelled
+          language:
+            default:
+              name: Cancelled
+              description: Order has been cancelled.
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: StageName
+          description: Stage name
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_8
+      choices:
+        - !ChoiceValue 
+          value: User
+          language:
+            default:
+              name: User
+              description: ''
+        - !ChoiceValue 
+          value: Application
+          language:
+            default:
+              name: Application
+              description: ''
+        - !ChoiceValue 
+          value: ManagedIdentity
+          language:
+            default:
+              name: ManagedIdentity
+              description: ''
+        - !ChoiceValue 
+          value: Key
+          language:
+            default:
+              name: Key
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: CreatedByType
+          description: The type of identity that created the resource.
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_33
+      type: constant
+      value: !ConstantValue 
+        value: '2020-06-01'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion20200601
+          description: Api Version (2020-06-01)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_37
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  anyObjects:
+    - !AnyObjectSchema &ref_25
+      type: any-object
+      language: !Languages 
+        default:
+          name: AnyObject
+          description: Any object
+      protocol: !Protocols {}
+  dateTimes:
+    - !DateTimeSchema &ref_16
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: StageDetailsStartTime
+          description: Stage start time
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_9
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SystemDataCreatedAt
+          description: The timestamp of resource creation (UTC).
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_11
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      language: !Languages 
+        default:
+          name: SystemDataLastModifiedAt
+          description: The timestamp of resource last modification (UTC)
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_39
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_29
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            elementType: !ObjectSchema &ref_1
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: '2020-06-01'
+              parents: !Relations 
+                all:
+                  - !ObjectSchema &ref_2
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    children: !Relations 
+                      all:
+                        - *ref_1
+                      immediate:
+                        - *ref_1
+                    parents: !Relations 
+                      all:
+                        - !ObjectSchema &ref_6
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: '2020-06-01'
+                          children: !Relations 
+                            all:
+                              - *ref_2
+                              - *ref_1
+                            immediate:
+                              - *ref_2
+                          properties:
+                            - !Property 
+                              schema: *ref_3
+                              readOnly: true
+                              serializedName: id
+                              language: !Languages 
+                                default:
+                                  name: id
+                                  description: Fully qualified resource ID for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_4
+                              readOnly: true
+                              serializedName: name
+                              language: !Languages 
+                                default:
+                                  name: name
+                                  description: The name of the resource
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_5
+                              readOnly: true
+                              serializedName: type
+                              language: !Languages 
+                                default:
+                                  name: type
+                                  description: The type of the resource. E.g. "Microsoft.Compute/virtualMachines" or "Microsoft.Storage/storageAccounts"
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - json
+                          summary: Resource
+                          usage:
+                            - output
+                          extensions:
+                            x-ms-azure-resource: true
+                          language: !Languages 
+                            default:
+                              name: Resource
+                              description: Common fields that are returned in the response for all Azure Resource Manager resources
+                              namespace: ''
+                              summary: Resource
+                          protocol: !Protocols {}
+                      immediate:
+                        - *ref_6
+                    serializationFormats:
+                      - json
+                    summary: Proxy Resource
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: ProxyResource
+                        description: The resource model definition for a Azure Resource Manager proxy resource. It will not have tags and a location
+                        namespace: ''
+                        summary: Proxy Resource
+                    protocol: !Protocols {}
+                  - *ref_6
+                immediate:
+                  - *ref_2
+              properties:
+                - !Property 
+                  schema: !ObjectSchema &ref_19
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_7
+                        serializedName: createdBy
+                        language: !Languages 
+                          default:
+                            name: createdBy
+                            description: The identity that created the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_8
+                        serializedName: createdByType
+                        language: !Languages 
+                          default:
+                            name: createdByType
+                            description: The type of identity that created the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_9
+                        serializedName: createdAt
+                        language: !Languages 
+                          default:
+                            name: createdAt
+                            description: The timestamp of resource creation (UTC).
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_10
+                        serializedName: lastModifiedBy
+                        language: !Languages 
+                          default:
+                            name: lastModifiedBy
+                            description: The identity that last modified the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_8
+                        serializedName: lastModifiedByType
+                        language: !Languages 
+                          default:
+                            name: lastModifiedByType
+                            description: The type of identity that last modified the resource.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_11
+                        serializedName: lastModifiedAt
+                        language: !Languages 
+                          default:
+                            name: lastModifiedAt
+                            description: The timestamp of resource last modification (UTC)
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: SystemData
+                        description: Metadata pertaining to creation and last modification of the resource.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  readOnly: true
+                  required: false
+                  serializedName: systemData
+                  language: !Languages 
+                    default:
+                      name: systemData
+                      description: Represents resource creation and update time
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ArraySchema &ref_27
+                    type: array
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    elementType: *ref_12
+                    language: !Languages 
+                      default:
+                        name: OrderPropertiesOrderItemIds
+                        description: List of order item ARM Ids which are part of an order.
+                    protocol: !Protocols {}
+                  flattenedNames:
+                    - properties
+                    - orderItemIds
+                  readOnly: true
+                  serializedName: orderItemIds
+                  language: !Languages 
+                    default:
+                      name: orderItemIds
+                      description: List of order item ARM Ids which are part of an order.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ObjectSchema &ref_17
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_13
+                        readOnly: true
+                        serializedName: stageStatus
+                        language: !Languages 
+                          default:
+                            name: stageStatus
+                            description: Stage status.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_14
+                        readOnly: true
+                        serializedName: stageName
+                        language: !Languages 
+                          default:
+                            name: stageName
+                            description: Stage name
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_15
+                        readOnly: true
+                        serializedName: displayName
+                        language: !Languages 
+                          default:
+                            name: displayName
+                            description: Display name of the resource stage.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_16
+                        readOnly: true
+                        serializedName: startTime
+                        language: !Languages 
+                          default:
+                            name: startTime
+                            description: Stage start time
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: StageDetails
+                        description: Resource stage details.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  flattenedNames:
+                    - properties
+                    - currentStage
+                  readOnly: true
+                  serializedName: currentStage
+                  language: !Languages 
+                    default:
+                      name: currentStage
+                      description: Order current status.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ArraySchema &ref_28
+                    type: array
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    elementType: *ref_17
+                    language: !Languages 
+                      default:
+                        name: OrderPropertiesOrderStageHistory
+                        description: Order status history.
+                    protocol: !Protocols {}
+                  flattenedNames:
+                    - properties
+                    - orderStageHistory
+                  readOnly: true
+                  serializedName: orderStageHistory
+                  language: !Languages 
+                    default:
+                      name: orderStageHistory
+                      description: Order status history.
+                  protocol: !Protocols {}
+              serializationFormats:
+                - json
+              usage:
+                - output
+              language: !Languages 
+                default:
+                  name: OrderResource
+                  description: Specifies the properties or parameters for an order. Order is a grouping of one or more order items.
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: OrderResourceListValue
+                description: List of order resources.
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: value
+          language: !Languages 
+            default:
+              name: value
+              description: List of order resources.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_18
+          serializedName: nextLink
+          language: !Languages 
+            default:
+              name: nextLink
+              description: Link for the next set of order resources.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: OrderResourceList
+          description: List of orders.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_1
+    - *ref_17
+    - *ref_19
+    - *ref_2
+    - *ref_6
+    - !ObjectSchema &ref_40
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: '2020-06-01'
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_23
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: '2020-06-01'
+            properties:
+              - !Property 
+                schema: *ref_20
+                readOnly: true
+                serializedName: code
+                language: !Languages 
+                  default:
+                    name: code
+                    description: The error code.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_21
+                readOnly: true
+                serializedName: message
+                language: !Languages 
+                  default:
+                    name: message
+                    description: The error message.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_22
+                readOnly: true
+                serializedName: target
+                language: !Languages 
+                  default:
+                    name: target
+                    description: The error target.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_30
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  elementType: *ref_23
+                  language: !Languages 
+                    default:
+                      name: ErrorDetailDetails
+                      description: The error details.
+                  protocol: !Protocols {}
+                readOnly: true
+                serializedName: details
+                language: !Languages 
+                  default:
+                    name: details
+                    description: The error details.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_31
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: '2020-06-01'
+                  elementType: !ObjectSchema &ref_26
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: '2020-06-01'
+                    properties:
+                      - !Property 
+                        schema: *ref_24
+                        readOnly: true
+                        serializedName: type
+                        language: !Languages 
+                          default:
+                            name: type
+                            description: The additional info type.
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_25
+                        readOnly: true
+                        serializedName: info
+                        language: !Languages 
+                          default:
+                            name: info
+                            description: The additional info.
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - json
+                    usage:
+                      - exception
+                    language: !Languages 
+                      default:
+                        name: ErrorAdditionalInfo
+                        description: The resource management error additional info.
+                        namespace: ''
+                    protocol: !Protocols {}
+                  language: !Languages 
+                    default:
+                      name: ErrorDetailAdditionalInfo
+                      description: The error additional info.
+                  protocol: !Protocols {}
+                readOnly: true
+                serializedName: additionalInfo
+                language: !Languages 
+                  default:
+                    name: additionalInfo
+                    description: The error additional info.
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - exception
+            language: !Languages 
+              default:
+                name: ErrorDetail
+                description: The error detail.
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: error
+          language: !Languages 
+            default:
+              name: error
+              description: The error object.
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      summary: Error response
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: ErrorResponse
+          description: Common error response for all Azure Resource Manager APIs to return error details for failed operations. (This also follows the OData error response format.).
+          namespace: ''
+          summary: Error response
+      protocol: !Protocols {}
+    - *ref_23
+    - *ref_26
+  arrays:
+    - *ref_27
+    - *ref_28
+    - *ref_29
+    - *ref_30
+    - *ref_31
+globalParameters:
+  - !Parameter &ref_35
+    schema: *ref_32
+    implementation: Client
+    required: true
+    extensions:
+      x-ms-priority: 0
+    language: !Languages 
+      default:
+        name: SubscriptionId
+        description: Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call.
+        serializedName: subscriptionId
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: path
+  - !Parameter &ref_34
+    schema: *ref_0
+    clientDefaultValue: https://management.azure.com
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_36
+    schema: *ref_33
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: ListOrderAtSubscriptionLevel
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_34
+          - *ref_35
+          - *ref_36
+          - !Parameter &ref_38
+            schema: *ref_32
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skipToken
+                description: $skipToken is supported on Get list of order, which provides the next page in the list of order.
+                serializedName: $skipToken
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_37
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/providers/Microsoft.EdgeOrder/orders
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_38
+        responses:
+          - !SchemaResponse 
+            schema: *ref_39
+            language: !Languages 
+              default:
+                name: ''
+                description: Order object
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_40
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing reason for operation failure.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListOrderAtSubscriptionLevel
+            description: Lists order at subscription level.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: ListOrderAtResourceGroupLevel
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_34
+          - *ref_35
+          - !Parameter &ref_42
+            schema: *ref_41
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_36
+          - !Parameter &ref_43
+            schema: *ref_32
+            implementation: Method
+            language: !Languages 
+              default:
+                name: skipToken
+                description: $skipToken is supported on Get list of order, which provides the next page in the list of order.
+                serializedName: $skipToken
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_37
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EdgeOrder/orders
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_42
+          - *ref_43
+        responses:
+          - !SchemaResponse 
+            schema: *ref_39
+            language: !Languages 
+              default:
+                name: ''
+                description: Order object
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_40
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing reason for operation failure.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        extensions:
+          x-ms-pageable:
+            nextLinkName: nextLink
+        language: !Languages 
+          default:
+            name: ListOrderAtResourceGroupLevel
+            description: Lists order at resource group level.
+            paging:
+              nextLinkName: nextLink
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: GetOrderByName
+        apiVersions:
+          - !ApiVersion 
+            version: '2020-06-01'
+        parameters:
+          - *ref_34
+          - !Parameter &ref_45
+            schema: *ref_32
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: orderName
+                description: The name of the order
+                serializedName: orderName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_35
+          - !Parameter &ref_46
+            schema: *ref_41
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: resourceGroupName
+                description: The name of the resource group. The name is case insensitive.
+                serializedName: resourceGroupName
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - !Parameter &ref_47
+            schema: *ref_44
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: location
+                description: The name of Azure region.
+                serializedName: location
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: path
+          - *ref_36
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_37
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.EdgeOrder/locations/{location}/orders/{orderName}
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_45
+          - *ref_46
+          - *ref_47
+        responses:
+          - !SchemaResponse 
+            schema: *ref_1
+            language: !Languages 
+              default:
+                name: ''
+                description: Order object
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_40
+            language: !Languages 
+              default:
+                name: ''
+                description: Error response describing reason for operation failure.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetOrderByName
+            description: Gets an order.
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: true
+  schemes:
+    - !OAuth2SecurityScheme 
+      type: OAuth2
+      scopes:
+        - https://management.azure.com/.default
+language: !Languages 
+  default:
+    name: ComputeManagementClient
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

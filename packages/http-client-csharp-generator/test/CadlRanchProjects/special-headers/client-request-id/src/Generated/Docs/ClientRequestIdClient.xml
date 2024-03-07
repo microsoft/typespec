@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetClientRequestIdAsync(RequestContext)">
+      <example>
+This sample shows how to call GetClientRequestIdAsync.
+<code><![CDATA[
+ClientRequestIdClient client = new ClientRequestIdClient();
+
+Response response = await client.GetClientRequestIdAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetClientRequestIdAsync with all request content.
+<code><![CDATA[
+ClientRequestIdClient client = new ClientRequestIdClient();
+
+Response response = await client.GetClientRequestIdAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetClientRequestId(RequestContext)">
+      <example>
+This sample shows how to call GetClientRequestId.
+<code><![CDATA[
+ClientRequestIdClient client = new ClientRequestIdClient();
+
+Response response = client.GetClientRequestId();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call GetClientRequestId with all request content.
+<code><![CDATA[
+ClientRequestIdClient client = new ClientRequestIdClient();
+
+Response response = client.GetClientRequestId();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

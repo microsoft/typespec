@@ -1,0 +1,48 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "vaultName": "sample-vault-name",
+    "keyName": "sample-key-name",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault-name/keys/sample-key-name",
+        "name": "sample-key-name",
+        "type": "Microsoft.KeyVault/vaults/keys",
+        "location": "westus",
+        "properties": {
+          "attributes": {
+            "enabled": true,
+            "created": 1598533051,
+            "updated": 1598533051,
+            "recoveryLevel": "Purgeable"
+          },
+          "kty": "RSA",
+          "keyOps": [
+            "encrypt",
+            "decrypt",
+            "sign",
+            "verify",
+            "wrapKey",
+            "unwrapKey"
+          ],
+          "keySize": 2048,
+          "keyUri": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name",
+          "keyUriWithVersion": "https://sample-vault-name.vault.azure.net:443/keys/sample-key-name/fd618d9519b74f9aae94ade66b876acc"
+        }
+      }
+    },
+    "default": {
+      "headers": {},
+      "body": {
+        "error": {
+          "code": "",
+          "message": ""
+        }
+      }
+    }
+  }
+}

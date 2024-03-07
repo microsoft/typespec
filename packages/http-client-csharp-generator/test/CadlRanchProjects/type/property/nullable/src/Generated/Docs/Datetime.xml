@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetNonNullAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetNonNullAsync.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = await client.GetNonNullAsync();
+]]></code>
+This sample shows how to call GetNonNullAsync with all parameters.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = await client.GetNonNullAsync();
+]]></code></example>
+    </member>
+    <member name="GetNonNull(CancellationToken)">
+      <example>
+This sample shows how to call GetNonNull.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = client.GetNonNull();
+]]></code>
+This sample shows how to call GetNonNull with all parameters.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = client.GetNonNull();
+]]></code></example>
+    </member>
+    <member name="GetNonNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetNonNullAsync and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = await client.GetNonNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code>
+This sample shows how to call GetNonNullAsync with all parameters and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = await client.GetNonNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code></example>
+    </member>
+    <member name="GetNonNull(RequestContext)">
+      <example>
+This sample shows how to call GetNonNull and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = client.GetNonNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code>
+This sample shows how to call GetNonNull with all parameters and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = client.GetNonNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code></example>
+    </member>
+    <member name="GetNullAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetNullAsync.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = await client.GetNullAsync();
+]]></code>
+This sample shows how to call GetNullAsync with all parameters.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = await client.GetNullAsync();
+]]></code></example>
+    </member>
+    <member name="GetNull(CancellationToken)">
+      <example>
+This sample shows how to call GetNull.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = client.GetNull();
+]]></code>
+This sample shows how to call GetNull with all parameters.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response<DatetimeProperty> response = client.GetNull();
+]]></code></example>
+    </member>
+    <member name="GetNullAsync(RequestContext)">
+      <example>
+This sample shows how to call GetNullAsync and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = await client.GetNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code>
+This sample shows how to call GetNullAsync with all parameters and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = await client.GetNullAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code></example>
+    </member>
+    <member name="GetNull(RequestContext)">
+      <example>
+This sample shows how to call GetNull and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = client.GetNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code>
+This sample shows how to call GetNull with all parameters and parse the result.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+Response response = client.GetNull(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("requiredProperty").ToString());
+Console.WriteLine(result.GetProperty("nullableProperty").ToString());
+]]></code></example>
+    </member>
+    <member name="PatchNonNullAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PatchNonNullAsync.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = await client.PatchNonNullAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PatchNonNullAsync with all request content.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = await client.PatchNonNullAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PatchNonNull(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PatchNonNull.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = client.PatchNonNull(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PatchNonNull with all request content.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = client.PatchNonNull(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PatchNullAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PatchNullAsync.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = await client.PatchNullAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PatchNullAsync with all request content.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = await client.PatchNullAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PatchNull(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PatchNull.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = client.PatchNull(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PatchNull with all request content.
+<code><![CDATA[
+Datetime client = new NullableClient().GetDatetimeClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    requiredProperty = "<requiredProperty>",
+    nullableProperty = "2022-05-10T14:57:31.2311892-04:00",
+});
+Response response = client.PatchNull(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

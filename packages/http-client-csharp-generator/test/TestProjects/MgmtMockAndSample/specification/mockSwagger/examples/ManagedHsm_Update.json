@@ -1,0 +1,75 @@
+{
+  "parameters": {
+    "resourceGroupName": "hsm-group",
+    "name": "hsm1",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2021-10-01",
+    "parameters": {
+      "tags": {
+        "Dept": "hsm",
+        "Environment": "dogfood",
+        "Slice": "A"
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "properties": {
+          "tenantId": "00000000-0000-0000-0000-000000000000",
+          "initialAdminObjectIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "enableSoftDelete": true,
+          "softDeleteRetentionInDays": 90,
+          "enablePurgeProtection": true,
+          "hsmUri": "https://westus.hsm1.managedhsm.azure.net",
+          "provisioningState": "Succeeded",
+          "statusMessage": "ManagedHsm is functional."
+        },
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.KeyVault/managedHSMs/hsm1",
+        "name": "hsm1",
+        "type": "Microsoft.KeyVault/managedHSMs",
+        "location": "westus",
+        "sku": {
+          "family": "B",
+          "name": "Standard_B1"
+        },
+        "tags": {
+          "Dept": "hsm",
+          "Environment": "dogfood",
+          "Slice": "A"
+        }
+      }
+    },
+    "202": {
+      "body": {
+        "properties": {
+          "tenantId": "00000000-0000-0000-0000-000000000000",
+          "initialAdminObjectIds": [
+            "00000000-0000-0000-0000-000000000000"
+          ],
+          "enableSoftDelete": true,
+          "softDeleteRetentionInDays": 90,
+          "enablePurgeProtection": true,
+          "hsmUri": "https://westus.hsm1.managedhsm.azure.net",
+          "provisioningState": "Updating",
+          "statusMessage": "ManagedHsm is updating."
+        },
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/hsm-group/providers/Microsoft.KeyVault/managedHSMs/hsm1",
+        "name": "hsm1",
+        "type": "Microsoft.KeyVault/managedHSMs",
+        "location": "westus",
+        "sku": {
+          "family": "B",
+          "name": "Standard_B1"
+        },
+        "tags": {
+          "Dept": "hsm",
+          "Environment": "dogfood",
+          "Slice": "A"
+        }
+      }
+    }
+  }
+}

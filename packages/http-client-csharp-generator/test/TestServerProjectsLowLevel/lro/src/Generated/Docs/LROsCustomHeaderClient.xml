@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="PutAsyncRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRetrySucceededAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.PutAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRetrySucceededAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.PutAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsyncRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsyncRetrySucceeded and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.PutAsyncRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutAsyncRetrySucceeded with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.PutAsyncRetrySucceeded(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201CreatingSucceeded200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingSucceeded200Async and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = await client.Put201CreatingSucceeded200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingSucceeded200Async with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = await client.Put201CreatingSucceeded200Async(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Put201CreatingSucceeded200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put201CreatingSucceeded200 and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation<BinaryData> operation = client.Put201CreatingSucceeded200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Put201CreatingSucceeded200 with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation<BinaryData> operation = client.Put201CreatingSucceeded200(WaitUntil.Completed, content);
+BinaryData responseData = operation.Value;
+
+JsonElement result = JsonDocument.Parse(responseData.ToStream()).RootElement;
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningState").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("provisioningStateValues").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Post202Retry200Async(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202Retry200Async.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.Post202Retry200Async(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202Retry200Async with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.Post202Retry200Async(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="Post202Retry200(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Post202Retry200.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.Post202Retry200(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call Post202Retry200 with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.Post202Retry200(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetrySucceededAsync(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetrySucceededAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation operation = await client.PostAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRetrySucceededAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = await client.PostAsyncRetrySucceededAsync(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+    <member name="PostAsyncRetrySucceeded(WaitUntil,RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PostAsyncRetrySucceeded.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = null;
+Operation operation = client.PostAsyncRetrySucceeded(WaitUntil.Completed, content);
+]]></code>
+This sample shows how to call PostAsyncRetrySucceeded with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+LROsCustomHeaderClient client = new LROsCustomHeaderClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    properties = new
+    {
+        provisioningState = "<provisioningState>",
+    },
+    tags = new
+    {
+        key = "<tags>",
+    },
+    location = "<location>",
+});
+Operation operation = client.PostAsyncRetrySucceeded(WaitUntil.Completed, content);
+]]></code></example>
+    </member>
+  </members>
+</doc>

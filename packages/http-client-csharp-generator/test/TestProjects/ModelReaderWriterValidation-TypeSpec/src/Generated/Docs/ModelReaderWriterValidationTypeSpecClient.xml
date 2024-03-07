@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="Op1Async(ModelAsStruct,CancellationToken)">
+      <example>
+This sample shows how to call Op1Async.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelAsStruct body = new ModelAsStruct(1234);
+Response<ModelAsStruct> response = await client.Op1Async(body);
+]]></code>
+This sample shows how to call Op1Async with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelAsStruct body = new ModelAsStruct(1234);
+Response<ModelAsStruct> response = await client.Op1Async(body);
+]]></code></example>
+    </member>
+    <member name="Op1(ModelAsStruct,CancellationToken)">
+      <example>
+This sample shows how to call Op1.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelAsStruct body = new ModelAsStruct(1234);
+Response<ModelAsStruct> response = client.Op1(body);
+]]></code>
+This sample shows how to call Op1 with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelAsStruct body = new ModelAsStruct(1234);
+Response<ModelAsStruct> response = client.Op1(body);
+]]></code></example>
+    </member>
+    <member name="Op1Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op1Async and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 1234,
+});
+Response response = await client.Op1Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call Op1Async with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 1234,
+});
+Response response = await client.Op1Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="Op1(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op1 and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 1234,
+});
+Response response = client.Op1(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code>
+This sample shows how to call Op1 with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    id = 1234,
+});
+Response response = client.Op1(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+]]></code></example>
+    </member>
+    <member name="Op2Async(ModelWithPersistableOnly,CancellationToken)">
+      <example>
+This sample shows how to call Op2Async.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelWithPersistableOnly body = new ModelWithPersistableOnly();
+Response<ModelWithPersistableOnly> response = await client.Op2Async(body);
+]]></code>
+This sample shows how to call Op2Async with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelWithPersistableOnly body = new ModelWithPersistableOnly
+{
+    Name = "<name>",
+    Fields = { "<fields>" },
+    NullProperty = 1234,
+    KeyValuePairs =
+    {
+        ["key"] = "<keyValuePairs>"
+    },
+};
+Response<ModelWithPersistableOnly> response = await client.Op2Async(body);
+]]></code></example>
+    </member>
+    <member name="Op2(ModelWithPersistableOnly,CancellationToken)">
+      <example>
+This sample shows how to call Op2.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelWithPersistableOnly body = new ModelWithPersistableOnly();
+Response<ModelWithPersistableOnly> response = client.Op2(body);
+]]></code>
+This sample shows how to call Op2 with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+ModelWithPersistableOnly body = new ModelWithPersistableOnly
+{
+    Name = "<name>",
+    Fields = { "<fields>" },
+    NullProperty = 1234,
+    KeyValuePairs =
+    {
+        ["key"] = "<keyValuePairs>"
+    },
+};
+Response<ModelWithPersistableOnly> response = client.Op2(body);
+]]></code></example>
+    </member>
+    <member name="Op2Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op2Async and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.Op2Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("xProperty").ToString());
+]]></code>
+This sample shows how to call Op2Async with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    fields = new object[]
+    {
+        "<fields>"
+    },
+    nullProperty = 1234,
+    keyValuePairs = new
+    {
+        key = "<keyValuePairs>",
+    },
+});
+Response response = await client.Op2Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("fields")[0].ToString());
+Console.WriteLine(result.GetProperty("nullProperty").ToString());
+Console.WriteLine(result.GetProperty("keyValuePairs").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("xProperty").ToString());
+]]></code></example>
+    </member>
+    <member name="Op2(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op2 and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Op2(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("xProperty").ToString());
+]]></code>
+This sample shows how to call Op2 with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    name = "<name>",
+    fields = new object[]
+    {
+        "<fields>"
+    },
+    nullProperty = 1234,
+    keyValuePairs = new
+    {
+        key = "<keyValuePairs>",
+    },
+});
+Response response = client.Op2(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("fields")[0].ToString());
+Console.WriteLine(result.GetProperty("nullProperty").ToString());
+Console.WriteLine(result.GetProperty("keyValuePairs").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("xProperty").ToString());
+]]></code></example>
+    </member>
+    <member name="Op3Async(BaseModel,CancellationToken)">
+      <example>
+This sample shows how to call Op3Async.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+BaseModel body = new ModelX();
+Response<BaseModel> response = await client.Op3Async(body);
+]]></code>
+This sample shows how to call Op3Async with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+BaseModel body = new ModelX
+{
+    Fields = { "<fields>" },
+    NullProperty = 1234,
+    KeyValuePairs =
+    {
+        ["key"] = "<keyValuePairs>"
+    },
+    Name = "<name>",
+};
+Response<BaseModel> response = await client.Op3Async(body);
+]]></code></example>
+    </member>
+    <member name="Op3(BaseModel,CancellationToken)">
+      <example>
+This sample shows how to call Op3.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+BaseModel body = new ModelX();
+Response<BaseModel> response = client.Op3(body);
+]]></code>
+This sample shows how to call Op3 with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+BaseModel body = new ModelX
+{
+    Fields = { "<fields>" },
+    NullProperty = 1234,
+    KeyValuePairs =
+    {
+        ["key"] = "<keyValuePairs>"
+    },
+    Name = "<name>",
+};
+Response<BaseModel> response = client.Op3(body);
+]]></code></example>
+    </member>
+    <member name="Op3Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op3Async and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "X",
+});
+Response response = await client.Op3Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call Op3Async with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fields = new object[]
+    {
+        "<fields>"
+    },
+    nullProperty = 1234,
+    keyValuePairs = new
+    {
+        key = "<keyValuePairs>",
+    },
+    kind = "X",
+    name = "<name>",
+});
+Response response = await client.Op3Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Op3(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op3 and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    kind = "X",
+});
+Response response = client.Op3(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+]]></code>
+This sample shows how to call Op3 with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fields = new object[]
+    {
+        "<fields>"
+    },
+    nullProperty = 1234,
+    keyValuePairs = new
+    {
+        key = "<keyValuePairs>",
+    },
+    kind = "X",
+    name = "<name>",
+});
+Response response = client.Op3(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("kind").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+]]></code></example>
+    </member>
+    <member name="Op4Async(AvailabilitySetData,CancellationToken)">
+      <example>
+This sample shows how to call Op4Async.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+AvailabilitySetData body = new AvailabilitySetData("<location>");
+Response<AvailabilitySetData> response = await client.Op4Async(body);
+]]></code>
+This sample shows how to call Op4Async with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+AvailabilitySetData body = new AvailabilitySetData("<location>")
+{
+    Sku = new ComputeSku
+    {
+        Name = "<name>",
+        Tier = "<tier>",
+        Capacity = 1234L,
+    },
+    Properties = new AvailabilitySetProperties
+    {
+        VirtualMachines = {new WritableSubResource
+        {
+            Id = new ResourceIdentifier("<id>"),
+        }},
+        PlatformFaultDomainCount = 1234,
+        PlatformUpdateDomainCount = 1234,
+    },
+};
+Response<AvailabilitySetData> response = await client.Op4Async(body);
+]]></code></example>
+    </member>
+    <member name="Op4(AvailabilitySetData,CancellationToken)">
+      <example>
+This sample shows how to call Op4.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+AvailabilitySetData body = new AvailabilitySetData("<location>");
+Response<AvailabilitySetData> response = client.Op4(body);
+]]></code>
+This sample shows how to call Op4 with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+AvailabilitySetData body = new AvailabilitySetData("<location>")
+{
+    Sku = new ComputeSku
+    {
+        Name = "<name>",
+        Tier = "<tier>",
+        Capacity = 1234L,
+    },
+    Properties = new AvailabilitySetProperties
+    {
+        VirtualMachines = {new WritableSubResource
+        {
+            Id = new ResourceIdentifier("<id>"),
+        }},
+        PlatformFaultDomainCount = 1234,
+        PlatformUpdateDomainCount = 1234,
+    },
+};
+Response<AvailabilitySetData> response = client.Op4(body);
+]]></code></example>
+    </member>
+    <member name="Op4Async(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op4Async and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    location = "<location>",
+});
+Response response = await client.Op4Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+]]></code>
+This sample shows how to call Op4Async with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    sku = new
+    {
+        name = "<name>",
+        tier = "<tier>",
+        capacity = 1234L,
+    },
+    properties = new
+    {
+        virtualMachines = new object[]
+        {
+            new
+            {
+                id = "<id>",
+            }
+        },
+        platformFaultDomainCount = 1234,
+        platformUpdateDomainCount = 1234,
+    },
+    location = "<location>",
+    tags = new
+    {
+        key = "<tags>",
+    },
+});
+Response response = await client.Op4Async(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("sku").GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("sku").GetProperty("tier").ToString());
+Console.WriteLine(result.GetProperty("sku").GetProperty("capacity").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("virtualMachines")[0].GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("platformFaultDomainCount").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("platformUpdateDomainCount").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="Op4(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Op4 and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    location = "<location>",
+});
+Response response = client.Op4(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+]]></code>
+This sample shows how to call Op4 with all request content and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+using RequestContent content = RequestContent.Create(new
+{
+    sku = new
+    {
+        name = "<name>",
+        tier = "<tier>",
+        capacity = 1234L,
+    },
+    properties = new
+    {
+        virtualMachines = new object[]
+        {
+            new
+            {
+                id = "<id>",
+            }
+        },
+        platformFaultDomainCount = 1234,
+        platformUpdateDomainCount = 1234,
+    },
+    location = "<location>",
+    tags = new
+    {
+        key = "<tags>",
+    },
+});
+Response response = client.Op4(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("sku").GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("sku").GetProperty("tier").ToString());
+Console.WriteLine(result.GetProperty("sku").GetProperty("capacity").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("virtualMachines")[0].GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("platformFaultDomainCount").ToString());
+Console.WriteLine(result.GetProperty("properties").GetProperty("platformUpdateDomainCount").ToString());
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("tags").GetProperty("<key>").ToString());
+]]></code></example>
+    </member>
+    <member name="Op5Async(CancellationToken)">
+      <example>
+This sample shows how to call Op5Async.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response<ResourceProviderData> response = await client.Op5Async();
+]]></code>
+This sample shows how to call Op5Async with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response<ResourceProviderData> response = await client.Op5Async();
+]]></code></example>
+    </member>
+    <member name="Op5(CancellationToken)">
+      <example>
+This sample shows how to call Op5.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response<ResourceProviderData> response = client.Op5();
+]]></code>
+This sample shows how to call Op5 with all parameters.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response<ResourceProviderData> response = client.Op5();
+]]></code></example>
+    </member>
+    <member name="Op5Async(RequestContext)">
+      <example>
+This sample shows how to call Op5Async and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response response = await client.Op5Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Op5Async with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response response = await client.Op5Async(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("namespace").ToString());
+Console.WriteLine(result.GetProperty("registrationState").ToString());
+Console.WriteLine(result.GetProperty("registrationPolicy").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("resourceType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locations")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locationMappings")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locationMappings")[0].GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locationMappings")[0].GetProperty("extendedLocations")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("path").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("apiVersions")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("pattern").GetProperty("phrase").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("pattern").GetProperty("variable").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("pattern").GetProperty("patternType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("metadata").GetProperty("tokenType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("metadata").GetProperty("attributes").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("aliasType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPath").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPattern").GetProperty("phrase").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPattern").GetProperty("variable").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPattern").GetProperty("patternType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultMetadata").GetProperty("tokenType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultMetadata").GetProperty("attributes").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("apiVersions")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("defaultApiVersion").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("zoneMappings")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("zoneMappings")[0].GetProperty("zones")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("apiProfiles")[0].GetProperty("profileVersion").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("apiProfiles")[0].GetProperty("apiVersion").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("capabilities").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("properties").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("providerAuthorizationConsentState").ToString());
+]]></code></example>
+    </member>
+    <member name="Op5(RequestContext)">
+      <example>
+This sample shows how to call Op5 and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response response = client.Op5(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call Op5 with all parameters and parse the result.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ModelReaderWriterValidationTypeSpecClient client = new ModelReaderWriterValidationTypeSpecClient(endpoint);
+
+Response response = client.Op5(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("id").ToString());
+Console.WriteLine(result.GetProperty("namespace").ToString());
+Console.WriteLine(result.GetProperty("registrationState").ToString());
+Console.WriteLine(result.GetProperty("registrationPolicy").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("resourceType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locations")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locationMappings")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locationMappings")[0].GetProperty("type").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("locationMappings")[0].GetProperty("extendedLocations")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("name").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("path").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("apiVersions")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("pattern").GetProperty("phrase").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("pattern").GetProperty("variable").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("pattern").GetProperty("patternType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("metadata").GetProperty("tokenType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("paths")[0].GetProperty("metadata").GetProperty("attributes").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("aliasType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPath").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPattern").GetProperty("phrase").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPattern").GetProperty("variable").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultPattern").GetProperty("patternType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultMetadata").GetProperty("tokenType").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("aliases")[0].GetProperty("defaultMetadata").GetProperty("attributes").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("apiVersions")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("defaultApiVersion").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("zoneMappings")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("zoneMappings")[0].GetProperty("zones")[0].ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("apiProfiles")[0].GetProperty("profileVersion").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("apiProfiles")[0].GetProperty("apiVersion").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("capabilities").ToString());
+Console.WriteLine(result.GetProperty("resourceTypes")[0].GetProperty("properties").GetProperty("<key>").ToString());
+Console.WriteLine(result.GetProperty("providerAuthorizationConsentState").ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

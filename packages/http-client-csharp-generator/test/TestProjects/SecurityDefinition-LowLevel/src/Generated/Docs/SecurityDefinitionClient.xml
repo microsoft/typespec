@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="OperationAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call OperationAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<endpoint>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+SecurityDefinitionClient client = new SecurityDefinitionClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = await client.OperationAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call OperationAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<endpoint>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+SecurityDefinitionClient client = new SecurityDefinitionClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    Code = "<Code>",
+    Status = "<Status>",
+});
+Response response = await client.OperationAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Operation(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Operation.
+<code><![CDATA[
+Uri endpoint = new Uri("<endpoint>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+SecurityDefinitionClient client = new SecurityDefinitionClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new object());
+Response response = client.Operation(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Operation with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<endpoint>");
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+SecurityDefinitionClient client = new SecurityDefinitionClient(endpoint, credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    Code = "<Code>",
+    Status = "<Status>",
+});
+Response response = client.Operation(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

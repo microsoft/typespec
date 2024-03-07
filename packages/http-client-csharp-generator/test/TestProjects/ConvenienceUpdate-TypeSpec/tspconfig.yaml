@@ -1,0 +1,6 @@
+emit: [
+  "@azure-tools/typespec-csharp",
+]
+options:
+  "@azure-tools/typespec-csharp":
+    existing-project-folder: ../../ConvenienceInitial-Typespec/src/Generated

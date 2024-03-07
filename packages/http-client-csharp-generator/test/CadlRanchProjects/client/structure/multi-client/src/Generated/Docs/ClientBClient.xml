@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="RenamedTwoAsync(RequestContext)">
+      <example>
+This sample shows how to call RenamedTwoAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = await client.RenamedTwoAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedTwoAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = await client.RenamedTwoAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedTwo(RequestContext)">
+      <example>
+This sample shows how to call RenamedTwo.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = client.RenamedTwo();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedTwo with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = client.RenamedTwo();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedFourAsync(RequestContext)">
+      <example>
+This sample shows how to call RenamedFourAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = await client.RenamedFourAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedFourAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = await client.RenamedFourAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedFour(RequestContext)">
+      <example>
+This sample shows how to call RenamedFour.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = client.RenamedFour();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedFour with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = client.RenamedFour();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedSixAsync(RequestContext)">
+      <example>
+This sample shows how to call RenamedSixAsync.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = await client.RenamedSixAsync();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedSixAsync with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = await client.RenamedSixAsync();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="RenamedSix(RequestContext)">
+      <example>
+This sample shows how to call RenamedSix.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = client.RenamedSix();
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call RenamedSix with all request content.
+<code><![CDATA[
+Uri endpoint = new Uri("<https://my-service.azure.com>");
+ClientBClient client = new ClientBClient(endpoint, "default");
+
+Response response = client.RenamedSix();
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

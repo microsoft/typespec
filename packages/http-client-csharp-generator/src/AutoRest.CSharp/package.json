@@ -1,0 +1,16 @@
+{
+  "version": "3.0.0",
+  "name": "@autorest/csharp",
+  "description": "See readme.md for details",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "dotnet --roll-forward Major ./AutoRest.CSharp.dll --server"
+  },
+  "devDependencies": {
+  },
+  "dependencies": {},
+  "files": [
+    "*",
+    "!publish"
+   ]
+}

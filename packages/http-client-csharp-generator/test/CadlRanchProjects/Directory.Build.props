@@ -1,0 +1,15 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Placeholders to mimic Directory.Build.Common.props from azure-sdk-for-net for new project tests-->
+  <PropertyGroup>
+    <IsTestGenerationSrcProject Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">true</IsTestGenerationSrcProject>
+    <IsTestGenerationTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests'))">true</IsTestGenerationTestProject>
+    <RequiredTargetFrameworks Condition="'$(IsTestGenerationSrcProject)' == 'true'">netstandard2.0</RequiredTargetFrameworks>
+    <RequiredTargetFrameworks Condition="'$(IsTestGenerationTestProject)' == 'true'">net7.0;net6.0;net462</RequiredTargetFrameworks>
+  </PropertyGroup>
+
+  <Import Project="..\..\Directory.Build.props" />
+</Project>

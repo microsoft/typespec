@@ -1,0 +1,5356 @@
+!CodeModel 
+info: !Info 
+  description: Test Infrastructure for AutoRest Swagger BAT
+  title: AutoRest Swagger BAT XML Service
+schemas: !Schemas 
+  booleans:
+    - !BooleanSchema &ref_38
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Indicates whether all delete requests should be logged.
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_39
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Indicates whether all read requests should be logged.
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_40
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Indicates whether all write requests should be logged.
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_41
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Indicates whether a retention policy is enabled for the storage service
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_44
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Indicates whether metrics are enabled for the Blob service.
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_45
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: Indicates whether metrics should generate summary statistics for called API operations.
+      protocol: !Protocols {}
+    - !BooleanSchema &ref_69
+      type: boolean
+      language: !Languages 
+        default:
+          name: Boolean
+          description: ''
+      protocol: !Protocols {}
+  numbers:
+    - !NumberSchema &ref_15
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ErrorStatus
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_25
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ListContainersResponseMaxResults
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_42
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      minimum: 1
+      precision: 32
+      language: !Languages 
+        default:
+          name: RetentionPolicyDays
+          description: Indicates the number of days that metrics or logging or soft-deleted data should be retained. All data older than this value will be deleted
+      protocol: !Protocols {}
+    - !NumberSchema &ref_52
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      minimum: 0
+      precision: 32
+      language: !Languages 
+        default:
+          name: CorsRuleMaxAgeInSeconds
+          description: The maximum amount time that a browser should cache the preflight OPTIONS request.
+      protocol: !Protocols {}
+    - !NumberSchema &ref_65
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: ListBlobsResponseMaxResults
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_73
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 64
+      language: !Languages 
+        default:
+          name: BlobPropertiesContentLength
+          description: Size in bytes
+      protocol: !Protocols {}
+    - !NumberSchema &ref_80
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: BlobPropertiesXMsBlobSequenceNumber
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_90
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: BlobPropertiesRemainingRetentionDays
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_98
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: JsonInputId
+          description: ''
+      protocol: !Protocols {}
+    - !NumberSchema &ref_99
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: JsonOutputId
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ComplexTypeNoMetaID
+          description: The id of the res
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: RootWithRefAndNoMetaSomething
+          description: Something else (just to avoid flattening)
+      protocol: !Protocols {}
+    - !StringSchema &ref_5
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ComplexTypeWithMetaID
+          description: The id of the res
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: RootWithRefAndMetaSomething
+          description: Something else (just to avoid flattening)
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: SlideshowTitle
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: SlideshowDate
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_10
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: SlideshowAuthor
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: SlideType
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_12
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: SlideTitle
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_13
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          name: item
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: SlideItemsItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_16
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ErrorMessage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          name: Apple
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: AppleBarrelGoodApplesItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          name: Apple
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: AppleBarrelBadApplesItem
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_130
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+          header: Custom-Header
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          name: name
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: BananaName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_20
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          name: flavor
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: BananaFlavor
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ListContainersResponseServiceEndpoint
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ListContainersResponsePrefix
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ListContainersResponseMarker
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ContainerName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_28
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ContainerPropertiesEtag
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_1
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: String
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_34
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ListContainersResponseNextMarker
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_37
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: LoggingVersion
+          description: The version of Storage Analytics to configure.
+      protocol: !Protocols {}
+    - !StringSchema &ref_43
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: MetricsVersion
+          description: The version of Storage Analytics to configure.
+      protocol: !Protocols {}
+    - !StringSchema &ref_48
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: CorsRuleAllowedOrigins
+          description: >-
+            The origin domains that are permitted to make a request against the storage service via CORS. The origin domain is the domain from which the request originates. Note that the origin must be an exact case-sensitive match with the
+            origin that the user age sends to the service. You can also use the wildcard character '*' to allow all origin domains to make requests via CORS.
+      protocol: !Protocols {}
+    - !StringSchema &ref_49
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: CorsRuleAllowedMethods
+          description: The methods (HTTP request verbs) that the origin domain may use for a CORS request. (comma separated)
+      protocol: !Protocols {}
+    - !StringSchema &ref_50
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: CorsRuleAllowedHeaders
+          description: the request headers that the origin domain may specify on the CORS request.
+      protocol: !Protocols {}
+    - !StringSchema &ref_51
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: CorsRuleExposedHeaders
+          description: The response headers that may be sent in the response to the CORS request and exposed by the browser to the request issuer
+      protocol: !Protocols {}
+    - !StringSchema &ref_53
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: StorageServicePropertiesDefaultServiceVersion
+          description: The default version to use for requests to the Blob service if an incoming request's version is not specified. Possible values include version 2008-10-27 and all more recent versions
+      protocol: !Protocols {}
+    - !StringSchema &ref_56
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: SignedIdentifierId
+          description: a unique id
+      protocol: !Protocols {}
+    - !StringSchema &ref_59
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: AccessPolicyPermission
+          description: the permissions for the acl policy
+      protocol: !Protocols {}
+    - !StringSchema &ref_61
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ListBlobsResponseServiceEndpoint
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_62
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ListBlobsResponseContainerName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_63
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ListBlobsResponsePrefix
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_64
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ListBlobsResponseMarker
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_66
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ListBlobsResponseDelimiter
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_67
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPrefixName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_68
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobName
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_70
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobSnapshot
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_72
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesEtag
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_74
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesContentType
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_75
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesContentEncoding
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_76
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesContentLanguage
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_77
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesContentMD5
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_78
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesContentDisposition
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_79
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesCacheControl
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_82
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesCopyId
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_84
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesCopySource
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_85
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesCopyProgress
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_87
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesCopyStatusDescription
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_88
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesDestinationSnapshot
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_93
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ListBlobsResponseNextMarker
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_100
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          name: language
+          attribute: true
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ObjectWithXMsTextPropertyLanguage
+          description: Returned value should be 'english'
+      protocol: !Protocols {}
+    - !StringSchema &ref_101
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          attribute: false
+          text: true
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ObjectWithXMsTextPropertyContent
+          description: Returned value should be 'I am text'
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_32
+      choices:
+        - !ChoiceValue 
+          value: container
+          language:
+            default:
+              name: Container
+              description: ''
+        - !ChoiceValue 
+          value: blob
+          language:
+            default:
+              name: Blob
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: PublicAccessType
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_91
+      choices:
+        - !ChoiceValue 
+          value: P4
+          language:
+            default:
+              name: P4
+              description: ''
+        - !ChoiceValue 
+          value: P6
+          language:
+            default:
+              name: P6
+              description: ''
+        - !ChoiceValue 
+          value: P10
+          language:
+            default:
+              name: P10
+              description: ''
+        - !ChoiceValue 
+          value: P20
+          language:
+            default:
+              name: P20
+              description: ''
+        - !ChoiceValue 
+          value: P30
+          language:
+            default:
+              name: P30
+              description: ''
+        - !ChoiceValue 
+          value: P40
+          language:
+            default:
+              name: P40
+              description: ''
+        - !ChoiceValue 
+          value: P50
+          language:
+            default:
+              name: P50
+              description: ''
+        - !ChoiceValue 
+          value: Hot
+          language:
+            default:
+              name: Hot
+              description: ''
+        - !ChoiceValue 
+          value: Cool
+          language:
+            default:
+              name: Cool
+              description: ''
+        - !ChoiceValue 
+          value: Archive
+          language:
+            default:
+              name: Archive
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: AccessTier
+          description: ''
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_92
+      choices:
+        - !ChoiceValue 
+          value: rehydrate-pending-to-hot
+          language:
+            default:
+              name: RehydratePendingToHot
+              description: ''
+        - !ChoiceValue 
+          value: rehydrate-pending-to-cool
+          language:
+            default:
+              name: RehydratePendingToCool
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ArchiveStatus
+          description: ''
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_29
+      choices:
+        - !ChoiceValue 
+          value: locked
+          language:
+            default:
+              name: Locked
+              description: ''
+        - !ChoiceValue 
+          value: unlocked
+          language:
+            default:
+              name: Unlocked
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: LeaseStatusType
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_30
+      choices:
+        - !ChoiceValue 
+          value: available
+          language:
+            default:
+              name: Available
+              description: ''
+        - !ChoiceValue 
+          value: leased
+          language:
+            default:
+              name: Leased
+              description: ''
+        - !ChoiceValue 
+          value: expired
+          language:
+            default:
+              name: Expired
+              description: ''
+        - !ChoiceValue 
+          value: breaking
+          language:
+            default:
+              name: Breaking
+              description: ''
+        - !ChoiceValue 
+          value: broken
+          language:
+            default:
+              name: Broken
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: LeaseStateType
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_31
+      choices:
+        - !ChoiceValue 
+          value: infinite
+          language:
+            default:
+              name: Infinite
+              description: ''
+        - !ChoiceValue 
+          value: fixed
+          language:
+            default:
+              name: Fixed
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: LeaseDurationType
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_81
+      choices:
+        - !ChoiceValue 
+          value: BlockBlob
+          language:
+            default:
+              name: BlockBlob
+              description: ''
+        - !ChoiceValue 
+          value: PageBlob
+          language:
+            default:
+              name: PageBlob
+              description: ''
+        - !ChoiceValue 
+          value: AppendBlob
+          language:
+            default:
+              name: AppendBlob
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: BlobType
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema &ref_83
+      choices:
+        - !ChoiceValue 
+          value: pending
+          language:
+            default:
+              name: Pending
+              description: ''
+        - !ChoiceValue 
+          value: success
+          language:
+            default:
+              name: Success
+              description: ''
+        - !ChoiceValue 
+          value: aborted
+          language:
+            default:
+              name: Aborted
+              description: ''
+        - !ChoiceValue 
+          value: failed
+          language:
+            default:
+              name: Failed
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: CopyStatusType
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_115
+      type: constant
+      value: !ConstantValue 
+        value: application/xml
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/xml'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_117
+      type: constant
+      value: !ConstantValue 
+        value: application/xml
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationXml
+          description: Content Type 'application/xml'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_149
+      type: constant
+      value: !ConstantValue 
+        value: list
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant10
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_151
+      type: constant
+      value: !ConstantValue 
+        value: properties
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant11
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_152
+      type: constant
+      value: !ConstantValue 
+        value: service
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant12
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_156
+      type: constant
+      value: !ConstantValue 
+        value: acl
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant13
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_157
+      type: constant
+      value: !ConstantValue 
+        value: container
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Constant14
+          description: ''
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_162
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_166
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept1
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_33
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: Metadata
+          description: Dictionary of <string>
+      protocol: !Protocols {}
+  byteArrays:
+    - !ByteArraySchema &ref_102
+      type: byte-array
+      format: byte
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithBytePropertyBytes
+          description: ''
+      protocol: !Protocols {}
+  dateTimes:
+    - !DateTimeSchema &ref_21
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      serialization:
+        xml:
+          name: expiration
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: BananaExpiration
+          description: The time at which you should reconsider eating this banana
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_27
+      type: date-time
+      format: date-time-rfc1123
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ContainerPropertiesLastModified
+          description: ''
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_57
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: AccessPolicyStart
+          description: the date-time the policy is active
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_58
+      type: date-time
+      format: date-time
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: AccessPolicyExpiry
+          description: the date-time the policy expires
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_71
+      type: date-time
+      format: date-time-rfc1123
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesLastModified
+          description: ''
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_86
+      type: date-time
+      format: date-time-rfc1123
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesCopyCompletionTime
+          description: ''
+      protocol: !Protocols {}
+    - !DateTimeSchema &ref_89
+      type: date-time
+      format: date-time-rfc1123
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: BlobPropertiesDeletedTime
+          description: ''
+      protocol: !Protocols {}
+  uris:
+    - !UriSchema &ref_103
+      type: uri
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithUrlPropertyUrl
+          description: ''
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_116
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_4
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_2
+                serializedName: ID
+                language: !Languages 
+                  default:
+                    name: ID
+                    description: The id of the res
+                protocol: !Protocols {}
+            serializationFormats:
+              - xml
+            usage:
+              - output
+              - input
+            language: !Languages 
+              default:
+                name: ComplexTypeNoMeta
+                description: I am a complex type with no XML node
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: RefToModel
+          language: !Languages 
+            default:
+              name: refToModel
+              description: XML will use RefToModel
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          serializedName: Something
+          language: !Languages 
+            default:
+              name: something
+              description: Something else (just to avoid flattening)
+          protocol: !Protocols {}
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: RootWithRefAndNoMeta
+          description: I am root, and I ref a model with no meta
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_4
+    - !ObjectSchema &ref_120
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_7
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_5
+                serializedName: ID
+                language: !Languages 
+                  default:
+                    name: ID
+                    description: The id of the res
+                protocol: !Protocols {}
+            serialization:
+              xml:
+                name: XMLComplexTypeWithMeta
+                attribute: false
+                text: false
+                wrapped: false
+            serializationFormats:
+              - xml
+            usage:
+              - output
+              - input
+            language: !Languages 
+              default:
+                name: ComplexTypeWithMeta
+                description: I am a complex type with XML node
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: RefToModel
+          language: !Languages 
+            default:
+              name: refToModel
+              description: XML will use XMLComplexTypeWithMeta
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_6
+          serializedName: Something
+          language: !Languages 
+            default:
+              name: something
+              description: Something else (just to avoid flattening)
+          protocol: !Protocols {}
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: RootWithRefAndMeta
+          description: I am root, and I ref a model WITH meta
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_7
+    - !ObjectSchema &ref_123
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_8
+          serializedName: title
+          language: !Languages 
+            default:
+              name: title
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          serializedName: date
+          language: !Languages 
+            default:
+              name: date
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_10
+          serializedName: author
+          language: !Languages 
+            default:
+              name: author
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_105
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: !ObjectSchema &ref_14
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: 1.0.0
+              properties:
+                - !Property 
+                  schema: *ref_11
+                  serializedName: type
+                  language: !Languages 
+                    default:
+                      name: type
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_12
+                  serializedName: title
+                  language: !Languages 
+                    default:
+                      name: title
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ArraySchema &ref_104
+                    type: array
+                    apiVersions:
+                      - !ApiVersion 
+                        version: 1.0.0
+                    elementType: *ref_13
+                    language: !Languages 
+                      default:
+                        name: SlideItems
+                        description: Array of SlideItemsItem
+                    protocol: !Protocols {}
+                  serializedName: items
+                  language: !Languages 
+                    default:
+                      name: items
+                      description: ''
+                  protocol: !Protocols {}
+              serialization:
+                xml:
+                  name: slide
+                  attribute: false
+                  text: false
+                  wrapped: false
+              serializationFormats:
+                - xml
+              usage:
+                - output
+                - input
+              language: !Languages 
+                default:
+                  name: Slide
+                  description: A slide in a slideshow
+                  namespace: ''
+              protocol: !Protocols {}
+            language: !Languages 
+              default:
+                name: SlideshowSlides
+                description: Array of Slide
+            protocol: !Protocols {}
+          serializedName: slides
+          language: !Languages 
+            default:
+              name: slides
+              description: ''
+          protocol: !Protocols {}
+      serialization:
+        xml:
+          name: slideshow
+          attribute: false
+          text: false
+          wrapped: false
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: Slideshow
+          description: Data about a slideshow
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_14
+    - !ObjectSchema &ref_124
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_15
+          serializedName: status
+          language: !Languages 
+            default:
+              name: status
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_16
+          serializedName: message
+          language: !Languages 
+            default:
+              name: message
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - xml
+      usage:
+        - exception
+      language: !Languages 
+        default:
+          name: Error
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_127
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_106
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_17
+            serialization:
+              xml:
+                attribute: false
+                text: false
+                wrapped: true
+            language: !Languages 
+              default:
+                name: AppleBarrelGoodApples
+                description: Array of AppleBarrelGoodApplesItem
+            protocol: !Protocols {}
+          serializedName: GoodApples
+          language: !Languages 
+            default:
+              name: goodApples
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_107
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_18
+            serialization:
+              xml:
+                attribute: false
+                text: false
+                wrapped: true
+            language: !Languages 
+              default:
+                name: AppleBarrelBadApples
+                description: Array of AppleBarrelBadApplesItem
+            protocol: !Protocols {}
+          serializedName: BadApples
+          language: !Languages 
+            default:
+              name: badApples
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: AppleBarrel
+          description: A barrel of apples.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_108
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_19
+          serializedName: name
+          language: !Languages 
+            default:
+              name: name
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_20
+          serializedName: flavor
+          language: !Languages 
+            default:
+              name: flavor
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_21
+          serializedName: expiration
+          language: !Languages 
+            default:
+              name: expiration
+              description: The time at which you should reconsider eating this banana
+          protocol: !Protocols {}
+      serialization:
+        xml:
+          name: banana
+          attribute: false
+          text: false
+          wrapped: false
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: Banana
+          description: A banana.
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_150
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_22
+          required: true
+          serializedName: ServiceEndpoint
+          language: !Languages 
+            default:
+              name: serviceEndpoint
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_23
+          required: true
+          serializedName: Prefix
+          language: !Languages 
+            default:
+              name: prefix
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_24
+          required: false
+          serializedName: Marker
+          language: !Languages 
+            default:
+              name: marker
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_25
+          required: true
+          serializedName: MaxResults
+          language: !Languages 
+            default:
+              name: maxResults
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_109
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: !ObjectSchema &ref_35
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: 1.0.0
+              properties:
+                - !Property 
+                  schema: *ref_26
+                  required: true
+                  serializedName: Name
+                  language: !Languages 
+                    default:
+                      name: name
+                      description: ''
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: !ObjectSchema &ref_36
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: 1.0.0
+                    properties:
+                      - !Property 
+                        schema: *ref_27
+                        required: true
+                        serializedName: Last-Modified
+                        language: !Languages 
+                          default:
+                            name: lastModified
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_28
+                        required: true
+                        serializedName: Etag
+                        language: !Languages 
+                          default:
+                            name: etag
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_29
+                        required: false
+                        serializedName: LeaseStatus
+                        language: !Languages 
+                          default:
+                            name: leaseStatus
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_30
+                        required: false
+                        serializedName: LeaseState
+                        language: !Languages 
+                          default:
+                            name: leaseState
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_31
+                        required: false
+                        serializedName: LeaseDuration
+                        language: !Languages 
+                          default:
+                            name: leaseDuration
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_32
+                        required: false
+                        serializedName: PublicAccess
+                        language: !Languages 
+                          default:
+                            name: publicAccess
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - xml
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: ContainerProperties
+                        description: Properties of a container
+                        namespace: ''
+                    protocol: !Protocols {}
+                  required: true
+                  serializedName: Properties
+                  language: !Languages 
+                    default:
+                      name: properties
+                      description: Properties of a container
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_33
+                  required: false
+                  serializedName: Metadata
+                  language: !Languages 
+                    default:
+                      name: metadata
+                      description: Dictionary of <string>
+                  protocol: !Protocols {}
+              serializationFormats:
+                - xml
+              usage:
+                - output
+              language: !Languages 
+                default:
+                  name: Container
+                  description: An Azure Storage container
+                  namespace: ''
+              protocol: !Protocols {}
+            serialization:
+              xml:
+                attribute: false
+                text: false
+                wrapped: true
+            language: !Languages 
+              default:
+                name: ListContainersResponseContainers
+                description: Array of Container
+            protocol: !Protocols {}
+          required: false
+          serializedName: Containers
+          language: !Languages 
+            default:
+              name: containers
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_34
+          required: true
+          serializedName: NextMarker
+          language: !Languages 
+            default:
+              name: nextMarker
+              description: ''
+          protocol: !Protocols {}
+      serialization:
+        xml:
+          name: EnumerationResults
+          attribute: false
+          text: false
+          wrapped: false
+      serializationFormats:
+        - xml
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ListContainersResponse
+          description: An enumeration of containers
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_35
+    - *ref_36
+    - !ObjectSchema &ref_153
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_54
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_37
+                required: true
+                serializedName: Version
+                language: !Languages 
+                  default:
+                    name: version
+                    description: The version of Storage Analytics to configure.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_38
+                required: true
+                serializedName: Delete
+                language: !Languages 
+                  default:
+                    name: delete
+                    description: Indicates whether all delete requests should be logged.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_39
+                required: true
+                serializedName: Read
+                language: !Languages 
+                  default:
+                    name: read
+                    description: Indicates whether all read requests should be logged.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_40
+                required: true
+                serializedName: Write
+                language: !Languages 
+                  default:
+                    name: write
+                    description: Indicates whether all write requests should be logged.
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ObjectSchema &ref_46
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: 1.0.0
+                  properties:
+                    - !Property 
+                      schema: *ref_41
+                      required: true
+                      serializedName: Enabled
+                      language: !Languages 
+                        default:
+                          name: enabled
+                          description: Indicates whether a retention policy is enabled for the storage service
+                      protocol: !Protocols {}
+                    - !Property 
+                      schema: *ref_42
+                      required: false
+                      serializedName: Days
+                      language: !Languages 
+                        default:
+                          name: days
+                          description: Indicates the number of days that metrics or logging or soft-deleted data should be retained. All data older than this value will be deleted
+                      protocol: !Protocols {}
+                  serializationFormats:
+                    - xml
+                  usage:
+                    - output
+                    - input
+                  language: !Languages 
+                    default:
+                      name: RetentionPolicy
+                      description: the retention policy
+                      namespace: ''
+                  protocol: !Protocols {}
+                required: true
+                serializedName: RetentionPolicy
+                language: !Languages 
+                  default:
+                    name: retentionPolicy
+                    description: the retention policy
+                protocol: !Protocols {}
+            serializationFormats:
+              - xml
+            usage:
+              - output
+              - input
+            language: !Languages 
+              default:
+                name: Logging
+                description: Azure Analytics Logging settings.
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: Logging
+          language: !Languages 
+            default:
+              name: logging
+              description: Azure Analytics Logging settings
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_47
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_43
+                required: false
+                serializedName: Version
+                language: !Languages 
+                  default:
+                    name: version
+                    description: The version of Storage Analytics to configure.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_44
+                required: true
+                serializedName: Enabled
+                language: !Languages 
+                  default:
+                    name: enabled
+                    description: Indicates whether metrics are enabled for the Blob service.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_45
+                required: false
+                serializedName: IncludeAPIs
+                language: !Languages 
+                  default:
+                    name: includeAPIs
+                    description: Indicates whether metrics should generate summary statistics for called API operations.
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_46
+                required: false
+                serializedName: RetentionPolicy
+                language: !Languages 
+                  default:
+                    name: retentionPolicy
+                    description: the retention policy
+                protocol: !Protocols {}
+            serializationFormats:
+              - xml
+            usage:
+              - output
+              - input
+            language: !Languages 
+              default:
+                name: Metrics
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: HourMetrics
+          language: !Languages 
+            default:
+              name: hourMetrics
+              description: A summary of request statistics grouped by API in hourly aggregates for blobs
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_47
+          serializedName: MinuteMetrics
+          language: !Languages 
+            default:
+              name: minuteMetrics
+              description: a summary of request statistics grouped by API in minute aggregates for blobs
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_110
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: !ObjectSchema &ref_55
+              type: object
+              apiVersions:
+                - !ApiVersion 
+                  version: 1.0.0
+              properties:
+                - !Property 
+                  schema: *ref_48
+                  required: true
+                  serializedName: AllowedOrigins
+                  language: !Languages 
+                    default:
+                      name: allowedOrigins
+                      description: >-
+                        The origin domains that are permitted to make a request against the storage service via CORS. The origin domain is the domain from which the request originates. Note that the origin must be an exact case-sensitive
+                        match with the origin that the user age sends to the service. You can also use the wildcard character '*' to allow all origin domains to make requests via CORS.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_49
+                  required: true
+                  serializedName: AllowedMethods
+                  language: !Languages 
+                    default:
+                      name: allowedMethods
+                      description: The methods (HTTP request verbs) that the origin domain may use for a CORS request. (comma separated)
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_50
+                  required: true
+                  serializedName: AllowedHeaders
+                  language: !Languages 
+                    default:
+                      name: allowedHeaders
+                      description: the request headers that the origin domain may specify on the CORS request.
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_51
+                  required: true
+                  serializedName: ExposedHeaders
+                  language: !Languages 
+                    default:
+                      name: exposedHeaders
+                      description: The response headers that may be sent in the response to the CORS request and exposed by the browser to the request issuer
+                  protocol: !Protocols {}
+                - !Property 
+                  schema: *ref_52
+                  required: true
+                  serializedName: MaxAgeInSeconds
+                  language: !Languages 
+                    default:
+                      name: maxAgeInSeconds
+                      description: The maximum amount time that a browser should cache the preflight OPTIONS request.
+                  protocol: !Protocols {}
+              serialization:
+                xml:
+                  name: CorsRule
+                  attribute: false
+                  text: false
+                  wrapped: false
+              serializationFormats:
+                - xml
+              usage:
+                - output
+                - input
+              language: !Languages 
+                default:
+                  name: CorsRule
+                  description: >-
+                    CORS is an HTTP feature that enables a web application running under one domain to access resources in another domain. Web browsers implement a security restriction known as same-origin policy that prevents a web page
+                    from calling APIs in a different domain; CORS provides a secure way to allow one domain (the origin domain) to call APIs in another domain
+                  namespace: ''
+              protocol: !Protocols {}
+            serialization:
+              xml:
+                attribute: false
+                text: false
+                wrapped: true
+            language: !Languages 
+              default:
+                name: StorageServicePropertiesCors
+                description: The set of CORS rules.
+            protocol: !Protocols {}
+          serializedName: Cors
+          language: !Languages 
+            default:
+              name: cors
+              description: The set of CORS rules.
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_53
+          serializedName: DefaultServiceVersion
+          language: !Languages 
+            default:
+              name: defaultServiceVersion
+              description: The default version to use for requests to the Blob service if an incoming request's version is not specified. Possible values include version 2008-10-27 and all more recent versions
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_46
+          serializedName: DeleteRetentionPolicy
+          language: !Languages 
+            default:
+              name: deleteRetentionPolicy
+              description: The Delete Retention Policy for the service
+          protocol: !Protocols {}
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: StorageServiceProperties
+          description: Storage Service Properties.
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_54
+    - *ref_46
+    - *ref_47
+    - *ref_55
+    - !ObjectSchema &ref_111
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_56
+          required: true
+          serializedName: Id
+          language: !Languages 
+            default:
+              name: id
+              description: a unique id
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_60
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_57
+                required: true
+                serializedName: Start
+                language: !Languages 
+                  default:
+                    name: start
+                    description: the date-time the policy is active
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_58
+                required: true
+                serializedName: Expiry
+                language: !Languages 
+                  default:
+                    name: expiry
+                    description: the date-time the policy expires
+                protocol: !Protocols {}
+              - !Property 
+                schema: *ref_59
+                required: true
+                serializedName: Permission
+                language: !Languages 
+                  default:
+                    name: permission
+                    description: the permissions for the acl policy
+                protocol: !Protocols {}
+            serializationFormats:
+              - xml
+            usage:
+              - output
+              - input
+            language: !Languages 
+              default:
+                name: AccessPolicy
+                description: An Access policy
+                namespace: ''
+            protocol: !Protocols {}
+          required: true
+          serializedName: AccessPolicy
+          language: !Languages 
+            default:
+              name: accessPolicy
+              description: The access policy
+          protocol: !Protocols {}
+      serialization:
+        xml:
+          name: SignedIdentifier
+          attribute: false
+          text: false
+          wrapped: false
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: SignedIdentifier
+          description: signed identifier
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_60
+    - !ObjectSchema &ref_161
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_61
+          required: false
+          serializedName: ServiceEndpoint
+          language: !Languages 
+            default:
+              name: serviceEndpoint
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_62
+          required: true
+          serializedName: ContainerName
+          language: !Languages 
+            default:
+              name: containerName
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_63
+          required: true
+          serializedName: Prefix
+          language: !Languages 
+            default:
+              name: prefix
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_64
+          required: true
+          serializedName: Marker
+          language: !Languages 
+            default:
+              name: marker
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_65
+          required: true
+          serializedName: MaxResults
+          language: !Languages 
+            default:
+              name: maxResults
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_66
+          required: true
+          serializedName: Delimiter
+          language: !Languages 
+            default:
+              name: delimiter
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ObjectSchema &ref_94
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: !ArraySchema &ref_112
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: 1.0.0
+                  elementType: !ObjectSchema &ref_95
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: 1.0.0
+                    properties:
+                      - !Property 
+                        schema: *ref_67
+                        required: true
+                        serializedName: Name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: ''
+                        protocol: !Protocols {}
+                    serializationFormats:
+                      - xml
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: BlobPrefix
+                        description: ''
+                        namespace: ''
+                    protocol: !Protocols {}
+                  language: !Languages 
+                    default:
+                      name: BlobsBlobPrefix
+                      description: Array of BlobPrefix
+                  protocol: !Protocols {}
+                serializedName: BlobPrefix
+                language: !Languages 
+                  default:
+                    name: blobPrefix
+                    description: ''
+                protocol: !Protocols {}
+              - !Property 
+                schema: !ArraySchema &ref_113
+                  type: array
+                  apiVersions:
+                    - !ApiVersion 
+                      version: 1.0.0
+                  elementType: !ObjectSchema &ref_96
+                    type: object
+                    apiVersions:
+                      - !ApiVersion 
+                        version: 1.0.0
+                    properties:
+                      - !Property 
+                        schema: *ref_68
+                        required: true
+                        serializedName: Name
+                        language: !Languages 
+                          default:
+                            name: name
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_69
+                        required: true
+                        serializedName: Deleted
+                        language: !Languages 
+                          default:
+                            name: deleted
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_70
+                        required: true
+                        serializedName: Snapshot
+                        language: !Languages 
+                          default:
+                            name: snapshot
+                            description: ''
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: !ObjectSchema &ref_97
+                          type: object
+                          apiVersions:
+                            - !ApiVersion 
+                              version: 1.0.0
+                          properties:
+                            - !Property 
+                              schema: *ref_71
+                              required: true
+                              serializedName: Last-Modified
+                              language: !Languages 
+                                default:
+                                  name: lastModified
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_72
+                              required: true
+                              serializedName: Etag
+                              language: !Languages 
+                                default:
+                                  name: etag
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_73
+                              required: false
+                              serializedName: Content-Length
+                              language: !Languages 
+                                default:
+                                  name: contentLength
+                                  description: Size in bytes
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_74
+                              required: false
+                              serializedName: Content-Type
+                              language: !Languages 
+                                default:
+                                  name: contentType
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_75
+                              required: false
+                              serializedName: Content-Encoding
+                              language: !Languages 
+                                default:
+                                  name: contentEncoding
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_76
+                              required: false
+                              serializedName: Content-Language
+                              language: !Languages 
+                                default:
+                                  name: contentLanguage
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_77
+                              required: false
+                              serializedName: Content-MD5
+                              language: !Languages 
+                                default:
+                                  name: contentMD5
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_78
+                              required: false
+                              serializedName: Content-Disposition
+                              language: !Languages 
+                                default:
+                                  name: contentDisposition
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_79
+                              required: false
+                              serializedName: Cache-Control
+                              language: !Languages 
+                                default:
+                                  name: cacheControl
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_80
+                              required: false
+                              serializedName: x-ms-blob-sequence-number
+                              language: !Languages 
+                                default:
+                                  name: blobSequenceNumber
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_81
+                              required: false
+                              serializedName: BlobType
+                              language: !Languages 
+                                default:
+                                  name: blobType
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_29
+                              required: false
+                              serializedName: LeaseStatus
+                              language: !Languages 
+                                default:
+                                  name: leaseStatus
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_30
+                              required: false
+                              serializedName: LeaseState
+                              language: !Languages 
+                                default:
+                                  name: leaseState
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_31
+                              required: false
+                              serializedName: LeaseDuration
+                              language: !Languages 
+                                default:
+                                  name: leaseDuration
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_82
+                              required: false
+                              serializedName: CopyId
+                              language: !Languages 
+                                default:
+                                  name: copyId
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_83
+                              required: false
+                              serializedName: CopyStatus
+                              language: !Languages 
+                                default:
+                                  name: copyStatus
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_84
+                              required: false
+                              serializedName: CopySource
+                              language: !Languages 
+                                default:
+                                  name: copySource
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_85
+                              required: false
+                              serializedName: CopyProgress
+                              language: !Languages 
+                                default:
+                                  name: copyProgress
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_86
+                              required: false
+                              serializedName: CopyCompletionTime
+                              language: !Languages 
+                                default:
+                                  name: copyCompletionTime
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_87
+                              required: false
+                              serializedName: CopyStatusDescription
+                              language: !Languages 
+                                default:
+                                  name: copyStatusDescription
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_69
+                              required: false
+                              serializedName: ServerEncrypted
+                              language: !Languages 
+                                default:
+                                  name: serverEncrypted
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_69
+                              required: false
+                              serializedName: IncrementalCopy
+                              language: !Languages 
+                                default:
+                                  name: incrementalCopy
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_88
+                              required: false
+                              serializedName: DestinationSnapshot
+                              language: !Languages 
+                                default:
+                                  name: destinationSnapshot
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_89
+                              required: false
+                              serializedName: DeletedTime
+                              language: !Languages 
+                                default:
+                                  name: deletedTime
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_90
+                              required: false
+                              serializedName: RemainingRetentionDays
+                              language: !Languages 
+                                default:
+                                  name: remainingRetentionDays
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_91
+                              required: false
+                              serializedName: AccessTier
+                              language: !Languages 
+                                default:
+                                  name: accessTier
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_69
+                              required: false
+                              serializedName: AccessTierInferred
+                              language: !Languages 
+                                default:
+                                  name: accessTierInferred
+                                  description: ''
+                              protocol: !Protocols {}
+                            - !Property 
+                              schema: *ref_92
+                              required: false
+                              serializedName: ArchiveStatus
+                              language: !Languages 
+                                default:
+                                  name: archiveStatus
+                                  description: ''
+                              protocol: !Protocols {}
+                          serializationFormats:
+                            - xml
+                          usage:
+                            - output
+                          language: !Languages 
+                            default:
+                              name: BlobProperties
+                              description: Properties of a blob
+                              namespace: ''
+                          protocol: !Protocols {}
+                        required: true
+                        serializedName: Properties
+                        language: !Languages 
+                          default:
+                            name: properties
+                            description: Properties of a blob
+                        protocol: !Protocols {}
+                      - !Property 
+                        schema: *ref_33
+                        required: false
+                        serializedName: Metadata
+                        language: !Languages 
+                          default:
+                            name: metadata
+                            description: Dictionary of <string>
+                        protocol: !Protocols {}
+                    serialization:
+                      xml:
+                        name: Blob
+                        attribute: false
+                        text: false
+                        wrapped: false
+                    serializationFormats:
+                      - xml
+                    usage:
+                      - output
+                    language: !Languages 
+                      default:
+                        name: Blob
+                        description: An Azure Storage blob
+                        namespace: ''
+                    protocol: !Protocols {}
+                  language: !Languages 
+                    default:
+                      name: BlobsBlob
+                      description: Array of Blob
+                  protocol: !Protocols {}
+                serializedName: Blob
+                language: !Languages 
+                  default:
+                    name: blob
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - xml
+            usage:
+              - output
+            language: !Languages 
+              default:
+                name: Blobs
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          required: true
+          serializedName: Blobs
+          language: !Languages 
+            default:
+              name: blobs
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_93
+          required: true
+          serializedName: NextMarker
+          language: !Languages 
+            default:
+              name: nextMarker
+              description: ''
+          protocol: !Protocols {}
+      serialization:
+        xml:
+          name: EnumerationResults
+          attribute: false
+          text: false
+          wrapped: false
+      serializationFormats:
+        - xml
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ListBlobsResponse
+          description: An enumeration of blobs
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_94
+    - *ref_95
+    - *ref_96
+    - *ref_97
+    - !ObjectSchema &ref_163
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_98
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+      language: !Languages 
+        default:
+          name: JsonInput
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_167
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_99
+          serializedName: id
+          language: !Languages 
+            default:
+              name: id
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: JsonOutput
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_168
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_100
+          serializedName: language
+          language: !Languages 
+            default:
+              name: language
+              description: Returned value should be 'english'
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_101
+          serializedName: content
+          language: !Languages 
+            default:
+              name: content
+              description: Returned value should be 'I am text'
+          protocol: !Protocols {}
+      serialization:
+        xml:
+          name: Data
+          attribute: false
+          text: false
+          wrapped: false
+      serializationFormats:
+        - xml
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ObjectWithXMsTextProperty
+          description: 'Contans property '
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_169
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_102
+          serializedName: Bytes
+          language: !Languages 
+            default:
+              name: bytes
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: ModelWithByteProperty
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_172
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_103
+          serializedName: Url
+          language: !Languages 
+            default:
+              name: url
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - xml
+      usage:
+        - output
+        - input
+      language: !Languages 
+        default:
+          name: ModelWithUrlProperty
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_104
+    - *ref_105
+    - *ref_106
+    - *ref_107
+    - !ArraySchema &ref_135
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_108
+      serialization:
+        xml:
+          name: bananas
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ArrayOfBanana
+          description: Array of Banana
+      protocol: !Protocols {}
+    - !ArraySchema &ref_136
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_108
+      serialization:
+        xml:
+          name: bananas
+          attribute: false
+          text: false
+          wrapped: true
+      language: !Languages 
+        default:
+          name: ArrayOfBanana
+          description: Array of Banana
+      protocol: !Protocols {}
+    - !ArraySchema &ref_139
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_108
+      serialization:
+        xml:
+          name: bananas
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ArrayOfBanana
+          description: Array of Banana
+      protocol: !Protocols {}
+    - !ArraySchema &ref_140
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_108
+      serialization:
+        xml:
+          name: bananas
+          attribute: false
+          text: false
+          wrapped: true
+      language: !Languages 
+        default:
+          name: ArrayOfBanana
+          description: Array of Banana
+      protocol: !Protocols {}
+    - !ArraySchema &ref_143
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_108
+      serialization:
+        xml:
+          name: bananas
+          attribute: false
+          text: false
+          wrapped: false
+      language: !Languages 
+        default:
+          name: ArrayOfBanana
+          description: Array of Banana
+      protocol: !Protocols {}
+    - !ArraySchema &ref_144
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_108
+      serialization:
+        xml:
+          name: bananas
+          attribute: false
+          text: false
+          wrapped: true
+      language: !Languages 
+        default:
+          name: ArrayOfBanana
+          description: Array of Banana
+      protocol: !Protocols {}
+    - *ref_109
+    - *ref_110
+    - !ArraySchema &ref_158
+      type: array
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      elementType: *ref_111
+      serialization:
+        xml:
+          name: SignedIdentifiers
+          attribute: false
+          text: false
+          wrapped: true
+      language: !Languages 
+        default:
+          name: SignedIdentifiers
+          description: a collection of signed identifiers
+      protocol: !Protocols {}
+    - *ref_112
+    - *ref_113
+globalParameters:
+  - !Parameter &ref_114
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: xml
+    operations:
+      - !Operation 
+        operationId: xml_getComplexTypeRefNoMeta
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/complex-type-ref-no-meta
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_116
+            language: !Languages 
+              default:
+                name: ''
+                description: The empty list.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetComplexTypeRefNoMeta
+            description: Get a complex type that has a ref to a complex type with no XML node
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putComplexTypeRefNoMeta
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_119
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_118
+                schema: *ref_116
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: model
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_118
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/complex-type-ref-no-meta
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_119
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutComplexTypeRefNoMeta
+            description: Puts a complex type that has a ref to a complex type with no XML node
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getComplexTypeRefWithMeta
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/complex-type-ref-with-meta
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_120
+            language: !Languages 
+              default:
+                name: ''
+                description: The empty list.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetComplexTypeRefWithMeta
+            description: Get a complex type that has a ref to a complex type with XML node
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putComplexTypeRefWithMeta
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_122
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_121
+                schema: *ref_120
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: model
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_121
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/complex-type-ref-with-meta
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_122
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutComplexTypeRefWithMeta
+            description: Puts a complex type that has a ref to a complex type with XML node
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getSimple
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/simple
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_123
+            language: !Languages 
+              default:
+                name: ''
+                description: "The simple\_XML document"
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_124
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetSimple
+            description: Get a simple XML document
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putSimple
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_126
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_125
+                schema: *ref_123
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: slideshow
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_125
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/simple
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_126
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_124
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutSimple
+            description: Put a simple XML document
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getWrappedLists
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/wrapped-lists
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_127
+            language: !Languages 
+              default:
+                name: ''
+                description: The XML document with multiple wrapped lists
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetWrappedLists
+            description: Get an XML document with multiple wrapped lists
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putWrappedLists
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_129
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_128
+                schema: *ref_127
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: wrappedLists
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_128
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/wrapped-lists
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_129
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_124
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutWrappedLists
+            description: Put an XML document with multiple wrapped lists
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getHeaders
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/headers
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: The response header.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                headers:
+                  - !HttpHeader 
+                    schema: *ref_130
+                    header: Custom-Header
+                    language:
+                      default:
+                        name: CustomHeader
+                        description: A custom response header.
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetHeaders
+            description: Get strongly-typed response headers.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getEmptyList
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/empty-list
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_123
+            language: !Languages 
+              default:
+                name: ''
+                description: The empty list.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetEmptyList
+            description: Get an empty list.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putEmptyList
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_132
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_131
+                schema: *ref_123
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: slideshow
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_131
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/empty-list
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_132
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutEmptyList
+            description: Puts an empty list.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getEmptyWrappedLists
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/empty-wrapped-lists
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_127
+            language: !Languages 
+              default:
+                name: ''
+                description: The empty lists.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetEmptyWrappedLists
+            description: Gets some empty wrapped lists.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putEmptyWrappedLists
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_134
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_133
+                schema: *ref_127
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: appleBarrel
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_133
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/empty-wrapped-lists
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_134
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutEmptyWrappedLists
+            description: Puts some empty wrapped lists.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getRootList
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/root-list
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_135
+            language: !Languages 
+              default:
+                name: ''
+                description: The root list.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetRootList
+            description: Gets a list as the root element.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putRootList
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_138
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_137
+                schema: *ref_136
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: bananas
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_137
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/root-list
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_138
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutRootList
+            description: Puts a list as the root element.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getRootListSingleItem
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/root-list-single-item
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_139
+            language: !Languages 
+              default:
+                name: ''
+                description: The root list.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetRootListSingleItem
+            description: Gets a list with a single item.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putRootListSingleItem
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_142
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_141
+                schema: *ref_140
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: bananas
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_141
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/root-list-single-item
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_142
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutRootListSingleItem
+            description: Puts a list with a single item.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getEmptyRootList
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/empty-root-list
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_143
+            language: !Languages 
+              default:
+                name: ''
+                description: The root list.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetEmptyRootList
+            description: Gets an empty list as the root element.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putEmptyRootList
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_146
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_145
+                schema: *ref_144
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: bananas
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_145
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/empty-root-list
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_146
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutEmptyRootList
+            description: Puts an empty list as the root element.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getEmptyChildElement
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/empty-child-element
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_108
+            language: !Languages 
+              default:
+                name: ''
+                description: The unknown banana.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetEmptyChildElement
+            description: Gets an XML document with an empty child element.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putEmptyChildElement
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_148
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_147
+                schema: *ref_108
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: banana
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_147
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/empty-child-element
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_148
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutEmptyChildElement
+            description: Puts a value with an empty child element.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_listContainers
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+          - !Parameter 
+            schema: *ref_149
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: comp
+                description: ''
+                serializedName: comp
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_150
+            language: !Languages 
+              default:
+                name: ''
+                description: A list of containers.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: ListContainers
+            description: Lists containers in a storage account.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getServiceProperties
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+          - !Parameter 
+            schema: *ref_151
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: comp
+                description: ''
+                serializedName: comp
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_152
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: restype
+                description: ''
+                serializedName: restype
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_153
+            language: !Languages 
+              default:
+                name: ''
+                description: The storage service properties.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetServiceProperties
+            description: Gets storage service properties.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putServiceProperties
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+          - !Parameter 
+            schema: *ref_151
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: comp
+                description: ''
+                serializedName: comp
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_152
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: restype
+                description: ''
+                serializedName: restype
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requestMediaTypes:
+          application/xml: !Request &ref_155
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_154
+                schema: *ref_153
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: properties
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_154
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_155
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutServiceProperties
+            description: Puts storage service properties.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getAcls
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+          - !Parameter 
+            schema: *ref_156
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: comp
+                description: ''
+                serializedName: comp
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_157
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: restype
+                description: ''
+                serializedName: restype
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/mycontainer
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_158
+            language: !Languages 
+              default:
+                name: ''
+                description: The storage ACLs.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetAcls
+            description: Gets storage ACLs for a container.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putAcls
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+          - !Parameter 
+            schema: *ref_156
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: comp
+                description: ''
+                serializedName: comp
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_157
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: restype
+                description: ''
+                serializedName: restype
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requestMediaTypes:
+          application/xml: !Request &ref_160
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_159
+                schema: *ref_158
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: properties
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+            signatureParameters:
+              - *ref_159
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/mycontainer
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_160
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        language: !Languages 
+          default:
+            name: PutAcls
+            description: Puts storage ACLs for a container.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_listBlobs
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+          - !Parameter 
+            schema: *ref_149
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: comp
+                description: ''
+                serializedName: comp
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter 
+            schema: *ref_157
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: restype
+                description: ''
+                serializedName: restype
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/mycontainer
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_161
+            language: !Languages 
+              default:
+                name: ''
+                description: A list of containers.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: ListBlobs
+            description: Lists blobs in a storage container.
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_jsonInput
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/json: !Request &ref_165
+            parameters:
+              - !Parameter 
+                schema: *ref_162
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_164
+                schema: *ref_163
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: properties
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+            signatureParameters:
+              - *ref_164
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/jsoninput
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_165
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: JsonInput
+            description: A Swagger with XML that has one operation that takes JSON as input. You need to send the ID number 42
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_jsonOutput
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_166
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/jsonoutput
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_167
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: JsonOutput
+            description: A Swagger with XML that has one operation that returns JSON. ID number 42
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_GetXMsText
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/x-ms-text
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_168
+            language: !Languages 
+              default:
+                name: ''
+                description: Success.
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: GetXMsText
+            description: Get back an XML object with an x-ms-text property, which should translate to the returned object's 'language' property being 'english' and its 'content' property being 'I am text'
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getBytes
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/bytes
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_169
+            language: !Languages 
+              default:
+                name: ''
+                description: "The simple\_XML document"
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_124
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetBytes
+            description: Get an XML document with binary property
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putBinary
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_171
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_170
+                schema: *ref_169
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: slideshow
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_170
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/bytes
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_171
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_124
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutBinary
+            description: Put an XML document with binary property
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_getUri
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /xml/url
+                method: get
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_172
+            language: !Languages 
+              default:
+                name: ''
+                description: "The simple\_XML document"
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - '200'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_124
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: GetUri
+            description: Get an XML document with uri property
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: xml_putUri
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_114
+        requestMediaTypes:
+          application/xml: !Request &ref_174
+            parameters:
+              - !Parameter 
+                schema: *ref_117
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_173
+                schema: *ref_172
+                implementation: Method
+                required: true
+                language: !Languages 
+                  default:
+                    name: model
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: xml
+              - !Parameter 
+                schema: *ref_115
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_173
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /xml/url
+                method: put
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                uri: '{$host}'
+        requests:
+          - *ref_174
+        signatureParameters: []
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: Indicates success
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '201'
+        exceptions:
+          - !SchemaResponse 
+            schema: *ref_124
+            language: !Languages 
+              default:
+                name: ''
+                description: Unexpected error
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: xml
+                mediaTypes:
+                  - application/xml
+                statusCodes:
+                  - default
+        language: !Languages 
+          default:
+            name: PutUri
+            description: Put an XML document with uri property
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: Xml
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: AutoRestSwaggerBATXMLService
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

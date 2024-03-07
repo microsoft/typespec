@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="DefaultAsync(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call DefaultAsync.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.DefaultAsync(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call DefaultAsync with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.DefaultAsync(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Default(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call Default.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.Default(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Default with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.Default(DateTimeOffset.Parse("2022-05-10T14:57:31.2311892-04:00"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Rfc3339Async(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call Rfc3339Async.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.Rfc3339Async(DateTimeOffset.Parse("2022-05-10T18:57:31.2311892Z"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Rfc3339Async with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.Rfc3339Async(DateTimeOffset.Parse("2022-05-10T18:57:31.2311892Z"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Rfc3339(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call Rfc3339.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.Rfc3339(DateTimeOffset.Parse("2022-05-10T18:57:31.2311892Z"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Rfc3339 with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.Rfc3339(DateTimeOffset.Parse("2022-05-10T18:57:31.2311892Z"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Rfc7231Async(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call Rfc7231Async.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.Rfc7231Async(DateTimeOffset.Parse("Tue, 10 May 2022 18:57:31 GMT"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Rfc7231Async with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.Rfc7231Async(DateTimeOffset.Parse("Tue, 10 May 2022 18:57:31 GMT"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Rfc7231(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call Rfc7231.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.Rfc7231(DateTimeOffset.Parse("Tue, 10 May 2022 18:57:31 GMT"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Rfc7231 with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.Rfc7231(DateTimeOffset.Parse("Tue, 10 May 2022 18:57:31 GMT"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="UnixTimestampAsync(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call UnixTimestampAsync.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.UnixTimestampAsync(DateTimeOffset.FromUnixTimeSeconds(1652209051L));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call UnixTimestampAsync with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.UnixTimestampAsync(DateTimeOffset.FromUnixTimeSeconds(1652209051L));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="UnixTimestamp(DateTimeOffset,RequestContext)">
+      <example>
+This sample shows how to call UnixTimestamp.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.UnixTimestamp(DateTimeOffset.FromUnixTimeSeconds(1652209051L));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call UnixTimestamp with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.UnixTimestamp(DateTimeOffset.FromUnixTimeSeconds(1652209051L));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="UnixTimestampArrayAsync(IEnumerable{DateTimeOffset},RequestContext)">
+      <example>
+This sample shows how to call UnixTimestampArrayAsync.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.UnixTimestampArrayAsync(new DateTimeOffset[] { DateTimeOffset.FromUnixTimeSeconds(1652209051L) });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call UnixTimestampArrayAsync with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = await client.UnixTimestampArrayAsync(new DateTimeOffset[] { DateTimeOffset.FromUnixTimeSeconds(1652209051L) });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="UnixTimestampArray(IEnumerable{DateTimeOffset},RequestContext)">
+      <example>
+This sample shows how to call UnixTimestampArray.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.UnixTimestampArray(new DateTimeOffset[] { DateTimeOffset.FromUnixTimeSeconds(1652209051L) });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call UnixTimestampArray with all parameters.
+<code><![CDATA[
+Header client = new DatetimeClient().GetHeaderClient();
+
+Response response = client.UnixTimestampArray(new DateTimeOffset[] { DateTimeOffset.FromUnixTimeSeconds(1652209051L) });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

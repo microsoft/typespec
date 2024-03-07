@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <Nullable>annotations</Nullable>
+    <NoWarn>SA1649;SA1633;CS0618</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="AutoRest.TestServer.Tests.Infrastructure.BuildProperties">
+      <_Parameter1>$(RepoRoot)</_Parameter1>
+      <_Parameter2>$(ArtifactsDir)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="Azure.Core.Pipeline.HttpClientTransport.EnableCookies" Value="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" />
+    <PackageReference Include="Azure.Core.Experimental" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" />
+    <PackageReference Include="nunit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" />
+
+    <ProjectReference Include="../../src/AutoRest.CSharp/AutoRest.CSharp.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(AzureCoreSharedSources)AzureKeyCredentialPolicy.cs" LinkBase="Shared/Core" />
+    <Compile Include="../CadlRanchProjects/**/*.cs" LinkBase="CadlRanchProjects" />
+    <Compile Include="../TestProjects/*-TypeSpec/**/*.cs" Exclude="../TestProjects/ConvenienceInitial-TypeSpec/**/*.cs" LinkBase="TestProjects" />
+    <Compile Include="../AutoRest.TestServer.Tests/Infrastructure/*.cs" />
+    <Compile Include="../AutoRest.TestServer.Tests/TestConstants.cs" />
+  </ItemGroup>
+
+</Project>

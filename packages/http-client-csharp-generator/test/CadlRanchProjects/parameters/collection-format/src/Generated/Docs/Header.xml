@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="CsvAsync(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call CsvAsync.
+<code><![CDATA[
+Header client = new CollectionFormatClient().GetHeaderClient();
+
+Response response = await client.CsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call CsvAsync with all parameters.
+<code><![CDATA[
+Header client = new CollectionFormatClient().GetHeaderClient();
+
+Response response = await client.CsvAsync(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Csv(IEnumerable{string},RequestContext)">
+      <example>
+This sample shows how to call Csv.
+<code><![CDATA[
+Header client = new CollectionFormatClient().GetHeaderClient();
+
+Response response = client.Csv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Csv with all parameters.
+<code><![CDATA[
+Header client = new CollectionFormatClient().GetHeaderClient();
+
+Response response = client.Csv(new string[] { "<colors>" });
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

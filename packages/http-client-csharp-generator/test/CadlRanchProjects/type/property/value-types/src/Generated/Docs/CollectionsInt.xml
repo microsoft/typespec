@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetCollectionsIntAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetCollectionsIntAsync.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response<CollectionsIntProperty> response = await client.GetCollectionsIntAsync();
+]]></code>
+This sample shows how to call GetCollectionsIntAsync with all parameters.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response<CollectionsIntProperty> response = await client.GetCollectionsIntAsync();
+]]></code></example>
+    </member>
+    <member name="GetCollectionsInt(CancellationToken)">
+      <example>
+This sample shows how to call GetCollectionsInt.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response<CollectionsIntProperty> response = client.GetCollectionsInt();
+]]></code>
+This sample shows how to call GetCollectionsInt with all parameters.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response<CollectionsIntProperty> response = client.GetCollectionsInt();
+]]></code></example>
+    </member>
+    <member name="GetCollectionsIntAsync(RequestContext)">
+      <example>
+This sample shows how to call GetCollectionsIntAsync and parse the result.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response response = await client.GetCollectionsIntAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property")[0].ToString());
+]]></code>
+This sample shows how to call GetCollectionsIntAsync with all parameters and parse the result.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response response = await client.GetCollectionsIntAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetCollectionsInt(RequestContext)">
+      <example>
+This sample shows how to call GetCollectionsInt and parse the result.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response response = client.GetCollectionsInt(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property")[0].ToString());
+]]></code>
+This sample shows how to call GetCollectionsInt with all parameters and parse the result.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+Response response = client.GetCollectionsInt(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property")[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(CollectionsIntProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+CollectionsIntProperty body = new CollectionsIntProperty(new int[] { 1234 });
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+CollectionsIntProperty body = new CollectionsIntProperty(new int[] { 1234 });
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(CollectionsIntProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+CollectionsIntProperty body = new CollectionsIntProperty(new int[] { 1234 });
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+CollectionsIntProperty body = new CollectionsIntProperty(new int[] { 1234 });
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object[]
+    {
+        1234
+    },
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object[]
+    {
+        1234
+    },
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object[]
+    {
+        1234
+    },
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+CollectionsInt client = new ValueTypesClient().GetCollectionsIntClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = new object[]
+    {
+        1234
+    },
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

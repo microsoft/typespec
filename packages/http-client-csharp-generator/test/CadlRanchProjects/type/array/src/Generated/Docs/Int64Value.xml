@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetInt64ValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetInt64ValueAsync.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response<IReadOnlyList<long>> response = await client.GetInt64ValueAsync();
+]]></code>
+This sample shows how to call GetInt64ValueAsync with all parameters.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response<IReadOnlyList<long>> response = await client.GetInt64ValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetInt64Value(CancellationToken)">
+      <example>
+This sample shows how to call GetInt64Value.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response<IReadOnlyList<long>> response = client.GetInt64Value();
+]]></code>
+This sample shows how to call GetInt64Value with all parameters.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response<IReadOnlyList<long>> response = client.GetInt64Value();
+]]></code></example>
+    </member>
+    <member name="GetInt64ValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetInt64ValueAsync and parse the result.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = await client.GetInt64ValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetInt64ValueAsync with all parameters and parse the result.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = await client.GetInt64ValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetInt64Value(RequestContext)">
+      <example>
+This sample shows how to call GetInt64Value and parse the result.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = client.GetInt64Value(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetInt64Value with all parameters and parse the result.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = client.GetInt64Value(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IEnumerable{long},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = await client.PutAsync(new long[] { 1234L });
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = await client.PutAsync(new long[] { 1234L });
+]]></code></example>
+    </member>
+    <member name="Put(IEnumerable{long},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = client.Put(new long[] { 1234L });
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+Response response = client.Put(new long[] { 1234L });
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+Int64Value client = new ArrayClient().GetInt64ValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    1234L
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

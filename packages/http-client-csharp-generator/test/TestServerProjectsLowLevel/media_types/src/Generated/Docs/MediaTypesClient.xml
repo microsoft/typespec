@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="AnalyzeBodyAsync(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call AnalyzeBodyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = null;
+Response response = await client.AnalyzeBodyAsync(content, new ContentType("application/pdf"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call AnalyzeBodyAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.AnalyzeBodyAsync(content, new ContentType("application/pdf"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="AnalyzeBody(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call AnalyzeBody and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = null;
+Response response = client.AnalyzeBody(content, new ContentType("application/pdf"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call AnalyzeBody with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.AnalyzeBody(content, new ContentType("application/pdf"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="AnalyzeBodyNoAcceptHeaderAsync(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call AnalyzeBodyNoAcceptHeaderAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = null;
+Response response = await client.AnalyzeBodyNoAcceptHeaderAsync(content, new ContentType("application/pdf"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AnalyzeBodyNoAcceptHeaderAsync with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.AnalyzeBodyNoAcceptHeaderAsync(content, new ContentType("application/pdf"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="AnalyzeBodyNoAcceptHeader(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call AnalyzeBodyNoAcceptHeader.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = null;
+Response response = client.AnalyzeBodyNoAcceptHeader(content, new ContentType("application/pdf"));
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call AnalyzeBodyNoAcceptHeader with all parameters and request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.AnalyzeBodyNoAcceptHeader(content, new ContentType("application/pdf"));
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="ContentTypeWithEncodingAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ContentTypeWithEncodingAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = null;
+Response response = await client.ContentTypeWithEncodingAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call ContentTypeWithEncodingAsync with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create("<input>");
+Response response = await client.ContentTypeWithEncodingAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="ContentTypeWithEncoding(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call ContentTypeWithEncoding and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = null;
+Response response = client.ContentTypeWithEncoding(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call ContentTypeWithEncoding with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create("<input>");
+Response response = client.ContentTypeWithEncoding(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="BinaryBodyWithTwoContentTypesAsync(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call BinaryBodyWithTwoContentTypesAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.BinaryBodyWithTwoContentTypesAsync(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call BinaryBodyWithTwoContentTypesAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.BinaryBodyWithTwoContentTypesAsync(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="BinaryBodyWithTwoContentTypes(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call BinaryBodyWithTwoContentTypes and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.BinaryBodyWithTwoContentTypes(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call BinaryBodyWithTwoContentTypes with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.BinaryBodyWithTwoContentTypes(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="BinaryBodyWithThreeContentTypesAsync(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call BinaryBodyWithThreeContentTypesAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.BinaryBodyWithThreeContentTypesAsync(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call BinaryBodyWithThreeContentTypesAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.BinaryBodyWithThreeContentTypesAsync(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="BinaryBodyWithThreeContentTypes(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call BinaryBodyWithThreeContentTypes and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.BinaryBodyWithThreeContentTypes(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call BinaryBodyWithThreeContentTypes with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.BinaryBodyWithThreeContentTypes(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="BodyThreeTypesAsync(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call BodyThreeTypesAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.BodyThreeTypesAsync(content, new ContentType("application/octet-stream"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call BodyThreeTypesAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = await client.BodyThreeTypesAsync(content, new ContentType("application/octet-stream"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="BodyThreeTypes(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call BodyThreeTypes and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.BodyThreeTypes(content, new ContentType("application/octet-stream"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call BodyThreeTypes with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create(File.OpenRead("<filePath>"));
+Response response = client.BodyThreeTypes(content, new ContentType("application/octet-stream"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PutTextAndJsonBodyAsync(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call PutTextAndJsonBodyAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create("<message>");
+Response response = await client.PutTextAndJsonBodyAsync(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutTextAndJsonBodyAsync with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create("<message>");
+Response response = await client.PutTextAndJsonBodyAsync(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+    <member name="PutTextAndJsonBody(RequestContent,ContentType,RequestContext)">
+      <example>
+This sample shows how to call PutTextAndJsonBody and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create("<message>");
+Response response = client.PutTextAndJsonBody(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call PutTextAndJsonBody with all parameters and request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+MediaTypesClient client = new MediaTypesClient(credential);
+
+using RequestContent content = RequestContent.Create("<message>");
+Response response = client.PutTextAndJsonBody(content, new ContentType("application/json"));
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code></example>
+    </member>
+  </members>
+</doc>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetBooleanAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetBooleanAsync.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response<BooleanProperty> response = await client.GetBooleanAsync();
+]]></code>
+This sample shows how to call GetBooleanAsync with all parameters.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response<BooleanProperty> response = await client.GetBooleanAsync();
+]]></code></example>
+    </member>
+    <member name="GetBoolean(CancellationToken)">
+      <example>
+This sample shows how to call GetBoolean.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response<BooleanProperty> response = client.GetBoolean();
+]]></code>
+This sample shows how to call GetBoolean with all parameters.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response<BooleanProperty> response = client.GetBoolean();
+]]></code></example>
+    </member>
+    <member name="GetBooleanAsync(RequestContext)">
+      <example>
+This sample shows how to call GetBooleanAsync and parse the result.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response response = await client.GetBooleanAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetBooleanAsync with all parameters and parse the result.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response response = await client.GetBooleanAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetBoolean(RequestContext)">
+      <example>
+This sample shows how to call GetBoolean and parse the result.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response response = client.GetBoolean(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetBoolean with all parameters and parse the result.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+Response response = client.GetBoolean(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(BooleanProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+BooleanProperty body = new BooleanProperty(true);
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+BooleanProperty body = new BooleanProperty(true);
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(BooleanProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+BooleanProperty body = new BooleanProperty(true);
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+BooleanProperty body = new BooleanProperty(true);
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+Boolean client = new ValueTypesClient().GetBooleanClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = true,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

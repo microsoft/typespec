@@ -1,0 +1,681 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetValidAsync(RequestContext)">
+      <example>
+This sample shows how to call GetValidAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetValidAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetValidAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="GetValid(RequestContext)">
+      <example>
+This sample shows how to call GetValid and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetValid with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetValid(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="PutValidAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutValidAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "salmon",
+    length = 123.45F,
+});
+Response response = await client.PutValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutValidAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    location = "<location>",
+    iswild = true,
+    fishtype = "salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        null
+    },
+});
+Response response = await client.PutValidAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutValid(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutValid.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "salmon",
+    length = 123.45F,
+});
+Response response = client.PutValid(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutValid with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    location = "<location>",
+    iswild = true,
+    fishtype = "salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        null
+    },
+});
+Response response = client.PutValid(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="GetDotSyntaxAsync(RequestContext)">
+      <example>
+This sample shows how to call GetDotSyntaxAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetDotSyntaxAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fish.type").ToString());
+]]></code>
+This sample shows how to call GetDotSyntaxAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetDotSyntaxAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+]]></code></example>
+    </member>
+    <member name="GetDotSyntax(RequestContext)">
+      <example>
+This sample shows how to call GetDotSyntax and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetDotSyntax(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fish.type").ToString());
+]]></code>
+This sample shows how to call GetDotSyntax with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetDotSyntax(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComposedWithDiscriminatorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComposedWithDiscriminatorAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetComposedWithDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetComposedWithDiscriminatorAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetComposedWithDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("species").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComposedWithDiscriminator(RequestContext)">
+      <example>
+This sample shows how to call GetComposedWithDiscriminator and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetComposedWithDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetComposedWithDiscriminator with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetComposedWithDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("species").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComposedWithoutDiscriminatorAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComposedWithoutDiscriminatorAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetComposedWithoutDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetComposedWithoutDiscriminatorAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetComposedWithoutDiscriminatorAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("species").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComposedWithoutDiscriminator(RequestContext)">
+      <example>
+This sample shows how to call GetComposedWithoutDiscriminator and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetComposedWithoutDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.ToString());
+]]></code>
+This sample shows how to call GetComposedWithoutDiscriminator with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetComposedWithoutDiscriminator(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleSalmon").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("salmons")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("sampleFish").GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("fish.type").ToString());
+Console.WriteLine(result.GetProperty("fishes")[0].GetProperty("species").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplicatedAsync(RequestContext)">
+      <example>
+This sample shows how to call GetComplicatedAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetComplicatedAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetComplicatedAsync with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = await client.GetComplicatedAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="GetComplicated(RequestContext)">
+      <example>
+This sample shows how to call GetComplicated and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetComplicated(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call GetComplicated with all parameters and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+Response response = client.GetComplicated(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="PutComplicatedAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutComplicatedAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "smart_salmon",
+    length = 123.45F,
+});
+Response response = await client.PutComplicatedAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutComplicatedAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    college_degree = "<college_degree>",
+    location = "<location>",
+    iswild = true,
+    fishtype = "smart_salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        new
+        {
+            location = "<location>",
+            iswild = true,
+            fishtype = "salmon",
+            species = "<species>",
+            length = 123.45F,
+            siblings = new object[]
+            {
+                null
+            },
+        }
+    },
+});
+Response response = await client.PutComplicatedAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutComplicated(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutComplicated.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "smart_salmon",
+    length = 123.45F,
+});
+Response response = client.PutComplicated(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutComplicated with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    college_degree = "<college_degree>",
+    location = "<location>",
+    iswild = true,
+    fishtype = "smart_salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        new
+        {
+            location = "<location>",
+            iswild = true,
+            fishtype = "salmon",
+            species = "<species>",
+            length = 123.45F,
+            siblings = new object[]
+            {
+                null
+            },
+        }
+    },
+});
+Response response = client.PutComplicated(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutMissingDiscriminatorAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutMissingDiscriminatorAsync and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "smart_salmon",
+    length = 123.45F,
+});
+Response response = await client.PutMissingDiscriminatorAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call PutMissingDiscriminatorAsync with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    college_degree = "<college_degree>",
+    location = "<location>",
+    iswild = true,
+    fishtype = "smart_salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        new
+        {
+            location = "<location>",
+            iswild = true,
+            fishtype = "salmon",
+            species = "<species>",
+            length = 123.45F,
+            siblings = new object[]
+            {
+                null
+            },
+        }
+    },
+});
+Response response = await client.PutMissingDiscriminatorAsync(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="PutMissingDiscriminator(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutMissingDiscriminator and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "smart_salmon",
+    length = 123.45F,
+});
+Response response = client.PutMissingDiscriminator(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+]]></code>
+This sample shows how to call PutMissingDiscriminator with all request content and parse the result.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    college_degree = "<college_degree>",
+    location = "<location>",
+    iswild = true,
+    fishtype = "smart_salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        new
+        {
+            location = "<location>",
+            iswild = true,
+            fishtype = "salmon",
+            species = "<species>",
+            length = 123.45F,
+            siblings = new object[]
+            {
+                null
+            },
+        }
+    },
+});
+Response response = client.PutMissingDiscriminator(content);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("location").ToString());
+Console.WriteLine(result.GetProperty("iswild").ToString());
+Console.WriteLine(result.GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("length").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("fishtype").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("species").ToString());
+Console.WriteLine(result.GetProperty("siblings")[0].GetProperty("length").ToString());
+]]></code></example>
+    </member>
+    <member name="PutValidMissingRequiredAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutValidMissingRequiredAsync.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "salmon",
+    length = 123.45F,
+});
+Response response = await client.PutValidMissingRequiredAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutValidMissingRequiredAsync with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    location = "<location>",
+    iswild = true,
+    fishtype = "salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        null
+    },
+});
+Response response = await client.PutValidMissingRequiredAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="PutValidMissingRequired(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutValidMissingRequired.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    fishtype = "salmon",
+    length = 123.45F,
+});
+Response response = client.PutValidMissingRequired(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutValidMissingRequired with all request content.
+<code><![CDATA[
+AzureKeyCredential credential = new AzureKeyCredential("<key>");
+PolymorphismClient client = new PolymorphismClient(credential);
+
+using RequestContent content = RequestContent.Create(new
+{
+    location = "<location>",
+    iswild = true,
+    fishtype = "salmon",
+    species = "<species>",
+    length = 123.45F,
+    siblings = new object[]
+    {
+        null
+    },
+});
+Response response = client.PutValidMissingRequired(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

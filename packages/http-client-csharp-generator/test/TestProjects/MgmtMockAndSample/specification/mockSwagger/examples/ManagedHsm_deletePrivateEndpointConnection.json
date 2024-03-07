@@ -1,0 +1,28 @@
+{
+  "parameters": {
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "resourceGroupName": "sample-group",
+    "name": "sample-mhsm",
+    "privateEndpointConnectionName": "sample-pec",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/managedhsms/sample-vault/privateEndpointConnections/sample-pec",
+        "name": "sample-pec",
+        "type": "Microsoft.KeyVault/managedhsms/privateEndpointConnections",
+        "properties": {
+          "provisioningState": "Disconnected"
+        }
+      }
+    },
+    "202": {
+      "headers": {
+        "Retry-After": "60",
+        "Location": "https://some.endpoint.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/managedhsms/sample-mhsm/privateEndpointConnections/sample-pec?operationid=25334578"
+      }
+    },
+    "204": {}
+  }
+}

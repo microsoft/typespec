@@ -1,0 +1,55 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "title": "Model Namespace",
+    "description": "Model Namespace",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3000",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "paths": { },
+  "definitions": {
+    "TestModel": {
+      "type": "object",
+      "properties": {
+        "Code": { "type": "string" },
+        "Status": { "type": "string" }
+      },
+      "description": "."
+    },
+    "TestExtensibleEnum": {
+      "description": "More Letters",
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ],
+      "x-ms-enum":{
+        "name": "TestExtensibleEnum",
+        "modelAsString": true
+      }
+    },
+    "TestNonExtensibleEnum": {
+      "description": "More Letters",
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ],
+      "x-ms-enum":{
+        "name": "TestNonExtensibleEnum",
+        "modelAsString": false
+      }
+    }
+  }
+}

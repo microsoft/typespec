@@ -1,0 +1,257 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "Body and Path Client",
+      "description": "Some cool documentation.",
+      "version": "2014-04-01-preview"
+    },
+    "host": "localhost:3000",
+    "schemes": [
+      "http"
+    ],
+    "produces": [ "application/json" ],
+    "consumes": [ "application/json" ],
+    "paths": {
+      "/{itemName}": {
+        "post": {
+          "operationId": "create",
+          "summary": "Create products",
+          "description": "Resets products.",
+          "parameters": [
+            {
+              "name": "itemName",
+              "in": "path",
+              "description": "item name.",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "bodyParameter",
+              "in": "body",
+              "description": "body Parameter",
+              "required": true,
+              "schema": {}
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok"
+            }
+          }
+        }
+      },
+      "/{itemNameStream}": {
+        "post": {
+          "operationId": "createStream",
+          "summary": "Create products",
+          "description": "Resets products.",
+          "consumes": [
+            "application/octet-stream",
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "itemNameStream",
+              "in": "path",
+              "description": "item name.",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "in": "query",
+              "name": "excluded",
+              "description": "Excluded connection Ids.",
+              "type": "array",
+              "items": {
+                  "type": "string"
+              },
+              "collectionFormat": "multi"
+            },
+            {
+              "in": "body",
+              "name": "message",
+              "description": "The payload body.",
+              "required": true,
+              "schema": {
+                  "format": "binary",
+                  "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok"
+            }
+          }
+        }
+      },
+      "/{enumName1}/{enumName2}": {
+        "post": {
+          "operationId": "createEnum",
+          "summary": "Create another product",
+          "description": "Resets products.",
+          "parameters": [
+            {
+              "name": "enumName1",
+              "in": "path",
+              "description": "The first name",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "current",
+                "default"
+              ],
+              "x-ms-enum": {
+                "name": "EnumName1",
+                "modelAsString": false
+              }
+            },
+            {
+              "name": "enumName2",
+              "in": "path",
+              "description": "The second name",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "latest"
+              ],
+              "x-ms-enum": {
+                "name": "EnumName2",
+                "modelAsString": true
+              }
+            },
+            {
+              "name": "bodyParameter",
+              "in": "body",
+              "description": "body Parameter",
+              "required": true,
+              "schema": {}
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok"
+            }
+          }
+        }
+      },
+      "/list": {
+        "get": {
+          "operationId": "list",
+          "summary": "List",
+          "description": "List all.",
+          "responses": {
+            "200": {
+              "description": "An array of objects.",
+              "schema": {
+                "type": "array",
+                "description": "An array of objects.",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/listItems": {
+        "get": {
+          "operationId": "listItems",
+          "summary": "List products",
+          "description": "List all products.",
+          "responses": {
+            "200": {
+              "description": "An array of products.",
+              "schema": {
+                "type": "array",
+                "description": "An array of objects.",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/{item3}/item4/{item2}/item1": {
+        "post": {
+          "operationId": "update",
+          "parameters": [
+            {
+              "name": "item5",
+              "in": "query",
+              "description": "Expected to be the fifth parameter because it is an optional query parameter which goes after RequestContent.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "item1",
+              "in": "query",
+              "description": "Expected to be the sixth parameter because it is a query parameter and has a default value, so it is treated as optional despite 'required: true'. 'item1' in the path isn't a parameter, it is a static part of the path.",
+              "required": true,
+              "type": "string",
+              "x-ms-client-default": "value"
+            },
+            {
+              "name": "item2",
+              "description": "Expected to be the second parameter because of its position in the path. 'item4' in the path isn't a parameter, it is a static part of the path.",
+              "in": "path",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "item3",
+              "description": "Expected to be the first parameter because of its position in the path.",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "default": "xyz"            
+            },            
+            {
+              "name": "item4",
+              "description": "Expected to be the third parameter because it is a required query parameter. 'item4' in the path isn't a parameter, it is a static part of the path.",
+              "in": "query",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "bodyParameter",
+              "description": "Body parameter, should be replaced with RequestContent.",
+              "in": "body",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/BodyParam"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "ok"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+        "BodyParam": {
+            "description": "Body parameter.",
+            "properties": {
+                "invalid-int-name": {
+                    "description": "Invalid int parameter.",
+                    "type": "integer"
+                }
+            }
+        }
+    },
+    "parameters": {
+      "SubscriptionIdParamterer": {
+        "name": "subscriptionId",
+        "in": "path",
+        "description": "Subscription ID.",
+        "required": true,
+        "type": "string",
+        "enum": [ "123456" ]
+      }
+    }
+}
+  

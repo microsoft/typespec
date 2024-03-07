@@ -1,0 +1,1762 @@
+!CodeModel 
+info: !Info 
+  description: Schema mapping
+  title: Schema mapping
+schemas: !Schemas 
+  numbers:
+    - !NumberSchema &ref_1
+      type: integer
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      precision: 32
+      language: !Languages 
+        default:
+          name: Integer
+          description: ''
+      protocol: !Protocols {}
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+    - !StringSchema &ref_2
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelProperty
+          description: .
+      protocol: !Protocols {}
+    - !StringSchema &ref_3
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelPropertyToField
+          description: .
+      protocol: !Protocols {}
+    - !StringSchema &ref_6
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: SecondModelStringProperty
+          description: .
+      protocol: !Protocols {}
+    - !StringSchema &ref_8
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ThirdModelETag
+          description: ETag property
+      protocol: !Protocols {}
+    - !StringSchema &ref_9
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ThirdModelCreatedAt
+          description: Creation date
+      protocol: !Protocols {}
+    - !StringSchema &ref_11
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: InternalModelStringProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_15
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: AbstractModelDiscriminatorProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_17
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithListOfInternalModelStringProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_18
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PublicModelWithInternalProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_19
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: PublicModelWithInternalPropertyPublicProperty
+          description: ''
+      protocol: !Protocols {}
+    - !StringSchema &ref_20
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithCustomNamespaceModelProperty
+          description: .
+      protocol: !Protocols {}
+    - !StringSchema &ref_22
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithCustomUsageModelProperty
+          description: .
+      protocol: !Protocols {}
+    - !StringSchema &ref_23
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithCustomUsageViaAttributeModelProperty
+          description: .
+      protocol: !Protocols {}
+    - !StringSchema &ref_24
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithUriPropertyUri
+          description: .
+      protocol: !Protocols {}
+    - !StringSchema &ref_26
+      type: string
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelToBeSkippedModelProperty
+          description: ''
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_4
+      choices:
+        - !ChoiceValue 
+          value: apple
+          language:
+            default:
+              name: Apple
+              description: ''
+        - !ChoiceValue 
+          value: pear
+          language:
+            default:
+              name: Pear
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: Fruit
+          description: Fruit
+      protocol: !Protocols {}
+    - !ChoiceSchema &ref_5
+      choices:
+        - !ChoiceValue 
+          value: Monday
+          language:
+            default:
+              name: Monday
+              description: ''
+        - !ChoiceValue 
+          value: Tuesday
+          language:
+            default:
+              name: Tuesday
+              description: ''
+        - !ChoiceValue 
+          value: Wednesday
+          language:
+            default:
+              name: Wednesday
+              description: ''
+        - !ChoiceValue 
+          value: Thursday
+          language:
+            default:
+              name: Thursday
+              description: ''
+        - !ChoiceValue 
+          value: Friday
+          language:
+            default:
+              name: Friday
+              description: ''
+        - !ChoiceValue 
+          value: Saturday
+          language:
+            default:
+              name: Saturday
+              description: ''
+        - !ChoiceValue 
+          value: Sunday
+          language:
+            default:
+              name: Sunday
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: DaysOfWeek
+          description: Day of week
+      protocol: !Protocols {}
+    - !ChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: B
+          language:
+            default:
+              name: B
+              description: ''
+        - !ChoiceValue 
+          value: C
+          language:
+            default:
+              name: C
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      extensions:
+        x-accessibility: internal
+        x-namespace: Very.Custom.Namespace.From.Swagger
+      language: !Languages 
+        default:
+          name: EnumWithCustomNamespace
+          description: Letters
+      protocol: !Protocols {}
+    - !ChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: B
+          language:
+            default:
+              name: B
+              description: ''
+        - !ChoiceValue 
+          value: C
+          language:
+            default:
+              name: C
+              description: ''
+      type: choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: UnexposedExtensibleEnum
+          description: More Letters
+      protocol: !Protocols {}
+  sealedChoices:
+    - !SealedChoiceSchema &ref_10
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: B
+          language:
+            default:
+              name: B
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: EnumForModelWithArrayOfEnum
+          description: ''
+      protocol: !Protocols {}
+    - !SealedChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: B
+          language:
+            default:
+              name: B
+              description: ''
+        - !ChoiceValue 
+          value: C
+          language:
+            default:
+              name: C
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: NonExtensibleEnum
+          description: More Letters
+      protocol: !Protocols {}
+    - !SealedChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: A
+          language:
+            default:
+              name: A
+              description: ''
+        - !ChoiceValue 
+          value: B
+          language:
+            default:
+              name: B
+              description: ''
+        - !ChoiceValue 
+          value: C
+          language:
+            default:
+              name: C
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: UnexposedNonExtensibleEnum
+          description: More Letters
+      protocol: !Protocols {}
+    - !SealedChoiceSchema 
+      choices:
+        - !ChoiceValue 
+          value: '1'
+          language:
+            default:
+              name: One
+              description: ''
+        - !ChoiceValue 
+          value: '2'
+          language:
+            default:
+              name: Two
+              description: ''
+        - !ChoiceValue 
+          value: '3'
+          language:
+            default:
+              name: Three
+              description: ''
+      type: sealed-choice
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: EnumToBeSkipped
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_31
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApplicationJson
+          description: Content Type 'application/json'
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_33
+      type: constant
+      value: !ConstantValue 
+        value: application/json
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: Accept
+          description: 'Accept: application/json'
+      protocol: !Protocols {}
+  dictionaries:
+    - !DictionarySchema &ref_7
+      type: dictionary
+      elementType: *ref_1
+      language: !Languages 
+        default:
+          name: SecondModelDictionaryProperty
+          description: .
+      protocol: !Protocols {}
+  anyObjects:
+    - !AnyObjectSchema &ref_25
+      type: any-object
+      language: !Languages 
+        default:
+          name: AnyObject
+          description: Any object
+      protocol: !Protocols {}
+  uuids:
+    - !UuidSchema &ref_21
+      type: uuid
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      language: !Languages 
+        default:
+          name: ModelWithGuidPropertyModelProperty
+          description: .
+      protocol: !Protocols {}
+  objects:
+    - !ObjectSchema &ref_32
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_2
+          required: false
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: .
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          required: false
+          serializedName: PropertyToField
+          language: !Languages 
+            default:
+              name: propertyToField
+              description: .
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_4
+          required: true
+          serializedName: Fruit
+          language: !Languages 
+            default:
+              name: fruit
+              description: Fruit
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_5
+          required: true
+          serializedName: DaysOfWeek
+          language: !Languages 
+            default:
+              name: daysOfWeek
+              description: Day of week
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      extensions:
+        x-ms-flattened: true
+      language: !Languages 
+        default:
+          name: Model
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_36
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_2
+          flattenedNames:
+            - ModelProperty
+            - ModelProperty
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: .
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_3
+          flattenedNames:
+            - ModelProperty
+            - PropertyToField
+          serializedName: PropertyToField
+          language: !Languages 
+            default:
+              name: propertyToField
+              description: .
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_4
+          flattenedNames:
+            - ModelProperty
+            - Fruit
+          serializedName: Fruit
+          language: !Languages 
+            default:
+              name: fruit
+              description: Fruit
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_5
+          flattenedNames:
+            - ModelProperty
+            - DaysOfWeek
+          serializedName: DaysOfWeek
+          language: !Languages 
+            default:
+              name: daysOfWeek
+              description: Day of week
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: ModelStruct
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_39
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_6
+          serializedName: StringProperty
+          language: !Languages 
+            default:
+              name: stringProperty
+              description: .
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_7
+          serializedName: DictionaryProperty
+          language: !Languages 
+            default:
+              name: dictionaryProperty
+              description: .
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_5
+          serializedName: DaysOfWeek
+          language: !Languages 
+            default:
+              name: daysOfWeek
+              description: Day of week
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: SecondModel
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_42
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_8
+          serializedName: ETag
+          language: !Languages 
+            default:
+              name: eTag
+              description: ETag property
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_9
+          serializedName: CreatedAt
+          language: !Languages 
+            default:
+              name: createdAt
+              description: Creation date
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: ThirdModel
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_45
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ArraySchema &ref_27
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_10
+            language: !Languages 
+              default:
+                name: ModelWithArrayOfEnumArrayOfEnum
+                description: Array of EnumForModelWithArrayOfEnum
+            protocol: !Protocols {}
+          serializedName: ArrayOfEnum
+          language: !Languages 
+            default:
+              name: arrayOfEnum
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_28
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_10
+            language: !Languages 
+              default:
+                name: ModelWithArrayOfEnumArrayOfEnumCustomizedToNullable
+                description: Array of EnumForModelWithArrayOfEnum
+            protocol: !Protocols {}
+          serializedName: ArrayOfEnumCustomizedToNullable
+          language: !Languages 
+            default:
+              name: arrayOfEnumCustomizedToNullable
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - input
+        - output
+      language: !Languages 
+        default:
+          name: ModelWithArrayOfEnum
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_48
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_12
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            properties:
+              - !Property 
+                schema: *ref_11
+                serializedName: StringProperty
+                language: !Languages 
+                  default:
+                    name: stringProperty
+                    description: ''
+                protocol: !Protocols {}
+            serializationFormats:
+              - json
+            usage:
+              - output
+            language: !Languages 
+              default:
+                name: InternalModel
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: InternalProperty
+          language: !Languages 
+            default:
+              name: internalProperty
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ModelWithInternalModel
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_12
+    - !ObjectSchema &ref_49
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: !ObjectSchema &ref_13
+            type: object
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            children: !Relations 
+              all:
+                - !ObjectSchema &ref_14
+                  type: object
+                  apiVersions:
+                    - !ApiVersion 
+                      version: 1.0.0
+                  discriminatorValue: DerivedFromAbstractModel
+                  parents: !Relations 
+                    all:
+                      - *ref_13
+                    immediate:
+                      - *ref_13
+                  serializationFormats:
+                    - json
+                  usage:
+                    - output
+                  language: !Languages 
+                    default:
+                      name: DerivedFromAbstractModel
+                      description: ''
+                      namespace: ''
+                  protocol: !Protocols {}
+              immediate:
+                - *ref_14
+            discriminator: !Discriminator 
+              all:
+                DerivedFromAbstractModel: *ref_14
+              immediate:
+                DerivedFromAbstractModel: *ref_14
+              property: !Property &ref_16
+                schema: *ref_15
+                isDiscriminator: true
+                required: true
+                serializedName: DiscriminatorProperty
+                language: !Languages 
+                  default:
+                    name: discriminatorProperty
+                    description: ''
+                protocol: !Protocols {}
+            properties:
+              - *ref_16
+            serializationFormats:
+              - json
+            usage:
+              - output
+            language: !Languages 
+              default:
+                name: AbstractModel
+                description: ''
+                namespace: ''
+            protocol: !Protocols {}
+          serializedName: AbstractModelProperty
+          language: !Languages 
+            default:
+              name: abstractModelProperty
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ModelWithAbstractModel
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_13
+    - !ObjectSchema &ref_50
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_17
+          readOnly: true
+          serializedName: StringProperty
+          language: !Languages 
+            default:
+              name: stringProperty
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: !ArraySchema &ref_29
+            type: array
+            apiVersions:
+              - !ApiVersion 
+                version: 1.0.0
+            elementType: *ref_12
+            language: !Languages 
+              default:
+                name: ModelWithListOfInternalModelInternalListProperty
+                description: Array of InternalModel
+            protocol: !Protocols {}
+          readOnly: true
+          serializedName: InternalListProperty
+          language: !Languages 
+            default:
+              name: internalListProperty
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: ModelWithListOfInternalModel
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema &ref_51
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_18
+          serializedName: InternalProperty
+          language: !Languages 
+            default:
+              name: internalProperty
+              description: ''
+          protocol: !Protocols {}
+        - !Property 
+          schema: *ref_19
+          serializedName: PublicProperty
+          language: !Languages 
+            default:
+              name: publicProperty
+              description: ''
+          protocol: !Protocols {}
+      serializationFormats:
+        - json
+      usage:
+        - output
+      language: !Languages 
+        default:
+          name: PublicModelWithInternalProperty
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - *ref_14
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_20
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: .
+          protocol: !Protocols {}
+      extensions:
+        x-accessibility: internal
+        x-namespace: Very.Custom.Namespace.From.Swagger
+      language: !Languages 
+        default:
+          name: ModelWithCustomNamespace
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_21
+          nullable: false
+          readOnly: true
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: .
+          protocol: !Protocols {}
+      extensions:
+        x-csharp-formats: xml
+        x-csharp-usage: model,input,output
+      language: !Languages 
+        default:
+          name: ModelWithGuidProperty
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_22
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: .
+          protocol: !Protocols {}
+      extensions:
+        x-csharp-formats: xml, json, json
+        x-csharp-usage: model,input,output
+      language: !Languages 
+        default:
+          name: ModelWithCustomUsage
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_23
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: .
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelWithCustomUsageViaAttribute
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_24
+          serializedName: Uri
+          language: !Languages 
+            default:
+              name: uri
+              description: .
+          protocol: !Protocols {}
+      extensions:
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+      language: !Languages 
+        default:
+          name: ModelWithUriProperty
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_25
+          nullable: true
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: .
+          protocol: !Protocols {}
+      extensions:
+        x-csharp-formats: json
+        x-csharp-usage: model,input,output
+      language: !Languages 
+        default:
+          name: ModelWithNullableObjectProperty
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+    - !ObjectSchema 
+      type: object
+      apiVersions:
+        - !ApiVersion 
+          version: 1.0.0
+      properties:
+        - !Property 
+          schema: *ref_26
+          serializedName: ModelProperty
+          language: !Languages 
+            default:
+              name: modelProperty
+              description: ''
+          protocol: !Protocols {}
+      language: !Languages 
+        default:
+          name: ModelToBeSkipped
+          description: ''
+          namespace: ''
+      protocol: !Protocols {}
+  arrays:
+    - *ref_27
+    - *ref_28
+    - *ref_29
+globalParameters:
+  - !Parameter &ref_30
+    schema: *ref_0
+    clientDefaultValue: http://localhost:3000
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requestMediaTypes:
+          application/json: !Request &ref_35
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_34
+                schema: *ref_32
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: body
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_34
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /Operation/
+                method: put
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_35
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_32
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        extensions:
+          x-ms-long-running-operation: true
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationStruct
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requestMediaTypes:
+          application/json: !Request &ref_38
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_37
+                schema: *ref_36
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: body
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_37
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /OperationStruct/
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_38
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_36
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationStruct
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationSecondModel
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requestMediaTypes:
+          application/json: !Request &ref_41
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_40
+                schema: *ref_39
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: body
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_40
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /OperationSecondModel
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_41
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_39
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationSecondModel
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationThirdModel
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requestMediaTypes:
+          application/json: !Request &ref_44
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_43
+                schema: *ref_42
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: body
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_43
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /OperationThirdModel
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_44
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_42
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationThirdModel
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationModelWithArrayOfEnum
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requestMediaTypes:
+          application/json: !Request &ref_47
+            parameters:
+              - !Parameter 
+                schema: *ref_31
+                implementation: Method
+                origin: modelerfour:synthesized/content-type
+                required: true
+                language: !Languages 
+                  default:
+                    name: contentType
+                    description: Body Parameter content-type
+                    serializedName: Content-Type
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+              - !Parameter &ref_46
+                schema: *ref_45
+                implementation: Method
+                required: false
+                language: !Languages 
+                  default:
+                    name: body
+                    description: ''
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: body
+                    style: json
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters:
+              - *ref_46
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpWithBodyRequest 
+                path: /OperationModelWithArrayOfEnum
+                method: patch
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                uri: '{$host}'
+        requests:
+          - *ref_47
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_45
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationModelWithArrayOfEnum
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationWithInternalModel
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /OperationWithInternalModel
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_48
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationWithInternalModel
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationWithAbstractModel
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /OperationWithAbstractModel
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_49
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationWithAbstractModel
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationWithListOfInternalModel
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /OperationWithListOfInternalModel
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_50
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationWithListOfInternalModel
+            description: ''
+        protocol: !Protocols {}
+      - !Operation 
+        operationId: OperationWithPublicModelWithInternalProperty
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_30
+        requests:
+          - !Request 
+            parameters:
+              - !Parameter 
+                schema: *ref_33
+                implementation: Method
+                origin: modelerfour:synthesized/accept
+                required: true
+                language: !Languages 
+                  default:
+                    name: accept
+                    description: Accept header
+                    serializedName: Accept
+                protocol: !Protocols 
+                  http: !HttpParameter 
+                    in: header
+            signatureParameters: []
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /OperationWithPublicModelWithInternalProperty
+                method: post
+                uri: '{$host}'
+        signatureParameters: []
+        responses:
+          - !SchemaResponse 
+            schema: *ref_51
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                knownMediaType: json
+                mediaTypes:
+                  - application/json
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: OperationWithPublicModelWithInternalProperty
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: SchemaMapping
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

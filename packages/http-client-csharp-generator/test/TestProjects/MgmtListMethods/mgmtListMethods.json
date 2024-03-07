@@ -1,0 +1,5018 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "MgmtListMethods",
+        "description": "Management List Methods",
+        "version": "2020-06-01"
+    },
+    "host": "management.azure.com",
+    "schemes": ["https"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "security": [
+        {
+            "azure_auth": ["user_impersonation"]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}": {
+            "put": {
+                "tags": ["Fakes"],
+                "operationId": "Fakes_CreateOrUpdate",
+                "description": "Create or update an fake.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the fake."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Fake"
+                        },
+                        "description": "Parameters supplied to the Create Availability Set operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Fake"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Fakes"
+                ],
+                "operationId": "Fakes_Get",
+                "description": "Retrieves information about an fake.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the fake."
+                    },
+                    {
+                        "name": "$expand",
+                        "description": "May be used to expand the participants.",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Fake"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes": {
+            "get": {
+                "tags": [
+                    "Fakes"
+                ],
+                "operationId": "Fakes_List",
+                "description": "Lists all fakes in a resource group.",
+                "parameters": [
+                    {
+                        "name": "optionalParam",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithNonResChWithLocs/{fakeParentWithAncestorWithNonResChWithLocName}": {
+            "put": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResChWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResChWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResChWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithNonResChWithLocs": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChWithLocs_ListTest",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithNonResChWithLocs/{fakeParentWithAncestorWithNonResChWithLocName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChWithLocs_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakeParentWithAncestorWithNonResChWithLocs": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChWithLocs_ListBySubscription",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/locations/{location}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChWithLocs_ListTestByLocations",
+                "description": "Gets all under the specified subscription for the specified location.",
+                "parameters": [
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The location for which virtual machines under the subscription are queried.",
+                        "pattern": "^[-\\w\\._]+$"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithNonResChes/{fakeParentWithAncestorWithNonResChName}": {
+            "put": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChes_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResCh"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResCh"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChes_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResCh"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithNonResChes": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChes_ListTest",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithNonResChes/{fakeParentWithAncestorWithNonResChName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChes_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakeParentWithAncestorWithNonResChes": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "FakeParentWithAncestorWithNonResChes_ListBySubscription",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithLocs/{fakeParentWithAncestorWithLocName}": {
+            "put": {
+                "tags": [
+                    "FakeParentWithAncestorWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestorWithLocs": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithLocs_ListTest",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakeParentWithAncestorWithLocs": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithLocs_ListBySubscription",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/locations/{location}/fakeParentWithAncestorWithLocs": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestorWithLocs"
+                ],
+                "operationId": "FakeParentWithAncestorWithLocs_ListTestByLocations",
+                "description": "Gets all under the specified subscription for the specified location.",
+                "parameters": [
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The location for which virtual machines under the subscription are queried.",
+                        "pattern": "^[-\\w\\._]+$"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestors/{fakeParentWithAncestorName}": {
+            "put": {
+                "tags": [
+                    "FakeParentWithAncestors"
+                ],
+                "operationId": "FakeParentWithAncestors_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestor"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestor"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestors"
+                ],
+                "operationId": "FakeParentWithAncestors_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithAncestorName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestor"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithAncestors": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestors"
+                ],
+                "operationId": "FakeParentWithAncestors_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakeParentWithAncestors": {
+            "get": {
+                "tags": [
+                    "FakeParentWithAncestors"
+                ],
+                "operationId": "FakeParentWithAncestors_ListBySubscription",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithAncestorListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithNonResChes/{fakeParentWithNonResChName}": {
+            "put": {
+                "tags": [
+                    "FakeParentWithNonResChes"
+                ],
+                "operationId": "FakeParentWithNonResChes_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithNonResCh"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithNonResCh"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "FakeParentWithNonResChes"
+                ],
+                "operationId": "FakeParentWithNonResChes_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithNonResCh"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithNonResChes/{fakeParentWithNonResChName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "FakeParentWithNonResChes"
+                ],
+                "operationId": "FakeParentWithNonResChes_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParentWithNonResChes": {
+            "get": {
+                "tags": [
+                    "FakeParentWithNonResChes"
+                ],
+                "operationId": "FakeParentWithNonResChes_ListTest",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParents/{fakeParentName}": {
+            "put": {
+                "tags": [
+                    "FakeParents"
+                ],
+                "operationId": "FakeParents_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FakeParent"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParent"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "FakeParents"
+                ],
+                "operationId": "FakeParents_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "name": "fakeParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParent"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/fakeParents": {
+            "get": {
+                "tags": [
+                    "FakeParents"
+                ],
+                "operationId": "FakeParents_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FakeParentListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChWithLocs/{resGrpParentWithAncestorWithNonResChWithLocName}": {
+            "put": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChWithLocs": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChWithLocs_ListTest",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChWithLocs/{resGrpParentWithAncestorWithNonResChWithLocName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChWithLocs_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChWithLocs": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChWithLocs_ListBySubscription",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply to the operation. Allowed values are 'instanceView'."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChes/{resGrpParentWithAncestorWithNonResChName}": {
+            "put": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChes_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResCh"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResCh"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChes_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResCh"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChes": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChes_ListTest",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChes/{resGrpParentWithAncestorWithNonResChName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChes_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithNonResChes": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithNonResChes_ListBySubscription",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply to the operation. Allowed values are 'instanceView'."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithLocs/{resGrpParentWithAncestorWithLocName}": {
+            "put": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithLocs": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithLocs_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestorWithLocs": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithLocs_ListTest",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/locations/{location}/resGrpParentWithAncestorWithLocs": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestorWithLocs"
+                ],
+                "operationId": "ResGrpParentWithAncestorWithLocs_ListAll",
+                "description": "Gets all under the specified subscription for the specified location.",
+                "parameters": [
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The location for which virtual machines under the subscription are queried.",
+                        "pattern": "^[-\\w\\._]+$"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestors/{resGrpParentWithAncestorName}": {
+            "put": {
+                "tags": [
+                    "ResGrpParentWithAncestors"
+                ],
+                "operationId": "ResGrpParentWithAncestors_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestor"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestor"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestors"
+                ],
+                "operationId": "ResGrpParentWithAncestors_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithAncestorName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestor"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestors": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestors"
+                ],
+                "operationId": "ResGrpParentWithAncestors_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/resGrpParentWithAncestors": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithAncestors"
+                ],
+                "operationId": "ResGrpParentWithAncestors_NonPageableListBySubscription",
+                "description": "Lists all in a subscription.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithAncestorListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithNonResChes/{resGrpParentWithNonResChName}": {
+            "put": {
+                "tags": [
+                    "ResGrpParentWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithNonResChes_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithNonResCh"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithNonResCh"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResGrpParentWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithNonResChes_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithNonResCh"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithNonResChes": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithNonResChes_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParentWithNonResChes/{resGrpParentWithNonResChName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "ResGrpParentWithNonResChes"
+                ],
+                "operationId": "ResGrpParentWithNonResChes_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParents/{resGrpParentName}": {
+            "put": {
+                "tags": [
+                    "ResGrpParents"
+                ],
+                "operationId": "ResGrpParents_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParent"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParent"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "ResGrpParents"
+                ],
+                "operationId": "ResGrpParents_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "name": "resGrpParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParent"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.MgmtListMethods/resGrpParents": {
+            "get": {
+                "tags": [
+                    "ResGrpParents"
+                ],
+                "operationId": "ResGrpParents_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "name": "resourceGroupName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the resource group."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ResGrpParentListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithNonResChWithLocs/{subParentWithNonResChWithLocName}": {
+            "put": {
+                "tags": [
+                    "SubParentWithNonResChWithLocs"
+                ],
+                "operationId": "SubParentWithNonResChWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "subParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResChWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResChWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SubParentWithNonResChWithLocs"
+                ],
+                "operationId": "SubParentWithNonResChWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "subParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResChWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithNonResChWithLocs": {
+            "get": {
+                "tags": [
+                    "SubParentWithNonResChWithLocs"
+                ],
+                "operationId": "SubParentWithNonResChWithLocs_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithNonResChWithLocs/{subParentWithNonResChWithLocName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "SubParentWithNonResChWithLocs"
+                ],
+                "operationId": "SubParentWithNonResChWithLocs_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "subParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithNonResChes/{subParentWithNonResChName}": {
+            "put": {
+                "tags": [
+                    "SubParentWithNonResChes"
+                ],
+                "operationId": "SubParentWithNonResChes_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "subParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResCh"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResCh"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SubParentWithNonResChes"
+                ],
+                "operationId": "SubParentWithNonResChes_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "subParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResCh"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithNonResChes": {
+            "get": {
+                "tags": [
+                    "SubParentWithNonResChes"
+                ],
+                "operationId": "SubParentWithNonResChes_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithNonResChes/{subParentWithNonResChName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "SubParentWithNonResChes"
+                ],
+                "operationId": "SubParentWithNonResChes_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "subParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithLocs/{subParentWithLocName}": {
+            "put": {
+                "tags": [
+                    "SubParentWithLocs"
+                ],
+                "operationId": "SubParentWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "subParentWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SubParentWithLocs"
+                ],
+                "operationId": "SubParentWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "subParentWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParentWithLocs": {
+            "get": {
+                "tags": [
+                    "SubParentWithLocs"
+                ],
+                "operationId": "SubParentWithLocs_List",
+                "description": "Lists all",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParents/{subParentName}": {
+            "put": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "subParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "subParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParent"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.MgmtListMethods/subParents": {
+            "get": {
+                "tags": [
+                    "SubParents"
+                ],
+                "operationId": "SubParents_List",
+                "description": "Lists all",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SubParentListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithNonResChWithLocs/{mgmtGrpParentWithNonResChWithLocName}": {
+            "put": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChWithLocs"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResChWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResChWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChWithLocs"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResChWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithNonResChWithLocs": {
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChWithLocs"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChWithLocs_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithNonResChWithLocs/{mgmtGrpParentWithNonResChWithLocName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChWithLocs"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChWithLocs_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithNonResChes/{mgmtGrpParentWithNonResChName}": {
+            "put": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChes"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChes_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResCh"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResCh"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChes"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChes_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResCh"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithNonResChes": {
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChes"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChes_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithNonResChes/{mgmtGrpParentWithNonResChName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithNonResChes"
+                ],
+                "operationId": "MgmtGrpParentWithNonResChes_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithLocs/{mgmtGrpParentWithLocName}": {
+            "put": {
+                "tags": [
+                    "MgmtGrpParentWithLocs"
+                ],
+                "operationId": "MgmtGrpParentWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithLocs"
+                ],
+                "operationId": "MgmtGrpParentWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "mgmtGrpParentWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGrpParentWithLocs": {
+            "get": {
+                "tags": [
+                    "MgmtGrpParentWithLocs"
+                ],
+                "operationId": "MgmtGrpParentWithLocs_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGrpParentWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGroupParents/{mgmtGroupParentName}": {
+            "put": {
+                "tags": [
+                    "MgmtGroupParents"
+                ],
+                "operationId": "MgmtGroupParents_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "mgmtGroupParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGroupParent"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGroupParent"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "MgmtGroupParents"
+                ],
+                "operationId": "MgmtGroupParents_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "mgmtGroupParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGroupParent"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Management/managementGroups/{groupId}/mgmtGroupParents": {
+            "get": {
+                "tags": [
+                    "MgmtGroupParents"
+                ],
+                "operationId": "MgmtGroupParents_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/GroupIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/MgmtGroupParentListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}": {
+            "get": {
+                "tags": [
+                    "TenantTests"
+                ],
+                "operationId": "TenantTests_Get",
+                "description": "Gets a billing account by its ID.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    },
+                    {
+                        "name": "$expand",
+                        "description": "May be used to expand the soldTo, invoice sections and billing profiles.",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded.",
+                        "schema": {
+                            "$ref": "#/definitions/TenantTest"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "TenantTests"
+                ],
+                "operationId": "TenantTests_Create",
+                "x-ms-long-running-operation": true,
+                "x-ms-long-running-operation-options": {
+                    "final-state-via": "azure-async-operation"
+                },
+                "description": "Updates the properties of a billing account. Currently, displayName and address can be updated. The operation is supported only for billing accounts with agreement type Microsoft Customer Agreement.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TenantTest"
+                        },
+                        "description": "Request parameters that are provided to the update billing account operation."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK. The request has succeeded.",
+                        "schema": {
+                            "$ref": "#/definitions/TenantTest"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests": {
+            "get": {
+                "tags": [
+                    "TenantTests"
+                ],
+                "operationId": "TenantTests_List",
+                "description": "Lists all fakes in a resource group.",
+                "parameters": [
+                    {
+                        "name": "optionalParam",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "description": "The expand expression to apply on the operation."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantTestListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithNonResChWithLocs/{tenantParentWithNonResChWithLocName}": {
+            "put": {
+                "tags": [
+                    "TenantParentWithNonResChWithLocs"
+                ],
+                "operationId": "TenantParentWithNonResChWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResChWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResChWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "TenantParentWithNonResChWithLocs"
+                ],
+                "operationId": "TenantParentWithNonResChWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResChWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithNonResChWithLocs": {
+            "get": {
+                "tags": [
+                    "TenantParentWithNonResChWithLocs"
+                ],
+                "operationId": "TenantParentWithNonResChWithLocs_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResChWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithNonResChWithLocs/{tenantParentWithNonResChWithLocName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "TenantParentWithNonResChWithLocs"
+                ],
+                "operationId": "TenantParentWithNonResChWithLocs_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithNonResChWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithNonResChes/{tenantParentWithNonResChName}": {
+            "put": {
+                "tags": [
+                    "TenantParentWithNonResChes"
+                ],
+                "operationId": "TenantParentWithNonResChes_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResCh"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResCh"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "TenantParentWithNonResChes"
+                ],
+                "operationId": "TenantParentWithNonResChes_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResCh"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithNonResChes": {
+            "get": {
+                "tags": [
+                    "TenantParentWithNonResChes"
+                ],
+                "operationId": "TenantParentWithNonResChes_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithNonResChListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithNonResChes/{tenantParentWithNonResChName}/nonResourceChild": {
+            "get": {
+                "tags": [
+                    "TenantParentWithNonResChes"
+                ],
+                "operationId": "TenantParentWithNonResChes_ListNonResourceChild",
+                "description": "Lists all.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithNonResChName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NonResourceChildListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": null
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithLocs/{tenantParentWithLocName}": {
+            "put": {
+                "tags": [
+                    "TenantParentWithLocs"
+                ],
+                "operationId": "TenantParentWithLocs_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithLoc"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithLoc"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "TenantParentWithLocs"
+                ],
+                "operationId": "TenantParentWithLocs_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "tenantParentWithLocName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithLoc"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParentWithLocs": {
+            "get": {
+                "tags": [
+                    "TenantParentWithLocs"
+                ],
+                "operationId": "TenantParentWithLocs_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentWithLocListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParents/{tenantParentName}": {
+            "put": {
+                "tags": [
+                    "TenantParents"
+                ],
+                "operationId": "TenantParents_CreateOrUpdate",
+                "description": "Create or update.",
+                "parameters": [
+                    {
+                        "name": "tenantParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TenantParent"
+                        },
+                        "description": "Parameters supplied to the Create."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParent"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "TenantParents"
+                ],
+                "operationId": "TenantParents_Get",
+                "description": "Retrieves information.",
+                "parameters": [
+                    {
+                        "name": "tenantParentName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "Name."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParent"
+                        }
+                    }
+                }
+            }
+        },
+        "/providers/Microsoft.Tenant/tenantTests/{tenantTestName}/tenantParents": {
+            "get": {
+                "tags": [
+                    "TenantParents"
+                ],
+                "operationId": "TenantParents_List",
+                "description": "Lists all in a resource group.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TenantNameParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TenantParentListResult"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/locations/{location}/updateQuotas": {
+            "post": {
+                "tags": ["Quota"],
+                "operationId": "Quotas_Update",
+                "description": "Update quota for each VM family in workspace.",
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "name": "location",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The location for update quota is queried.",
+                        "pattern": "^[-\\w\\._]+$"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/QuotaUpdateParameters"
+                        },
+                        "description": "Quota update parameters."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The operation was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/UpdateWorkspaceQuotasResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/updateConfigurations": {
+            "post": {
+                "tags": ["Configurations"],
+                "operationId": "Fakes_UpdateConfigurations",
+                "description": "Update configurations for each VM family in workspace.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the fake."
+                    },
+                    {
+                        "name": "value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                          "$ref": "#/definitions/FakeConfigurationListResult"
+                        },
+                        "description": "The parameters for updating a list of fake configuration."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The operation was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/FakeConfigurationListResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/configurations/{configurationName}": {
+            "put": {
+                "tags": ["Configurations"],
+                "operationId": "Configurations_CreateOrUpdate",
+                "description": "Create or update a fake configuration.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the fake."
+                    },
+                    {
+                        "name": "configurationName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the fake configuration."
+                    },
+                    {
+                        "name": "value",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FakeConfiguration"
+                        },
+                        "description": "The parameters for creating or updating a fake configuration."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The operation was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/FakeConfiguration"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": ["Configurations"],
+                "operationId": "Configurations_Get",
+                "description": "Get configuration for each VM family in workspace.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the fake."
+                    },
+                    {
+                        "name": "configurationName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the configuration."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The operation was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/FakeConfiguration"
+                        }
+                    }
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/providers/Microsoft.Fake/fakes/{fakeName}/configurations": {
+            "get": {
+                "tags": ["Configurations"],
+                "operationId": "Configurations_List",
+                "description": "List all configurations for each VM family in workspace.",
+                "parameters": [
+                    {
+                        "name": "fakeName",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "description": "The name of the fake."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The operation was successful.",
+                        "schema": {
+                            "$ref": "#/definitions/FakeConfigurationListResult"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Fake": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the fake that the virtual machine should be assigned to. Virtual machines specified in the same fake are allocated to different nodes to maximize availability. For more information about fakes, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to fake at creation time. An existing VM cannot be added to an fake."
+        },
+        "FakeListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Fake"
+                    },
+                    "description": "The list of fakes"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of Fakes. Call ListNext() with this URI to fetch the next page of Fakes."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "FakeParentWithAncestorWithNonResChWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "FakeParentWithAncestorWithNonResChWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FakeParentWithAncestorWithNonResChWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "FakeParentWithAncestorWithNonResCh": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "FakeParentWithAncestorWithNonResChListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FakeParentWithAncestorWithNonResCh"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "FakeParentWithAncestorWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "FakeParentWithAncestorWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FakeParentWithAncestorWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "FakeParentWithAncestor": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "FakeParentWithAncestorListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FakeParentWithAncestor"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "FakeParentWithNonResCh": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "FakeParentWithNonResChListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FakeParentWithNonResCh"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "FakeParent": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "FakeParentListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FakeParent"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "ResGrpParentWithAncestorWithNonResChWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "ResGrpParentWithAncestorWithNonResChWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResChWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "ResGrpParentWithAncestorWithNonResCh": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "ResGrpParentWithAncestorWithNonResChListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResGrpParentWithAncestorWithNonResCh"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "ResGrpParentWithAncestorWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "ResGrpParentWithAncestorWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResGrpParentWithAncestorWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "ResGrpParentWithAncestor": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "ResGrpParentWithAncestorListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResGrpParentWithAncestor"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "ResGrpParentWithNonResCh": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "ResGrpParentWithNonResChListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResGrpParentWithNonResCh"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "ResGrpParent": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "ResGrpParentListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ResGrpParent"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "SubParentWithNonResChWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "SubParentWithNonResChWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SubParentWithNonResChWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "SubParentWithNonResCh": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "SubParentWithNonResChListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SubParentWithNonResCh"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "SubParentWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "SubParentWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SubParentWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "SubParent": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "SubParentListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SubParent"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "DescendantListResult": {
+            "description": "Describes the result of the request to view descendants.",
+            "properties": {
+                "value": {
+                    "description": "The list of descendants.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/DescendantInfo"
+                    }
+                },
+                "nextLink": {
+                    "description": "The URL to use for getting the next set of results.",
+                    "type": "string",
+                    "readOnly": true
+                }
+            }
+        },
+        "DescendantInfo": {
+            "description": "The descendant.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The fully qualified ID for the descendant.  For example, /providers/Microsoft.Management/managementGroups/0000000-0000-0000-0000-000000000000 or /subscriptions/0000000-0000-0000-0000-000000000000",
+                    "readOnly": true,
+                    "x-nullable": true
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of the resource. For example, Microsoft.Management/managementGroups or /subscriptions",
+                    "readOnly": true,
+                    "x-nullable": true
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the descendant. For example, 00000000-0000-0000-0000-000000000000",
+                    "readOnly": true
+                },
+                "properties": {
+                    "title": "Properties",
+                    "x-ms-client-flatten": true,
+                    "x-nullable": true,
+                    "$ref": "#/definitions/DescendantInfoProperties"
+                }
+            }
+        },
+        "DescendantInfoProperties": {
+            "description": "The generic properties of an descendant.",
+            "type": "object",
+            "properties": {
+                "displayName": {
+                    "type": "string",
+                    "description": "The friendly name of the management group.",
+                    "x-nullable": true
+                },
+                "parent": {
+                    "title": "Parent",
+                    "$ref": "#/definitions/DescendantParentGroupInfo",
+                    "x-nullable": true
+                }
+            }
+        },
+        "DescendantParentGroupInfo": {
+            "description": "The ID of the parent management group.",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "The fully qualified ID for the parent management group.  For example, /providers/Microsoft.Management/managementGroups/0000000-0000-0000-0000-000000000000"
+                }
+            }
+        },
+        "MgmtGrpParentWithNonResChWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "MgmtGrpParentWithNonResChWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MgmtGrpParentWithNonResChWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "MgmtGrpParentWithNonResCh": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "MgmtGrpParentWithNonResChListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MgmtGrpParentWithNonResCh"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "MgmtGrpParentWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "MgmtGrpParentWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MgmtGrpParentWithLoc"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "MgmtGroupParent": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information."
+        },
+        "MgmtGroupParentListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MgmtGroupParent"
+                    },
+                    "description": "List"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page. Call ListNext() with this URI to fetch the next page."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List operation response."
+        },
+        "TenantTest": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the fake that the virtual machine should be assigned to. Virtual machines specified in the same fake are allocated to different nodes to maximize availability. For more information about fakes, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to fake at creation time. An existing VM cannot be added to an fake."
+        },
+        "TenantTestListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TenantTest"
+                    },
+                    "description": "The list of fakes"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of Fakes. Call ListNext() with this URI to fetch the next page of Fakes."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "TenantParentWithNonResChWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the fake that the virtual machine should be assigned to. Virtual machines specified in the same fake are allocated to different nodes to maximize availability. For more information about fakes, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to fake at creation time. An existing VM cannot be added to an fake."
+        },
+        "TenantParentWithNonResChWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TenantParentWithNonResChWithLoc"
+                    },
+                    "description": "The list of fakes"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of Fakes. Call ListNext() with this URI to fetch the next page of Fakes."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "TenantParentWithNonResCh": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the fake that the virtual machine should be assigned to. Virtual machines specified in the same fake are allocated to different nodes to maximize availability. For more information about fakes, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to fake at creation time. An existing VM cannot be added to an fake."
+        },
+        "TenantParentWithNonResChListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TenantParentWithNonResCh"
+                    },
+                    "description": "The list of fakes"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of Fakes. Call ListNext() with this URI to fetch the next page of Fakes."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "TenantParentWithLoc": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the fake that the virtual machine should be assigned to. Virtual machines specified in the same fake are allocated to different nodes to maximize availability. For more information about fakes, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to fake at creation time. An existing VM cannot be added to an fake."
+        },
+        "TenantParentWithLocListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TenantParentWithLoc"
+                    },
+                    "description": "The list of fakes"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of Fakes. Call ListNext() with this URI to fetch the next page of Fakes."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "TenantParent": {
+            "properties": {
+                "bar": {
+                    "type": "string",
+                    "description": "specifies the bar"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Specifies information about the fake that the virtual machine should be assigned to. Virtual machines specified in the same fake are allocated to different nodes to maximize availability. For more information about fakes, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to fake at creation time. An existing VM cannot be added to an fake."
+        },
+        "TenantParentListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TenantParent"
+                    },
+                    "description": "The list of fakes"
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "The URI to fetch the next page of Fakes. Call ListNext() with this URI to fetch the next page of Fakes."
+                }
+            },
+            "required": [
+                "value"
+            ],
+            "description": "The List Availability Set operation response."
+        },
+        "Resource": {
+            "description": "The Resource model definition.",
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource name"
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Resource type"
+                },
+                "location": {
+                    "type": "string",
+                    "description": "Resource location"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "description": "Resource tags"
+                }
+            },
+            "required": ["location"],
+            "x-ms-azure-resource": true
+        },
+        "NonResourceChild": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name."
+                },
+                "numberOfCores": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Test Desc."
+                }
+            },
+            "description": "Describes the properties of a Non Resource Child."
+        },
+        "NonResourceChildListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NonResourceChild"
+                    },
+                    "description": "The list of Non Resource Child."
+                }
+            },
+            "description": "The List of Non Resource Child operation response."
+        },
+        "QuotaUpdateParameters": {
+            "properties": {
+                "value": {
+                    "description": "The list for update quota.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/QuotaBaseProperties"
+                    }
+                },
+                "location": {
+                    "description": "Region of workspace quota to be updated.",
+                    "type": "string"
+                }
+            },
+            "description": "Quota update parameters."
+        },
+        "QuotaBaseProperties": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Specifies the resource ID."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Specifies the resource type."
+                },
+                "limit": {
+                    "type": "integer",
+                    "format": "int64",
+                    "title": "Limit.",
+                    "description": "The maximum permitted quota of the resource."
+                },
+                "unit": {
+                    "type": "string",
+                    "description": "An enum describing the unit of quota measurement.",
+                    "enum": ["Count"],
+                    "x-ms-enum": {
+                        "name": "QuotaUnit",
+                        "modelAsString": true
+                    }
+                }
+            },
+            "description": "The properties for Quota update or retrieval."
+        },
+        "UpdateWorkspaceQuotasResult": {
+            "properties": {
+                "value": {
+                    "description": "The list of workspace quota update result.",
+                    "items": {
+                        "$ref": "#/definitions/UpdateWorkspaceQuotas"
+                    },
+                    "readOnly": true,
+                    "type": "array"
+                },
+                "nextLink": {
+                    "description": "The URI to fetch the next page of workspace quota update result. Call ListNext() with this to fetch the next page of Workspace Quota update result.",
+                    "readOnly": true,
+                    "type": "string"
+                }
+            },
+            "description": "The result of update workspace quota."
+        },
+        "UpdateWorkspaceQuotas": {
+            "properties": {
+                "id": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Specifies the resource ID."
+                },
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "Specifies the resource type."
+                },
+                "limit": {
+                    "type": "integer",
+                    "format": "int64",
+                    "title": "Limit.",
+                    "description": "The maximum permitted quota of the resource."
+                },
+                "unit": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "An enum describing the unit of quota measurement.",
+                    "enum": ["Count"],
+                    "x-ms-enum": {
+                        "name": "QuotaUnit",
+                        "modelAsString": true
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "readOnly": false,
+                    "title": "Update Workspace Quota Status.",
+                    "description": "Status of update workspace quota.",
+                    "enum": [
+                        "Undefined",
+                        "Success",
+                        "Failure",
+                        "InvalidQuotaBelowClusterMinimum",
+                        "InvalidQuotaExceedsSubscriptionLimit",
+                        "InvalidVMFamilyName",
+                        "OperationNotSupportedForSku",
+                        "OperationNotEnabledForRegion"
+                    ],
+                    "x-ms-enum": {
+                        "name": "status",
+                        "modelAsString": true
+                    }
+                }
+            },
+            "description": "The properties for update Quota response."
+        },
+        "FakeConfiguration": {
+            "properties": {
+                "configValue": {
+                    "type": "string",
+                    "description": "Value of the configuration."
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Describes the properties of a Fake Configuration."
+        },
+        "FakeConfigurationListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FakeConfiguration"
+                    },
+                    "description": "The list of Fake Configuration."
+                }
+            },
+            "description": "The List of Fake Configuration operation response."
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials which uniquely identify Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client Api Version."
+        },
+        "GroupIdParameter": {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Management Group ID.",
+            "x-ms-parameter-location": "method"
+        },
+        "TenantNameParameter": {
+            "name": "tenantTestName",
+            "in": "path",
+            "description": "The ID that uniquely identifies a billing account.",
+            "required": true,
+            "type": "string",
+            "x-ms-parameter-location": "method"
+        }
+    }
+}

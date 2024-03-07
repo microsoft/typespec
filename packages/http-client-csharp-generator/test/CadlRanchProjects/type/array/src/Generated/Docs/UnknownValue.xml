@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetUnknownValueAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetUnknownValueAsync.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response<IReadOnlyList<BinaryData>> response = await client.GetUnknownValueAsync();
+]]></code>
+This sample shows how to call GetUnknownValueAsync with all parameters.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response<IReadOnlyList<BinaryData>> response = await client.GetUnknownValueAsync();
+]]></code></example>
+    </member>
+    <member name="GetUnknownValue(CancellationToken)">
+      <example>
+This sample shows how to call GetUnknownValue.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response<IReadOnlyList<BinaryData>> response = client.GetUnknownValue();
+]]></code>
+This sample shows how to call GetUnknownValue with all parameters.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response<IReadOnlyList<BinaryData>> response = client.GetUnknownValue();
+]]></code></example>
+    </member>
+    <member name="GetUnknownValueAsync(RequestContext)">
+      <example>
+This sample shows how to call GetUnknownValueAsync and parse the result.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = await client.GetUnknownValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetUnknownValueAsync with all parameters and parse the result.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = await client.GetUnknownValueAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="GetUnknownValue(RequestContext)">
+      <example>
+This sample shows how to call GetUnknownValue and parse the result.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = client.GetUnknownValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code>
+This sample shows how to call GetUnknownValue with all parameters and parse the result.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = client.GetUnknownValue(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result[0].ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(IEnumerable{BinaryData},CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = await client.PutAsync(new BinaryData[]
+{
+    BinaryData.FromObjectAsJson(new object())
+});
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = await client.PutAsync(new BinaryData[]
+{
+    BinaryData.FromObjectAsJson(new object())
+});
+]]></code></example>
+    </member>
+    <member name="Put(IEnumerable{BinaryData},CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = client.Put(new BinaryData[]
+{
+    BinaryData.FromObjectAsJson(new object())
+});
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+Response response = client.Put(new BinaryData[]
+{
+    BinaryData.FromObjectAsJson(new object())
+});
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+UnknownValue client = new ArrayClient().GetUnknownValueClient();
+
+using RequestContent content = RequestContent.Create(new object[]
+{
+    new object()
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

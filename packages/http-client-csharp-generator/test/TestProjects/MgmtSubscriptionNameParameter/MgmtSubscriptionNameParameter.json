@@ -1,0 +1,576 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "ServiceBusManagementClient",
+        "description": "Azure Service Bus client",
+        "version": "2021-06-01-preview"
+    },
+    "host": "management.azure.com",
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "security": [
+        {
+            "azure_auth": [
+                "user_impersonation"
+            ]
+        }
+    ],
+    "securityDefinitions": {
+        "azure_auth": {
+            "type": "oauth2",
+            "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/authorize",
+            "flow": "implicit",
+            "description": "Azure Active Directory OAuth2 Flow",
+            "scopes": {
+                "user_impersonation": "impersonate your user account"
+            }
+        }
+    },
+    "paths": {
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/subscriptions": {
+            "get": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "operationId": "Subscriptions_ListByTopic",
+                "description": "List all the subscriptions under a specified topic.",
+                "externalDocs": {
+                    "url": "https://msdn.microsoft.com/en-us/library/azure/mt639400.aspx"
+                },
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SkipParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/TopParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved list of subscriptions.",
+                        "schema": {
+                            "$ref": "#/definitions/SBSubscriptionListResult"
+                        }
+                    },
+                    "default": {
+                        "description": "ServiceBus error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                },
+                "x-ms-pageable": {
+                    "nextLinkName": "nextLink"
+                }
+            }
+        },
+        "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ServiceBus/subscriptions/{subscriptionName}": {
+            "put": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "operationId": "Subscriptions_CreateOrUpdate",
+                "description": "Creates a topic subscription.",
+                "externalDocs": {
+                    "url": "https://msdn.microsoft.com/en-us/library/azure/mt639385.aspx"
+                },
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionNameParameter"
+                    },
+                    {
+                        "name": "parameters",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/SBSubscription"
+                        },
+                        "description": "Parameters supplied to create a subscription resource."
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subscription create request accepted.",
+                        "schema": {
+                            "$ref": "#/definitions/SBSubscription"
+                        }
+                    },
+                    "default": {
+                        "description": "ServiceBus error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "operationId": "Subscriptions_Delete",
+                "x-ms-examples": {
+                    "SubscriptionDelete": {
+                        "$ref": "./examples/Subscriptions/SBSubscriptionDelete.json"
+                    }
+                },
+                "description": "Deletes a subscription from the specified topic.",
+                "externalDocs": {
+                    "url": "https://msdn.microsoft.com/en-us/library/azure/mt639381.aspx"
+                },
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subscription successfully deleted."
+                    },
+                    "204": {
+                        "description": "No content."
+                    },
+                    "default": {
+                        "description": "ServiceBus error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Subscriptions"
+                ],
+                "operationId": "Subscriptions_Get",
+                "description": "Returns a subscription description for the specified topic.",
+                "externalDocs": {
+                    "url": "https://msdn.microsoft.com/en-us/library/azure/mt639402.aspx"
+                },
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ResourceGroupNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionNameParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/SubscriptionIdParameter"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved subscription description.",
+                        "schema": {
+                            "$ref": "#/definitions/SBSubscription"
+                        }
+                    },
+                    "default": {
+                        "description": "ServiceBus error response describing why the operation failed.",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "TrackedResource": {
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "x-ms-mutability": [
+                        "read",
+                        "create"
+                    ],
+                    "description": "The Geo-location where the resource lives"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "x-ms-mutability": [
+                        "read",
+                        "create",
+                        "update"
+                    ],
+                    "description": "Resource tags"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "required": [
+                "location"
+            ],
+            "description": "The Resource definition."
+        },
+        "Resource": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "Resource Id"
+                },
+                "name": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "Resource name"
+                },
+                "type": {
+                    "type": "string",
+                    "readOnly": true,
+                    "description": "Resource type"
+                }
+            },
+            "x-ms-azure-resource": true,
+            "description": "The Resource definition for other than namespace."
+        },
+        "SBSubscriptionListResult": {
+            "properties": {
+                "value": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SBSubscription"
+                    },
+                    "description": "Result of the List Subscriptions operation."
+                },
+                "nextLink": {
+                    "type": "string",
+                    "description": "Link to the next set of results. Not empty if Value contains incomplete list of subscriptions."
+                }
+            },
+            "description": "The response to the List Subscriptions operation."
+        },
+        "SBSubscription": {
+            "properties": {
+                "properties": {
+                    "x-ms-client-flatten": true,
+                    "$ref": "#/definitions/SBSubscriptionProperties",
+                    "description": "Properties of subscriptions resource."
+                },
+                "systemData": {
+                    "readOnly": true,
+                    "description": "The system meta data relating to this resource.",
+                    "$ref": "#/definitions/systemData"
+                }
+            },
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Resource"
+                }
+            ],
+            "description": "Description of subscription resource."
+        },
+        "systemData": {
+            "description": "Metadata pertaining to creation and last modification of the resource.",
+            "type": "object",
+            "readOnly": true,
+            "properties": {
+                "createdBy": {
+                    "type": "string",
+                    "description": "The identity that created the resource."
+                },
+                "createdByType": {
+                    "type": "string",
+                    "description": "The type of identity that created the resource.",
+                    "enum": [
+                        "User",
+                        "Application",
+                        "ManagedIdentity",
+                        "Key"
+                    ],
+                    "x-ms-enum": {
+                        "name": "createdByType",
+                        "modelAsString": true
+                    }
+                },
+                "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The timestamp of resource creation (UTC)."
+                },
+                "lastModifiedBy": {
+                    "type": "string",
+                    "description": "The identity that last modified the resource."
+                },
+                "lastModifiedByType": {
+                    "type": "string",
+                    "description": "The type of identity that last modified the resource.",
+                    "enum": [
+                        "User",
+                        "Application",
+                        "ManagedIdentity",
+                        "Key"
+                    ],
+                    "x-ms-enum": {
+                        "name": "createdByType",
+                        "modelAsString": true
+                    }
+                },
+                "lastModifiedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The type of identity that last modified the resource."
+                }
+            }
+        },
+        "SBSubscriptionProperties": {
+            "properties": {
+                "messageCount": {
+                    "readOnly": true,
+                    "format": "int64",
+                    "type": "integer",
+                    "description": "Number of messages."
+                },
+                "createdAt": {
+                    "readOnly": true,
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Exact time the message was created."
+                },
+                "accessedAt": {
+                    "readOnly": true,
+                    "format": "date-time",
+                    "type": "string",
+                    "description": "Last time there was a receive request to this subscription."
+                },
+                "updatedAt": {
+                    "readOnly": true,
+                    "format": "date-time",
+                    "type": "string",
+                    "description": "The exact time the message was updated."
+                },
+                "lockDuration": {
+                    "format": "duration",
+                    "type": "string",
+                    "description": "ISO 8061 lock duration timespan for the subscription. The default value is 1 minute."
+                },
+                "requiresSession": {
+                    "type": "boolean",
+                    "description": "Value indicating if a subscription supports the concept of sessions."
+                },
+                "defaultMessageTimeToLive": {
+                    "format": "duration",
+                    "type": "string",
+                    "description": "ISO 8061 Default message timespan to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself."
+                },
+                "deadLetteringOnFilterEvaluationExceptions": {
+                    "type": "boolean",
+                    "description": "Value that indicates whether a subscription has dead letter support on filter evaluation exceptions."
+                },
+                "deadLetteringOnMessageExpiration": {
+                    "type": "boolean",
+                    "description": "Value that indicates whether a subscription has dead letter support when a message expires."
+                },
+                "duplicateDetectionHistoryTimeWindow": {
+                    "format": "duration",
+                    "type": "string",
+                    "description": "ISO 8601 timeSpan structure that defines the duration of the duplicate detection history. The default value is 10 minutes."
+                },
+                "maxDeliveryCount": {
+                    "format": "int32",
+                    "type": "integer",
+                    "description": "Number of maximum deliveries."
+                },
+                "enableBatchedOperations": {
+                    "type": "boolean",
+                    "description": "Value that indicates whether server-side batched operations are enabled."
+                },
+                "autoDeleteOnIdle": {
+                    "format": "duration",
+                    "type": "string",
+                    "description": "ISO 8061 timeSpan idle interval after which the topic is automatically deleted. The minimum duration is 5 minutes."
+                },
+                "forwardTo": {
+                    "type": "string",
+                    "description": "Queue/Topic name to forward the messages"
+                },
+                "forwardDeadLetteredMessagesTo": {
+                    "type": "string",
+                    "description": "Queue/Topic name to forward the Dead Letter message"
+                },
+                "isClientAffine": {
+                    "type": "boolean",
+                    "description": "Value that indicates whether the subscription has an affinity to the client id."
+                },
+                "clientAffineProperties": {
+                    "$ref": "#/definitions/SBClientAffineProperties",
+                    "description": "Properties specific to client affine subscriptions."
+                }
+            },
+            "description": "Description of Subscription Resource."
+        },
+        "SBClientAffineProperties": {
+            "type": "object",
+            "properties": {
+                "clientId": {
+                    "type": "string",
+                    "description": "Indicates the Client ID of the application that created the client-affine subscription."
+                },
+                "isDurable": {
+                    "type": "boolean",
+                    "description": "For client-affine subscriptions, this value indicates whether the subscription is durable or not."
+                },
+                "isShared": {
+                    "type": "boolean",
+                    "description": "For client-affine subscriptions, this value indicates whether the subscription is shared or not."
+                }
+            },
+            "description": "Properties specific to client affine subscriptions."
+        },
+        "ErrorResponse": {
+            "properties": {
+                "error": {
+                    "type": "object",
+                    "description": "The error object.",
+                    "properties": {
+                        "code": {
+                            "readOnly": true,
+                            "type": "string",
+                            "description": "The error code."
+                        },
+                        "message": {
+                            "readOnly": true,
+                            "type": "string",
+                            "description": "The error message."
+                        },
+                        "target": {
+                            "readOnly": true,
+                            "type": "string",
+                            "description": "The error target."
+                        },
+                        "details": {
+                            "readOnly": true,
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ErrorResponse"
+                            },
+                            "description": "The error details."
+                        },
+                        "additionalInfo": {
+                            "readOnly": true,
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ErrorAdditionalInfo"
+                            },
+                            "description": "The error additional info."
+                        }
+                    }
+                }
+            },
+            "description": "The resource management error response."
+        },
+        "ErrorAdditionalInfo": {
+            "properties": {
+                "type": {
+                    "readOnly": true,
+                    "type": "string",
+                    "description": "The additional info type."
+                },
+                "info": {
+                    "readOnly": true,
+                    "type": "object",
+                    "description": "The additional info."
+                }
+            },
+            "description": "The resource management error additional info."
+        }
+    },
+    "parameters": {
+        "SubscriptionIdParameter": {
+            "name": "subscriptionId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Subscription credentials that uniquely identify a Microsoft Azure subscription. The subscription ID forms part of the URI for every service call."
+        },
+        "ApiVersionParameter": {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "description": "Client API version."
+        },
+        "ResourceGroupNameParameter": {
+            "name": "resourceGroupName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 90,
+            "x-ms-parameter-location": "method",
+            "description": "Name of the Resource group within the Azure subscription."
+        },
+        "SubscriptionNameParameter": {
+            "name": "subscriptionName",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "x-ms-parameter-location": "method",
+            "description": "The subscription name."
+        },
+        "SkipParameter": {
+            "name": "$skip",
+            "description": "Skip is only used if a previous operation returned a partial result. If a previous response contains a nextLink element, the value of the nextLink element will include a skip parameter that specifies a starting point to use for subsequent calls.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000,
+            "x-ms-parameter-location": "method"
+        },
+        "TopParameter": {
+            "name": "$top",
+            "description": "May be used to limit the number of results to the most recent N usageDetails.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "x-ms-parameter-location": "method"
+        }
+    }
+}

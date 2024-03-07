@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doc>
+  <members>
+    <member name="GetFloatLiteralAsync(CancellationToken)">
+      <example>
+This sample shows how to call GetFloatLiteralAsync.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response<FloatLiteralProperty> response = await client.GetFloatLiteralAsync();
+]]></code>
+This sample shows how to call GetFloatLiteralAsync with all parameters.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response<FloatLiteralProperty> response = await client.GetFloatLiteralAsync();
+]]></code></example>
+    </member>
+    <member name="GetFloatLiteral(CancellationToken)">
+      <example>
+This sample shows how to call GetFloatLiteral.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response<FloatLiteralProperty> response = client.GetFloatLiteral();
+]]></code>
+This sample shows how to call GetFloatLiteral with all parameters.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response<FloatLiteralProperty> response = client.GetFloatLiteral();
+]]></code></example>
+    </member>
+    <member name="GetFloatLiteralAsync(RequestContext)">
+      <example>
+This sample shows how to call GetFloatLiteralAsync and parse the result.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response response = await client.GetFloatLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetFloatLiteralAsync with all parameters and parse the result.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response response = await client.GetFloatLiteralAsync(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="GetFloatLiteral(RequestContext)">
+      <example>
+This sample shows how to call GetFloatLiteral and parse the result.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response response = client.GetFloatLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code>
+This sample shows how to call GetFloatLiteral with all parameters and parse the result.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+Response response = client.GetFloatLiteral(null);
+
+JsonElement result = JsonDocument.Parse(response.ContentStream).RootElement;
+Console.WriteLine(result.GetProperty("property").ToString());
+]]></code></example>
+    </member>
+    <member name="PutAsync(FloatLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+FloatLiteralProperty body = new FloatLiteralProperty();
+Response response = await client.PutAsync(body);
+]]></code>
+This sample shows how to call PutAsync with all parameters.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+FloatLiteralProperty body = new FloatLiteralProperty();
+Response response = await client.PutAsync(body);
+]]></code></example>
+    </member>
+    <member name="Put(FloatLiteralProperty,CancellationToken)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+FloatLiteralProperty body = new FloatLiteralProperty();
+Response response = client.Put(body);
+]]></code>
+This sample shows how to call Put with all parameters.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+FloatLiteralProperty body = new FloatLiteralProperty();
+Response response = client.Put(body);
+]]></code></example>
+    </member>
+    <member name="PutAsync(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call PutAsync.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 43.125F,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call PutAsync with all request content.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 43.125F,
+});
+Response response = await client.PutAsync(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+    <member name="Put(RequestContent,RequestContext)">
+      <example>
+This sample shows how to call Put.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 43.125F,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code>
+This sample shows how to call Put with all request content.
+<code><![CDATA[
+FloatLiteral client = new ValueTypesClient().GetFloatLiteralClient();
+
+using RequestContent content = RequestContent.Create(new
+{
+    property = 43.125F,
+});
+Response response = client.Put(content);
+
+Console.WriteLine(response.Status);
+]]></code></example>
+    </member>
+  </members>
+</doc>

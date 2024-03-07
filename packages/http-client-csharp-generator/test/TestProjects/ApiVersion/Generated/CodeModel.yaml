@@ -1,0 +1,158 @@
+!CodeModel 
+info: !Info 
+  description: Api Version
+  title: ApiVersion
+schemas: !Schemas 
+  strings:
+    - !StringSchema &ref_0
+      type: string
+      language: !Languages 
+        default:
+          name: String
+          description: simple string
+      protocol: !Protocols {}
+  choices:
+    - !ChoiceSchema &ref_5
+      choices:
+        - !ChoiceValue 
+          value: '2.0'
+          language:
+            default:
+              name: Two0
+              description: ''
+      type: choice
+      choiceType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion
+          description: ''
+      protocol: !Protocols {}
+  constants:
+    - !ConstantSchema &ref_1
+      type: constant
+      value: !ConstantValue 
+        value: 1.0.0
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersion10
+          description: Api Version (1.0.0)
+      protocol: !Protocols {}
+    - !ConstantSchema &ref_4
+      type: constant
+      value: !ConstantValue 
+        value: '2.0'
+      valueType: *ref_0
+      language: !Languages 
+        default:
+          name: ApiVersionConstant
+          description: ''
+      protocol: !Protocols {}
+globalParameters:
+  - !Parameter &ref_2
+    schema: *ref_0
+    clientDefaultValue: ''
+    implementation: Client
+    origin: modelerfour:synthesized/host
+    required: true
+    extensions:
+      x-ms-skip-url-encoding: true
+    language: !Languages 
+      default:
+        name: $host
+        description: server parameter
+        serializedName: $host
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: uri
+  - !Parameter &ref_3
+    schema: *ref_1
+    implementation: Client
+    origin: modelerfour:synthesized/api-version
+    required: true
+    language: !Languages 
+      default:
+        name: apiVersion
+        description: Api Version
+        serializedName: api-version
+    protocol: !Protocols 
+      http: !HttpParameter 
+        in: query
+operationGroups:
+  - !OperationGroup 
+    $key: ''
+    operations:
+      - !Operation 
+        operationId: Operation
+        apiVersions:
+          - !ApiVersion 
+            version: 1.0.0
+        parameters:
+          - *ref_2
+          - *ref_3
+          - !Parameter 
+            schema: *ref_4
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: notApiVersionConstant
+                description: ''
+                serializedName: not-api-version-constant
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+          - !Parameter &ref_6
+            schema: *ref_5
+            implementation: Method
+            required: true
+            language: !Languages 
+              default:
+                name: notApiVersionEnum
+                description: ''
+                serializedName: not-api-version-enum
+            protocol: !Protocols 
+              http: !HttpParameter 
+                in: query
+        requests:
+          - !Request 
+            language: !Languages 
+              default:
+                name: ''
+                description: ''
+            protocol: !Protocols 
+              http: !HttpRequest 
+                path: /op
+                method: get
+                uri: '{$host}'
+        signatureParameters:
+          - *ref_6
+        responses:
+          - !Response 
+            language: !Languages 
+              default:
+                name: ''
+                description: OK
+            protocol: !Protocols 
+              http: !HttpResponse 
+                statusCodes:
+                  - '200'
+        language: !Languages 
+          default:
+            name: Operation
+            description: ''
+        protocol: !Protocols {}
+    language: !Languages 
+      default:
+        name: ''
+        description: ''
+    protocol: !Protocols {}
+security: !Security 
+  authenticationRequired: false
+  schemes: []
+language: !Languages 
+  default:
+    name: ApiVersion
+    description: ''
+protocol: !Protocols 
+  http: !HttpModel {}

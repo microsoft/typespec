@@ -1,0 +1,26 @@
+{
+  "parameters": {
+    "vaultName": "sample-vault",
+    "location": "westus",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000",
+    "api-version": "2021-10-01"
+  },
+  "responses": {
+    "200": {
+      "headers": {},
+      "body": {
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/providers/Microsoft.KeyVault/locations/westus/deletedVaults/sample-vault",
+        "name": "sample-vault",
+        "type": "Microsoft.KeyVault/deletedVaults",
+        "properties": {
+          "vaultId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/sample-group/providers/Microsoft.KeyVault/vaults/sample-vault",
+          "location": "westus",
+          "tags": {},
+          "deletionDate": "2017-01-01T00:00:59Z",
+          "scheduledPurgeDate": "2017-04-01T00:00:59Z",
+          "purgeProtectionEnabled": true
+        }
+      }
+    }
+  }
+}
