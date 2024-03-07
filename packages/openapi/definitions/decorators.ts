@@ -1,11 +1,4 @@
-import {
-  DecoratorContext,
-  Model,
-  Namespace,
-  Operation,
-  Type,
-  TypeSpecValue,
-} from "@typespec/compiler";
+import { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
 
 /**
  * Specify the OpenAPI `operationId` property for this operation.
@@ -39,7 +32,7 @@ export type ExtensionDecorator = (
   context: DecoratorContext,
   target: Type,
   key: string,
-  value: TypeSpecValue
+  value: Type
 ) => void;
 
 /**
@@ -83,5 +76,5 @@ export type ExternalDocsDecorator = (
 export type InfoDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  additionalInfo: TypeSpecValue
+  additionalInfo: Type
 ) => void;

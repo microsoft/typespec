@@ -78,7 +78,7 @@ export async function generateExternDecorators(
 
   return {
     "decorators.ts": await format(generateSignatures(program, decorators)),
-    "decorators.test.ts": await format(
+    "decorators.ts-test.ts": await format(
       generateSignatureTests(packageName, "./decorators.js", decorators)
     ),
   };
