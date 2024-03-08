@@ -144,6 +144,11 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     ) {
       const variants = [...type.variants.values()];
       return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
+    } else if (isTarget && type.kind === "Scalar") {
+      // Special case for target type if it is a scalar type(e.g. `string`) then it can only be a Scalar.
+      // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
+      // so we only change that when isTarget is true.
+      return useCompilerType("Scalar");
     }
     return useCompilerType("Type");
   }

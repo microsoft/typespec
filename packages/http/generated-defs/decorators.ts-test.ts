@@ -1,0 +1,80 @@
+/** An error here would mean that the decorator is not exported or doesn't have the right name. */
+import {
+  $body,
+  $delete,
+  $get,
+  $head,
+  $header,
+  $includeInapplicableMetadataInPayload,
+  $patch,
+  $path,
+  $plainData,
+  $post,
+  $put,
+  $query,
+  $route,
+  $server,
+  $sharedRoute,
+  $statusCode,
+  $useAuth,
+} from "@typespec/http";
+import {
+  BodyDecorator,
+  DeleteDecorator,
+  GetDecorator,
+  HeadDecorator,
+  HeaderDecorator,
+  IncludeInapplicableMetadataInPayloadDecorator,
+  PatchDecorator,
+  PathDecorator,
+  PlainDataDecorator,
+  PostDecorator,
+  PutDecorator,
+  QueryDecorator,
+  RouteDecorator,
+  ServerDecorator,
+  SharedRouteDecorator,
+  StatusCodeDecorator,
+  UseAuthDecorator,
+} from "./decorators.js";
+
+type Decorators = {
+  $plainData: PlainDataDecorator;
+  $statusCode: StatusCodeDecorator;
+  $body: BodyDecorator;
+  $header: HeaderDecorator;
+  $query: QueryDecorator;
+  $path: PathDecorator;
+  $get: GetDecorator;
+  $put: PutDecorator;
+  $post: PostDecorator;
+  $patch: PatchDecorator;
+  $delete: DeleteDecorator;
+  $head: HeadDecorator;
+  $server: ServerDecorator;
+  $useAuth: UseAuthDecorator;
+  $includeInapplicableMetadataInPayload: IncludeInapplicableMetadataInPayloadDecorator;
+  $route: RouteDecorator;
+  $sharedRoute: SharedRouteDecorator;
+};
+
+/** An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ... */
+const _: Decorators = {
+  $plainData,
+  $statusCode,
+  $body,
+  $header,
+  $query,
+  $path,
+  $get,
+  $put,
+  $post,
+  $patch,
+  $delete,
+  $head,
+  $server,
+  $useAuth,
+  $includeInapplicableMetadataInPayload,
+  $route,
+  $sharedRoute,
+};

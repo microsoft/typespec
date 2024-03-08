@@ -12,6 +12,7 @@ import {
   validateDecoratorTarget,
 } from "@typespec/compiler";
 import { $path } from "@typespec/http";
+import { ParentResourceDecorator } from "../generated-defs/decorators.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 export interface ResourceKey {
@@ -190,8 +191,12 @@ export function getParentResource(program: Program, resourceType: Model): Model 
  *
  * `@parentResource` can only be applied to models.
  */
-export function $parentResource(context: DecoratorContext, entity: Type, parentType: Model) {
+export const $parentResource: ParentResourceDecorator = (
+  context: DecoratorContext,
+  entity: Type,
+  parentType: Model
+) => {
   const { program } = context;
 
   program.stateMap(parentResourceTypesKey).set(entity, parentType);
-}
+};

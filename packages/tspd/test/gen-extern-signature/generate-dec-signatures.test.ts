@@ -87,6 +87,7 @@ export type SimpleDecorator = (context: DecoratorContext, target: ${expected.joi
     it.each([
       ["model Options { name: string, other: string }", "Options", "Type"],
       ["enum Direction { up, down }", "Direction", "Type"],
+      ["", "string", "Scalar"], // When referencing a scalar type as the target it can then only be a scalar (in a parameter it could also be a a literal matching the scalar, or a union of scalars/literals)
     ])("%s", async (code, ref, expected) => {
       await expectSignatures({
         code: `extern dec simple(target: ${ref});\n${code}`,

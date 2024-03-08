@@ -7,5 +7,7 @@ packages:
   - "@typespec/json-schema"
   - "@typespec/protobuf"
   - "@typespec/versioning"
+  - "@typespec/rest"
+  - "@typespec/http"
 ---
 Align TS decorators implementation types with the TypeSpec signature

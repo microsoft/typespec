@@ -7,6 +7,7 @@ import {
   compile,
   createDiagnosticCollector,
   getLocationContext,
+  getTypeName,
   joinPaths,
   navigateProgram,
   resolvePath,
@@ -54,6 +55,9 @@ export async function generateExternDecorators(
   const decorators: DecoratorSignature[] = [];
 
   navigateProgram(program, {
+    namespace: (ns) => {
+      return undefined;
+    },
     decorator(dec) {
       if (getLocationContext(program, dec).type !== "project") {
         return;
@@ -79,7 +83,11 @@ export async function generateExternDecorators(
   return {
     "decorators.ts": await format(generateSignatures(program, decorators)),
     "decorators.ts-test.ts": await format(
-      generateSignatureTests(packageName, "./decorators.js", decorators)
+      generateSignatureTests(
+        packageName,
+        "./decorators.js",
+        decorators.filter((d) => !getTypeName(d.decorator.namespace).includes(".Private"))
+      )
     ),
   };
 }
