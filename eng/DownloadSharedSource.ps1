@@ -2,8 +2,8 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
-$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$clonedPath = Join-Path $repoRoot 'artifacts/azure-sdk-for-net-shared'
+$SrcRoot = Resolve-Path (Join-Path $PSScriptRoot '..' 'packages' 'http-client-csharp-generator')
+$clonedPath = Join-Path $SrcRoot 'artifacts/azure-sdk-for-net-shared'
 $azCoreSharedPath = "sdk/core/Azure.Core/src/Shared/"
 $armCoreSharedPath = "sdk/resourcemanager/Azure.ResourceManager/src/Shared/"
 
@@ -68,7 +68,7 @@ $files = @('AsyncLockWithValue.cs', 'CallerShouldAuditAttribute.cs', 'ClientDiag
     'XmlWriterExtensions.cs',
     'TrimmingAttribute.cs')
 $sourcePath = "$clonedPath/sdk/core/Azure.Core/src/Shared/"
-$destinationPath = "$repoRoot/src/assets/Azure.Core.Shared"
+$destinationPath = "$SrcRoot/src/assets/Azure.Core.Shared"
 
 Get-ChildItem $destinationPath -Filter *.cs | Remove-Item;
 CopyAll $files $sourcePath $destinationPath
@@ -76,7 +76,7 @@ CopyAll $files $sourcePath $destinationPath
 #Download management Shared
 $files = 'SharedExtensions.cs', 'ManagedServiceIdentityTypeV3Converter.cs'
 $sourcePath = "$clonedPath/sdk/resourcemanager/Azure.ResourceManager/src/Shared"
-$destinationPath = "$repoRoot/src/assets/Management.Shared"
+$destinationPath = "$SrcRoot/src/assets/Management.Shared"
 
 Get-ChildItem $destinationPath -Filter *.cs | Remove-Item;
 CopyAll $files $sourcePath $destinationPath
