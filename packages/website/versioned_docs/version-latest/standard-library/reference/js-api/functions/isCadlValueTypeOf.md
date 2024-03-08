@@ -9,7 +9,7 @@ isCadlValueTypeOf<K>(target, expectedType): target is InferredTypeSpecValue<K>
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
 

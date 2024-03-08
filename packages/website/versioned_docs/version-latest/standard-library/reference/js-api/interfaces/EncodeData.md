@@ -5,7 +5,7 @@ title: "[I] EncodeData"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `encoding` | `string` | - |
-| `type` | [`Scalar`](Scalar.md) | - |
+| Property | Type |
+| :------ | :------ |
+| `encoding` | `string` |
+| `type` | [`Scalar`](Scalar.md) |

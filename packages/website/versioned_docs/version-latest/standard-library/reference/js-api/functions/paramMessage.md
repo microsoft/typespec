@@ -9,7 +9,7 @@ paramMessage<T>(strings, ...keys): CallableMessage<T>
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends `string`[] |
 

@@ -3,7 +3,7 @@ jsApi: true
 title: "[I] RouteOptions"
 
 ---
-## Extended By
+## Extended by
 
 - [`RouteResolutionOptions`](RouteResolutionOptions.md)
 
@@ -13,6 +13,6 @@ title: "[I] RouteOptions"
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `paramOptions?` | [`OperationParameterOptions`](OperationParameterOptions.md) | - |
+| Property | Type |
+| :------ | :------ |
+| `paramOptions?` | [`OperationParameterOptions`](OperationParameterOptions.md) |

@@ -28,17 +28,17 @@ Cookie: X-API-KEY=abcdef12345
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `TLocation` extends `ApiKeyLocation` |
 | `TName` extends `string` |
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
+| Property | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ |
-| `description?` | `string` | Optional description. | [`HttpAuthBase.description`](HttpAuthBase.md) |
-| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase.id`](HttpAuthBase.md) |
+| `description?` | `string` | Optional description. | [`HttpAuthBase`](HttpAuthBase.md).`description` |
+| `id` | `string` | Id of the authentication scheme. | [`HttpAuthBase`](HttpAuthBase.md).`id` |
 | `in` | `TLocation` | - | - |
 | `name` | `TName` | - | - |
 | `type` | `"apiKey"` | - | - |

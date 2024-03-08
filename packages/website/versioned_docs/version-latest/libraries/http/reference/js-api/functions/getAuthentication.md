@@ -4,7 +4,7 @@ title: "[F] getAuthentication"
 
 ---
 ```ts
-getAuthentication(program, namespace): ServiceAuthentication | undefined
+getAuthentication(program, entity): Authentication | undefined
 ```
 
 ## Parameters
@@ -12,8 +12,8 @@ getAuthentication(program, namespace): ServiceAuthentication | undefined
 | Parameter | Type |
 | :------ | :------ |
 | `program` | `Program` |
-| `namespace` | `Namespace` |
+| `entity` | `Interface` \| `Namespace` \| `Operation` |
 
 ## Returns
 
-[`ServiceAuthentication`](../interfaces/ServiceAuthentication.md) \| `undefined`
+[`Authentication`](../interfaces/Authentication.md) \| `undefined`

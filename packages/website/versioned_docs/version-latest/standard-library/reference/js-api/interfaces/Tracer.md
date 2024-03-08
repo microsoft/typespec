@@ -13,9 +13,9 @@ sub(subarea): Tracer
 
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `subarea` | `string` |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `subarea` | `string` |  |
 
 #### Returns
 

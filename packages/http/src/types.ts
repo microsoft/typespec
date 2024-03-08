@@ -16,7 +16,11 @@ export type OperationDetails = HttpOperation;
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
-export interface ServiceAuthentication {
+/** @deprecated use Authentication */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type ServiceAuthentication = Authentication;
+
+export interface Authentication {
   /**
    * Either one of those options can be used independently to authenticate.
    */
@@ -35,7 +39,8 @@ export type HttpAuth =
   | BearerAuth
   | ApiKeyAuth<ApiKeyLocation, string>
   | Oauth2Auth<OAuth2Flow[]>
-  | OpenIDConnectAuth;
+  | OpenIDConnectAuth
+  | NoAuth;
 
 export interface HttpAuthBase {
   /**
@@ -184,6 +189,65 @@ export interface OpenIDConnectAuth extends HttpAuthBase {
   openIdConnectUrl: string;
 }
 
+/**
+ * This authentication option signifies that API is not secured at all.
+ * It might be useful when overriding authentication on interface of operation level.
+ */
+export interface NoAuth extends HttpAuthBase {
+  type: "noAuth";
+}
+
+export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
+
+export interface AnyHttpAuthRef {
+  readonly kind: "any";
+  readonly auth: HttpAuth;
+}
+
+export interface NoHttpAuthRef {
+  readonly kind: "noAuth";
+  readonly auth: NoAuth;
+}
+
+/* Holder of this reference needs only a `scopes` subset of all scopes defined at `auth` */
+export interface OAuth2HttpAuthRef {
+  readonly kind: "oauth2";
+  readonly auth: Oauth2Auth<OAuth2Flow[]>;
+  readonly scopes: string[];
+}
+
+export interface AuthenticationReference {
+  /**
+   * Either one of those options can be used independently to authenticate.
+   */
+  readonly options: AuthenticationOptionReference[];
+}
+
+export interface AuthenticationOptionReference {
+  /**
+   * For this authentication option all the given auth have to be used together.
+   */
+  readonly all: HttpAuthRef[];
+}
+
+export interface HttpServiceAuthentication {
+  /**
+   * All the authentication schemes used in this service.
+   * Some might only be used in certain operations.
+   */
+  readonly schemes: HttpAuth[];
+
+  /**
+   * Default authentication for operations in this service.
+   */
+  readonly defaultAuth: AuthenticationReference;
+
+  /**
+   * Authentication overrides for individual operations.
+   */
+  readonly operationsAuth: Map<Operation, AuthenticationReference>;
+}
+
 export type OperationContainer = Namespace | Interface;
 
 export type OperationVerbSelector = (
@@ -287,6 +351,7 @@ export interface HttpOperationParameters {
 export interface HttpService {
   namespace: Namespace;
   operations: HttpOperation[];
+  authentication?: Authentication;
 }
 
 export interface HttpOperation {
@@ -324,6 +389,11 @@ export interface HttpOperation {
    * Operation type reference.
    */
   operation: Operation;
+
+  /**
+   * Operation authentication. Overrides HttpService authentication
+   */
+  authentication?: Authentication;
 
   /**
    * Overload this operation

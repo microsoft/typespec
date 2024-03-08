@@ -9,6 +9,6 @@ type InferredTypeSpecValue<K>: K extends "Any" ? TypeSpecValue : K extends infer
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` extends [`TypeKind`](TypeKind.md) |

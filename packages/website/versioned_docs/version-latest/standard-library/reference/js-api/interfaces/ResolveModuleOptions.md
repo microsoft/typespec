@@ -9,4 +9,4 @@ title: "[I] ResolveModuleOptions"
 | :------ | :------ | :------ |
 | `baseDir` | `string` | - |
 | `directoryIndexFiles?` | `string`[] | When resolution reach a directory without package.json look for those files to load in order.<br /><br />**Default**<br />` ["index.mjs", "index.js"] ` |
-| `resolveMain?` | (`pkg`) => `string` | - |
+| `resolveMain?` | (`pkg`: `any`) => `string` | When resolution reach package.json returns the path to the file relative to it.<br /><br />**Default**<br />` pkg.main ` |

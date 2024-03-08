@@ -3,7 +3,7 @@ jsApi: true
 title: "[I] TemplatedTypeBase"
 
 ---
-## Extended By
+## Extended by
 
 - [`Model`](Model.md)
 - [`Scalar`](Scalar.md)

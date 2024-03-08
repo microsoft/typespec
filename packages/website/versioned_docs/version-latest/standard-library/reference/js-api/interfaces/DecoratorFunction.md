@@ -4,7 +4,7 @@ title: "[I] DecoratorFunction"
 
 ---
 ```ts
-DecoratorFunction(
+interface DecoratorFunction(
    program, 
    target, ...
    customArgs): void
@@ -24,6 +24,6 @@ DecoratorFunction(
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `namespace?` | `string` | - |
+| Property | Type |
+| :------ | :------ |
+| `namespace?` | `string` |

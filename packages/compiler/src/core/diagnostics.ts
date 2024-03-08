@@ -2,6 +2,7 @@ import { formatLog } from "./logger/index.js";
 import type { Program } from "./program.js";
 import { createSourceFile } from "./source-file.js";
 import {
+  CodeFix,
   Diagnostic,
   DiagnosticResult,
   DiagnosticTarget,
@@ -294,9 +295,13 @@ export function createDiagnosticCollector(): DiagnosticCollector {
 
 /**
  * Ignore the diagnostics emitted by the diagnostic accessor pattern and just return the actual result.
- * @param result: Accessor pattern tuple result including the actual result and the list of diagnostics.
+ * @param result Accessor pattern tuple result including the actual result and the list of diagnostics.
  * @returns Actual result.
  */
 export function ignoreDiagnostics<T>(result: DiagnosticResult<T>): T {
   return result[0];
+}
+
+export function defineCodeFix(fix: CodeFix): CodeFix {
+  return fix;
 }

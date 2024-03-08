@@ -2,6 +2,7 @@ import {
   DecoratorContext,
   Diagnostic,
   DiagnosticTarget,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
@@ -25,6 +26,7 @@ import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
 import { getStatusCodesFromType } from "./status-codes.js";
 import {
+  Authentication,
   AuthenticationOption,
   HeaderFieldOptions,
   HttpAuth,
@@ -33,7 +35,6 @@ import {
   HttpVerb,
   PathParameterOptions,
   QueryParameterOptions,
-  ServiceAuthentication,
 } from "./types.js";
 import { extractParamsFromPath } from "./utils.js";
 
@@ -432,28 +433,29 @@ setTypeSpecNamespace("Private", $plainData);
 
 export function $useAuth(
   context: DecoratorContext,
-  serviceNamespace: Namespace,
+  entity: Namespace | Interface | Operation,
   authConfig: Model | Union | Tuple
 ) {
-  const [auth, diagnostics] = extractServiceAuthentication(context.program, authConfig);
+  validateDecoratorUniqueOnNode(context, entity, $useAuth);
+  const [auth, diagnostics] = extractAuthentication(context.program, authConfig);
   if (diagnostics.length > 0) context.program.reportDiagnostics(diagnostics);
   if (auth !== undefined) {
-    setAuthentication(context.program, serviceNamespace, auth);
+    setAuthentication(context.program, entity, auth);
   }
 }
 
 export function setAuthentication(
   program: Program,
-  serviceNamespace: Namespace,
-  auth: ServiceAuthentication
+  entity: Namespace | Interface | Operation,
+  auth: Authentication
 ) {
-  program.stateMap(HttpStateKeys.authentication).set(serviceNamespace, auth);
+  program.stateMap(HttpStateKeys.authentication).set(entity, auth);
 }
 
-function extractServiceAuthentication(
+function extractAuthentication(
   program: Program,
   type: Model | Union | Tuple
-): [ServiceAuthentication | undefined, readonly Diagnostic[]] {
+): [Authentication | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
 
   switch (type.kind) {
@@ -473,7 +475,7 @@ function extractHttpAuthenticationOptions(
   program: Program,
   tuple: Union,
   diagnosticTarget: DiagnosticTarget
-): [ServiceAuthentication, readonly Diagnostic[]] {
+): [Authentication, readonly Diagnostic[]] {
   const options: AuthenticationOption[] = [];
   const diagnostics = createDiagnosticCollector();
   for (const variant of tuple.variants.values()) {
@@ -565,12 +567,16 @@ function extractOAuth2Auth(data: any): HttpAuth {
     Array.isArray(data.flows) && data.flows.every((x: any) => typeof x === "object")
       ? data.flows
       : [];
+
+  const defaultScopes = Array.isArray(data.defaultScopes) ? data.defaultScopes : [];
   return {
-    ...data,
+    id: data.id,
+    type: data.type,
     flows: flows.map((flow: any) => {
+      const scopes: Array<string> = flow.scopes ? flow.scopes : defaultScopes;
       return {
         ...flow,
-        scopes: (flow.scopes || []).map((x: string) => ({ value: x })),
+        scopes: scopes.map((x: string) => ({ value: x })),
       };
     }),
   };
@@ -578,9 +584,9 @@ function extractOAuth2Auth(data: any): HttpAuth {
 
 export function getAuthentication(
   program: Program,
-  namespace: Namespace
-): ServiceAuthentication | undefined {
-  return program.stateMap(HttpStateKeys.authentication).get(namespace);
+  entity: Namespace | Interface | Operation
+): Authentication | undefined {
+  return program.stateMap(HttpStateKeys.authentication).get(entity);
 }
 
 /**

@@ -58,7 +58,6 @@ using TypeSpec.Rest;
  */
 @service({
   title: "Pet Store Service",
-  version: "2021-03-25",
 })
 @server("https://example.com", "Single server endpoint")
 namespace PetStore;

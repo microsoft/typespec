@@ -5,7 +5,7 @@ title: "[C] Queue"
 ---
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 
@@ -29,10 +29,10 @@ new Queue<T>(elements?): Queue<T>
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `private` | `#elements` | `T`[] | - |
-| `private` | `#headIndex` | `number` | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `#elements` | `private` | `T`[] |
+| `#headIndex` | `private` | `number` |
 
 ## Methods
 

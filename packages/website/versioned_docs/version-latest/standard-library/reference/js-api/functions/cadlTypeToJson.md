@@ -9,7 +9,7 @@ cadlTypeToJson<T>(typespecType, target): [T | undefined, Diagnostic[]]
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 
