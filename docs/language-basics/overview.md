@@ -3,7 +3,7 @@ id: overview
 title: Overview
 ---
 
-# An Introduction to Language Concepts in TypeSpec
+# An introduction to language concepts in TypeSpec
 
 This document provides a concise overview of the language concepts in TypeSpec. It serves as a quick reference guide rather than an in-depth tutorial.
 
@@ -16,7 +16,7 @@ This document provides a concise overview of the language concepts in TypeSpec. 
   namespace Dog {}
   ```
 
-## Importing Files and Libraries
+## Importing files and libraries
 
 _For more details, see: [Imports](./imports.md)_
 
@@ -26,7 +26,7 @@ _For more details, see: [Imports](./imports.md)_
 | Importing a JavaScript file       | `import "./models.js"`    |
 | Importing a Library       | `import "/rest"` |
 
-## Utilizing Namespaces
+## Utilizing namespaces
 
 _For more information, refer to: [Namespaces](./namespaces.md)_
 
@@ -37,7 +37,7 @@ _For more information, refer to: [Namespaces](./namespaces.md)_
 | Creating a nested namespace  | `namespace PetStore.Models;` |
 | Using a namespace   | `using PetStore.Models;`     |
 
-## Working with Decorators
+## Working with decorators
 
 _For more information, refer to: [Decorators](./decorators.md)_
 
@@ -49,7 +49,7 @@ _For more information, refer to: [Decorators](./decorators.md)_
 | Saving state in a decorator      | `context.program.stateMap(key).set(target, <value>)`                                |
 | Augmenting a decorator            | `@@tag(MyType, "abc");`                                                             |
 
-## Defining Scalars
+## Defining scalars
 
 _For more information, refer to: [Scalars](./scalars.md)_
 
@@ -59,7 +59,7 @@ _For more information, refer to: [Scalars](./scalars.md)_
 | Extending a scalar      | `scalar Password extends string`            |
 | Creating a template scalar    | `@doc(T) scalar Password<T extends string>` |
 
-## Creating Models
+## Creating models
 
 _For more information, refer to: [Models](./models.md)_
 
@@ -74,7 +74,7 @@ _For more information, refer to: [Models](./models.md)_
 | Defining an optional property with a default value | `model Dog { name?: string = "Rex" }` |
 | Creating a model template                 | `model Pet<T> { t: T }`               |
 
-## Defining Operations
+## Defining operations
 
 _For more information, refer to: [Operations](./operations.md)_
 
@@ -87,7 +87,7 @@ _For more information, refer to: [Operations](./operations.md)_
 | Creating an operation template            | `op getter<T>(id: string): T`                    |
 | Using 'is' with operation                  | `op getPet is getter<Pet>;`                      |
 
-## Implementing Interfaces
+## Implementing interfaces
 
 _For more information, refer to: [Interfaces](./interfaces.md)_
 
@@ -97,7 +97,7 @@ _For more information, refer to: [Interfaces](./interfaces.md)_
 | Composing an interface | `interface PetStore extends Store { }` |
 | Creating an interface template    | `interface Restful<T> { list(): T[] }` |
 
-## Working with Templates
+## Working with templates
 
 _For more information, refer to: [Templates](./templates.md)_
 
