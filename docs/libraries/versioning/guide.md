@@ -2,9 +2,9 @@
 title: Tutorial
 ---
 
-## How to Implement Versioned APIs
+## Implementing versioned APIs
 
-The main function of the TypeSpec.Versioning library is to facilitate the versioning of APIs. Let's begin with an API that doesn't have versioning.
+The primary role of the TypeSpec.Versioning library is to enable API versioning. Let's start with an API that lacks versioning.
 
 ```typespec
 @service({
@@ -13,7 +13,7 @@ The main function of the TypeSpec.Versioning library is to facilitate the versio
 namespace Contoso.WidgetManager;
 ```
 
-To add versioning to this API, we need to apply the `@versioned` decorator to the namespace and define an enum that lists the supported versions.
+To introduce versioning to this API, we need to use the `@versioned` decorator on the namespace and define an enum that outlines the supported versions.
 
 ```typespec
 @service({
@@ -27,11 +27,11 @@ enum Versions {
 }
 ```
 
-## How to Declare Versioned Dependencies
+## Declaring versioned dependencies
 
-Both versioned and unversioned services can specify their dependencies on versioned TypeSpec libraries. To do this, use the `@useDependency` decorator. For unversioned services, this is declared on the namespace. For versioned services, it's declared on the versioned enum.
+Both versioned and unversioned services can declare their dependencies on versioned TypeSpec libraries. This is achieved using the `@useDependency` decorator. For unversioned services, this is declared on the namespace. For versioned services, it's declared on the versioned enum.
 
-For instance, if our unversioned WidgetManager service depends on the Azure.Core library, we would specify it like this:
+For example, if our unversioned WidgetManager service depends on the Azure.Core library, we would declare it like this:
 
 ```typespec
 @service({
@@ -41,7 +41,7 @@ For instance, if our unversioned WidgetManager service depends on the Azure.Core
 namespace Contoso.WidgetManager.Unversioned;
 ```
 
-If our versioned WidgetManager service depends on the Azure.Core library, we would specify it like this:
+If our versioned WidgetManager service depends on the Azure.Core library, we would declare it like this:
 
 ```typespec
 @service({
@@ -56,7 +56,7 @@ enum Versions {
 }
 ```
 
-Suppose we introduce a new version to our service, and it utilizes features from a newer version of the Azure.Core library. We can specify that dependency like this:
+Let's say we introduce a new version to our service, and it uses features from a newer version of the Azure.Core library. We can declare that dependency like this:
 
 ```typespec
 @service({
@@ -74,9 +74,9 @@ enum Versions {
 }
 ```
 
-## How to Version APIs
+## Versioning APIs
 
-The versioning library simplifies the process of versioning APIs. Let's start with a basic example. Suppose we have a service with a single API that returns a list of widgets. We can define that API like this:
+The versioning library simplifies the process of versioning APIs. Let's start with a basic example. Assume we have a service with a single API that returns a list of widgets. We can define that API like this:
 
 ```typespec
 using TypeSpec.Versioning;
@@ -109,7 +109,7 @@ model Widget {
 op list(): Widget[] | Error;
 ```
 
-Now, let's assume that in version 2 of the service, we add a get operation to retrieve a single widget. We can add that like this:
+Now, let's suppose that in version 2 of the service, we add a get operation to retrieve a single widget. We can add that like this:
 
 ```typespec
 enum Versions {
@@ -132,7 +132,7 @@ op list(): Widget[] | Error;
 op get(...Resource.KeysOf<Widget>): Widget | Error;
 ```
 
-Now, let's assume that in version 3 of the service, we realize that `name` is not accurate and that this field should be called `description`. Also, you decide that the description should be optional, not mandatory. We can implement these changes like this:
+Now, let's suppose that in version 3 of the service, we realize that `name` is not accurate and that this field should be called `description`. Also, we decide that the description should be optional, not mandatory. We can implement these changes like this:
 
 ```typespec
 model Widget {
@@ -162,7 +162,6 @@ Widget:
 ```
 
 However, the OpenAPI definition for versions 1 and 2 still reflect the original name and the mandatory nature of the property:
-
 ```yaml
 Widget:
   type: object
@@ -176,4 +175,4 @@ Widget:
     - name
 ```
 
-This is a typical pattern with the versioning decorators. The TypeSpec should represent the _current state_ of the API. The decorators indicate the version at which this definition became accurate and, depending on the decorator, the other parameters reflect the previous values to retain that information.
+This is a common pattern with the versioning decorators. The TypeSpec should represent the _current state_ of the API. The decorators indicate the version at which this definition became accurate and, depending on the decorator, the other parameters reflect the previous values to retain that information.
