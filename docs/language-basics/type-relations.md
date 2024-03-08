@@ -3,9 +3,9 @@ id: type-relations
 title: Type Relations
 ---
 
-# Type Relations
+# Type relations
 
-## Type Hierarchy
+## Type hierarchy
 
 ```mermaid
 graph RL
@@ -41,7 +41,7 @@ graph RL
     duration --> unknown
 ```
 
-## Model with Properties
+## Model with properties
 
 When determining if type `S` can be assigned to type `T`, if `T` is a model with properties, it checks whether all those properties are present in `S` and if their types can be assigned to the type of the corresponding property in `T`.
 
