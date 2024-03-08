@@ -61,7 +61,7 @@ stages:
           - script: |
               npm ls -a
             displayName: "List packages"
-            workingDirectory: $(SourceRoot
+            workingDirectory: $(SourceRoot)
           - script: |
               npm run prettier
             displayName: "Emitter format check"
