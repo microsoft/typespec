@@ -41,7 +41,7 @@ const DataValidationContent = () => {
           layout="text-right"
           header="Output"
           title="Produce JSON Schema"
-          description="Benefit from the JSON Schema ecosystem to validate your data while writing a much more concise and readable code."
+          description="Benefit from the JSON Schema ecosystem to validate your data while writing more concise and readable code."
           illustration={<MultiFileIllustration />}
         >
           <LearnMoreCard
@@ -55,7 +55,7 @@ const DataValidationContent = () => {
         <Section
           header="Customize"
           title="JSON Schema Decorators"
-          description="The json schema library provide decorators to customize the output with json schema specific concept."
+          description="The json schema library provides decorators to customize the output with json schema specific concepts."
           illustration={<JsonSchemaExtensionsIllustration />}
         >
           <LearnMoreCard
