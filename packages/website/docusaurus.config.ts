@@ -231,10 +231,6 @@ const config: Config = {
             to: "/community",
           },
           {
-            label: "Getting started",
-            to: "/docs",
-          },
-          {
             type: "docsVersionDropdown",
             position: "right",
           },
