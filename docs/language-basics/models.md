@@ -7,7 +7,7 @@ title: Models
 
 Models in TypeSpec are utilized to define the structure or schema of data.
 
-## Types of Models
+## Types of models
 
 Models can be categorized into two main types:
 
@@ -29,7 +29,7 @@ model Dog {
 }
 ```
 
-#### Optional Properties
+#### Optional properties
 
 Properties can be designated as optional by using the `?` symbol.
 
@@ -39,7 +39,7 @@ model Dog {
 }
 ```
 
-#### Default Values
+#### Default values
 
 [Optional properties](#optional-properties) can be assigned a default value using the `=` operator.
 
@@ -49,7 +49,7 @@ model Dog {
 }
 ```
 
-#### Property Ordering
+#### Property ordering
 
 Properties are arranged in the order they are defined in the source. Properties acquired via `model is` are placed before properties defined in the model body. Properties obtained via `...` are inserted at the point where the spread appears in the source.
 
@@ -75,7 +75,7 @@ model Cat is Pet {
 // name, age, meow, address, furColor
 ```
 
-### Additional Properties
+### Additional properties
 
 The `Record<T>` model can be used to define a model with an arbitrary number of properties of type T. It can be combined with a named model to provide some known properties.
 
@@ -85,7 +85,7 @@ There are three ways to achieve this, each with slightly different semantics:
 - Using the `is` operator
 - Using the `extends` operator
 
-#### Using the `...` Operator
+#### Using the `...` operator
 
 Spreading a Record into your model implies that your model includes all the properties you have explicitly defined, plus any additional properties defined by the Record. This means that a property in the model could be of a different and incompatible type with the Record value type.
 
@@ -97,7 +97,7 @@ model Person {
 }
 ```
 
-#### Using the `is` Operator
+#### Using the `is` operator
 
 When using `is Record<T>`, it indicates that all properties of this model are of type T. This means that each property explicitly defined in the model must also be of type T.
 
@@ -118,7 +118,7 @@ model Person is Record<string> {
 }
 ```
 
-#### Using the `extends` Operator
+#### Using the `extends` operator
 
 The `extends` operator has similar semantics to `is`, but it defines the relationship between the two models. In many languages, this would probably result in the same emitted code as `is` and it is recommended to use `is Record<T>` instead.
 
@@ -128,7 +128,7 @@ model Person extends Record<string> {
 }
 ```
 
-### Special Property Types
+### Special property types
 
 #### `never`
 
@@ -154,7 +154,7 @@ The responsibility of removing `never` properties lies with the emitter. The Typ
 
 Arrays are models created using the `[]` syntax, which is a shorthand for using the `Array<T>` model type.
 
-## Model Composition
+## Model composition
 
 ### Spread
 
@@ -212,7 +212,7 @@ model StringThing {
 }
 ```
 
-## Model Templates
+## Model templates
 
 Refer to [templates](./templates.md) for more details on templates.
 
@@ -227,7 +227,7 @@ model DogPage {
 }
 ```
 
-## Meta Type References
+## Meta type references
 
 Some model property meta types can be referenced using `::`.
 
