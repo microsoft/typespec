@@ -5,9 +5,9 @@ title: Templates
 
 # Templates
 
-It is often useful to let the users of a model fill in certain details. Templates enable this pattern. Similar to generics found in other languages, model templates declare template parameters that users provide when referencing the type.
+Templates are a powerful tool that allow users to customize certain aspects of a model. Similar to generics in other programming languages, model templates define template parameters that users can specify when referencing the type.
 
-Templates can be used on:
+Templates can be applied to:
 
 - [aliases](./alias.md)
 - [models](./models.md)
@@ -25,9 +25,9 @@ model DogPage {
 }
 ```
 
-## Default values
+## Default Values
 
-A template parameter can be given a default argument value with `= <value>`.
+You can assign a default value to a template parameter using `= <value>`.
 
 ```typespec
 model Page<Item = string> {
@@ -36,15 +36,15 @@ model Page<Item = string> {
 }
 ```
 
-## Parameter constraints
+## Parameter Constraints
 
-Template parameters can specify a constraint using the `extends` keyword. See the [type relations](./type-relations.md) documentation for details on how validation works.
+You can impose constraints on template parameters using the `extends` keyword. For details on how validation works, refer to the [type relations](./type-relations.md) documentation.
 
 ```typespec
 alias Foo<Type extends string> = Type;
 ```
 
-Now, instantiating Foo with an argument that does not satisfy the constraint `string` will result in an error:
+If you try to instantiate Foo with an argument that does not meet the `string` constraint, you will encounter an error:
 
 ```typespec
 alias Bar = Foo<123>;
@@ -58,7 +58,7 @@ A template parameter constraint can also be a model expression:
 alias Foo<Type extends {name: string}> = Type;
 ```
 
-Template parameter defaults also need to respect the constraint:
+Default values for template parameters must also adhere to the constraint:
 
 ```typespec
 alias Foo<Type extends string = "Abc">  = Type
@@ -67,7 +67,7 @@ alias Bar<Type extends string = 123>  = Type
                              ^ Type '123' is not assignable to type 'TypeSpec.string'
 ```
 
-Furthermore, all optional arguments must come at the end of the template. A required argument cannot follow an optional argument:
+Also, all optional arguments must be placed at the end of the template. A required argument cannot follow an optional argument:
 
 ```typespec
 // Invalid
@@ -75,9 +75,9 @@ alias Foo<T extends string = "Abc", U> = ...;
                                     ^ Required template arguments must not follow optional template arguments
 ```
 
-## Named template arguments
+## Named Template Arguments
 
-Template arguments may also be specified by name. In that case, they can be specified out of order and optional arguments may be omitted. This can be useful when dealing with templates that have many defaultable arguments:
+Template arguments can also be specified by name. This allows you to specify them out of order and omit optional arguments. This can be particularly useful when dealing with templates that have many arguments with defaults:
 
 ```typespec
 alias Test<T, U extends numeric = int32, V extends string = "example"> = ...;
@@ -105,6 +105,6 @@ alias Example3 = Test<
 >;
 ```
 
-Since template arguments may be specified by name, the names of template parameters are part of the public API of a template. **Changing the name of a template parameter may break existing specifications that use the template.**
+Since template arguments can be specified by name, the names of template parameters are part of the template's public API. **Renaming a template parameter may break existing specifications that use the template.**
 
-**Note**: Template arguments are evaluated in the order the parameters are defined in the template _definition_, not the order in which they are written in the template _instance_. Most of the time, this should not matter, but may be important in some cases where evaluating a template argument may invoke decorators with side effects.
+**Note**: Template arguments are evaluated in the order the parameters are defined in the template _definition_, not the order in which they are written in the template _instance_. While this is usually inconsequential, it may be important in some cases where evaluating a template argument may trigger decorators with side effects.
