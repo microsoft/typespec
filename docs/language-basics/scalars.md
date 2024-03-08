@@ -12,7 +12,7 @@ You can declare a scalar by using the `scalar` keyword.
 scalar ternary;
 ```
 
-## Extending a Scalar
+## Extending a scalar
 
 You can create a new scalar that extends an existing one by using the `extends` keyword.
 
@@ -20,7 +20,7 @@ You can create a new scalar that extends an existing one by using the `extends` 
 scalar Password extends string;
 ```
 
-## Scalars with Template Parameters
+## Scalars with template parameters
 
 Scalars can also support template parameters. However, it's important to note that these templates are primarily used for decorators.
 
