@@ -3,7 +3,7 @@ id: documentation
 title: Documentation
 ---
 
-# Documenting APIs in TypeSpec
+# Documentation
 
 Documentation is a vital aspect of any API. TypeSpec offers several ways to document your API, including doc comments and decorators.
 
