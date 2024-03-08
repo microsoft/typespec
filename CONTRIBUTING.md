@@ -316,3 +316,18 @@ To release:
 
 - Go to https://github.com/microsoft/typespec/actions/workflows/website-gh-pages.yml
 - Click the `Run workflow` dropdown and select the `main` branch.
+
+# TypeSpec Emitters
+
+The various language emitters will live in the in the repo under the following directory structure
+
+- `packages/{protocol}-{client|server}-{language}` - Contains the `@typespec/{protocol}-{client|server}-{language}` package which is intended to be consumed by customers in their tsconfig.yaml file.
+- `packages/{protocol}-{client|server}-{language}-generator` - Contains the `@typespec/{protocol}-{client|server}-{language}-generator` package which is the backend implementation of for a given emitter and usually contains code
+  languages such as .NET, Python, or Java. This package is only intended to be used as a dependency of the root emitter package.
+- `packages/{protocol}-{client|server}-{language}-generator\**` - This directory will contain whatever is needed to build the backend emitter code generator. It will contain whatever folder structure is needed to build
+  that specific native code. It will also contain an isolated ci.yml file which will be the build pipeline for this package.
+
+There is a goal to be able to ship these emitter packages independent from the rest of the packages in this repo as such they by default be excluded from the root pnpm workspace. Any npm package work
+will be isolated to those directories with a goal of eventually moving to a consistent model so that we can both work in isolation as well as work as a E2E.
+
+For language specific contributing information look for the contributing.md file in that specific lanague emitter folder.
