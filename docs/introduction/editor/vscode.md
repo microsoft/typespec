@@ -12,7 +12,7 @@ TypeSpec will interpolate a few variables using this pattern: `${<name>}`. For e
 
 Available variables:
 
-- `workspaceFolder`: Corespond to the root of your Visual Studio workspace.
+- `workspaceFolder`: Correspond to the root of your Visual Studio workspace.
 
 ### `typespec.tsp-server.path`: Configure the server path
 
