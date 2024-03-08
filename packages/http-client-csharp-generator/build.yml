@@ -13,6 +13,7 @@ variables:
   OfficialBuildId: $(Build.BuildNumber)
   nugetMultiFeedWarnLevel: 'none'
   SourceRoot: $(Pipeline.Workspace)/s/typespec/packages/http-client-csharp-generator
+  EngFolder: $(Pipeline.Workspace)/s/typespec/eng
 
 resources:
   repositories:
@@ -74,7 +75,7 @@ stages:
               DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
               DOTNET_CLI_TELEMETRY_OPTOUT: 1
               DOTNET_MULTILEVEL_LOOKUP: 0
-          - pwsh: ./eng/SharedCodeCheck.ps1
+          - pwsh: $(EngFolder)/SharedCodeCheck.ps1
             displayName: "Check if shared source code is up-to-date"
             workingDirectory: $(SourceRoot)
           - task: Npm@1
@@ -111,7 +112,7 @@ stages:
             workingDirectory: $(SourceRoot)
           - ${{if and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['System.TeamProject'], 'internal'))}}:
             - pwsh: >
-                ./eng/PublishRelease.ps1
+                $(EngFolder)/PublishRelease.ps1
                 -AutorestArtifactDirectory ./artifacts/bin/AutoRest.CSharp/Release/net7.0/
                 -CoverageDirectory ./artifacts/coverage
                 -TypeSpecEmitterDirectory ./src/TypeSpec.Extension/Emitter.Csharp
