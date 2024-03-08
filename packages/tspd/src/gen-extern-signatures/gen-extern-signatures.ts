@@ -86,11 +86,12 @@ export async function generateExternDecorators(
 
   const files: Record<string, string> = {};
   for (const [ns, nsDecorators] of decorators.entries()) {
-    const file = `${ns}.ts`;
+    const base = ns === "" ? "__global__" : ns;
+    const file = `${base}.ts`;
     files[file] = await format(generateSignatures(program, nsDecorators));
     if (!ns.includes(".Private")) {
-      files[`${ns}.ts-test.ts`] = await format(
-        generateSignatureTests(packageName, `./${ns}.js`, nsDecorators)
+      files[`${base}.ts-test.ts`] = await format(
+        generateSignatureTests(packageName, `./${base}.js`, nsDecorators)
       );
     }
   }

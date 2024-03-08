@@ -23,7 +23,7 @@ async function generateDecoratorSignatures(code: string) {
     plugins: [],
   });
 
-  return result["decorators.ts"];
+  return result["__global__.ts"];
 }
 
 async function expectSignatures({ code, expected }: { code: string; expected: string }) {
