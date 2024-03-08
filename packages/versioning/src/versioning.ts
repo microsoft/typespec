@@ -24,7 +24,7 @@ import {
   ReturnTypeChangedFromDecorator,
   TypeChangedFromDecorator,
   VersionedDecorator,
-} from "../generated-defs/decorators.js";
+} from "../generated-defs/TypeSpec.Versioning.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { Version, VersionResolution } from "./types.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";

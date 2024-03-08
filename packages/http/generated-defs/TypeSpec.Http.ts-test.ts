@@ -8,7 +8,6 @@ import {
   $includeInapplicableMetadataInPayload,
   $patch,
   $path,
-  $plainData,
   $post,
   $put,
   $query,
@@ -27,7 +26,6 @@ import {
   IncludeInapplicableMetadataInPayloadDecorator,
   PatchDecorator,
   PathDecorator,
-  PlainDataDecorator,
   PostDecorator,
   PutDecorator,
   QueryDecorator,
@@ -36,10 +34,9 @@ import {
   SharedRouteDecorator,
   StatusCodeDecorator,
   UseAuthDecorator,
-} from "./decorators.js";
+} from "./TypeSpec.Http.js";
 
 type Decorators = {
-  $plainData: PlainDataDecorator;
   $statusCode: StatusCodeDecorator;
   $body: BodyDecorator;
   $header: HeaderDecorator;
@@ -60,7 +57,6 @@ type Decorators = {
 
 /** An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ... */
 const _: Decorators = {
-  $plainData,
   $statusCode,
   $body,
   $header,

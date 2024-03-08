@@ -33,6 +33,7 @@ export async function generateExternSignatures(
   const prettierConfig = await prettier.resolveConfig(libraryPath);
 
   const outDir = resolvePath(libraryPath, "generated-defs");
+  await host.rm(outDir, { recursive: true });
   await host.mkdirp(outDir);
 
   const files = await generateExternDecorators(program, pkgJson.name, prettierConfig ?? undefined);
@@ -52,17 +53,20 @@ export async function generateExternDecorators(
   packageName: string,
   prettierConfig?: prettier.Options
 ): Promise<Record<string, string>> {
-  const decorators: DecoratorSignature[] = [];
+  const decorators = new Map<string, DecoratorSignature[]>();
 
   navigateProgram(program, {
-    namespace: (ns) => {
-      return undefined;
-    },
     decorator(dec) {
       if (getLocationContext(program, dec).type !== "project") {
         return;
       }
-      decorators.push(resolveDecoratorSignature(dec));
+      const namespaceName = getTypeName(dec.namespace);
+      let decoratorForNamespace = decorators.get(namespaceName);
+      if (!decoratorForNamespace) {
+        decoratorForNamespace = [];
+        decorators.set(namespaceName, decoratorForNamespace);
+      }
+      decoratorForNamespace.push(resolveDecoratorSignature(dec));
     },
   });
 
@@ -80,16 +84,17 @@ export async function generateExternDecorators(
     }
   }
 
-  return {
-    "decorators.ts": await format(generateSignatures(program, decorators)),
-    "decorators.ts-test.ts": await format(
-      generateSignatureTests(
-        packageName,
-        "./decorators.js",
-        decorators.filter((d) => !getTypeName(d.decorator.namespace).includes(".Private"))
-      )
-    ),
-  };
+  const files: Record<string, string> = {};
+  for (const [ns, nsDecorators] of decorators.entries()) {
+    const file = `${ns}.ts`;
+    files[file] = await format(generateSignatures(program, nsDecorators));
+    if (!ns.includes(".Private")) {
+      files[`${ns}.ts-test.ts`] = await format(
+        generateSignatureTests(packageName, `./${ns}.js`, nsDecorators)
+      );
+    }
+  }
+  return files;
 }
 
 function resolveDecoratorSignature(decorator: Decorator): DecoratorSignature {

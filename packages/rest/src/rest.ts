@@ -27,15 +27,17 @@ import {
 } from "@typespec/http";
 import {
   ActionDecorator,
-  ActionSegmentDecorator,
   AutoRouteDecorator,
   CollectionActionDecorator,
   ListsResourceDecorator,
   ReadsResourceDecorator,
   ResourceDecorator,
-  ResourceLocationDecorator,
   SegmentOfDecorator,
-} from "../generated-defs/decorators.js";
+} from "../generated-defs/TypeSpec.Rest.js";
+import {
+  ActionSegmentDecorator,
+  ResourceLocationDecorator,
+} from "../generated-defs/TypeSpec.Rest.Private.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 

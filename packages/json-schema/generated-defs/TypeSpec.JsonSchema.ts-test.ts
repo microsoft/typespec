@@ -15,7 +15,6 @@ import {
   $multipleOf,
   $prefixItems,
   $uniqueItems,
-  $validatesRawJson,
 } from "@typespec/json-schema";
 import {
   BaseUriDecorator,
@@ -33,11 +32,9 @@ import {
   MultipleOfDecorator,
   PrefixItemsDecorator,
   UniqueItemsDecorator,
-  ValidatesRawJsonDecorator,
-} from "./decorators.js";
+} from "./TypeSpec.JsonSchema.js";
 
 type Decorators = {
-  $validatesRawJson: ValidatesRawJsonDecorator;
   $jsonSchema: JsonSchemaDecorator;
   $baseUri: BaseUriDecorator;
   $id: IdDecorator;
@@ -57,7 +54,6 @@ type Decorators = {
 
 /** An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ... */
 const _: Decorators = {
-  $validatesRawJson,
   $jsonSchema,
   $baseUri,
   $id,

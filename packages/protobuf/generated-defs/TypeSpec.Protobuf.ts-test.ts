@@ -7,7 +7,7 @@ import {
   ReserveDecorator,
   ServiceDecorator,
   StreamDecorator,
-} from "./decorators.js";
+} from "./TypeSpec.Protobuf.js";
 
 type Decorators = {
   $message: MessageDecorator;

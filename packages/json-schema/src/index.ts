@@ -12,6 +12,7 @@ import {
   setTypeSpecNamespace,
   typespecTypeToJson,
 } from "@typespec/compiler";
+import { ValidatesRawJsonDecorator } from "../generated-defs/TypeSpec.JsonSchema.Private.js";
 import {
   BaseUriDecorator,
   ContainsDecorator,
@@ -28,8 +29,7 @@ import {
   MultipleOfDecorator,
   PrefixItemsDecorator,
   UniqueItemsDecorator,
-  ValidatesRawJsonDecorator,
-} from "../generated-defs/decorators.js";
+} from "../generated-defs/TypeSpec.JsonSchema.js";
 import { JsonSchemaEmitter } from "./json-schema-emitter.js";
 import { JSONSchemaEmitterOptions, createStateSymbol } from "./lib.js";
 

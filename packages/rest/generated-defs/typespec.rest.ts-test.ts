@@ -34,7 +34,7 @@ import {
   SegmentDecorator,
   SegmentOfDecorator,
   UpdatesResourceDecorator,
-} from "./decorators.js";
+} from "./TypeSpec.Rest.js";
 
 type Decorators = {
   $autoRoute: AutoRouteDecorator;

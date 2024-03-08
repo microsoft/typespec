@@ -1,42 +1,4 @@
-import {
-  DecoratorContext,
-  Interface,
-  Model,
-  ModelProperty,
-  Operation,
-  Scalar,
-  Type,
-} from "@typespec/compiler";
-
-export type ResourceLocationDecorator = (
-  context: DecoratorContext,
-  target: Scalar,
-  resourceType: Model
-) => void;
-
-export type ValidateHasKeyDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: Type
-) => void;
-
-export type ValidateIsErrorDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  value: Type
-) => void;
-
-export type ActionSegmentDecorator = (
-  context: DecoratorContext,
-  target: Operation,
-  value: string
-) => void;
-
-export type ResourceTypeForKeyParamDecorator = (
-  context: DecoratorContext,
-  entity: ModelProperty,
-  resourceType: Model
-) => void;
+import { DecoratorContext, Interface, Model, ModelProperty, Operation } from "@typespec/compiler";
 
 /**
  * This interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.

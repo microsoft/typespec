@@ -18,7 +18,7 @@ import {
   ExternalDocsDecorator,
   InfoDecorator,
   OperationIdDecorator,
-} from "../generated-defs/decorators.js";
+} from "../generated-defs/TypeSpec.OpenAPI.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { AdditionalInfo, ExtensionKey } from "./types.js";
 

@@ -12,7 +12,7 @@ import {
   ExternalDocsDecorator,
   InfoDecorator,
   OperationIdDecorator,
-} from "./decorators.js";
+} from "./TypeSpec.OpenAPI.js";
 
 type Decorators = {
   $operationId: OperationIdDecorator;

@@ -1,5 +1,8 @@
 import { DecoratorContext, getTypeName, isErrorModel, Type } from "@typespec/compiler";
-import { ValidateHasKeyDecorator, ValidateIsErrorDecorator } from "../generated-defs/decorators.js";
+import {
+  ValidateHasKeyDecorator,
+  ValidateIsErrorDecorator,
+} from "../generated-defs/TypeSpec.Rest.Private.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { getResourceTypeKey } from "./resource.js";
 

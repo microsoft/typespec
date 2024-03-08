@@ -22,6 +22,7 @@ import {
   validateDecoratorTarget,
   validateDecoratorUniqueOnNode,
 } from "@typespec/compiler";
+import { PlainDataDecorator } from "../generated-defs/TypeSpec.Http.Private.js";
 import {
   BodyDecorator,
   DeleteDecorator,
@@ -30,7 +31,6 @@ import {
   HeaderDecorator,
   PatchDecorator,
   PathDecorator,
-  PlainDataDecorator,
   PostDecorator,
   PutDecorator,
   QueryDecorator,
@@ -38,7 +38,7 @@ import {
   ServerDecorator,
   SharedRouteDecorator,
   StatusCodeDecorator,
-} from "../generated-defs/decorators.js";
+} from "../generated-defs/TypeSpec.Http.js";
 import { HttpStateKeys, createDiagnostic, reportDiagnostic } from "./lib.js";
 import { setRoute, setSharedRoute } from "./route.js";
 import { getStatusCodesFromType } from "./status-codes.js";

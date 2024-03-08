@@ -12,7 +12,7 @@ import {
   validateDecoratorTarget,
 } from "@typespec/compiler";
 import { $path } from "@typespec/http";
-import { ParentResourceDecorator } from "../generated-defs/decorators.js";
+import { ParentResourceDecorator } from "../generated-defs/TypeSpec.Rest.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 
 export interface ResourceKey {

@@ -18,7 +18,7 @@ import {
   TypeChangedFromDecorator,
   UseDependencyDecorator,
   VersionedDecorator,
-} from "./decorators.js";
+} from "./TypeSpec.Versioning.js";
 
 type Decorators = {
   $versioned: VersionedDecorator;

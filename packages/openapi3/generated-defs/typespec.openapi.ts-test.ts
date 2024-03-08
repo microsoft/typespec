@@ -1,6 +1,6 @@
 /** An error here would mean that the decorator is not exported or doesn't have the right name. */
 import { $oneOf, $useRef } from "@typespec/openapi3";
-import { OneOfDecorator, UseRefDecorator } from "./decorators.js";
+import { OneOfDecorator, UseRefDecorator } from "./TypeSpec.OpenAPI.js";
 
 type Decorators = {
   $oneOf: OneOfDecorator;

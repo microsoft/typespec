@@ -1,10 +1,4 @@
-import { DecoratorContext, Model, Namespace, Type } from "@typespec/compiler";
-
-export type ValidatesRawJsonDecorator = (
-  context: DecoratorContext,
-  target: Model,
-  value: Type
-) => void;
+import { DecoratorContext, Namespace, Type } from "@typespec/compiler";
 
 /**
  * Add to namespaces to emit models within that namespace to JSON schema.

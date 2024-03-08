@@ -1,14 +1,11 @@
 import {
   DecoratorContext,
   Interface,
-  Model,
   ModelProperty,
   Namespace,
   Operation,
   Type,
 } from "@typespec/compiler";
-
-export type PlainDataDecorator = (context: DecoratorContext, target: Model) => void;
 
 /**
  * Specify the status code for this response. Property type must be a status code integer or a union of status code integer.

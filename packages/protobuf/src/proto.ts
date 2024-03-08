@@ -24,7 +24,7 @@ import {
   PackageDecorator,
   ReserveDecorator,
   StreamDecorator,
-} from "../generated-defs/decorators.js";
+} from "../generated-defs/TypeSpec.Protobuf.js";
 import { StreamingMode } from "./ast.js";
 import { ProtobufEmitterOptions, reportDiagnostic, state, TypeSpecProtobufLibrary } from "./lib.js";
 import { createProtobufEmitter } from "./transform/index.js";
