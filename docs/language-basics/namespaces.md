@@ -7,7 +7,7 @@ title: Namespaces
 
 Namespaces in TypeSpec allow you to group related types together. This organization makes your types easier to locate and helps avoid naming conflicts. Namespaces are merged across files, enabling you to reference any type from anywhere in your TypeSpec program using its namespace.
 
-## Basic Usage
+## Basic usage
 
 You can create a namespace using the `namespace` keyword.
 
@@ -27,7 +27,7 @@ model Foo {
 }
 ```
 
-## Nested Namespaces
+## Nested namespaces
 
 Namespaces can contain sub-namespaces, offering additional layers of organization.
 
@@ -57,7 +57,7 @@ model A {
 }
 ```
 
-## File-Level Namespaces
+## File-level namespaces
 
 You can define a namespace for all declarations within a file at the top of the file (after any `import` statements) using a blockless namespace statement:
 
@@ -69,7 +69,7 @@ model SampleModel {}
 
 A file can only have one blockless namespace.
 
-## Using Namespaces
+## Using namespaces
 
 You can expose the contents of a namespace to the current scope using the `using` keyword.
 
