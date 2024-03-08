@@ -16,7 +16,7 @@ interface SampleInterface {
 }
 ```
 
-## Composing Interfaces
+## Composing interfaces
 
 You can use the `extends` keyword to incorporate operations from other interfaces into a new interface.
 
@@ -50,7 +50,7 @@ interface C {
 }
 ```
 
-## Interface Templates
+## Interface templates
 
 Interfaces can be templated. For more details on templates, [see templates](./templates.md).
 
@@ -61,7 +61,7 @@ interface ReadWrite<T> {
 }
 ```
 
-## Templating Interface Operations
+## Templating interface operations
 
 Operations defined within an interface can also be templated. For more details on templates, [see templates](./templates.md).
 
