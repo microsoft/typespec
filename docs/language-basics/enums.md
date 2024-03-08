@@ -7,7 +7,7 @@ title: Enums
 
 Enums, short for enumerations, provide a way for developers to define a collection of named constants. They are useful for documenting the purpose of the code or for establishing a set of distinct scenarios. Enums can be either numeric or string-based. For other data types, consider using [unions](./unions.md).
 
-## The Basics
+## The basics
 
 You can declare enums using the `enum` keyword. The members of an enum are separated by commas `,` and can be either `identifier` TypeSpecs or `string literal`s.
 
@@ -22,7 +22,7 @@ enum Direction {
 
 In the above example, we haven't defined the representation of the constants. Depending on the context, enums might be handled differently.
 
-## Assigning Values to Enums
+## Assigning values to enums
 
 You can assign custom values to enum members using the `:` operator.
 
@@ -57,7 +57,7 @@ enum Hour {
 }
 ```
 
-## Combining Enums
+## Combining enums
 
 You can combine enums using the spread `...` pattern. This copies all the members from the source enum to the target enum, but it doesn't establish any reference between the source and target enums.
 
@@ -71,7 +71,7 @@ enum DirectionExt {
 }
 ```
 
-## How to Reference Enum Members
+## How to reference enum members
 
 You can reference enum members using the `.` operator for identifiers.
 
