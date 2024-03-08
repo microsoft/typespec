@@ -11,7 +11,7 @@ A range of TypeSpec constructs can be decorated, including [namespaces](./namesp
 
 Decorators are defined using JavaScript functions that are exported from a standard ECMAScript module. When a JavaScript file is imported, TypeSpec will look for any exported functions prefixed with `$`, and make them available as decorators within the TypeSpec syntax. When a decorated declaration is evaluated by TypeSpec, the decorator function is invoked, passing along a reference to the current compilation, an object representing the type it is attached to, and any arguments the user provided to the decorator.
 
-## Applying Decorators
+## Applying decorators
 
 Decorators are referenced using the `@` prefix and must be placed before the entity they are decorating. Arguments can be provided by using parentheses, similar to function calls in many programming languages, e.g., `@myDec1("hi", { a: string })`.
 
@@ -32,7 +32,7 @@ If no arguments are provided, the parentheses can be omitted.
 model Dog {}
 ```
 
-## Augmenting Decorators
+## Augmenting decorators
 
 Decorators can also be applied from a different location by referring to the type being decorated. For this, you can declare an augment decorator using the `@@` prefix. The first argument of an augment decorator is the type reference that should be decorated. As the augment decorator is a statement, it must end with a semicolon (`;`).
 
@@ -49,7 +49,7 @@ This is equivalent to:
 model Dog {}
 ```
 
-Example: Decorating a model property
+Example: decorating a model property
 
 ```typespec
 model Dog {
@@ -59,6 +59,6 @@ model Dog {
 @@readOnly(Dog.name);
 ```
 
-## Creating Decorators
+## Creating decorators
 
 _For more information on creating decorators, see the [Creating Decorators Documentation](../extending-typespec/create-decorators.md)._
