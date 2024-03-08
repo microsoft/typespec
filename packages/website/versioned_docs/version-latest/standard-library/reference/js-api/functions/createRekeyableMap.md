@@ -9,7 +9,7 @@ createRekeyableMap<K, V>(entries?): RekeyableMap<K, V>
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` |
 | `V` |

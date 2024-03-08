@@ -4,6 +4,8 @@
 
 This provides provides [TypeSpec](https://github.com/microsoft/typespec) language support for VS Code.
 
+![](https://raw.githubusercontent.com/microsoft/typespec/main/docs/images/vscode.gif)
+
 ## Features
 
 - Live diagnostic reporting

@@ -298,6 +298,12 @@ const diagnostics = {
       array: "Cannot intersect an array model.",
     },
   },
+  "incompatible-indexer": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Property is incompatible with indexer:\n${"message"}`,
+    },
+  },
   "no-array-properties": {
     severity: "error",
     messages: {

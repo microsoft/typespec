@@ -9,8 +9,12 @@ title: "[P] JS API"
 
 ## Interfaces
 
+- [AnyHttpAuthRef](interfaces/AnyHttpAuthRef.md)
 - [ApiKeyAuth](interfaces/ApiKeyAuth.md)
+- [Authentication](interfaces/Authentication.md)
 - [AuthenticationOption](interfaces/AuthenticationOption.md)
+- [AuthenticationOptionReference](interfaces/AuthenticationOptionReference.md)
+- [AuthenticationReference](interfaces/AuthenticationReference.md)
 - [AuthorizationCodeFlow](interfaces/AuthorizationCodeFlow.md)
 - [BasicAuth](interfaces/BasicAuth.md)
 - [BearerAuth](interfaces/BearerAuth.md)
@@ -25,10 +29,14 @@ title: "[P] JS API"
 - [HttpOperationResponseContent](interfaces/HttpOperationResponseContent.md)
 - [HttpServer](interfaces/HttpServer.md)
 - [HttpService](interfaces/HttpService.md)
+- [HttpServiceAuthentication](interfaces/HttpServiceAuthentication.md)
 - [HttpStatusCodeRange](interfaces/HttpStatusCodeRange.md)
 - [ImplicitFlow](interfaces/ImplicitFlow.md)
 - [MetadataInfo](interfaces/MetadataInfo.md)
 - [MetadataInfoOptions](interfaces/MetadataInfoOptions.md)
+- [NoAuth](interfaces/NoAuth.md)
+- [NoHttpAuthRef](interfaces/NoHttpAuthRef.md)
+- [OAuth2HttpAuthRef](interfaces/OAuth2HttpAuthRef.md)
 - [OAuth2Scope](interfaces/OAuth2Scope.md)
 - [Oauth2Auth](interfaces/Oauth2Auth.md)
 - [OpenIDConnectAuth](interfaces/OpenIDConnectAuth.md)
@@ -40,11 +48,11 @@ title: "[P] JS API"
 - [RoutePath](interfaces/RoutePath.md)
 - [RouteProducerResult](interfaces/RouteProducerResult.md)
 - [RouteResolutionOptions](interfaces/RouteResolutionOptions.md)
-- [ServiceAuthentication](interfaces/ServiceAuthentication.md)
 
 ## Type Aliases
 
 - [HttpAuth](type-aliases/HttpAuth.md)
+- [HttpAuthRef](type-aliases/HttpAuthRef.md)
 - [HttpOperationParameter](type-aliases/HttpOperationParameter.md)
 - [HttpStatusCodes](type-aliases/HttpStatusCodes.md)
 - [HttpStatusCodesEntry](type-aliases/HttpStatusCodesEntry.md)
@@ -55,6 +63,7 @@ title: "[P] JS API"
 - [OperationDetails](type-aliases/OperationDetails.md)
 - [OperationVerbSelector](type-aliases/OperationVerbSelector.md)
 - [RouteProducer](type-aliases/RouteProducer.md)
+- [ServiceAuthentication](type-aliases/ServiceAuthentication.md)
 - [StatusCode](type-aliases/StatusCode.md)
 
 ## Variables
@@ -89,6 +98,7 @@ title: "[P] JS API"
 - [getAllHttpServices](functions/getAllHttpServices.md)
 - [getAllRoutes](functions/getAllRoutes.md)
 - [getAuthentication](functions/getAuthentication.md)
+- [getAuthenticationForOperation](functions/getAuthenticationForOperation.md)
 - [getContentTypes](functions/getContentTypes.md)
 - [getHeaderFieldName](functions/getHeaderFieldName.md)
 - [getHeaderFieldOptions](functions/getHeaderFieldOptions.md)
@@ -126,6 +136,7 @@ title: "[P] JS API"
 - [isVisible](functions/isVisible.md)
 - [listHttpOperationsIn](functions/listHttpOperationsIn.md)
 - [reportIfNoRoutes](functions/reportIfNoRoutes.md)
+- [resolveAuthentication](functions/resolveAuthentication.md)
 - [resolvePathAndParameters](functions/resolvePathAndParameters.md)
 - [resolveRequestVisibility](functions/resolveRequestVisibility.md)
 - [setAuthentication](functions/setAuthentication.md)

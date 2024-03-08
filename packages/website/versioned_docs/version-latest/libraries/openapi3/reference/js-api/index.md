@@ -18,5 +18,6 @@ title: "[P] JS API"
 - [$oneOf](functions/$oneOf.md)
 - [$useRef](functions/$useRef.md)
 - [getOneOf](functions/getOneOf.md)
+- [getOpenAPI3](functions/getOpenAPI3.md)
 - [getRef](functions/getRef.md)
 - [resolveOptions](functions/resolveOptions.md)

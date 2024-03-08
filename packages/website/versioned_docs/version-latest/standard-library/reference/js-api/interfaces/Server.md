@@ -5,10 +5,10 @@ title: "[I] Server"
 ---
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `pendingMessages` | readonly `string`[] | - |
-| `readonly` | `workspaceFolders` | readonly [`ServerWorkspaceFolder`](ServerWorkspaceFolder.md)[] | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `pendingMessages` | `readonly` | readonly `string`[] |
+| `workspaceFolders` | `readonly` | readonly [`ServerWorkspaceFolder`](ServerWorkspaceFolder.md)[] |
 
 ## Methods
 
@@ -102,6 +102,24 @@ documentClosed(change): void
 
 ***
 
+### executeCommand()
+
+```ts
+executeCommand(params): Promise<void>
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `params` | `ExecuteCommandParams` |
+
+#### Returns
+
+`Promise`<`void`\>
+
+***
+
 ### findDocumentHighlight()
 
 ```ts
@@ -153,6 +171,24 @@ formatDocument(params): Promise<TextEdit[]>
 #### Returns
 
 `Promise`<`TextEdit`[]\>
+
+***
+
+### getCodeActions()
+
+```ts
+getCodeActions(params): Promise<CodeAction[]>
+```
+
+#### Parameters
+
+| Parameter | Type |
+| :------ | :------ |
+| `params` | `CodeActionParams` |
+
+#### Returns
+
+`Promise`<`CodeAction`[]\>
 
 ***
 

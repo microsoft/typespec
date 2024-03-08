@@ -21,7 +21,7 @@ const OpenApiContent = () => {
     <div>
       <UseCaseOverview
         title="Write TypeSpec, emit OpenAPI"
-        subtitle="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+        subtitle="Emitting OpenAPI from TypeSpec enables seamless cross-language interaction, automates API-related tasks, and simplifies API management and evolution."
         link={Links.gettingStartedOpenAPI}
         illustration={<OpenAPI3HeroIllustration />}
       />
@@ -29,7 +29,7 @@ const OpenApiContent = () => {
         <Section
           header="Ecosystem"
           title="Interoperate with the OpenAPI ecosystem"
-          description="Write TypeSpec, emit OpenAPI. Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
+          description="Benefit from a huge ecosystem of OpenAPI tools for configuring API gateways, generating code, and validating your data."
           illustration={<OpenAPI3InteroperateIllustration />}
         >
           <LearnMoreCard

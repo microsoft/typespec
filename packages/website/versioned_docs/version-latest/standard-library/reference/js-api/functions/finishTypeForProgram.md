@@ -9,7 +9,7 @@ finishTypeForProgram<T>(program, typeDef): T
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`Type`](../type-aliases/Type.md) |
 

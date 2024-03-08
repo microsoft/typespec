@@ -3,16 +3,16 @@ jsApi: true
 title: "[I] SourceFile"
 
 ---
-## Extended By
+## Extended by
 
 - [`ServerSourceFile`](ServerSourceFile.md)
 
 ## Properties
 
-| Modifier | Property | Type | Description |
+| Property | Modifier | Type | Description |
 | :------ | :------ | :------ | :------ |
-| `readonly` | `path` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. |
-| `readonly` | `text` | `string` | The source code text. |
+| `path` | `readonly` | `string` | The source file path.<br /><br />This is used only for diagnostics. The command line compiler will populate<br />it with the actual path from which the file was read, but it can actually<br />be an arbitrary name for other scenarios. |
+| `text` | `readonly` | `string` | The source code text. |
 
 ## Methods
 

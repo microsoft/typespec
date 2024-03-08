@@ -37,7 +37,7 @@ getNodeAtPosition<T>(
 
 ### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`Node`](../type-aliases/Node.md) |
 

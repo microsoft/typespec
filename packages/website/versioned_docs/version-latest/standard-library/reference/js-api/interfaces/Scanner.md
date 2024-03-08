@@ -5,13 +5,13 @@ title: "[I] Scanner"
 ---
 ## Properties
 
-| Modifier | Property | Type | Description |
+| Property | Modifier | Type | Description |
 | :------ | :------ | :------ | :------ |
-| `readonly` | `file` | [`SourceFile`](SourceFile.md) | The source code being scanned. |
-| `readonly` | `position` | `number` | The offset in UTF-16 code units to the current position at the start of the next token. |
-| `readonly` | `token` | [`Token`](../enumerations/Token.md) | The current token |
-| `readonly` | `tokenFlags` | [`TokenFlags`](../enumerations/TokenFlags.md) | The flags on the current token. |
-| `readonly` | `tokenPosition` | `number` | The offset in UTF-16 code units to the start of the current token. |
+| `file` | `readonly` | [`SourceFile`](SourceFile.md) | The source code being scanned. |
+| `position` | `readonly` | `number` | The offset in UTF-16 code units to the current position at the start of the next token. |
+| `token` | `readonly` | [`Token`](../enumerations/Token.md) | The current token |
+| `tokenFlags` | `readonly` | [`TokenFlags`](../enumerations/TokenFlags.md) | The flags on the current token. |
+| `tokenPosition` | `readonly` | `number` | The offset in UTF-16 code units to the start of the current token. |
 
 ## Methods
 
@@ -140,7 +140,7 @@ Reset the scanner to the given start and end positions, invoke the callback, and
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 

@@ -11,7 +11,7 @@ Check if the given target is of any of the TypeSpec types.
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` extends [`TypeKind`](../type-aliases/TypeKind.md) |
 

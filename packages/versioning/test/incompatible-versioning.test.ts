@@ -30,6 +30,7 @@ describe("versioning: incompatible use of decorators", () => {
     @versioned(Versions)
     @service({
       title: "Widget Service",
+      #suppress "deprecated" "For test"
       version: "v3"
     })
     namespace DemoService;

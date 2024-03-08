@@ -44,6 +44,7 @@
     "build": "tsc -p .",
     "watch": "tsc -p . --watch",
     "test": "vitest run",
+    "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",

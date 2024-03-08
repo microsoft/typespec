@@ -24,9 +24,9 @@ options): DiagnosticResult<Object>
 
 `DiagnosticResult`<`Object`\>
 
-> | Member | Type | Description |
-> | :------ | :------ | :------ |
-> | `parameters` | [`HttpOperationParameters`](../interfaces/HttpOperationParameters.md) | - |
-> | `path` | `string` | - |
-> | `pathSegments` | `string`[] | - |
+> | Member | Type |
+> | :------ | :------ |
+> | `parameters` | [`HttpOperationParameters`](../interfaces/HttpOperationParameters.md) |
+> | `path` | `string` |
+> | `pathSegments` | `string`[] |
 >

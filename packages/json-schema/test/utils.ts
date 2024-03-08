@@ -16,6 +16,7 @@ export async function getHostForCadlFile(contents: string, decorators?: Record<s
   }
   host.addTypeSpecFile("main.cadl", contents);
   await host.compile("main.cadl", {
+    noEmit: false,
     outputDir: "cadl-output",
   });
   return host;

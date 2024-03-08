@@ -18,7 +18,7 @@ const DataValidationContent = () => {
     <div>
       <UseCaseOverview
         title="Syntax highlighting, autocomplete, formatter and more"
-        subtitle="TypeSpec comes out of the box with many crucial tooling that will improve your productivity."
+        subtitle="TypeSpec is supported by a variety of readily available tools, designed to boost your productivity right from the start."
         link={Links.editor.home}
         illustration={<LightDarkImg src="illustrations/ide-hero" />}
       />
