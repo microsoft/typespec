@@ -3,7 +3,7 @@ id: decorators
 title: Decorators
 ---
 
-# Working with Decorators in TypeSpec
+# Decorators
 
 Decorators in TypeSpec allow developers to attach metadata to types within a TypeSpec program. They can also be used to compute types based on their inputs. Decorators form the core of TypeSpec's extensibility, providing the flexibility to describe a wide variety of APIs and associated metadata such as documentation, constraints, samples, and more.
 
