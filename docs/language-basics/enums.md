@@ -1,9 +1,9 @@
 ---
 id: enums
-title: Understanding Enums
+title: Enums
 ---
 
-# Understanding Enums
+# Enums
 
 Enums, short for enumerations, provide a way for developers to define a collection of named constants. They are useful for documenting the purpose of the code or for establishing a set of distinct scenarios. Enums can be either numeric or string-based. For other data types, consider using [unions](./unions.md).
 
