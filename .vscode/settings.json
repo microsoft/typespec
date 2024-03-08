@@ -6,6 +6,7 @@
     "**/dist-dev/**": true,
     "**/.docusaurus/**": true,
     "**/CHANGELOG.json": true,
+    "./.changesets/*.md": true,
     "docs/spec.html": true,
     "**/node_modules/**": true,
     "packages/compiler/templates/__snapshots__/**": true,
