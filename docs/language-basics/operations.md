@@ -33,7 +33,7 @@ model DogNotFound {
 op getDog(name: string): Dog | DogNotFound;
 ```
 
-## Reusing Operations
+## Reusing operations
 
 You can reuse operation signatures with the `is` keyword. For example, given an operation
 
@@ -51,7 +51,7 @@ This implies that `deletePet` will inherit the same parameters, return type, and
 
 This practice is typically used in conjunction with [operation templates](#operations-templates)
 
-## Operation Templates
+## Operation templates
 
 For more information on templates, [see templates](./templates.md).
 
@@ -65,7 +65,7 @@ You can reference the operation template using `is`:
 op readPet is ReadResource<Pet>;
 ```
 
-## Referencing Model Properties
+## Referencing model properties
 
 You can reference model properties using the `.` operator for identifiers.
 
@@ -73,7 +73,7 @@ You can reference model properties using the `.` operator for identifiers.
 alias PetName = Pet.name;
 ```
 
-## Meta Type References
+## Meta type references
 
 Certain operation meta types can be referenced using `::`
 
