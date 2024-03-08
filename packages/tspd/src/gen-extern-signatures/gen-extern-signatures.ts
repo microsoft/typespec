@@ -33,7 +33,9 @@ export async function generateExternSignatures(
   const prettierConfig = await prettier.resolveConfig(libraryPath);
 
   const outDir = resolvePath(libraryPath, "generated-defs");
-  await host.rm(outDir, { recursive: true });
+  try {
+    await host.rm(outDir, { recursive: true });
+  } catch (e) {}
   await host.mkdirp(outDir);
 
   const files = await generateExternDecorators(program, pkgJson.name, prettierConfig ?? undefined);
@@ -57,9 +59,13 @@ export async function generateExternDecorators(
 
   navigateProgram(program, {
     decorator(dec) {
-      if (getLocationContext(program, dec).type !== "project") {
+      if (
+        packageName !== "@typespec/compiler" &&
+        getLocationContext(program, dec).type !== "project"
+      ) {
         return;
       }
+      console.log("decorator", dec.name);
       const namespaceName = getTypeName(dec.namespace);
       let decoratorForNamespace = decorators.get(namespaceName);
       if (!decoratorForNamespace) {

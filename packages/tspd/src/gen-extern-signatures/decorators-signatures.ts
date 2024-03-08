@@ -138,17 +138,26 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
     }
     if (type.kind === "Model" && isReflectionType(type)) {
       return useCompilerType(type.name);
-    } else if (
-      type.kind === "Union" &&
-      [...type.variants.values()].every((x) => isReflectionType(x.type))
-    ) {
+    } else if (type.kind === "Union") {
       const variants = [...type.variants.values()];
-      return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
-    } else if (isTarget && type.kind === "Scalar") {
-      // Special case for target type if it is a scalar type(e.g. `string`) then it can only be a Scalar.
-      // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
-      // so we only change that when isTarget is true.
-      return useCompilerType("Scalar");
+
+      if (isTarget) {
+        const items = [...new Set(variants.map((x) => getTSParmeterType(x.type, isTarget)))];
+        return items.join(" | ");
+      } else if (variants.every((x) => isReflectionType(x.type))) {
+        return variants.map((x) => useCompilerType((x.type as Model).name)).join(" | ");
+      } else {
+        return useCompilerType("Type");
+      }
+    } else if (isTarget) {
+      if (type.kind === "Scalar") {
+        // Special case for target type if it is a scalar type(e.g. `string`) then it can only be a Scalar.
+        // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
+        // so we only change that when isTarget is true.
+        return useCompilerType("Scalar");
+      } else if (isArrayModelType(program, type as any as Model)) {
+        return useCompilerType("Model");
+      }
     }
     return useCompilerType("Type");
   }
