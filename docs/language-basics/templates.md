@@ -25,7 +25,7 @@ model DogPage {
 }
 ```
 
-## Default Values
+## Default values
 
 You can assign a default value to a template parameter using `= <value>`.
 
@@ -36,7 +36,7 @@ model Page<Item = string> {
 }
 ```
 
-## Parameter Constraints
+## Parameter constraints
 
 You can impose constraints on template parameters using the `extends` keyword. For details on how validation works, refer to the [type relations](./type-relations.md) documentation.
 
@@ -75,7 +75,7 @@ alias Foo<T extends string = "Abc", U> = ...;
                                     ^ Required template arguments must not follow optional template arguments
 ```
 
-## Named Template Arguments
+## Named template arguments
 
 Template arguments can also be specified by name. This allows you to specify them out of order and omit optional arguments. This can be particularly useful when dealing with templates that have many arguments with defaults:
 
