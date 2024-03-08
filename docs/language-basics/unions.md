@@ -10,7 +10,7 @@ Unions in programming define a type that can be one, and only one, of several po
 - Union expressions
 - Named unions
 
-## Union Expressions
+## Union expressions
 
 Unnamed unions, or union expressions, can be declared by combining the variants using the `|` operator.
 
@@ -20,7 +20,7 @@ alias Breed = Beagle | GermanShepherd | GoldenRetriever;
 
 In this example, `Breed` can be either a `Beagle`, a `GermanShepherd`, or a `GoldenRetriever`.
 
-## Named Unions
+## Named unions
 
 Named unions allow you to assign a name to the union and provide explicit variant references. Named unions are somewhat similar to [enums](./enums.md), but instead of having `string` or `numeric` values, they use [record models](./models.md).
 
