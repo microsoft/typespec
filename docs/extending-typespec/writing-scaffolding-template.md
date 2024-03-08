@@ -4,7 +4,7 @@ title: Scaffolding templates
 
 # Writting a scaffolding template
 
-typespec provides scaffolding functionality via the `tsp init` command.
+TypeSpec provides scaffolding functionality via the `tsp init` command.
 
 ```bash
 tsp init <templateUrl>
