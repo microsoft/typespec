@@ -83,6 +83,11 @@ const config: Config = {
       type: "module",
       async: true,
     },
+    {
+      src: "1ds-init.js",
+      type: "module",
+      async: true,
+    },
   ],
   headTags: [
     {
