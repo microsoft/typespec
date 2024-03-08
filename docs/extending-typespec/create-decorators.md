@@ -1,33 +1,33 @@
 ---
 id: create-decorators
-title: Creating TypeSpec Decorators
+title: How to create TypeSpec decorators
 ---
 
-# Creating TypeSpec decorators
+# How to create TypeSpec decorators
 
-TypeSpec decorator are implemented as JavaScript function. Declarating a decorator can be done in 1 or 2 part:
+TypeSpec decorators are implemented as JavaScript functions. The process of creating a decorator can be divided into two parts:
 
-1. [(Optional) Declare the decorator signature in typespec](#declaring-a-decorator-signature)
-2. [Implement the decorator in Javascript](#implement-the-decorator-in-js)
+1. [(Optional) Declare the decorator signature in TypeSpec](#declare-the-decorator-signature)
+2. [Implement the decorator in JavaScript](#implement-the-decorator-in-javascript)
 
-## Declaring a decorator signature
+## Declare the decorator signature
 
-This part is optional but provides great value:
+While this step is optional, it offers significant benefits:
 
-- Type checking for the parameters
-- IDE IntelliSense
+- It enables type checking for the parameters
+- It provides IDE IntelliSense
 
-A decorator signature can be declared using the `dec` keyword. As we are implementing the decorator in JS (only choice right now), we must apply the `extern` modifier as well.
+You can declare a decorator signature using the `dec` keyword. Since we're implementing the decorator in JavaScript (the only option currently), we need to use the `extern` modifier as well.
 
 ```typespec
 extern dec logType(target: unknown, name: string);
 ```
 
-## Decorator target
+## Specifying the decorator target
 
-The first parameter of the decorator represents the TypeSpec type(s) that the decorator can be applied on.
+The first parameter of the decorator represents the TypeSpec type(s) that the decorator can be applied to.
 
-You can specify multiple potential target type using an `union expression`
+You can specify multiple potential target types using a `union expression`.
 
 ```typespec
 using TypeSpec.Reflection;
@@ -37,31 +37,30 @@ extern dec track(target: Model | Enum);
 
 ### Optional parameters
 
-A decorator parameter can be marked optional using `?`
+You can mark a decorator parameter as optional using `?`.
 
 ```typespec
 extern dec track(target: Model | Enum, name?: valueof string);
 ```
 
-### REST parameters
+### Rest parameters
 
-A decorator's last parameter can be prefixed with `...` to collect all the remaining arguments. The type of that parameter must be an `array expression`
+You can prefix the last parameter of a decorator with `...` to collect all the remaining arguments. The type of this parameter must be an `array expression`.
 
 ```typespec
 extern dec track(target: Model | Enum, ...names: valueof string[]);
 ```
 
-## Ask for a value type
+## Requesting a value type
 
-It is common that decorators parameter will expect a value(e.g. a string or a number). However just using `: string` as the type will also allow a user of the decorator to pass `string` itself or a custom scalar extending string as well as union of strings.
-Instead the decorator can use `valueof <T>` to specify that it is expecting a value of that kind.
+It's common for decorator parameters to expect a value (e.g., a string or a number). However, using `: string` as the type would also allow a user of the decorator to pass `string` itself or a custom scalar extending string, as well as a union of strings. Instead, the decorator can use `valueof <T>` to specify that it expects a value of that kind.
 
 | Example           | Description      |
 | ----------------- | ---------------- |
-| `valueof string`  | Expect a string  |
-| `valueof float64` | Expect a float   |
-| `valueof int32`   | Expect a number  |
-| `valueof boolean` | Expect a boolean |
+| `valueof string`  | Expects a string  |
+| `valueof float64` | Expects a float   |
+| `valueof int32`   | Expects a number  |
+| `valueof boolean` | Expects a boolean |
 
 ```tsp
 extern dec tag(target: unknown, value: valueof string);
@@ -73,7 +72,7 @@ extern dec tag(target: unknown, value: valueof string);
 @tag("This is the tag name")
 ```
 
-## Implement the decorator in JS
+## Implement the decorator in JavaScript
 
 Decorators can be implemented in JavaScript by prefixing the function name with `$`. A decorator function must have the following parameters:
 
@@ -83,14 +82,14 @@ Decorators can be implemented in JavaScript by prefixing the function name with 
 
 ```ts
 // model.ts
-import type { DecoratorContext, Type } from "@typespec/compiler";
+import type { DecoratorContext, Type } from "/compiler";
 
 export function $logType(context: DecoratorContext, target: Type, name: valueof string) {
   console.log(name + ": " + targetType.kind);
 }
 ```
 
-or in pure JS
+Or in pure JavaScript:
 
 ```ts
 // model.js
@@ -99,7 +98,7 @@ export function $logType(context, target, name) {
 }
 ```
 
-The decorator can then be consumed this way
+The decorator can then be used like this:
 
 ```typespec
 // main.tsp
@@ -114,7 +113,7 @@ model Dog {
 
 ### Decorator parameter marshalling
 
-For certain TypeSpec types (Literal types) the decorator do not receive the actual type but a marshalled value if the decorator parmaeter type is a `valueof`. This is to simplify the most common cases.
+For certain TypeSpec types (Literal types), the decorator does not receive the actual type but a marshalled value if the decorator parameter type is a `valueof`. This simplifies the most common cases.
 
 | TypeSpec Type     | Marshalled value in JS |
 | ----------------- | ---------------------- |
@@ -122,7 +121,7 @@ For certain TypeSpec types (Literal types) the decorator do not receive the actu
 | `valueof numeric` | `number`               |
 | `valueof boolean` | `boolean`              |
 
-for all the other types they are not transformed.
+For all other types, they are not transformed.
 
 Example:
 
@@ -130,45 +129,14 @@ Example:
 export function $tag(
   context: DecoratorContext,
   target: Type,
-  stringArg: string, // Here instead of receiving a `StringLiteral` the string value is being sent.
+  stringArg: string, // Here instead of receiving a `StringLiteral`, the string value is being sent.
   modelArg: Model // Model has no special handling so we receive the Model type
 ) {}
 ```
 
-#### String templates and marshalling
-
-If a decorator parameter type is `valueof string`, a string template passed to it will also be marshalled as a string.
-The TypeSpec type system will already validate the string template can be serialized as a string.
-
-```tsp
-extern dec doc(target: unknown, name: valueof string);
-
-
-alias world = "world!";
-@doc("Hello ${world} ") // receive: "Hello world!"
-@doc("Hello ${123} ") // receive: "Hello 123"
-@doc("Hello ${true} ") // receive: "Hello true"
-
-model Bar {}
-@doc("Hello ${Bar} ") // not called error
-     ^ String template cannot be serialized as a string.
-
-```
-
-#### Typescript type Reference
-
-| TypeSpec Parameter Type      | TypeScript types                             |
-| ---------------------------- | -------------------------------------------- |
-| `valueof string`             | `string`                                     |
-| `valueof numeric`            | `number`                                     |
-| `valueof boolean`            | `boolean`                                    |
-| `string`                     | `StringLiteral \| TemplateLiteral \| Scalar` |
-| `Reflection.StringLiteral`   | `StringLiteral`                              |
-| `Reflection.TemplateLiteral` | `TemplateLiteral`                            |
-
 ### Adding metadata with decorators
 
-Decorators can be used to register some metadata. For this you can use the `context.program.stateMap` or `context.program.stateSet` to insert data that will be tied to the current execution.
+Decorators can be used to register some metadata. For this, you can use the `context.program.stateMap` or `context.program.stateSet` to insert data that will be tied to the current execution.
 
 ❌ Do not save the data in a global variable.
 
@@ -200,7 +168,7 @@ export const StateKeys = $lib.stateKeys;
 
 ### Reporting diagnostic on decorator or arguments
 
-Decorator context provide the `decoratorTarget` and `getArgumentTarget` helpers
+The decorator context provides the `decoratorTarget` and `getArgumentTarget` helpers.
 
 ```ts
 import type { DecoratorContext, Type } from "@typespec/compiler";
@@ -218,9 +186,9 @@ export function $customName(context: DecoratorContext, target: Type, name: strin
 }
 ```
 
-## Declaration - implementation link
+## Linking declaration and implementation
 
-Decorator signatures are linked to the implementation of the same name in the same namespace
+Decorator signatures are linked to the implementation of the same name in the same namespace.
 
 ```typespec
 import "./lib.js";
@@ -231,7 +199,7 @@ namespace MyLib {
 }
 ```
 
-is linked the the following in `lib.js`
+This is linked to the following in `lib.js`:
 
 ```ts
 export function $customName(context: DecoratorContext, name: string) {}
@@ -242,12 +210,12 @@ setTypeSpecNamespace("MyLib", $tableName);
 
 ## Troubleshooting
 
-### Extern declation must have an implementation in JS file
+### Extern declaration must have an implementation in JS file
 
 Potential issues:
 
-- JS function is not prefixed with `$`. For a decorator called `@decorate` the JS function must be called `$decoratate`
-- JS function is not in the same namespace as the the `extern dec`
-- Error is only showing in the IDE? Restart the TypeSpec server or the IDE.
+- The JS function is not prefixed with `$`. For a decorator called `@decorate`, the JS function must be called `$decorate`.
+- The JS function is not in the same namespace as the `extern dec`.
+- Is the error only showing in the IDE? Try restarting the TypeSpec server or the IDE.
 
-You can use `--trace bind.js.decorator` to log debug information about decorator loading in JS file that should help pinning down which of those is the issue.
+You can use `--trace bind.js.decorator` to log debug information about decorator loading in the JS file, which should help identify the issue.
