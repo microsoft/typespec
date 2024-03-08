@@ -30,7 +30,7 @@ trace:
   - projection
 ```
 
-## Selecting Trace Areas
+## Selecting trace areas
 
 The tracing system in the tsp compiler organizes each trace under a specific area. The area name is a dot `.` separated string of area segments.
 
@@ -53,7 +53,7 @@ You can use:
 - `one.foo` to log everything under `one.foo`(`one.foo`)
 - `other` to log everything under `other`, which is nothing in this case.
 
-## Trace Areas in the Compiler
+## Trace areas in the compiler
 
 Here is a list of the trace areas used in the compiler:
 
@@ -69,7 +69,7 @@ Here is a list of the trace areas used in the compiler:
 | `linter.extend-rule-set.end`   | Logs information about rules enabled after extending a ruleset       |
 | `linter.lint`                  | Starts the lint process and shows information of all the rules enabled |
 
-## Tracing in TypeSpec Libraries
+## Tracing in TypeSpec libraries
 
 TypeSpec libraries can also emit their own traces that can be collected using the same mechanism. To avoid naming conflicts, it's recommended that a library prefixes their tracing area with the library name. This can be done by calling the `sub(subArea: string)` method on the tracer.
 
