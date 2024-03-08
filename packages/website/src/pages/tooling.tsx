@@ -26,7 +26,7 @@ const DataValidationContent = () => {
         <Section
           header="Style consistency"
           title="Built-in formatter"
-          description="TypeSpec provide an opinionated formatter that enables you to enforce a consistent style in your codebase."
+          description="TypeSpec provides an opinionated formatter that enables you to enforce a consistent style in your codebase."
           illustration={<FormatterIllustration />}
         >
           <LearnMoreCard
@@ -53,14 +53,14 @@ const DataValidationContent = () => {
         <Section
           header="Intellisense"
           title="Autocomplete and more"
-          description="IntelliSense shows you intelligent code completion, hover information, and signature help so that you can write code more quickly and correctly."
+          description="IntelliSense shows you intelligent code completion, hover information, and signature help so that you can write code more efficiently."
           illustration={<LightDarkImg src="illustrations/autocomplete" />}
         />
         <Section
           layout="text-right"
           header="Refactor"
           title="Bulk renaming"
-          description="One of the simplest refactoring is to rename a reference. You can rename a identifier and see all its reference across your TypeSpec project update."
+          description="One of the simplest refactoring changes is to rename a reference. You can rename a identifier and see all of its references update across your TypeSpec project."
           illustration={
             <video
               src={useBaseUrl("/img/illustrations/refactor.mp4")}
