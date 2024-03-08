@@ -1,56 +1,55 @@
 ---
 id: projected-names
-title: Projected names
----
+title: Projected Names
 
 # Projected Names
 
 :::warning
-Projected names is a legacy feature and will be phased out. Please use [Encoded Names](encoded-names.md) instead for changing the name over the wire.
+The feature "Projected Names" is considered legacy and is planned for deprecation. We recommend using [Encoded Names](encoded-names.md) as a more modern alternative for modifying the name over the network.
 :::
 
-There is some cases where the name you have in TypeSpec might differ from the name over the wire or for a certain language.
+In certain scenarios, the name you use in TypeSpec may need to be different from the name used over the network or in a specific programming language.
 
-## Known targets
+## Recognized Targets
 
-List of known targets.
+Here is a list of recognized targets.
 
 - Wire:
-  - `json`: Configure JSON representation of data
-  - `xml`: Configure XML representation of data
+  - `json`: Set up JSON data representation
+  - `xml`: Set up XML data representation
 - Language:
-  - `csharp`: Configure C# code generation
-  - `java`: Configure Java code generation
-  - `python`: Configure Python code generation
-  - `javascript`: Configure JavaScript code generation
-  - `swift` : Configure Swift code generation
-  - `c` : Configure C code generation
+  - `csharp`: Set up C# code generation
+  - `java`: Set up Java code generation
+  - `python`: Set up Python code generation
+  - `javascript`: Set up JavaScript code generation
+  - `swift` : Set up Swift code generation
+  - `c` : Set up C code generation
 - Type:
-  - `client`: Configure output for the client
-  - `server`: Configure output for the server
+  - `client`: Set up client-side output
+  - `server`: Set up server-side output
 
-## Update name for a given target
+## How to Modify a Name for a Specific Target
 
-### With decorator
+### Using Decorator
 
-To update the name of a TypeSpec entity you can use the `@projectedName` decorator. This decorator takes 2 parameters:
+To change the name of a TypeSpec entity, you can use the `@projectedName` decorator. This decorator requires 2 parameters:
 
-- `string` target name. See [known targets](#known-targets)
-- `string` projected name. Whatever the name should be in the given target.
+- `string` target name. Refer to the [recognized targets](#recognized-targets)
+- `string` projected name. This is the name to be used in the specified target.
 
 Example:
 
 ```typespec
 model Foo {
-  // Specify that when serializing to JSON `expireAt` property should be named `exp`
+  // Indicate that the `expireAt` property should be named `exp` when serialized to JSON
   @projectedName("json", "exp")
   expireAt: string;
 }
 ```
 
-### With projection
+### Using Projection
 
-The decorator is just a syntax sugar for the `target` projection behind the scenes. In more complex cases you might want to just implement the projection manually.
+The decorator is essentially a shorthand for the `target` projection. For more complex scenarios, you might prefer to implement the projection manually.
 
 ```typespec
 model Foo {
@@ -93,9 +92,9 @@ model CertificateAttributes {
 </tr>
 </thead>
 <tr>
-<td>When serialized to Json property use the json projected name</td>
-<td>Typescript didn't provide any projected name so it keep the model as it is.</td>
-<td>Model uses the `csharp` projected names and keeps the reference to the JSON name in JsonProperty</td>
+<td>When serialized to Json, the property uses the json projected name</td>
+<td>Typescript doesn't specify any projected name, so it retains the model as is.</td>
+<td>The model uses the `csharp` projected names and maintains the reference to the JSON name in JsonProperty</td>
 </tr>
 <tr>
 <td>
