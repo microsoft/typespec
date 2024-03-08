@@ -2,7 +2,7 @@
 title: Style guide
 ---
 
-# TypeSpec Language Style Guide
+# TypeSpec language style guide
 
 This guide offers a recommended set of naming conventions to follow when drafting a TypeSpec specification.
 
