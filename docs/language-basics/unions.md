@@ -1,9 +1,9 @@
 ---
 id: unions
-title: Exploring Unions
+title: Unions
 ---
 
-# Exploring Unions
+# Unions
 
 Unions in programming define a type that can be one, and only one, of several possible variants. There are two types of unions:
 
