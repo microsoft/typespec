@@ -7,7 +7,7 @@ title: Documentation
 
 Documentation is a vital aspect of any API. TypeSpec offers several ways to document your API, including doc comments and decorators.
 
-# Approaches to Documenting APIs
+# Approaches to documenting APIs
 
 TypeSpec provides two primary methods for documenting your API:
 
@@ -16,7 +16,7 @@ TypeSpec provides two primary methods for documenting your API:
 
 The latter is less intrusive to the specification and is often preferred.
 
-## The `@doc` Decorator
+## The `@doc` decorator
 
 The `@doc` decorator can be used to attach documentation to most TypeSpec declarations. It typically accepts a string argument that serves as the documentation for the declaration.
 
@@ -39,7 +39,7 @@ model Template<Type extends {}>  {
 model A is Template<A>
 ```
 
-## Doc Comments
+## Doc comments
 
 You can annotate objects in your TypeSpec specification with doc comments. These comments are treated as if they were attached using the `@doc` decorator and can be used to generate external documentation.
 
@@ -66,7 +66,7 @@ op read(
 
 The advantage of using doc comment syntax is that it keeps all of the documentation for a declaration in one place, making it easier to read and maintain. Additionally, it allows the generation of documentation using tools like TypeDoc without having to write a custom emitter to examine the `@doc` metadata.
 
-### Doc Comment Tags
+### Doc comment tags
 
 As shown in the previous example, doc comments can use certain tags to document additional elements or provide different documentation context.
 
