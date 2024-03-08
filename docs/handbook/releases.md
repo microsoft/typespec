@@ -5,13 +5,13 @@ title: Releases
 
 # Releases
 
-## Versioning Strategy for Packages
+## Versioning strategy for packages
 
 TypeSpec is currently in its development phase, and all packages are released with a `0.` major version. Each minor version may introduce some breaking changes to the TypeSpec language, library API, or both. These changes are documented [here](../release-notes).
 
 Any modification to the `main` branch is automatically published under the npm `@next` tag.
 
-## Available Packages
+## Available packages
 
 | Name                                               | Changelog                        | Latest                                                                                                                                   | Next                                                                      |
 | -------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -47,7 +47,7 @@ Any modification to the `main` branch is automatically published under the npm `
 [tmlanguage_src]: https://github.com/microsoft/typespec/blob/main/packages/tmlanguage-generator
 [tmlanguage_chg]: https://github.com/microsoft/typespec/blob/main/packages/tmlanguage-generator/CHANGELOG.md
 
-## Release Cadence
+## Release cadence
 
 We roll out updates for all packages during the first week of each month.
 
