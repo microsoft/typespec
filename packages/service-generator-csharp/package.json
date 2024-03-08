@@ -1,0 +1,84 @@
+{
+  "name": "@typespec/service-generator-csharp",
+  "version": "0.53.0",
+  "description": "TypeSpec service code generator for c-sharp",
+  "homepage": "https://microsoft.github.io/typespec",
+  "readme": "https://github.com/microsoft/typespec/blob/main/packages/service-generator-csharp/README.md",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "bugs": {
+    "url": "https://github.com/microsoft/typespec/issues"
+  },
+  "keywords": [
+    "typespec",
+    "service",
+    "rejuvenate",
+    "r9",
+    "c-sharp"
+  ],
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "tspMain": "dist/src/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf ./dist ./temp",
+    "build": "tsc -p . && npm run lint-typespec-library",
+    "watch": "tsc -p . --watch",
+    "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
+    "test": "vitest run",
+    "test:watch": "vitest -w",
+    "test:ui": "vitest --ui",
+    "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --fix --ext .ts",
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/emitters/service-generator-csharp/reference"
+  },
+  "files": [
+    "lib/*.tsp",
+    "dist/**",
+    "!dist/test/**"
+  ],
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/rest": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@typespec/versioning": "workspace:~"
+  },
+  "dependencies": {
+    "change-case": "~5.4.2"
+  },
+  "devDependencies": {
+    "@typespec/compiler": "workspace:~",
+    "@typespec/openapi": "workspace:~",
+    "@typespec/rest": "workspace:~",
+    "@typespec/http": "workspace:~",
+    "@types/node": "~18.11.19",
+    "@typespec/eslint-config-typespec": "workspace:~",
+    "@typespec/library-linter": "workspace:~",
+    "@typespec/eslint-plugin": "workspace:~",
+    "@typespec/tspd": "workspace:~",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "c8": "^9.1.0",
+    "eslint": "^8.56.0",
+    "rimraf": "~5.0.5",
+    "typescript": "~5.3.3",
+    "vitest": "^1.2.2"
+  }
+}

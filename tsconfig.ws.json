@@ -21,7 +21,8 @@
     { "path": "packages/samples/tsconfig.json" },
     { "path": "packages/json-schema/tsconfig.json" },
     { "path": "packages/best-practices/tsconfig.json" },
-    { "path": "packages/xml/tsconfig.json" }
+    { "path": "packages/xml/tsconfig.json" },
+    { "path": "packages/service-emitter-csharp/tsconfig.json" },
   ],
   "files": []
 }

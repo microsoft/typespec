@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@typespec/service-generator-csharp",
+      "comment": "Moving generator to public repo",
+      "type": "none"
+    }
+  ],
+  "packageName": "@typespec/service-generator-csharp"
+}

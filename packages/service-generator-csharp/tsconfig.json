@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "references": [
+    { "path": "../compiler/tsconfig.json" },
+    { "path": "../rest/tsconfig.json" },
+    { "path": "../http/tsconfig.json" }
+  ],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "tsBuildInfoFile": "temp/tsconfig.tsbuildinfo",
+    "lib": ["DOM", "ESNext"]
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
