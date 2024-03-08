@@ -6,5 +6,6 @@ packages:
   - "@typespec/openapi3"
   - "@typespec/json-schema"
   - "@typespec/protobuf"
+  - "@typespec/versioning"
 ---
 Align TS decorators implementation types with the TypeSpec signature
