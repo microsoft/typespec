@@ -1,9 +1,9 @@
 ---
 id: type-relations
-title: Understanding Type Relations
+title: Type Relations
 ---
 
-# Understanding Type Relations
+# Type Relations
 
 ## Type Hierarchy
 

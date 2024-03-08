@@ -1,8 +1,8 @@
 ---
-title: Understanding Scalars
+title: Scalars
 ---
 
-# Understanding Scalars
+# Scalars
 
 Scalars are simple types that don't have any fields. Examples of these include `string`, `int32`, `boolean`, and so on.
 
