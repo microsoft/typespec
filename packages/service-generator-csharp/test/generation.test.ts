@@ -206,7 +206,32 @@ describe("service-generator-csharp: core service generation", () => {
       [
         "public partial class Foo",
         `public string AdminPassword { get; set; }`,
-        `[JsonPropertyName("pass")]`,
+        `[JsonPropertyName( "pass")]`,
+      ]
+    );
+  });
+
+  it ("generates default model namespaces", async () => {
+    await compileAndValidateSingleModel(
+      runner,
+      `
+      /** A secret value */
+      @secret
+      scalar password extends string;
+
+      /** A simple test model*/
+      model Foo {
+        /** string literal */
+        @encodedName("application/json", "pass")
+        adminPassword: password;
+      }
+      `,
+      "Foo.cs",
+      [
+        "using System.Text.Json;",
+        `using System.Text.Json.Serialization;`,
+        `using System;`,
+        `using System.Collections.Threading`,
       ]
     );
   });

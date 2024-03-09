@@ -1,6 +1,6 @@
 {
   "name": "@typespec/service-generator-csharp",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "description": "TypeSpec service code generator for c-sharp",
   "homepage": "https://microsoft.github.io/typespec",
   "readme": "https://github.com/microsoft/typespec/blob/main/packages/service-generator-csharp/README.md",
