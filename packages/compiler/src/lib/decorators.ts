@@ -582,7 +582,7 @@ export const $minItems: MinItemsDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
@@ -615,7 +615,7 @@ export const $maxItems: MaxItemsDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target.type as any))) {
+  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
     reportDiagnostic(context.program, {
       code: "decorator-wrong-target",
       format: {
