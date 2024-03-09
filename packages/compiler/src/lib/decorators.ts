@@ -577,7 +577,7 @@ const minItemsValuesKey = createStateSymbol("minItems");
 
 export const $minItems: MinItemsDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Type,
   minItems: number
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minItems);
@@ -610,7 +610,7 @@ const maxItemsValuesKey = createStateSymbol("maxItems");
 
 export const $maxItems: MaxItemsDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Type,
   maxItems: number
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxItems);
