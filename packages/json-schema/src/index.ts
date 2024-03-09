@@ -3,6 +3,7 @@ import {
   EmitContext,
   Enum,
   Model,
+  ModelProperty,
   Namespace,
   Program,
   Scalar,
@@ -121,7 +122,7 @@ export function getJsonSchema(program: Program, target: Type) {
 const multipleOfKey = createStateSymbol("JsonSchema.multipleOf");
 export const $multipleOf: MultipleOfDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Scalar | ModelProperty,
   value: number
 ) => {
   context.program.stateMap(multipleOfKey).set(target, value);
@@ -217,7 +218,7 @@ export function getMaxProperties(program: Program, target: Type) {
 const contentEncodingKey = createStateSymbol("JsonSchema.contentEncoding");
 export const $contentEncoding: ContentEncodingDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Scalar | ModelProperty,
   value: string
 ) => {
   context.program.stateMap(contentEncodingKey).set(target, value);
@@ -230,7 +231,7 @@ export function getContentEncoding(program: Program, target: Type): string {
 const contentMediaType = createStateSymbol("JsonSchema.contentMediaType");
 export const $contentMediaType: ContentMediaTypeDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Scalar | ModelProperty,
   value: string
 ) => {
   context.program.stateMap(contentMediaType).set(target, value);
@@ -243,7 +244,7 @@ export function getContentMediaType(program: Program, target: Type): string {
 const contentSchemaKey = createStateSymbol("JsonSchema.contentSchema");
 export const $contentSchema: ContentSchemaDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Scalar | ModelProperty,
   value: Type
 ) => {
   context.program.stateMap(contentSchemaKey).set(target, value);

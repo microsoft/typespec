@@ -150,13 +150,11 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
         return useCompilerType("Type");
       }
     } else if (isTarget) {
+      // Special case for target type if it is a scalar type(e.g. `string`) then it can only be a Scalar.
+      // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
+      // so we only change that when isTarget is true.
       if (type.kind === "Scalar") {
-        // Special case for target type if it is a scalar type(e.g. `string`) then it can only be a Scalar.
-        // In the case of regular parameter it could also be a union of the scalar, or a literal matching the scalar or union of both,
-        // so we only change that when isTarget is true.
-        return useCompilerType("Scalar");
-      } else if (isArrayModelType(program, type as any as Model)) {
-        return useCompilerType("Model");
+        return useCompilerType(type.kind);
       }
     }
     return useCompilerType("Type");

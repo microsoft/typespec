@@ -298,7 +298,7 @@ export type MaxLengthDecorator = (
  */
 export type MinItemsDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Type | ModelProperty,
   value: number,
 ) => void;
 
@@ -314,7 +314,7 @@ export type MinItemsDecorator = (
  */
 export type MaxItemsDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty,
+  target: Type | ModelProperty,
   value: number,
 ) => void;
 

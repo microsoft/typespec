@@ -1,4 +1,4 @@
-import { DecoratorContext, Namespace, Type } from "@typespec/compiler";
+import { DecoratorContext, ModelProperty, Namespace, Scalar, Type } from "@typespec/compiler";
 
 /**
  * Add to namespaces to emit models within that namespace to JSON schema.
@@ -41,7 +41,11 @@ export type IdDecorator = (context: DecoratorContext, target: Type, id: string) 
  *
  * @param value The numeric type must be a multiple of this value.
  */
-export type MultipleOfDecorator = (context: DecoratorContext, target: Type, value: number) => void;
+export type MultipleOfDecorator = (
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  value: number
+) => void;
 
 /**
  * Specify that the array must contain at least one instance of the provided type.
@@ -49,7 +53,11 @@ export type MultipleOfDecorator = (context: DecoratorContext, target: Type, valu
  *
  * @param value The type the array must contain.
  */
-export type ContainsDecorator = (context: DecoratorContext, target: Type, value: Type) => void;
+export type ContainsDecorator = (
+  context: DecoratorContext,
+  target: Type | ModelProperty,
+  value: Type
+) => void;
 
 /**
  * Specify that the array must contain at least some number of the types provided
@@ -57,7 +65,11 @@ export type ContainsDecorator = (context: DecoratorContext, target: Type, value:
  *
  * @param value The minimum number of instances the array must contain
  */
-export type MinContainsDecorator = (context: DecoratorContext, target: Type, value: number) => void;
+export type MinContainsDecorator = (
+  context: DecoratorContext,
+  target: Type | ModelProperty,
+  value: number
+) => void;
 
 /**
  * Specify that the array must contain at most some number of the types provided
@@ -65,12 +77,19 @@ export type MinContainsDecorator = (context: DecoratorContext, target: Type, val
  *
  * @param value The maximum number of instances the array must contain
  */
-export type MaxContainsDecorator = (context: DecoratorContext, target: Type, value: number) => void;
+export type MaxContainsDecorator = (
+  context: DecoratorContext,
+  target: Type | ModelProperty,
+  value: number
+) => void;
 
 /**
  * Specify that every item in the array must be unique.
  */
-export type UniqueItemsDecorator = (context: DecoratorContext, target: Type) => void;
+export type UniqueItemsDecorator = (
+  context: DecoratorContext,
+  target: Type | ModelProperty
+) => void;
 
 /**
  * Specify the minimum number of properties this object can have.
@@ -79,7 +98,7 @@ export type UniqueItemsDecorator = (context: DecoratorContext, target: Type) => 
  */
 export type MinPropertiesDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Type | ModelProperty,
   value: number
 ) => void;
 
@@ -90,7 +109,7 @@ export type MinPropertiesDecorator = (
  */
 export type MaxPropertiesDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Type | ModelProperty,
   value: number
 ) => void;
 
@@ -103,7 +122,7 @@ export type MaxPropertiesDecorator = (
  */
 export type ContentEncodingDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Scalar | ModelProperty,
   value: string
 ) => void;
 
@@ -112,7 +131,11 @@ export type ContentEncodingDecorator = (
  *
  * @param value a tuple containing the types that must be present at the start of the array
  */
-export type PrefixItemsDecorator = (context: DecoratorContext, target: Type, value: Type) => void;
+export type PrefixItemsDecorator = (
+  context: DecoratorContext,
+  target: Type | ModelProperty,
+  value: Type
+) => void;
 
 /**
  * Specify the content type of content stored in a string.
@@ -121,7 +144,7 @@ export type PrefixItemsDecorator = (context: DecoratorContext, target: Type, val
  */
 export type ContentMediaTypeDecorator = (
   context: DecoratorContext,
-  target: Type,
+  target: Scalar | ModelProperty,
   value: string
 ) => void;
 
@@ -131,7 +154,11 @@ export type ContentMediaTypeDecorator = (
  *
  * @param value the schema of the string contents
  */
-export type ContentSchemaDecorator = (context: DecoratorContext, target: Type, value: Type) => void;
+export type ContentSchemaDecorator = (
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  value: Type
+) => void;
 
 /**
  * Specify a custom property to add to the emitted schema. Useful for adding custom keywords
