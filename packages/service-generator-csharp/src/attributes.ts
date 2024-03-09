@@ -90,6 +90,8 @@ export function getEncodedNameAttribute(
         }),
       })
     );
+
+    return attr;
   }
 
   return undefined;

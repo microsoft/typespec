@@ -186,6 +186,12 @@ export interface ControllerContext extends Context {
   scope: Scope<string>;
 }
 
+export interface ModelContext extends Context {
+  file: SourceFile<string>;
+  scope: Scope<string>;
+  usedNamespaces: Set<string>;
+}
+
 export enum CSharpSourceType {
   Model,
   Controller,
