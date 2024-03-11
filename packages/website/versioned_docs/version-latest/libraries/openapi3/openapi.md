@@ -147,7 +147,7 @@ For an array type:
 | `@minItems(value)` | built-in | `minItems: value`           |       |
 | `@maxItems(value)` | built-in | `maxItems: value`           |       |
 
-The OpenAPI emitter provides an [`@useRef` decorator](../openapi/reference/decorators.md#OpenAPI.useRef) which will replace the TypeSpec model type in emitter output with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
+The OpenAPI emitter provides an [`@useRef` decorator](../decorators.md#OpenAPI.useRef) which will replace the TypeSpec model type in emitter output with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
 
 Example:
 
@@ -222,7 +222,7 @@ union GoodBreed {
 
 The OpenAPI emitter represents either form of union with an `anyOf` with an element for each option of the union. The OpenAPI emitter ignores the "names" for variants in named unions.
 
-The OpenAPI emitter also defines the[`@oneOf` decorator](../openapi/reference/decorators.md#OpenAPI.oneOf) which can be specified on a `union` statement to indicate that a union should be emitted as a `oneOf` rather than `anyOf`.
+The OpenAPI emitter also defines the[`@oneOf` decorator](../decorators.md#OpenAPI.oneOf) which can be specified on a `union` statement to indicate that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 ## Encoding and Formats
 
