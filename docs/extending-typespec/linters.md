@@ -18,7 +18,7 @@ You can find examples in `packages/best-practices`.
 ### 1. Define rules
 
 ```ts
-import {  createLinterRule } from "/compiler";
+import {  createLinterRule } from "@typespec/compiler";
 import { reportDiagnostic } from "../lib.js";
 
 export const requiredDocRule = createLinterRule({

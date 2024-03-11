@@ -239,7 +239,7 @@ The first step is to define how your library can be loaded from the test framewo
 
 ```ts
 import { resolvePath } from "@typespec/compiler";
-import { createTestLibrary } from "/compiler/testing";
+import { createTestLibrary } from "@typespec/compiler/testing";
 import { fileURLToPath } from "url";
 
 export const MyTestLibrary = createTestLibrary({
@@ -278,7 +278,7 @@ Define some of the test framework base pieces that will be used in the tests. Th
 Create a new file `test/test-host.js` (change `test` to be your test folder)
 
 ```ts
-import { createTestHost, createTestWrapper } from "/compiler/testing";
+import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
 import { RestTestLibrary } from "/rest/testing";
 import { MyTestLibrary } from "../src/testing/index.js";
 

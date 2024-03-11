@@ -29,7 +29,7 @@ A TypeSpec emitter exports a function named `$onEmit` from its main entry point.
 For instance, the following code will write a text file to the output directory:
 
 ```typescript
-import { EmitContext, emitFile, resolvePath } from "/compiler";
+import { EmitContext, emitFile, resolvePath } from "@typespec/compiler";
 
 export async function $onEmit(context: EmitContext) {
   if (!context.program.compilerOptions.noEmit) {
