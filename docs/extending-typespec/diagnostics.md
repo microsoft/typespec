@@ -23,7 +23,7 @@ The TypeSpec compiler uses the diagnostic API to report errors and warnings in t
 ### Declare the diagnostics you plan to report
 
 ```ts
-import { createTypeSpecLibrary } from "/compiler";
+import { createTypeSpecLibrary } from "@typespec/compiler";
 
 // in lib.js
 export const $lib = createTypeSpecLibrary({

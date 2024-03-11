@@ -55,8 +55,8 @@ extern dec track(target: Model | Enum, ...names: valueof string[]);
 
 It's common for decorator parameters to expect a value (e.g., a string or a number). However, using `: string` as the type would also allow a user of the decorator to pass `string` itself or a custom scalar extending string, as well as a union of strings. Instead, the decorator can use `valueof <T>` to specify that it expects a value of that kind.
 
-| Example           | Description      |
-| ----------------- | ---------------- |
+| Example           | Description       |
+| ----------------- | ----------------- |
 | `valueof string`  | Expects a string  |
 | `valueof float64` | Expects a float   |
 | `valueof int32`   | Expects a number  |
@@ -82,7 +82,7 @@ Decorators can be implemented in JavaScript by prefixing the function name with 
 
 ```ts
 // model.ts
-import type { DecoratorContext, Type } from "/compiler";
+import type { DecoratorContext, Type } from "@typespec/compiler";
 
 export function $logType(context: DecoratorContext, target: Type, name: valueof string) {
   console.log(name + ": " + targetType.kind);

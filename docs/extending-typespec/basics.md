@@ -9,7 +9,7 @@ A TypeSpec library is a package that includes TypeSpec types, decorators, emitte
 
 While this guide assumes that you'll be using [TypeScript](https://typescriptlang.org) to develop your library, you can skip the TypeScript-related steps if you prefer to use plain JavaScript.
 
-## What you'll need before you start
+## Prerequisites
 
 You'll need to have both Node and npm installed. If you're planning to develop multiple libraries simultaneously, it's recommended to set up a monorepo to simplify the development process. TypeSpec itself uses [pnpm](https://pnpm.io/).
 
@@ -198,7 +198,7 @@ TypeSpec libraries are defined using `peerDependencies` to avoid having multiple
     "@typespec/versioning": "~0.43.0",
     // TypeScript is only used during development
     "typescript": "~5.0.2",
-  }
+  },
 }
 ```
 
@@ -238,7 +238,7 @@ The first step is to define how your library can be loaded from the test framewo
 1. Create a new file `./src/testing/index.ts` with the following content
 
 ```ts
-import { resolvePath } from "/compiler";
+import { resolvePath } from "@typespec/compiler";
 import { createTestLibrary } from "/compiler/testing";
 import { fileURLToPath } from "url";
 
