@@ -220,7 +220,7 @@ program.resolveTypeReference("model Foo {}"); // Resolve `[undefined, diagnostic
 
 Since an emitter is a Node library, you could use standard `fs` APIs to write files. However, this approach has a drawback - your emitter will not work in the browser, and will not work with the test framework that depends on storing emitted files in an in-memory file system.
 
-Instead, use the compiler's [`host` interface](#todo) to access the file system. This API is equivalent to the Node API but works in a broader range of scenarios.
+Instead, use the compiler's `host` interface to access the file system. This API is equivalent to the Node API but works in a broader range of scenarios.
 
 To know where to emit files, the emitter context has an `emitterOutputDir` property that is automatically resolved using the `emitter-output-dir` built-in emitter options. By default, this is set to `{cwd}/tsp-output/{emitter-name}`, but it can be overridden by the user. Do not use the `compilerOptions.outputDir`.
 

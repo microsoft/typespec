@@ -307,7 +307,7 @@ Represent the path where the emitter should be outputing the generated files.
 
 Default: `{output-dir}/{emitter-name}`
 
-See [output directory configuration for mode details](#output-directory-configuration)
+See [output directory configuration for mode details](#configuring-output-directory)
 
 ### `linter` - Setting Up Linters
 

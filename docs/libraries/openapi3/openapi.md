@@ -8,7 +8,7 @@ The OpenAPI emitter is designed to translate TypeSpec language elements into the
 
 ## Server Details
 
-If the TypeSpec file includes an [(Http) `@server` decorator](../rest/reference/decorators.md#TypeSpec.Http.server), the OpenAPI emitter will create a `servers` object. This object will contain the server URL, description, and variables as defined in the decorator.
+If the TypeSpec file includes an [(Http) `@server` decorator](../rest/reference/decorators.md#@TypeSpec.Http.server), the OpenAPI emitter will create a `servers` object. This object will contain the server URL, description, and variables as defined in the decorator.
 
 You can use multiple `@server` decorators to generate multiple entries in the `servers` object.
 
@@ -21,7 +21,7 @@ The HTTP method for the operation can be explicitly defined using an [(Http) `@g
 The operation's path is derived from the [(Http) `@route` decorator][http-route-decorator] on the operation. The `@route` decorator can also be applied to a namespace and/or an interface (a group of operations). If specified, the route for the enclosing namespace(s) and interface are prefixed to the operation route.
 
 [http-verb-decorators]: ../rest/reference/decorators.md
-[http-route-decorator]: ../rest/reference/decorators.md#TypeSpec.Http.route
+[http-route-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.route
 
 The [OpenAPI Operation object][] fields are set as described below.
 
@@ -31,19 +31,19 @@ The [OpenAPI Operation object][] fields are set as described below.
 
 The description field is populated from the [(built-in) `@doc` decorator][doc-decorator] on the TypeSpec operation. If `@doc` is not present, the description field is omitted.
 
-[doc-decorator]: ../../standard-library/built-in-decorators.md#doc
+[doc-decorator]: ../../standard-library/built-in-decorators.md#@doc
 
 ### Summary
 
 The summary field is populated from the [(built-in) `@summary` decorator][summary-decorator] on the TypeSpec operation. If `@summary` is not present, the summary field is omitted.
 
-[summary-decorator]: ../../standard-library/built-in-decorators.md#summary
+[summary-decorator]: ../../standard-library/built-in-decorators.md#@summary
 
 ### Operation ID
 
 The operation ID can be explicitly defined using the [(OpenAPI) `@operationId` decorator][openapi-operationid-decorator]. If not explicitly defined, the operation ID is simply the operation name, prefixed with "<interface*name>*" when the operation is within an interface.
 
-[openapi-operationid-decorator]: ../../standard-library/built-in-decorators.md#operationId
+[openapi-operationid-decorator]: ../../standard-library/built-in-decorators.md#@operationId
 
 ### Parameters and Request Body
 
@@ -54,7 +54,7 @@ The `in` field of a parameter is defined using an [(Http) `@query`, `@header`, o
 The request body parameter can also be explicitly defined with an [(Http) `@body` decorator][http-body-decorator]. If `@body` is not explicitly defined, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body, which is defined as required. If the request body should be optional, it must be declared as an optional property with the `@body` decorator.
 
 [http-parameter-decorators]: ../rest/reference/decorators.md#data-types
-[http-body-decorator]: ../rest/reference/decorators.md#TypeSpec.Http.body
+[http-body-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.body
 
 The content of a (built-in) `@doc` decorator on a parameter will be set in the description.
 
@@ -70,8 +70,8 @@ The return type(s) of the TypeSpec operation are translated into responses for t
 
 When a return type model has a property explicitly decorated with an [(Http) `@body` decorator][http-body-decorator], this is considered as the response body. In the absence of an explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
 
-[http-statuscode-decorator]: ../rest/reference/decorators.md#TypeSpec.Http.statuscode
-[error-decorator]: ../../standard-library/built-in-decorators.md#error
+[http-statuscode-decorator]: ../rest/reference/decorators.md#@TypeSpec.Http.statuscode
+[error-decorator]: ../../standard-library/built-in-decorators.md#@error
 
 For more advanced details, see [metadata](../http/operations.md#metadata).
 
@@ -79,21 +79,21 @@ For more advanced details, see [metadata](../http/operations.md#metadata).
 
 Any tags specified with the [(built-in) `@tag` decorator][tag-decorator] on the operation, interface, or enclosing namespace(s) are included in the OpenAPI operation's tags array.
 
-[tag-decorator]: ../../standard-library/built-in-decorators.md#tag
+[tag-decorator]: ../../standard-library/built-in-decorators.md#@tag
 
 ### Deprecated
 
 If the [(built-in) `#deprecated` directive][deprecated-decorator] is specified on the operation, then the operation's deprecated field is set to true.
 
-[deprecated-decorator]: ../../standard-library/built-in-decorators.md#deprecated
+[deprecated-decorator]: ../../standard-library/built-in-decorators.md#@deprecated
 
 ### External Documentation
 
-If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](../openapi/reference/decorators.md#Typespec.OpenAPI.externaldocs), this will generate an externalDocs field in the OpenAPI operation.
+If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](../openapi/reference/decorators.md#@TypeSpec.OpenAPI.externaldocs), this will generate an externalDocs field in the OpenAPI operation.
 
 ### Specification Extensions
 
-Any extensions specified on the TypeSpec operation with the [(OpenAPI) `@extension` decorator](../openapi/reference/decorators.md#Typespec.OpenAPI.extension) are included in the emitted OpenAPI operation.
+Any extensions specified on the TypeSpec operation with the [(OpenAPI) `@extension` decorator](../openapi/reference/decorators.md#@TypeSpec.OpenAPI.extension) are included in the emitted OpenAPI operation.
 
 ## Models and Enums
 
@@ -103,7 +103,7 @@ Inline defined models will result in an inline schema. Explicitly declared model
 
 A special case is an instantiation of a model template, it is treated as an inline model unless the model template has a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema is defined in `components/schemas` with the friendly-name.
 
-[friendlyname]: ../../standard-library/built-in-decorators.md#friendlyname
+[friendlyname]: ../../standard-library/built-in-decorators.md#@friendlyname
 
 The following table shows how TypeSpec types are translated to JSON Schema types:
 
@@ -253,7 +253,7 @@ When working with the `@encode` decorator, the rule is as follows. Given the 3 v
 
 ## Security Definitions
 
-The OpenAPI emitter uses the [(http) `@useAuth` decorator](../rest/reference/decorators.md#TypeSpec.Http.useauth) to handle security definitions.
+The OpenAPI emitter uses the [(http) `@useAuth` decorator](../rest/reference/decorators.md#@TypeSpec.Http.useauth) to handle security definitions.
 
 ### Examples
 
