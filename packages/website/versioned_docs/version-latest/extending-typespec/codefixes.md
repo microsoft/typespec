@@ -41,7 +41,7 @@ reportDiagnostic({
 
 ## Test a diagnostic
 
-[See here for testing a codefix inside a linter rule](./linters.md#test-a-codefix)
+[See here for testing a codefix inside a linter rule](./linters.md#testing-linter-with-codefixes)
 
 Testing a codefix is done by using the `expectCodeFixOnAst` function from the `@typespec/compiler/testing` package. It takes in the source code and a function that returns the codefix to apply.
 It takes the input source code with a cursor defined by `┆` which will be used to resolve the node where the codefix should be applied. The callback function will receive that resolved node and is expected to return the codefix to test.
