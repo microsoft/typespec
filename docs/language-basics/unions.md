@@ -5,7 +5,7 @@ title: Unions
 
 # Unions
 
-Unions in programming define a type that can be one, and only one, of several possible variants. There are two types of unions:
+Unions define a type that must be exactly one of several possible variants. There are two types of unions:
 
 - Union expressions
 - Named unions
