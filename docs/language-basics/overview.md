@@ -1,9 +1,4 @@
----
-id: overview
-title: Overview
----
-
-# An introduction to language concepts in TypeSpec
+# Language Overview
 
 This document provides a concise overview of the language concepts in TypeSpec. It serves as a quick reference guide rather than an in-depth tutorial.
 
@@ -11,98 +6,149 @@ This document provides a concise overview of the language concepts in TypeSpec. 
 
 - Names of declarations must be unique across different types within the same scope. For instance, the following is not permissible:
   <!-- prettier-ignore -->
-    ```typespec
+  ```typespec
   model Dog {}
   namespace Dog {}
   ```
 
-## Importing files and libraries
+## Imports
 
 _For more details, see: [Imports](./imports.md)_
 
 | Feature              | Example                   |
 | -------------------- | ------------------------- |
-| Importing a TypeSpec file | `import "./models.tsp"`   |
-| Importing a JavaScript file       | `import "./models.js"`    |
-| Importing a Library       | `import "/rest"` |
+| Import TypeSpec file | `import "./models.tsp"`   |
+| Import JS file       | `import "./models.js"`    |
+| Import Library       | `import "@typespec/rest"` |
 
-## Utilizing namespaces
+## Namespaces
 
-_For more information, refer to: [Namespaces](./namespaces.md)_
+_For more details, see: [Namespaces](./namespaces.md)_
 
 | Feature           | Example                      |
 | ----------------- | ---------------------------- |
-| Declaring a namespace | `namespace PetStore {}`      |
-| Defining a file namespace    | `namespace PetStore;`        |
-| Creating a nested namespace  | `namespace PetStore.Models;` |
-| Using a namespace   | `using PetStore.Models;`     |
+| Declare namespace | `namespace PetStore {}`      |
+| File namespace    | `namespace PetStore;`        |
+| Nested namespace  | `namespace PetStore.Models;` |
+| Using namespace   | `using PetStore.Models;`     |
 
-## Working with decorators
+## Decorators
 
-_For more information, refer to: [Decorators](./decorators.md)_
+_For more details, see: [Decorators](./decorators.md)_
 
 | Feature                      | Example                                                                             |
 | ---------------------------- | ----------------------------------------------------------------------------------- |
-| Applying a decorator                | `@mark`                                                                             |
-| Applying a decorator with arguments | `@tag("abc")`                                                                       |
-| Declaring a decorator in JavaScript    | `export function $tag(context: DecoratorContext, target: Type, name: string) {...}` |
-| Saving state in a decorator      | `context.program.stateMap(key).set(target, <value>)`                                |
-| Augmenting a decorator            | `@@tag(MyType, "abc");`                                                             |
+| Use decorator                | `@mark`                                                                             |
+| Use decorator with arguments | `@tag("abc")`                                                                       |
+| Declare a decorator in JS    | `export function $tag(context: DecoratorContext, target: Type, name: string) {...}` |
+| Save state in decorator      | `context.program.stateMap(key).set(target, <value>)`                                |
+| Augment decorator            | `@@tag(MyType, "abc");`                                                             |
 
-## Defining scalars
+## Scalars
 
-_For more information, refer to: [Scalars](./scalars.md)_
+_For more details, see: [Scalars](./scalars.md)_
 
 | Feature            | Example                                     |
 | ------------------ | ------------------------------------------- |
-| Declaring a scalar | `scalar ternary`                            |
-| Extending a scalar      | `scalar Password extends string`            |
-| Creating a template scalar    | `@doc(T) scalar Password<T extends string>` |
+| Scalar declaration | `scalar ternary`                            |
+| Extend scalar      | `scalar Password extends string`            |
+| Template scalar    | `@doc(T) scalar Password<T extends string>` |
 
-## Creating models
+## Models
 
-_For more information, refer to: [Models](./models.md)_
+_For more details, see: [Models](./models.md)_
 
 | Feature                        | Example                               |
 | ------------------------------ | ------------------------------------- |
-| Declaring a model              | `model Pet {}`                        |
-| Implementing model inheritance              | `model Dog extends Pet {}`            |
-| Using 'is' with scalar                      | `model uuid extends string;`          |
-| Spreading a model                   | `model Dog {...Animal}`               |
-| Defining a property                       | `model Dog { name: string }`          |
-| Defining an optional property              | `model Dog { owner?: string }`        |
-| Defining an optional property with a default value | `model Dog { name?: string = "Rex" }` |
-| Creating a model template                 | `model Pet<T> { t: T }`               |
+| Model declaration              | `model Pet {}`                        |
+| Model inheritance              | `model Dog extends Pet {}`            |
+| scalar is                      | `model uuid extends string;`          |
+| Model spread                   | `model Dog {...Animal}`               |
+| Property                       | `model Dog { name: string }`          |
+| Optional property              | `model Dog { owner?: string }`        |
+| Optional property with default | `model Dog { name?: string = "Rex" }` |
+| Model template                 | `model Pet<T> { t: T }`               |
 
-## Defining operations
+## Operations
 
-_For more information, refer to: [Operations](./operations.md)_
+_For more details, see: [Operations](./operations.md)_
 
 | Feature                       | Example                                          |
 | ----------------------------- | ------------------------------------------------ |
-| Declaring an operation         | `op ping(): void`                                |
-| Defining an operation with parameters     | `op upload(filename: string, data: bytes): void` |
-| Defining an operation with a return type    | `op health(): HealthStatus`                      |
-| Defining an operation with multiple types | `op health(): HealthStatus \| ErrorResponse`     |
-| Creating an operation template            | `op getter<T>(id: string): T`                    |
-| Using 'is' with operation                  | `op getPet is getter<Pet>;`                      |
+| Operation declaration         | `op ping(): void`                                |
+| Operation with parameters     | `op upload(filename: string, data: bytes): void` |
+| Operation with return type    | `op health(): HealthStatus`                      |
+| Operation with multiple types | `op health(): HealthStatus \| ErrorResponse`     |
+| Operation template            | `op getter<T>(id: string): T`                    |
+| Operation is                  | `op getPet is getter<Pet>;`                      |
 
-## Implementing interfaces
+## Interfaces
 
-_For more information, refer to: [Interfaces](./interfaces.md)_
+_For more details, see: [Interfaces](./interfaces.md)_
 
 | Feature               | Example                                |
 | --------------------- | -------------------------------------- |
-| Declaring an interface | `interface PetStore { list(): Pet[] }` |
-| Composing an interface | `interface PetStore extends Store { }` |
-| Creating an interface template    | `interface Restful<T> { list(): T[] }` |
+| Interface declaration | `interface PetStore { list(): Pet[] }` |
+| Interface composition | `interface PetStore extends Store { }` |
+| Interface template    | `interface Restful<T> { list(): T[] }` |
 
-## Working with templates
+## Templates
 
-_For more information, refer to: [Templates](./templates.md)_
+_For more details, see: [Templates](./templates.md)_
 
 | Feature                           | Example                                             |
 | --------------------------------- | --------------------------------------------------- |
-| Creating a simple template                   | `model Response<T> {value: T}`                      |
-| Creating a template with multiple parameters | `model Response<K, V> {key: K, value: T}`           |
-| Setting a default in a
+| Simple template                   | `model Response<T> {value: T}`                      |
+| Template with multiple parameters | `model Response<K, V> {key: K, value: T}`           |
+| Template default                  | `model Response<T = string> {value: T}`             |
+| Template constraints              | `model Response<T extends {id: string}> {value: T}` |
+| Template constraints and defaults | `model Response<T extends string = ""> {value: T}`  |
+
+## Enums
+
+_For more details, see: [Enums](./enums.md)_
+
+| Feature            | Example                                        |
+| ------------------ | ---------------------------------------------- |
+| Enum declaration   | `enum Direction {Up, Down}`                    |
+| Enum string values | `enum Direction {Up: "up", Down: "down"}`      |
+| Enum int values    | `enum Size {Small: 1000, Large: 2000}`         |
+| Enum float values  | `enum Part {Quarter: 0.25, Half: 0.5}`         |
+| Enum composing     | `enum Direction2D {...Direction, Left, Right}` |
+
+## Unions
+
+_For more details, see: [Unions](./unions.md)_
+
+| Feature                 | Example                          |
+| ----------------------- | -------------------------------- |
+| Union declaration       | `"cat" \| "dog"`                 |
+| Named union declaration | `union Pet {cat: Cat, dog: Dog}` |
+
+## Intersections
+
+_For more details, see: [Intersections](./intersections.md)_
+
+| Feature                  | Example        |
+| ------------------------ | -------------- |
+| Intersection declaration | `Pet & Animal` |
+
+## Type literals
+
+_For more details, see: [Type literals](./type-literals.md)_
+
+| Feature           | Example                                                  |
+| ----------------- | -------------------------------------------------------- |
+| String            | `"Hello world!"`                                         |
+| Multi line String | `"""\nHello world!\n"""` (\n) represent actual new lines |
+| Int               | `10`                                                     |
+| Float             | `10.0`                                                   |
+| Boolean           | `false`                                                  |
+
+## Aliases
+
+_For more details, see: [Aliases](./alias.md)_
+
+| Feature           | Example                           |
+| ----------------- | --------------------------------- |
+| Alias declaration | `alias Options = "one" \| "two";` |
