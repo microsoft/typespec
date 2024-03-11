@@ -14,7 +14,7 @@
     "dogfood": "pnpm install && pnpm build && pnpm -r dogfood",
     "fix-version-mismatch": "syncpack fix-mismatches",
     "format": "pnpm run prettier --write",
-    "gen-compiler-extern-signature": "pnpm -f @typespec/compiler run gen-extern-signature",
+    "gen-compiler-extern-signature": "pnpm run -r --filter \"@typespec/compiler\"  gen-extern-signature",
     "lint": "pnpm -r --parallel --aggregate-output --reporter=append-only run lint",
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
     "pack:all": "chronus pack --pack-destination ./temp/artifacts",
