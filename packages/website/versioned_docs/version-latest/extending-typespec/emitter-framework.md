@@ -5,9 +5,9 @@ title: Emitter framework
 
 # Emitter framework
 
-The emitter framework simplifies the process of creating emitters from TypeSpec to other assets, compared to manually navigating the type graph. This framework provides a straightforward way to manage all the types that TypeSpec might present, and helps you determine when you've covered all features. 
+The emitter framework simplifies the process of creating emitters from TypeSpec to other assets, compared to manually navigating the type graph. This framework provides a straightforward way to manage all the types that TypeSpec might present, and helps you determine when you've covered all features.
 
-The  also solves complex problems such as constructing references between types, handling circular references, and propagating the context of the types you're emitting based on their containers or where they're referenced from. Additionally, it offers a class-based inheritance model that simplifies the extension and customization of existing emitters.
+The also solves complex problems such as constructing references between types, handling circular references, and propagating the context of the types you're emitting based on their containers or where they're referenced from. Additionally, it offers a class-based inheritance model that simplifies the extension and customization of existing emitters.
 
 ## How to get started
 
@@ -361,4 +361,5 @@ class MyTsEmitter extends TypeScriptEmitter {
   // and similar for other declarations: Unions, Enums, Interfaces, and Operations.
 }
 ```
+
 This way, each model will be emitted in its own file.

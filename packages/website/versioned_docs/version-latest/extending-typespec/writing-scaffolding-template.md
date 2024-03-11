@@ -95,19 +95,19 @@ The template can interpolate values in the files. The available values are anyth
 
 Additionally, the following values and functions are available:
 
-| Name                                  | Description                                                     |
-| ------------------------------------- | --------------------------------------------------------------- |
-| `directory`                           | The full directory path where the project should be initialized.|
-| `folderName`                          | The name of the folder where the project should be initialized. |
-| `name`                                | The name of the project.                                        |
-| `libraries`                           | The list of libraries to include.                               |
-| `templateUri`                         | The path from where this template was loaded.                   |
-| Functions                             |                                                                 |
-| `toLowerCase(value: string)`          | Converts a string to lower case.                                |
+| Name                                  | Description                                                                       |
+| ------------------------------------- | --------------------------------------------------------------------------------- |
+| `directory`                           | The full directory path where the project should be initialized.                  |
+| `folderName`                          | The name of the folder where the project should be initialized.                   |
+| `name`                                | The name of the project.                                                          |
+| `libraries`                           | The list of libraries to include.                                                 |
+| `templateUri`                         | The path from where this template was loaded.                                     |
+| Functions                             |                                                                                   |
+| `toLowerCase(value: string)`          | Converts a string to lower case.                                                  |
 | `normalizePackageName(value: string)` | Normalizes the package name. It replaces `.` with `-` and converts to lower case. |
-| `casing.pascalCase(value: string)`    | Converts a string to PascalCase.                                |
-| `casing.camelCase(value: string)`     | Converts a string to camelCase.                                 |
-| `casing.kebabCase(value: string)`     | Converts a string to kebab-case.                                |
+| `casing.pascalCase(value: string)`    | Converts a string to PascalCase.                                                  |
+| `casing.camelCase(value: string)`     | Converts a string to camelCase.                                                   |
+| `casing.kebabCase(value: string)`     | Converts a string to kebab-case.                                                  |
 
 ## Requesting additional user input
 

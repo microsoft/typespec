@@ -162,6 +162,7 @@ Widget:
 ```
 
 However, the OpenAPI definition for versions 1 and 2 still reflect the original name and the mandatory nature of the property:
+
 ```yaml
 Widget:
   type: object

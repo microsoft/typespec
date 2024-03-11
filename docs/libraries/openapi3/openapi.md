@@ -147,7 +147,7 @@ For an array type:
 | `@minItems(value)` | built-in | `minItems: value`           |       |
 | `@maxItems(value)` | built-in | `maxItems: value`           |       |
 
-The OpenAPI emitter provides an [`@useRef` decorator](../decorators.md#OpenAPI.useRef) which will replace the TypeSpec model type in emitter output with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
+The OpenAPI emitter provides an [`@useRef` decorator](../reference/decorators.md#OpenAPI.useRef) which will replace the TypeSpec model type in emitter output with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
 
 Example:
 

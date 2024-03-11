@@ -12,7 +12,7 @@ The OpenAPI emitter may produce any of the following diagnostic messages.
 
 This diagnostic is issued when a response header is defined more than once for a response of a specific status code.
 
-__work in progress__
+**work in progress**
 
 ## duplicate-type-name
 
@@ -23,11 +23,11 @@ To fix this issue, change the name or friendly-name of one of the models or para
 
 ## inline-cycle
 
-__work in progress__
+**work in progress**
 
 ## invalid-default
 
-__work in progress__
+**work in progress**
 
 ## invalid-extension-key
 
@@ -38,7 +38,7 @@ To fix this issue, change the extension name to start with "x-".
 
 ## invalid-schema
 
-__work in progress__
+**work in progress**
 
 ## invalid-server-variable
 

@@ -222,7 +222,7 @@ union GoodBreed {
 
 The OpenAPI emitter represents either form of union with an `anyOf` with an element for each option of the union. The OpenAPI emitter ignores the "names" for variants in named unions.
 
-The OpenAPI emitter also defines the[`@oneOf` decorator](../decorators.md#OpenAPI.oneOf) which can be specified on a `union` statement to indicate that a union should be emitted as a `oneOf` rather than `anyOf`.
+The OpenAPI emitter also defines the[`@oneOf` decorator](../reference/decorators.md#OpenAPI.oneOf) which can be specified on a `union` statement to indicate that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 ## Encoding and Formats
 

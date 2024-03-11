@@ -51,7 +51,7 @@ Any modification to the `main` branch is automatically published under the npm `
 
 We roll out updates for all packages during the first week of each month.
 
-To preview upcoming changes, you can check the milestones at https://github.com/microsoft/typespec/milestones. Milestones are labeled according to the target release month. 
+To preview upcoming changes, you can check the milestones at https://github.com/microsoft/typespec/milestones. Milestones are labeled according to the target release month.
 
 ## Breaking changes migration guides
 
