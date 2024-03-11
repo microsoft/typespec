@@ -4,7 +4,7 @@ title: Diagnostics
 
 The TypeSpec compiler uses the diagnostic API to report errors and warnings in the specification.
 
-## Recommended practices
+## Best practices
 
 - ❌ Avoid using `throw` to report errors. Any exceptions thrown in this manner will be perceived as bugs in your library by the user.
 - ✅ Utilize the diagnostic API to report anticipated errors and warnings.

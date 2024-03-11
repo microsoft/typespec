@@ -65,6 +65,30 @@ export const requiredDocRule = createLinterRule({
 });
 ```
 
+#### Provide a codefix #### Things to avoid
+
+[See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.
+
+In the same way you can provide a codefix on any reported diagnostic, you can pass codefixes to the `reportDiagnostic` function.
+
+```ts
+context.reportDiagnostic({
+  messageId: "models",
+  target: model,
+  codefixes: [
+    defineCodeFix({
+      id: "add-model-suffix",
+      description: "Add 'Model' suffix to model name",
+      apply: (program) => {
+        program.update(model, {
+          name: `${model.name}Model`,
+        });
+      },
+    }),
+  ],
+});
+```
+
 #### Things to avoid
 
 - ❌ Do not call `program.reportDiagnostic` or your library `reportDiagnostic` helper directly in a linter rule
