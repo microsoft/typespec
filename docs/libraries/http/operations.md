@@ -278,7 +278,7 @@ namespace Pets {
 
 ## Automatic visibility
 
-The `@typespec/rest` library understands the following well-known [visibilities](../../standard-library/built-in-decorators.md#visibility-decorators) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below.
+The `@typespec/rest` library understands the following well-known [visibilities](../../standard-library/built-in-decorators.md) and provides functionality for emitters to apply them based on whether on request vs. response and HTTP method usage as detailed in the table below.
 
 See [handling visibility and metadata](../../extending-typespec/emitter-metadata-handling.md) for how to incorporate this into
 

@@ -185,7 +185,7 @@ options:
 
 ### `output-dir` - Configure the default output dir
 
-Specify the common output-dir for all emitters. See [this](#output-directory-configuration) to configure per emitter.
+Specify the common output-dir for all emitters. See [this](#configuring-output-directory) to configure per emitter.
 
 ```yaml
 output-dir: {cwd}/typespec-build
@@ -199,7 +199,7 @@ tsp compile . --output-dir "./typespec-build"
 
 Output dir must be an absolute path in the config. Use `{cwd}` or `{project-root}` to explicitly specify what it should be relative to.
 
-See [output directory configuration for mode details](#output-directory-configuration)
+See [output directory configuration for mode details](#configuring-output-directory)
 
 ### `trace` - Configure what to trace
 

@@ -156,7 +156,7 @@ Note that the semantic walker will visit all types in the program, including bui
 
 ### Custom traversal
 
-Often, you'll want to emit specific types, such as types that have a particular decorator or are in a specific namespace. In such cases, it's often easier to write a custom traversal to find and emit those types. Once you have a type, you can access its [various fields](#todo) and emit those types as well if needed.
+Often, you'll want to emit specific types, such as types that have a particular decorator or are in a specific namespace. In such cases, it's often easier to write a custom traversal to find and emit those types. Once you have a type, you can access its various fields and emit those types as well if needed.
 
 For instance, let's say we want to emit a text file of model names but only if it has an `@emitThis` decorator. We could filter out such models in the Semantic Walker `model` callback, but it's more efficient to implement `@emitThis` such that it keeps a list of all the types it's attached to and iterate that list. We can then traverse into types it references if needed.
 

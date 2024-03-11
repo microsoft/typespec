@@ -35,7 +35,7 @@ Here are the main APIs involved in managing these features. For more details, re
 
 - [`MetadataInfo.isOptional(ModelProperty, Visibility): boolean`](../libraries/http/reference/js-api/interfaces/MetadataInfo.md#isoptional) - Use this to determine if a property is optional for the given visibility. This will differ from `ModelProperty.isOptional` when the Visibility is Update, in which case the property is always considered optional.
 
-- [`Visibility.Item`](../libraries/http/reference/js-api/enumerations/Visibility.md#item) - Add this flag when recursing into an array. This moves all metadata into the payload, which can be useful in scenarios like batching API calls.
+- [`Visibility.Item`](../libraries/http/reference/js-api/enumerations/Visibility.md) - Add this flag when recursing into an array. This moves all metadata into the payload, which can be useful in scenarios like batching API calls.
 
 ## Working with metadata and visibility
 
