@@ -3,11 +3,11 @@ id: namespaces
 title: Namespaces
 ---
 
-# Namespaces in TypeSpec
+# Namespaces
 
 Namespaces in TypeSpec allow you to group related types together. This organization makes your types easier to locate and helps avoid naming conflicts. Namespaces are merged across files, enabling you to reference any type from anywhere in your TypeSpec program using its namespace.
 
-## Basic usage
+## Basics
 
 You can create a namespace using the `namespace` keyword.
 
