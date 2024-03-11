@@ -62,7 +62,7 @@ Unlike Node libraries which support CommonJS (cjs), TypeSpec libraries must be E
 Run the following command:
 
 ```bash
-npm install --save-peer /compiler
+npm install --save-peer @typespec/compiler
 ```
 
 You might need to install other dependencies from the TypeSpec standard library. For example, if you want to use the metadata found in `@typespec/openapi`, you'll need to install that as well.
