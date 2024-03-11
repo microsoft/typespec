@@ -46,7 +46,7 @@ const DataValidationContent = () => {
         >
           <LearnMoreCard
             title="Configure the JSON schema emitter"
-            description="Change how the JSON schema is emitted: specify a bundleId to combine all schemas into a single file or use json instead of yaml."
+            description="Change how the JSON schema is emitted: specify a bundleId to combine all schemas into a single file or use JSON instead of yaml."
             image="shield-settings"
             link={Links.libraryReferences.jsonSchema.index}
           />
@@ -55,7 +55,7 @@ const DataValidationContent = () => {
         <Section
           header="Customize"
           title="JSON Schema Decorators"
-          description="The json schema library provides decorators to customize the output with json schema specific concepts."
+          description="The JSON schema library provides decorators to customize the output with JSON schema specific concepts."
           illustration={<JsonSchemaExtensionsIllustration />}
         >
           <LearnMoreCard
