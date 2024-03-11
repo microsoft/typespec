@@ -134,6 +134,33 @@ export function $tag(
 ) {}
 ```
 
+#### String templates and marshalling
+
+If a decorator parameter type is `valueof string`, a string template passed to it will also be marshalled as a string.
+The TypeSpec type system will already validate the string template can be serialized as a string.
+
+```tsp
+extern dec doc(target: unknown, name: valueof string);
+alias world = "world!";
+@doc("Hello ${world} ") // receive: "Hello world!"
+@doc("Hello ${123} ") // receive: "Hello 123"
+@doc("Hello ${true} ") // receive: "Hello true"
+model Bar {}
+@doc("Hello ${Bar} ") // not called error
+     ^ String template cannot be serialized as a string.
+```
+
+#### Typescript type Reference
+
+| TypeSpec Parameter Type      | TypeScript types                             |
+| ---------------------------- | -------------------------------------------- |
+| `valueof string`             | `string`                                     |
+| `valueof numeric`            | `number`                                     |
+| `valueof boolean`            | `boolean`                                    |
+| `string`                     | `StringLiteral \| TemplateLiteral \| Scalar` |
+| `Reflection.StringLiteral`   | `StringLiteral`                              |
+| `Reflection.TemplateLiteral` | `TemplateLiteral`                            |
+
 ### Adding metadata with decorators
 
 Decorators can be used to register some metadata. For this, you can use the `context.program.stateMap` or `context.program.stateSet` to insert data that will be tied to the current execution.

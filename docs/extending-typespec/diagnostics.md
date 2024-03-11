@@ -87,7 +87,7 @@ reportDiagnostic(program, {
 // Multiple messages
 reportDiagnostic(program, {
   code: "duplicate-name",
-  messageId: "parmaeter",
+  messageId: "parameter",
   format: {value: "$select"},
   target: diagnosticTarget,
 });
