@@ -103,7 +103,7 @@ This will create a `tsconfig.json` file. You'll need to make a few changes to th
 Open `./src/lib.ts` and create your library definition that registers your library with the TypeSpec compiler and defines any diagnostics your library will emit. Make sure to export the library definition as `$lib`.
 
 :::warning
-If `$lib` is not accessible from your library package (for example, `import {$lib} from "my-library";`), some functionalities such as validation of emitter options and linter rules will not be available.
+If `$lib` is not accessible from your library package (for example, `import {$lib} from "my-library";`), some features such as linting and emitter option validation will not be available.
 :::
 
 Here's an example:
