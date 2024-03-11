@@ -68,6 +68,7 @@
     "watch": "tsc -p . --watch",
     "watch-tmlanguage": "node scripts/watch-tmlanguage.js",
     "generate-tmlanguage": "node scripts/generate-tmlanguage.js",
+    "gen-extern-signature": "node --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./.scripts/gen-extern-signature.ts",
     "dogfood": "node scripts/dogfood.js",
     "test": "vitest run",
     "test:ui": "vitest --ui",

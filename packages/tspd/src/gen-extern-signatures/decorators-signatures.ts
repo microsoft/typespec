@@ -73,7 +73,7 @@ export function generateSignatures(program: Program, decorators: DecoratorSignat
 
   const importArray = [...compilerImports].sort();
   const content: Doc = [
-    `import {${importArray.join(",")}} from "@typespec/compiler";`,
+    `import type {${importArray.join(",")}} from "@typespec/compiler";`,
     line,
     line,
     decoratorDeclarations.join("\n\n"),

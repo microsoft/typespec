@@ -9,7 +9,7 @@ import {
   Scalar,
   Type,
   Union,
-} from "@typespec/compiler";
+} from "../src/index.js";
 
 /**
  * Specify how to encode the target type.

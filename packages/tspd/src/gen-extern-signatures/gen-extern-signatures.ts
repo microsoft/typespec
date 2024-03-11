@@ -65,7 +65,6 @@ export async function generateExternDecorators(
       ) {
         return;
       }
-      console.log("decorator", dec.name);
       const namespaceName = getTypeName(dec.namespace);
       let decoratorForNamespace = decorators.get(namespaceName);
       if (!decoratorForNamespace) {

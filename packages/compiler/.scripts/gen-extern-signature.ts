@@ -1,4 +1,3 @@
-// @ts-check
 // This can only be called after tspd is built(which is done after the compiler is built)
 import { fileURLToPath } from "url";
 import { generateExternDecorators } from "../../tspd/dist/src/gen-extern-signatures/gen-extern-signatures.js";
@@ -15,5 +14,6 @@ const program = await compile(NodeHost, root, {});
 
 const files = await generateExternDecorators(program, "@typespec/compiler");
 for (const [name, content] of Object.entries(files)) {
-  await NodeHost.writeFile(resolvePath(outDir, name), content);
+  const updatedContent = content.replace(/from "\@typespec\/compiler"/g, `from "../src/index.js"`);
+  await NodeHost.writeFile(resolvePath(outDir, name), updatedContent);
 }

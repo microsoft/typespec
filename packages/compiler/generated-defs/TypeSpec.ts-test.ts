@@ -39,7 +39,7 @@ import {
   $inspectTypeName,
   $parameterVisibility,
   $returnTypeVisibility,
-} from "@typespec/compiler";
+} from "../src/index.js";
 import {
   EncodeDecorator,
   DocDecorator,

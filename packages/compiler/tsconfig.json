@@ -10,7 +10,6 @@
     "test/**/*.ts",
     "generated-defs/**/*.ts",
     "templates/index.ts",
-    "templates/*.e2e.ts",
-    "./.scripts/**/*.ts"
+    "templates/*.e2e.ts"
   ]
 }
