@@ -41,9 +41,7 @@ The summary field is populated from the [(built-in) `@summary` decorator][summar
 
 ### Operation ID
 
-The operation ID can be explicitly defined using the [(OpenAPI) `@operationId` decorator][openapi-operationid-decorator]. If not explicitly defined, the operation ID is simply the operation name, prefixed with "<interface*name>*" when the operation is within an interface.
-
-[openapi-operationid-decorator]: ../../standard-library/built-in-decorators.md#@operationId
+The operation ID can be explicitly defined using the (OpenAPI) `@operationId` decorator. If not explicitly defined, the operation ID is simply the operation name, prefixed with "<interface*name>*" when the operation is within an interface.
 
 ### Parameters and Request Body
 
@@ -53,7 +51,7 @@ The `in` field of a parameter is defined using an [(Http) `@query`, `@header`, o
 
 The request body parameter can also be explicitly defined with an [(Http) `@body` decorator][http-body-decorator]. If `@body` is not explicitly defined, the set of parameters that are not marked `@header`, `@query`, or `@path` form the request body, which is defined as required. If the request body should be optional, it must be declared as an optional property with the `@body` decorator.
 
-[http-parameter-decorators]: ../http/reference/decorators.md#data-types
+[http-parameter-decorators]: ../http/reference/decorators.md
 [http-body-decorator]: ../http/reference/decorators.md#@TypeSpec.Http.body
 
 The content of a (built-in) `@doc` decorator on a parameter will be set in the description.
@@ -70,7 +68,7 @@ The return type(s) of the TypeSpec operation are translated into responses for t
 
 When a return type model has a property explicitly decorated with an [(Http) `@body` decorator][http-body-decorator], this is considered as the response body. In the absence of an explicit `@body`, the properties that are not marked `@statusCode` or `@header` form the response body.
 
-[http-statuscode-decorator]: ../http/reference/decorators.md#@TypeSpec.Http.statuscode
+[http-statuscode-decorator]: ../http/reference/decorators.md#@TypeSpec.Http.statusCode
 [error-decorator]: ../../standard-library/built-in-decorators.md#@error
 
 For more advanced details, see [metadata](../http/operations.md#metadata).
@@ -89,7 +87,7 @@ If the [(built-in) `#deprecated` directive][deprecated-decorator] is specified o
 
 ### External Documentation
 
-If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](../openapi/reference/decorators.md#@TypeSpec.OpenAPI.externaldocs), this will generate an externalDocs field in the OpenAPI operation.
+If the TypeSpec operation has an [(OpenAPI) `@externalDocs` decorator](../openapi/reference/decorators.md#@TypeSpec.OpenAPI.externalDocs), this will generate an externalDocs field in the OpenAPI operation.
 
 ### Specification Extensions
 
@@ -103,7 +101,7 @@ Inline defined models will result in an inline schema. Explicitly declared model
 
 A special case is an instantiation of a model template, it is treated as an inline model unless the model template has a [(built-in) `@friendlyName` decorator][friendlyname], in which case the schema is defined in `components/schemas` with the friendly-name.
 
-[friendlyname]: ../../standard-library/built-in-decorators.md#@friendlyname
+[friendlyname]: ../../standard-library/built-in-decorators.md#@friendlyName
 
 The following table shows how TypeSpec types are translated to JSON Schema types:
 
@@ -149,7 +147,7 @@ For an array type:
 | `@minItems(value)` | built-in | `minItems: value`           |       |
 | `@maxItems(value)` | built-in | `maxItems: value`           |       |
 
-The OpenAPI emitter provides an [`@useRef` decorator](../openapi/reference/decorators.md#OpenAPI.useref) which will replace the TypeSpec model type in emitter output with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
+The OpenAPI emitter provides an [`@useRef` decorator](../openapi/reference/decorators.md#OpenAPI.useRef) which will replace the TypeSpec model type in emitter output with a reference to a pre-existing named OpenAPI schema. This can be useful for "common" schemas.
 
 Example:
 
@@ -224,7 +222,7 @@ union GoodBreed {
 
 The OpenAPI emitter represents either form of union with an `anyOf` with an element for each option of the union. The OpenAPI emitter ignores the "names" for variants in named unions.
 
-The OpenAPI emitter also defines the[`@oneOf` decorator](../openapi/reference/decorators.md#OpenAPI.oneof) which can be specified on a `union` statement to indicate that a union should be emitted as a `oneOf` rather than `anyOf`.
+The OpenAPI emitter also defines the[`@oneOf` decorator](../openapi/reference/decorators.md#OpenAPI.oneOf) which can be specified on a `union` statement to indicate that a union should be emitted as a `oneOf` rather than `anyOf`.
 
 ## Encoding and Formats
 
@@ -253,7 +251,7 @@ When working with the `@encode` decorator, the rule is as follows. Given the 3 v
 
 ## Security Definitions
 
-The OpenAPI emitter uses the [(http) `@useAuth` decorator](../http/reference/decorators.md#@TypeSpec.Http.useauth) to handle security definitions.
+The OpenAPI emitter uses the [(http) `@useAuth` decorator](../http/reference/decorators.md#@TypeSpec.Http.useAuth) to handle security definitions.
 
 ### Examples
 
