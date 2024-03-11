@@ -1,4 +1,4 @@
-import { DecoratorContext, ModelProperty, Namespace, Scalar, Type } from "@typespec/compiler";
+import type { DecoratorContext, ModelProperty, Namespace, Scalar, Type } from "@typespec/compiler";
 
 /**
  * Add to namespaces to emit models within that namespace to JSON schema.

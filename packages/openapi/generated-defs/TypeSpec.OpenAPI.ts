@@ -1,4 +1,4 @@
-import { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
+import type { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
 
 /**
  * Specify the OpenAPI `operationId` property for this operation.

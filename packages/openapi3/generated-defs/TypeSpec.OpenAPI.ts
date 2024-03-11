@@ -1,4 +1,4 @@
-import { DecoratorContext, Model, ModelProperty, Union } from "@typespec/compiler";
+import type { DecoratorContext, Model, ModelProperty, Union } from "@typespec/compiler";
 
 /**
  * Specify that `oneOf` should be used instead of `anyOf` for that union.

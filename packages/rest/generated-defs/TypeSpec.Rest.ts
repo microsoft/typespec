@@ -1,4 +1,10 @@
-import { DecoratorContext, Interface, Model, ModelProperty, Operation } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  Interface,
+  Model,
+  ModelProperty,
+  Operation,
+} from "@typespec/compiler";
 
 /**
  * This interface or operation should resolve its route automatically. To be used with resource types where the route segments area defined on the models.

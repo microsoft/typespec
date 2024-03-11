@@ -1,4 +1,4 @@
-import { DecoratorContext, Model, Type } from "@typespec/compiler";
+import type { DecoratorContext, Model, Type } from "@typespec/compiler";
 
 export type ValidatesRawJsonDecorator = (
   context: DecoratorContext,
