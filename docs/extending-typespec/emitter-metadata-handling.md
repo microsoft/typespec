@@ -23,9 +23,9 @@ However, if you want your emitter to split types like OpenAPI, you can still use
 
 Here are the main APIs involved in managing these features. For more details, refer to the linked API reference documentation.
 
-- [`getRequestVisibility(HttpVerb): Visibility`](../libraries/http/reference/js-api/index.md#getrequestvisibility) - Use this to determine the visibility implied for data in the request parameters or body. Note that [`Visibility.Read`](../libraries/http/reference/js-api/enumerations/Visibility.md#item) is always applied for response data, so there is no corresponding API for the response.
+- [`getRequestVisibility(HttpVerb): Visibility`](../libraries/http/reference/js-api/functions/getRequestVisibility.md) - Use this to determine the visibility implied for data in the request parameters or body. Note that [`Visibility.Read`](../libraries/http/reference/js-api/enumerations/Visibility.md#item) is always applied for response data, so there is no corresponding API for the response.
 
-- [`MetadataInfo`](../libraries/http/reference/js-api/interfaces/MetadataInfo.md) - Create this once for each program using [`createMetadataInfo(Program, MetadataInfoOptions)`](../libraries/http/reference/js-api/index.md#createmetadatainfo). Then use it to understand metadata and visibility implications with the APIs below.
+- [`MetadataInfo`](../libraries/http/reference/js-api/interfaces/MetadataInfo.md) - Create this once for each program using [`createMetadataInfo(Program, MetadataInfoOptions)`](../libraries/http/reference/js-api/functions/createMetadataInfo.md). Then use it to understand metadata and visibility implications with the APIs below.
 
 - [`MetadataInfo.getEffectivePayloadType(Type, Visibility): Type`](../libraries/http/reference/js-api/interfaces/MetadataInfo.md#geteffectivepayloadtype) - Use this recursively on every referenced type. When given an anonymous model sourced entirely from a single named model after metadata is moved elsewhere or invisible properties are removed, it will recover the named model. This handles the commonly discussed case of seeing that `op something(...Thing)` receives a `Thing` in its request body, among other cases.
 

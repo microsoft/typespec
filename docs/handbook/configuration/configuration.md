@@ -4,7 +4,7 @@ title: Configuration
 
 # Compiler and library configurations
 
-The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or [command line flags](#command-line-flags).
+The TypeSpec compiler and libraries can be configured either via a [configuration file](#configuration-file) or command line flags.
 
 ## Configuration file
 
@@ -147,6 +147,7 @@ These environment variables can then be referred to by their name in a variable 
 All environment variables must have a default value.
 
 **Example:**
+
 ```yaml
 environment-variables:
   BASE_DIR:

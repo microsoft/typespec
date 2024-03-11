@@ -49,7 +49,7 @@ op deletePet is Delete;
 
 This implies that `deletePet` will inherit the same parameters, return type, and decorators as the `Delete` operation.
 
-This practice is typically used in conjunction with [operation templates](#operations-templates)
+This practice is typically used in conjunction with [operation templates](#operation-templates)
 
 ## Operation templates
 
@@ -77,7 +77,7 @@ alias PetName = Pet.name;
 
 Certain operation meta types can be referenced using `::`
 
-| Name       | Example               | Description                               |
-| ---------- | --------------------- | ----------------------------------------- |
+| Name       | Example               | Description                                |
+| ---------- | --------------------- | ------------------------------------------ |
 | parameters | `readPet::parameters` | References the parameters model expression |
 | returnType | `readPet::returnType` | References the operation return type       |

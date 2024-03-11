@@ -67,7 +67,7 @@ npm install --save-peer @typespec/compiler
 
 You might need to install other dependencies from the TypeSpec standard library. For example, if you want to use the metadata found in `@typespec/openapi`, you'll need to install that as well.
 
-Refer to the [dependency section](#defining-dependencies) for more information on defining your dependencies.
+Refer to the [dependency section](#step-3-defining-dependencies) for more information on defining your dependencies.
 
 ### c. Define your main files
 

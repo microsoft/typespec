@@ -40,7 +40,7 @@ This results in `./node_modules/@typespec/rest/lib/main.tsp` being imported.
 
 ## Importing a directory
 
-If the import value is a directory, TypeSpec will check if that directory is a Node package and follow the npm package [lookup logic](#import-a-library), or if the directory contains a `main.tsp` file.
+If the import value is a directory, TypeSpec will check if that directory is a Node package and follow the npm package [lookup logic](#importing-a-library), or if the directory contains a `main.tsp` file.
 
 ```typespec
 import "./models"; // equivalent to `import "./models/main.tsp";

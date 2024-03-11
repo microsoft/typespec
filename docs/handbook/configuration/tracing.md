@@ -18,7 +18,7 @@ If you want to log multiple areas, you can use the `--trace` option more than on
 tsp compile . --trace import-resolution  --trace projection
 ```
 
-To log everything, use `--trace *`. This might produce a lot of output, but you can [select specific trace areas to include](#trace-selection)
+To log everything, use `--trace *`. This might produce a lot of output, but you can [select specific trace areas to include](#selecting-trace-areas)
 
 You can also specify the trace areas in the `tspconfig.yaml` file:
 
@@ -57,16 +57,16 @@ You can use:
 
 Here is a list of the trace areas used in the compiler:
 
-| Area                           | Description                                                          |
-| ------------------------------ | -------------------------------------------------------------------- |
-| `compiler.options`             | Logs the resolved compiler options                                   |
-| `import-resolution.library`    | Logs information related to the resolution of import libraries       |
-| `projection.log`               | Logs debug information from the `log()` function used in projections |
-| `bind.js`                      | Logs information when binding JS files                               |
-| `linter.register-library`      | Logs information when a library's rules are being loaded             |
-| `linter.register-library.rule` | Logs information about a rule that is being registered               |
-| `linter.extend-rule-set.start` | Logs information about a ruleset that is about to be extended        |
-| `linter.extend-rule-set.end`   | Logs information about rules enabled after extending a ruleset       |
+| Area                           | Description                                                            |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| `compiler.options`             | Logs the resolved compiler options                                     |
+| `import-resolution.library`    | Logs information related to the resolution of import libraries         |
+| `projection.log`               | Logs debug information from the `log()` function used in projections   |
+| `bind.js`                      | Logs information when binding JS files                                 |
+| `linter.register-library`      | Logs information when a library's rules are being loaded               |
+| `linter.register-library.rule` | Logs information about a rule that is being registered                 |
+| `linter.extend-rule-set.start` | Logs information about a ruleset that is about to be extended          |
+| `linter.extend-rule-set.end`   | Logs information about rules enabled after extending a ruleset         |
 | `linter.lint`                  | Starts the lint process and shows information of all the rules enabled |
 
 ## Tracing in TypeSpec libraries
