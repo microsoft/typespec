@@ -11,7 +11,7 @@ While this guide assumes that you'll be using [TypeScript](https://typescriptlan
 
 ## What you'll need before you start
 
-You'll need to have both Node and npm installed on your system. If you're planning to develop multiple libraries simultaneously, it's recommended to set up a monorepo to simplify the development process. TypeSpec itself uses [pnpm](https://pnpm.io/).
+You'll need to have both Node and npm installed. If you're planning to develop multiple libraries simultaneously, it's recommended to set up a monorepo to simplify the development process. TypeSpec itself uses [pnpm](https://pnpm.io/).
 
 ## Setting up with templates
 
