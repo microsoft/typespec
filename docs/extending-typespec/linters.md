@@ -65,7 +65,7 @@ export const requiredDocRule = createLinterRule({
 });
 ```
 
-#### Provide a codefix #### Things to avoid
+#### Provide a codefix
 
 [See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.
 
