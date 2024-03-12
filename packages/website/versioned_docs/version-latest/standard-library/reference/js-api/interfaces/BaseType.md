@@ -3,7 +3,7 @@ jsApi: true
 title: "[I] BaseType"
 
 ---
-## Extended By
+## Extended by
 
 - [`ObjectType`](ObjectType.md)
 - [`Projection`](Projection.md)

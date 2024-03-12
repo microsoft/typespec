@@ -24,9 +24,9 @@ new VersionMap(namespace, enumType): VersionMap
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `private` | `map` | `Map`<`EnumMember`, [`Version`](../interfaces/Version.md)\> | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `map` | `private` | `Map`<`EnumMember`, [`Version`](../interfaces/Version.md)\> |
 
 ## Accessors
 

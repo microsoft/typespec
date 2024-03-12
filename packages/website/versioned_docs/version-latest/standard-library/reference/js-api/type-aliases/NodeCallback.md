@@ -9,7 +9,7 @@ type NodeCallback<T>: (c) => T;
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 

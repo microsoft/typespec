@@ -5,8 +5,8 @@ title: "[I] CompileResult"
 ---
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `document` | `TextDocument` | - |
-| `readonly` | `program` | [`Program`](Program.md) | - |
-| `readonly` | `script` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `document` | `readonly` | `TextDocument` |
+| `program` | `readonly` | [`Program`](Program.md) |
+| `script` | `readonly` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) |

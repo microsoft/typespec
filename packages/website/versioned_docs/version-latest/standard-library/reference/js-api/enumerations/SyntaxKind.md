@@ -7,7 +7,7 @@ AST types
 
 ## Enumeration Members
 
-| Member | Value | Description |
+| Enumeration Member | Value | Description |
 | :------ | :------ | :------ |
 | `AliasStatement` | `24` | - |
 | `ArrayExpression` | `31` | - |

@@ -5,13 +5,13 @@ title: Releases
 
 # Releases
 
-## Package versioning strategy
+## Versioning strategy for packages
 
-TypeSpec is not stable yet, all packages are released with `0.` major version. Each minor version might have some breaking changes to the TypeSpec language, library API or both. Those are documented [here](../release-notes).
+TypeSpec is currently in its development phase, and all packages are released with a `0.` major version. Each minor version may introduce some breaking changes to the TypeSpec language, library API, or both. These changes are documented [here](../release-notes).
 
-Every change to the `main` branch is automatically published under the npm `@next` tag.
+Any modification to the `main` branch is automatically published under the npm `@next` tag.
 
-## Current packages
+## Available packages
 
 | Name                                               | Changelog                        | Latest                                                                                                                                   | Next                                                                      |
 | -------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
@@ -49,9 +49,9 @@ Every change to the `main` branch is automatically published under the npm `@nex
 
 ## Release cadence
 
-We release changes from all packages the first week of every month.
+We roll out updates for all packages during the first week of each month.
 
-You can look at the millestones https://github.com/microsoft/typespec/milestones to see upcoming changes. Millestones are named after the target release month (i.e `[2022] October` is the sprint running in september targeting a release in the first week of October.)
+To preview upcoming changes, you can check the milestones at https://github.com/microsoft/typespec/milestones. Milestones are labeled according to the target release month.
 
 ## Breaking changes migration guides
 

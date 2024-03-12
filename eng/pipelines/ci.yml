@@ -32,17 +32,27 @@ stages:
 
           - template: ./templates/upload-coverage.yml
 
+          - script: pnpm run pack:all
+            displayName: Pack packages
+
           - pwsh: |
               echo "Updating config"
               pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
               echo "Publishing"
-              pnpm -r publish --access public --no-git-checks
+              pnpm chronus publish  "./temp/artifacts/*.tgz" --access public  --engine npm --report-summary ./publish-summary.json
             name: Publish
             env:
               NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
-          - script: pnpm run pack:all
-            displayName: Pack packages
+          - script: |
+              echo "Publish summary:"
+              cat ./publish-summary.json
+            displayName: Log publish summary
+
+          - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
+            displayName: Create github releases
+            env:
+              GITHUB_TOKEN: $(azuresdk-github-pat)
 
           - publish: $(Build.SourcesDirectory)/temp/artifacts
             artifact: packages
@@ -118,6 +128,10 @@ stages:
               pnpm config set '//registry.npmjs.org/:_authToken' '${NPM_AUTH_TOKEN}'
               echo "Publishing"
               pnpm -r publish --access public --no-git-checks --tag next
+
+            # Chronus doesn't support tag yet.
+            # pnpm chronus publish --tag next  --access public --report-summary ./publish-summary.json
+
             name: Publish
             env:
               NPM_AUTH_TOKEN: $(azure-sdk-npm-token)

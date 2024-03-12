@@ -4,25 +4,25 @@ title: Scalars
 
 # Scalars
 
-These are types without any fields (for example `string`, `int32`, `boolean`, etc.)
+Scalars are simple types that don't have any fields. Examples of these include `string`, `int32`, `boolean`, and so on.
 
-Scalar can be declared using the `scalar` keyword
+You can declare a scalar by using the `scalar` keyword.
 
 ```typespec
 scalar ternary;
 ```
 
-## Extend another scalar
+## Extending a scalar
 
-Scalar can be extended using the `extends` keyword.
+You can create a new scalar that extends an existing one by using the `extends` keyword.
 
 ```typespec
 scalar Password extends string;
 ```
 
-## Template scalar
+## Scalars with template parameters
 
-Scalar support template parameters. Note: the only use for those template are decorators.
+Scalars can also support template parameters. However, it's important to note that these templates are primarily used for decorators.
 
 ```typespec
 @doc(Type)

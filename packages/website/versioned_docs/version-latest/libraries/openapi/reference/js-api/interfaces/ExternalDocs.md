@@ -5,7 +5,7 @@ title: "[I] ExternalDocs"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `description?` | `string` | - |
-| `url` | `string` | - |
+| Property | Type |
+| :------ | :------ |
+| `description?` | `string` |
+| `url` | `string` |

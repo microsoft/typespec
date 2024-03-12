@@ -6,7 +6,7 @@ title: "[F] $useAuth"
 ```ts
 $useAuth(
    context, 
-   serviceNamespace, 
+   entity, 
    authConfig): void
 ```
 
@@ -15,7 +15,7 @@ $useAuth(
 | Parameter | Type |
 | :------ | :------ |
 | `context` | `DecoratorContext` |
-| `serviceNamespace` | `Namespace` |
+| `entity` | `Interface` \| `Namespace` \| `Operation` |
 | `authConfig` | `Model` \| `Tuple` \| `Union` |
 
 ## Returns

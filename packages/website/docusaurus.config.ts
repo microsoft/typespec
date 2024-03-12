@@ -55,7 +55,7 @@ const config: Config = {
   url: "https://typespec.io",
   baseUrl,
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  onBrokenMarkdownLinks: "throw",
   favicon: "img/favicon.svg",
 
   // GitHub pages deployment config.
@@ -79,6 +79,11 @@ const config: Config = {
   scripts: [
     {
       src: "es-module-shims.js",
+      type: "module",
+      async: true,
+    },
+    {
+      src: "1ds-init.js",
       type: "module",
       async: true,
     },
@@ -229,10 +234,6 @@ const config: Config = {
           {
             label: "Community",
             to: "/community",
-          },
-          {
-            label: "Getting started",
-            to: "/docs",
           },
           {
             type: "docsVersionDropdown",

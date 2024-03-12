@@ -5,12 +5,12 @@ title: "[I] CallableMessage"
 ---
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends `string`[] |
 
 ```ts
-CallableMessage(dict): string
+interface CallableMessage(dict): string
 ```
 
 ## Parameters
@@ -25,6 +25,6 @@ CallableMessage(dict): string
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `keys` | `T` | - |
+| Property | Type |
+| :------ | :------ |
+| `keys` | `T` |

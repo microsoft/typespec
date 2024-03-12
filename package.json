@@ -15,7 +15,7 @@
     "format": "pnpm run prettier --write",
     "lint": "pnpm -r --parallel --aggregate-output --reporter=append-only run lint",
     "merge-coverage": "c8 -- report --reporter=cobertura --reporter=text",
-    "pack:all": "node ./eng/scripts/pack-all.js",
+    "pack:all": "chronus pack --pack-destination ./temp/artifacts",
     "preinstall": "npx only-allow pnpm",
     "prepare-publish": "pnpm chronus version",
     "prettier": "prettier .",
@@ -29,7 +29,8 @@
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.7.0",
+    "@chronus/chronus": "^0.8.2",
+    "@chronus/github": "^0.2.1",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^9.1.0",
     "cspell": "^8.3.2",
