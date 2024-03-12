@@ -17,7 +17,7 @@ const DataValidationContent = () => {
   return (
     <div>
       <UseCaseOverview
-        title="Syntax highlighting, autocomplete, formatter and more"
+        title="Syntax highlighting, autocomplete, formatting, and more"
         subtitle="TypeSpec is supported by a variety of readily available tools, designed to boost your productivity right from the start."
         link={Links.editor.home}
         illustration={<LightDarkImg src="illustrations/ide-hero" />}
@@ -26,7 +26,7 @@ const DataValidationContent = () => {
         <Section
           header="Style consistency"
           title="Built-in formatter"
-          description="TypeSpec provide an opinionated formatter that enables you to enforce a consistent style in your codebase."
+          description="TypeSpec provides an opinionated formatter that enables you to enforce a consistent style in your codebase."
           illustration={<FormatterIllustration />}
         >
           <LearnMoreCard
@@ -53,14 +53,14 @@ const DataValidationContent = () => {
         <Section
           header="Intellisense"
           title="Autocomplete and more"
-          description="IntelliSense shows you intelligent code completion, hover information, and signature help so that you can write code more quickly and correctly."
+          description="IntelliSense shows you intelligent code completion, hover information, and signature help so that you can quickly and efficiency write correct code."
           illustration={<LightDarkImg src="illustrations/autocomplete" />}
         />
         <Section
           layout="text-right"
           header="Refactor"
           title="Bulk renaming"
-          description="One of the simplest refactoring is to rename a reference. You can rename a identifier and see all its reference across your TypeSpec project update."
+          description="One of the simplest forms of refactoring is renaming a reference. Rename an identifier and see all of its references updated across your TypeSpec project."
           illustration={
             <video
               src={useBaseUrl("/img/illustrations/refactor.mp4")}

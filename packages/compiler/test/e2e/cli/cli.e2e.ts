@@ -178,7 +178,7 @@ describe("cli", () => {
     expect(file.toString()).toEqual("foo");
   });
 
-  it("set config parmaeter with --arg", async () => {
+  it("set config parameter with --arg", async () => {
     await cleanOutputDir("with-config");
 
     const { stdout } = await execCliSuccess(
