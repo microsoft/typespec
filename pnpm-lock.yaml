@@ -12,8 +12,8 @@ importers:
         specifier: ^0.8.2
         version: 0.8.2
       '@chronus/github':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.2.1
+        version: 0.2.1
       '@pnpm/find-workspace-packages':
         specifier: ^6.0.9
         version: 6.0.9(@pnpm/logger@5.0.0)
@@ -3222,8 +3222,8 @@ packages:
       - terser
     dev: true
 
-  /@chronus/github@0.2.0:
-    resolution: {integrity: sha512-zlEQGKgzZbp7gA1y82eMujjLqdRHUH1MVwWU7+t1jNWP7sMpD9LMQ1k7wV9QBuu80NqQphaeeYjWkA7YGkOP+Q==}
+  /@chronus/github@0.2.1:
+    resolution: {integrity: sha512-F4WAOZApx9B1TvALabGwSvfbYG3MhMIQqV/GJbo6vNxqP0Dfdlit4B4apwpFX82v1ps3/SN4WsaCskmzBRQwEA==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     dependencies:

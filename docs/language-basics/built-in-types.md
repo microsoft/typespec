@@ -3,7 +3,7 @@ id: built-in-types
 title: Built-in types
 ---
 
-# Built-in Types
+# Built-in types
 
 TypeSpec Standard Library provide some built-in types that can be used to build more complex types.
 

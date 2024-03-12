@@ -587,6 +587,30 @@ describe("compiler: built-in decorators", () => {
       strictEqual(getEncode(runner.program, s)?.encoding, "rfc3339");
     });
 
+    it(`set encoding on model property`, async () => {
+      const { prop } = (await runner.compile(`
+        model Foo {
+          @encode("rfc3339")
+          @test
+          prop: utcDateTime;
+        }
+      `)) as { prop: ModelProperty };
+
+      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
+    });
+
+    it(`set encoding on model property of union type`, async () => {
+      const { prop } = (await runner.compile(`
+        model Foo {
+          @encode("rfc3339")
+          @test
+          prop: utcDateTime | null; 
+        }
+      `)) as { prop: ModelProperty };
+
+      strictEqual(getEncode(runner.program, prop)?.encoding, "rfc3339");
+    });
+
     it(`encode type default to string`, async () => {
       const { s } = (await runner.compile(`
         @encode("rfc3339")

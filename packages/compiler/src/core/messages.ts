@@ -497,7 +497,7 @@ const diagnostics = {
   shadow: {
     severity: "warning",
     messages: {
-      default: paramMessage`Shadowing parent template parmaeter with the same name "${"name"}"`,
+      default: paramMessage`Shadowing parent template parameter with the same name "${"name"}"`,
     },
   },
   "invalid-deprecation-argument": {
