@@ -53,14 +53,15 @@ describe("typespec-autorest: multipart", () => {
           profileImage: {
             anyOf: [
               {
-                format: "binary",
                 type: "string",
+                format: "binary",
               },
               {
                 type: "object",
                 properties: {
-                  content: { type: "string" },
+                  content: { type: "string", format: "byte" },
                 },
+                required: ["content"],
               },
             ],
           },
