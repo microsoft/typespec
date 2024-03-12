@@ -5,7 +5,7 @@ title: "[I] EmitContext"
 ---
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `TOptions` extends `object` | `Record`<`string`, `never`\> |
 
@@ -29,7 +29,7 @@ Get an asset emitter to write emitted output to disk using a TypeEmitter
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 

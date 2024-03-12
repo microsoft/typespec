@@ -5,6 +5,6 @@ title: "[I] StateDef"
 ---
 ## Properties
 
-| Modifier | Property | Type | Description |
+| Property | Modifier | Type | Description |
 | :------ | :------ | :------ | :------ |
-| `readonly` | `description?` | `string` | Description for this state. |
+| `description?` | `readonly` | `string` | Description for this state. |

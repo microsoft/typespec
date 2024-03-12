@@ -11,7 +11,7 @@ Create a new linter rule.
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `N` extends `string` |
 | `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) |

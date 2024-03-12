@@ -6,9 +6,11 @@ import {
   LinterRuleDefinition,
   LinterRuleSet,
   Model,
+  ModelProperty,
   NodePackage,
   Operation,
   Scalar,
+  Type,
   Union,
 } from "@typespec/compiler";
 
@@ -18,133 +20,162 @@ export type TypeSpecLibraryRefDoc = TypeSpecRefDocBase & {
   /**
    * Library name
    */
-  name: string;
+  readonly name: string;
 
   /**
    * Library package.json
    */
-  packageJson: NodePackage;
+  readonly packageJson: NodePackage;
 
   /**
    * Library description
    */
-  description?: string;
+  readonly description?: string;
 
-  emitter?: EmitterRefDoc;
+  readonly emitter?: EmitterRefDoc;
 
   /** Documentation about the linter rules and ruleset provided in this library. */
-  linter?: LinterRefDoc;
+  readonly linter?: LinterRefDoc;
 };
 
 export type TypeSpecRefDocBase = {
-  namespaces: NamespaceRefDoc[];
+  readonly namespaces: readonly NamespaceRefDoc[];
+
+  /** Returns the named type ref doc mapping to that type if is is part of this library. */
+  readonly getNamedTypeRefDoc: (type: Type) => RefDocEntity | undefined;
 };
 
 export type EmitterRefDoc = {
-  options: EmitterOptionRefDoc[];
+  readonly options: EmitterOptionRefDoc[];
 };
 
 export type LinterRefDoc = {
   /** List of rulesets provided. */
-  ruleSets?: LinterRuleSetRefDoc[];
-  rules: LinterRuleRefDoc[];
+  readonly ruleSets?: LinterRuleSetRefDoc[];
+  readonly rules: LinterRuleRefDoc[];
 };
 
 export type LinterRuleSetRefDoc = ReferencableElement & {
-  ruleSet: LinterRuleSet;
+  readonly kind: "ruleset";
+  readonly ruleSet: LinterRuleSet;
 };
 export type LinterRuleRefDoc = ReferencableElement & {
-  rule: LinterRuleDefinition<any, any>;
+  readonly kind: "rule";
+  readonly rule: LinterRuleDefinition<any, any>;
 };
 
 export type EmitterOptionRefDoc = {
-  name: string;
-  type: string;
-  doc: string;
+  readonly name: string;
+  readonly type: string;
+  readonly doc: string;
 };
 
+export type RefDocEntity =
+  | NamespaceRefDoc
+  | DecoratorRefDoc
+  | OperationRefDoc
+  | InterfaceRefDoc
+  | ModelRefDoc
+  | EnumRefDoc
+  | UnionRefDoc
+  | ScalarRefDoc
+  | LinterRuleSetRefDoc
+  | LinterRuleRefDoc;
+
 export type NamespaceRefDoc = {
-  id: string;
-  decorators: DecoratorRefDoc[];
-  operations: OperationRefDoc[];
-  interfaces: InterfaceRefDoc[];
-  models: ModelRefDoc[];
-  enums: EnumRefDoc[];
-  unions: UnionRefDoc[];
-  scalars: ScalarRefDoc[];
+  readonly kind: "namespace";
+  readonly id: string;
+  readonly name: string;
+  readonly decorators: readonly DecoratorRefDoc[];
+  readonly operations: readonly OperationRefDoc[];
+  readonly interfaces: readonly InterfaceRefDoc[];
+  readonly models: readonly ModelRefDoc[];
+  readonly enums: readonly EnumRefDoc[];
+  readonly unions: readonly UnionRefDoc[];
+  readonly scalars: readonly ScalarRefDoc[];
 };
 
 export type ReferencableElement = {
   /**
    * Fully qualified id
    */
-  id: string;
+  readonly id: string;
 
-  name: string;
+  readonly name: string;
 };
 
 export type NamedTypeRefDoc = ReferencableElement & {
-  signature: string;
-  doc: string;
-  examples: ExampleRefDoc[];
+  readonly signature: string;
+  readonly doc: string;
+  readonly examples: readonly ExampleRefDoc[];
 };
 
 export type DecoratorRefDoc = NamedTypeRefDoc & {
-  type: Decorator;
-  target: FunctionParameterRefDoc;
-  parameters: FunctionParameterRefDoc[];
-  otherTags: string[];
+  readonly kind: "decorator";
+  readonly type: Decorator;
+  readonly target: FunctionParameterRefDoc;
+  readonly parameters: readonly FunctionParameterRefDoc[];
+  readonly otherTags: readonly string[];
 };
 
 export type FunctionParameterRefDoc = {
-  type: FunctionParameter;
-  name: string;
-  doc: string;
-  optional: boolean;
-  rest: boolean;
+  readonly type: FunctionParameter;
+  readonly name: string;
+  readonly doc: string;
+  readonly optional: boolean;
+  readonly rest: boolean;
 };
 
 export type ExampleRefDoc = {
-  title?: string;
-  content: string;
+  readonly title?: string;
+  readonly content: string;
 };
 
 export type OperationRefDoc = NamedTypeRefDoc & {
-  type: Operation;
-
-  templateParameters?: TemplateParameterRefDoc[];
+  readonly kind: "operation";
+  readonly type: Operation;
+  readonly templateParameters?: TemplateParameterRefDoc[];
 };
 
 export type InterfaceRefDoc = NamedTypeRefDoc & {
-  type: Interface;
-  templateParameters?: TemplateParameterRefDoc[];
-
-  interfaceOperations: OperationRefDoc[];
+  readonly kind: "interface";
+  readonly type: Interface;
+  readonly templateParameters?: readonly TemplateParameterRefDoc[];
+  readonly interfaceOperations: readonly OperationRefDoc[];
 };
 
 export type TemplateParameterRefDoc = {
-  name: string;
-  doc: string;
+  readonly name: string;
+  readonly doc: string;
 };
 
 export type ModelRefDoc = NamedTypeRefDoc & {
-  type: Model;
+  readonly kind: "model";
+  readonly type: Model;
 
-  templateParameters?: TemplateParameterRefDoc[];
+  readonly templateParameters?: readonly TemplateParameterRefDoc[];
+  readonly properties: ReadonlyMap<string, ModelPropertyRefDoc>;
+};
+
+export type ModelPropertyRefDoc = NamedTypeRefDoc & {
+  readonly type: ModelProperty;
 };
 
 export type EnumRefDoc = NamedTypeRefDoc & {
-  type: Enum;
+  readonly kind: "enum";
+  readonly type: Enum;
 };
 
 export type UnionRefDoc = NamedTypeRefDoc & {
-  type: Union;
+  readonly kind: "union";
+  readonly type: Union;
 
-  templateParameters?: TemplateParameterRefDoc[];
+  readonly templateParameters?: readonly TemplateParameterRefDoc[];
 };
 
 export type ScalarRefDoc = NamedTypeRefDoc & {
-  type: Scalar;
+  readonly kind: "scalar";
+  readonly type: Scalar;
 
-  templateParameters?: TemplateParameterRefDoc[];
+  readonly templateParameters?: readonly TemplateParameterRefDoc[];
 };

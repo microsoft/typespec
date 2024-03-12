@@ -15,7 +15,7 @@ Validate a decorator parameter has the correct type.
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `K` extends 
   \| `"Model"`

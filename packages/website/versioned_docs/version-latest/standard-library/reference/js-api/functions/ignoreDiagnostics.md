@@ -11,15 +11,15 @@ Ignore the diagnostics emitted by the diagnostic accessor pattern and just retur
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` |
 
 ## Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `result` | [`DiagnosticResult`](../type-aliases/DiagnosticResult.md)<`T`\> |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `result` | [`DiagnosticResult`](../type-aliases/DiagnosticResult.md)<`T`\> | Accessor pattern tuple result including the actual result and the list of diagnostics. |
 
 ## Returns
 

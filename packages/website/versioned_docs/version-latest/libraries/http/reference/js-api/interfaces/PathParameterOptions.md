@@ -5,7 +5,7 @@ title: "[I] PathParameterOptions"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `name` | `string` | - |
-| `type` | `"path"` | - |
+| Property | Type |
+| :------ | :------ |
+| `name` | `string` |
+| `type` | `"path"` |

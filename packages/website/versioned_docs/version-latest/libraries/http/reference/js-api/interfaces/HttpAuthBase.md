@@ -3,13 +3,14 @@ jsApi: true
 title: "[I] HttpAuthBase"
 
 ---
-## Extended By
+## Extended by
 
 - [`BasicAuth`](BasicAuth.md)
 - [`BearerAuth`](BearerAuth.md)
 - [`ApiKeyAuth`](ApiKeyAuth.md)
 - [`Oauth2Auth`](Oauth2Auth.md)
 - [`OpenIDConnectAuth`](OpenIDConnectAuth.md)
+- [`NoAuth`](NoAuth.md)
 
 ## Properties
 

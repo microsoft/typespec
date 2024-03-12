@@ -9,22 +9,22 @@ title: "[I] ProjectedProgram"
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
+| Property | Modifier | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ | :------ |
-| `public` | `checker` | [`Checker`](Checker.md) | - | [`Program.checker`](Program.md) |
-| `public` | `compilerOptions` | [`CompilerOptions`](CompilerOptions.md) | - | [`Program.compilerOptions`](Program.md) |
-| `readonly` | `diagnostics` | readonly [`Diagnostic`](Diagnostic.md)[] | - | [`Program.diagnostics`](Program.md) |
-| `public` | `emitters` | `EmitterRef`[] | - | [`Program.emitters`](Program.md) |
-| `public` | `host` | [`CompilerHost`](CompilerHost.md) | - | [`Program.host`](Program.md) |
-| `public` | `jsSourceFiles` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - | [`Program.jsSourceFiles`](Program.md) |
-| `public` | `literalTypes` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - | [`Program.literalTypes`](Program.md) |
-| `public` | `mainFile?` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program.mainFile`](Program.md) |
-| `readonly` | `projectRoot` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program.projectRoot`](Program.md) |
-| `public` | `projector` | [`Projector`](Projector.md) | - | - |
-| `public` | `sourceFiles` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. | [`Program.sourceFiles`](Program.md) |
-| `public` | `stateMaps` | `Map`<`symbol`, `StateMap`\> | - | [`Program.stateMaps`](Program.md) |
-| `public` | `stateSets` | `Map`<`symbol`, `StateSet`\> | - | [`Program.stateSets`](Program.md) |
-| `public` | `tracer` | [`Tracer`](Tracer.md) | - | [`Program.tracer`](Program.md) |
+| `checker` | `public` | [`Checker`](Checker.md) | - | [`Program`](Program.md).`checker` |
+| `compilerOptions` | `public` | [`CompilerOptions`](CompilerOptions.md) | - | [`Program`](Program.md).`compilerOptions` |
+| `diagnostics` | `readonly` | readonly [`Diagnostic`](Diagnostic.md)[] | - | [`Program`](Program.md).`diagnostics` |
+| `emitters` | `public` | `EmitterRef`[] | - | [`Program`](Program.md).`emitters` |
+| `host` | `public` | [`CompilerHost`](CompilerHost.md) | - | [`Program`](Program.md).`host` |
+| `jsSourceFiles` | `public` | `Map`<`string`, [`JsSourceFileNode`](JsSourceFileNode.md)\> | - | [`Program`](Program.md).`jsSourceFiles` |
+| `literalTypes` | `public` | `Map`<`string` \| `number` \| `boolean`, [`LiteralType`](../type-aliases/LiteralType.md)\> | - | [`Program`](Program.md).`literalTypes` |
+| `mainFile?` | `public` | [`TypeSpecScriptNode`](TypeSpecScriptNode.md) | - | [`Program`](Program.md).`mainFile` |
+| `projectRoot` | `readonly` | `string` | Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located. | [`Program`](Program.md).`projectRoot` |
+| `projector` | `public` | [`Projector`](Projector.md) | - | - |
+| `sourceFiles` | `public` | `Map`<`string`, [`TypeSpecScriptNode`](TypeSpecScriptNode.md)\> | All source files in the program, keyed by their file path. | [`Program`](Program.md).`sourceFiles` |
+| `stateMaps` | `public` | `Map`<`symbol`, `StateMap`\> | - | [`Program`](Program.md).`stateMaps` |
+| `stateSets` | `public` | `Map`<`symbol`, `StateSet`\> | - | [`Program`](Program.md).`stateSets` |
+| `tracer` | `public` | [`Tracer`](Tracer.md) | - | [`Program`](Program.md).`tracer` |
 
 ## Methods
 
@@ -40,7 +40,7 @@ getGlobalNamespaceType(): Namespace
 
 #### Inherited from
 
-[`Program.getGlobalNamespaceType`](Program.md#getglobalnamespacetype)
+[`Program`](Program.md).[`getGlobalNamespaceType`](Program.md#getglobalnamespacetype)
 
 ***
 
@@ -62,7 +62,7 @@ getOption(key): undefined | string
 
 #### Inherited from
 
-[`Program.getOption`](Program.md#getoption)
+[`Program`](Program.md).[`getOption`](Program.md#getoption)
 
 ***
 
@@ -86,7 +86,7 @@ Return location context of the given source file.
 
 #### Inherited from
 
-[`Program.getSourceFileLocationContext`](Program.md#getsourcefilelocationcontext)
+[`Program`](Program.md).[`getSourceFileLocationContext`](Program.md#getsourcefilelocationcontext)
 
 ***
 
@@ -102,7 +102,7 @@ hasError(): boolean
 
 #### Inherited from
 
-[`Program.hasError`](Program.md#haserror)
+[`Program`](Program.md).[`hasError`](Program.md#haserror)
 
 ***
 
@@ -124,7 +124,7 @@ loadTypeSpecScript(typespecScript): Promise<TypeSpecScriptNode>
 
 #### Inherited from
 
-[`Program.loadTypeSpecScript`](Program.md#loadtypespecscript)
+[`Program`](Program.md).[`loadTypeSpecScript`](Program.md#loadtypespecscript)
 
 ***
 
@@ -147,7 +147,7 @@ onValidate(cb, LibraryMetadata): void
 
 #### Inherited from
 
-[`Program.onValidate`](Program.md#onvalidate)
+[`Program`](Program.md).[`onValidate`](Program.md#onvalidate)
 
 ***
 
@@ -169,7 +169,7 @@ reportDiagnostic(diagnostic): void
 
 #### Inherited from
 
-[`Program.reportDiagnostic`](Program.md#reportdiagnostic)
+[`Program`](Program.md).[`reportDiagnostic`](Program.md#reportdiagnostic)
 
 ***
 
@@ -191,7 +191,7 @@ reportDiagnostics(diagnostics): void
 
 #### Inherited from
 
-[`Program.reportDiagnostics`](Program.md#reportdiagnostics)
+[`Program`](Program.md).[`reportDiagnostics`](Program.md#reportdiagnostics)
 
 ***
 
@@ -213,7 +213,7 @@ reportDuplicateSymbols(symbols): void
 
 #### Inherited from
 
-[`Program.reportDuplicateSymbols`](Program.md#reportduplicatesymbols)
+[`Program`](Program.md).[`reportDuplicateSymbols`](Program.md#reportduplicatesymbols)
 
 ***
 
@@ -235,7 +235,7 @@ resolveTypeReference(reference): [undefined | Type, readonly Diagnostic[]]
 
 #### Inherited from
 
-[`Program.resolveTypeReference`](Program.md#resolvetypereference)
+[`Program`](Program.md).[`resolveTypeReference`](Program.md#resolvetypereference)
 
 ***
 
@@ -257,7 +257,7 @@ stateMap(key): Map<Type, any>
 
 #### Inherited from
 
-[`Program.stateMap`](Program.md#statemap)
+[`Program`](Program.md).[`stateMap`](Program.md#statemap)
 
 ***
 
@@ -279,7 +279,7 @@ stateSet(key): Set<Type>
 
 #### Inherited from
 
-[`Program.stateSet`](Program.md#stateset)
+[`Program`](Program.md).[`stateSet`](Program.md#stateset)
 
 ***
 
@@ -302,4 +302,4 @@ trace(area, message): void
 
 #### Inherited from
 
-[`Program.trace`](Program.md#trace)
+[`Program`](Program.md).[`trace`](Program.md#trace)

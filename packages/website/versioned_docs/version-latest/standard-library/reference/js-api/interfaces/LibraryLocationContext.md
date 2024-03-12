@@ -7,7 +7,7 @@ Defined in a library.
 
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `metadata` | [`ModuleLibraryMetadata`](ModuleLibraryMetadata.md) | - |
-| `type` | `"library"` | - |
+| Property | Type |
+| :------ | :------ |
+| `metadata` | [`ModuleLibraryMetadata`](ModuleLibraryMetadata.md) |
+| `type` | `"library"` |

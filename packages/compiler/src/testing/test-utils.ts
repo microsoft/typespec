@@ -99,3 +99,30 @@ export function createTestWrapper(
     },
   };
 }
+
+export function trimBlankLines(code: string) {
+  let start = 0;
+  for (let i = 0; i < code.length; i++) {
+    if (code[i] === " ") {
+      start++;
+    } else if (code[i] === "\n") {
+      break;
+    } else {
+      start = 0;
+      break;
+    }
+  }
+  let end = 0;
+  for (let i = code.length - 1; i >= 0; i--) {
+    if (code[i] === " ") {
+      end--;
+    } else if (code[i] === "\n") {
+      break;
+    } else {
+      end = 0;
+      break;
+    }
+  }
+
+  return code.slice(start, end);
+}

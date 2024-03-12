@@ -2,9 +2,9 @@
 title: Style guide
 ---
 
-# TypeSpec Language Style Guide
+# TypeSpec language style guide
 
-This is a guide providing a recommended set of naming convention to use when writing a TypeSpec spec.
+This guide offers a recommended set of naming conventions to follow when drafting a TypeSpec specification.
 
 :::info
 The guidelines in this article are used in TypeSpec Core libraries. You can use them, or adapt them to your needs. The primary objectives are consistency and readability within your project, team, organization, or company source code.
@@ -167,7 +167,7 @@ alias foo = [1, 2, 3];
 
 ### Model layout
 
-- Properties should hug each other unless it has decorators or comments
+- Properties should hug each other unless they have decorators or comments
 
 <!-- prettier-ignore -->
 ```tsp
@@ -188,7 +188,7 @@ model Foo {
 }
 ```
 
-- Wrap properties in new lines if it has leading comments or decorators
+- Wrap properties in new lines if they have leading comments or decorators
 
 <!-- prettier-ignore -->
 ```tsp

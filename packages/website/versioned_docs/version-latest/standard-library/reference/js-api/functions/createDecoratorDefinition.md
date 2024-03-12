@@ -9,7 +9,7 @@ createDecoratorDefinition<T, P, S>(definition): DecoratorValidator<T, P, S>
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`TypeKind`](../type-aliases/TypeKind.md) |
 | `P` extends readonly [`DecoratorParamDefinition`](../interfaces/DecoratorParamDefinition.md)<[`TypeKind`](../type-aliases/TypeKind.md)\>[] |

@@ -63,8 +63,8 @@ Get information about the given path
 
 `Promise`<`Object`\>
 
-> | Member | Type | Description |
-> | :------ | :------ | :------ |
-> | `isDirectory` | `boolean` | - |
-> | `isFile` | `boolean` | - |
+> | Member | Type |
+> | :------ | :------ |
+> | `isDirectory` | `boolean` |
+> | `isFile` | `boolean` |
 >

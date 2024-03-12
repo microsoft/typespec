@@ -1,6 +1,6 @@
 {
   "name": "@typespec/json-schema",
-  "version": "0.53.1",
+  "version": "0.54.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting TypeSpec to JSON Schema and converting JSON Schema to TypeSpec",
   "homepage": "https://github.com/microsoft/typespec",
@@ -20,7 +20,14 @@
   "type": "module",
   "main": "dist/src/index.js",
   "exports": {
-    ".": "./dist/src/index.js"
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./testing": {
+      "types": "./dist/src/testing/index.d.ts",
+      "default": "./dist/src/testing/index.js"
+    }
   },
   "tspMain": "lib/main.tsp",
   "engines": {

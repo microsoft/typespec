@@ -7,14 +7,14 @@ title: "[F] assertType"
 assertType<TKind>(
    typeDescription, 
    t, ...
-   kinds): asserts t is Object
+   kinds): asserts t is Type & Object
 ```
 
 Assert that the input type has one of the kinds provided
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `TKind` extends (
   \| `"Model"`
@@ -51,4 +51,4 @@ Assert that the input type has one of the kinds provided
 
 ## Returns
 
-`asserts t is Object`
+`asserts t is Type & Object`

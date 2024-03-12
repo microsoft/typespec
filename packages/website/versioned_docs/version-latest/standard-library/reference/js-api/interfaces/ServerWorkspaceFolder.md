@@ -9,7 +9,7 @@ title: "[I] ServerWorkspaceFolder"
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
+| Property | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ |
 | `name` | `string` | The name of the workspace folder. Used to refer to this<br />workspace folder in the user interface. | `WorkspaceFolder.name` |
 | `path` | `string` | - | - |

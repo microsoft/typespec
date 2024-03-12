@@ -13,6 +13,7 @@ import {
 } from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
+import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
 import { compilerAssert } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
@@ -287,6 +288,7 @@ export async function compile(
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
   const sourceFileLocationContexts = new WeakMap<SourceFile, LocationContext>();
   let error = false;
+  let continueToNextStage = true;
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -382,7 +384,7 @@ export async function compile(
   program.checker = createChecker(program);
   program.checker.checkProgram();
 
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
   // onValidate stage
@@ -391,7 +393,7 @@ export async function compile(
   validateRequiredImports();
 
   await validateLoadedLibraries();
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
 
@@ -1046,6 +1048,15 @@ export async function compile(
   function reportDiagnostic(diagnostic: Diagnostic): void {
     if (shouldSuppress(diagnostic)) {
       return;
+    }
+
+    if (diagnostic.severity === "error") {
+      continueToNextStage = false;
+    }
+
+    if (diagnostic.severity === "warning" && diagnostic.target !== NoTarget) {
+      mutate(diagnostic).codefixes ??= [];
+      mutate(diagnostic.codefixes).push(createSuppressCodeFix(diagnostic.target, diagnostic.code));
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {

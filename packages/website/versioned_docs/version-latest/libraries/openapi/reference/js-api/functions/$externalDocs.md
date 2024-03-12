@@ -20,12 +20,8 @@ Allows referencing an external resource for extended documentation.
 | `context` | `DecoratorContext` | - |
 | `target` | `Type` | - |
 | `url` | `string` | The URL for the target documentation. Value MUST be in the format of a URL. |
-| `description`? | `string` | - |
+| `description`? | `string` | A short description of the target documentation. |
 
 ## Returns
 
 `void`
-
-## Optional
-
-description A short description of the target documentation.

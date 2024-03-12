@@ -5,15 +5,15 @@ title: "[I] LinterRuleContext"
 ---
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |
 
 ## Properties
 
-| Modifier | Property | Type | Description |
-| :------ | :------ | :------ | :------ |
-| `readonly` | `program` | [`Program`](Program.md) | - |
+| Property | Modifier | Type |
+| :------ | :------ | :------ |
+| `program` | `readonly` | [`Program`](Program.md) |
 
 ## Methods
 
@@ -25,7 +25,7 @@ reportDiagnostic<M>(diag): void
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `M` extends `string` \| `number` \| `symbol` |
 

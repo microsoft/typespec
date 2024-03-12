@@ -9,7 +9,7 @@ title: "[I] ResolveCompilerOptionsOptions"
 
 ## Properties
 
-| Property | Type | Description | Inheritance |
+| Property | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ |
 | `args?` | `Record`<`string`, `string`\> | Any arguments to interpolate the config. | `ConfigToOptionsOptions.args` |
 | `configPath?` | `string` | Explicit config path. | - |
