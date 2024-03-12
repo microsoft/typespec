@@ -33,7 +33,7 @@ export type EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   encoding: Type,
-  encodedAs?: Scalar,
+  encodedAs?: Scalar
 ) => void;
 
 /**
@@ -51,24 +51,18 @@ export type DocDecorator = (
   context: DecoratorContext,
   target: Type,
   doc: string,
-  formatArgs?: Type,
+  formatArgs?: Type
 ) => void;
 
 /**
  * Returns the model with required properties removed.
  */
-export type WithOptionalPropertiesDecorator = (
-  context: DecoratorContext,
-  target: Model,
-) => void;
+export type WithOptionalPropertiesDecorator = (context: DecoratorContext, target: Model) => void;
 
 /**
  * Returns the model with non-updateable properties removed.
  */
-export type WithUpdateablePropertiesDecorator = (
-  context: DecoratorContext,
-  target: Model,
-) => void;
+export type WithUpdateablePropertiesDecorator = (context: DecoratorContext, target: Model) => void;
 
 /**
  * Returns the model with the given properties omitted.
@@ -78,16 +72,13 @@ export type WithUpdateablePropertiesDecorator = (
 export type WithoutOmittedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
-  omit: Type,
+  omit: Type
 ) => void;
 
 /**
  * Returns the model with any default values removed.
  */
-export type WithoutDefaultValuesDecorator = (
-  context: DecoratorContext,
-  target: Model,
-) => void;
+export type WithoutDefaultValuesDecorator = (context: DecoratorContext, target: Model) => void;
 
 /**
  * Set the visibility of key properties in a model if not already set.
@@ -97,7 +88,7 @@ export type WithoutDefaultValuesDecorator = (
 export type WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
-  visibility: string,
+  visibility: string
 ) => void;
 
 /**
@@ -110,11 +101,7 @@ export type WithDefaultKeyVisibilityDecorator = (
  * model Pet {}
  * ```
  */
-export type SummaryDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  summary: string,
-) => void;
+export type SummaryDecorator = (context: DecoratorContext, target: Type, summary: string) => void;
 
 /**
  * Attach a documentation string to describe the successful return types of an operation.
@@ -130,7 +117,7 @@ export type SummaryDecorator = (
 export type ReturnsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
-  doc: string,
+  doc: string
 ) => void;
 
 /**
@@ -147,7 +134,7 @@ export type ReturnsDocDecorator = (
 export type ErrorsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
-  doc: string,
+  doc: string
 ) => void;
 
 /**
@@ -168,7 +155,7 @@ export type ErrorsDocDecorator = (
 export type DeprecatedDecorator = (
   context: DecoratorContext,
   target: Type,
-  message: string,
+  message: string
 ) => void;
 
 /**
@@ -194,7 +181,7 @@ export type DeprecatedDecorator = (
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Namespace,
-  options?: Type,
+  options?: Type
 ) => void;
 
 /**
@@ -226,7 +213,7 @@ export type ErrorDecorator = (context: DecoratorContext, target: Model) => void;
 export type FormatDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  format: string,
+  format: string
 ) => void;
 
 /**
@@ -251,7 +238,7 @@ export type PatternDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   pattern: string,
-  validationMessage?: string,
+  validationMessage?: string
 ) => void;
 
 /**
@@ -267,7 +254,7 @@ export type PatternDecorator = (
 export type MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -283,7 +270,7 @@ export type MinLengthDecorator = (
 export type MaxLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -299,7 +286,7 @@ export type MaxLengthDecorator = (
 export type MinItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -315,7 +302,7 @@ export type MinItemsDecorator = (
 export type MaxItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -331,7 +318,7 @@ export type MaxItemsDecorator = (
 export type MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -347,7 +334,7 @@ export type MinValueDecorator = (
 export type MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -364,7 +351,7 @@ export type MaxValueDecorator = (
 export type MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -381,7 +368,7 @@ export type MinValueExclusiveDecorator = (
 export type MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: number,
+  value: number
 ) => void;
 
 /**
@@ -393,10 +380,7 @@ export type MaxValueExclusiveDecorator = (
  * scalar Password is string;
  * ```
  */
-export type SecretDecorator = (
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-) => void;
+export type SecretDecorator = (context: DecoratorContext, target: Scalar | ModelProperty) => void;
 
 /**
  * Mark this operation as a `list` operation for resource types.
@@ -407,7 +391,7 @@ export type SecretDecorator = (
 export type ListDecorator = (
   context: DecoratorContext,
   target: Operation,
-  listedType?: Model,
+  listedType?: Model
 ) => void;
 
 /**
@@ -418,7 +402,7 @@ export type ListDecorator = (
 export type TagDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
-  tag: string,
+  tag: string
 ) => void;
 
 /**
@@ -439,7 +423,7 @@ export type FriendlyNameDecorator = (
   context: DecoratorContext,
   target: Type,
   name: string,
-  formatArgs?: Type,
+  formatArgs?: Type
 ) => void;
 
 /**
@@ -460,7 +444,7 @@ export type FriendlyNameDecorator = (
 export type KnownValuesDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  values: Enum,
+  values: Enum
 ) => void;
 
 /**
@@ -477,7 +461,7 @@ export type KnownValuesDecorator = (
 export type KeyDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-  altName?: string,
+  altName?: string
 ) => void;
 
 /**
@@ -496,7 +480,7 @@ export type KeyDecorator = (
 export type OverloadDecorator = (
   context: DecoratorContext,
   target: Operation,
-  overloadbase: Operation,
+  overloadbase: Operation
 ) => void;
 
 /**
@@ -518,7 +502,7 @@ export type ProjectedNameDecorator = (
   context: DecoratorContext,
   target: Type,
   targetName: string,
-  projectedName: string,
+  projectedName: string
 ) => void;
 
 /**
@@ -545,7 +529,7 @@ export type EncodedNameDecorator = (
   context: DecoratorContext,
   target: Type,
   mimeType: string,
-  name: string,
+  name: string
 ) => void;
 
 /**
@@ -572,7 +556,7 @@ export type EncodedNameDecorator = (
 export type DiscriminatorDecorator = (
   context: DecoratorContext,
   target: Model | Union,
-  propertyName: string,
+  propertyName: string
 ) => void;
 
 /**
@@ -661,11 +645,7 @@ export type WithVisibilityDecorator = (
  *
  * @param text Custom text to log
  */
-export type InspectTypeDecorator = (
-  context: DecoratorContext,
-  target: Type,
-  text: string,
-) => void;
+export type InspectTypeDecorator = (context: DecoratorContext, target: Type, text: string) => void;
 
 /**
  * A debugging decorator used to inspect a type name.
@@ -675,7 +655,7 @@ export type InspectTypeDecorator = (
 export type InspectTypeNameDecorator = (
   context: DecoratorContext,
   target: Type,
-  text: string,
+  text: string
 ) => void;
 
 /**
