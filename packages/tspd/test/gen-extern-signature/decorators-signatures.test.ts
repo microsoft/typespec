@@ -271,5 +271,5 @@ export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: Ty
 
 function importLine(imports: string[]) {
   const all = new Set(["DecoratorContext", ...imports]);
-  return `import { ${[...all].sort().join(", ")} } from "@typespec/compiler";`;
+  return `import type { ${[...all].sort().join(", ")} } from "@typespec/compiler";`;
 }
