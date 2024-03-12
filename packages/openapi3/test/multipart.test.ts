@@ -39,6 +39,37 @@ describe("typespec-autorest: multipart", () => {
     });
   });
 
+  it("part of type union `bytes | {content: bytes}` produce `type: string, format: binary`", async () => {
+    const res = await openApiFor(
+      `
+      op upload(@header contentType: "multipart/form-data", profileImage: bytes | {content: bytes}): void;
+      `
+    );
+    const op = res.paths["/"].post;
+    deepStrictEqual(op.requestBody.content["multipart/form-data"], {
+      schema: {
+        type: "object",
+        properties: {
+          profileImage: {
+            anyOf: [
+              {
+                format: "binary",
+                type: "string",
+              },
+              {
+                type: "object",
+                properties: {
+                  content: { type: "string" },
+                },
+              },
+            ],
+          },
+        },
+        required: ["profileImage"],
+      },
+    });
+  });
+
   it("part of type `bytes[]` produce `type: array, items: {type: string, format: binary}`", async () => {
     const res = await openApiFor(
       `
