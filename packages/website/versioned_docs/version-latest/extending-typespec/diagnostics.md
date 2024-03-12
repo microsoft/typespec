@@ -2,25 +2,25 @@
 title: Diagnostics
 ---
 
-The TypeSpec compiler reports errors and warnings in the spec using the diagnostic API.
+The TypeSpec compiler uses the diagnostic API to report errors and warnings in the specification.
 
 ## Best practices
 
-- ❌ Do not use `throw` to report errors. Any exception thrown like this will be presented as a bug in your library to the user.
-- ✅ Use diagnostic API to report expected errors and warnings.
-  - ✅ Use `reportDiagnostic` in a decorator, `$onValidate` or `$onEmit`
-  - ❌ Do not use `reportDiagnostic` in an accessor (A function meant to be consumed in another library or emitter). See [collect diagnostics section](#collect-diagnostics)
+- ❌ Avoid using `throw` to report errors. Any exceptions thrown in this manner will be perceived as bugs in your library by the user.
+- ✅ Utilize the diagnostic API to report anticipated errors and warnings.
+  - ✅ Employ `reportDiagnostic` in a decorator, `$onValidate` or `$onEmit`
+  - ❌ Refrain from using `reportDiagnostic` in an accessor (a function intended to be used in another library or emitter). Refer to the [section on collecting diagnostics](#collect-diagnostics) for more information.
 
-## Diagnostic specification
+## Diagnostic requirements
 
-- Each diagnostic MUST have a `code`. The full code is the the library name followed by the declared code. (`<lib-name>/<local-code>`)
-- Each diagnostic MUST have a `severity`. It can be `error`, `warning`. Errors cannot be suppressed
-- Each diagnostics MUST have at least one message. Using `default` as the `messageId` will allow it to be the default selected.
-- Each diagnostics message MAY have parameters to interpolate information into the message
+- Each diagnostic MUST have a `code`. The complete code is the library name followed by the declared code. (`<lib-name>/<local-code>`)
+- Each diagnostic MUST have a `severity`. It can be `error` or `warning`. Errors cannot be suppressed.
+- Each diagnostic MUST have at least one message. Using `default` as the `messageId` will make it the default selection.
+- Each diagnostic message MAY have parameters to interpolate information into the message.
 
-## Usage
+## How to use
 
-### Declare the diagnostics you are reporting
+### Declare the diagnostics you plan to report
 
 ```ts
 import { createTypeSpecLibrary } from "@typespec/compiler";
@@ -56,11 +56,11 @@ export const $lib = createTypeSpecLibrary({
   },
 } as const);
 
-// Rexport the helper functions to be able to just call them directly.
+// Re-export the helper functions to be able to just call them directly.
 export const { reportDiagnostic, createDiagnostic };
 ```
 
-This will represent 3 different diagnostics with full name of
+This will represent three different diagnostics with the full names of:
 
 - `@typespec/my-lib/no-array`
 - `@typespec/my-lib/duplicate-route`
@@ -87,7 +87,7 @@ reportDiagnostic(program, {
 // Multiple messages
 reportDiagnostic(program, {
   code: "duplicate-name",
-  messageId: "parmaeter",
+  messageId: "parameter",
   format: {value: "$select"},
   target: diagnosticTarget,
 });
@@ -95,8 +95,8 @@ reportDiagnostic(program, {
 
 ### Collect diagnostics
 
-When trying to report diagnostic in an accessor a good pattern is not to report the diagnostic to the program directly but return a tuple to let the user decide what to do.
-This prevent duplicate diagnostics emitter if the accessor is called multiple times.
+When attempting to report a diagnostic in an accessor, a good practice is not to report the diagnostic to the program directly, but return a tuple to let the user decide what to do.
+This prevents duplicate diagnostics emitter if the accessor is called multiple times.
 
 ```ts
 import { createDiagnosticCollector, Diagnostic } from "@typespec/compiler";

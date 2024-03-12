@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@chronus/chronus": "^0.8.2",
-    "@chronus/github": "^0.2.0",
+    "@chronus/github": "^0.2.1",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^9.1.0",
     "cspell": "^8.3.2",
