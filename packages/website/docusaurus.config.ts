@@ -55,7 +55,7 @@ const config: Config = {
   url: "https://typespec.io",
   baseUrl,
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  onBrokenMarkdownLinks: "throw",
   favicon: "img/favicon.svg",
 
   // GitHub pages deployment config.
@@ -234,10 +234,6 @@ const config: Config = {
           {
             label: "Community",
             to: "/community",
-          },
-          {
-            label: "Getting started",
-            to: "/docs",
           },
           {
             type: "docsVersionDropdown",

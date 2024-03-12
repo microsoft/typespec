@@ -43,13 +43,13 @@ const OpenApiContent = () => {
         <Section
           layout="text-right"
           header="Ecosystem"
-          title="Abstract common patterns"
-          description="Codify API patterns into reusable components, improving up quality and consistency across your API surface."
+          title="Abstract recurring patterns"
+          description="Transform API patterns into reusable elements to enhance both the quality and uniformity of your API interface."
           illustration={<OpenAPI3AbstractCode />}
         >
           <LearnMoreCard
             title="Example: TypeSpec Azure Library"
-            description="Azure library for TypeSpec allows a multitude of teams to reuse approved patterns."
+            description="The TypeSpec library for Azure allows multiple teams to reuse pre-approved patterns."
             image="document-cloud"
             link={Links.typespecAzure}
           />

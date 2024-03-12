@@ -8,11 +8,11 @@ Install the extension via the Visual Studio Code extension manager https://marke
 
 ## Configure
 
-TypeSpec wil interpolate a few variables using this pattern: `${<name>}`. For example: `${workspaceFolder}`.
+TypeSpec will interpolate a few variables using this pattern: `${<name>}`. For example: `${workspaceFolder}`.
 
 Available variables:
 
-- `workspaceFolder`: Corespond to the root of your Visual Studio workspace.
+- `workspaceFolder`: Corresponds to the root of your Visual Studio workspace.
 
 ### `typespec.tsp-server.path`: Configure the server path
 
