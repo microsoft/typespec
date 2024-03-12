@@ -54,12 +54,19 @@ op create(@header contentType: "multipart/form-data", images: bytes[]): void;
 // Upload 2 form fields
 op create(@header contentType: "multipart/form-data", firstName: string, lastName: string): void;
 
-// Upload a json field
+// Send a json field
 model Address {
   street: string;
   city: string;
 }
 op create(@header contentType: "multipart/form-data", address: Address): void;
+
+// Send multiple field - In this scenario each address is sent as an individual part
+model Address {
+  street: string;
+  city: string;
+}
+op create(@header contentType: "multipart/form-data", addresses: Address[]): void;
 ```
 
 ## Custom Content-Type, boundary, etc.
