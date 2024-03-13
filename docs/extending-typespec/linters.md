@@ -1,9 +1,9 @@
 ---
 id: linters
-title: Understanding linters
+title: Linters
 ---
 
-# Understanding linters
+# Linters
 
 ## Linter versus `onValidate`
 
