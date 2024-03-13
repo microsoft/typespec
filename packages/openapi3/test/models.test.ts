@@ -26,6 +26,7 @@ describe("openapi3: models", () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "xJson")
         x: int32;
       };`
@@ -60,6 +61,7 @@ describe("openapi3: models", () => {
     const res = await oapiForModel(
       "Foo",
       `model Foo {
+        #suppress "deprecated" "for testing"
         @encodedName("application/json", "xJson")
         @projectedName("json", "projectedJson")
         x: int32;
