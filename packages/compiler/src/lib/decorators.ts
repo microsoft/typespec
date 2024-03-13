@@ -816,25 +816,20 @@ export const $encode: EncodeDecorator = (
     type: encodeAs ?? context.program.checker.getStdType("string"),
   };
   const targetType = getPropertyType(target);
-  if (targetType.kind !== "Scalar") {
-    return;
-  }
   validateEncodeData(context, targetType, encodeData);
   context.program.stateMap(encodeKey).set(target, encodeData);
 };
 
-function validateEncodeData(context: DecoratorContext, target: Scalar, encodeData: EncodeData) {
+function validateEncodeData(context: DecoratorContext, target: Type, encodeData: EncodeData) {
   function check(validTargets: StdTypeName[], validEncodeTypes: StdTypeName[]) {
     const checker = context.program.checker;
-    const isTargetValid = validTargets.some((validTarget) => {
-      return ignoreDiagnostics(
-        checker.isTypeAssignableTo(
-          target.projectionBase ?? target,
-          checker.getStdType(validTarget),
-          target
-        )
-      );
-    });
+    const isTargetValid = isTypeIn(target.projectionBase ?? target, (type) =>
+      validTargets.some((validTarget) => {
+        return ignoreDiagnostics(
+          checker.isTypeAssignableTo(type, checker.getStdType(validTarget), target)
+        );
+      })
+    );
 
     if (!isTargetValid) {
       reportDiagnostic(context.program, {
