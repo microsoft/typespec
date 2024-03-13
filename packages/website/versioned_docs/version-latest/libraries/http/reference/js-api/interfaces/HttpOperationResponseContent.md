@@ -5,7 +5,7 @@ title: "[I] HttpOperationResponseContent"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `body?` | [`HttpOperationBody`](HttpOperationBody.md) | - |
-| `headers?` | `Record`<`string`, `ModelProperty`\> | - |
+| Property | Type |
+| :------ | :------ |
+| `body?` | [`HttpOperationBody`](HttpOperationBody.md) |
+| `headers?` | `Record`<`string`, `ModelProperty`\> |

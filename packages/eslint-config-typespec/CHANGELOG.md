@@ -1,8 +1,18 @@
 # Change Log - @typespec/eslint-config-typespec
 
+## 0.54.0
+
+### Bug Fixes
+
+- [#2919](https://github.com/microsoft/typespec/pull/2919) Exclude `temp` folder
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
 ## 0.53.0
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 

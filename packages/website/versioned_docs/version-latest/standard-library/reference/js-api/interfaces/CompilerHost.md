@@ -131,16 +131,16 @@ pathToFileURL(path): string
 ### readDir()
 
 ```ts
-readDir(dir): Promise<string[]>
+readDir(path): Promise<string[]>
 ```
 
 Read directory.
 
 #### Parameters
 
-| Parameter | Type |
-| :------ | :------ |
-| `dir` | `string` |
+| Parameter | Type | Description |
+| :------ | :------ | :------ |
+| `path` | `string` | Path to the directory. |
 
 #### Returns
 
@@ -245,10 +245,10 @@ stat(path): Promise<Object>
 
 `Promise`<`Object`\>
 
-> | Member | Type | Description |
-> | :------ | :------ | :------ |
-> | `isDirectory` | `boolean` | - |
-> | `isFile` | `boolean` | - |
+> | Member | Type |
+> | :------ | :------ |
+> | `isDirectory` | `boolean` |
+> | `isFile` | `boolean` |
 >
 
 ***

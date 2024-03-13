@@ -107,11 +107,13 @@ export function $onValidate(program: Program) {
         const [_, versionMap] = getVersions(program, namespace);
         validateVersionEnumValuesUnique(program, namespace);
         const serviceProps = getService(program, namespace);
+        // eslint-disable-next-line deprecation/deprecation
         if (serviceProps?.version !== undefined && versionMap !== undefined) {
           reportDiagnostic(program, {
             code: "no-service-fixed-version",
             format: {
               name: getNamespaceFullName(namespace),
+              // eslint-disable-next-line deprecation/deprecation
               version: serviceProps.version,
             },
             target: namespace,

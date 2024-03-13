@@ -1,5 +1,6 @@
 import { YAMLError, parseDocument } from "yaml";
-import { createDiagnosticCollector, createSourceFile } from "../core/diagnostics.js";
+import { createDiagnosticCollector } from "../core/diagnostics.js";
+import { createSourceFile } from "../core/source-file.js";
 import { Diagnostic, DiagnosticSeverity, SourceFile } from "../core/types.js";
 import { YamlScript } from "./types.js";
 

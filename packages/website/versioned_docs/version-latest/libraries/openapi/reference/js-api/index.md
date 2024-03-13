@@ -34,6 +34,7 @@ title: "[P] JS API"
 - [getParameterKey](functions/getParameterKey.md)
 - [isDefaultResponse](functions/isDefaultResponse.md)
 - [isReadonlyProperty](functions/isReadonlyProperty.md)
+- [resolveInfo](functions/resolveInfo.md)
 - [resolveOperationId](functions/resolveOperationId.md)
 - [setExtension](functions/setExtension.md)
 - [shouldInline](functions/shouldInline.md)

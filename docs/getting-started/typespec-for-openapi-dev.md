@@ -789,7 +789,6 @@ In TypeSpec this information is specified with [decorators on the namespace][typ
 @doc("The Contoso Widget Service provides access to the Contoso Widget API.")
 @service({
   title: "Widget Service",
-  version: "1.0.0",
 })
 @info({
   contact: {

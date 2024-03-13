@@ -5,13 +5,13 @@ title: "[I] Checker"
 ---
 ## Properties
 
-| Property | Type | Description |
-| :------ | :------ | :------ |
-| `anyType` | [`UnknownType`](UnknownType.md) | - |
-| `errorType` | [`ErrorType`](ErrorType.md) | - |
-| `neverType` | [`NeverType`](NeverType.md) | - |
-| `typePrototype` | `TypePrototype` | - |
-| `voidType` | [`VoidType`](VoidType.md) | - |
+| Property | Type |
+| :------ | :------ |
+| `anyType` | [`UnknownType`](UnknownType.md) |
+| `errorType` | [`ErrorType`](ErrorType.md) |
+| `neverType` | [`NeverType`](NeverType.md) |
+| `typePrototype` | `TypePrototype` |
+| `voidType` | [`VoidType`](VoidType.md) |
 
 ## Methods
 
@@ -53,7 +53,7 @@ cloneType<T>(type, additionalProps?): T
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`Type`](../type-aliases/Type.md) |
 
@@ -78,7 +78,7 @@ createAndFinishType<T>(typeDef): T & TypePrototype
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`CreateTypeProps`](../type-aliases/CreateTypeProps.md) |
 
@@ -209,7 +209,7 @@ createType<T>(typeDef): T & TypePrototype & Object
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`CreateTypeProps`](../type-aliases/CreateTypeProps.md) |
 
@@ -256,7 +256,7 @@ finishType<T>(typeDef): T
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`Type`](../type-aliases/Type.md) |
 
@@ -415,7 +415,7 @@ Std type
 
 #### Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`IntrinsicScalarName`](../type-aliases/IntrinsicScalarName.md) \| `"Array"` \| `"Record"` |
 

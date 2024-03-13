@@ -2,9 +2,19 @@ import { EmitterOptions } from "../config/types.js";
 import { createAssetEmitter } from "../emitter-framework/asset-emitter.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { MANIFEST } from "../manifest.js";
+import {
+  deepEquals,
+  doIO,
+  findProjectRoot,
+  isDefined,
+  mapEquals,
+  mutate,
+  resolveTspMain,
+} from "../utils/misc.js";
 import { createBinder } from "./binder.js";
 import { Checker, createChecker } from "./checker.js";
-import { compilerAssert, createSourceFile } from "./diagnostics.js";
+import { createSuppressCodeFix } from "./compiler-code-fixes/suppress.codefix.js";
+import { compilerAssert } from "./diagnostics.js";
 import {
   resolveTypeSpecEntrypoint,
   resolveTypeSpecEntrypointForDir,
@@ -26,6 +36,7 @@ import { CompilerOptions } from "./options.js";
 import { isImportStatement, parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths } from "./path-utils.js";
 import { createProjector } from "./projector.js";
+import { createSourceFile } from "./source-file.js";
 import {
   CompilerHost,
   Diagnostic,
@@ -56,15 +67,6 @@ import {
   TypeSpecLibrary,
   TypeSpecScriptNode,
 } from "./types.js";
-import {
-  deepEquals,
-  doIO,
-  findProjectRoot,
-  isDefined,
-  mapEquals,
-  mutate,
-  resolveTspMain,
-} from "./util.js";
 
 export interface ProjectedProgram extends Program {
   projector: Projector;
@@ -286,6 +288,7 @@ export async function compile(
   const loadedLibraries = new Map<string, TypeSpecLibraryReference>();
   const sourceFileLocationContexts = new WeakMap<SourceFile, LocationContext>();
   let error = false;
+  let continueToNextStage = true;
 
   const logger = createLogger({ sink: host.logSink });
   const tracer = createTracer(logger, { filter: options.trace });
@@ -381,7 +384,7 @@ export async function compile(
   program.checker = createChecker(program);
   program.checker.checkProgram();
 
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
   // onValidate stage
@@ -390,7 +393,7 @@ export async function compile(
   validateRequiredImports();
 
   await validateLoadedLibraries();
-  if (program.hasError()) {
+  if (!continueToNextStage) {
     return program;
   }
 
@@ -1045,6 +1048,15 @@ export async function compile(
   function reportDiagnostic(diagnostic: Diagnostic): void {
     if (shouldSuppress(diagnostic)) {
       return;
+    }
+
+    if (diagnostic.severity === "error") {
+      continueToNextStage = false;
+    }
+
+    if (diagnostic.severity === "warning" && diagnostic.target !== NoTarget) {
+      mutate(diagnostic).codefixes ??= [];
+      mutate(diagnostic.codefixes).push(createSuppressCodeFix(diagnostic.target, diagnostic.code));
     }
 
     if (options.warningAsError && diagnostic.severity === "warning") {

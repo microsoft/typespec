@@ -3,13 +3,13 @@ jsApi: true
 title: "[I] LinterRuleDefinition"
 
 ---
-## Extended By
+## Extended by
 
 - [`LinterRule`](LinterRule.md)
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `N` extends `string` |
 | `DM` extends [`DiagnosticMessages`](DiagnosticMessages.md) |

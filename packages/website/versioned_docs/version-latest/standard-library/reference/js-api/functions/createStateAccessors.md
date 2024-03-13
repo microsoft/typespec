@@ -22,8 +22,7 @@ createStateAccessors(
 
 `Object`
 
-> | Member | Type | Description |
-> | :------ | :------ | :------ |
-> | `stateMap` | <`T`\>(`key`) => `StateMapView`<`T`\> | - |
-> | `stateSet` | (`key`) => `StateSetView` | - |
->
+| Member | Type |
+| :------ | :------ |
+| `stateMap` | <`T`\>(`key`) => `StateMapView`<`T`\> |
+| `stateSet` | (`key`) => `StateSetView` |

@@ -123,7 +123,7 @@ const DataValidationSection = () => {
     <Section
       header="Ecosystem"
       title="Ensure data consistency"
-      description="Defined common models to use across your APIs, use the json schema emitter to get the json schema for your types and use them to validate your data."
+      description="Define common models to use across your APIs, use the JSON schema emitter to get the JSON schema for your types and use them to validate your data."
       illustration={<DataValidationHeroIllustration />}
     >
       <LearnMoreCard
@@ -139,8 +139,8 @@ const EditorSection = () => {
   return (
     <Section
       header="Tooling"
-      title="First party support for code editor"
-      description="TypeSpec provide built-in support for many common editor features such as syntax highlighting, code completion, and more."
+      title="Full language support in VS Code and Visual Studio"
+      description="TypeSpec provides built-in support for many common editor features such as syntax highlighting, code completion, and more."
       illustration={<LightDarkImg src="illustrations/ide-hero" />}
     >
       <LearnMoreCard
@@ -157,7 +157,7 @@ const ExtensibilitySection = () => {
     <Section
       header="Extensibility"
       title="Generate assets in many formats"
-      description="TypeSpec is built around extensibility, one can write and plugin their own emitter or add custom metadata using a new decorator."
+      description="TypeSpec is built around extensibility - you can write your own emitter or add custom metadata using a new decorator."
       illustration={<ExtensibilityIllustration />}
     >
       <LearnMoreCard

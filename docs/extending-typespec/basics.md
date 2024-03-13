@@ -5,17 +5,17 @@ title: Creating a TypeSpec Library
 
 # Creating a TypeSpec library
 
-TypeSpec libraries are packages that contain TypeSpec types, decorators, emitters, linters, and other bits of reusable code. TypeSpec libraries are [npm packages](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) with some additional typespec-specific metadata and conventions. The following will show how to establish a new TypeSpec library, add some types to it, and distribute it on the public npm registry. Later sections will cover more details on how to write [decorators](create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).
+A TypeSpec library is a package that includes TypeSpec types, decorators, emitters or linters. These libraries are [npm packages](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) with some additional TypeSpec-specific metadata and conventions. This guide will walk you through the process of creating a new TypeSpec library, adding types to it, and distributing it on the public npm registry. Further sections will delve into the specifics of creating [decorators](create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).
 
-This document assumes you will be using [TypeScript](https://typescriptlang.org) to develop your library, but you should feel free to skip the TypeScript steps if you want to use plain JavaScript.
+While this guide assumes that you'll be using [TypeScript](https://typescriptlang.org) to develop your library, you can skip the TypeScript-related steps if you prefer to use plain JavaScript.
 
 ## Prerequisites
 
-You will need both Node and npm installed. Additionally, if you intend to develop multiple libraries together, you will likely want to establish a monorepo as this will make developing the libraries in tandem much easier. TypeSpec itself uses [pnpm](https://pnpm.io/).
+You'll need to have both Node and npm installed. If you're planning to develop multiple libraries simultaneously, it's recommended to set up a monorepo to simplify the development process. TypeSpec itself uses [pnpm](https://pnpm.io/).
 
-## Setup with templates
+## Setting up with templates
 
-Available templates:
+You can use the following templates:
 
 ```bash
 # Create a TypeSpec library (Decorators & Linters) with TypeScript enabled.
@@ -25,21 +25,21 @@ tsp init --template library-ts
 tsp init --template emitter-ts
 ```
 
-## Canonical package structure
+## Standard package structure
 
-The following is a high level overview of the contents of a TypeSpec package. These files are explained in more detail in the subsequent sections.
+Here's a high-level overview of what a TypeSpec package typically contains. Each of these files will be explained in more detail in the following sections.
 
-- **dist/index.js** - the main file for your Node library
-- **lib/main.tsp** - the main file for your TypeSpec types (optional)
-- **src/index.ts** - the main file for your Node library in TypeScript
-- **src/lib.ts** - the TypeSpec library definition file
-- **package.json** - metadata about your TypeSpec package
+- **dist/index.js** - The main file for your Node library
+- **lib/main.tsp** - The main file for your TypeSpec types (optional)
+- **src/index.ts** - The main file for your Node library in TypeScript
+- **src/lib.ts** - The file that defines your TypeSpec library
+- **package.json** - Metadata about your TypeSpec package
 
-## 1 - Initial setup
+## Step 1: Initial setup
 
-You can skip this if you used one of the templates above.
+You can skip this step if you've used one of the templates above.
 
-### a. Initialize your package directory &amp; package.json
+### a. Initialize your package directory & package.json
 
 Run the following commands:
 
@@ -49,9 +49,9 @@ Run the following commands:
 > npm init
 ```
 
-After filling out the wizard, you will have a package.json file that defines your TypeSpec library.
+After completing the wizard, you'll have a package.json file that defines your TypeSpec library.
 
-Unlike Node libraries which support CommonJS (cjs), TypeSpec libraries must be ECMAScript Modules. Open your `package.json` and add the following top-level configuration key:
+Unlike Node libraries which support CommonJS (cjs), TypeSpec libraries must be ECMAScript Modules. To specify this, open your `package.json` and add the following top-level configuration key:
 
 ```jsonc
   "type": "module"
@@ -65,13 +65,13 @@ Run the following command:
 npm install --save-peer @typespec/compiler
 ```
 
-You may have need of other dependencies in the TypeSpec standard library depending on what you are doing (e.g. if you want to use the metadata found in `@typespec/openapi` you will need to install that as well).
+You might need to install other dependencies from the TypeSpec standard library. For example, if you want to use the metadata found in `@typespec/openapi`, you'll need to install that as well.
 
-See [dependency section](#defining-dependencies) for information on how to define your dependencies.
+Refer to the [dependency section](#step-3-defining-dependencies) for more information on defining your dependencies.
 
 ### c. Define your main files
 
-Your package.json needs to refer to two main files: your Node module main file, and your TypeSpec main. The Node module main file is the `"main"` key in your package.json file, and defines the entrypoint for your library when consumed as a Node library, and must reference a JS file. The TypeSpec main defines the entrypoint for your library when consumed from a TypeSpec program, and may reference either a JS file (when your library doesn't contain any TypeSpec types) or a TypeSpec file.
+Your package.json needs to refer to two main files: your Node module main file, and your TypeSpec main. The Node module main file is specified by the `"main"` key in your package.json file, and it defines the entry point for your library when it's used as a Node library. This must reference a JS file. The TypeSpec main defines the entry point for your library when it's used from a TypeSpec program, and it can reference either a JS file (when your library doesn't contain any TypeSpec types) or a TypeSpec file.
 
 ```jsonc
   "main": "dist/src/index.js",
@@ -87,7 +87,7 @@ npm install -D typescript
 npx tsc --init --strict
 ```
 
-This will create `tsconfig.json`. But we need to make a couple changes to this. Open `tsconfig.json` and set the following settings:
+This will create a `tsconfig.json` file. You'll need to make a few changes to this file. Open `tsconfig.json` and set the following settings:
 
 ```jsonc
 "module": "Node16",           // This and next setting tells TypeScript to use the new ESM import system to resolve types.
@@ -103,10 +103,10 @@ This will create `tsconfig.json`. But we need to make a couple changes to this. 
 Open `./src/lib.ts` and create your library definition that registers your library with the TypeSpec compiler and defines any diagnostics your library will emit. Make sure to export the library definition as `$lib`.
 
 :::warning
-If `$lib` is not accessible from your library package (`import {$lib} from "my-library";`) some functionality will be unavailable like validation of emitter options, linter rules, etc.
+If `$lib` is not accessible from your library package (for example, `import {$lib} from "my-library";`), some features such as linting and emitter option validation will not be available.
 :::
 
-The following shows an example:
+Here's an example:
 
 ```typescript
 import { createTypeSpecLibrary } from "@typespec/compiler";
@@ -116,24 +116,24 @@ export const $lib = createTypeSpecLibrary({
   diagnostics: {},
 } as const);
 
-// Optional but convenient, those are meant to be used locally in your library.
+// Optional but convenient, these are meant to be used locally in your library.
 export const { reportDiagnostic, createDiagnostic } = $lib;
 ```
 
-Diagnostics are used for linters and decorators which are covered in subsequent topics.
+Diagnostics are used for linters and decorators, which are covered in subsequent topics.
 
 ### f. Create `index.ts`
 
 Open `./src/index.ts` and import your library definition:
 
 ```typescript
-// Re-export $lib to the compiler can get access to it and register your library correctly.
+// Re-export $lib so the compiler can access it and register your library correctly.
 export { $lib } from "./lib.js";
 ```
 
 ### g. Build TypeScript
 
-TypeSpec can only import JavaScript files, so any time changes are made to TypeScript sources, they need to be compiled before they are visible to TypeSpec. To do so, run `npx tsc -p .` in your library's root directory. You can also run `npx tsc -p . --watch` if you would like to re-run the TypeScript compiler whenever files are changed.
+TypeSpec can only import JavaScript files, so any changes made to TypeScript sources need to be compiled before they are visible to TypeSpec. To do this, run `npx tsc -p .` in your library's root directory. If you want to re-run the TypeScript compiler whenever files are changed, you can run `npx tsc -p . --watch`.
 
 Alternatively, you can add these as scripts in your `package.json` to make them easier to invoke. Consider adding the following:
 
@@ -150,15 +150,15 @@ You can then run `npm run build` or `npm run watch` to build or watch your libra
 
 ### h. Add your main TypeSpec file
 
-Open `./lib/main.tsp` and import your JS entrypoint. This ensures that when TypeSpec imports your library, the code to define the library is run. In later topics when we add decorators, this import will ensure those get exposed as well.
+Open `./lib/main.tsp` and import your JS entrypoint. This ensures that when TypeSpec imports your library, the code to define the library is run. When we add decorators in later topics, this import will ensure those get exposed as well.
 
 ```typespec
 import "../dist/index.js";
 ```
 
-## 2. Adding TypeSpec types to your library
+## Step 2: Adding TypeSpec types to your library
 
-Open `./lib/main.tsp` and add any types you want to be available when users import this library. It is also strongly recommended you put these types in a namespace that corresponds with the library name. For example, your `./lib/main.tsp` file might look like:
+Open `./lib/main.tsp` and add any types you want to be available when users import this library. It's strongly recommended to put these types in a namespace that corresponds with the library name. For example, your `./lib/main.tsp` file might look like:
 
 ```typespec
 import "../dist/index.js";
@@ -170,15 +170,15 @@ model Person {
 }
 ```
 
-## 3. Defining Dependencies
+## Step 3: Defining dependencies
 
-Defining dependencies in a TypeSpec library should be following these rules:
+When defining dependencies in a TypeSpec library, follow these rules:
 
-- use `peerDependencies` for all TypeSpec libraries (+ compiler) that you use in your own library/emitter
-- use `devDependencies` for the other TypeSpec libraries used only in tests
-- use `dependencies`/`devDependencies` for any other packages depending if using in library code or in test/dev scripts
+- Use `peerDependencies` for all TypeSpec libraries (and the compiler) that you use in your own library or emitter.
+- Use `devDependencies` for other TypeSpec libraries that are only used in tests.
+- Use `dependencies` or `devDependencies` for any other packages, depending on whether they're used in library code or in test/dev scripts.
 
-TypeSpec libraries are defined using `peerDependencies` so we don't end-up with multiple versions of the compiler/library running at the same time.
+TypeSpec libraries are defined using `peerDependencies` to avoid having multiple versions of the compiler or library running at the same time.
 
 **Example**
 
@@ -188,7 +188,7 @@ TypeSpec libraries are defined using `peerDependencies` so we don't end-up with 
     "yaml": "~2.3.1", // This is a regular package this library/emitter will use
   },
   "peerDependencies": {
-    // Those are all TypeSpec libraries this library/emitter depend on
+    // These are all TypeSpec libraries this library/emitter depends on
     "@typespec/compiler": "~0.43.0",
     "@typespec/http": "~0.43.1",
     "@typespec/openapi": "~0.43.0",
@@ -196,19 +196,19 @@ TypeSpec libraries are defined using `peerDependencies` so we don't end-up with 
   "devDependencies": {
     // This TypeSpec library is only used in the tests but is not required to use this library.
     "@typespec/versioning": "~0.43.0",
-    // Typescript is only used during development
+    // TypeScript is only used during development
     "typescript": "~5.0.2",
   },
 }
 ```
 
-## 4. Testing your TypeSpec library
+## Step 4: Testing your TypeSpec library
 
-TypeSpec provides a testing framework to help testing libraries. Examples here are shown using Node.js's built-in test framework (available in Node 20+) but any other JS test framework can be used that will provide more advanced features like vitest which is used in this project.
+TypeSpec provides a testing framework to assist in testing libraries. The examples here are shown using Node.js's built-in test framework (available in Node 20+), but any other JS test framework can be used that will provide more advanced features like vitest, which is used in this project.
 
 ### a. Add devDependencies
 
-Verify that you have the following in your `package.json`:
+Ensure that you have the following in your `package.json`:
 
 ```json
 "devDependencies": {
@@ -233,7 +233,7 @@ export default defineConfig({
 
 ### b. Define the testing library
 
-The first step is to define how your library can be loaded from the test framework. This will let your library to be reused by other library tests.
+The first step is to define how your library can be loaded from the test framework. This will allow your library to be reused by other library tests.
 
 1. Create a new file `./src/testing/index.ts` with the following content
 
@@ -272,14 +272,14 @@ export const MyTestLibrary = createTestLibrary({
 
 Define some of the test framework base pieces that will be used in the tests. There are 2 functions:
 
-- `createTestHost`: This is a lower level API that provides a virtual file system.
+- `createTestHost`: This is a lower-level API that provides a virtual file system.
 - `createTestRunner`: This is a wrapper on top of the test host that will automatically add a `main.tsp` file and automatically import libraries.
 
 Create a new file `test/test-host.js` (change `test` to be your test folder)
 
 ```ts
 import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { RestTestLibrary } from "@typespec/rest/testing";
+import { RestTestLibrary } from "/rest/testing";
 import { MyTestLibrary } from "../src/testing/index.js";
 
 export async function createMyTestHost() {
@@ -340,7 +340,7 @@ describe("my library", () => {
 #### e. `@test` decorator
 
 The `@test` decorator is a decorator loaded in the test environment. It can be used to collect any decorable type.
-When using the `compile` method it will return a `Record<string, Type>` which is a map of all the types annoted with the `@test` decorator.
+When using the `compile` method it will return a `Record<string, Type>` which is a map of all the types annotated with the `@test` decorator.
 
 ```ts
 const { Foo, CustomName } = await runner.compile(`
@@ -357,23 +357,23 @@ CustomName; // type of : Bar.name
 
 #### f. Install vscode extension for the test framework
 
-If you are using VSCode, you can install the [Node test runner](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run your tests from the editor. This will also allow you easily debug into your tests.
+If you are using VSCode, you can install the [Node test runner](https://marketplace.visualstudio.com/items?itemName=connor4312.nodejs-testing) to run your tests from the editor. This will also allow you to easily debug your tests.
 
-You should now be able to discover, run and debug into your tests from the test explorer.
+After installing the extension, you should be able to discover, run, and debug your tests from the test explorer.
 
-## 5. Publishing your TypeSpec library
+## Step 5: Publishing your TypeSpec library
 
-To publish to the public npm registry, follow [their documentation](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages).
+To publish your library to the public npm registry, follow the instructions in the [npm documentation](https://docs.npmjs.com/creating-and-publishing-unscoped-public-packages).
 
-## 6. Importing your TypeSpec library
+## Step 6: Importing your TypeSpec library
 
-Once your TypeSpec library is published, your users can install and use it just like any of the TypeSpec standard libraries. First, they have to install it:
+Once your TypeSpec library is published, users can install and use it just like any of the standard TypeSpec libraries. First, they need to install it:
 
 ```bash
 npm install $packageName
 ```
 
-Next, they import it into their TypeSpec program and use the namespace (if desired):
+Next, they can import it into their TypeSpec program and use the namespace (if desired):
 
 ```typespec
 import "MyLibrary";
@@ -384,6 +384,6 @@ model Employee extends Person {
 }
 ```
 
-## 7. Next steps
+## Step 7: Next steps
 
-TypeSpec libraries can contain more than just types. Read the subsequent topics for more details on how to write [decorators](./create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md).
+TypeSpec libraries can contain more than just types. For more details on how to write [decorators](./create-decorators.md), [emitters](./emitters-basics.md) and [linters](./linters.md), refer to the subsequent topics.

@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "0.53.1",
+  "version": "0.54.0",
   "description": "TypeSpec Compiler Preview",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -24,6 +24,10 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./utils": {
+      "types": "./dist/src/utils/index.d.ts",
+      "default": "./dist/src/utils/index.js"
     },
     "./testing": {
       "types": "./dist/src/testing/index.d.ts",

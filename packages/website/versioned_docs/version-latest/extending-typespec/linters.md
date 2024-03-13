@@ -1,22 +1,21 @@
 ---
 id: linters
-title: Linters
+title: Understanding linters
 ---
 
-# Linters
+# Understanding linters
 
-## Linter vs `onValidate`
+## Linter versus `onValidate`
 
-TypeSpec library can probide a `$onValidate` hook which can be used to validate the TypeSpec program is valid in the eye of your library.
+A TypeSpec library can provide an `$onValidate` hook, which can be used to validate whether the TypeSpec program is valid according to your library's rules.
 
-A linter on the other hand might be a validation that is optional, the program is correct but there could be some improvements. For example requiring documentation on every type. This is not something that is needed to represent the TypeSpec program but without it the end user experience might suffer.
-Linters need to be explicitly enabled. `$onValidate` will be run automatically if that library is imported.
+On the other hand, a linter might provide optional validation. The program could be correct, but there might be room for improvements. For instance, a linter might require documentation on every type. While this isn't necessary to represent the TypeSpec program, it could enhance the end user experience. Linters need to be explicitly enabled, whereas `$onValidate` will run automatically if that library is imported.
 
-## Writing a linter
+## Creating a linter
 
-See examples in `packages/best-practices`.
+You can find examples in `packages/best-practices`.
 
-### 1. Define a rules
+### 1. Define rules
 
 ```ts
 import {  createLinterRule } from "@typespec/compiler";
@@ -66,7 +65,31 @@ export const requiredDocRule = createLinterRule({
 });
 ```
 
-#### Don'ts
+#### Provide a codefix
+
+[See codefixes](./codefixes.md) for more details on how codefixes work in the TypeSpec ecosystem.
+
+In the same way you can provide a codefix on any reported diagnostic, you can pass codefixes to the `reportDiagnostic` function.
+
+```ts
+context.reportDiagnostic({
+  messageId: "models",
+  target: model,
+  codefixes: [
+    defineCodeFix({
+      id: "add-model-suffix",
+      description: "Add 'Model' suffix to model name",
+      apply: (program) => {
+        program.update(model, {
+          name: `${model.name}Model`,
+        });
+      },
+    }),
+  ],
+});
+```
+
+#### Things to avoid
 
 - ❌ Do not call `program.reportDiagnostic` or your library `reportDiagnostic` helper directly in a linter rule
 
@@ -125,14 +148,13 @@ export const $linter = defineLinter({
 });
 ```
 
-When referencing a rule or ruleset(in `enable`, `extends`, `disable`) the rule or rule set id must be used which in this format: `<libraryName>/<ruleName>`
+When referencing a rule or ruleset (in `enable`, `extends`, `disable`), you must use the rule or rule set id, which is in this format: `<libraryName>/<ruleName>`.
 
 ## Testing a linter
 
-To test linter rule an rule tester is provided letting you test a specific rule without enabling the others.
+To test a linter rule, a rule tester is provided, allowing you to test a specific rule without enabling the others.
 
-First you'll want to create an instance of the rule tester using `createLinterRuleTester` passing it the rule that is being tested.
-You can then provide different test checking the rule pass or fails.
+First, you'll want to create an instance of the rule tester using `createLinterRuleTester`, passing it the rule that is being tested. You can then provide different tests to check whether the rule passes or fails.
 
 ```ts
 import { RuleTester, createLinterRuleTester, createTestRunner } from "@typespec/compiler/testing";
@@ -157,4 +179,26 @@ describe("required-doc rule", () => {
     await ruleTester.expect(`model Bar {}`).toBeValid();
   });
 });
+```
+
+### Testing linter with codefixes
+
+The linter rule tester provides an API to easily test a codefix. This is a different approach from the standalone codefix tester, which is more targeted at testing codefixes in isolation.
+
+This can be done by calling `applyCodeFix` with the fix id. It will expect a single diagnostic to be emitted with a codefix with the given id. Then, call `toEqual` with the expected code after the codefix is applied.
+
+:::note
+When using multi-line strings (with `\``) in TypeScript, there is no de-indenting done, so you will need to make sure the input and expected result are aligned to the left.
+:::
+
+```ts
+await tester
+  .expect(
+    `        
+    model Foo {}
+    `
+  )
+  .applyCodeFix("add-model-suffix").toEqual(`
+    model FooModel {}
+  `);
 ```

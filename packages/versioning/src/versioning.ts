@@ -589,7 +589,7 @@ export function resolveVersions(program: Program, rootNs: Namespace): VersionRes
 /**
  * Represent the set of projections used to project to that version.
  */
-interface VersionProjections {
+export interface VersionProjections {
   version: string | undefined;
   projections: ProjectionApplication[];
 }

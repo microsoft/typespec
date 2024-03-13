@@ -20,7 +20,7 @@ linter:
 
 Available ruleSets:
 
-- [`@typespec/http/all`](#@typespec/http/all)
+- `@typespec/http/all`
 
 ## Rules
 

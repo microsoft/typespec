@@ -9,13 +9,13 @@ type LinterRuleDiagnosticReport<T, M>: LinterRuleDiagnosticReportWithoutTarget<T
 
 ## Type declaration
 
-| Member | Type | Description |
-| :------ | :------ | :------ |
-| `target` | [`DiagnosticTarget`](DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) | - |
+| Member | Type |
+| :------ | :------ |
+| `target` | [`DiagnosticTarget`](DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) |
 
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends [`DiagnosticMessages`](../interfaces/DiagnosticMessages.md) | - |
 | `M` extends keyof `T` | `"default"` |

@@ -9,6 +9,6 @@ type TypeOfDiagnostics<T>: T extends DiagnosticMap<infer D> ? D : never;
 
 ## Type parameters
 
-| Parameter |
+| Type parameter |
 | :------ |
 | `T` extends [`DiagnosticMap`](DiagnosticMap.md)<`any`\> |

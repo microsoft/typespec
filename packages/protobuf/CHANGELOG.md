@@ -1,5 +1,12 @@
 # Change Log - @typespec/protobuf
 
+## 0.54.0
+
+### Bump dependencies
+
+- [#2900](https://github.com/microsoft/typespec/pull/2900) Update dependencies
+
+
 ## 0.53.0
 
 ### Minor Changes
@@ -9,7 +16,6 @@
 ### Patch Changes
 
 
-This log was last generated on Wed, 24 Jan 2024 05:46:53 GMT and should not be manually modified.
 
 ## 0.52.0
 

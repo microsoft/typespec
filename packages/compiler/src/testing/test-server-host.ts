@@ -4,8 +4,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic } from "vscode-languageserver/node.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
-import { createStringMap } from "../core/util.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
+import { createStringMap } from "../utils/misc.js";
 import {
   StandardTestLibrary,
   TestHostOptions,
@@ -80,6 +80,9 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
         return path;
       }
       return pathToFileURL(resolveVirtualPath(path)).href;
+    },
+    applyEdit(paramOrEdit) {
+      return Promise.resolve({ applied: false });
     },
   };
 

@@ -68,7 +68,7 @@ export interface DecoratedType {
 /**
  * Union of all the types that implement TemplatedTypeBase
  */
-export type TemplatedType = Model | Operation | Interface | Union;
+export type TemplatedType = Model | Operation | Interface | Union | Scalar;
 
 export interface TypeMapper {
   partial: boolean;
@@ -1849,6 +1849,42 @@ export interface Diagnostic {
   severity: DiagnosticSeverity;
   message: string;
   target: DiagnosticTarget | typeof NoTarget;
+  readonly codefixes?: readonly CodeFix[];
+}
+
+export interface CodeFix {
+  readonly id: string;
+  readonly label: string;
+  readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
+}
+
+export interface FilePos {
+  readonly pos: number;
+  readonly file: SourceFile;
+}
+
+export interface CodeFixContext {
+  /** Add the given text before the range or pos given. */
+  readonly prependText: (location: SourceLocation | FilePos, text: string) => InsertTextCodeFixEdit;
+  /** Add the given text after the range or pos given. */
+  readonly appendText: (location: SourceLocation | FilePos, text: string) => InsertTextCodeFixEdit;
+  /** Replace the text at the given range. */
+  readonly replaceText: (location: SourceLocation, newText: string) => ReplaceTextCodeFixEdit;
+}
+
+export type CodeFixEdit = InsertTextCodeFixEdit | ReplaceTextCodeFixEdit;
+
+export interface InsertTextCodeFixEdit {
+  readonly kind: "insert-text";
+  readonly text: string;
+  readonly pos: number;
+  readonly file: SourceFile;
+}
+
+export interface ReplaceTextCodeFixEdit extends TextRange {
+  readonly kind: "replace-text";
+  readonly text: string;
+  readonly file: SourceFile;
 }
 
 /**
@@ -1916,7 +1952,7 @@ export interface CompilerHost {
    * @param path Path to the directory.
    * @returns list of file/directory in the given directory. Returns the name not the full path.
    */
-  readDir(dir: string): Promise<string[]>;
+  readDir(path: string): Promise<string[]>;
 
   /**
    * Deletes a directory or file.
@@ -1994,6 +2030,7 @@ export type DiagnosticReportWithoutTarget<
 > = {
   code: C;
   messageId?: M;
+  readonly codefixes?: readonly CodeFix[];
 } & DiagnosticFormat<T, C, M>;
 
 export type DiagnosticReport<
@@ -2170,6 +2207,7 @@ export type LinterRuleDiagnosticReportWithoutTarget<
   M extends keyof T = "default",
 > = {
   messageId?: M;
+  codefixes?: CodeFix[];
 } & LinterRuleDiagnosticFormat<T, M>;
 
 export type LinterRuleDiagnosticReport<
@@ -2317,7 +2355,7 @@ export interface Tracer {
   trace(area: string, message: string, target?: DiagnosticTarget): void;
 
   /**
-   * @param area
+   * @param subarea
    */
   sub(subarea: string): Tracer;
 }

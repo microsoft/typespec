@@ -20,17 +20,12 @@ export {
 export * from "./module-resolver.js";
 export { NodeHost } from "./node-host.js";
 export * from "./options.js";
+export { getPositionBeforeTrivia } from "./parser-utils.js";
 export * from "./parser.js";
 export * from "./path-utils.js";
 export * from "./program.js";
 export * from "./scanner.js";
 export * from "./semantic-walker.js";
+export { createSourceFile, getSourceFileKindFromExt } from "./source-file.js";
 export * from "./type-utils.js";
 export * from "./types.js";
-export {
-  DuplicateTracker,
-  Queue,
-  TwoLevelMap,
-  createRekeyableMap,
-  getSourceFileKindFromExt,
-} from "./util.js";

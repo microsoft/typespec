@@ -55,7 +55,7 @@ const config: Config = {
   url: "https://typespec.io",
   baseUrl,
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+  onBrokenMarkdownLinks: "throw",
   favicon: "img/favicon.svg",
 
   // GitHub pages deployment config.
@@ -79,6 +79,11 @@ const config: Config = {
   scripts: [
     {
       src: "es-module-shims.js",
+      type: "module",
+      async: true,
+    },
+    {
+      src: "1ds-init.js",
       type: "module",
       async: true,
     },
@@ -142,15 +147,14 @@ const config: Config = {
       return {
         name: "custom-configure-webpack",
         configureWebpack: (config, isServer, utils) => {
+          // Need to change the font rule to use asset/resource
+          const fontRule = config.module.rules.find(
+            (x) => typeof x === "object" && x.test?.toString().includes("ttf")
+          );
+          delete (fontRule as any).use;
+          (fontRule as any).type = "asset/resource";
+
           return {
-            module: {
-              rules: [
-                {
-                  test: /\.ttf$/,
-                  use: ["file-loader"],
-                },
-              ],
-            },
             plugins: [
               new MonacoWebpackPlugin({
                 languages: ["json"],
@@ -230,10 +234,6 @@ const config: Config = {
           {
             label: "Community",
             to: "/community",
-          },
-          {
-            label: "Getting started",
-            to: "/docs",
           },
           {
             type: "docsVersionDropdown",

@@ -280,7 +280,7 @@ describe("compiler: templates", () => {
       // Only one error, Bar<T> can't be created as T is not constraint to object
       expectDiagnostics(diagnostics, {
         code: "unassignable",
-        message: "Type 'abc' is not assignable to type '{}'",
+        message: `Type '"abc"' is not assignable to type '{}'`,
         pos,
       });
     });
@@ -426,6 +426,36 @@ describe("compiler: templates", () => {
           a: A<"def">
         }
       `);
+    });
+
+    it("emits diagnostic when constraint reference itself", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends A> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
+    });
+
+    it("emits diagnostic when constraint reference other parameter in circular constraint", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends B, B extends A> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
+    });
+
+    it("emits diagnostic when constraint reference itself inside an expression", async () => {
+      testHost.addTypeSpecFile("main.tsp", `model Test<A extends {name: A}> {}`);
+
+      const diagnostics = await testHost.diagnose("main.tsp");
+      expectDiagnostics(diagnostics, {
+        code: "circular-constraint",
+        message: "Type parameter 'A' has a circular constraint.",
+      });
     });
 
     it("emit diagnostics if template default is not assignable to constraint", async () => {

@@ -9,13 +9,13 @@ type DiagnosticReport<T, C, M>: DiagnosticReportWithoutTarget<T, C, M> & Object;
 
 ## Type declaration
 
-| Member | Type | Description |
-| :------ | :------ | :------ |
-| `target` | [`DiagnosticTarget`](DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) | - |
+| Member | Type |
+| :------ | :------ |
+| `target` | [`DiagnosticTarget`](DiagnosticTarget.md) \| *typeof* [`NoTarget`](../variables/NoTarget.md) |
 
 ## Type parameters
 
-| Parameter | Value |
+| Type parameter | Value |
 | :------ | :------ |
 | `T` extends `Object` | - |
 | `C` extends keyof `T` | - |

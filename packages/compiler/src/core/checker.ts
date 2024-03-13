@@ -1,5 +1,7 @@
-import { $docFromComment, getIndexer } from "../lib/decorators.js";
+import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
+import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
+import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -33,6 +35,7 @@ import {
   AugmentDecoratorStatementNode,
   BooleanLiteral,
   BooleanLiteralNode,
+  CodeFix,
   DecoratedType,
   Decorator,
   DecoratorApplication,
@@ -74,7 +77,6 @@ import {
   ModelIndexer,
   ModelProperty,
   ModelPropertyNode,
-  ModelSpreadPropertyNode,
   ModelStatementNode,
   ModifierFlags,
   Namespace,
@@ -150,7 +152,6 @@ import {
   ValueType,
   VoidType,
 } from "./types.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "./util.js";
 
 export type CreateTypeProps = Omit<Type, "isFinished" | keyof TypePrototype>;
 
@@ -711,6 +712,7 @@ export function createChecker(program: Program): Checker {
       | AliasStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
+      | TemplateParameterDeclarationNode
       | UnionStatementNode
   ): number {
     const symbol =
@@ -750,6 +752,19 @@ export function createChecker(program: Program): Checker {
     const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
 
+    if (pendingResolutions.has(getNodeSymId(node), ResolutionKind.Constraint)) {
+      if (mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-constraint",
+            format: { typeName: node.id.sv },
+            target: node.constraint!,
+          })
+        );
+      }
+      return errorType;
+    }
+
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
     if (type === undefined) {
       if (grandParentNode) {
@@ -770,7 +785,9 @@ export function createChecker(program: Program): Checker {
       });
 
       if (node.constraint) {
+        pendingResolutions.start(getNodeSymId(node), ResolutionKind.Constraint);
         type.constraint = getTypeOrValueTypeForNode(node.constraint);
+        pendingResolutions.finish(getNodeSymId(node), ResolutionKind.Constraint);
       }
       if (node.default) {
         type.default = checkTemplateParameterDefault(
@@ -1572,17 +1589,20 @@ export function createChecker(program: Program): Checker {
     });
 
     const indexers: ModelIndexer[] = [];
-    for (const [optionNode, option] of options) {
+    const modelOptions: [Node, Model][] = options.filter((entry): entry is [Node, Model] => {
+      const [optionNode, option] = entry;
       if (option.kind === "TemplateParameter") {
-        continue;
+        return false;
       }
       if (option.kind !== "Model") {
         reportCheckerDiagnostic(
           createDiagnostic({ code: "intersect-non-model", target: optionNode })
         );
-        continue;
+        return false;
       }
-
+      return true;
+    });
+    for (const [optionNode, option] of modelOptions) {
       if (option.indexer) {
         if (option.indexer.key.name === "integer") {
           reportCheckerDiagnostic(
@@ -1596,19 +1616,8 @@ export function createChecker(program: Program): Checker {
           indexers.push(option.indexer);
         }
       }
-      if (indexers.length === 1) {
-        intersection.indexer = indexers[0];
-      } else if (indexers.length > 1) {
-        intersection.indexer = {
-          key: indexers[0].key,
-          value: mergeModelTypes(
-            node,
-            indexers.map((x) => [x.value.node!, x.value]),
-            mapper
-          ),
-        };
-      }
-
+    }
+    for (const [_, option] of modelOptions) {
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -1627,7 +1636,23 @@ export function createChecker(program: Program): Checker {
           model: intersection,
         });
         properties.set(prop.name, newPropType);
+        for (const indexer of indexers.filter((x) => x !== option.indexer)) {
+          checkPropertyCompatibleWithIndexer(indexer, prop, node);
+        }
       }
+    }
+
+    if (indexers.length === 1) {
+      intersection.indexer = indexers[0];
+    } else if (indexers.length > 1) {
+      intersection.indexer = {
+        key: indexers[0].key,
+        value: mergeModelTypes(
+          node,
+          indexers.map((x) => [x.value.node!, x.value]),
+          mapper
+        ),
+      };
     }
     linkMapper(intersection, mapper);
     return finishType(intersection);
@@ -2314,10 +2339,24 @@ export function createChecker(program: Program): Checker {
 
     if (mapper === undefined) {
       reportCheckerDiagnostic(
-        createDiagnostic({ code: "unknown-identifier", format: { id: node.sv }, target: node })
+        createDiagnostic({
+          code: "unknown-identifier",
+          format: { id: node.sv },
+          target: node,
+          codefixes: getCodefixesForUnknownIdentifier(node),
+        })
       );
     }
     return undefined;
+  }
+
+  function getCodefixesForUnknownIdentifier(node: IdentifierNode): CodeFix[] | undefined {
+    switch (node.sv) {
+      case "number":
+        return [createChangeIdentifierCodeFix(node, "float64")];
+      default:
+        return undefined;
+    }
   }
 
   function resolveTypeReferenceSym(
@@ -2820,15 +2859,23 @@ export function createChecker(program: Program): Checker {
     return undefined;
   }
 
-  function checkPropertyCompatibleWithIndexer(
+  function checkPropertyCompatibleWithModelIndexer(
     parentModel: Model,
     property: ModelProperty,
-    diagnosticTarget: ModelPropertyNode | ModelSpreadPropertyNode
+    diagnosticTarget: Node
   ) {
     const indexer = findIndexer(parentModel);
     if (indexer === undefined) {
       return;
     }
+    return checkPropertyCompatibleWithIndexer(indexer, property, diagnosticTarget);
+  }
+
+  function checkPropertyCompatibleWithIndexer(
+    indexer: ModelIndexer,
+    property: ModelProperty,
+    diagnosticTarget: Node
+  ) {
     if (indexer.key.name === "integer") {
       reportCheckerDiagnostics([
         createDiagnostic({
@@ -2839,14 +2886,18 @@ export function createChecker(program: Program): Checker {
       return;
     }
 
-    const [valid, diagnostics] = isTypeAssignableTo(
-      property.type,
-      indexer.value,
-      diagnosticTarget.kind === SyntaxKind.ModelSpreadProperty
-        ? diagnosticTarget
-        : diagnosticTarget.value
-    );
-    if (!valid) reportCheckerDiagnostics(diagnostics);
+    const [valid, diagnostics] = isTypeAssignableTo(property.type, indexer.value, diagnosticTarget);
+    if (!valid)
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "incompatible-indexer",
+          format: { message: diagnostics.map((x) => `  ${x.message}`).join("\n") },
+          target:
+            diagnosticTarget.kind === SyntaxKind.ModelProperty
+              ? diagnosticTarget.value
+              : diagnosticTarget,
+        })
+      );
   }
 
   function checkModelProperties(
@@ -2855,23 +2906,74 @@ export function createChecker(program: Program): Checker {
     parentModel: Model,
     mapper: TypeMapper | undefined
   ) {
+    let spreadIndexers: ModelIndexer[] | undefined;
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const newProp = checkModelProperty(prop, mapper);
         newProp.model = parentModel;
-        checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
+        checkPropertyCompatibleWithModelIndexer(parentModel, newProp, prop);
         defineProperty(properties, newProp);
       } else {
         // spread property
-        const newProperties = checkSpreadProperty(node.symbol, prop.target, parentModel, mapper);
-
+        const [newProperties, additionalIndexer] = checkSpreadProperty(
+          node.symbol,
+          prop.target,
+          parentModel,
+          mapper
+        );
+        if (additionalIndexer) {
+          if (spreadIndexers) {
+            spreadIndexers.push(additionalIndexer);
+          } else {
+            spreadIndexers = [additionalIndexer];
+          }
+        }
         for (const newProp of newProperties) {
           linkIndirectMember(node, newProp, mapper);
-          checkPropertyCompatibleWithIndexer(parentModel, newProp, prop);
+          checkPropertyCompatibleWithModelIndexer(parentModel, newProp, prop);
           defineProperty(properties, newProp, prop);
         }
       }
     }
+
+    if (spreadIndexers) {
+      const value =
+        spreadIndexers.length === 1
+          ? spreadIndexers[0].value
+          : createUnion(spreadIndexers.map((i) => i.value));
+      parentModel.indexer = {
+        key: spreadIndexers[0].key,
+        value: value,
+      };
+    }
+  }
+
+  function createUnion(options: Type[]): Union {
+    const variants = createRekeyableMap<string | symbol, UnionVariant>();
+    const union: Union = createAndFinishType({
+      kind: "Union",
+      node: undefined!,
+      options,
+      decorators: [],
+      variants,
+      expression: true,
+    });
+
+    for (const option of options) {
+      const name = Symbol("indexer-union-variant");
+      variants.set(
+        name,
+        createAndFinishType({
+          kind: "UnionVariant",
+          node: undefined!,
+          type: option,
+          name,
+          union,
+          decorators: [],
+        })
+      );
+    }
+    return union;
   }
 
   function defineProperty(
@@ -3326,16 +3428,21 @@ export function createChecker(program: Program): Checker {
     targetNode: TypeReferenceNode,
     parentModel: Model,
     mapper: TypeMapper | undefined
-  ): ModelProperty[] {
+  ): [ModelProperty[], ModelIndexer | undefined] {
     const targetType = getTypeForNode(targetNode, mapper);
 
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
-      return [];
+      return [[], undefined];
     }
     if (targetType.kind !== "Model") {
       reportCheckerDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
-      return [];
+      return [[], undefined];
     }
+    if (isArrayModelType(program, targetType)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "spread-model", target: targetNode }));
+      return [[], undefined];
+    }
+
     if (parentModel === targetType) {
       reportCheckerDiagnostic(
         createDiagnostic({
@@ -3357,7 +3464,8 @@ export function createChecker(program: Program): Checker {
         })
       );
     }
-    return props;
+
+    return [props, targetType.indexer];
   }
 
   /**
@@ -3589,6 +3697,12 @@ export function createChecker(program: Program): Checker {
       : declaration.parameters.length;
 
     if (args.length < minArgs || (maxArgs !== undefined && args.length > maxArgs)) {
+      // In the case we have too little args then this decorator is not applicable.
+      // If there is too many args then we can still run the decorator as long as the args are valid.
+      if (args.length < minArgs) {
+        hasError = true;
+      }
+
       if (maxArgs === undefined) {
         reportCheckerDiagnostic(
           createDiagnostic({
@@ -6330,6 +6444,7 @@ const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionName
 enum ResolutionKind {
   Type,
   BaseType,
+  Constraint,
 }
 
 class PendingResolutions {

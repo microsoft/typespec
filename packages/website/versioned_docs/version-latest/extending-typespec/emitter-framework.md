@@ -3,28 +3,32 @@ id: emitter-framework
 title: Emitter framework
 ---
 
-The emitter framework makes writing emitters from TypeSpec to other assets a fair bit easier than manually consuming the type graph. The framework gives you an easy way to handle all the types TypeSpec might throw at you and know when you're "feature complete". It also handles a lot of hard problems for you, such as how to construct references between types, how to handle circular references, or how to propagate the context of the types you're emitting based on their containers or where they're referenced from. Lastly, it provides a class-based inheritance model that makes it fairly painless to extend and customize existing emitters.
+# Emitter framework
 
-## Getting Started
+The emitter framework simplifies the process of creating emitters from TypeSpec to other assets, compared to manually navigating the type graph. This framework provides a straightforward way to manage all the types that TypeSpec might present, and helps you determine when you've covered all features.
 
-Make sure to read the getting started section under the [emitter basics](./emitters-basics.md) topic. To use the framework, you will need an emitter library and `$onEmit` function ready to go.
+The also solves complex problems such as constructing references between types, handling circular references, and propagating the context of the types you're emitting based on their containers or where they're referenced from. Additionally, it offers a class-based inheritance model that simplifies the extension and customization of existing emitters.
 
-## Implementing your emitter
+## How to get started
 
-Implementing an emitter using the emitter framework will use a variety of types from the framework. To give you a high level overview, these are:
+Before you start, make sure to read the 'Getting Started' section under the [emitter basics](./emitters-basics.md) topic. To use the framework, you will need an emitter library and a `$onEmit` function.
 
-- `AssetEmitter`: The asset emitter is the main type you will interact with in your `$onEmit` function. You can pass the asset emitter types to emit, and tell it to write types to disk or give you source files for you to process in other ways.
-- `TypeEmitter`: The type emitter is the base class for most of your emit logic. Every TypeSpec type has a corresponding method on TypeEmitter. It also is where you will manage your emit context, making it easy to answer such questions as "is this type inside something I care about" or "was this type referenced from something".
-- `CodeTypeEmitter`: A subclass of `TypeEmitter` that makes building source code easier.
-- `StringBuilder`, `ObjectBuilder`, `ArrayBuilder`: when implementing your `TypeEmitter` you will likely use these classes to help you build strings and object graphs. These classes take care of handling the placeholders that result from circular references.
+## Creating your own emitter
 
-Let's walk through each of these types in turn.
+When you create an emitter using the emitter framework, you will use various types from the framework. Here's a high-level overview of these types:
+
+- `AssetEmitter`: This is the main type you will use in your `$onEmit` function. You can pass types to the asset emitter to emit, and instruct it to write types to disk or provide you with source files for further processing.
+- `TypeEmitter`: This is the base class for most of your emit logic. Every TypeSpec type has a corresponding method on TypeEmitter. This is also where you will manage your emit context, making it easy to answer questions like "is this type inside something I care about" or "was this type referenced from something".
+- `CodeTypeEmitter`: This is a subclass of `TypeEmitter` that simplifies the creation of source code.
+- `StringBuilder`, `ObjectBuilder`, `ArrayBuilder`: These classes are likely to be used when implementing your `TypeEmitter` to help you build strings and object graphs. They handle the placeholders that result from circular references.
+
+Let's explore each of these types in more detail.
 
 ### `AssetEmitter<T>`
 
-The asset emitter is responsible for driving the emit process. It has methods for taking TypeSpec types to emit, and maintains the state of your current emit process including the declarations you've accumulated, current emit context, and converting your emitted content into files on disk.
+The asset emitter drives the emit process. It has methods for taking TypeSpec types to emit, and maintains the state of your current emit process, including the declarations you've accumulated, current emit context, and converting your emitted content into files on disk.
 
-To create your asset emitter, call `getAssetEmitter` on your emit context in `$onEmit`. It takes the TypeEmitter which is covered in the next section. Once created, you can call `emitProgram()` to emit every type in the TypeSpec graph. Otherwise, you can call `emitType(someType)` to emit specific types instead.
+To create your asset emitter, call `getAssetEmitter` on your emit context in `$onEmit`. It takes the TypeEmitter which is covered in the next section. Once created, you can call `emitProgram()` to emit every type in the TypeSpec graph. Alternatively, you can call `emitType(someType)` to emit specific types.
 
 ```typescript
 export async function $onEmit(context: EmitContext) {
@@ -49,7 +53,7 @@ To support emitting all TypeSpec types, you should expect to implement all of th
 
 The generic type parameter `T` is the type of emit output you are building. For example, if you're emitting source code, `T` will be `string`. If you're building an object graph like JSON, `T` will be `object`. If your `T` is `string`, i.e. you are building source code, you will probably want to use the `CodeTypeEmitter` subclass which is a bit more convenient, but `TypeEmitter<string>` will also work fine.
 
-A simple emitter that doesn't do much yet might look like:
+Here's a simple emitter that doesn't do much yet:
 
 ```typescript
 class MyCodeEmitter extends CodeTypeEmitter {
@@ -59,13 +63,13 @@ class MyCodeEmitter extends CodeTypeEmitter {
 }
 ```
 
-Passing this to `getAssetEmitter` and calling `assetEmitter.emitProgram()` will console.log all the models in the program.
+If you pass this to `getAssetEmitter` and call `assetEmitter.emitProgram()`, it will log all the models in the program to the console.
 
 #### EmitterOutput
 
 Most methods of the `TypeEmitter` must either return `T` or an `EmitterOutput<T>`. There are four kinds of `EmitterOutput`:
 
-- `Declaration<T>`: A declaration, which has a name and is declared in a scope, and so can be referenced by other emitted types (more on References later). Declarations are created by calling `this.emitter.result.declaration(name, value)` in your emitter methods. Scopes come from your current context, which is covered later in this document.
+- `Declaration<T>`: A declaration, which has a name and is declared in a scope, and so can be referenced by other emitted types. Declarations are created by calling `this.emitter.result.declaration(name, value)` in your emitter methods. Scopes come from your current context, which is covered later in this document.
 - `RawCode<T>`: Output that is in some way concatenated into the output but cannot be referenced (e.g. things like type literals). Raw code is created by calling `this.emitter.result.rawCode(value)` in your emitter methods.
 - `NoEmit`: The type does not contribute any output. This is created by calling `this.emitter.result.none()` in your emitter methods.
 - `CircularEmit`: Indicates that a circular reference was encountered, which is generally handled by the framework with Placeholders (see the next section). You do not need to create this result yourself, the framework will produce this when required.
@@ -279,7 +283,7 @@ If you're using the `Builder`s that come with the framework, you will not need t
 
 #### Context
 
-A common need when emitting TypeSpec is to know what context you are emitting the type in. There is one piece of required context: `scope`, which tells the emitter framework where you want to place your declarations. But you might also want to easily answer questions like: am I emitting a model inside a particular namespace? Or am I emitting a model that is referenced from the return type of an operation? The emitter framework makes managing this context fairly trivial.
+When emitting TypeSpec, it's often necessary to know the context in which you are emitting the type. One piece of required context is `scope`, which tells the emitter framework where you want to place your declarations. But you might also want to easily answer questions like: am I emitting a model inside a particular namespace? Or am I emitting a model that is referenced from the return type of an operation? The emitter framework makes managing this context fairly trivial.
 
 Every method that results in an `EmitterOutput` has a corresponding method for setting lexical and reference context. We saw this above when we created `modelDeclarationContext` in order to put some models into a different namespace.
 
@@ -331,7 +335,7 @@ We can now see how this results in the `Person` model being located in a nested 
 
 ### Extending `TypeEmitter`
 
-TypeEmitters are classes and explicitly support subclassing, so you can customize an existing emitter by extending it and overriding any methods you want to customize in your subclass. In fact, emitters you find out in the ecosystem are likely not to work without creating a subclass, because they only know how to emit types, but you need to provide the scope for any declarations it wants to create. For example, if we have a base `TypeScriptEmitter` that can convert TypeSpec into TypeScript, we might extend it to tell it to put all declarations in the same file:
+TypeEmitters are classes and explicitly support subclassing, so you can customize an existing emitter by extending it and overriding any methods you want to customize in your subclass. In fact, emitters you find out in the ecosystem are likely not to work without creating a subclass, because they only know how to emit types, but you need to provide the scope for any declarations it wants to create. For example, if we have a base `TypeScript Emitter` that can convert TypeSpec into TypeScript, we might extend it to tell it to put all declarations in the same file:
 
 ```typescript
 class MyTsEmitter extends TypeScriptEmitter {
@@ -357,3 +361,5 @@ class MyTsEmitter extends TypeScriptEmitter {
   // and similar for other declarations: Unions, Enums, Interfaces, and Operations.
 }
 ```
+
+This way, each model will be emitted in its own file.

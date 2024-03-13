@@ -5,7 +5,7 @@ title: "[E] UsageFlags"
 ---
 ## Enumeration Members
 
-| Member | Value |
+| Enumeration Member | Value |
 | :------ | :------ |
 | `Input` | `2` |
 | `None` | `0` |

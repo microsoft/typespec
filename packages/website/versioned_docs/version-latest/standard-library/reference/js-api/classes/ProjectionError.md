@@ -33,13 +33,13 @@ new ProjectionError(message): ProjectionError
 
 ## Properties
 
-| Modifier | Property | Type | Description | Inheritance |
+| Property | Modifier | Type | Description | Inherited from |
 | :------ | :------ | :------ | :------ | :------ |
-| `public` | `message` | `string` | - | `Error.message` |
-| `public` | `name` | `string` | - | `Error.name` |
-| `public` | `stack?` | `string` | - | `Error.stack` |
-| `static` | `prepareStackTrace?` | (`err`, `stackTraces`) => `any` | - | `Error.prepareStackTrace` |
-| `static` | `stackTraceLimit` | `number` | - | `Error.stackTraceLimit` |
+| `message` | `public` | `string` | - | `Error.message` |
+| `name` | `public` | `string` | - | `Error.name` |
+| `stack?` | `public` | `string` | - | `Error.stack` |
+| `prepareStackTrace?` | `static` | (`err`: `Error`, `stackTraces`: `CallSite`[]) => `any` | Optional override for formatting stack traces<br /><br />**See**<br />https://v8.dev/docs/stack-trace-api#customizing-stack-traces | `Error.prepareStackTrace` |
+| `stackTraceLimit` | `static` | `number` | - | `Error.stackTraceLimit` |
 
 ## Methods
 

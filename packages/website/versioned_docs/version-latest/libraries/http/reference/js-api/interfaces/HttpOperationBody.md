@@ -3,7 +3,7 @@ jsApi: true
 title: "[I] HttpOperationBody"
 
 ---
-## Extended By
+## Extended by
 
 - [`HttpOperationRequestBody`](HttpOperationRequestBody.md)
 
