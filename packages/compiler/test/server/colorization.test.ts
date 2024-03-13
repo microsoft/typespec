@@ -1031,7 +1031,7 @@ function testColorization(description: string, tokenize: Tokenize) {
           ]);
         });
 
-        describe.only("in template parameters", () => {
+        describe("in template parameters", () => {
           it.each([
             [
               "alias",
