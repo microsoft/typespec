@@ -348,7 +348,7 @@ const typeParameter: BeginEndRule = {
     "1": { scope: "entity.name.type.tsp" },
   },
   end: `(?=>)|${universalEnd}`,
-  patterns: [typeParameterConstraint, typeParameterDefault],
+  patterns: [token, typeParameterConstraint, typeParameterDefault],
 };
 
 const typeParameters: BeginEndRule = {
@@ -522,7 +522,7 @@ const unionStatement: BeginEndRule = {
     "1": { scope: "keyword.other.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
-  patterns: [token, expression],
+  patterns: [token, typeParameters, expression],
 };
 
 const aliasStatement: BeginEndRule = {
@@ -663,6 +663,7 @@ const interfaceStatement: BeginEndRule = {
   end: `(?<=\\})|${universalEnd}`,
   patterns: [
     token,
+    typeParameters,
     interfaceHeritage, // before expression or extends will look like type name
     interfaceBody, // before expression or { will match model expression
     expression, // enough to match name and type parameters
