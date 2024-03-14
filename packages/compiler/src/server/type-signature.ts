@@ -77,6 +77,8 @@ function getTypeSignature(type: Type | ValueType): string {
       return "(projection)";
     case "Object":
       return "(object)";
+    case "ObjectProperty":
+      return "(object property)";
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");

@@ -86,6 +86,10 @@ import {
   NodeFlags,
   NumericLiteral,
   NumericLiteralNode,
+  ObjectLiteral,
+  ObjectLiteralNode,
+  ObjectLiteralProperty,
+  ObjectLiteralPropertyNode,
   Operation,
   OperationStatementNode,
   Projection,
@@ -659,6 +663,8 @@ export function createChecker(program: Program): Checker {
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
         return checkOperation(node, mapper);
+      case SyntaxKind.ObjectLiteral:
+        return checkObjectLiteral(node, mapper);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -2948,6 +2954,79 @@ export function createChecker(program: Program): Checker {
     }
   }
 
+  function checkObjectLiteral(node: ObjectLiteralNode, mapper: TypeMapper | undefined) {
+    const type: ObjectLiteral = createType({
+      kind: "Object",
+      node: node,
+      properties: checkObjectLiteralProperties(node, mapper),
+      indexer: undefined,
+      decorators: [],
+      derivedModels: [],
+    });
+    return finishType(type);
+  }
+
+  function checkObjectLiteralProperties(node: ObjectLiteralNode, mapper: TypeMapper | undefined) {
+    const properties = createRekeyableMap<string, ObjectLiteralProperty>();
+
+    for (const prop of node.properties!) {
+      if ("id" in prop) {
+        const newProp = checkObjectLiteralProperty(prop, mapper);
+        if (newProp) {
+          properties.set(newProp.name, newProp);
+        }
+      } else {
+        const newProperties = checkObjectSpreadProperty(prop.target, mapper);
+        for (const newProp of newProperties) {
+          properties.set(newProp.name, newProp);
+        }
+      }
+    }
+    return properties;
+  }
+
+  function checkObjectLiteralProperty(
+    node: ObjectLiteralPropertyNode,
+    mapper: TypeMapper | undefined
+  ): ObjectLiteralProperty | undefined {
+    const type = getTypeForNode(node.value, mapper);
+    if (
+      type.kind !== "Object" &&
+      type.kind !== "String" &&
+      type.kind !== "Number" &&
+      type.kind !== "Boolean"
+    ) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "not-literal", target: node.value }));
+      return undefined;
+    }
+
+    return createAndFinishType({
+      kind: "ObjectProperty",
+      node,
+      name: node.id.sv,
+      type: type as any,
+    });
+  }
+
+  function checkObjectSpreadProperty(
+    targetNode: TypeReferenceNode,
+    mapper: TypeMapper | undefined
+  ): ObjectLiteralProperty[] {
+    const targetType = getTypeForNode(targetNode, mapper);
+
+    if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
+      return [];
+    }
+    // TODO: instanceof is because of conflict of the Object type from projection.
+    if (targetType.kind !== "Object" || !(targetType.properties instanceof Map)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "spread-object", target: targetNode }));
+      return [];
+    }
+
+    // TODO: do we want to clone or use the exact same reference here?
+    return [...targetType.properties.values()].map((prop) => cloneType(prop));
+  }
+
   function createUnion(options: Type[]): Union {
     const variants = createRekeyableMap<string | symbol, UnionVariant>();
     const union: Union = createAndFinishType({
@@ -5190,7 +5269,8 @@ export function createChecker(program: Program): Checker {
 
     switch (base.kind) {
       case "Object":
-        return base.properties[member] || errorType;
+        // TODO: resolve conflict here
+        return (base.properties as any)[member] || errorType;
       default:
         const typeOps = projectionMembers[base.kind];
         if (!typeOps) {

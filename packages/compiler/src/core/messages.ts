@@ -391,10 +391,23 @@ const diagnostics = {
       selfSpread: "Cannot spread type within its own declaration.",
     },
   },
+
   "unsupported-default": {
     severity: "error",
     messages: {
       default: paramMessage`Default must be have a value type but has type '${"type"}'.`,
+    },
+  },
+  "spread-object": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread properties of non-object type.",
+    },
+  },
+  "not-literal": {
+    severity: "error",
+    messages: {
+      default: "Type must be a literal type.",
     },
   },
   unassignable: {

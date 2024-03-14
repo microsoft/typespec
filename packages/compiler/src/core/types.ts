@@ -109,6 +109,8 @@ export type Type =
   | Decorator
   | FunctionParameter
   | ObjectType
+  | ObjectLiteral
+  | ObjectLiteralProperty
   | Projection;
 
 export type StdTypes = {
@@ -287,6 +289,18 @@ export interface ModelProperty extends BaseType, DecoratedType {
   optional: boolean;
   default?: Type;
   model?: Model;
+}
+
+export interface ObjectLiteral extends BaseType {
+  kind: "Object";
+  properties: RekeyableMap<string, ObjectLiteralProperty>;
+}
+
+export interface ObjectLiteralProperty extends BaseType {
+  kind: "ObjectProperty";
+  name: string;
+  node: ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode;
+  type: LiteralType | ObjectLiteral;
 }
 
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
@@ -817,6 +831,9 @@ export enum SyntaxKind {
   Return,
   JsNamespaceDeclaration,
   TemplateArgument,
+  ObjectLiteral,
+  ObjectLiteralProperty,
+  ObjectLiteralSpreadProperty,
 }
 
 export const enum NodeFlags {
@@ -911,7 +928,10 @@ export type Node =
   | ProjectionModelPropertyNode
   | ProjectionModelSpreadPropertyNode
   | ProjectionStatementNode
-  | ProjectionNode;
+  | ProjectionNode
+  | ObjectLiteralNode
+  | ObjectLiteralPropertyNode
+  | ObjectLiteralSpreadPropertyNode;
 
 /**
  * Node that can be used as template
@@ -1067,6 +1087,7 @@ export type Expression =
   | ArrayExpressionNode
   | MemberExpressionNode
   | ModelExpressionNode
+  | ObjectLiteralNode
   | TupleExpressionNode
   | UnionExpressionNode
   | IntersectionExpressionNode
@@ -1255,6 +1276,29 @@ export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
   readonly target: TypeReferenceNode;
   readonly parent?: ModelStatementNode | ModelExpressionNode;
+}
+
+export interface ObjectLiteralNode extends BaseNode {
+  readonly kind: SyntaxKind.ObjectLiteral;
+  readonly properties: (ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode)[];
+}
+
+export interface ObjectLiteralPropertyNode extends BaseNode {
+  readonly kind: SyntaxKind.ObjectLiteralProperty;
+  readonly id: IdentifierNode;
+  readonly value:
+    | StringLiteralNode
+    | NumericLiteralNode
+    | BooleanLiteralNode
+    | ObjectLiteralNode
+    | TupleExpressionNode;
+  readonly parent?: ObjectLiteralNode;
+}
+
+export interface ObjectLiteralSpreadPropertyNode extends BaseNode {
+  readonly kind: SyntaxKind.ObjectLiteralSpreadProperty;
+  readonly target: TypeReferenceNode;
+  readonly parent?: ObjectLiteralNode;
 }
 
 export type LiteralNode =

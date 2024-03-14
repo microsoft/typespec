@@ -62,6 +62,9 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  ObjectLiteralNode,
+  ObjectLiteralPropertyNode,
+  ObjectLiteralSpreadPropertyNode,
   OperationSignature,
   OperationStatementNode,
   ParseOptions,
@@ -124,7 +127,12 @@ type ParseListItem<K, T> = K extends UnannotatedListKind
   ? () => T
   : (pos: number, decorators: DecoratorExpressionNode[]) => T;
 
-type OpenToken = Token.OpenBrace | Token.OpenParen | Token.OpenBracket | Token.LessThan;
+type OpenToken =
+  | Token.OpenBrace
+  | Token.OpenParen
+  | Token.OpenBracket
+  | Token.LessThan
+  | Token.HashBrace;
 type CloseToken = Token.CloseBrace | Token.CloseParen | Token.CloseBracket | Token.GreaterThan;
 type DelimiterToken = Token.Comma | Token.Semicolon;
 
@@ -183,6 +191,14 @@ namespace ListKind {
     open: Token.OpenBrace,
     close: Token.CloseBrace,
     delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
+  } as const;
+
+  export const ObjectLiteralProperties = {
+    ...PropertiesBase,
+    open: Token.HashBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Comma,
     toleratedDelimiter: Token.Comma,
   } as const;
 
@@ -954,6 +970,46 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseObjectLiteralPropertyOrSpread(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode {
+    reportInvalidDecorators(decorators, "object literal property");
+
+    return token() === Token.Ellipsis
+      ? parseObjectLiteralSpreadProperty(pos)
+      : parseObjectLiteralProperty(pos);
+  }
+
+  function parseObjectLiteralSpreadProperty(pos: number): ObjectLiteralSpreadPropertyNode {
+    parseExpected(Token.Ellipsis);
+
+    // This could be broadened to allow any type expression
+    const target = parseReferenceExpression();
+
+    return {
+      kind: SyntaxKind.ObjectLiteralSpreadProperty,
+      target,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseObjectLiteralProperty(pos: number): ObjectLiteralPropertyNode {
+    const id = parseIdentifier({
+      message: "property",
+    });
+
+    parseExpected(Token.Colon);
+    const value = parseExpression() as any; // TODO? only parse object expressions or let checker verify that?
+
+    return {
+      kind: SyntaxKind.ObjectLiteralProperty,
+      id,
+      value,
+      ...finishNode(pos),
+    };
+  }
+
   function parseScalarStatement(
     pos: number,
     decorators: DecoratorExpressionNode[]
@@ -1415,6 +1471,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");
           continue;
+        case Token.HashBrace:
+          return parseObjectLiteral();
         case Token.VoidKeyword:
           return parseVoidKeyword();
         case Token.NeverKeyword:
@@ -1486,6 +1544,19 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const properties = parseList(ListKind.ModelProperties, parseModelPropertyOrSpread);
     return {
       kind: SyntaxKind.ModelExpression,
+      properties,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseObjectLiteral(): ObjectLiteralNode {
+    const pos = tokenPos();
+    const properties = parseList(
+      ListKind.ObjectLiteralProperties,
+      parseObjectLiteralPropertyOrSpread
+    );
+    return {
+      kind: SyntaxKind.ObjectLiteral,
       properties,
       ...finishNode(pos),
     };
@@ -3220,6 +3291,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.ModelSpreadProperty:
       return visitNode(cb, node.target);
+
     case SyntaxKind.ModelStatement:
       return (
         visitEach(cb, node.decorators) ||
@@ -3362,7 +3434,12 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.head) || visitEach(cb, node.spans);
     case SyntaxKind.StringTemplateSpan:
       return visitNode(cb, node.expression) || visitNode(cb, node.literal);
-
+    case SyntaxKind.ObjectLiteral:
+      return visitEach(cb, node.properties);
+    case SyntaxKind.ObjectLiteralProperty:
+      return visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.ObjectLiteralSpreadProperty:
+      return visitNode(cb, node.target);
     // no children for the rest of these.
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
