@@ -76,9 +76,9 @@ function getTypeSignature(type: Type | ValueType): string {
     case "Projection":
       return "(projection)";
     case "Object":
+      return "(object)";
+    case "ObjectLiteral":
       return fence("#{...}");
-    case "ObjectProperty":
-      return "(object property)";
     case "TupleLiteral":
       return fence("#[...]");
     default:

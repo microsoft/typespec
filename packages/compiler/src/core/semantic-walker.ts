@@ -95,7 +95,7 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
           return ListenerFlow.NoRecursion;
         }
       }
-      return (callback as any)(x as any);
+      return callback(x as any);
     };
   }
   return wrappedListeners as any;
@@ -384,6 +384,7 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
     case "Decorator":
       return navigateDecoratorDeclaration(type, context);
     case "Object":
+    case "ObjectLiteral":
     case "TupleLiteral":
     case "Projection":
     case "Function":
@@ -393,7 +394,6 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
     case "Intrinsic":
     case "Number":
     case "String":
-    case "ObjectProperty":
       return;
     default:
       // Dummy const to ensure we handle all types.

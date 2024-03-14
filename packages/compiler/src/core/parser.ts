@@ -1009,7 +1009,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     });
 
     parseExpected(Token.Colon);
-    const value = parseExpression() as any; // TODO? only parse object expressions or let checker verify that?
+    const value = parseExpression();
 
     return {
       kind: SyntaxKind.ObjectLiteralProperty,
