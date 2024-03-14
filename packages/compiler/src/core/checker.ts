@@ -1,5 +1,12 @@
 import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import {
+  MultiKeyMap,
+  Mutable,
+  createRekeyableMap,
+  isArray,
+  isDefined,
+  mutate,
+} from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
@@ -140,6 +147,8 @@ import {
   TemplatedType,
   Tuple,
   TupleExpressionNode,
+  TupleLiteral,
+  TupleLiteralNode,
   Type,
   TypeInstantiationMap,
   TypeMapper,
@@ -665,6 +674,8 @@ export function createChecker(program: Program): Checker {
         return checkOperation(node, mapper);
       case SyntaxKind.ObjectLiteral:
         return checkObjectLiteral(node, mapper);
+      case SyntaxKind.TupleLiteral:
+        return checkTupleLiteral(node, mapper);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -2985,18 +2996,29 @@ export function createChecker(program: Program): Checker {
     return properties;
   }
 
+  function checkIsLiteralType(
+    type: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): type is LiteralType | ObjectLiteral | TupleLiteral {
+    if (
+      type.kind !== "Object" &&
+      type.kind !== "TupleLiteral" &&
+      type.kind !== "String" &&
+      type.kind !== "Number" &&
+      type.kind !== "Boolean"
+    ) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "not-literal", target: diagnosticTarget }));
+      return false;
+    }
+    return true;
+  }
+
   function checkObjectLiteralProperty(
     node: ObjectLiteralPropertyNode,
     mapper: TypeMapper | undefined
   ): ObjectLiteralProperty | undefined {
     const type = getTypeForNode(node.value, mapper);
-    if (
-      type.kind !== "Object" &&
-      type.kind !== "String" &&
-      type.kind !== "Number" &&
-      type.kind !== "Boolean"
-    ) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "not-literal", target: node.value }));
+    if (!checkIsLiteralType(type, node.value)) {
       return undefined;
     }
 
@@ -3018,13 +3040,31 @@ export function createChecker(program: Program): Checker {
       return [];
     }
     // TODO: instanceof is because of conflict of the Object type from projection.
-    if (targetType.kind !== "Object" || !(targetType.properties instanceof Map)) {
+    if (targetType.kind !== "Object" || !("values" in targetType.properties)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "spread-object", target: targetNode }));
       return [];
     }
 
     // TODO: do we want to clone or use the exact same reference here?
-    return [...targetType.properties.values()].map((prop) => cloneType(prop));
+    return [...(targetType.properties as any).values()].map((prop) => cloneType(prop));
+  }
+
+  function checkTupleLiteral(node: TupleLiteralNode, mapper: TypeMapper | undefined): TupleLiteral {
+    const values = node.values
+      .map((itemNode) => {
+        const type = getTypeForNode(itemNode, mapper);
+        if (checkIsLiteralType(type, itemNode)) {
+          return type;
+        } else {
+          return undefined; // TODO: do we want to omit this or include an error type?
+        }
+      })
+      .filter(isDefined);
+    return createAndFinishType({
+      kind: "TupleLiteral",
+      node: node,
+      values,
+    });
   }
 
   function createUnion(options: Type[]): Union {

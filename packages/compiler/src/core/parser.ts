@@ -105,6 +105,7 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
+  TupleLiteralNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionStatementNode,
@@ -132,7 +133,8 @@ type OpenToken =
   | Token.OpenParen
   | Token.OpenBracket
   | Token.LessThan
-  | Token.HashBrace;
+  | Token.HashBrace
+  | Token.HashBracket;
 type CloseToken = Token.CloseBrace | Token.CloseParen | Token.CloseBracket | Token.GreaterThan;
 type DelimiterToken = Token.Comma | Token.Semicolon;
 
@@ -265,6 +267,13 @@ namespace ListKind {
     ...ExpresionsBase,
     allowEmpty: true,
     open: Token.OpenBracket,
+    close: Token.CloseBracket,
+  } as const;
+
+  export const TupleLiteral = {
+    ...ExpresionsBase,
+    allowEmpty: true,
+    open: Token.HashBracket,
     close: Token.CloseBracket,
   } as const;
 
@@ -1473,6 +1482,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           continue;
         case Token.HashBrace:
           return parseObjectLiteral();
+        case Token.HashBracket:
+          return parseTupleLiteral();
         case Token.VoidKeyword:
           return parseVoidKeyword();
         case Token.NeverKeyword:
@@ -1558,6 +1569,16 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return {
       kind: SyntaxKind.ObjectLiteral,
       properties,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseTupleLiteral(): TupleLiteralNode {
+    const pos = tokenPos();
+    const values = parseList(ListKind.TupleLiteral, parseExpression);
+    return {
+      kind: SyntaxKind.TupleLiteral,
+      values,
       ...finishNode(pos),
     };
   }
@@ -3440,6 +3461,8 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.id) || visitNode(cb, node.value);
     case SyntaxKind.ObjectLiteralSpreadProperty:
       return visitNode(cb, node.target);
+    case SyntaxKind.TupleLiteral:
+      return visitEach(cb, node.values);
     // no children for the rest of these.
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:

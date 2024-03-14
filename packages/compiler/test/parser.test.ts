@@ -232,6 +232,14 @@ describe("compiler: parser", () => {
     ]);
   });
 
+  describe("tuple literals", () => {
+    parseEach([
+      `alias A = #["abc"];`,
+      `alias A = #["abc", 123];`,
+      `alias A = #["abc", 123, #{nested: true}];`,
+    ]);
+  });
+
   describe("valueof expressions", () => {
     parseEach([
       "alias A = valueof string;",

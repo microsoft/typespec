@@ -384,6 +384,7 @@ function navigateTypeInternal(type: Type, context: NavigationContext) {
     case "Decorator":
       return navigateDecoratorDeclaration(type, context);
     case "Object":
+    case "TupleLiteral":
     case "Projection":
     case "Function":
     case "FunctionParameter":

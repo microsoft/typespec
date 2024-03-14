@@ -111,6 +111,7 @@ export type Type =
   | ObjectType
   | ObjectLiteral
   | ObjectLiteralProperty
+  | TupleLiteral
   | Projection;
 
 export type StdTypes = {
@@ -300,7 +301,12 @@ export interface ObjectLiteralProperty extends BaseType {
   kind: "ObjectProperty";
   name: string;
   node: ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode;
-  type: LiteralType | ObjectLiteral;
+  type: LiteralType | ObjectLiteral | TupleLiteral;
+}
+
+export interface TupleLiteral extends BaseType {
+  kind: "TupleLiteral";
+  values: (LiteralType | ObjectLiteral | TupleLiteral)[];
 }
 
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
@@ -834,6 +840,7 @@ export enum SyntaxKind {
   ObjectLiteral,
   ObjectLiteralProperty,
   ObjectLiteralSpreadProperty,
+  TupleLiteral,
 }
 
 export const enum NodeFlags {
@@ -931,7 +938,8 @@ export type Node =
   | ProjectionNode
   | ObjectLiteralNode
   | ObjectLiteralPropertyNode
-  | ObjectLiteralSpreadPropertyNode;
+  | ObjectLiteralSpreadPropertyNode
+  | TupleLiteralNode;
 
 /**
  * Node that can be used as template
@@ -1088,6 +1096,7 @@ export type Expression =
   | MemberExpressionNode
   | ModelExpressionNode
   | ObjectLiteralNode
+  | TupleLiteralNode
   | TupleExpressionNode
   | UnionExpressionNode
   | IntersectionExpressionNode
@@ -1286,12 +1295,7 @@ export interface ObjectLiteralNode extends BaseNode {
 export interface ObjectLiteralPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ObjectLiteralProperty;
   readonly id: IdentifierNode;
-  readonly value:
-    | StringLiteralNode
-    | NumericLiteralNode
-    | BooleanLiteralNode
-    | ObjectLiteralNode
-    | TupleExpressionNode;
+  readonly value: Expression;
   readonly parent?: ObjectLiteralNode;
 }
 
@@ -1299,6 +1303,11 @@ export interface ObjectLiteralSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ObjectLiteralSpreadProperty;
   readonly target: TypeReferenceNode;
   readonly parent?: ObjectLiteralNode;
+}
+
+export interface TupleLiteralNode extends BaseNode {
+  readonly kind: SyntaxKind.TupleLiteral;
+  readonly values: readonly Expression[];
 }
 
 export type LiteralNode =

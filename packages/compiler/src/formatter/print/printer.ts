@@ -68,6 +68,7 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
+  TupleLiteralNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionExpressionNode,
@@ -379,6 +380,8 @@ export function printNode(
         options,
         print
       );
+    case SyntaxKind.TupleLiteral:
+      return printTupleLiteral(path as AstPath<TupleLiteralNode>, options, print);
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -1013,6 +1016,24 @@ export function printObjectLiteralSpreadProperty(
   print: PrettierChildPrint
 ) {
   return [printDirectives(path, options, print), "...", path.call(print, "target")];
+}
+
+export function printTupleLiteral(
+  path: AstPath<TupleLiteralNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return group([
+    "[",
+    indent(
+      join(
+        ", ",
+        path.map((arg) => [softline, print(arg)], "values")
+      )
+    ),
+    softline,
+    "]",
+  ]);
 }
 
 export function printModelStatement(
