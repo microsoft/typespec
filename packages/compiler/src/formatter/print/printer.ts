@@ -997,7 +997,7 @@ export function printObjectLiteral(
   if (nodeHasComments) {
     body.push(printDanglingComments(path, options, { sameIndent: true }));
   }
-  return group(["{", ifBreak("", " "), indent(body), lineDoc, ifBreak("", " "), "}"]);
+  return group(["#{", ifBreak("", " "), indent(body), lineDoc, ifBreak("", " "), "}"]);
 }
 
 export function printObjectLiteralProperty(
@@ -1024,7 +1024,7 @@ export function printTupleLiteral(
   print: PrettierChildPrint
 ) {
   return group([
-    "[",
+    "#[",
     indent(
       join(
         ", ",
