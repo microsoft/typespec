@@ -95,8 +95,6 @@ import {
   NumericLiteralNode,
   ObjectLiteral,
   ObjectLiteralNode,
-  ObjectLiteralProperty,
-  ObjectLiteralPropertyNode,
   Operation,
   OperationStatementNode,
   Projection,
@@ -2966,30 +2964,31 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkObjectLiteral(node: ObjectLiteralNode, mapper: TypeMapper | undefined) {
-    const type: ObjectLiteral = createType({
-      kind: "Object",
+    return createAndFinishType({
+      kind: "ObjectLiteral",
       node: node,
       properties: checkObjectLiteralProperties(node, mapper),
-      indexer: undefined,
-      decorators: [],
-      derivedModels: [],
     });
-    return finishType(type);
   }
 
-  function checkObjectLiteralProperties(node: ObjectLiteralNode, mapper: TypeMapper | undefined) {
-    const properties = createRekeyableMap<string, ObjectLiteralProperty>();
+  function checkObjectLiteralProperties(
+    node: ObjectLiteralNode,
+    mapper: TypeMapper | undefined
+  ): Map<string, LiteralType | ObjectLiteral | TupleLiteral> {
+    const properties = new Map<string, LiteralType | ObjectLiteral | TupleLiteral>();
 
     for (const prop of node.properties!) {
       if ("id" in prop) {
-        const newProp = checkObjectLiteralProperty(prop, mapper);
-        if (newProp) {
-          properties.set(newProp.name, newProp);
+        const type = getTypeForNode(prop.value, mapper);
+        if (checkIsLiteralType(type, prop.value)) {
+          properties.set(prop.id.sv, type);
         }
       } else {
-        const newProperties = checkObjectSpreadProperty(prop.target, mapper);
-        for (const newProp of newProperties) {
-          properties.set(newProp.name, newProp);
+        const targetType = checkObjectSpreadProperty(prop.target, mapper);
+        if (targetType) {
+          for (const [name, value] of targetType.properties) {
+            properties.set(name, value);
+          }
         }
       }
     }
@@ -3013,40 +3012,21 @@ export function createChecker(program: Program): Checker {
     return true;
   }
 
-  function checkObjectLiteralProperty(
-    node: ObjectLiteralPropertyNode,
-    mapper: TypeMapper | undefined
-  ): ObjectLiteralProperty | undefined {
-    const type = getTypeForNode(node.value, mapper);
-    if (!checkIsLiteralType(type, node.value)) {
-      return undefined;
-    }
-
-    return createAndFinishType({
-      kind: "ObjectProperty",
-      node,
-      name: node.id.sv,
-      type: type as any,
-    });
-  }
-
   function checkObjectSpreadProperty(
     targetNode: TypeReferenceNode,
     mapper: TypeMapper | undefined
-  ): ObjectLiteralProperty[] {
+  ): ObjectLiteral | undefined {
     const targetType = getTypeForNode(targetNode, mapper);
 
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
-      return [];
+      return undefined;
     }
-    // TODO: instanceof is because of conflict of the Object type from projection.
-    if (targetType.kind !== "Object" || !("values" in targetType.properties)) {
+    if (targetType.kind !== "ObjectLiteral") {
       reportCheckerDiagnostic(createDiagnostic({ code: "spread-object", target: targetNode }));
-      return [];
+      return undefined;
     }
 
-    // TODO: do we want to clone or use the exact same reference here?
-    return [...(targetType.properties as any).values()].map((prop) => cloneType(prop));
+    return targetType;
   }
 
   function checkTupleLiteral(node: TupleLiteralNode, mapper: TypeMapper | undefined): TupleLiteral {
@@ -5309,8 +5289,7 @@ export function createChecker(program: Program): Checker {
 
     switch (base.kind) {
       case "Object":
-        // TODO: resolve conflict here
-        return (base.properties as any)[member] || errorType;
+        return base.properties[member] || errorType;
       default:
         const typeOps = projectionMembers[base.kind];
         if (!typeOps) {

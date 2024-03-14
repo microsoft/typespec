@@ -110,7 +110,6 @@ export type Type =
   | FunctionParameter
   | ObjectType
   | ObjectLiteral
-  | ObjectLiteralProperty
   | TupleLiteral
   | Projection;
 
@@ -293,15 +292,8 @@ export interface ModelProperty extends BaseType, DecoratedType {
 }
 
 export interface ObjectLiteral extends BaseType {
-  kind: "Object";
-  properties: RekeyableMap<string, ObjectLiteralProperty>;
-}
-
-export interface ObjectLiteralProperty extends BaseType {
-  kind: "ObjectProperty";
-  name: string;
-  node: ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode;
-  type: LiteralType | ObjectLiteral | TupleLiteral;
+  kind: "ObjectLiteral";
+  properties: Map<string, LiteralType | ObjectLiteral | TupleLiteral>;
 }
 
 export interface TupleLiteral extends BaseType {
