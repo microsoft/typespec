@@ -983,7 +983,7 @@ function createOAPIEmitter(
         obj.headers ??= {};
         // OpenAPI can't represent different headers per content type.
         // So we merge headers here, and report any duplicates unless they are identical
-        for (const [key, value] of Object.entries(data.headers).sort()) {
+        for (const [key, value] of Object.entries(data.headers)) {
           const headerVal = getResponseHeader(value);
           const existing = obj.headers[key];
           if (existing) {

@@ -34,7 +34,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p . && npm run lint-typespec-library",
+    "build": "npm run regen-openapi-schema && tsc -p . && npm run lint-typespec-library",
     "watch": "tsc -p . --watch",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "test": "vitest run",
@@ -43,7 +43,8 @@
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi3/reference"
+    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../docs/libraries/openapi3/reference",
+    "regen-openapi-schema": "tsp compile ./schema/openapi-schema-3.0.tsp --warn-as-error && node ./.scripts/schema-json-to-js.js"
   },
   "files": [
     "lib/*.tsp",
@@ -65,6 +66,7 @@
     "@typespec/eslint-config-typespec": "workspace:~",
     "@typespec/eslint-plugin": "workspace:~",
     "@typespec/http": "workspace:~",
+    "@typespec/json-schema": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/openapi": "workspace:~",
     "@typespec/rest": "workspace:~",
