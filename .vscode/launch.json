@@ -94,6 +94,24 @@
       }
     },
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Compile REST",
+      "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
+      "args": ["compile", "${workspaceFolder}/packages/samples/specs/rest/petstore/petstore.tsp", "--emit", "${workspaceFolder}/packages/service-generator-csharp", "--output-dir=${workspaceFolder}/packages/samples/specs/rest/petstore/output"],
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/packages/*/dist/**/*.js",
+        "${workspaceFolder}/packages/*/dist-dev/**/*.js"
+      ],
+      "cwd": "${workspaceFolder}/packages/compiler",
+      "presentation": {
+        "order": 2
+      }
+    },
+    {
       "name": "Regenerate .tmlanguage",
       "type": "node",
       "program": "${workspaceFolder}/packages/typespec-vscode/scripts/generate-tmlanguage.js",
