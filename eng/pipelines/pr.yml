@@ -23,11 +23,10 @@ jobs:
           imageName: ubuntu-20.04
           nodeVersion: 18.x
           dotnetVersion: 6.0.x
-
         "Windows - Node 18.x + .NET 6":
           pool: azsdk-pool-mms-win-2022-general
           imageName: windows-2022
-          nodeVersion: 18.x"
+          nodeVersion: 18.x
           dotnetVersion: 6.0.x
 
         # Node 20.x + .NET 6
@@ -36,7 +35,6 @@ jobs:
           imageName: ubuntu-20.04
           nodeVersion: 20.x
           dotnetVersion: 6.0.x
-
         "Windows - Node 20.x + .NET 6":
           pool: azsdk-pool-mms-win-2022-general
           imageName: windows-2022
@@ -49,7 +47,6 @@ jobs:
           imageName: ubuntu-20.04
           nodeVersion: 20.x
           dotnetVersion: 8.0.x
-
         "Windows - Node 20.x + .NET 8":
           pool: azsdk-pool-mms-win-2022-general
           imageName: windows-2022
