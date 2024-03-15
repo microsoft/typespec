@@ -3685,11 +3685,18 @@ export function createChecker(program: Program): Checker {
       const [valid] = isStringTemplateSerializable(type);
       return valid;
     }
+    const valueTypes = new Set(["String", "Number", "Boolean", "ObjectLiteral", "TupleLiteral"]);
+    return valueTypes.has(type.kind);
+  }
+
+  function isDefaultValue(type: Type): boolean {
     if (type.kind === "UnionVariant") {
       return isValueType(type.type);
     }
-    const valueTypes = new Set(["String", "Number", "Boolean", "ObjectLiteral", "TupleLiteral"]);
-    return valueTypes.has(type.kind);
+    if (type.kind === "EnumMember") {
+      return true;
+    }
+    return isValueType(type);
   }
 
   function checkDefault(defaultNode: Node, type: Type): Type {
@@ -3697,7 +3704,7 @@ export function createChecker(program: Program): Checker {
     if (isErrorType(type)) {
       return errorType;
     }
-    if (!isValueType(defaultType)) {
+    if (!isDefaultValue(defaultType)) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "unsupported-default",
