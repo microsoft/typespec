@@ -1,9 +1,18 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Diagnostic, FunctionParameterNode, Model, Type } from "../../src/core/index.js";
+import {
+  DecoratorContext,
+  Diagnostic,
+  DiagnosticTarget,
+  FunctionParameterNode,
+  Model,
+  Type,
+  ValueType,
+} from "../../src/core/index.js";
 import {
   BasicTestRunner,
   DiagnosticMatch,
+  TestHost,
   createTestHost,
   createTestWrapper,
   expectDiagnosticEmpty,
@@ -19,9 +28,9 @@ interface RelatedTypeOptions {
 
 describe("compiler: checker: type relations", () => {
   let runner: BasicTestRunner;
+  let host: TestHost;
   beforeEach(async () => {
-    const host = await createTestHost();
-    host.addJsFile("mock.js", { $mock: () => null });
+    host = await createTestHost();
     runner = createTestWrapper(host);
   });
 
@@ -30,6 +39,9 @@ describe("compiler: checker: type relations", () => {
     diagnostics: readonly Diagnostic[];
     expectedDiagnosticPos: number;
   }> {
+    host.addJsFile("mock.js", {
+      $mock: () => null,
+    });
     const { source: code, pos } = extractCursor(`
     import "./mock.js";
     ${commonCode ?? ""}
@@ -50,6 +62,41 @@ describe("compiler: checker: type relations", () => {
     return { related, diagnostics, expectedDiagnosticPos: pos };
   }
 
+  async function checkValueAssignable({ source, target, commonCode }: RelatedTypeOptions): Promise<{
+    related: boolean;
+    diagnostics: readonly Diagnostic[];
+    expectedDiagnosticPos: number;
+  }> {
+    let sourceProp: [Type | ValueType, DiagnosticTarget] | undefined;
+    host.addJsFile("mock.js", {
+      $mockTarget: () => null,
+      $mockSource: (context: DecoratorContext, target: Type, x: any) =>
+        (sourceProp = [x, context.getArgumentTarget(0)!]),
+    });
+    const { source: code, pos } = extractCursor(`
+    import "./mock.js";
+    ${commonCode ?? ""}
+    extern dec mockTarget(target: unknown, target: ${target});
+    extern dec mockSource(target: unknown, source: unknown);
+
+    @mockSource(┆${source})
+    @test model Test {}
+   `);
+    await runner.compile(code);
+    ok(sourceProp, `Could not find source type for ${source}`);
+    const decDeclaration = runner.program
+      .getGlobalNamespaceType()
+      .decoratorDeclarations.get("mockTarget");
+    const targetProp = decDeclaration?.parameters[0].type!;
+
+    const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
+      sourceProp[0],
+      targetProp,
+      sourceProp[1]
+    );
+    return { related, diagnostics, expectedDiagnosticPos: pos };
+  }
+
   async function expectTypeAssignable(options: RelatedTypeOptions) {
     const { related, diagnostics } = await checkTypeAssignable(options);
     expectDiagnosticEmpty(diagnostics);
@@ -59,6 +106,18 @@ describe("compiler: checker: type relations", () => {
   async function expectTypeNotAssignable(options: RelatedTypeOptions, match: DiagnosticMatch) {
     const { related, diagnostics, expectedDiagnosticPos } = await checkTypeAssignable(options);
     ok(!related, `Type ${options.source} should NOT be assignable to ${options.target}`);
+    expectDiagnostics(diagnostics, { ...match, pos: expectedDiagnosticPos });
+  }
+
+  async function expectValueAssignable(options: RelatedTypeOptions) {
+    const { related, diagnostics } = await checkValueAssignable(options);
+    expectDiagnosticEmpty(diagnostics);
+    ok(related, `Value ${options.source} should be assignable to ${options.target}`);
+  }
+
+  async function expectValueNotAssignable(options: RelatedTypeOptions, match: DiagnosticMatch) {
+    const { related, diagnostics, expectedDiagnosticPos } = await checkValueAssignable(options);
+    ok(!related, `Value ${options.source} should NOT be assignable to ${options.target}`);
     expectDiagnostics(diagnostics, { ...match, pos: expectedDiagnosticPos });
   }
 
@@ -1197,7 +1256,7 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof model", () => {
       it("can assign object literal", async () => {
-        await expectTypeAssignable({
+        await expectValueAssignable({
           source: `#{name: "foo"}`,
           target: "valueof Info",
           commonCode: `model Info { name: string }`,
@@ -1205,7 +1264,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("can assign object literal with optional properties", async () => {
-        await expectTypeAssignable({
+        await expectValueAssignable({
           source: `#{name: "foo"}`,
           target: "valueof Info",
           commonCode: `model Info { name: string, age?: int32 }`,
@@ -1227,7 +1286,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign a tuple literal", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           {
             source: `#["foo"]`,
             target: "valueof Info",
@@ -1253,14 +1312,14 @@ describe("compiler: checker: type relations", () => {
 
     describe("valueof array", () => {
       it("can assign tuple literal", async () => {
-        await expectTypeAssignable({
+        await expectValueAssignable({
           source: `#["foo"]`,
           target: "valueof string[]",
         });
       });
 
       it("can assign tuple literal of object literal", async () => {
-        await expectTypeAssignable({
+        await expectValueAssignable({
           source: `#[#{name: "a"}, #{name: "b"}]`,
           target: "valueof Info[]",
           commonCode: `model Info { name: string }`,
@@ -1268,7 +1327,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign a tuple", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           {
             source: `["foo"]`,
             target: "valueof string[]",
@@ -1281,7 +1340,7 @@ describe("compiler: checker: type relations", () => {
       });
 
       it("cannot assign an object literal", async () => {
-        await expectTypeNotAssignable(
+        await expectValueNotAssignable(
           {
             source: `#{name: "foo"}`,
             target: "valueof string[]",

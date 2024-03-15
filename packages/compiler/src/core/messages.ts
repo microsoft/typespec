@@ -417,6 +417,12 @@ const diagnostics = {
       withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
     },
   },
+  "value-in-type": {
+    severity: "error",
+    messages: {
+      default: "A value cannot be used as a type.",
+    },
+  },
   "no-prop": {
     severity: "error",
     messages: {

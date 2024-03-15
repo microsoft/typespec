@@ -666,10 +666,6 @@ export function createChecker(program: Program): Checker {
         return checkNamespace(node);
       case SyntaxKind.OperationStatement:
         return checkOperation(node, mapper);
-      case SyntaxKind.ObjectLiteral:
-        return checkObjectLiteral(node, mapper);
-      case SyntaxKind.TupleLiteral:
-        return checkTupleLiteral(node, mapper);
       case SyntaxKind.NumericLiteral:
         return checkNumericLiteral(node);
       case SyntaxKind.BooleanLiteral:
@@ -704,6 +700,10 @@ export function createChecker(program: Program): Checker {
         return neverType;
       case SyntaxKind.UnknownKeyword:
         return unknownType;
+      case SyntaxKind.ObjectLiteral:
+      case SyntaxKind.TupleLiteral:
+        reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
+        return errorType;
     }
 
     // we don't emit an error here as we blindly call this function
@@ -797,7 +797,7 @@ export function createChecker(program: Program): Checker {
 
       if (node.constraint) {
         pendingResolutions.start(getNodeSymId(node), ResolutionKind.Constraint);
-        type.constraint = getTypeOrValueTypeForNode(node.constraint);
+        type.constraint = getTypeOrValueOfTypeForNode(node.constraint);
         pendingResolutions.finish(getNodeSymId(node), ResolutionKind.Constraint);
       }
       if (node.default) {
@@ -888,7 +888,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTemplateArgument(node: TemplateArgumentNode, mapper: TypeMapper | undefined): Type {
-    return getTypeForNode(node.argument, mapper);
+    return getTypeOrValueForNode(node.argument, mapper);
   }
 
   function resolveTypeReference(
@@ -1428,6 +1428,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): ValueType {
     const target = getTypeForNode(node.target, mapper);
+
     return {
       kind: "Value",
       target,
@@ -1555,7 +1556,7 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({ code: "rest-parameter-array", target: node.type })
       );
     }
-    const type = node.type ? getTypeOrValueTypeForNode(node.type) : unknownType;
+    const type = node.type ? getTypeOrValueOfTypeForNode(node.type) : unknownType;
 
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",
@@ -1571,7 +1572,18 @@ export function createChecker(program: Program): Checker {
     return parameterType;
   }
 
-  function getTypeOrValueTypeForNode(node: Node, mapper?: TypeMapper) {
+  function getTypeOrValueForNode(node: Node, mapper?: TypeMapper) {
+    switch (node.kind) {
+      case SyntaxKind.ObjectLiteral:
+        return checkObjectLiteral(node, mapper);
+      case SyntaxKind.TupleLiteral:
+        return checkTupleLiteral(node, mapper);
+      default:
+        return getTypeForNode(node, mapper);
+    }
+  }
+
+  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper) {
     if (node.kind === SyntaxKind.ValueOfExpression) {
       return checkValueOfExpression(node, mapper);
     }
@@ -2975,7 +2987,7 @@ export function createChecker(program: Program): Checker {
 
     for (const prop of node.properties!) {
       if ("id" in prop) {
-        const type = getTypeForNode(prop.value, mapper);
+        const type = getTypeOrValueForNode(prop.value, mapper);
         if (checkIsLiteralType(type, prop.value)) {
           properties.set(prop.id.sv, type);
         }
@@ -3012,7 +3024,7 @@ export function createChecker(program: Program): Checker {
     targetNode: TypeReferenceNode,
     mapper: TypeMapper | undefined
   ): ObjectLiteral | undefined {
-    const targetType = getTypeForNode(targetNode, mapper);
+    const targetType = getTypeOrValueForNode(targetNode, mapper);
 
     if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
       return undefined;
@@ -3028,7 +3040,7 @@ export function createChecker(program: Program): Checker {
   function checkTupleLiteral(node: TupleLiteralNode, mapper: TypeMapper | undefined): TupleLiteral {
     const values = node.values
       .map((itemNode) => {
-        const type = getTypeForNode(itemNode, mapper);
+        const type = getTypeOrValueForNode(itemNode, mapper);
         if (checkIsLiteralType(type, itemNode)) {
           return type;
         } else {
@@ -3681,7 +3693,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkDefault(defaultNode: Node, type: Type): Type {
-    const defaultType = getTypeForNode(defaultNode, undefined);
+    const defaultType = getTypeOrValueForNode(defaultNode, undefined);
     if (isErrorType(type)) {
       return errorType;
     }
@@ -3941,7 +3953,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): DecoratorArgument[] {
     return decorator.arguments.map((argNode): DecoratorArgument => {
-      const type = getTypeForNode(argNode, mapper);
+      const type = getTypeOrValueForNode(argNode, mapper);
       return {
         value: type,
         jsValue: type,
@@ -4060,7 +4072,7 @@ export function createChecker(program: Program): Checker {
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-    const type = getTypeForNode(node.value, mapper);
+    const type = getTypeOrValueForNode(node.value, mapper);
     linkType(links, type, mapper);
     pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
 
