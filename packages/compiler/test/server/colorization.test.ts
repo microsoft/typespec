@@ -81,6 +81,8 @@ const Token = {
     closeBrace: createToken("}", "punctuation.curlybrace.close.tsp"),
     openParen: createToken("(", "punctuation.parenthesis.open.tsp"),
     closeParen: createToken(")", "punctuation.parenthesis.close.tsp"),
+    openHashBrace: createToken("#{", "punctuation.hashcurlybrace.open.tsp"),
+    openHashBracket: createToken("#[", "punctuation.hashsquarebracket.open.tsp"),
     semicolon: createToken(";", "punctuation.terminator.statement.tsp"),
 
     typeParameters: {
@@ -939,6 +941,109 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
 
+    describe("object literals", () => {
+      it("empty", async () => {
+        const tokens = await tokenizeWithAlias("#{}");
+        deepStrictEqual(tokens, [Token.punctuation.openHashBrace, Token.punctuation.closeBrace]);
+      });
+
+      it("single prop", async () => {
+        const tokens = await tokenizeWithAlias(`#{name: "John"}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("name"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("multiple prop", async () => {
+        const tokens = await tokenizeWithAlias(`#{name: "John", age: 21}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("name"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("age"),
+          Token.operators.typeAnnotation,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("spreading prop", async () => {
+        const tokens = await tokenizeWithAlias(`#{name: "John", ...Common}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("name"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.comma,
+          Token.operators.spread,
+          Token.identifiers.type("Common"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("nested prop", async () => {
+        const tokens = await tokenizeWithAlias(`#{prop: #{age: 21}}`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("prop"),
+          Token.operators.typeAnnotation,
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("age"),
+          Token.operators.typeAnnotation,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
+    describe("tuple literals", () => {
+      it("empty", async () => {
+        const tokens = await tokenizeWithAlias("#[]");
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.punctuation.closeBracket,
+        ]);
+      });
+
+      it("single value", async () => {
+        const tokens = await tokenizeWithAlias(`#["John"]`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.closeBracket,
+        ]);
+      });
+
+      it("multiple values", async () => {
+        const tokens = await tokenizeWithAlias(`#["John", 21]`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.literals.stringQuoted("John"),
+          Token.punctuation.comma,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBracket,
+        ]);
+      });
+
+      it("nested tuple", async () => {
+        const tokens = await tokenizeWithAlias(`#[#[21]]`);
+        deepStrictEqual(tokens, [
+          Token.punctuation.openHashBracket,
+          Token.punctuation.openHashBracket,
+          Token.literals.numeric("21"),
+          Token.punctuation.closeBracket,
+          Token.punctuation.closeBracket,
+        ]);
+      });
+    });
+
     describe("decorator declarations", () => {
       it("extern decorator", async () => {
         const tokens = await tokenize("extern dec tag(target: Namespace);");
@@ -1242,6 +1347,16 @@ function testColorization(description: string, tokenize: Tokenize) {
       });
     });
   });
+
+  async function tokenizeWithAlias(text: string) {
+    const common = [Token.keywords.alias, Token.identifiers.type("T"), Token.operators.assignment];
+    const tokens = await tokenize(`alias T = ${text}`);
+    for (let i = 0; i < common.length; i++) {
+      deepStrictEqual(tokens[i], common[i]);
+    }
+
+    return tokens.slice(common.length);
+  }
 }
 
 const punctuationMap = getPunctuationMap();

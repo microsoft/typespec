@@ -201,6 +201,7 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
         classify(node.id, SemanticTokenKind.TypeParameter);
         break;
       case SyntaxKind.ModelProperty:
+      case SyntaxKind.ObjectLiteralProperty:
       case SyntaxKind.UnionVariant:
         if (node.id) {
           classify(node.id, SemanticTokenKind.Property);

@@ -276,6 +276,12 @@
           "include": "#type-arguments"
         },
         {
+          "include": "#object-literal"
+        },
+        {
+          "include": "#tuple-literal"
+        },
+        {
           "include": "#tuple-expression"
         },
         {
@@ -648,6 +654,59 @@
     "numeric-literal": {
       "name": "constant.numeric.tsp",
       "match": "(?:\\b(?<!\\$)0(?:x|X)[0-9a-fA-F][0-9a-fA-F_]*(n)?\\b(?!\\$)|\\b(?<!\\$)0(?:b|B)[01][01_]*(n)?\\b(?!\\$)|(?<!\\$)(?:(?:\\b[0-9][0-9_]*(\\.)[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(\\.)[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\B(\\.)[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(\\.)[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(\\.)(n)?\\B)|(?:\\B(\\.)[0-9][0-9_]*(n)?\\b)|(?:\\b[0-9][0-9_]*(n)?\\b(?!\\.)))(?!\\$))"
+    },
+    "object-literal": {
+      "name": "meta.object-literal.typespec",
+      "begin": "#\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.hashcurlybrace.open.tsp"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.curlybrace.close.tsp"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#object-literal-property"
+        },
+        {
+          "include": "#directive"
+        },
+        {
+          "include": "#model-spread-property"
+        },
+        {
+          "include": "#punctuation-comma"
+        }
+      ]
+    },
+    "object-literal-property": {
+      "name": "meta.object-literal-property.typespec",
+      "begin": "(?:(\\b[_$[:alpha:]][_$[:alnum:]]*\\b)\\s*(:))",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.name.tsp"
+        },
+        "2": {
+          "name": "keyword.operator.type.annotation.tsp"
+        }
+      },
+      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "patterns": [
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#expression"
+        }
+      ]
     },
     "operation-heritage": {
       "name": "meta.operation-heritage.typespec",
@@ -1095,6 +1154,29 @@
       "patterns": [
         {
           "include": "#expression"
+        }
+      ]
+    },
+    "tuple-literal": {
+      "name": "meta.tuple-literal.typespec",
+      "begin": "#\\[",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.hashsquarebracket.open.tsp"
+        }
+      },
+      "end": "\\]",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.squarebracket.close.tsp"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#expression"
+        },
+        {
+          "include": "#punctuation-comma"
         }
       ]
     },

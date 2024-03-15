@@ -154,7 +154,7 @@ describe("object literals", () => {
   });
 });
 
-describe.only("tuple literals", () => {
+describe("tuple literals", () => {
   it("no values", async () => {
     const object = await compileValueType(`#[]`);
     strictEqual(object.kind, "TupleLiteral");
