@@ -1195,6 +1195,115 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    describe("valueof model", () => {
+      it("can assign object literal", async () => {
+        await expectTypeAssignable({
+          source: `#{name: "foo"}`,
+          target: "valueof Info",
+          commonCode: `model Info { name: string }`,
+        });
+      });
+
+      it("can assign object literal with optional properties", async () => {
+        await expectTypeAssignable({
+          source: `#{name: "foo"}`,
+          target: "valueof Info",
+          commonCode: `model Info { name: string, age?: int32 }`,
+        });
+      });
+
+      it("cannot assign a model ", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: `{name: "foo"}`,
+            target: "valueof Info",
+            commonCode: `model Info { name: string }`,
+          },
+          {
+            code: "unassignable",
+            message: "Type '(anonymous model)' is not assignable to type 'valueof Info'",
+          }
+        );
+      });
+
+      it("cannot assign a tuple literal", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: `#["foo"]`,
+            target: "valueof Info",
+            commonCode: `model Info { name: string }`,
+          },
+          {
+            code: "unassignable",
+            message: `Type '#["foo"]' is not assignable to type 'Info'`,
+          }
+        );
+      });
+
+      it("cannot assign string scalar", async () => {
+        await expectTypeNotAssignable(
+          { source: `string`, target: "valueof Info", commonCode: `model Info { name: string }` },
+          {
+            code: "unassignable",
+            message: "Type 'string' is not assignable to type 'Info'",
+          }
+        );
+      });
+    });
+
+    describe("valueof array", () => {
+      it("can assign tuple literal", async () => {
+        await expectTypeAssignable({
+          source: `#["foo"]`,
+          target: "valueof string[]",
+        });
+      });
+
+      it("can assign tuple literal of object literal", async () => {
+        await expectTypeAssignable({
+          source: `#[#{name: "a"}, #{name: "b"}]`,
+          target: "valueof Info[]",
+          commonCode: `model Info { name: string }`,
+        });
+      });
+
+      it("cannot assign a tuple", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: `["foo"]`,
+            target: "valueof string[]",
+          },
+          {
+            code: "unassignable",
+            message: `Type '["foo"]' is not assignable to type 'valueof string[]'`,
+          }
+        );
+      });
+
+      it("cannot assign an object literal", async () => {
+        await expectTypeNotAssignable(
+          {
+            source: `#{name: "foo"}`,
+            target: "valueof string[]",
+          },
+          {
+            code: "unassignable",
+            message: `Type '#{name: "foo"}' is not assignable to type 'string[]'`,
+          }
+        );
+      });
+
+      it("cannot assign string scalar", async () => {
+        await expectTypeNotAssignable(
+          { source: `string`, target: "valueof string[]" },
+          {
+            code: "unassignable",
+            message: "Type 'string' is not assignable to type 'string[]'",
+          }
+        );
+      });
+    });
+
     it("can use valueof in template parameter constraints", async () => {
       const diagnostics = await runner.diagnose(`
         model Foo<T extends valueof string> {

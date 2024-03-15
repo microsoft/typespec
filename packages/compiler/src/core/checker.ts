@@ -39,6 +39,7 @@ import {
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  ArrayModelType,
   AugmentDecoratorStatementNode,
   BooleanLiteral,
   BooleanLiteralNode,
@@ -3680,7 +3681,7 @@ export function createChecker(program: Program): Checker {
     if (type.kind === "UnionVariant") {
       return isValueType(type.type);
     }
-    const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
+    const valueTypes = new Set(["String", "Number", "Boolean", "ObjectLiteral", "TupleLiteral"]);
     return valueTypes.has(type.kind);
   }
 
@@ -5659,7 +5660,23 @@ export function createChecker(program: Program): Checker {
       );
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target, diagnosticTarget, relationCache);
-    } else if (target.kind === "Model" && target.indexer && source.kind === "Tuple") {
+    } else if (
+      target.kind === "Model" &&
+      !isArrayModelType(program, target) &&
+      source.kind === "ObjectLiteral"
+    ) {
+      return isObjectLiteralOfModelType(source, target, diagnosticTarget, relationCache);
+    } else if (
+      target.kind === "Model" &&
+      isArrayModelType(program, target) &&
+      source.kind === "TupleLiteral"
+    ) {
+      return isTupleLiteralOfArrayType(source, target, diagnosticTarget, relationCache);
+    } else if (
+      target.kind === "Model" &&
+      isArrayModelType(program, target) &&
+      (source.kind === "Tuple" || source.kind === "TupleLiteral")
+    ) {
       for (const item of source.values) {
         const [related, diagnostics] = isTypeAssignableToInternal(
           item,
@@ -5672,7 +5689,10 @@ export function createChecker(program: Program): Checker {
         }
       }
       return [Related.true, []];
-    } else if (target.kind === "Tuple" && source.kind === "Tuple") {
+    } else if (
+      target.kind === "Tuple" &&
+      (source.kind === "Tuple" || source.kind === "TupleLiteral")
+    ) {
       return isTupleAssignableToTuple(source, target, diagnosticTarget, relationCache);
     } else if (target.kind === "Union") {
       return isAssignableToUnion(source, target, diagnosticTarget, relationCache);
@@ -5843,11 +5863,105 @@ export function createChecker(program: Program): Checker {
     return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
   }
 
+  function isObjectLiteralOfModelType(
+    source: ObjectLiteral,
+    target: Model,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+  ): [Related, readonly Diagnostic[]] {
+    relationCache.set([source, target], Related.maybe);
+    const diagnostics: Diagnostic[] = [];
+    const remainingProperties = new Map(source.properties);
+    for (const prop of walkPropertiesInherited(target)) {
+      const sourceProperty = source.properties.get(prop.name);
+      if (sourceProperty === undefined) {
+        if (!prop.optional) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "missing-property",
+              format: {
+                propertyName: prop.name,
+                sourceType: getTypeName(source),
+                targetType: getTypeName(target),
+              },
+              target: source,
+            })
+          );
+        }
+      } else {
+        remainingProperties.delete(prop.name);
+        const [related, propDiagnostics] = isTypeAssignableToInternal(
+          sourceProperty,
+          prop.type,
+          diagnosticTarget,
+          relationCache
+        );
+        if (!related) {
+          diagnostics.push(...propDiagnostics);
+        }
+      }
+    }
+
+    if (target.indexer) {
+      const [_, indexerDiagnostics] = arePropertiesAssignableToIndexer(
+        remainingProperties,
+        target.indexer.value,
+        diagnosticTarget,
+        relationCache
+      );
+      diagnostics.push(...indexerDiagnostics);
+    }
+    return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
+  }
+
+  function isTupleLiteralOfArrayType(
+    source: TupleLiteral,
+    target: ArrayModelType,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+  ): [Related, readonly Diagnostic[]] {
+    relationCache.set([source, target], Related.maybe);
+    for (const value of source.values) {
+      const [related, diagnostics] = isTypeAssignableToInternal(
+        value,
+        target.indexer.value,
+        diagnosticTarget,
+        relationCache
+      );
+      if (!related) {
+        return [Related.false, diagnostics];
+      }
+    }
+
+    return [Related.true, []];
+  }
+
   function getProperty(model: Model, name: string): ModelProperty | undefined {
     return (
       model.properties.get(name) ??
       (model.baseModel !== undefined ? getProperty(model.baseModel, name) : undefined)
     );
+  }
+
+  function arePropertiesAssignableToIndexer(
+    properties: Map<string, Type>,
+    indexerConstaint: Type,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+  ): [Related, readonly Diagnostic[]] {
+    for (const prop of properties.values()) {
+      const [related, diagnostics] = isTypeAssignableToInternal(
+        prop,
+        indexerConstaint,
+        diagnosticTarget,
+        relationCache
+      );
+      if (!related) {
+        return [Related.false, diagnostics];
+      }
+    }
+
+    return [Related.true, []];
   }
 
   function isIndexerValid(
@@ -5858,7 +5972,7 @@ export function createChecker(program: Program): Checker {
   ): [Related, readonly Diagnostic[]] {
     // Model expressions should be able to be assigned.
     if (source.name === "" && target.indexer.key.name !== "integer") {
-      return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget, relationCache);
+      return isIndexConstraintValid(source, target.indexer.value, diagnosticTarget, relationCache);
     } else {
       if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
         return [
@@ -5889,16 +6003,17 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Diagnostic target unless something better can be inferred.
    */
   function isIndexConstraintValid(
-    constraintType: Type,
     type: Model,
+    constraintType: Type,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
   ): [Related, readonly Diagnostic[]] {
     for (const prop of type.properties.values()) {
-      const [related, diagnostics] = isTypeAssignableTo(
+      const [related, diagnostics] = isTypeAssignableToInternal(
         prop.type,
         constraintType,
-        diagnosticTarget
+        diagnosticTarget,
+        relationCache
       );
       if (!related) {
         return [Related.false, diagnostics];
@@ -5907,8 +6022,8 @@ export function createChecker(program: Program): Checker {
 
     if (type.baseModel) {
       const [related, diagnostics] = isIndexConstraintValid(
-        constraintType,
         type.baseModel,
+        constraintType,
         diagnosticTarget,
         relationCache
       );
@@ -5920,7 +6035,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function isTupleAssignableToTuple(
-    source: Tuple,
+    source: Tuple | TupleLiteral,
     target: Tuple,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>

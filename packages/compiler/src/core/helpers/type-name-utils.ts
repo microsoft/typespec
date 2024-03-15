@@ -56,6 +56,10 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
       return type.name;
     case "Value":
       return `valueof ${getTypeName(type.target, options)}`;
+    case "ObjectLiteral":
+      return `#{${[...type.properties.entries()].map(([name, value]) => `${name}: ${getTypeName(value, options)}`).join(", ")}}`;
+    case "TupleLiteral":
+      return `#[${type.values.map((x) => getTypeName(x, options)).join(", ")}]`;
   }
 
   return "(unnamed type)";
