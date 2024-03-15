@@ -9,6 +9,7 @@ import {
 } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
+import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-literal.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
@@ -3694,6 +3695,20 @@ export function createChecker(program: Program): Checker {
       return isValueType(type.type);
     }
     if (type.kind === "EnumMember") {
+      return true;
+    }
+    if (type.kind === "Tuple") {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          codefixes: [createTupleToLiteralCodeFix(type.node)],
+          format: {
+            message:
+              "Using a tuple as a default value is deprecated. Use a tuple literal instead. `#[]`",
+          },
+          target: type.node,
+        })
+      );
       return true;
     }
     return isValueType(type);
