@@ -3,9 +3,20 @@ import { describe, it } from "vitest";
 import { Diagnostic, Type } from "../../src/index.js";
 import {
   createTestHost,
+  createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  extractCursor,
 } from "../../src/testing/index.js";
+
+async function diagnoseUsage(
+  code: string
+): Promise<{ diagnostics: readonly Diagnostic[]; pos: number }> {
+  const runner = await createTestRunner();
+  const { source, pos } = extractCursor(code);
+  const diagnostics = await runner.diagnose(source);
+  return { diagnostics, pos };
+}
 
 async function compileAndDiagnoseValueType(
   code: string,
@@ -152,6 +163,32 @@ describe("object literals", () => {
       message: "Type must be a literal type.",
     });
   });
+
+  describe("emit diagnostic when used in", () => {
+    it("emit diagnostic when used in a model", async () => {
+      const { diagnostics, pos } = await diagnoseUsage(`
+        model Test {
+          prop: ┆#{ name: "John" };
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "value-in-type",
+        message: "A value cannot be used as a type.",
+        pos,
+      });
+    });
+
+    it("emit diagnostic when used in template constraint", async () => {
+      const { diagnostics, pos } = await diagnoseUsage(`
+        model Test<T extends ┆#{ name: "John" }> {}
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "value-in-type",
+        message: "A value cannot be used as a type.",
+        pos,
+      });
+    });
+  });
 });
 
 describe("tuple literals", () => {
@@ -204,6 +241,32 @@ describe("tuple literals", () => {
     expectDiagnostics(diagnostics, {
       code: "not-literal",
       message: "Type must be a literal type.",
+    });
+  });
+
+  describe("emit diagnostic when used in", () => {
+    it("emit diagnostic when used in a model", async () => {
+      const { diagnostics, pos } = await diagnoseUsage(`
+        model Test {
+          prop: ┆#["John"];
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "value-in-type",
+        message: "A value cannot be used as a type.",
+        pos,
+      });
+    });
+
+    it("emit diagnostic when used in template constraint", async () => {
+      const { diagnostics, pos } = await diagnoseUsage(`
+        model Test<T extends ┆#["John"]> {}
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "value-in-type",
+        message: "A value cannot be used as a type.",
+        pos,
+      });
     });
   });
 });
