@@ -12,13 +12,9 @@ import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-iden
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import {
-  TypeNameOptions,
-  getNamespaceFullName,
-  getTypeName,
-  stringTemplateToString,
-} from "./helpers/index.js";
+import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
 import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
+import { marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import {
   exprIsBareIdentifier,
@@ -74,7 +70,6 @@ import {
   JsSourceFileNode,
   LiteralNode,
   LiteralType,
-  MarshalledValue,
   MemberContainerNode,
   MemberContainerType,
   MemberExpressionNode,
@@ -3866,11 +3861,7 @@ export function createChecker(program: Program): Checker {
 
   function resolveDecoratorArgJsValue(value: Type, valueOf: boolean) {
     if (valueOf) {
-      if (value.kind === "Boolean" || value.kind === "String" || value.kind === "Number") {
-        return literalTypeToValue(value);
-      } else if (value.kind === "StringTemplate") {
-        return stringTemplateToString(value)[0];
-      }
+      return marshallTypeForJS(value);
     }
     return value;
   }
@@ -5381,7 +5372,7 @@ export function createChecker(program: Program): Checker {
     if (!ref) throw new ProjectionError("Can't find decorator.");
     compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
     return createFunctionType((...args: Type[]): Type => {
-      ref.value!({ program }, ...marshalArgumentsForJS(args));
+      ref.value!({ program }, ...args.map(marshallTypeForJS));
       return voidType;
     });
   }
@@ -5408,7 +5399,7 @@ export function createChecker(program: Program): Checker {
     } else if (ref.flags & SymbolFlags.Function) {
       // TODO: store this in a symbol link probably?
       const t: FunctionType = createFunctionType((...args: Type[]): Type => {
-        const retval = ref.value!(program, ...marshalArgumentsForJS(args));
+        const retval = ref.value!(program, ...args.map(marshallTypeForJS));
         return marshalProjectionReturn(retval, { functionName: node.sv });
       });
       return t;
@@ -6609,26 +6600,6 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
       return decorator(createPassThruContext(program, decApp), target, ...args);
     },
   };
-}
-
-/**
- * Convert TypeSpec argument to JS argument.
- */
-function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] {
-  return args.map((arg) => {
-    if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
-      return literalTypeToValue(arg);
-    } else if (arg.kind === "StringTemplate") {
-      return stringTemplateToString(arg)[0];
-    }
-    return arg as any;
-  });
-}
-
-function literalTypeToValue<T extends StringLiteral | NumericLiteral | BooleanLiteral>(
-  type: T
-): MarshalledValue<T> {
-  return type.value as any;
 }
 
 function isTemplatedNode(node: Node): node is TemplateableNode {

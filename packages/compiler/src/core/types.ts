@@ -11,6 +11,8 @@ export type MarshalledValue<Type>  =
   Type extends StringLiteral ? string
   : Type extends NumericLiteral ? number
   : Type extends BooleanLiteral ? boolean
+  : Type extends ObjectLiteral ? Record<string, unknown>
+  : Type extends TupleLiteral ? unknown[]
   : Type
 
 /**
@@ -24,7 +26,7 @@ export interface DecoratorArgument {
   /**
    * Marshalled value for use in Javascript.
    */
-  jsValue: Type | string | number | boolean;
+  jsValue: Type | Record<string, unknown> | unknown[] | string | number | boolean;
   node?: Node;
 }
 

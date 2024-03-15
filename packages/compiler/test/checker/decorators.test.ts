@@ -1,4 +1,4 @@
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { setTypeSpecNamespace } from "../../src/core/index.js";
 import {
@@ -337,6 +337,38 @@ describe("compiler: checker: decorators", () => {
         it("valueof boolean cast the value to a JS boolean", async () => {
           const arg = await testCallDecorator("valueof boolean", `true`);
           strictEqual(arg, true);
+        });
+      });
+
+      describe("passing an object literal", () => {
+        it("valueof model cast the value to a JS object", async () => {
+          const arg = await testCallDecorator("valueof {name: string}", `#{name: "foo"}`);
+          deepStrictEqual(arg, { name: "foo" });
+        });
+
+        it("valueof model cast the value recursively to a JS object", async () => {
+          const arg = await testCallDecorator(
+            "valueof {name: unknown}",
+            `#{name: #{other: "foo"}}`
+          );
+          deepStrictEqual(arg, { name: { other: "foo" } });
+        });
+
+        it("`: {...}` keeps the ObjectLiteral type", async () => {
+          const arg = await testCallDecorator("{name: string}", `#{name: "foo"}`);
+          strictEqual(arg.kind, "ObjectLiteral");
+        });
+      });
+
+      describe("passing an tuple literal", () => {
+        it("valueof model cast the value to a JS array", async () => {
+          const arg = await testCallDecorator("valueof string[]", `#["foo"]`);
+          deepStrictEqual(arg, ["foo"]);
+        });
+
+        it("valueof model cast the value recursively to a JS object", async () => {
+          const arg = await testCallDecorator("valueof unknown[]", `#[#["foo"]]`);
+          deepStrictEqual(arg, [["foo"]]);
         });
       });
     });
