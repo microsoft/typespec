@@ -835,7 +835,7 @@ export function createChecker(program: Program): Checker {
     constraint: Type | ValueType | undefined
   ) {
     function visit(node: Node) {
-      const type = getTypeForNode(node);
+      const type = getTypeOrValueForNode(node);
       let hasError = false;
       if (type.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
