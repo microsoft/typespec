@@ -155,9 +155,9 @@ describe("openapi3: Array", () => {
       "Pet",
       `
       model Pet {
-        names: string[] = ["bismarck"];
-        decimals: decimal[] = [123, 456.7];
-        decimal128s: decimal128[] = [123, 456.7];
+        names: string[] = #["bismarck"];
+        decimals: decimal[] = #[123, 456.7];
+        decimal128s: decimal128[] = #[123, 456.7];
       };
       `
     );
@@ -198,9 +198,9 @@ describe("openapi3: Array", () => {
       "Pet",
       `
       model Pet {
-        names: [string, int32] = ["bismarck", 12];
-        decimals: [string, decimal] = ["hi", 456.7];
-        decimal128s: [string, decimal128] = ["hi", 456.7];
+        names: [string, int32] = #["bismarck", 12];
+        decimals: [string, decimal] = #["hi", 456.7];
+        decimal128s: [string, decimal128] = #["hi", 456.7];
       };
       `
     );

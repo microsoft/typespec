@@ -958,6 +958,7 @@ export function getDefaultValue(program: Program, type: Type, defaultType: Type)
     case "Boolean":
       return defaultType.value;
     case "Tuple":
+    case "TupleLiteral":
       compilerAssert(
         type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
         "setting tuple default to non-tuple value"
