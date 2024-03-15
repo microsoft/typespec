@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        # Node 18.x
+        # Node 18
         "Linux - Node 18.x":
           pool: azsdk-pool-mms-ubuntu-2004-general
           imageName: ubuntu-20.04
