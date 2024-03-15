@@ -407,7 +407,7 @@ const diagnostics = {
   "not-literal": {
     severity: "error",
     messages: {
-      default: "Type must be a literal type.",
+      default: "Type must be a literal type.", // TODO: better message? Goal here is to say you needed to use another literal type inside a literal object or tuple.
     },
   },
   unassignable: {

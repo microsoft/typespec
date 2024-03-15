@@ -3000,7 +3000,7 @@ export function createChecker(program: Program): Checker {
     diagnosticTarget: DiagnosticTarget
   ): type is LiteralType | ObjectLiteral | TupleLiteral {
     if (
-      type.kind !== "Object" &&
+      type.kind !== "ObjectLiteral" &&
       type.kind !== "TupleLiteral" &&
       type.kind !== "String" &&
       type.kind !== "Number" &&
