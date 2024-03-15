@@ -186,8 +186,11 @@ describe("openapi3: Array", () => {
       "Pet",
       `
       model Pet {
+        #suppress "deprecated" "for testing"
         names: string[] = ["bismarck"];
+        #suppress "deprecated" "for testing"
         decimals: decimal[] = [123, 456.7];
+        #suppress "deprecated" "for testing"
         decimal128s: decimal128[] = [123, 456.7];
       };
       `
