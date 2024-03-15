@@ -12,7 +12,7 @@ steps:
       versionSpec: ${{ parameters.nodeVersion }}
 
   - task: UseDotNet@2
-   displayName: Install .NET
+    displayName: Install .NET
     inputs:
       version: 8.0.x
 
