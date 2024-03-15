@@ -1,6 +1,6 @@
 import { strictEqual } from "assert";
 import { it } from "vitest";
-import { createTupleToLiteralCodeFix } from "../../../src/core/compiler-code-fixes/tuple-to-literal.js";
+import { createTupleToLiteralCodeFix } from "../../../src/core/compiler-code-fixes/tuple-to-literal.codefix.js";
 import { SyntaxKind } from "../../../src/index.js";
 import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
