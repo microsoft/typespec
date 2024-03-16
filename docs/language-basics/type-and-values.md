@@ -7,25 +7,28 @@ title: "Type and Values"
 
 TypeSpec has the concept of Types and Values, entities can be either a Type, a Value or both depending on the context.
 
-| Entity Name      | Type | Value |
-| ---------------- | ---- | ----- |
-| `Namespace`      | ✅   |       |
-| `Model`          | ✅   |       |
-| `ModelProperty`  | ✅   |       |
-| `Union`          | ✅   |       |
-| `UnionVariant`   | ✅   |       |
-| `Interface`      | ✅   |       |
-| `Operation`      | ✅   |       |
-| `Scalar`         | ✅   |       |
-| `Tuple`          | ✅   |       |
-| `Enum`           | ✅   |       |
-| `EnumMember`     | ✅   | ✅    |
-| `EnumMember`     | ✅   | ✅    |
-| `StringLiteral`  | ✅   | ✅    |
-| `NumberLiteral`  | ✅   | ✅    |
-| `BooleanLiteral` | ✅   | ✅    |
-| `ObjectLiteral`  |      | ✅    |
-| `TupleLiteral`   |      | ✅    |
+| Entity Name          | Type | Value |
+| -------------------- | ---- | ----- |
+| `Namespace`          | ✅   |       |
+| `Model`              | ✅   |       |
+| `ModelProperty`      | ✅   |       |
+| `Union`              | ✅   |       |
+| `UnionVariant`       | ✅   |       |
+| `Interface`          | ✅   |       |
+| `Operation`          | ✅   |       |
+| `Scalar`             | ✅   |       |
+| `Tuple`              | ✅   |       |
+| `Enum`               | ✅   |       |
+| `EnumMember`         | ✅   | ✅    |
+| `EnumMember`         | ✅   | ✅    |
+| `StringLiteral`      | ✅   | ✅    |
+| `NumberLiteral`      | ✅   | ✅    |
+| `BooleanLiteral`     | ✅   | ✅    |
+| `ObjectLiteral`      |      | ✅    |
+| `TupleLiteral`       |      | ✅    |
+| ---- _intrinsic_ --- | ---  | ---   |
+| `null`               | ✅   | ✅    |
+| `unknown`            | ✅   |       |
 
 ## Contexts
 

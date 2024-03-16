@@ -404,10 +404,10 @@ const diagnostics = {
       default: "Cannot spread properties of non-object type.",
     },
   },
-  "not-literal": {
+  "expect-value": {
     severity: "error",
     messages: {
-      default: "Type must be a literal type.", // TODO: better message? Goal here is to say you needed to use another literal type inside a literal object or tuple.
+      default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
     },
   },
   unassignable: {

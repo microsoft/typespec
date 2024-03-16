@@ -14,7 +14,6 @@ import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
-import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
 import { marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import {
@@ -31,6 +30,7 @@ import {
   isNeverType,
   isTemplateInstance,
   isUnknownType,
+  isValueType,
   isVoidType,
 } from "./type-utils.js";
 import {
@@ -156,6 +156,7 @@ import {
   UnionVariant,
   UnionVariantNode,
   UnknownType,
+  Value,
   ValueOfExpressionNode,
   ValueType,
   VoidType,
@@ -1573,7 +1574,7 @@ export function createChecker(program: Program): Checker {
     return parameterType;
   }
 
-  function getTypeOrValueForNode(node: Node, mapper?: TypeMapper) {
+  function getTypeOrValueForNode(node: Node, mapper?: TypeMapper): Type | Value {
     switch (node.kind) {
       case SyntaxKind.ObjectLiteral:
         return checkObjectLiteral(node, mapper);
@@ -1584,7 +1585,7 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper) {
+  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): Type | ValueType {
     if (node.kind === SyntaxKind.ValueOfExpression) {
       return checkValueOfExpression(node, mapper);
     }
@@ -2972,7 +2973,10 @@ export function createChecker(program: Program): Checker {
     }
   }
 
-  function checkObjectLiteral(node: ObjectLiteralNode, mapper: TypeMapper | undefined) {
+  function checkObjectLiteral(
+    node: ObjectLiteralNode,
+    mapper: TypeMapper | undefined
+  ): ObjectLiteral {
     return createAndFinishType({
       kind: "ObjectLiteral",
       node: node,
@@ -2983,13 +2987,13 @@ export function createChecker(program: Program): Checker {
   function checkObjectLiteralProperties(
     node: ObjectLiteralNode,
     mapper: TypeMapper | undefined
-  ): Map<string, LiteralType | ObjectLiteral | TupleLiteral> {
-    const properties = new Map<string, LiteralType | ObjectLiteral | TupleLiteral>();
+  ): Map<string, Value> {
+    const properties = new Map<string, Value>();
 
     for (const prop of node.properties!) {
       if ("id" in prop) {
         const type = getTypeOrValueForNode(prop.value, mapper);
-        if (checkIsLiteralType(type, prop.value)) {
+        if (checkIsValue(type, prop.value)) {
           properties.set(prop.id.sv, type);
         }
       } else {
@@ -3004,18 +3008,15 @@ export function createChecker(program: Program): Checker {
     return properties;
   }
 
-  function checkIsLiteralType(
-    type: Type,
-    diagnosticTarget: DiagnosticTarget
-  ): type is LiteralType | ObjectLiteral | TupleLiteral {
-    if (
-      type.kind !== "ObjectLiteral" &&
-      type.kind !== "TupleLiteral" &&
-      type.kind !== "String" &&
-      type.kind !== "Number" &&
-      type.kind !== "Boolean"
-    ) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "not-literal", target: diagnosticTarget }));
+  function checkIsValue(type: Type, diagnosticTarget: DiagnosticTarget): type is Value {
+    if (!isValueType(type)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "expect-value",
+          format: { name: getTypeName(type) },
+          target: diagnosticTarget,
+        })
+      );
       return false;
     }
     return true;
@@ -3042,7 +3043,7 @@ export function createChecker(program: Program): Checker {
     const values = node.values
       .map((itemNode) => {
         const type = getTypeOrValueForNode(itemNode, mapper);
-        if (checkIsLiteralType(type, itemNode)) {
+        if (checkIsValue(type, itemNode)) {
           return type;
         } else {
           return undefined; // TODO: do we want to omit this or include an error type?
@@ -3678,24 +3679,9 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function isValueType(type: Type): boolean {
-    if (type === nullType) {
-      return true;
-    }
-    if (type.kind === "StringTemplate") {
-      const [valid] = isStringTemplateSerializable(type);
-      return valid;
-    }
-    const valueTypes = new Set(["String", "Number", "Boolean", "ObjectLiteral", "TupleLiteral"]);
-    return valueTypes.has(type.kind);
-  }
-
   function isDefaultValue(type: Type): boolean {
     if (type.kind === "UnionVariant") {
       return isValueType(type.type);
-    }
-    if (type.kind === "EnumMember") {
-      return true;
     }
     if (type.kind === "Tuple") {
       reportCheckerDiagnostic(

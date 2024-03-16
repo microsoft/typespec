@@ -146,10 +146,11 @@ describe("object literals", () => {
       ["String", `"John"`],
       ["Number", "21"],
       ["Boolean", "true"],
+      ["EnumMember", "Direction.up", "enum Direction { up, down }"],
       ["ObjectLiteral", `#{nested: "foo"}`],
       ["TupleLiteral", `#["foo"]`],
-    ])("%s", async (kind, type) => {
-      const object = await compileValueType(`#{prop: ${type}}`);
+    ])("%s", async (kind, type, other?) => {
+      const object = await compileValueType(`#{prop: ${type}}`, other);
       strictEqual(object.kind, "ObjectLiteral");
       const nameProp = object.properties.get("prop");
       strictEqual(nameProp?.kind, kind);
@@ -159,8 +160,8 @@ describe("object literals", () => {
   it("emit diagnostic if referencing a non literal type", async () => {
     const diagnostics = await diagnoseValueType(`#{ prop: { thisIsAModel: true }}`);
     expectDiagnostics(diagnostics, {
-      code: "not-literal",
-      message: "Type must be a literal type.",
+      code: "expect-value",
+      message: "(anonymous model) refers to a type, but is being used as a value here.",
     });
   });
 
@@ -226,10 +227,11 @@ describe("tuple literals", () => {
       ["String", `"John"`],
       ["Number", "21"],
       ["Boolean", "true"],
+      ["EnumMember", "Direction.up", "enum Direction { up, down }"],
       ["ObjectLiteral", `#{nested: "foo"}`],
       ["TupleLiteral", `#["foo"]`],
-    ])("%s", async (kind, type) => {
-      const object = await compileValueType(`#[${type}]`);
+    ])("%s", async (kind, type, other?) => {
+      const object = await compileValueType(`#[${type}]`, other);
       strictEqual(object.kind, "TupleLiteral");
       const nameProp = object.values[0];
       strictEqual(nameProp?.kind, kind);
@@ -239,8 +241,8 @@ describe("tuple literals", () => {
   it("emit diagnostic if referencing a non literal type", async () => {
     const diagnostics = await diagnoseValueType(`#[{ thisIsAModel: true }]`);
     expectDiagnostics(diagnostics, {
-      code: "not-literal",
-      message: "Type must be a literal type.",
+      code: "expect-value",
+      message: "(anonymous model) refers to a type, but is being used as a value here.",
     });
   });
 

@@ -1,3 +1,4 @@
+import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
 import { Program } from "./program.js";
 import {
   Enum,
@@ -17,6 +18,7 @@ import {
   Type,
   TypeMapper,
   UnknownType,
+  Value,
   VoidType,
 } from "./types.js";
 
@@ -38,6 +40,27 @@ export function isUnknownType(type: Type): type is UnknownType {
 
 export function isNullType(type: Type): type is NullType {
   return type.kind === "Intrinsic" && type.name === "null";
+}
+
+const valueTypes = new Set([
+  "String",
+  "Number",
+  "Boolean",
+  "EnumMember",
+  "ObjectLiteral",
+  "TupleLiteral",
+]);
+
+export function isValueType(type: Type): type is Value {
+  if (isNullType(type)) {
+    return true;
+  }
+  if (type.kind === "StringTemplate") {
+    const [valid] = isStringTemplateSerializable(type);
+    return valid;
+  }
+
+  return valueTypes.has(type.kind);
 }
 
 /**

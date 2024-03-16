@@ -115,6 +115,14 @@ export type Type =
   | TupleLiteral
   | Projection;
 
+export type Value =
+  | StringLiteral
+  | NumericLiteral
+  | BooleanLiteral
+  | ObjectLiteral
+  | TupleLiteral
+  | EnumMember;
+
 export type StdTypes = {
   // Models
   Array: Model;
@@ -153,7 +161,7 @@ export interface Projector {
 }
 
 export interface ValueType {
-  kind: "Value"; // Todo remove?
+  kind: "Value";
   target: Type;
 }
 
@@ -295,12 +303,12 @@ export interface ModelProperty extends BaseType, DecoratedType {
 
 export interface ObjectLiteral extends BaseType {
   kind: "ObjectLiteral";
-  properties: Map<string, LiteralType | ObjectLiteral | TupleLiteral>;
+  properties: Map<string, Value>;
 }
 
 export interface TupleLiteral extends BaseType {
   kind: "TupleLiteral";
-  values: (LiteralType | ObjectLiteral | TupleLiteral)[];
+  values: Value[];
 }
 
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
