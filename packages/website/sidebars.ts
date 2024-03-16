@@ -96,6 +96,7 @@ const sidebars: SidebarsConfig = {
         "language-basics/type-literals",
         "language-basics/aliases",
         "language-basics/type-relations",
+        "language-basics/type-and-values",
       ],
     },
     {
