@@ -890,6 +890,7 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTemplateArgument(node: TemplateArgumentNode, mapper: TypeMapper | undefined): Type {
+    console.log("A", node.argument);
     return getTypeOrValueForNode(node.argument, mapper);
   }
 
@@ -983,7 +984,7 @@ export function createChecker(program: Program): Checker {
     }
     const initMap = new Map<TemplateParameter, TemplateParameterInit>(
       decls.map(function (decl) {
-        const declaredType = getTypeForNode(decl)! as TemplateParameter;
+        const declaredType = getTypeOrValueForNode(decl)! as TemplateParameter;
 
         positional.push(declaredType);
         params.set(decl.id.sv, declaredType);
@@ -1002,7 +1003,7 @@ export function createChecker(program: Program): Checker {
 
     for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
       function deferredCheck(): [Node, Type] {
-        return [arg, getTypeForNode(arg.argument, mapper)];
+        return [arg, getTypeOrValueForNode(arg.argument, mapper)];
       }
 
       if (arg.name) {
