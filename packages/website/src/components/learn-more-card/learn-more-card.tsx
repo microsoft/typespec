@@ -13,7 +13,7 @@ interface LearnMoreCardProps {
 export const LearnMoreCard = ({ title, description, image, link }: LearnMoreCardProps) => {
   return (
     <Link href={link} className={style["item"]}>
-      {image && <FluentImg className={style["item-image"]} name={image} />}
+      {image && <FluentImg className={style["item-image"]} name={image} alt={image} />}
       <div className={style["item-content"]}>
         <NeutralText>{title}</NeutralText>
         <DescriptionText>{description}</DescriptionText>

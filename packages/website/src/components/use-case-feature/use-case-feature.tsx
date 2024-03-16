@@ -12,7 +12,7 @@ export interface UseCaseFeatureProps {
 export const UseCaseFeature = ({ image, title, subtitle, link }: UseCaseFeatureProps) => {
   return (
     <div className={style["feature"]}>
-      <FluentImg name={image} className={style["image"]} />
+      <FluentImg name={image} className={style["image"]} alt={image} />
       <div className={style["content"]}>
         <NeutralText size="large">{title}</NeutralText>
         <DescriptionText>{subtitle}</DescriptionText>
