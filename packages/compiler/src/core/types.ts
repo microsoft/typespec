@@ -115,13 +115,15 @@ export type Type =
   | TupleLiteral
   | Projection;
 
+export type ValueOnly = ObjectLiteral | TupleLiteral;
+
 export type Value =
   | StringLiteral
   | NumericLiteral
   | BooleanLiteral
+  | EnumMember
   | ObjectLiteral
-  | TupleLiteral
-  | EnumMember;
+  | TupleLiteral;
 
 export type StdTypes = {
   // Models

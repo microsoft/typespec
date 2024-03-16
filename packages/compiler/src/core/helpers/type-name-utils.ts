@@ -62,7 +62,7 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
       return `#[${type.values.map((x) => getTypeName(x, options)).join(", ")}]`;
   }
 
-  return "(unnamed type)";
+  return `(unnamed type)`;
 }
 
 export function isStdNamespace(namespace: Namespace): boolean {

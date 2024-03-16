@@ -30,6 +30,7 @@ import {
   isNeverType,
   isTemplateInstance,
   isUnknownType,
+  isValueOnly,
   isValueType,
   isVoidType,
 } from "./type-utils.js";
@@ -255,6 +256,9 @@ export interface Checker {
    */
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
 
+  /** @internal */
+  getTypeOrValueForNode(node: Node): Type;
+
   errorType: ErrorType;
   voidType: VoidType;
   neverType: NeverType;
@@ -409,6 +413,7 @@ export function createChecker(program: Program): Checker {
     isStdType,
     getStdType,
     resolveTypeReference,
+    getTypeOrValueForNode,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -890,7 +895,6 @@ export function createChecker(program: Program): Checker {
   }
 
   function checkTemplateArgument(node: TemplateArgumentNode, mapper: TypeMapper | undefined): Type {
-    console.log("A", node.argument);
     return getTypeOrValueForNode(node.argument, mapper);
   }
 
@@ -5617,7 +5621,7 @@ export function createChecker(program: Program): Checker {
       return isAssignableToValueType(source, target, diagnosticTarget, relationCache);
     }
 
-    if (source.kind === "Value") {
+    if (source.kind === "Value" || isValueOnly(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
@@ -5674,20 +5678,8 @@ export function createChecker(program: Program): Checker {
       return isModelRelatedTo(source, target, diagnosticTarget, relationCache);
     } else if (
       target.kind === "Model" &&
-      !isArrayModelType(program, target) &&
-      source.kind === "ObjectLiteral"
-    ) {
-      return isObjectLiteralOfModelType(source, target, diagnosticTarget, relationCache);
-    } else if (
-      target.kind === "Model" &&
       isArrayModelType(program, target) &&
-      source.kind === "TupleLiteral"
-    ) {
-      return isTupleLiteralOfArrayType(source, target, diagnosticTarget, relationCache);
-    } else if (
-      target.kind === "Model" &&
-      isArrayModelType(program, target) &&
-      (source.kind === "Tuple" || source.kind === "TupleLiteral")
+      source.kind === "Tuple"
     ) {
       for (const item of source.values) {
         const [related, diagnostics] = isTypeAssignableToInternal(
@@ -5701,10 +5693,7 @@ export function createChecker(program: Program): Checker {
         }
       }
       return [Related.true, []];
-    } else if (
-      target.kind === "Tuple" &&
-      (source.kind === "Tuple" || source.kind === "TupleLiteral")
-    ) {
+    } else if (target.kind === "Tuple" && source.kind === "Tuple") {
       return isTupleAssignableToTuple(source, target, diagnosticTarget, relationCache);
     } else if (target.kind === "Union") {
       return isAssignableToUnion(source, target, diagnosticTarget, relationCache);
@@ -5729,20 +5718,43 @@ export function createChecker(program: Program): Checker {
         relationCache
       );
     }
-    const [assignable, diagnostics] = isTypeAssignableToInternal(
-      source,
-      target.target,
-      diagnosticTarget,
-      relationCache
-    );
-    if (!assignable) {
-      return [assignable, diagnostics];
-    }
-
     if (!isValueType(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
-    return [Related.true, []];
+
+    return isValueOfType(source, target.target, diagnosticTarget, relationCache);
+  }
+
+  /** Check if the value is assignable to the given type. */
+  function isValueOfType(
+    source: Value,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+  ): [Related, readonly Diagnostic[]] {
+    if (isUnknownType(target)) return [Related.true, []];
+
+    switch (source.kind) {
+      case "ObjectLiteral":
+        if (target.kind === "Model" && !isArrayModelType(program, target)) {
+          return isObjectLiteralOfModelType(source, target, diagnosticTarget, relationCache);
+        }
+        break;
+      case "TupleLiteral":
+        if (target.kind === "Model" && isArrayModelType(program, target)) {
+          return isTupleLiteralOfArrayType(source, target, diagnosticTarget, relationCache);
+        } else if (target.kind === "Tuple") {
+          return isTupleAssignableToTuple(source, target, diagnosticTarget, relationCache);
+        }
+        break;
+      case "String":
+      case "Number":
+      case "Boolean":
+      case "EnumMember":
+        return isTypeAssignableToInternal(source, target, diagnosticTarget, relationCache);
+    }
+
+    return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
   function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
@@ -5902,7 +5914,7 @@ export function createChecker(program: Program): Checker {
         }
       } else {
         remainingProperties.delete(prop.name);
-        const [related, propDiagnostics] = isTypeAssignableToInternal(
+        const [related, propDiagnostics] = isValueOfType(
           sourceProperty,
           prop.type,
           diagnosticTarget,
@@ -5934,7 +5946,7 @@ export function createChecker(program: Program): Checker {
   ): [Related, readonly Diagnostic[]] {
     relationCache.set([source, target], Related.maybe);
     for (const value of source.values) {
-      const [related, diagnostics] = isTypeAssignableToInternal(
+      const [related, diagnostics] = isValueOfType(
         value,
         target.indexer.value,
         diagnosticTarget,

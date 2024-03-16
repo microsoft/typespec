@@ -1,13 +1,13 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
+import pc from "picocolors";
 import { beforeEach, describe, it } from "vitest";
 import {
-  DecoratorContext,
+  AliasStatementNode,
   Diagnostic,
-  DiagnosticTarget,
   FunctionParameterNode,
   Model,
+  SyntaxKind,
   Type,
-  ValueType,
 } from "../../src/core/index.js";
 import {
   BasicTestRunner,
@@ -18,6 +18,7 @@ import {
   expectDiagnosticEmpty,
   expectDiagnostics,
   extractCursor,
+  resolveVirtualPath,
 } from "../../src/testing/index.js";
 
 interface RelatedTypeOptions {
@@ -67,32 +68,31 @@ describe("compiler: checker: type relations", () => {
     diagnostics: readonly Diagnostic[];
     expectedDiagnosticPos: number;
   }> {
-    let sourceProp: [Type | ValueType, DiagnosticTarget] | undefined;
-    host.addJsFile("mock.js", {
-      $mockTarget: () => null,
-      $mockSource: (context: DecoratorContext, target: Type, x: any) =>
-        (sourceProp = [x, context.getArgumentTarget(0)!]),
-    });
+    host.addJsFile("mock.js", { $mock: () => null });
     const { source: code, pos } = extractCursor(`
     import "./mock.js";
     ${commonCode ?? ""}
-    extern dec mockTarget(target: unknown, target: ${target});
-    extern dec mockSource(target: unknown, source: unknown);
+    extern dec mock(target: unknown, target: ${target});
 
-    @mockSource(┆${source})
-    @test model Test {}
+    alias Source = ┆${source};
    `);
     await runner.compile(code);
+    const alias: AliasStatementNode | undefined = runner.program.sourceFiles
+      .get(resolveVirtualPath("main.tsp"))
+      ?.statements.find((x): x is AliasStatementNode => x.kind === SyntaxKind.AliasStatement);
+    ok(alias);
+    const sourceProp = runner.program.checker.getTypeOrValueForNode(alias.value);
     ok(sourceProp, `Could not find source type for ${source}`);
     const decDeclaration = runner.program
       .getGlobalNamespaceType()
-      .decoratorDeclarations.get("mockTarget");
-    const targetProp = decDeclaration?.parameters[0].type!;
+      .decoratorDeclarations.get("mock");
+    const targetProp = decDeclaration?.parameters[0].type;
+    ok(targetProp, `Could not find target type for ${target}`);
 
     const [related, diagnostics] = runner.program.checker.isTypeAssignableTo(
-      sourceProp[0],
+      sourceProp,
       targetProp,
-      sourceProp[1]
+      alias.value
     );
     return { related, diagnostics, expectedDiagnosticPos: pos };
   }
@@ -1125,7 +1125,7 @@ describe("compiler: checker: type relations", () => {
     testReflectionType("UnionVariant", "Foo.a", `union Foo {a: string, b: int32};`);
   });
 
-  describe("Value target", () => {
+  describe("Value constraint", () => {
     describe("valueof string", () => {
       it("can assign string literal", async () => {
         await expectTypeAssignable({ source: `"foo bar"`, target: "valueof string" });
@@ -1304,7 +1304,7 @@ describe("compiler: checker: type relations", () => {
           { source: `string`, target: "valueof Info", commonCode: `model Info { name: string }` },
           {
             code: "unassignable",
-            message: "Type 'string' is not assignable to type 'Info'",
+            message: "Type 'string' is not assignable to type 'valueof Info'",
           }
         );
       });
@@ -1357,7 +1357,7 @@ describe("compiler: checker: type relations", () => {
           { source: `string`, target: "valueof string[]" },
           {
             code: "unassignable",
-            message: "Type 'string' is not assignable to type 'string[]'",
+            message: "Type 'string' is not assignable to type 'valueof string[]'",
           }
         );
       });
@@ -1372,6 +1372,18 @@ describe("compiler: checker: type relations", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("can use valueof unknown constraint not assignable to unknown", async () => {
+      const { source, pos } = extractCursor(`
+      model A<T extends unknown> {}
+      model B<T extends valueof unknown> is A<┆T> {}`);
+      const diagnostics = await runner.diagnose(source);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'valueof unknown' is not assignable to type 'unknown'",
+        pos,
+      });
+    });
+
     // BackCompat added May 2023 Sprint: by June 2023 sprint. From this PR: https://github.com/microsoft/typespec/pull/1877
     it("BACKCOMPAT: can use valueof in template parameter constraints", async () => {
       const diagnostics = await runner.diagnose(`
@@ -1383,6 +1395,40 @@ describe("compiler: checker: type relations", () => {
         code: "deprecated",
         message:
           "Deprecated: Template constrainted to 'string' will not be assignable to 'valueof string' in the future. Update the constraint to be 'valueof string'",
+      });
+    });
+  });
+
+  /** Describe the relation between types and values in TypeSpec */
+  describe.only("value vs type constraints", () => {
+    describe("cannot assign a value to a type constraint", () => {
+      it.each([
+        ["#{}", "{}"],
+        ["#{}", "unknown"],
+        ["#[]", "unknown[]"],
+        ["#[]", "unknown"],
+      ])(`${pc.cyan("%s")} => ${pc.cyan("%s")}`, async (source, target) => {
+        await expectValueNotAssignable({ source, target }, { code: "unassignable" });
+      });
+    });
+
+    describe("cannot assign a type to a value constraint", () => {
+      it.each([
+        ["{}", "valueof unknown"],
+        ["{}", "valueof {}"],
+      ])(`${pc.cyan("%s")} => ${pc.cyan("%s")}`, async (source, target) => {
+        await expectTypeNotAssignable({ source, target }, { code: "unassignable" });
+      });
+    });
+
+    describe("can assign types or values when constraint accept both", () => {
+      it.each([
+        ["{}", "(valueof unknown) | unknown"],
+        ["#{}", "(valueof unknown) | unknown"],
+        ["{}", "(valueof {}) | {}"],
+        ["#{}", "(valueof {}) | {}"],
+      ])(`${pc.cyan("%s")} => ${pc.cyan("%s")}`, async (source, target) => {
+        await expectValueAssignable({ source, target });
       });
     });
   });

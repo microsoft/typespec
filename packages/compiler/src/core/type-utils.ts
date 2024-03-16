@@ -19,6 +19,7 @@ import {
   TypeMapper,
   UnknownType,
   Value,
+  ValueOnly,
   VoidType,
 } from "./types.js";
 
@@ -61,6 +62,16 @@ export function isValueType(type: Type): type is Value {
   }
 
   return valueTypes.has(type.kind);
+}
+
+export function isValueOnly(type: Type): type is ValueOnly {
+  switch (type.kind) {
+    case "ObjectLiteral":
+    case "TupleLiteral":
+      return true;
+    default:
+      return false;
+  }
 }
 
 /**
