@@ -29,7 +29,7 @@ interface FeatureListItemElProps extends FeatureListItem {}
 const FeatureListItemEl = ({ title, description, image, link }: FeatureListItemElProps) => {
   return (
     <div className={style["item"]}>
-      {image && <FluentImg className={style["item-image"]} name={image} alt={image} />}
+      {image && <FluentImg className={style["item-image"]} name={image} />}
       <div className={style["item-content"]}>
         <NeutralText size={"large"}>{title}</NeutralText>
         <DescriptionText>{description}</DescriptionText>
