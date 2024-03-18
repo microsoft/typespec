@@ -1349,7 +1349,7 @@ export function createChecker(program: Program): Checker {
     sym: Sym,
     node: TemplateableNode,
     mapper: TypeMapper | undefined
-  ): Type {
+  ): Type | Value {
     const type =
       sym.flags & SymbolFlags.Model
         ? checkModelStatement(node as ModelStatementNode, mapper)
@@ -1362,10 +1362,7 @@ export function createChecker(program: Program): Checker {
               : sym.flags & SymbolFlags.Operation
                 ? checkOperation(node as OperationStatementNode, mapper)
                 : checkUnion(node as UnionStatementNode, mapper);
-    if (isValueOnly(type)) {
-      reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
-      return errorType;
-    }
+
     return type;
   }
 
@@ -2797,7 +2794,7 @@ export function createChecker(program: Program): Checker {
 
   function checkSourceFile(file: TypeSpecScriptNode) {
     for (const statement of file.statements) {
-      getTypeForNode(statement, undefined);
+      getTypeOrValueForNode(statement, undefined);
     }
   }
 
