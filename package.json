@@ -50,5 +50,10 @@
       "prod",
       "resolutions"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "@fluentui/react-theme": "9.1.17"
+    }
   }
 }

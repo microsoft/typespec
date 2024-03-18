@@ -68,7 +68,6 @@
   ],
   "dependencies": {
     "@fluentui/react-components": "~9.47.0",
-    "@fluentui/react-theme": "9.1.17",
     "@fluentui/react-icons": "^2.0.232",
     "@typespec/bundler": "workspace:~",
     "@typespec/compiler": "workspace:~",
