@@ -22,7 +22,7 @@
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
     "rollup": "~4.9.6",
-    "vitest": "^1.2.2"
+    "vitest": "^1.4.0"
   },
   "files": [
     "dist/**/*",

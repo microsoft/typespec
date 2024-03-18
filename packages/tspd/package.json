@@ -77,6 +77,6 @@
     "typedoc": "0.25.7",
     "typedoc-plugin-markdown": "4.0.0-next.53",
     "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "vitest": "^1.4.0"
   }
 }
