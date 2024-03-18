@@ -61,15 +61,15 @@
     "@typespec/internal-build-utils": "workspace:~",
     "@typespec/library-linter": "workspace:~",
     "@typespec/tspd": "workspace:~",
-    "@vitest/coverage-v8": "^1.2.2",
-    "@vitest/ui": "^1.2.2",
+    "@vitest/coverage-v8": "^1.4.0",
+    "@vitest/ui": "^1.4.0",
     "ajv": "~8.12.0",
     "ajv-formats": "~2.1.1",
     "c8": "^9.1.0",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
     "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "vitest": "^1.4.0"
   },
   "dependencies": {
     "yaml": "~2.3.4"
