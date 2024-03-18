@@ -29,17 +29,17 @@
     "watch": "tsc --build ./tsconfig.ws.json --watch"
   },
   "devDependencies": {
-    "@chronus/chronus": "^0.8.2",
-    "@chronus/github": "^0.2.1",
+    "@chronus/chronus": "^0.8.3",
+    "@chronus/github": "^0.2.2",
     "@pnpm/find-workspace-packages": "^6.0.9",
     "c8": "^9.1.0",
-    "cspell": "^8.3.2",
+    "cspell": "^8.6.0",
     "prettier": "~3.2.5",
     "prettier-plugin-organize-imports": "~3.2.4",
     "rimraf": "~5.0.5",
     "syncpack": "^12.3.0",
-    "typescript": "~5.3.3",
-    "vitest": "^1.2.2"
+    "typescript": "~5.4.2",
+    "vitest": "^1.4.0"
   },
   "syncpack": {
     "dependencyTypes": [
@@ -50,5 +50,10 @@
       "prod",
       "resolutions"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "@fluentui/react-theme": "9.1.17"
+    }
   }
 }
