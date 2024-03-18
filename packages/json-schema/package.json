@@ -68,10 +68,10 @@
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.3.3",
+    "typescript": "~5.4.2",
     "vitest": "^1.4.0"
   },
   "dependencies": {
-    "yaml": "~2.3.4"
+    "yaml": "~2.4.1"
   }
 }

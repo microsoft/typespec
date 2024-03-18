@@ -50,7 +50,7 @@
     "@rollup/plugin-virtual": "~3.0.2",
     "@typespec/compiler": "workspace:~",
     "picocolors": "~1.0.0",
-    "rollup": "~4.9.6",
+    "rollup": "~4.13.0",
     "yargs": "~17.7.2"
   },
   "devDependencies": {
@@ -62,7 +62,7 @@
     "c8": "^9.1.0",
     "eslint": "^8.57.0",
     "rimraf": "~5.0.5",
-    "typescript": "~5.3.3",
+    "typescript": "~5.4.2",
     "vite": "^5.1.6",
     "vitest": "^1.4.0"
   }
