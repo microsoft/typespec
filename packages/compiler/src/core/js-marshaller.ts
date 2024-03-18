@@ -7,9 +7,10 @@ import type {
   StringLiteral,
   TupleLiteral,
   Type,
+  Value,
 } from "./types.js";
 
-export function marshallTypeForJS<T extends Type>(type: T): MarshalledValue<T> {
+export function marshallTypeForJS<T extends Type | Value>(type: T): MarshalledValue<T> {
   switch (type.kind) {
     case "Boolean":
     case "String":

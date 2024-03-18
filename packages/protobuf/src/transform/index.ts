@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import {
+  compilerAssert,
   DiagnosticTarget,
   Enum,
   formatDiagnostic,
@@ -13,6 +14,7 @@ import {
   IntrinsicType,
   isDeclaredInNamespace,
   isTemplateInstance,
+  isValueOnly,
   Model,
   ModelProperty,
   Namespace,
@@ -536,8 +538,10 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function mapToProto(t: Model, relativeSource: Model | Operation): ProtoMap {
     const [keyType, valueType] = t.templateMapper!.args;
 
+    compilerAssert(!isValueOnly(keyType), "Cannot be a value type");
+    compilerAssert(!isValueOnly(valueType), "Cannot be a value type");
     // A map's value cannot be another map.
-    if (isMap(program, valueType)) {
+    if (isMap(program, keyType)) {
       reportDiagnostic(program, {
         code: "unsupported-field-type",
         messageId: "recursive-map",
@@ -558,6 +562,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   function arrayToProto(t: Model, relativeSource: Model | Operation): ProtoType {
     const valueType = (t as Model).templateMapper!.args[0];
+    compilerAssert(!isValueOnly(valueType), "Cannot be a value type");
 
     // Nested arrays are not supported.
     if (isArray(valueType)) {

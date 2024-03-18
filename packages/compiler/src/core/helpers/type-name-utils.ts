@@ -63,9 +63,9 @@ export function getEntityName(type: Entity, options?: TypeNameOptions): string {
     case "ParamConstraintUnion":
       return type.options.map((x) => getEntityName(x, options)).join(" | ");
     case "ObjectLiteral":
-      return `#{${[...type.properties.entries()].map(([name, value]) => `${name}: ${getTypeName(value, options)}`).join(", ")}}`;
+      return `#{${[...type.properties.entries()].map(([name, value]) => `${name}: ${getEntityName(value, options)}`).join(", ")}}`;
     case "TupleLiteral":
-      return `#[${type.values.map((x) => getTypeName(x, options)).join(", ")}]`;
+      return `#[${type.values.map((x) => getEntityName(x, options)).join(", ")}]`;
   }
 
   return `(unnamed type)`;
@@ -137,7 +137,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   const modelName = nsPrefix + getIdentifierName(model.name, options);
   if (isTemplateInstance(model)) {
     // template instantiation
-    const args = model.templateMapper.args.map((x) => getTypeName(x, options));
+    const args = model.templateMapper.args.map((x) => getEntityName(x, options));
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
@@ -185,7 +185,7 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
   let interfaceName = getIdentifierName(iface.name, options);
   if (isTemplateInstance(iface)) {
     interfaceName += `<${iface.templateMapper.args
-      .map((x) => getTypeName(x, options))
+      .map((x) => getEntityName(x, options))
       .join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;

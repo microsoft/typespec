@@ -1,4 +1,4 @@
-import { Entity, getEntityName, resolvePath } from "@typespec/compiler";
+import { Entity, getEntityName, isValueOnly, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -191,6 +191,7 @@ export class MarkdownRenderer {
     const namedType =
       type.kind !== "Value" &&
       type.kind !== "ParamConstraintUnion" &&
+      !isValueOnly(type) &&
       this.refDoc.getNamedTypeRefDoc(type);
     if (namedType) {
       return link(

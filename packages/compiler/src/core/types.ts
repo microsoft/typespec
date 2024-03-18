@@ -22,11 +22,11 @@ export type MarshalledValue<Type>  =
 export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
-  value: Type;
+  value: Type | Value;
   /**
    * Marshalled value for use in Javascript.
    */
-  jsValue: Type | Record<string, unknown> | unknown[] | string | number | boolean;
+  jsValue: Type | Value | Record<string, unknown> | unknown[] | string | number | boolean;
   node?: Node;
 }
 
@@ -74,9 +74,9 @@ export type TemplatedType = Model | Operation | Interface | Union | Scalar;
 
 export interface TypeMapper {
   partial: boolean;
-  getMappedType(type: TemplateParameter): Type;
-  args: readonly Type[];
-  /** @internal */ map: Map<TemplateParameter, Type>;
+  getMappedType(type: TemplateParameter): Type | Value;
+  args: readonly (Type | Value)[];
+  /** @internal */ map: Map<TemplateParameter, Type | Value>;
 }
 
 export interface TemplatedTypeBase {
@@ -84,26 +84,41 @@ export interface TemplatedTypeBase {
   /**
    * @deprecated use templateMapper instead.
    */
-  templateArguments?: Type[];
+  templateArguments?: (Type | Value)[];
   templateNode?: Node;
 }
 
+/**
+ * Represent every single entity that are part of the TypeSpec program. Those are composed of different elements:
+ * - Types
+ * - Values
+ * - Value Constraints
+ */
 export type Entity = Type | Value | ValueType | ParamConstraintUnion;
 
-export type Type =
+/** Entities that can be used as both values and values. */
+export type TypeAndValue =
+  | StringLiteral
+  | StringTemplate
+  | NumericLiteral
+  | BooleanLiteral
+  | EnumMember;
+
+/**
+ * Entities that can only be used as value.
+ */
+export type ValueOnly = ObjectLiteral | TupleLiteral;
+
+/** Entities that can be used as types only */
+export type TypeOnly =
   | Model
   | ModelProperty
   | Scalar
   | Interface
   | Enum
-  | EnumMember
   | TemplateParameter
   | Namespace
   | Operation
-  | StringLiteral
-  | NumericLiteral
-  | BooleanLiteral
-  | StringTemplate
   | StringTemplateSpan
   | Tuple
   | Union
@@ -113,20 +128,15 @@ export type Type =
   | Decorator
   | FunctionParameter
   | ObjectType
-  | ObjectLiteral
-  | TupleLiteral
   | Projection;
 
-export type ValueOnly = ObjectLiteral | TupleLiteral;
+/** Entities that can be used as types */
+export type Type = TypeAndValue | TypeOnly;
 
-export type Value =
-  | StringTemplate
-  | StringLiteral
-  | NumericLiteral
-  | BooleanLiteral
-  | EnumMember
-  | ObjectLiteral
-  | TupleLiteral;
+/**
+ * Entities that can be used as values.
+ */
+export type Value = TypeAndValue | ValueOnly;
 
 export type StdTypes = {
   // Models
@@ -160,7 +170,7 @@ export interface Projector {
   parentProjector?: Projector;
   projections: ProjectionApplication[];
   projectedTypes: Map<Type, Type>;
-  projectType(type: Type): Type;
+  projectType(type: Type | Value): Type | Value;
   projectedStartNode?: Type;
   projectedGlobalNamespace?: Namespace;
 }
@@ -302,17 +312,19 @@ export interface ModelProperty extends BaseType, DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelProperty;
   optional: boolean;
-  default?: Type;
+  default?: Type | Value;
   model?: Model;
 }
 
-export interface ObjectLiteral extends BaseType {
+export interface ObjectLiteral {
   kind: "ObjectLiteral";
+  node: ObjectLiteralNode;
   properties: Map<string, Value>;
 }
 
-export interface TupleLiteral extends BaseType {
+export interface TupleLiteral {
   kind: "TupleLiteral";
+  node: TupleLiteralNode;
   values: Value[];
 }
 
@@ -581,7 +593,7 @@ export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
   constraint?: Type | ParamConstraintUnion | ValueType;
-  default?: Type;
+  default?: Type | Value;
 }
 
 export interface Decorator extends BaseType {
@@ -735,8 +747,8 @@ export const enum SymbolFlags {
  * Maps type arguments to instantiated type.
  */
 export interface TypeInstantiationMap {
-  get(args: readonly Type[]): Type | undefined;
-  set(args: readonly Type[], type: Type): void;
+  get(args: readonly (Type | Value)[]): Type | undefined;
+  set(args: readonly (Type | Value)[], type: Type): void;
 }
 
 /**
@@ -1906,7 +1918,7 @@ export interface SourceLocation extends TextRange {
 export const NoTarget = Symbol.for("NoTarget");
 
 /** Diagnostic target that can be used when working with TypeSpec types.  */
-export type TypeSpecDiagnosticTarget = Node | Type | Sym;
+export type TypeSpecDiagnosticTarget = Node | Entity | Sym;
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
 export type DiagnosticSeverity = "error" | "warning";

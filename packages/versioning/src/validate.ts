@@ -3,6 +3,7 @@ import {
   getService,
   getTypeName,
   isTemplateInstance,
+  isValueOnly,
   Namespace,
   navigateProgram,
   NoTarget,
@@ -473,7 +474,9 @@ function validateReference(program: Program, source: Type, target: Type) {
 
   if ("templateMapper" in target) {
     for (const param of target.templateMapper?.args ?? []) {
-      validateTargetVersionCompatible(program, source, param);
+      if (!isValueOnly(param)) {
+        validateTargetVersionCompatible(program, source, param);
+      }
     }
   }
 

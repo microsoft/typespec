@@ -24,15 +24,15 @@ import {
   VoidType,
 } from "./types.js";
 
-export function isErrorType(type: Type): type is ErrorType {
+export function isErrorType(type: Entity): type is ErrorType {
   return type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
-export function isVoidType(type: Type): type is VoidType {
+export function isVoidType(type: Entity): type is VoidType {
   return type.kind === "Intrinsic" && type.name === "void";
 }
 
-export function isNeverType(type: Type): type is NeverType {
+export function isNeverType(type: Entity): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
@@ -65,7 +65,7 @@ export function isValueType(type: Entity): type is Value {
   return valueTypes.has(type.kind);
 }
 
-export function isValueOnly(type: Type): type is ValueOnly {
+export function isValueOnly(type: Entity): type is ValueOnly {
   switch (type.kind) {
     case "ObjectLiteral":
     case "TupleLiteral":

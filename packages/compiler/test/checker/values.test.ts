@@ -1,6 +1,6 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import { Diagnostic, Type } from "../../src/index.js";
+import { Diagnostic, Type, Value } from "../../src/index.js";
 import {
   createTestHost,
   createTestRunner,
@@ -21,11 +21,11 @@ async function diagnoseUsage(
 async function compileAndDiagnoseValueType(
   code: string,
   other?: string
-): Promise<[Type | undefined, readonly Diagnostic[]]> {
+): Promise<[Value | undefined, readonly Diagnostic[]]> {
   const host = await createTestHost();
-  let called: Type | undefined;
+  let called: Value | undefined;
   host.addJsFile("dec.js", {
-    $collect: (context: DecoratorContext, target: Type, value: Type) => {
+    $collect: (context: DecoratorContext, target: Type, value: Value) => {
       called = value;
     },
   });
@@ -44,7 +44,7 @@ async function compileAndDiagnoseValueType(
   return [called, diagnostics];
 }
 
-async function compileValueType(code: string, other?: string): Promise<Type> {
+async function compileValueType(code: string, other?: string): Promise<Value> {
   const [called, diagnostics] = await compileAndDiagnoseValueType(code, other);
   expectDiagnosticEmpty(diagnostics);
   ok(called, "Decorator was not called");

@@ -77,10 +77,6 @@ function getTypeSignature(type: Type | ValueType): string {
       return "(projection)";
     case "Object":
       return "(object)";
-    case "ObjectLiteral":
-      return fence("#{...}");
-    case "TupleLiteral":
-      return fence("#[...]");
     default:
       const _assertNever: never = type;
       compilerAssert(false, "Unexpected type kind");
