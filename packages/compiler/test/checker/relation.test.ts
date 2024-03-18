@@ -1,5 +1,4 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
-import pc from "picocolors";
 import { beforeEach, describe, it } from "vitest";
 import {
   AliasStatementNode,
@@ -1407,7 +1406,7 @@ describe("compiler: checker: type relations", () => {
         ["#{}", "unknown"],
         ["#[]", "unknown[]"],
         ["#[]", "unknown"],
-      ])(`${pc.cyan("%s")} => ${pc.cyan("%s")}`, async (source, target) => {
+      ])(`%s => %s`, async (source, target) => {
         await expectValueNotAssignable({ source, target }, { code: "unassignable" });
       });
     });
@@ -1416,7 +1415,7 @@ describe("compiler: checker: type relations", () => {
       it.each([
         ["{}", "valueof unknown"],
         ["{}", "valueof {}"],
-      ])(`${pc.cyan("%s")} => ${pc.cyan("%s")}`, async (source, target) => {
+      ])(`%s => %s`, async (source, target) => {
         await expectTypeNotAssignable({ source, target }, { code: "unassignable" });
       });
     });
@@ -1427,7 +1426,7 @@ describe("compiler: checker: type relations", () => {
         ["#{}", "(valueof unknown) | unknown"],
         ["{}", "(valueof {}) | {}"],
         ["#{}", "(valueof {}) | {}"],
-      ])(`${pc.cyan("%s")} => ${pc.cyan("%s")}`, async (source, target) => {
+      ])(`%s => %s`, async (source, target) => {
         await expectValueAssignable({ source, target });
       });
     });
