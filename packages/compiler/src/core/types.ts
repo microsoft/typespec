@@ -120,6 +120,7 @@ export type Type =
 export type ValueOnly = ObjectLiteral | TupleLiteral;
 
 export type Value =
+  | StringTemplate
   | StringLiteral
   | NumericLiteral
   | BooleanLiteral

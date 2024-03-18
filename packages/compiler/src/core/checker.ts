@@ -5858,6 +5858,7 @@ export function createChecker(program: Program): Checker {
         }
         break;
       case "String":
+      case "StringTemplate":
       case "Number":
       case "Boolean":
       case "EnumMember":
