@@ -33,6 +33,7 @@ import {
   getFullyQualifiedSymbolName,
   getParentTemplateNode,
   isNeverType,
+  isNullType,
   isTemplateInstance,
   isUnknownType,
   isValueOnly,
@@ -3763,7 +3764,9 @@ export function createChecker(program: Program): Checker {
       );
       return errorType;
     }
-    const [related, diagnostics] = isTypeAssignableTo(defaultType, type, defaultNode);
+    const [related, diagnostics] = isValueType(defaultType)
+      ? isValueOfType(defaultType, type, defaultNode)
+      : isTypeAssignableTo(defaultType, type, defaultNode);
     if (!related) {
       reportCheckerDiagnostics(diagnostics);
       return errorType;
@@ -5598,11 +5601,31 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
-    source: Type | ParamConstraintUnion | ValueType,
-    target: Type | ParamConstraintUnion | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, readonly Diagnostic[]] {
     const [related, diagnostics] = isTypeAssignableToInternal(
+      source,
+      target,
+      diagnosticTarget,
+      new MultiKeyMap<[Entity, Entity], Related>()
+    );
+    return [related === Related.true, diagnostics];
+  }
+
+  /**
+   * Check if the given Value type is of the given type.
+   * @param source Value
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   */
+  function isValueOfType(
+    source: Value,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, readonly Diagnostic[]] {
+    const [related, diagnostics] = isValueOfTypeInternal(
       source,
       target,
       diagnosticTarget,
@@ -5776,7 +5799,7 @@ export function createChecker(program: Program): Checker {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
 
-    return isValueOfType(source, target.target, diagnosticTarget, relationCache);
+    return isValueOfTypeInternal(source, target.target, diagnosticTarget, relationCache);
   }
 
   function isAssignableToParameterConstraintUnion(
@@ -5810,13 +5833,16 @@ export function createChecker(program: Program): Checker {
   }
 
   /** Check if the value is assignable to the given type. */
-  function isValueOfType(
+  function isValueOfTypeInternal(
     source: Value,
     target: Type,
     diagnosticTarget: DiagnosticTarget,
     relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     if (isUnknownType(target)) return [Related.true, []];
+    if (isNullType(source)) {
+      return isTypeAssignableToInternal(source, target, diagnosticTarget, relationCache);
+    }
 
     switch (source.kind) {
       case "ObjectLiteral":
@@ -5998,7 +6024,7 @@ export function createChecker(program: Program): Checker {
         }
       } else {
         remainingProperties.delete(prop.name);
-        const [related, propDiagnostics] = isValueOfType(
+        const [related, propDiagnostics] = isValueOfTypeInternal(
           sourceProperty,
           prop.type,
           diagnosticTarget,
@@ -6030,7 +6056,7 @@ export function createChecker(program: Program): Checker {
   ): [Related, readonly Diagnostic[]] {
     relationCache.set([source, target], Related.maybe);
     for (const value of source.values) {
-      const [related, diagnostics] = isValueOfType(
+      const [related, diagnostics] = isValueOfTypeInternal(
         value,
         target.indexer.value,
         diagnosticTarget,

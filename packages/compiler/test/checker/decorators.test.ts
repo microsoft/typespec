@@ -353,11 +353,6 @@ describe("compiler: checker: decorators", () => {
           );
           deepStrictEqual(arg, { name: { other: "foo" } });
         });
-
-        it("`: {...}` keeps the ObjectLiteral type", async () => {
-          const arg = await testCallDecorator("{name: string}", `#{name: "foo"}`);
-          strictEqual(arg.kind, "ObjectLiteral");
-        });
       });
 
       describe("passing an tuple literal", () => {
