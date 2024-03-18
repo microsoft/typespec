@@ -1,5 +1,5 @@
 import { compilerAssert } from "../core/diagnostics.js";
-import { getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
+import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import { Program } from "../core/program.js";
 import { getFullyQualifiedSymbolName } from "../core/type-utils.js";
 import {
@@ -111,7 +111,7 @@ function getOperationSignature(type: Operation) {
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${printId(parameter.name)}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${printId(parameter.name)}${optional}: ${getEntityName(parameter.type)}`;
 }
 
 function getStringTemplateSignature(stringTemplate: StringTemplate) {

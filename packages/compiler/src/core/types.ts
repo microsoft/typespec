@@ -88,6 +88,8 @@ export interface TemplatedTypeBase {
   templateNode?: Node;
 }
 
+export type Entity = Type | Value | ValueType | ParamConstraintUnion;
+
 export type Type =
   | Model
   | ModelProperty
@@ -533,6 +535,13 @@ export interface Tuple extends BaseType {
   values: Type[];
 }
 
+export interface ParamConstraintUnion {
+  kind: "ParamConstraintUnion"; // TODO: review naming
+  node: UnionExpressionNode;
+
+  readonly options: (Type | ValueType)[];
+}
+
 export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
@@ -570,7 +579,7 @@ export interface UnionVariant extends BaseType, DecoratedType {
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
-  constraint?: Type | ValueType;
+  constraint?: Type | ParamConstraintUnion | ValueType;
   default?: Type;
 }
 
@@ -598,7 +607,7 @@ export interface FunctionParameter extends BaseType {
   kind: "FunctionParameter";
   node: FunctionParameterNode;
   name: string;
-  type: Type | ValueType;
+  type: Type | ParamConstraintUnion | ValueType;
   optional: boolean;
   rest: boolean;
 }

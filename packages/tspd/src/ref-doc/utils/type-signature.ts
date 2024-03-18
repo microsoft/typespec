@@ -4,6 +4,7 @@ import {
   EnumMember,
   FunctionParameter,
   FunctionType,
+  getEntityName,
   getTypeName,
   Interface,
   Model,
@@ -124,7 +125,7 @@ function getOperationSignature(type: Operation) {
 function getFunctionParameterSignature(parameter: FunctionParameter) {
   const rest = parameter.rest ? "..." : "";
   const optional = parameter.optional ? "?" : "";
-  return `${rest}${parameter.name}${optional}: ${getTypeName(parameter.type)}`;
+  return `${rest}${parameter.name}${optional}: ${getEntityName(parameter.type)}`;
 }
 
 function getStringTemplateSignature(stringTemplate: StringTemplate) {

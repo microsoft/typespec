@@ -13,7 +13,12 @@ import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-lite
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
-import { TypeNameOptions, getNamespaceFullName, getTypeName } from "./helpers/index.js";
+import {
+  TypeNameOptions,
+  getEntityName,
+  getNamespaceFullName,
+  getTypeName,
+} from "./helpers/index.js";
 import { marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import {
@@ -52,6 +57,7 @@ import {
   Diagnostic,
   DiagnosticTarget,
   DocContent,
+  Entity,
   Enum,
   EnumMember,
   EnumMemberNode,
@@ -95,6 +101,7 @@ import {
   ObjectLiteralNode,
   Operation,
   OperationStatementNode,
+  ParamConstraintUnion,
   Projection,
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
@@ -227,8 +234,8 @@ export interface Checker {
    * @returns [related, list of diagnostics]
    */
   isTypeAssignableTo(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, readonly Diagnostic[]];
 
@@ -804,7 +811,7 @@ export function createChecker(program: Program): Checker {
 
       if (node.constraint) {
         pendingResolutions.start(getNodeSymId(node), ResolutionKind.Constraint);
-        type.constraint = getTypeOrValueOfTypeForNode(node.constraint);
+        type.constraint = getParamConstraintEntityForNode(node.constraint);
         pendingResolutions.finish(getNodeSymId(node), ResolutionKind.Constraint);
       }
       if (node.default) {
@@ -839,7 +846,7 @@ export function createChecker(program: Program): Checker {
     nodeDefault: Expression,
     templateParameters: readonly TemplateParameterDeclarationNode[],
     index: number,
-    constraint: Type | ValueType | undefined
+    constraint: Type | ParamConstraintUnion | ValueType | undefined
   ) {
     function visit(node: Node) {
       const type = getTypeOrValueForNode(node);
@@ -1103,7 +1110,9 @@ export function createChecker(program: Program): Checker {
           // TODO-TIM check if we expose this below
           commit(
             param,
-            param.constraint?.kind === "Value" ? unknownType : param.constraint ?? unknownType
+            param.constraint?.kind === "Value" || param.constraint?.kind === "ParamConstraintUnion"
+              ? unknownType
+              : param.constraint ?? unknownType
           );
         }
 
@@ -1120,7 +1129,10 @@ export function createChecker(program: Program): Checker {
 
         if (!checkTypeAssignable(type, constraint, argNode)) {
           // TODO-TIM check if we expose this below
-          const effectiveType = param.constraint?.kind === "Value" ? unknownType : param.constraint;
+          const effectiveType =
+            param.constraint?.kind === "Value" || param.constraint.kind === "ParamConstraintUnion"
+              ? unknownType
+              : param.constraint;
 
           commit(param, effectiveType);
           continue;
@@ -1390,6 +1402,23 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  /** Check a union expresion used in a parameter constraint, those allow the use of `valueof` as a variant. */
+  function checkUnionExpressionAsParamConstraint(
+    node: UnionExpressionNode,
+    mapper: TypeMapper | undefined
+  ): Union | ParamConstraintUnion {
+    const hasValueOf = node.options.some((x) => x.kind === SyntaxKind.ValueOfExpression);
+    if (!hasValueOf) {
+      return checkUnionExpression(node, mapper);
+    }
+
+    return {
+      kind: "ParamConstraintUnion",
+      node,
+      options: node.options.map((x) => getTypeOrValueOfTypeForNode(x, mapper)),
+    };
+  }
+
   function checkUnionExpression(node: UnionExpressionNode, mapper: TypeMapper | undefined): Union {
     const unionType: Union = createAndFinishType({
       kind: "Union",
@@ -1563,7 +1592,7 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({ code: "rest-parameter-array", target: node.type })
       );
     }
-    const type = node.type ? getTypeOrValueOfTypeForNode(node.type) : unknownType;
+    const type = node.type ? getParamConstraintEntityForNode(node.type) : unknownType;
 
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",
@@ -1591,10 +1620,24 @@ export function createChecker(program: Program): Checker {
   }
 
   function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): Type | ValueType {
-    if (node.kind === SyntaxKind.ValueOfExpression) {
-      return checkValueOfExpression(node, mapper);
+    switch (node.kind) {
+      case SyntaxKind.ValueOfExpression:
+        return checkValueOfExpression(node, mapper);
+      default:
+        return getTypeForNode(node, mapper);
     }
-    return getTypeForNode(node, mapper);
+  }
+
+  function getParamConstraintEntityForNode(
+    node: Node,
+    mapper?: TypeMapper
+  ): Type | ParamConstraintUnion | ValueType {
+    switch (node.kind) {
+      case SyntaxKind.UnionExpression:
+        return checkUnionExpressionAsParamConstraint(node, mapper);
+      default:
+        return getTypeOrValueOfTypeForNode(node, mapper);
+    }
   }
 
   function mergeModelTypes(
@@ -3805,7 +3848,7 @@ export function createChecker(program: Program): Checker {
           format: {
             decorator: declaration.name,
             to: getTypeName(targetType),
-            expected: getTypeName(declaration.target.type),
+            expected: getEntityName(declaration.target.type),
           },
           target: decoratorNode,
         })
@@ -3847,9 +3890,12 @@ export function createChecker(program: Program): Checker {
     const resolvedArgs: DecoratorArgument[] = [];
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
-        const restType = getIndexType(
-          parameter.type.kind === "Value" ? parameter.type.target : parameter.type
-        );
+        const restType =
+          parameter.type.kind === "ParamConstraintUnion"
+            ? undefined
+            : getIndexType(
+                parameter.type.kind === "Value" ? parameter.type.target : parameter.type
+              );
         if (restType) {
           for (let i = index; i < args.length; i++) {
             const arg = args[i];
@@ -3893,7 +3939,7 @@ export function createChecker(program: Program): Checker {
 
   function checkArgumentAssignable(
     argumentType: Type,
-    parameterType: Type | ValueType,
+    parameterType: Type | ParamConstraintUnion | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [valid] = isTypeAssignableTo(argumentType, parameterType, diagnosticTarget);
@@ -3903,7 +3949,7 @@ export function createChecker(program: Program): Checker {
           code: "invalid-argument",
           format: {
             value: getTypeName(argumentType),
-            expected: getTypeName(parameterType),
+            expected: getEntityName(parameterType),
           },
           target: diagnosticTarget,
         })
@@ -5534,8 +5580,8 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function checkTypeAssignable(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Type | ParamConstraintUnion | ValueType,
+    target: Type | ParamConstraintUnion | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [related, diagnostics] = isTypeAssignableTo(source, target, diagnosticTarget);
@@ -5552,24 +5598,24 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Type | ParamConstraintUnion | ValueType,
+    target: Type | ParamConstraintUnion | ValueType,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, readonly Diagnostic[]] {
     const [related, diagnostics] = isTypeAssignableToInternal(
       source,
       target,
       diagnosticTarget,
-      new MultiKeyMap<[Type | ValueType, Type | ValueType], Related>()
+      new MultiKeyMap<[Entity, Entity], Related>()
     );
     return [related === Related.true, diagnostics];
   }
 
   function isTypeAssignableToInternal(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Type | ParamConstraintUnion | ValueType,
+    target: Type | ParamConstraintUnion | ValueType,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     const cached = relationCache.get([source, target]);
     if (cached !== undefined) {
@@ -5579,17 +5625,17 @@ export function createChecker(program: Program): Checker {
       source,
       target,
       diagnosticTarget,
-      new MultiKeyMap<[Type | ValueType, Type | ValueType], Related>()
+      new MultiKeyMap<[Entity, Entity], Related>()
     );
     relationCache.set([source, target], result);
     return [result, diagnostics];
   }
 
   function isTypeAssignableToWorker(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     // BACKCOMPAT: Added May 2023 sprint, to be removed by June 2023 sprint
     if (source.kind === "TemplateParameter" && source.constraint && target.kind === "Value") {
@@ -5600,10 +5646,10 @@ export function createChecker(program: Program): Checker {
         relationCache
       );
       if (assignable) {
-        const constraint = getTypeName(source.constraint);
+        const constraint = getEntityName(source.constraint);
         reportDeprecated(
           program,
-          `Template constrainted to '${constraint}' will not be assignable to '${getTypeName(
+          `Template constrainted to '${constraint}' will not be assignable to '${getEntityName(
             target
           )}' in the future. Update the constraint to be 'valueof ${constraint}'`,
           diagnosticTarget
@@ -5620,8 +5666,16 @@ export function createChecker(program: Program): Checker {
     if (target.kind === "Value") {
       return isAssignableToValueType(source, target, diagnosticTarget, relationCache);
     }
+    if (target.kind === "ParamConstraintUnion") {
+      return isAssignableToParameterConstraintUnion(
+        source,
+        target,
+        diagnosticTarget,
+        relationCache
+      );
+    }
 
-    if (source.kind === "Value" || isValueOnly(source)) {
+    if (source.kind === "Value" || source.kind === "ParamConstraintUnion" || isValueOnly(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
@@ -5705,10 +5759,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function isAssignableToValueType(
-    source: Type | ValueType,
+    source: Type | ParamConstraintUnion | ValueType,
     target: ValueType,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     if (source.kind === "Value") {
       return isTypeAssignableToInternal(
@@ -5725,12 +5779,42 @@ export function createChecker(program: Program): Checker {
     return isValueOfType(source, target.target, diagnosticTarget, relationCache);
   }
 
+  function isAssignableToParameterConstraintUnion(
+    source: Type | ParamConstraintUnion | ValueType,
+    target: ParamConstraintUnion,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
+  ): [Related, readonly Diagnostic[]] {
+    if (source.kind === "ParamConstraintUnion") {
+      for (const option of source.options) {
+        const [variantAssignable] = isAssignableToParameterConstraintUnion(
+          option,
+          target,
+          diagnosticTarget,
+          relationCache
+        );
+        if (!variantAssignable) {
+          return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+        }
+      }
+      return [Related.true, []];
+    }
+
+    for (const option of target.options) {
+      const [related] = isTypeAssignableToInternal(source, option, diagnosticTarget, relationCache);
+      if (related) {
+        return [Related.true, []];
+      }
+    }
+    return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+  }
+
   /** Check if the value is assignable to the given type. */
   function isValueOfType(
     source: Value,
     target: Type,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     if (isUnknownType(target)) return [Related.true, []];
 
@@ -5852,7 +5936,7 @@ export function createChecker(program: Program): Checker {
     source: Model,
     target: Model,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, Diagnostic[]] {
     relationCache.set([source, target], Related.maybe);
     const diagnostics: Diagnostic[] = [];
@@ -5891,7 +5975,7 @@ export function createChecker(program: Program): Checker {
     source: ObjectLiteral,
     target: Model,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     relationCache.set([source, target], Related.maybe);
     const diagnostics: Diagnostic[] = [];
@@ -5942,7 +6026,7 @@ export function createChecker(program: Program): Checker {
     source: TupleLiteral,
     target: ArrayModelType,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     relationCache.set([source, target], Related.maybe);
     for (const value of source.values) {
@@ -5971,7 +6055,7 @@ export function createChecker(program: Program): Checker {
     properties: Map<string, Type>,
     indexerConstaint: Type,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     for (const prop of properties.values()) {
       const [related, diagnostics] = isTypeAssignableToInternal(
@@ -5992,7 +6076,7 @@ export function createChecker(program: Program): Checker {
     source: Model,
     target: Model & { indexer: ModelIndexer },
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     // Model expressions should be able to be assigned.
     if (source.name === "" && target.indexer.key.name !== "integer") {
@@ -6030,7 +6114,7 @@ export function createChecker(program: Program): Checker {
     type: Model,
     constraintType: Type,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     for (const prop of type.properties.values()) {
       const [related, diagnostics] = isTypeAssignableToInternal(
@@ -6062,7 +6146,7 @@ export function createChecker(program: Program): Checker {
     source: Tuple | TupleLiteral,
     target: Tuple,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     if (source.values.length !== target.values.length) {
       return [
@@ -6100,7 +6184,7 @@ export function createChecker(program: Program): Checker {
     source: Type,
     target: Union,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, Diagnostic[]] {
     if (source.kind === "UnionVariant" && source.union === target) {
       return [Related.true, []];
@@ -6143,13 +6227,13 @@ export function createChecker(program: Program): Checker {
   }
 
   function createUnassignableDiagnostic(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget
   ) {
     return createDiagnostic({
       code: "unassignable",
-      format: { targetType: getTypeName(target), value: getTypeName(source) },
+      format: { targetType: getEntityName(target), value: getEntityName(source) },
       target: diagnosticTarget,
     });
   }

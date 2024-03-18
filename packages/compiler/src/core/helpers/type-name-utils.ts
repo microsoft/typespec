@@ -1,6 +1,7 @@
 import { printId } from "../../formatter/print/printer.js";
 import { isTemplateInstance } from "../type-utils.js";
 import {
+  Entity,
   Enum,
   Interface,
   Model,
@@ -11,7 +12,6 @@ import {
   Scalar,
   Type,
   Union,
-  ValueType,
 } from "../types.js";
 
 export interface TypeNameOptions {
@@ -19,7 +19,11 @@ export interface TypeNameOptions {
   printable?: boolean;
 }
 
-export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): string {
+export function getTypeName(type: Type, options?: TypeNameOptions): string {
+  return getEntityName(type, options);
+}
+
+export function getEntityName(type: Entity, options?: TypeNameOptions): string {
   switch (type.kind) {
     case "Namespace":
       return getNamespaceFullName(type, options);
@@ -56,6 +60,8 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
       return type.name;
     case "Value":
       return `valueof ${getTypeName(type.target, options)}`;
+    case "ParamConstraintUnion":
+      return type.options.map((x) => getEntityName(x, options)).join(" | ");
     case "ObjectLiteral":
       return `#{${[...type.properties.entries()].map(([name, value]) => `${name}: ${getTypeName(value, options)}`).join(", ")}}`;
     case "TupleLiteral":

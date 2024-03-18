@@ -1399,7 +1399,7 @@ describe("compiler: checker: type relations", () => {
   });
 
   /** Describe the relation between types and values in TypeSpec */
-  describe.only("value vs type constraints", () => {
+  describe("value vs type constraints", () => {
     describe("cannot assign a value to a type constraint", () => {
       it.each([
         ["#{}", "{}"],
@@ -1428,6 +1428,12 @@ describe("compiler: checker: type relations", () => {
         ["#{}", "(valueof {}) | {}"],
       ])(`%s => %s`, async (source, target) => {
         await expectValueAssignable({ source, target });
+      });
+      it.each([
+        ["(valueof {}) | {}", "(valueof {}) | {} | (valueof []) | []"],
+        ["(valueof {}) | {}", "(valueof {}) | {}"],
+      ])(`%s => %s`, async (source, target) => {
+        await expectTypeAssignable({ source, target });
       });
     });
   });

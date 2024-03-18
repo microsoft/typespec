@@ -1,6 +1,7 @@
 import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
 import { Program } from "./program.js";
 import {
+  Entity,
   Enum,
   ErrorType,
   Interface,
@@ -35,11 +36,11 @@ export function isNeverType(type: Type): type is NeverType {
   return type.kind === "Intrinsic" && type.name === "never";
 }
 
-export function isUnknownType(type: Type): type is UnknownType {
+export function isUnknownType(type: Entity): type is UnknownType {
   return type.kind === "Intrinsic" && type.name === "unknown";
 }
 
-export function isNullType(type: Type): type is NullType {
+export function isNullType(type: Entity): type is NullType {
   return type.kind === "Intrinsic" && type.name === "null";
 }
 
@@ -52,8 +53,8 @@ const valueTypes = new Set([
   "TupleLiteral",
 ]);
 
-export function isValueType(type: Type): type is Value {
-  if (isNullType(type)) {
+export function isValueType(type: Entity): type is Value {
+  if (isNullType(type as any)) {
     return true;
   }
   if (type.kind === "StringTemplate") {
