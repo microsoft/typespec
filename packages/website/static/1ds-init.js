@@ -11,6 +11,11 @@
     cfg:{
         instrumentationKey:"375afc556dda47148f4d721f0543233d-05299b34-7e02-4ef9-9502-4a6ef9fadbfd-7103",
         webAnalyticsConfiguration: {
+          ignoreMc1Ms0CookieProcessing: true,
+        },
+        cookieCfg: {
+          enabled: false,
+          blockedCookie: [ "MC1" ]
         },
         disableCookiesUsage: true,
     },
