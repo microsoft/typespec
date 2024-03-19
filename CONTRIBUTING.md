@@ -108,7 +108,7 @@ whenever you save.
 
 For all packages except the compiler this will be done automatically as part of each package `build` script.
 
-If wanting to regen the signatures without the build you can run for any package that has decorators
+If you want to regenerate decorator signatures without a full build you can run:
 
 ```
 pnpm gen-extern-signature
