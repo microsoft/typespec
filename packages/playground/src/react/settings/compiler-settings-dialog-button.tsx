@@ -28,7 +28,7 @@ export const CompilerSettingsDialogButton = ({
   return (
     <Dialog>
       <DialogTrigger>
-        <ToolbarButton icon={<Settings24Regular />} />
+        <ToolbarButton icon={<Settings24Regular />} aria-label="Open Settings" />
       </DialogTrigger>
       <DialogSurface>
         <DialogBody>
