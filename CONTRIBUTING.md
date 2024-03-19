@@ -106,7 +106,7 @@ whenever you save.
 
 ## Generate TypeScript signature for decorators
 
-For all packages execpt the compiler this will be done automatically as part of each package `build` script.
+For all packages except the compiler this will be done automatically as part of each package `build` script.
 
 If wanting to regen the signatures without the build you can run for any package that has decorators
 
