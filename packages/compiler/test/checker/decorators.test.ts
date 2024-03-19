@@ -288,10 +288,15 @@ describe("compiler: checker: decorators", () => {
     });
 
     describe("value marshalling", () => {
-      async function testCallDecorator(type: string, value: string): Promise<any> {
+      async function testCallDecorator(
+        type: string,
+        value: string,
+        suppress?: boolean
+      ): Promise<any> {
         await runner.compile(`
           extern dec testDec(target: unknown, arg1: ${type});
-
+          
+          ${suppress ? `#suppress "deprecated" "for testing"` : ""}
           @testDec(${value})
           @test
           model Foo {}
@@ -364,6 +369,38 @@ describe("compiler: checker: decorators", () => {
         it("valueof model cast the value recursively to a JS object", async () => {
           const arg = await testCallDecorator("valueof unknown[]", `#[#["foo"]]`);
           deepStrictEqual(arg, [["foo"]]);
+        });
+      });
+
+      // This functionality is to provide a smooth transition from the old way of passing a model/tuple as values
+      // It is to be removed in the future.
+      describe("legacy type to value casting", () => {
+        describe("passing an model gets converted to an object", () => {
+          it("valueof model cast the tuple to a JS object", async () => {
+            const arg = await testCallDecorator("valueof {name: string}", `{name: "foo"}`, true);
+            deepStrictEqual(arg, { name: "foo" });
+          });
+
+          it("valueof model cast the tuple recursively to a JS object", async () => {
+            const arg = await testCallDecorator(
+              "valueof {name: unknown}",
+              `{name: {other: "foo"}}`,
+              true
+            );
+            deepStrictEqual(arg, { name: { other: "foo" } });
+          });
+        });
+
+        describe("passing an tuple gets converted to an object", () => {
+          it("valueof model cast the tuple to a JS array", async () => {
+            const arg = await testCallDecorator("valueof string[]", `["foo"]`, true);
+            deepStrictEqual(arg, ["foo"]);
+          });
+
+          it("valueof model cast the tuple recursively to a JS object", async () => {
+            const arg = await testCallDecorator("valueof unknown[]", `[["foo"]]`, true);
+            deepStrictEqual(arg, [["foo"]]);
+          });
         });
       });
     });

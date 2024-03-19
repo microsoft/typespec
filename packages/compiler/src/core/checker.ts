@@ -9,6 +9,7 @@ import {
 } from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
+import { createModelToLiteralCodeFix } from "./compiler-code-fixes/model-to-literal.codefix.js";
 import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-literal.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
@@ -19,7 +20,7 @@ import {
   getNamespaceFullName,
   getTypeName,
 } from "./helpers/index.js";
-import { marshallTypeForJS } from "./js-marshaller.js";
+import { marshallTypeForJSWithLegacyCast, tryMarshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import {
   exprIsBareIdentifier,
@@ -3936,11 +3937,12 @@ export function createChecker(program: Program): Checker {
       }
       const arg = args[index];
       if (arg && arg.value) {
-        resolvedArgs.push({
-          ...arg,
-          jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
-        });
-        if (!checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
+        if (checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
+          resolvedArgs.push({
+            ...arg,
+            jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
+          });
+        } else {
           hasError = true;
         }
       }
@@ -3954,7 +3956,13 @@ export function createChecker(program: Program): Checker {
 
   function resolveDecoratorArgJsValue(value: Type | Value, valueOf: boolean) {
     if (valueOf) {
-      return marshallTypeForJS(value);
+      if (isValueType(value) || value.kind === "Model" || value.kind === "Tuple") {
+        const [res, diagnostics] = marshallTypeForJSWithLegacyCast(value);
+        reportCheckerDiagnostics(diagnostics);
+        return res ?? value; // TODO: can this be a compilerAssert
+      } else {
+        return value;
+      }
     }
     return value;
   }
@@ -5467,7 +5475,7 @@ export function createChecker(program: Program): Checker {
     if (!ref) throw new ProjectionError("Can't find decorator.");
     compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
     return createFunctionType((...args: Type[]): Type => {
-      ref.value!({ program }, ...args.map(marshallTypeForJS));
+      ref.value!({ program }, ...args.map(tryMarshallTypeForJS));
       return voidType;
     });
   }
@@ -5494,7 +5502,7 @@ export function createChecker(program: Program): Checker {
     } else if (ref.flags & SymbolFlags.Function) {
       // TODO: store this in a symbol link probably?
       const t: FunctionType = createFunctionType((...args: Type[]): Type => {
-        const retval = ref.value!(program, ...args.map(marshallTypeForJS));
+        const retval = ref.value!(program, ...args.map(tryMarshallTypeForJS));
         return marshalProjectionReturn(retval, { functionName: node.sv });
       });
       return t;
@@ -5819,6 +5827,45 @@ export function createChecker(program: Program): Checker {
         relationCache
       );
     }
+
+    // LEGACY BEHAVIOR - Goal here is to all models instead of object literal and tuple instead of tuple literals to get a smooth migration of decorators
+    if (
+      source.kind === "Tuple" &&
+      isTypeAssignableToInternal(source, target.target, diagnosticTarget, relationCache)[0] ===
+        Related.true
+    ) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          codefixes: [createTupleToLiteralCodeFix(source.node)],
+          format: {
+            message:
+              "Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
+          },
+          target: source.node,
+        })
+      );
+      return [Related.true, []];
+    } else if (
+      source.kind === "Model" &&
+      source.node?.kind === SyntaxKind.ModelExpression &&
+      isTypeAssignableToInternal(source, target.target, diagnosticTarget, relationCache)[0] ===
+        Related.true
+    ) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          codefixes: [createModelToLiteralCodeFix(source.node)],
+          format: {
+            message:
+              "Using a model as a value is deprecated. Use an object literal instead(with #{}).",
+          },
+          target: source,
+        })
+      );
+      return [Related.true, []];
+    }
+
     if (!isValueType(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }

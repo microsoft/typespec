@@ -1,16 +1,38 @@
-import { stringTemplateToString } from "./index.js";
+import { isValueType, stringTemplateToString, typespecTypeToJson } from "./index.js";
 import type {
   BooleanLiteral,
+  Diagnostic,
   MarshalledValue,
+  Model,
   NumericLiteral,
   ObjectLiteral,
   StringLiteral,
+  Tuple,
   TupleLiteral,
   Type,
   Value,
 } from "./types.js";
 
-export function marshallTypeForJS<T extends Type | Value>(type: T): MarshalledValue<T> {
+export function tryMarshallTypeForJS<T extends Type | Value>(type: T): MarshalledValue<T> {
+  if (isValueType(type)) {
+    return marshallTypeForJS(type);
+  }
+  return type as any;
+}
+
+/** Legacy version that will cast models to object literals and tuple to tuple literals */
+export function marshallTypeForJSWithLegacyCast<T extends Value | Model | Tuple>(
+  type: T
+): [MarshalledValue<T> | undefined, readonly Diagnostic[]] {
+  switch (type.kind) {
+    case "Model":
+    case "Tuple":
+      return typespecTypeToJson(type, type) as any;
+    default:
+      return [marshallTypeForJS(type) as any, []];
+  }
+}
+export function marshallTypeForJS<T extends Value>(type: T): MarshalledValue<T> {
   switch (type.kind) {
     case "Boolean":
     case "String":
@@ -22,8 +44,7 @@ export function marshallTypeForJS<T extends Type | Value>(type: T): MarshalledVa
       return objectLiteralToValue(type) as any;
     case "TupleLiteral":
       return tupleLiteralToValue(type) as any;
-    // In other case we keep the original tye
-    default:
+    case "EnumMember":
       return type as any;
   }
 }

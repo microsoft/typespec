@@ -1270,7 +1270,16 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("cannot assign a model ", async () => {
+      it("can assign a model (LEGACY)", async () => {
+        await expectTypeAssignable({
+          source: `{name: "foo"}`,
+          target: "valueof Info",
+          commonCode: `model Info { name: string }`,
+        });
+      });
+
+      // Disabled for now as this is allowed for backcompat
+      it.skip("cannot assign a model ", async () => {
         await expectTypeNotAssignable(
           {
             source: `{name: "foo"}`,
@@ -1325,7 +1334,15 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
-      it("cannot assign a tuple", async () => {
+      it("can assign a tuple (LEGACY)", async () => {
+        await expectValueAssignable({
+          source: `["foo"]`,
+          target: "valueof string[]",
+        });
+      });
+
+      // Disabled for now as this is allowed for backcompat
+      it.skip("cannot assign a tuple", async () => {
         await expectValueNotAssignable(
           {
             source: `["foo"]`,
@@ -1411,7 +1428,8 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
-    describe("cannot assign a type to a value constraint", () => {
+    // Disabled for now as this is allowed for transition to value types
+    describe.skip("cannot assign a type to a value constraint", () => {
       it.each([
         ["{}", "valueof unknown"],
         ["{}", "valueof {}"],
