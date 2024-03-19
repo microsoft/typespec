@@ -135,11 +135,7 @@ export function $reserve(
   target: Model,
   ...reservations: readonly (Type | number | string)[]
 ) {
-  const finalReservations = reservations
-    .map((reservation) =>
-      typeof reservation === "object" ? getTuple(ctx.program, reservation) : reservation
-    )
-    .filter((v) => v != null);
+  const finalReservations = reservations.filter((v) => v != null);
 
   ctx.program.stateMap(state.reserve).set(target, finalReservations);
 }

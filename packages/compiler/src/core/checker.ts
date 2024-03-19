@@ -3927,7 +3927,13 @@ export function createChecker(program: Program): Checker {
                 ...arg,
                 jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
               });
-              if (!checkArgumentAssignable(arg.value, restType, arg.node!)) {
+              if (
+                !checkArgumentAssignable(
+                  arg.value,
+                  parameter.type.kind === "Value" ? { kind: "Value", target: restType } : restType,
+                  arg.node!
+                )
+              ) {
                 hasError = true;
               }
             }
@@ -3959,7 +3965,7 @@ export function createChecker(program: Program): Checker {
       if (isValueType(value) || value.kind === "Model" || value.kind === "Tuple") {
         const [res, diagnostics] = marshallTypeForJSWithLegacyCast(value);
         reportCheckerDiagnostics(diagnostics);
-        return res ?? value; // TODO: can this be a compilerAssert
+        return res ?? value;
       } else {
         return value;
       }
@@ -5913,6 +5919,19 @@ export function createChecker(program: Program): Checker {
     if (isUnknownType(target)) return [Related.true, []];
     if (isNullType(source)) {
       return isTypeAssignableToInternal(source, target, diagnosticTarget, relationCache);
+    }
+    if (target.kind === "Union") {
+      for (const option of target.variants.values()) {
+        const [related] = isValueOfTypeInternal(
+          source,
+          option.type,
+          diagnosticTarget,
+          relationCache
+        );
+        if (related) {
+          return [Related.true, []];
+        }
+      }
     }
 
     switch (source.kind) {

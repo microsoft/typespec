@@ -1379,6 +1379,30 @@ describe("compiler: checker: type relations", () => {
       });
     });
 
+    describe("valueof tuple", () => {
+      it("can assign tuple literal", async () => {
+        await expectValueAssignable({
+          source: `#["foo", 12]`,
+          target: "valueof [string, int32]",
+        });
+      });
+    });
+
+    describe("valueof union", () => {
+      it("can assign tuple literal variant", async () => {
+        await expectValueAssignable({
+          source: `#["foo", 12]`,
+          target: "valueof ([string, int32] | string | boolean)",
+        });
+      });
+      it("can assign string variant", async () => {
+        await expectValueAssignable({
+          source: `"foo"`,
+          target: "valueof ([string, int32] | string | boolean)",
+        });
+      });
+    });
+
     it("can use valueof in template parameter constraints", async () => {
       const diagnostics = await runner.diagnose(`
         model Foo<T extends valueof string> {
