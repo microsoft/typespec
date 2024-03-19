@@ -49,7 +49,7 @@ import { CharCode, codePointBefore, isIdentifierContinue } from "../core/charcod
 import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
-import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
 import { ResolveModuleHost, resolveModule } from "../core/index.js";
 import { getPositionBeforeTrivia } from "../core/parser-utils.js";
 import { getNodeAtPosition, visitChildren } from "../core/parser.js";
@@ -551,7 +551,7 @@ export function createServer(host: ServerHost): Server {
       ...type.parameters.map((x) => {
         const info: ParameterInformation = {
           // prettier-ignore
-          label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getTypeName(x.type)}`,
+          label: `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${getEntityName(x.type)}`,
         };
         const doc = parameterDocs.get(x.name);
         if (doc) {

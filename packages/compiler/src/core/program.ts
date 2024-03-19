@@ -45,6 +45,7 @@ import {
   DirectiveExpressionNode,
   EmitContext,
   EmitterFunc,
+  Entity,
   JsSourceFileNode,
   LibraryInstance,
   LibraryMetadata,
@@ -1162,7 +1163,7 @@ export async function compile(
     }
   }
 
-  function getNode(target: Node | Type | Sym): Node | undefined {
+  function getNode(target: Node | Entity | Sym): Node | undefined {
     if (!("kind" in target)) {
       // symbol
       if (target.flags & SymbolFlags.Using) {

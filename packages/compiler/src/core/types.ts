@@ -11,6 +11,8 @@ export type MarshalledValue<Type>  =
   Type extends StringLiteral ? string
   : Type extends NumericLiteral ? number
   : Type extends BooleanLiteral ? boolean
+  : Type extends ObjectLiteral ? Record<string, unknown>
+  : Type extends TupleLiteral ? unknown[]
   : Type
 
 /**
@@ -20,11 +22,11 @@ export type MarshalledValue<Type>  =
 export type DecoratorArgumentValue = Type | number | string | boolean;
 
 export interface DecoratorArgument {
-  value: Type;
+  value: Type | Value;
   /**
    * Marshalled value for use in Javascript.
    */
-  jsValue: Type | string | number | boolean;
+  jsValue: Type | Value | Record<string, unknown> | unknown[] | string | number | boolean;
   node?: Node;
 }
 
@@ -72,9 +74,9 @@ export type TemplatedType = Model | Operation | Interface | Union | Scalar;
 
 export interface TypeMapper {
   partial: boolean;
-  getMappedType(type: TemplateParameter): Type;
-  args: readonly Type[];
-  /** @internal */ map: Map<TemplateParameter, Type>;
+  getMappedType(type: TemplateParameter): Type | Value;
+  args: readonly (Type | Value)[];
+  /** @internal */ map: Map<TemplateParameter, Type | Value>;
 }
 
 export interface TemplatedTypeBase {
@@ -82,24 +84,41 @@ export interface TemplatedTypeBase {
   /**
    * @deprecated use templateMapper instead.
    */
-  templateArguments?: Type[];
+  templateArguments?: (Type | Value)[];
   templateNode?: Node;
 }
 
-export type Type =
+/**
+ * Represent every single entity that are part of the TypeSpec program. Those are composed of different elements:
+ * - Types
+ * - Values
+ * - Value Constraints
+ */
+export type Entity = Type | Value | ValueType | ParamConstraintUnion;
+
+/** Entities that can be used as both values and values. */
+export type TypeAndValue =
+  | StringLiteral
+  | StringTemplate
+  | NumericLiteral
+  | BooleanLiteral
+  | EnumMember;
+
+/**
+ * Entities that can only be used as value.
+ */
+export type ValueOnly = ObjectLiteral | TupleLiteral;
+
+/** Entities that can be used as types only */
+export type TypeOnly =
   | Model
   | ModelProperty
   | Scalar
   | Interface
   | Enum
-  | EnumMember
   | TemplateParameter
   | Namespace
   | Operation
-  | StringLiteral
-  | NumericLiteral
-  | BooleanLiteral
-  | StringTemplate
   | StringTemplateSpan
   | Tuple
   | Union
@@ -110,6 +129,14 @@ export type Type =
   | FunctionParameter
   | ObjectType
   | Projection;
+
+/** Entities that can be used as types */
+export type Type = TypeAndValue | TypeOnly;
+
+/**
+ * Entities that can be used as values.
+ */
+export type Value = TypeAndValue | ValueOnly;
 
 export type StdTypes = {
   // Models
@@ -143,13 +170,13 @@ export interface Projector {
   parentProjector?: Projector;
   projections: ProjectionApplication[];
   projectedTypes: Map<Type, Type>;
-  projectType(type: Type): Type;
+  projectType(type: Type | Value): Type | Value;
   projectedStartNode?: Type;
   projectedGlobalNamespace?: Namespace;
 }
 
 export interface ValueType {
-  kind: "Value"; // Todo remove?
+  kind: "Value";
   target: Type;
 }
 
@@ -285,8 +312,20 @@ export interface ModelProperty extends BaseType, DecoratedType {
   // this tracks the property we copied from.
   sourceProperty?: ModelProperty;
   optional: boolean;
-  default?: Type;
+  default?: Type | Value;
   model?: Model;
+}
+
+export interface ObjectLiteral {
+  kind: "ObjectLiteral";
+  node: ObjectLiteralNode;
+  properties: Map<string, Value>;
+}
+
+export interface TupleLiteral {
+  kind: "TupleLiteral";
+  node: TupleLiteralNode;
+  values: Value[];
 }
 
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
@@ -509,6 +548,13 @@ export interface Tuple extends BaseType {
   values: Type[];
 }
 
+export interface ParamConstraintUnion {
+  kind: "ParamConstraintUnion"; // TODO: review naming
+  node: UnionExpressionNode;
+
+  readonly options: (Type | ValueType)[];
+}
+
 export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   kind: "Union";
   name?: string;
@@ -546,8 +592,8 @@ export interface UnionVariant extends BaseType, DecoratedType {
 export interface TemplateParameter extends BaseType {
   kind: "TemplateParameter";
   node: TemplateParameterDeclarationNode;
-  constraint?: Type | ValueType;
-  default?: Type;
+  constraint?: Type | ParamConstraintUnion | ValueType;
+  default?: Type | Value;
 }
 
 export interface Decorator extends BaseType {
@@ -574,7 +620,7 @@ export interface FunctionParameter extends BaseType {
   kind: "FunctionParameter";
   node: FunctionParameterNode;
   name: string;
-  type: Type | ValueType;
+  type: Type | ParamConstraintUnion | ValueType;
   optional: boolean;
   rest: boolean;
 }
@@ -701,8 +747,8 @@ export const enum SymbolFlags {
  * Maps type arguments to instantiated type.
  */
 export interface TypeInstantiationMap {
-  get(args: readonly Type[]): Type | undefined;
-  set(args: readonly Type[], type: Type): void;
+  get(args: readonly (Type | Value)[]): Type | undefined;
+  set(args: readonly (Type | Value)[], type: Type): void;
 }
 
 /**
@@ -817,6 +863,10 @@ export enum SyntaxKind {
   Return,
   JsNamespaceDeclaration,
   TemplateArgument,
+  ObjectLiteral,
+  ObjectLiteralProperty,
+  ObjectLiteralSpreadProperty,
+  TupleLiteral,
 }
 
 export const enum NodeFlags {
@@ -911,7 +961,11 @@ export type Node =
   | ProjectionModelPropertyNode
   | ProjectionModelSpreadPropertyNode
   | ProjectionStatementNode
-  | ProjectionNode;
+  | ProjectionNode
+  | ObjectLiteralNode
+  | ObjectLiteralPropertyNode
+  | ObjectLiteralSpreadPropertyNode
+  | TupleLiteralNode;
 
 /**
  * Node that can be used as template
@@ -1067,6 +1121,8 @@ export type Expression =
   | ArrayExpressionNode
   | MemberExpressionNode
   | ModelExpressionNode
+  | ObjectLiteralNode
+  | TupleLiteralNode
   | TupleExpressionNode
   | UnionExpressionNode
   | IntersectionExpressionNode
@@ -1255,6 +1311,29 @@ export interface ModelSpreadPropertyNode extends BaseNode {
   readonly kind: SyntaxKind.ModelSpreadProperty;
   readonly target: TypeReferenceNode;
   readonly parent?: ModelStatementNode | ModelExpressionNode;
+}
+
+export interface ObjectLiteralNode extends BaseNode {
+  readonly kind: SyntaxKind.ObjectLiteral;
+  readonly properties: (ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode)[];
+}
+
+export interface ObjectLiteralPropertyNode extends BaseNode {
+  readonly kind: SyntaxKind.ObjectLiteralProperty;
+  readonly id: IdentifierNode;
+  readonly value: Expression;
+  readonly parent?: ObjectLiteralNode;
+}
+
+export interface ObjectLiteralSpreadPropertyNode extends BaseNode {
+  readonly kind: SyntaxKind.ObjectLiteralSpreadProperty;
+  readonly target: TypeReferenceNode;
+  readonly parent?: ObjectLiteralNode;
+}
+
+export interface TupleLiteralNode extends BaseNode {
+  readonly kind: SyntaxKind.TupleLiteral;
+  readonly values: readonly Expression[];
 }
 
 export type LiteralNode =
@@ -1839,7 +1918,7 @@ export interface SourceLocation extends TextRange {
 export const NoTarget = Symbol.for("NoTarget");
 
 /** Diagnostic target that can be used when working with TypeSpec types.  */
-export type TypeSpecDiagnosticTarget = Node | Type | Sym;
+export type TypeSpecDiagnosticTarget = Node | Entity | Sym;
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
 export type DiagnosticSeverity = "error" | "warning";

@@ -1,17 +1,26 @@
 import { $docFromComment, getIndexer, isArrayModelType } from "../lib/decorators.js";
-import { MultiKeyMap, Mutable, createRekeyableMap, isArray, mutate } from "../utils/misc.js";
+import {
+  MultiKeyMap,
+  Mutable,
+  createRekeyableMap,
+  isArray,
+  isDefined,
+  mutate,
+} from "../utils/misc.js";
 import { createSymbol, createSymbolTable } from "./binder.js";
 import { createChangeIdentifierCodeFix } from "./compiler-code-fixes/change-identifier.codefix.js";
+import { createModelToLiteralCodeFix } from "./compiler-code-fixes/model-to-literal.codefix.js";
+import { createTupleToLiteralCodeFix } from "./compiler-code-fixes/tuple-to-literal.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { ProjectionError, compilerAssert, reportDeprecated } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import {
   TypeNameOptions,
+  getEntityName,
   getNamespaceFullName,
   getTypeName,
-  stringTemplateToString,
 } from "./helpers/index.js";
-import { isStringTemplateSerializable } from "./helpers/string-template-utils.js";
+import { marshallTypeForJSWithLegacyCast, tryMarshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import {
   exprIsBareIdentifier,
@@ -24,14 +33,19 @@ import { createProjectionMembers } from "./projection-members.js";
 import {
   getFullyQualifiedSymbolName,
   getParentTemplateNode,
+  isErrorType,
   isNeverType,
+  isNullType,
   isTemplateInstance,
   isUnknownType,
+  isValueOnly,
+  isValueType,
   isVoidType,
 } from "./type-utils.js";
 import {
   AliasStatementNode,
   ArrayExpressionNode,
+  ArrayModelType,
   AugmentDecoratorStatementNode,
   BooleanLiteral,
   BooleanLiteralNode,
@@ -46,6 +60,7 @@ import {
   Diagnostic,
   DiagnosticTarget,
   DocContent,
+  Entity,
   Enum,
   EnumMember,
   EnumMemberNode,
@@ -66,7 +81,6 @@ import {
   JsSourceFileNode,
   LiteralNode,
   LiteralType,
-  MarshalledValue,
   MemberContainerNode,
   MemberContainerType,
   MemberExpressionNode,
@@ -86,8 +100,11 @@ import {
   NodeFlags,
   NumericLiteral,
   NumericLiteralNode,
+  ObjectLiteral,
+  ObjectLiteralNode,
   Operation,
   OperationStatementNode,
+  ParamConstraintUnion,
   Projection,
   ProjectionArithmeticExpressionNode,
   ProjectionBlockExpressionNode,
@@ -136,6 +153,8 @@ import {
   TemplatedType,
   Tuple,
   TupleExpressionNode,
+  TupleLiteral,
+  TupleLiteralNode,
   Type,
   TypeInstantiationMap,
   TypeMapper,
@@ -148,6 +167,7 @@ import {
   UnionVariant,
   UnionVariantNode,
   UnknownType,
+  Value,
   ValueOfExpressionNode,
   ValueType,
   VoidType,
@@ -217,8 +237,8 @@ export interface Checker {
    * @returns [related, list of diagnostics]
    */
   isTypeAssignableTo(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, readonly Diagnostic[]];
 
@@ -245,6 +265,9 @@ export interface Checker {
    * @returns Resolved type and diagnostics if there was an error.
    */
   resolveTypeReference(node: TypeReferenceNode): [Type | undefined, readonly Diagnostic[]];
+
+  /** @internal */
+  getTypeOrValueForNode(node: Node): Type | Value;
 
   errorType: ErrorType;
   voidType: VoidType;
@@ -400,6 +423,7 @@ export function createChecker(program: Program): Checker {
     isStdType,
     getStdType,
     resolveTypeReference,
+    getTypeOrValueForNode,
   };
 
   const projectionMembers = createProjectionMembers(checker);
@@ -633,6 +657,15 @@ export function createChecker(program: Program): Checker {
   }
 
   function getTypeForNode(node: Node, mapper?: TypeMapper): Type {
+    const type = getTypeOrValueForNode(node, mapper);
+    if (isValueOnly(type)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
+      return errorType;
+    }
+    return type;
+  }
+
+  function getTypeOrValueForNode(node: Node, mapper?: TypeMapper): Type | Value {
     switch (node.kind) {
       case SyntaxKind.ModelExpression:
         return checkModel(node, mapper);
@@ -693,6 +726,11 @@ export function createChecker(program: Program): Checker {
         return neverType;
       case SyntaxKind.UnknownKeyword:
         return unknownType;
+      case SyntaxKind.ObjectLiteral:
+        return checkObjectLiteral(node, mapper);
+      case SyntaxKind.TupleLiteral:
+        return checkTupleLiteral(node, mapper);
+        return errorType;
     }
 
     // we don't emit an error here as we blindly call this function
@@ -746,8 +784,20 @@ export function createChecker(program: Program): Checker {
 
   function checkTemplateParameterDeclaration(
     node: TemplateParameterDeclarationNode,
+    mapper: undefined
+  ): TemplateParameter;
+  function checkTemplateParameterDeclaration(
+    node: TemplateParameterDeclarationNode,
+    mapper: TypeMapper
+  ): Type | Value;
+  function checkTemplateParameterDeclaration(
+    node: TemplateParameterDeclarationNode,
     mapper: TypeMapper | undefined
-  ): Type {
+  ): Type | Value;
+  function checkTemplateParameterDeclaration(
+    node: TemplateParameterDeclarationNode,
+    mapper: TypeMapper | undefined
+  ): Type | Value {
     const parentNode = node.parent!;
     const grandParentNode = parentNode.parent;
     const links = getSymbolLinks(node.symbol);
@@ -786,7 +836,7 @@ export function createChecker(program: Program): Checker {
 
       if (node.constraint) {
         pendingResolutions.start(getNodeSymId(node), ResolutionKind.Constraint);
-        type.constraint = getTypeOrValueTypeForNode(node.constraint);
+        type.constraint = getParamConstraintEntityForNode(node.constraint);
         pendingResolutions.finish(getNodeSymId(node), ResolutionKind.Constraint);
       }
       if (node.default) {
@@ -821,10 +871,10 @@ export function createChecker(program: Program): Checker {
     nodeDefault: Expression,
     templateParameters: readonly TemplateParameterDeclarationNode[],
     index: number,
-    constraint: Type | ValueType | undefined
+    constraint: Entity | undefined
   ) {
     function visit(node: Node) {
-      const type = getTypeForNode(node);
+      const type = getTypeOrValueForNode(node);
       let hasError = false;
       if (type.kind === "TemplateParameter") {
         for (let i = index; i < templateParameters.length; i++) {
@@ -876,8 +926,11 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
-  function checkTemplateArgument(node: TemplateArgumentNode, mapper: TypeMapper | undefined): Type {
-    return getTypeForNode(node.argument, mapper);
+  function checkTemplateArgument(
+    node: TemplateArgumentNode,
+    mapper: TypeMapper | undefined
+  ): Type | Value {
+    return getTypeOrValueForNode(node.argument, mapper);
   }
 
   function resolveTypeReference(
@@ -960,17 +1013,17 @@ export function createChecker(program: Program): Checker {
     args: readonly TemplateArgumentNode[],
     decls: readonly TemplateParameterDeclarationNode[],
     mapper: TypeMapper | undefined
-  ): Map<TemplateParameter, Type> {
+  ): Map<TemplateParameter, Type | Value> {
     const params = new Map<string, TemplateParameter>();
     const positional: TemplateParameter[] = [];
     interface TemplateParameterInit {
       decl: TemplateParameterDeclarationNode;
       // Deferred initializer so that we evaluate the param arguments in definition order.
-      checkArgument: (() => [Node, Type]) | null;
+      checkArgument: (() => [Node, Type | Value]) | null;
     }
     const initMap = new Map<TemplateParameter, TemplateParameterInit>(
       decls.map(function (decl) {
-        const declaredType = getTypeForNode(decl)! as TemplateParameter;
+        const declaredType = getTypeOrValueForNode(decl)! as TemplateParameter;
 
         positional.push(declaredType);
         params.set(decl.id.sv, declaredType);
@@ -988,8 +1041,8 @@ export function createChecker(program: Program): Checker {
     let named = false;
 
     for (const [arg, idx] of args.map((v, i) => [v, i] as const)) {
-      function deferredCheck(): [Node, Type] {
-        return [arg, getTypeForNode(arg.argument, mapper)];
+      function deferredCheck(): [Node, Type | Value] {
+        return [arg, getTypeOrValueForNode(arg.argument, mapper)];
       }
 
       if (arg.name) {
@@ -1055,11 +1108,11 @@ export function createChecker(program: Program): Checker {
       }
     }
 
-    const finalMap = initMap as unknown as Map<TemplateParameter, Type>;
+    const finalMap = initMap as unknown as Map<TemplateParameter, Type | Value>;
     const mapperParams: TemplateParameter[] = [];
-    const mapperArgs: Type[] = [];
+    const mapperArgs: (Type | Value)[] = [];
     for (const [param, { decl, checkArgument: init }] of [...initMap]) {
-      function commit(param: TemplateParameter, type: Type): void {
+      function commit(param: TemplateParameter, type: Type | Value): void {
         finalMap.set(param, type);
         mapperParams.push(param);
         mapperArgs.push(type);
@@ -1085,7 +1138,9 @@ export function createChecker(program: Program): Checker {
           // TODO-TIM check if we expose this below
           commit(
             param,
-            param.constraint?.kind === "Value" ? unknownType : param.constraint ?? unknownType
+            param.constraint?.kind === "Value" || param.constraint?.kind === "ParamConstraintUnion"
+              ? unknownType
+              : param.constraint ?? unknownType
           );
         }
 
@@ -1102,7 +1157,10 @@ export function createChecker(program: Program): Checker {
 
         if (!checkTypeAssignable(type, constraint, argNode)) {
           // TODO-TIM check if we expose this below
-          const effectiveType = param.constraint?.kind === "Value" ? unknownType : param.constraint;
+          const effectiveType =
+            param.constraint?.kind === "Value" || param.constraint.kind === "ParamConstraintUnion"
+              ? unknownType
+              : param.constraint;
 
           commit(param, effectiveType);
           continue;
@@ -1218,10 +1276,11 @@ export function createChecker(program: Program): Checker {
         compilerAssert(sym.type, "Expected late bound symbol to have type");
         return sym.type;
       } else if (sym.flags & SymbolFlags.TemplateParameter) {
-        baseType = checkTemplateParameterDeclaration(
+        const mapped = checkTemplateParameterDeclaration(
           sym.declarations[0] as TemplateParameterDeclarationNode,
           mapper
         );
+        baseType = mapped as any;
       } else if (symbolLinks.type) {
         // Have a cached type for non-declarations
         baseType = symbolLinks.type;
@@ -1291,24 +1350,27 @@ export function createChecker(program: Program): Checker {
     sym: Sym,
     node: TemplateableNode,
     mapper: TypeMapper | undefined
-  ): Type {
-    return sym.flags & SymbolFlags.Model
-      ? checkModelStatement(node as ModelStatementNode, mapper)
-      : sym.flags & SymbolFlags.Scalar
-        ? checkScalar(node as ScalarStatementNode, mapper)
-        : sym.flags & SymbolFlags.Alias
-          ? checkAlias(node as AliasStatementNode, mapper)
-          : sym.flags & SymbolFlags.Interface
-            ? checkInterface(node as InterfaceStatementNode, mapper)
-            : sym.flags & SymbolFlags.Operation
-              ? checkOperation(node as OperationStatementNode, mapper)
-              : checkUnion(node as UnionStatementNode, mapper);
+  ): Type | Value {
+    const type =
+      sym.flags & SymbolFlags.Model
+        ? checkModelStatement(node as ModelStatementNode, mapper)
+        : sym.flags & SymbolFlags.Scalar
+          ? checkScalar(node as ScalarStatementNode, mapper)
+          : sym.flags & SymbolFlags.Alias
+            ? checkAlias(node as AliasStatementNode, mapper)
+            : sym.flags & SymbolFlags.Interface
+              ? checkInterface(node as InterfaceStatementNode, mapper)
+              : sym.flags & SymbolFlags.Operation
+                ? checkOperation(node as OperationStatementNode, mapper)
+                : checkUnion(node as UnionStatementNode, mapper);
+
+    return type;
   }
 
   function getOrInstantiateTemplate(
     templateNode: TemplateableNode,
     params: TemplateParameter[],
-    args: Type[],
+    args: (Type | Value)[],
     parentMapper: TypeMapper | undefined,
     instantiateTempalates = true
   ): Type {
@@ -1372,6 +1434,23 @@ export function createChecker(program: Program): Checker {
     return type;
   }
 
+  /** Check a union expresion used in a parameter constraint, those allow the use of `valueof` as a variant. */
+  function checkUnionExpressionAsParamConstraint(
+    node: UnionExpressionNode,
+    mapper: TypeMapper | undefined
+  ): Union | ParamConstraintUnion {
+    const hasValueOf = node.options.some((x) => x.kind === SyntaxKind.ValueOfExpression);
+    if (!hasValueOf) {
+      return checkUnionExpression(node, mapper);
+    }
+
+    return {
+      kind: "ParamConstraintUnion",
+      node,
+      options: node.options.map((x) => getTypeOrValueOfTypeForNode(x, mapper)),
+    };
+  }
+
   function checkUnionExpression(node: UnionExpressionNode, mapper: TypeMapper | undefined): Union {
     const unionType: Union = createAndFinishType({
       kind: "Union",
@@ -1417,6 +1496,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): ValueType {
     const target = getTypeForNode(node.target, mapper);
+
     return {
       kind: "Value",
       target,
@@ -1544,7 +1624,7 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({ code: "rest-parameter-array", target: node.type })
       );
     }
-    const type = node.type ? getTypeOrValueTypeForNode(node.type) : unknownType;
+    const type = node.type ? getParamConstraintEntityForNode(node.type) : unknownType;
 
     const parameterType: FunctionParameter = createType({
       kind: "FunctionParameter",
@@ -1560,11 +1640,25 @@ export function createChecker(program: Program): Checker {
     return parameterType;
   }
 
-  function getTypeOrValueTypeForNode(node: Node, mapper?: TypeMapper) {
-    if (node.kind === SyntaxKind.ValueOfExpression) {
-      return checkValueOfExpression(node, mapper);
+  function getTypeOrValueOfTypeForNode(node: Node, mapper?: TypeMapper): Type | ValueType {
+    switch (node.kind) {
+      case SyntaxKind.ValueOfExpression:
+        return checkValueOfExpression(node, mapper);
+      default:
+        return getTypeForNode(node, mapper);
     }
-    return getTypeForNode(node, mapper);
+  }
+
+  function getParamConstraintEntityForNode(
+    node: Node,
+    mapper?: TypeMapper
+  ): Type | ParamConstraintUnion | ValueType {
+    switch (node.kind) {
+      case SyntaxKind.UnionExpression:
+        return checkUnionExpressionAsParamConstraint(node, mapper);
+      default:
+        return getTypeOrValueOfTypeForNode(node, mapper);
+    }
   }
 
   function mergeModelTypes(
@@ -2701,7 +2795,7 @@ export function createChecker(program: Program): Checker {
 
   function checkSourceFile(file: TypeSpecScriptNode) {
     for (const statement of file.statements) {
-      getTypeForNode(statement, undefined);
+      getTypeOrValueForNode(statement, undefined);
     }
   }
 
@@ -2946,6 +3040,90 @@ export function createChecker(program: Program): Checker {
         value: value,
       };
     }
+  }
+
+  function checkObjectLiteral(
+    node: ObjectLiteralNode,
+    mapper: TypeMapper | undefined
+  ): ObjectLiteral {
+    return {
+      kind: "ObjectLiteral",
+      node: node,
+      properties: checkObjectLiteralProperties(node, mapper),
+    };
+  }
+
+  function checkObjectLiteralProperties(
+    node: ObjectLiteralNode,
+    mapper: TypeMapper | undefined
+  ): Map<string, Value> {
+    const properties = new Map<string, Value>();
+
+    for (const prop of node.properties!) {
+      if ("id" in prop) {
+        const type = getTypeOrValueForNode(prop.value, mapper);
+        if (checkIsValue(type, prop.value)) {
+          properties.set(prop.id.sv, type);
+        }
+      } else {
+        const targetType = checkObjectSpreadProperty(prop.target, mapper);
+        if (targetType) {
+          for (const [name, value] of targetType.properties) {
+            properties.set(name, value);
+          }
+        }
+      }
+    }
+    return properties;
+  }
+
+  function checkIsValue(type: Type | Value, diagnosticTarget: DiagnosticTarget): type is Value {
+    if (!isValueType(type)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "expect-value",
+          format: { name: getTypeName(type) },
+          target: diagnosticTarget,
+        })
+      );
+      return false;
+    }
+    return true;
+  }
+
+  function checkObjectSpreadProperty(
+    targetNode: TypeReferenceNode,
+    mapper: TypeMapper | undefined
+  ): ObjectLiteral | undefined {
+    const targetType = getTypeOrValueForNode(targetNode, mapper);
+
+    if (targetType.kind === "TemplateParameter" || isErrorType(targetType)) {
+      return undefined;
+    }
+    if (targetType.kind !== "ObjectLiteral") {
+      reportCheckerDiagnostic(createDiagnostic({ code: "spread-object", target: targetNode }));
+      return undefined;
+    }
+
+    return targetType;
+  }
+
+  function checkTupleLiteral(node: TupleLiteralNode, mapper: TypeMapper | undefined): TupleLiteral {
+    const values = node.values
+      .map((itemNode) => {
+        const type = getTypeOrValueForNode(itemNode, mapper);
+        if (checkIsValue(type, itemNode)) {
+          return type;
+        } else {
+          return undefined; // TODO: do we want to omit this or include an error type?
+        }
+      })
+      .filter(isDefined);
+    return {
+      kind: "TupleLiteral",
+      node: node,
+      values,
+    };
   }
 
   function createUnion(options: Type[]): Union {
@@ -3570,27 +3748,33 @@ export function createChecker(program: Program): Checker {
     };
   }
 
-  function isValueType(type: Type): boolean {
-    if (type === nullType) {
-      return true;
-    }
-    if (type.kind === "StringTemplate") {
-      const [valid] = isStringTemplateSerializable(type);
-      return valid;
-    }
+  function isDefaultValue(type: Type | Value): boolean {
     if (type.kind === "UnionVariant") {
       return isValueType(type.type);
     }
-    const valueTypes = new Set(["String", "Number", "Boolean", "EnumMember", "Tuple"]);
-    return valueTypes.has(type.kind);
+    if (type.kind === "Tuple") {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          codefixes: [createTupleToLiteralCodeFix(type.node)],
+          format: {
+            message:
+              "Using a tuple as a default value is deprecated. Use a tuple literal instead. `#[]`",
+          },
+          target: type.node,
+        })
+      );
+      return true;
+    }
+    return isValueType(type);
   }
 
-  function checkDefault(defaultNode: Node, type: Type): Type {
-    const defaultType = getTypeForNode(defaultNode, undefined);
+  function checkDefault(defaultNode: Node, type: Type): Type | Value {
+    const defaultType = getTypeOrValueForNode(defaultNode, undefined);
     if (isErrorType(type)) {
       return errorType;
     }
-    if (!isValueType(defaultType)) {
+    if (!isDefaultValue(defaultType)) {
       reportCheckerDiagnostic(
         createDiagnostic({
           code: "unsupported-default",
@@ -3600,7 +3784,9 @@ export function createChecker(program: Program): Checker {
       );
       return errorType;
     }
-    const [related, diagnostics] = isTypeAssignableTo(defaultType, type, defaultNode);
+    const [related, diagnostics] = isValueType(defaultType)
+      ? isValueOfType(defaultType, type, defaultNode)
+      : isTypeAssignableTo(defaultType, type, defaultNode);
     if (!related) {
       reportCheckerDiagnostics(diagnostics);
       return errorType;
@@ -3685,7 +3871,7 @@ export function createChecker(program: Program): Checker {
           format: {
             decorator: declaration.name,
             to: getTypeName(targetType),
-            expected: getTypeName(declaration.target.type),
+            expected: getEntityName(declaration.target.type),
           },
           target: decoratorNode,
         })
@@ -3727,9 +3913,12 @@ export function createChecker(program: Program): Checker {
     const resolvedArgs: DecoratorArgument[] = [];
     for (const [index, parameter] of declaration.parameters.entries()) {
       if (parameter.rest) {
-        const restType = getIndexType(
-          parameter.type.kind === "Value" ? parameter.type.target : parameter.type
-        );
+        const restType =
+          parameter.type.kind === "ParamConstraintUnion"
+            ? undefined
+            : getIndexType(
+                parameter.type.kind === "Value" ? parameter.type.target : parameter.type
+              );
         if (restType) {
           for (let i = index; i < args.length; i++) {
             const arg = args[i];
@@ -3738,7 +3927,13 @@ export function createChecker(program: Program): Checker {
                 ...arg,
                 jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
               });
-              if (!checkArgumentAssignable(arg.value, restType, arg.node!)) {
+              if (
+                !checkArgumentAssignable(
+                  arg.value,
+                  parameter.type.kind === "Value" ? { kind: "Value", target: restType } : restType,
+                  arg.node!
+                )
+              ) {
                 hasError = true;
               }
             }
@@ -3748,11 +3943,12 @@ export function createChecker(program: Program): Checker {
       }
       const arg = args[index];
       if (arg && arg.value) {
-        resolvedArgs.push({
-          ...arg,
-          jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
-        });
-        if (!checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
+        if (checkArgumentAssignable(arg.value, parameter.type, arg.node!)) {
+          resolvedArgs.push({
+            ...arg,
+            jsValue: resolveDecoratorArgJsValue(arg.value, parameter.type.kind === "Value"),
+          });
+        } else {
           hasError = true;
         }
       }
@@ -3764,20 +3960,22 @@ export function createChecker(program: Program): Checker {
     return type.kind === "Model" ? type.indexer?.value : undefined;
   }
 
-  function resolveDecoratorArgJsValue(value: Type, valueOf: boolean) {
+  function resolveDecoratorArgJsValue(value: Type | Value, valueOf: boolean) {
     if (valueOf) {
-      if (value.kind === "Boolean" || value.kind === "String" || value.kind === "Number") {
-        return literalTypeToValue(value);
-      } else if (value.kind === "StringTemplate") {
-        return stringTemplateToString(value)[0];
+      if (isValueType(value) || value.kind === "Model" || value.kind === "Tuple") {
+        const [res, diagnostics] = marshallTypeForJSWithLegacyCast(value);
+        reportCheckerDiagnostics(diagnostics);
+        return res ?? value;
+      } else {
+        return value;
       }
     }
     return value;
   }
 
   function checkArgumentAssignable(
-    argumentType: Type,
-    parameterType: Type | ValueType,
+    argumentType: Type | Value,
+    parameterType: Entity,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [valid] = isTypeAssignableTo(argumentType, parameterType, diagnosticTarget);
@@ -3786,8 +3984,8 @@ export function createChecker(program: Program): Checker {
         createDiagnostic({
           code: "invalid-argument",
           format: {
-            value: getTypeName(argumentType),
-            expected: getTypeName(parameterType),
+            value: getEntityName(argumentType),
+            expected: getEntityName(parameterType),
           },
           target: diagnosticTarget,
         })
@@ -3850,7 +4048,7 @@ export function createChecker(program: Program): Checker {
     mapper: TypeMapper | undefined
   ): DecoratorArgument[] {
     return decorator.arguments.map((argNode): DecoratorArgument => {
-      const type = getTypeForNode(argNode, mapper);
+      const type = getTypeOrValueForNode(argNode, mapper);
       return {
         value: type,
         jsValue: type,
@@ -3945,7 +4143,7 @@ export function createChecker(program: Program): Checker {
     return extendsType;
   }
 
-  function checkAlias(node: AliasStatementNode, mapper: TypeMapper | undefined): Type {
+  function checkAlias(node: AliasStatementNode, mapper: TypeMapper | undefined): Type | Value {
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
@@ -3969,8 +4167,10 @@ export function createChecker(program: Program): Checker {
     }
 
     pendingResolutions.start(aliasSymId, ResolutionKind.Type);
-    const type = getTypeForNode(node.value, mapper);
-    linkType(links, type, mapper);
+    const type = getTypeOrValueForNode(node.value, mapper);
+    if (!isValueOnly(type)) {
+      linkType(links, type, mapper);
+    }
     pendingResolutions.finish(aliasSymId, ResolutionKind.Type);
 
     return type;
@@ -5281,7 +5481,7 @@ export function createChecker(program: Program): Checker {
     if (!ref) throw new ProjectionError("Can't find decorator.");
     compilerAssert(ref.flags & SymbolFlags.Decorator, "should only resolve decorator symbols");
     return createFunctionType((...args: Type[]): Type => {
-      ref.value!({ program }, ...marshalArgumentsForJS(args));
+      ref.value!({ program }, ...args.map(tryMarshallTypeForJS));
       return voidType;
     });
   }
@@ -5308,7 +5508,7 @@ export function createChecker(program: Program): Checker {
     } else if (ref.flags & SymbolFlags.Function) {
       // TODO: store this in a symbol link probably?
       const t: FunctionType = createFunctionType((...args: Type[]): Type => {
-        const retval = ref.value!(program, ...marshalArgumentsForJS(args));
+        const retval = ref.value!(program, ...args.map(tryMarshallTypeForJS));
         return marshalProjectionReturn(retval, { functionName: node.sv });
       });
       return t;
@@ -5418,8 +5618,8 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function checkTypeAssignable(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget
   ): boolean {
     const [related, diagnostics] = isTypeAssignableTo(source, target, diagnosticTarget);
@@ -5436,24 +5636,44 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
    */
   function isTypeAssignableTo(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget
   ): [boolean, readonly Diagnostic[]] {
     const [related, diagnostics] = isTypeAssignableToInternal(
       source,
       target,
       diagnosticTarget,
-      new MultiKeyMap<[Type | ValueType, Type | ValueType], Related>()
+      new MultiKeyMap<[Entity, Entity], Related>()
+    );
+    return [related === Related.true, diagnostics];
+  }
+
+  /**
+   * Check if the given Value type is of the given type.
+   * @param source Value
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   */
+  function isValueOfType(
+    source: Value,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget
+  ): [boolean, readonly Diagnostic[]] {
+    const [related, diagnostics] = isValueOfTypeInternal(
+      source,
+      target,
+      diagnosticTarget,
+      new MultiKeyMap<[Entity, Entity], Related>()
     );
     return [related === Related.true, diagnostics];
   }
 
   function isTypeAssignableToInternal(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     const cached = relationCache.get([source, target]);
     if (cached !== undefined) {
@@ -5463,17 +5683,17 @@ export function createChecker(program: Program): Checker {
       source,
       target,
       diagnosticTarget,
-      new MultiKeyMap<[Type | ValueType, Type | ValueType], Related>()
+      new MultiKeyMap<[Entity, Entity], Related>()
     );
     relationCache.set([source, target], result);
     return [result, diagnostics];
   }
 
   function isTypeAssignableToWorker(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     // BACKCOMPAT: Added May 2023 sprint, to be removed by June 2023 sprint
     if (source.kind === "TemplateParameter" && source.constraint && target.kind === "Value") {
@@ -5484,10 +5704,10 @@ export function createChecker(program: Program): Checker {
         relationCache
       );
       if (assignable) {
-        const constraint = getTypeName(source.constraint);
+        const constraint = getEntityName(source.constraint);
         reportDeprecated(
           program,
-          `Template constrainted to '${constraint}' will not be assignable to '${getTypeName(
+          `Template constrainted to '${constraint}' will not be assignable to '${getEntityName(
             target
           )}' in the future. Update the constraint to be 'valueof ${constraint}'`,
           diagnosticTarget
@@ -5504,8 +5724,19 @@ export function createChecker(program: Program): Checker {
     if (target.kind === "Value") {
       return isAssignableToValueType(source, target, diagnosticTarget, relationCache);
     }
+    if (isValueOnly(target)) {
+      return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+    }
+    if (target.kind === "ParamConstraintUnion") {
+      return isAssignableToParameterConstraintUnion(
+        source,
+        target,
+        diagnosticTarget,
+        relationCache
+      );
+    }
 
-    if (source.kind === "Value") {
+    if (source.kind === "Value" || source.kind === "ParamConstraintUnion" || isValueOnly(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
@@ -5560,7 +5791,11 @@ export function createChecker(program: Program): Checker {
       );
     } else if (target.kind === "Model" && source.kind === "Model") {
       return isModelRelatedTo(source, target, diagnosticTarget, relationCache);
-    } else if (target.kind === "Model" && target.indexer && source.kind === "Tuple") {
+    } else if (
+      target.kind === "Model" &&
+      isArrayModelType(program, target) &&
+      source.kind === "Tuple"
+    ) {
       for (const item of source.values) {
         const [related, diagnostics] = isTypeAssignableToInternal(
           item,
@@ -5585,10 +5820,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function isAssignableToValueType(
-    source: Type | ValueType,
+    source: Entity,
     target: ValueType,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     if (source.kind === "Value") {
       return isTypeAssignableToInternal(
@@ -5598,20 +5833,129 @@ export function createChecker(program: Program): Checker {
         relationCache
       );
     }
-    const [assignable, diagnostics] = isTypeAssignableToInternal(
-      source,
-      target.target,
-      diagnosticTarget,
-      relationCache
-    );
-    if (!assignable) {
-      return [assignable, diagnostics];
+
+    // LEGACY BEHAVIOR - Goal here is to all models instead of object literal and tuple instead of tuple literals to get a smooth migration of decorators
+    if (
+      source.kind === "Tuple" &&
+      isTypeAssignableToInternal(source, target.target, diagnosticTarget, relationCache)[0] ===
+        Related.true
+    ) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          codefixes: [createTupleToLiteralCodeFix(source.node)],
+          format: {
+            message:
+              "Using a tuple as a value is deprecated. Use a tuple literal instead(with #[]).",
+          },
+          target: source.node,
+        })
+      );
+      return [Related.true, []];
+    } else if (
+      source.kind === "Model" &&
+      source.node?.kind === SyntaxKind.ModelExpression &&
+      isTypeAssignableToInternal(source, target.target, diagnosticTarget, relationCache)[0] ===
+        Related.true
+    ) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "deprecated",
+          codefixes: [createModelToLiteralCodeFix(source.node)],
+          format: {
+            message:
+              "Using a model as a value is deprecated. Use an object literal instead(with #{}).",
+          },
+          target: source,
+        })
+      );
+      return [Related.true, []];
     }
 
     if (!isValueType(source)) {
       return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
     }
-    return [Related.true, []];
+
+    return isValueOfTypeInternal(source, target.target, diagnosticTarget, relationCache);
+  }
+
+  function isAssignableToParameterConstraintUnion(
+    source: Entity,
+    target: ParamConstraintUnion,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
+  ): [Related, readonly Diagnostic[]] {
+    if (source.kind === "ParamConstraintUnion") {
+      for (const option of source.options) {
+        const [variantAssignable] = isAssignableToParameterConstraintUnion(
+          option,
+          target,
+          diagnosticTarget,
+          relationCache
+        );
+        if (!variantAssignable) {
+          return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+        }
+      }
+      return [Related.true, []];
+    }
+
+    for (const option of target.options) {
+      const [related] = isTypeAssignableToInternal(source, option, diagnosticTarget, relationCache);
+      if (related) {
+        return [Related.true, []];
+      }
+    }
+    return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
+  }
+
+  /** Check if the value is assignable to the given type. */
+  function isValueOfTypeInternal(
+    source: Value,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
+  ): [Related, readonly Diagnostic[]] {
+    if (isUnknownType(target)) return [Related.true, []];
+    if (isNullType(source)) {
+      return isTypeAssignableToInternal(source, target, diagnosticTarget, relationCache);
+    }
+    if (target.kind === "Union") {
+      for (const option of target.variants.values()) {
+        const [related] = isValueOfTypeInternal(
+          source,
+          option.type,
+          diagnosticTarget,
+          relationCache
+        );
+        if (related) {
+          return [Related.true, []];
+        }
+      }
+    }
+
+    switch (source.kind) {
+      case "ObjectLiteral":
+        if (target.kind === "Model" && !isArrayModelType(program, target)) {
+          return isObjectLiteralOfModelType(source, target, diagnosticTarget, relationCache);
+        }
+        break;
+      case "TupleLiteral":
+        if (target.kind === "Model" && isArrayModelType(program, target)) {
+          return isTupleLiteralOfArrayType(source, target, diagnosticTarget, relationCache);
+        } else if (target.kind === "Tuple") {
+          return isTupleAssignableToTuple(source, target, diagnosticTarget, relationCache);
+        }
+        break;
+      case "String":
+      case "StringTemplate":
+      case "Number":
+      case "Boolean":
+      case "EnumMember":
+        return isTypeAssignableToInternal(source, target, diagnosticTarget, relationCache);
+    }
+
+    return [Related.false, [createUnassignableDiagnostic(source, target, diagnosticTarget)]];
   }
 
   function isReflectionType(type: Type): type is Model & { name: ReflectionTypeName } {
@@ -5709,7 +6053,7 @@ export function createChecker(program: Program): Checker {
     source: Model,
     target: Model,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, Diagnostic[]] {
     relationCache.set([source, target], Related.maybe);
     const diagnostics: Diagnostic[] = [];
@@ -5744,6 +6088,102 @@ export function createChecker(program: Program): Checker {
     return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
   }
 
+  function isObjectLiteralOfModelType(
+    source: ObjectLiteral,
+    target: Model,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
+  ): [Related, readonly Diagnostic[]] {
+    relationCache.set([source, target], Related.maybe);
+    const diagnostics: Diagnostic[] = [];
+    const remainingProperties = new Map(source.properties);
+    for (const prop of walkPropertiesInherited(target)) {
+      const sourceProperty = source.properties.get(prop.name);
+      if (sourceProperty === undefined) {
+        if (!prop.optional) {
+          diagnostics.push(
+            createDiagnostic({
+              code: "missing-property",
+              format: {
+                propertyName: prop.name,
+                sourceType: getEntityName(source),
+                targetType: getEntityName(target),
+              },
+              target: source,
+            })
+          );
+        }
+      } else {
+        remainingProperties.delete(prop.name);
+        const [related, propDiagnostics] = isValueOfTypeInternal(
+          sourceProperty,
+          prop.type,
+          diagnosticTarget,
+          relationCache
+        );
+        if (!related) {
+          diagnostics.push(...propDiagnostics);
+        }
+      }
+    }
+
+    if (target.indexer) {
+      const [_, indexerDiagnostics] = arePropertiesAssignableToIndexer(
+        remainingProperties,
+        target.indexer.value,
+        diagnosticTarget,
+        relationCache
+      );
+      diagnostics.push(...indexerDiagnostics);
+    } else {
+      for (const [propName] of remainingProperties) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "unexpected-property",
+            format: {
+              propertyName: propName,
+              type: getEntityName(target),
+            },
+            target: getObjectLiteralPropertyNode(source, propName),
+          })
+        );
+      }
+    }
+    return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
+  }
+  function getObjectLiteralPropertyNode(
+    object: ObjectLiteral,
+    propertyName: string
+  ): DiagnosticTarget {
+    return (
+      object.node.properties.find(
+        (x) => x.kind === SyntaxKind.ObjectLiteralProperty && x.id.sv === propertyName
+      ) ?? object.node
+    );
+  }
+
+  function isTupleLiteralOfArrayType(
+    source: TupleLiteral,
+    target: ArrayModelType,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
+  ): [Related, readonly Diagnostic[]] {
+    relationCache.set([source, target], Related.maybe);
+    for (const value of source.values) {
+      const [related, diagnostics] = isValueOfTypeInternal(
+        value,
+        target.indexer.value,
+        diagnosticTarget,
+        relationCache
+      );
+      if (!related) {
+        return [Related.false, diagnostics];
+      }
+    }
+
+    return [Related.true, []];
+  }
+
   function getProperty(model: Model, name: string): ModelProperty | undefined {
     return (
       model.properties.get(name) ??
@@ -5751,15 +6191,36 @@ export function createChecker(program: Program): Checker {
     );
   }
 
+  function arePropertiesAssignableToIndexer(
+    properties: Map<string, Type | Value>,
+    indexerConstaint: Type,
+    diagnosticTarget: DiagnosticTarget,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
+  ): [Related, readonly Diagnostic[]] {
+    for (const prop of properties.values()) {
+      const [related, diagnostics] = isTypeAssignableToInternal(
+        prop,
+        indexerConstaint,
+        diagnosticTarget,
+        relationCache
+      );
+      if (!related) {
+        return [Related.false, diagnostics];
+      }
+    }
+
+    return [Related.true, []];
+  }
+
   function isIndexerValid(
     source: Model,
     target: Model & { indexer: ModelIndexer },
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     // Model expressions should be able to be assigned.
     if (source.name === "" && target.indexer.key.name !== "integer") {
-      return isIndexConstraintValid(target.indexer.value, source, diagnosticTarget, relationCache);
+      return isIndexConstraintValid(source, target.indexer.value, diagnosticTarget, relationCache);
     } else {
       if (source.indexer === undefined || source.indexer.key !== target.indexer.key) {
         return [
@@ -5790,16 +6251,17 @@ export function createChecker(program: Program): Checker {
    * @param diagnosticTarget Diagnostic target unless something better can be inferred.
    */
   function isIndexConstraintValid(
-    constraintType: Type,
     type: Model,
+    constraintType: Type,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     for (const prop of type.properties.values()) {
-      const [related, diagnostics] = isTypeAssignableTo(
+      const [related, diagnostics] = isTypeAssignableToInternal(
         prop.type,
         constraintType,
-        diagnosticTarget
+        diagnosticTarget,
+        relationCache
       );
       if (!related) {
         return [Related.false, diagnostics];
@@ -5808,8 +6270,8 @@ export function createChecker(program: Program): Checker {
 
     if (type.baseModel) {
       const [related, diagnostics] = isIndexConstraintValid(
-        constraintType,
         type.baseModel,
+        constraintType,
         diagnosticTarget,
         relationCache
       );
@@ -5821,10 +6283,10 @@ export function createChecker(program: Program): Checker {
   }
 
   function isTupleAssignableToTuple(
-    source: Tuple,
+    source: Tuple | TupleLiteral,
     target: Tuple,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, readonly Diagnostic[]] {
     if (source.values.length !== target.values.length) {
       return [
@@ -5834,7 +6296,7 @@ export function createChecker(program: Program): Checker {
             code: "unassignable",
             messageId: "withDetails",
             format: {
-              sourceType: getTypeName(source),
+              sourceType: getEntityName(source),
               targetType: getTypeName(target),
               details: `Source has ${source.values.length} element(s) but target requires ${target.values.length}.`,
             },
@@ -5862,7 +6324,7 @@ export function createChecker(program: Program): Checker {
     source: Type,
     target: Union,
     diagnosticTarget: DiagnosticTarget,
-    relationCache: MultiKeyMap<[Type | ValueType, Type | ValueType], Related>
+    relationCache: MultiKeyMap<[Entity, Entity], Related>
   ): [Related, Diagnostic[]] {
     if (source.kind === "UnionVariant" && source.union === target) {
       return [Related.true, []];
@@ -5905,13 +6367,13 @@ export function createChecker(program: Program): Checker {
   }
 
   function createUnassignableDiagnostic(
-    source: Type | ValueType,
-    target: Type | ValueType,
+    source: Entity,
+    target: Entity,
     diagnosticTarget: DiagnosticTarget
   ) {
     return createDiagnostic({
       code: "unassignable",
-      format: { targetType: getTypeName(target), value: getTypeName(source) },
+      format: { targetType: getEntityName(target), value: getEntityName(source) },
       target: diagnosticTarget,
     });
   }
@@ -5938,10 +6400,6 @@ export function createChecker(program: Program): Checker {
 
 function isAnonymous(type: Type) {
   return !("name" in type) || typeof type.name !== "string" || !type.name;
-}
-
-function isErrorType(type: Type): type is ErrorType {
-  return type.kind === "Intrinsic" && type.name === "ErrorType";
 }
 
 const numericRanges: Record<
@@ -6000,10 +6458,10 @@ function addDerivedModels(models: Set<Model>, possiblyDerivedModels: ReadonlySet
 
 function createTypeMapper(
   parameters: TemplateParameter[],
-  args: Type[],
+  args: (Type | Value)[],
   parentMapper?: TypeMapper
 ): TypeMapper {
-  const map = new Map<TemplateParameter, Type>(parentMapper?.map ?? []);
+  const map = new Map<TemplateParameter, Type | Value>(parentMapper?.map ?? []);
 
   for (const [index, param] of parameters.entries()) {
     map.set(param, args[index]);
@@ -6395,26 +6853,6 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
       return decorator(createPassThruContext(program, decApp), target, ...args);
     },
   };
-}
-
-/**
- * Convert TypeSpec argument to JS argument.
- */
-function marshalArgumentsForJS<T extends Type>(args: T[]): MarshalledValue<T>[] {
-  return args.map((arg) => {
-    if (arg.kind === "Boolean" || arg.kind === "String" || arg.kind === "Number") {
-      return literalTypeToValue(arg);
-    } else if (arg.kind === "StringTemplate") {
-      return stringTemplateToString(arg)[0];
-    }
-    return arg as any;
-  });
-}
-
-function literalTypeToValue<T extends StringLiteral | NumericLiteral | BooleanLiteral>(
-  type: T
-): MarshalledValue<T> {
-  return type.value as any;
 }
 
 function isTemplatedNode(node: Node): node is TemplateableNode {

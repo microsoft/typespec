@@ -17,6 +17,7 @@ import {
   TypeNameOptions,
   Union,
   UnionVariant,
+  Value,
   compilerAssert,
   getDeprecated,
   getDiscriminatedUnion,
@@ -949,7 +950,7 @@ const B = {
   },
 } as const;
 
-export function getDefaultValue(program: Program, type: Type, defaultType: Type): any {
+export function getDefaultValue(program: Program, type: Type, defaultType: Type | Value): any {
   switch (defaultType.kind) {
     case "String":
       return defaultType.value;
@@ -958,6 +959,7 @@ export function getDefaultValue(program: Program, type: Type, defaultType: Type)
     case "Boolean":
       return defaultType.value;
     case "Tuple":
+    case "TupleLiteral":
       compilerAssert(
         type.kind === "Tuple" || (type.kind === "Model" && isArrayModelType(program, type)),
         "setting tuple default to non-tuple value"

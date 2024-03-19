@@ -478,6 +478,8 @@ PrimaryExpression :
     Literal
     ReferenceExpression
     ParenthesizedExpression
+    ObjectLiteral
+    TupleLiteral
     ModelExpression
     TupleExpression
 
@@ -505,6 +507,26 @@ ProjectionArguments :
 
 ParenthesizedExpression : 
     `(` Expression `)`
+
+ObjectLiteral :
+    `#{` ObjectLiteralBody? `}`
+
+ObjectLiteralBody : 
+    ModelPropertyList `,`?
+
+ObjectLiteralPropertyList :
+    ObjectLiteralProperty
+    ObjectLiteralPropertyList `,` ObjectLiteralProperty
+
+ObjectLiteralProperty :
+    ObjectLiteralSpreadProperty
+    Identifier `:` Expression
+
+ObjectLiteralSpreadProperty :
+    `...` ReferenceExpression
+
+TupleLiteral :
+    `#[` ExpressionList? `]`
 
 ModelExpression :
     `{` ModelBody? `}`

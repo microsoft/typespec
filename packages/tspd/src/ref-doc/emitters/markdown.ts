@@ -1,4 +1,4 @@
-import { Type, ValueType, getTypeName, resolvePath } from "@typespec/compiler";
+import { Entity, getEntityName, isValueOnly, resolvePath } from "@typespec/compiler";
 import { readFile } from "fs/promises";
 import { stringify } from "yaml";
 import {
@@ -187,8 +187,12 @@ export class MarkdownRenderer {
     return [base];
   }
 
-  ref(type: Type | ValueType): string {
-    const namedType = type.kind !== "Value" && this.refDoc.getNamedTypeRefDoc(type);
+  ref(type: Entity): string {
+    const namedType =
+      type.kind !== "Value" &&
+      type.kind !== "ParamConstraintUnion" &&
+      !isValueOnly(type) &&
+      this.refDoc.getNamedTypeRefDoc(type);
     if (namedType) {
       return link(
         inlinecode(namedType.name),
@@ -201,7 +205,7 @@ export class MarkdownRenderer {
       return inlinecode("{...}");
     }
     return inlinecode(
-      getTypeName(type, {
+      getEntityName(type, {
         namespaceFilter: (ns) => !this.refDoc.namespaces.some((x) => x.name === ns.name),
       })
     );

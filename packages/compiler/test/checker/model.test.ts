@@ -124,6 +124,28 @@ describe("compiler: models", () => {
         deepStrictEqual({ ...foo.default }, expectedValue);
       });
     }
+
+    it(`foo?: string[] = #["abc"]`, async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { @test foo?: string[] = #["abc"] }
+        `
+      );
+      const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+      deepStrictEqual(foo.default?.kind, "TupleLiteral");
+    });
+
+    it(`foo?: {name: string} = #{name: "abc"}`, async () => {
+      testHost.addTypeSpecFile(
+        "main.tsp",
+        `
+        model A { @test foo?: {name: string} = #{name: "abc"} }
+        `
+      );
+      const { foo } = (await testHost.compile("main.tsp")) as { foo: ModelProperty };
+      deepStrictEqual(foo.default?.kind, "ObjectLiteral");
+    });
   });
 
   describe("doesn't allow a default of different type than the property type", () => {
@@ -131,7 +153,7 @@ describe("compiler: models", () => {
       ["string", "123", "Type '123' is not assignable to type 'string'"],
       ["int32", `"foo"`, `Type '"foo"' is not assignable to type 'int32'`],
       ["boolean", `"foo"`, `Type '"foo"' is not assignable to type 'boolean'`],
-      ["string[]", `["foo", 123]`, `Type '123' is not assignable to type 'string'`],
+      ["string[]", `#["foo", 123]`, `Type '123' is not assignable to type 'string'`],
       [`"foo" | "bar"`, `"foo1"`, `Type '"foo1"' is not assignable to type '"foo" | "bar"'`],
     ];
 

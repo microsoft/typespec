@@ -62,6 +62,9 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  ObjectLiteralNode,
+  ObjectLiteralPropertyNode,
+  ObjectLiteralSpreadPropertyNode,
   OperationSignature,
   OperationStatementNode,
   ParseOptions,
@@ -102,6 +105,7 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
+  TupleLiteralNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionStatementNode,
@@ -124,7 +128,13 @@ type ParseListItem<K, T> = K extends UnannotatedListKind
   ? () => T
   : (pos: number, decorators: DecoratorExpressionNode[]) => T;
 
-type OpenToken = Token.OpenBrace | Token.OpenParen | Token.OpenBracket | Token.LessThan;
+type OpenToken =
+  | Token.OpenBrace
+  | Token.OpenParen
+  | Token.OpenBracket
+  | Token.LessThan
+  | Token.HashBrace
+  | Token.HashBracket;
 type CloseToken = Token.CloseBrace | Token.CloseParen | Token.CloseBracket | Token.GreaterThan;
 type DelimiterToken = Token.Comma | Token.Semicolon;
 
@@ -183,6 +193,14 @@ namespace ListKind {
     open: Token.OpenBrace,
     close: Token.CloseBrace,
     delimiter: Token.Semicolon,
+    toleratedDelimiter: Token.Comma,
+  } as const;
+
+  export const ObjectLiteralProperties = {
+    ...PropertiesBase,
+    open: Token.HashBrace,
+    close: Token.CloseBrace,
+    delimiter: Token.Comma,
     toleratedDelimiter: Token.Comma,
   } as const;
 
@@ -249,6 +267,13 @@ namespace ListKind {
     ...ExpresionsBase,
     allowEmpty: true,
     open: Token.OpenBracket,
+    close: Token.CloseBracket,
+  } as const;
+
+  export const TupleLiteral = {
+    ...ExpresionsBase,
+    allowEmpty: true,
+    open: Token.HashBracket,
     close: Token.CloseBracket,
   } as const;
 
@@ -954,6 +979,46 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parseObjectLiteralPropertyOrSpread(
+    pos: number,
+    decorators: DecoratorExpressionNode[]
+  ): ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode {
+    reportInvalidDecorators(decorators, "object literal property");
+
+    return token() === Token.Ellipsis
+      ? parseObjectLiteralSpreadProperty(pos)
+      : parseObjectLiteralProperty(pos);
+  }
+
+  function parseObjectLiteralSpreadProperty(pos: number): ObjectLiteralSpreadPropertyNode {
+    parseExpected(Token.Ellipsis);
+
+    // This could be broadened to allow any type expression
+    const target = parseReferenceExpression();
+
+    return {
+      kind: SyntaxKind.ObjectLiteralSpreadProperty,
+      target,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseObjectLiteralProperty(pos: number): ObjectLiteralPropertyNode {
+    const id = parseIdentifier({
+      message: "property",
+    });
+
+    parseExpected(Token.Colon);
+    const value = parseExpression();
+
+    return {
+      kind: SyntaxKind.ObjectLiteralProperty,
+      id,
+      value,
+      ...finishNode(pos),
+    };
+  }
+
   function parseScalarStatement(
     pos: number,
     decorators: DecoratorExpressionNode[]
@@ -1415,6 +1480,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
           const directives = parseDirectiveList();
           reportInvalidDirective(directives, "expression");
           continue;
+        case Token.HashBrace:
+          return parseObjectLiteral();
+        case Token.HashBracket:
+          return parseTupleLiteral();
         case Token.VoidKeyword:
           return parseVoidKeyword();
         case Token.NeverKeyword:
@@ -1487,6 +1556,29 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return {
       kind: SyntaxKind.ModelExpression,
       properties,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseObjectLiteral(): ObjectLiteralNode {
+    const pos = tokenPos();
+    const properties = parseList(
+      ListKind.ObjectLiteralProperties,
+      parseObjectLiteralPropertyOrSpread
+    );
+    return {
+      kind: SyntaxKind.ObjectLiteral,
+      properties,
+      ...finishNode(pos),
+    };
+  }
+
+  function parseTupleLiteral(): TupleLiteralNode {
+    const pos = tokenPos();
+    const values = parseList(ListKind.TupleLiteral, parseExpression);
+    return {
+      kind: SyntaxKind.TupleLiteral,
+      values,
       ...finishNode(pos),
     };
   }
@@ -3220,6 +3312,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       );
     case SyntaxKind.ModelSpreadProperty:
       return visitNode(cb, node.target);
+
     case SyntaxKind.ModelStatement:
       return (
         visitEach(cb, node.decorators) ||
@@ -3362,7 +3455,14 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
       return visitNode(cb, node.head) || visitEach(cb, node.spans);
     case SyntaxKind.StringTemplateSpan:
       return visitNode(cb, node.expression) || visitNode(cb, node.literal);
-
+    case SyntaxKind.ObjectLiteral:
+      return visitEach(cb, node.properties);
+    case SyntaxKind.ObjectLiteralProperty:
+      return visitNode(cb, node.id) || visitNode(cb, node.value);
+    case SyntaxKind.ObjectLiteralSpreadProperty:
+      return visitNode(cb, node.target);
+    case SyntaxKind.TupleLiteral:
+      return visitEach(cb, node.values);
     // no children for the rest of these.
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:

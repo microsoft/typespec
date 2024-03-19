@@ -84,6 +84,8 @@ export enum Token {
   At,
   AtAt,
   Hash,
+  HashBrace,
+  HashBracket,
   Star,
   ForwardSlash,
   Plus,
@@ -213,6 +215,8 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.At, "'@'"],
   [Token.AtAt, "'@@'"],
   [Token.Hash, "'#'"],
+  [Token.HashBrace, "'#{'"],
+  [Token.HashBracket, "'#['"],
   [Token.Star, "'*'"],
   [Token.ForwardSlash, "'/'"],
   [Token.Plus, "'+'"],
@@ -511,7 +515,15 @@ export function createScanner(
           return lookAhead(1) === CharCode.At ? next(Token.AtAt, 2) : next(Token.At);
 
         case CharCode.Hash:
-          return next(Token.Hash);
+          const ahead = lookAhead(1);
+          switch (ahead) {
+            case CharCode.OpenBrace:
+              return next(Token.HashBrace, 2);
+            case CharCode.OpenBracket:
+              return next(Token.HashBracket, 2);
+            default:
+              return next(Token.Hash);
+          }
 
         case CharCode.Plus:
           return isDigit(lookAhead(1)) ? scanSignedNumber() : next(Token.Plus);

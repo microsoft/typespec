@@ -12,7 +12,7 @@ model HasOptional {
   optionalString?: string = "default string";
   optionalNumber?: int32 = 123;
   optionalBoolean?: boolean = true;
-  optionalArray?: string[] = ["foo", "bar"];
+  optionalArray?: string[] = #["foo", "bar"];
   optionalUnion?: "foo" | "bar" = "foo";
   optionalEnum?: MyEnum = MyEnum.a;
 }

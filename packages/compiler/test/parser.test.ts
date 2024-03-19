@@ -223,6 +223,23 @@ describe("compiler: parser", () => {
     parseErrorEach([['union A { @myDec "x" x: number, y: string }', [/';' expected/]]]);
   });
 
+  describe("object literals", () => {
+    parseEach([
+      `alias A = #{a: "abc"};`,
+      `alias A = #{a: "abc", b: "def"};`,
+      `alias A = #{a: "abc", ...B};`,
+      `alias A = #{a: "abc", ...B, c: "ghi"};`,
+    ]);
+  });
+
+  describe("tuple literals", () => {
+    parseEach([
+      `alias A = #["abc"];`,
+      `alias A = #["abc", 123];`,
+      `alias A = #["abc", 123, #{nested: true}];`,
+    ]);
+  });
+
   describe("valueof expressions", () => {
     parseEach([
       "alias A = valueof string;",

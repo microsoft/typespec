@@ -796,7 +796,7 @@ describe("http: decorators", () => {
 
     it("can specify OAuth2 with scopes, which are default for every flow", async () => {
       const { Foo } = (await runner.compile(`
-        alias MyAuth<T extends valueof string[]> = OAuth2Auth<Flows=[{
+        alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
           type: OAuth2FlowType.implicit;
           authorizationUrl: "https://api.example.com/oauth2/authorize";
           refreshUrl: "https://api.example.com/oauth2/refresh";

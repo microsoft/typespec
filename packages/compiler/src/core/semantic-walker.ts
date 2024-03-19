@@ -143,7 +143,7 @@ function createNavigationContext(
 ): NavigationContext {
   return {
     visited: new Set(),
-    emit: (key, ...args) => listeners[key]?.(...(args as [any])),
+    emit: (key, ...args) => (listeners as any)[key]?.(...(args as [any])),
     options: computeOptions(options),
   };
 }

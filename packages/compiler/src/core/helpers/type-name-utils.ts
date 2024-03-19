@@ -1,6 +1,7 @@
 import { printId } from "../../formatter/print/printer.js";
 import { isTemplateInstance } from "../type-utils.js";
 import {
+  Entity,
   Enum,
   Interface,
   Model,
@@ -11,7 +12,6 @@ import {
   Scalar,
   Type,
   Union,
-  ValueType,
 } from "../types.js";
 
 export interface TypeNameOptions {
@@ -19,7 +19,11 @@ export interface TypeNameOptions {
   printable?: boolean;
 }
 
-export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): string {
+export function getTypeName(type: Type, options?: TypeNameOptions): string {
+  return getEntityName(type, options);
+}
+
+export function getEntityName(type: Entity, options?: TypeNameOptions): string {
   switch (type.kind) {
     case "Namespace":
       return getNamespaceFullName(type, options);
@@ -56,9 +60,15 @@ export function getTypeName(type: Type | ValueType, options?: TypeNameOptions): 
       return type.name;
     case "Value":
       return `valueof ${getTypeName(type.target, options)}`;
+    case "ParamConstraintUnion":
+      return type.options.map((x) => getEntityName(x, options)).join(" | ");
+    case "ObjectLiteral":
+      return `#{${[...type.properties.entries()].map(([name, value]) => `${name}: ${getEntityName(value, options)}`).join(", ")}}`;
+    case "TupleLiteral":
+      return `#[${type.values.map((x) => getEntityName(x, options)).join(", ")}]`;
   }
 
-  return "(unnamed type)";
+  return `(unnamed type)`;
 }
 
 export function isStdNamespace(namespace: Namespace): boolean {
@@ -127,7 +137,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   const modelName = nsPrefix + getIdentifierName(model.name, options);
   if (isTemplateInstance(model)) {
     // template instantiation
-    const args = model.templateMapper.args.map((x) => getTypeName(x, options));
+    const args = model.templateMapper.args.map((x) => getEntityName(x, options));
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
@@ -175,7 +185,7 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
   let interfaceName = getIdentifierName(iface.name, options);
   if (isTemplateInstance(iface)) {
     interfaceName += `<${iface.templateMapper.args
-      .map((x) => getTypeName(x, options))
+      .map((x) => getEntityName(x, options))
       .join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;

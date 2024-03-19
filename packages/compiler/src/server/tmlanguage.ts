@@ -51,7 +51,9 @@ export type TypeSpecScope =
   | "punctuation.curlybrace.open.tsp"
   | "punctuation.curlybrace.close.tsp"
   | "punctuation.parenthesis.open.tsp"
-  | "punctuation.parenthesis.close.tsp";
+  | "punctuation.parenthesis.close.tsp"
+  | "punctuation.hashcurlybrace.open.tsp"
+  | "punctuation.hashsquarebracket.open.tsp";
 
 const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
@@ -365,6 +367,20 @@ const typeParameters: BeginEndRule = {
   patterns: [typeParameter, punctuationComma],
 };
 
+const tupleLiteral: BeginEndRule = {
+  key: "tuple-literal",
+  scope: meta,
+  begin: "#\\[",
+  beginCaptures: {
+    "0": { scope: "punctuation.hashsquarebracket.open.tsp" },
+  },
+  end: "\\]",
+  endCaptures: {
+    "0": { scope: "punctuation.squarebracket.close.tsp" },
+  },
+  patterns: [expression, punctuationComma],
+};
+
 const tupleExpression: BeginEndRule = {
   key: "tuple-expression",
   scope: meta,
@@ -447,6 +463,31 @@ const modelExpression: BeginEndRule = {
     modelSpreadProperty,
     punctuationSemicolon,
   ],
+};
+
+const objectLiteralProperty: BeginEndRule = {
+  key: "object-literal-property",
+  scope: meta,
+  begin: `(?:(${identifier})\\s*(:))`,
+  beginCaptures: {
+    "1": { scope: "variable.name.tsp" },
+    "2": { scope: "keyword.operator.type.annotation.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, expression],
+};
+const objectLiteral: BeginEndRule = {
+  key: "object-literal",
+  scope: meta,
+  begin: "#\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.hashcurlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [token, objectLiteralProperty, directive, modelSpreadProperty, punctuationComma],
 };
 
 const modelHeritage: BeginEndRule = {
@@ -865,6 +906,8 @@ expression.patterns = [
   parenthesizedExpression,
   valueOfExpression,
   typeArguments,
+  objectLiteral,
+  tupleLiteral,
   tupleExpression,
   modelExpression,
   identifierExpression,

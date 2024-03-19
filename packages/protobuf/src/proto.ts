@@ -10,12 +10,10 @@ import {
   Model,
   ModelProperty,
   Namespace,
-  NumericLiteral,
   Operation,
   Program,
   resolvePath,
   StringLiteral,
-  Tuple,
   Type,
 } from "@typespec/compiler";
 
@@ -112,22 +110,6 @@ export function $stream(ctx: DecoratorContext, target: Operation, mode: EnumMemb
   ctx.program.stateMap(state.stream).set(target, emitStreamingMode);
 }
 
-function getTuple(program: Program, t: Type): [number, number] | null {
-  if (t.kind !== "Tuple" || t.values.some((v) => v.kind !== "Number") || t.values.length !== 2) {
-    reportDiagnostic(program, {
-      code: "illegal-reservation",
-      target: t,
-    });
-
-    return null;
-  }
-
-  return Object.assign(
-    (t as Tuple).values.map((v) => (v as NumericLiteral).value) as [number, number],
-    { type: t }
-  );
-}
-
 export type Reservation = string | number | ([number, number] & { type: Type });
 
 export function $reserve(
@@ -135,11 +117,7 @@ export function $reserve(
   target: Model,
   ...reservations: readonly (Type | number | string)[]
 ) {
-  const finalReservations = reservations
-    .map((reservation) =>
-      typeof reservation === "object" ? getTuple(ctx.program, reservation) : reservation
-    )
-    .filter((v) => v != null);
+  const finalReservations = reservations.filter((v) => v != null);
 
   ctx.program.stateMap(state.reserve).set(target, finalReservations);
 }

@@ -31,6 +31,9 @@ import {
   Node,
   NodeFlags,
   NumericLiteralNode,
+  ObjectLiteralNode,
+  ObjectLiteralPropertyNode,
+  ObjectLiteralSpreadPropertyNode,
   OperationSignatureDeclarationNode,
   OperationSignatureReferenceNode,
   OperationStatementNode,
@@ -65,6 +68,7 @@ import {
   TemplateParameterDeclarationNode,
   TextRange,
   TupleExpressionNode,
+  TupleLiteralNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
   UnionExpressionNode,
@@ -366,6 +370,18 @@ export function printNode(
         options,
         print
       );
+    case SyntaxKind.ObjectLiteral:
+      return printObjectLiteral(path as AstPath<ObjectLiteralNode>, options, print);
+    case SyntaxKind.ObjectLiteralProperty:
+      return printObjectLiteralProperty(path as AstPath<ObjectLiteralPropertyNode>, options, print);
+    case SyntaxKind.ObjectLiteralSpreadProperty:
+      return printObjectLiteralSpreadProperty(
+        path as AstPath<ObjectLiteralSpreadPropertyNode>,
+        options,
+        print
+      );
+    case SyntaxKind.TupleLiteral:
+      return printTupleLiteral(path as AstPath<TupleLiteralNode>, options, print);
     case SyntaxKind.StringTemplateSpan:
     case SyntaxKind.StringTemplateHead:
     case SyntaxKind.StringTemplateMiddle:
@@ -963,6 +979,63 @@ export function printModelExpression(
   }
 }
 
+export function printObjectLiteral(
+  path: AstPath<ObjectLiteralNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+  const hasProperties = node.properties && node.properties.length > 0;
+  const nodeHasComments = hasComments(node, CommentCheckFlags.Dangling);
+  if (!hasProperties && !nodeHasComments) {
+    return "{}";
+  }
+  const lineDoc = softline;
+  const body: Doc[] = [
+    joinMembersInBlock(path, "properties", options, print, ifBreak(",", ", "), softline),
+  ];
+  if (nodeHasComments) {
+    body.push(printDanglingComments(path, options, { sameIndent: true }));
+  }
+  return group(["#{", ifBreak("", " "), indent(body), lineDoc, ifBreak("", " "), "}"]);
+}
+
+export function printObjectLiteralProperty(
+  path: AstPath<ObjectLiteralPropertyNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  const node = path.node;
+  const id = printIdentifier(node.id, options);
+  return [printDirectives(path, options, print), id, ": ", path.call(print, "value")];
+}
+
+export function printObjectLiteralSpreadProperty(
+  path: AstPath<ObjectLiteralSpreadPropertyNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return [printDirectives(path, options, print), "...", path.call(print, "target")];
+}
+
+export function printTupleLiteral(
+  path: AstPath<TupleLiteralNode>,
+  options: TypeSpecPrettierOptions,
+  print: PrettierChildPrint
+) {
+  return group([
+    "#[",
+    indent(
+      join(
+        ", ",
+        path.map((arg) => [softline, print(arg)], "values")
+      )
+    ),
+    softline,
+    "]",
+  ]);
+}
+
 export function printModelStatement(
   path: AstPath<ModelStatementNode>,
   options: TypeSpecPrettierOptions,
@@ -1078,6 +1151,8 @@ function shouldWrapMemberInNewLines(
     | UnionVariantNode
     | ProjectionModelPropertyNode
     | ProjectionModelSpreadPropertyNode
+    | ObjectLiteralPropertyNode
+    | ObjectLiteralSpreadPropertyNode
   >,
   options: any
 ): boolean {
@@ -1086,6 +1161,8 @@ function shouldWrapMemberInNewLines(
     (node.kind !== SyntaxKind.ModelSpreadProperty &&
       node.kind !== SyntaxKind.ProjectionModelSpreadProperty &&
       node.kind !== SyntaxKind.EnumSpreadMember &&
+      node.kind !== SyntaxKind.ObjectLiteralProperty &&
+      node.kind !== SyntaxKind.ObjectLiteralSpreadProperty &&
       shouldDecoratorBreakLine(path as any, options, {
         tryInline: DecoratorsTryInline.modelProperty,
       })) ||

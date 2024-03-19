@@ -391,10 +391,23 @@ const diagnostics = {
       selfSpread: "Cannot spread type within its own declaration.",
     },
   },
+
   "unsupported-default": {
     severity: "error",
     messages: {
       default: paramMessage`Default must be have a value type but has type '${"type"}'.`,
+    },
+  },
+  "spread-object": {
+    severity: "error",
+    messages: {
+      default: "Cannot spread properties of non-object type.",
+    },
+  },
+  "expect-value": {
+    severity: "error",
+    messages: {
+      default: paramMessage`${"name"} refers to a type, but is being used as a value here.`,
     },
   },
   unassignable: {
@@ -402,6 +415,12 @@ const diagnostics = {
     messages: {
       default: paramMessage`Type '${"value"}' is not assignable to type '${"targetType"}'`,
       withDetails: paramMessage`Type '${"sourceType"}' is not assignable to type '${"targetType"}'\n  ${"details"}`,
+    },
+  },
+  "value-in-type": {
+    severity: "error",
+    messages: {
+      default: "A value cannot be used as a type.",
     },
   },
   "no-prop": {
@@ -420,6 +439,12 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Property '${"propertyName"}' is missing on type '${"sourceType"}' but required in '${"targetType"}'`,
+    },
+  },
+  "unexpected-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Object literal may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
     },
   },
   "extends-interface": {
