@@ -1271,6 +1271,14 @@ describe("compiler: checker: type relations", () => {
         });
       });
 
+      it("can assign object literal with additional properties", async () => {
+        await expectValueAssignable({
+          source: `#{age: 21, name: "foo"}`,
+          target: "valueof Info",
+          commonCode: `model Info { age: int32, ...Record<string> }`,
+        });
+      });
+
       it("can assign a model (LEGACY)", async () => {
         await expectTypeAssignable({
           source: `{name: "foo"}`,
