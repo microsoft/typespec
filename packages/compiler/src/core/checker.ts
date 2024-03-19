@@ -6135,8 +6135,31 @@ export function createChecker(program: Program): Checker {
         relationCache
       );
       diagnostics.push(...indexerDiagnostics);
+    } else {
+      for (const [propName] of remainingProperties) {
+        diagnostics.push(
+          createDiagnostic({
+            code: "unexpected-property",
+            format: {
+              propertyName: propName,
+              type: getEntityName(target),
+            },
+            target: getObjectLiteralPropertyNode(source, propName),
+          })
+        );
+      }
     }
     return [diagnostics.length === 0 ? Related.true : Related.false, diagnostics];
+  }
+  function getObjectLiteralPropertyNode(
+    object: ObjectLiteral,
+    propertyName: string
+  ): DiagnosticTarget {
+    return (
+      object.node.properties.find(
+        (x) => x.kind === SyntaxKind.ObjectLiteralProperty && x.id.sv === propertyName
+      ) ?? object.node
+    );
   }
 
   function isTupleLiteralOfArrayType(

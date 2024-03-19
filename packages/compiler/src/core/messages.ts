@@ -441,6 +441,12 @@ const diagnostics = {
       default: paramMessage`Property '${"propertyName"}' is missing on type '${"sourceType"}' but required in '${"targetType"}'`,
     },
   },
+  "unexpected-property": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Object literal may only specify known properties, and '${"propertyName"}' does not exist in type '${"type"}'.`,
+    },
+  },
   "extends-interface": {
     severity: "error",
     messages: {

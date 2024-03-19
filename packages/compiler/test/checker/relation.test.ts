@@ -67,13 +67,14 @@ describe("compiler: checker: type relations", () => {
     diagnostics: readonly Diagnostic[];
     expectedDiagnosticPos: number;
   }> {
+    const cursor = source.includes("┆") ? "" : "┆";
     host.addJsFile("mock.js", { $mock: () => null });
     const { source: code, pos } = extractCursor(`
     import "./mock.js";
     ${commonCode ?? ""}
     extern dec mock(target: unknown, target: ${target});
 
-    alias Source = ┆${source};
+    alias Source = ${cursor}${source};
    `);
     await runner.compile(code);
     const alias: AliasStatementNode | undefined = runner.program.sourceFiles
@@ -1293,6 +1294,20 @@ describe("compiler: checker: type relations", () => {
         );
       });
 
+      it("emit diagnostic when using extra properties", async () => {
+        await expectValueNotAssignable(
+          {
+            source: `#{name: "foo", ┆notDefined: "bar"}`,
+            target: "valueof Info",
+            commonCode: `model Info { name: string }`,
+          },
+          {
+            code: "unexpected-property",
+            message: `Object literal may only specify known properties, and 'notDefined' does not exist in type 'Info'.`,
+          }
+        );
+      });
+
       it("cannot assign a tuple literal", async () => {
         await expectValueNotAssignable(
           {
@@ -1385,6 +1400,38 @@ describe("compiler: checker: type relations", () => {
           source: `#["foo", 12]`,
           target: "valueof [string, int32]",
         });
+      });
+
+      it("cannot assign tuple literal with too few values", async () => {
+        await expectValueNotAssignable(
+          {
+            source: `#["foo"]`,
+            target: "valueof [string, string]",
+          },
+          {
+            code: "unassignable",
+            message: [
+              `Type '#["foo"]' is not assignable to type '[string, string]'`,
+              "  Source has 1 element(s) but target requires 2.",
+            ].join("\n"),
+          }
+        );
+      });
+
+      it("cannot assign tuple literal with too many values", async () => {
+        await expectValueNotAssignable(
+          {
+            source: `#["a", "b", "c"]`,
+            target: "valueof [string, string]",
+          },
+          {
+            code: "unassignable",
+            message: [
+              `Type '#["a", "b", "c"]' is not assignable to type '[string, string]'`,
+              "  Source has 3 element(s) but target requires 2.",
+            ].join("\n"),
+          }
+        );
       });
     });
 
