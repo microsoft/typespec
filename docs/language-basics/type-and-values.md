@@ -20,7 +20,6 @@ TypeSpec has the concept of Types and Values, entities can be either a Type, a V
 | `Tuple`              | ✅   |       |
 | `Enum`               | ✅   |       |
 | `EnumMember`         | ✅   | ✅    |
-| `EnumMember`         | ✅   | ✅    |
 | `StringLiteral`      | ✅   | ✅    |
 | `NumberLiteral`      | ✅   | ✅    |
 | `BooleanLiteral`     | ✅   | ✅    |
