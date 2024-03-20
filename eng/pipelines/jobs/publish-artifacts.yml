@@ -8,8 +8,10 @@ jobs:
       TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
     pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
+
 
     steps:
       - checkout: self

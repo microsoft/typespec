@@ -2,8 +2,9 @@ jobs:
   - job: sign_vscode
     displayName: Sign
     pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
 
     steps:
       - checkout: none
@@ -16,7 +17,9 @@ jobs:
           path: $(Pipeline.Workspace)/vscode-extension-unsigned
           pattern: "*.vsix"
 
-      - publish: $(Pipeline.Workspace)/vscode-extension-unsigned
+    outputs:
+      - output: pipelineArtifact
+        path: $(Pipeline.Workspace)/vscode-extension-unsigned
         artifact: vscode-extension-signed
         displayName: Publish signed VSCode extension
 
@@ -24,8 +27,9 @@ jobs:
     displayName: Publish
     dependsOn: sign_vscode
     pool:
-      name: azsdk-pool-mms-ubuntu-2004-general
-      vmImage: ubuntu-20.04
+      name: $(LINUXPOOL)
+      image: $(LINUXVMIMAGE)
+      os: linux
 
     steps:
       - download: current

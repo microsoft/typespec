@@ -1,0 +1,53 @@
+resources:
+  repositories:
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+
+parameters:
+- name: stages
+  type: stageList
+  default: []
+- name: variables
+  type: object
+  default: {}
+- name: Use1ESOfficial
+  type: boolean
+  default: true
+
+extends:
+  ${{ if and(parameters.Use1ESOfficial, eq(variables['System.TeamProject'], 'internal')) }}:
+    template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  ${{ else }}:
+    template: v1/1ES.Unofficial.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    settings:
+      skipBuildTagsForGitHubPullRequests: true
+    sdl:
+      sourceAnalysisPool:
+        name: azsdk-pool-mms-win-2022-general
+        image: azsdk-pool-mms-win-2022-1espt
+        os: windows
+      psscriptanalyzer:
+        compiled: true
+        break: true
+    stages:
+    - ${{ each stage in parameters.stages }}:
+      - ${{ each pair in stage }}:
+          ${{ if ne(pair.key, 'variables') }}:
+            ${{ pair.key }}: ${{ pair.value }}
+        variables:
+        - template: /eng/pipelines/template/variables/image.yml@self
+        - ${{ each variable in parameters.variables }}:
+          - ${{ if in(variable.key, 'template', 'group') }}:
+            - ${{ variable.key }}: ${{ variable.value }}
+          - ${{ else }}:
+            - name: ${{ coalesce(variable.key, variable.name) }}
+              value: ${{ variable.value }}
+        - ${{ each variable in stage.variables }}:
+          - ${{ if in(variable.key, 'template', 'group') }}:
+            - ${{ variable.key }}: ${{ variable.value }}
+          - ${{ else }}:
+            - name: ${{ coalesce(variable.key, variable.name) }}
+              value: ${{ variable.value }}
