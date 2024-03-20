@@ -56,7 +56,7 @@ export type NameDecorator = (context: DecoratorContext, target: Type, name: stri
 export type AttributeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
 
 /**
- * Specify that the target property shouldn't create a wrapper node. This allow array properties to be flattened inside the model node or raw text to be inclued.
+ * Specify that the target property shouldn't create a wrapper node. This allow array properties to be flattened inside the model node or raw text to be included.
  * It cannot be used with `@attribute`.
  *
  * @example Array property default

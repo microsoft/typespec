@@ -63,7 +63,7 @@ extern dec name(target: unknown, name: valueof string);
 extern dec attribute(target: ModelProperty);
 
 /**
- * Specify that the target property shouldn't create a wrapper node. This allow array properties to be flattened inside the model node or raw text to be inclued.
+ * Specify that the target property shouldn't create a wrapper node. This allow array properties to be flattened inside the model node or raw text to be included.
  * It cannot be used with `@attribute`.
  *
  * @example Array property default
