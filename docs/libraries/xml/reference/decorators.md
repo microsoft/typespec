@@ -1,24 +1,14 @@
-# @typespec/xml
+---
+title: "Decorators"
+toc_min_heading_level: 2
+toc_max_heading_level: 3
+---
 
-TypeSpec library providing xml bindings
+# Decorators
 
-## Install
+## TypeSpec.Xml
 
-```bash
-npm install @typespec/xml
-```
-
-## Decorators
-
-### TypeSpec.Xml
-
-- [`@attribute`](#@attribute)
-- [`@name`](#@name)
-- [`@ns`](#@ns)
-- [`@nsDeclarations`](#@nsdeclarations)
-- [`@unwrapped`](#@unwrapped)
-
-#### `@attribute`
+### `@attribute` {#@TypeSpec.Xml.attribute}
 
 Specify that the target property should be encoded as an XML attribute instead of node.
 
@@ -26,17 +16,17 @@ Specify that the target property should be encoded as an XML attribute instead o
 @TypeSpec.Xml.attribute
 ```
 
-##### Target
+#### Target
 
 `ModelProperty`
 
-##### Parameters
+#### Parameters
 
 None
 
-##### Examples
+#### Examples
 
-###### Default
+##### Default
 
 ```tsp
 model Blob {
@@ -50,7 +40,7 @@ model Blob {
 </Blob>
 ```
 
-###### With `@attribute`
+##### With `@attribute`
 
 ```tsp
 model Blob {
@@ -63,7 +53,7 @@ model Blob {
 </Blob>
 ```
 
-#### `@name`
+### `@name` {#@TypeSpec.Xml.name}
 
 Provide the name of the XML element or attribute. This is just a syntactic sugar for `@encodedName("application/xml", value)`
 
@@ -71,17 +61,17 @@ Provide the name of the XML element or attribute. This is just a syntactic sugar
 @TypeSpec.Xml.name(name: valueof string)
 ```
 
-##### Target
+#### Target
 
 `unknown`
 
-##### Parameters
+#### Parameters
 
 | Name | Type             | Description |
 | ---- | ---------------- | ----------- |
 | name | `valueof string` |             |
 
-##### Examples
+#### Examples
 
 ```tsp
 @name("XmlBook")
@@ -100,7 +90,7 @@ model Book {
 </XmlBook>
 ```
 
-#### `@ns`
+### `@ns` {#@TypeSpec.Xml.ns}
 
 Specify the XML namespace for this element. It can be used in 2 different ways:
 
@@ -111,20 +101,20 @@ Specify the XML namespace for this element. It can be used in 2 different ways:
 @TypeSpec.Xml.ns(ns: string | EnumMember, prefix?: valueof string)
 ```
 
-##### Target
+#### Target
 
 `unknown`
 
-##### Parameters
+#### Parameters
 
 | Name   | Type                   | Description |
 | ------ | ---------------------- | ----------- |
 | ns     | `string \| EnumMember` |             |
 | prefix | `valueof string`       |             |
 
-##### Examples
+#### Examples
 
-###### With strings
+##### With strings
 
 ```tsp
 @ns("https://example.com/ns1", "ns1")
@@ -137,7 +127,7 @@ model Foo {
 }
 ```
 
-###### With enum
+##### With enum
 
 ```tsp
 @Xml.nsDeclarations
@@ -156,7 +146,7 @@ model Foo {
 }
 ```
 
-#### `@nsDeclarations`
+### `@nsDeclarations` {#@TypeSpec.Xml.nsDeclarations}
 
 Mark an enum as declaring XML namespaces. See `@ns`
 
@@ -164,15 +154,15 @@ Mark an enum as declaring XML namespaces. See `@ns`
 @TypeSpec.Xml.nsDeclarations
 ```
 
-##### Target
+#### Target
 
 `Enum`
 
-##### Parameters
+#### Parameters
 
 None
 
-#### `@unwrapped`
+### `@unwrapped` {#@TypeSpec.Xml.unwrapped}
 
 Specify that the target property shouldn't create a wrapper node. This allow array properties to be flattened inside the model node or raw text to be inclued.
 It cannot be used with `@attribute`.
@@ -181,17 +171,17 @@ It cannot be used with `@attribute`.
 @TypeSpec.Xml.unwrapped
 ```
 
-##### Target
+#### Target
 
 `ModelProperty`
 
-##### Parameters
+#### Parameters
 
 None
 
-##### Examples
+#### Examples
 
-###### Array property default
+##### Array property default
 
 ```tsp
 model Pet {
@@ -209,7 +199,7 @@ model Pet {
 </XmlPet>
 ```
 
-###### Array property with `@unwrapped`
+##### Array property with `@unwrapped`
 
 ```tsp
 model Pet {
@@ -225,7 +215,7 @@ model Pet {
 </XmlPet>
 ```
 
-###### String property default
+##### String property default
 
 ```tsp
 model BlobName {
@@ -241,7 +231,7 @@ abcdef
 </BlobName>
 ```
 
-###### Array property with `@unwrapped`
+##### Array property with `@unwrapped`
 
 ```tsp
 model BlobName {

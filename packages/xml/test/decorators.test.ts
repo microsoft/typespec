@@ -152,4 +152,35 @@ describe("@ns", () => {
       message: "Enum member ns1 must have a value that is the XML namespace url.",
     });
   });
+
+  it("emit error if providing prefix param with enum member namespace", async () => {
+    const diagnostics = await runner.diagnose(`
+      @Xml.nsDeclarations
+      enum Namespaces {
+        ns1: "https://example.com/ns1"
+      }
+      
+      model Blob {
+        @Xml.ns(Namespaces.ns1, "ns2") id : string;
+      }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/xml/prefix-not-allowed",
+      message: "@ns decorator cannot have the prefix parameter set when using an enum member.",
+    });
+  });
+
+  it("emit error if namespace is not a valid url", async () => {
+    const diagnostics = await runner.diagnose(`
+      model Blob {
+        @Xml.ns("notvalidurl", "ns2") id : string;
+      }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/xml/ns-not-uri",
+      message: "Namespace namespace is not a valid URI.",
+    });
+  });
 });

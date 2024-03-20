@@ -49,7 +49,9 @@ function isNsDeclarationsEnum(program: Program, target: Enum): boolean {
 export const $ns: NsDecorator = (context, target, namespace: Type, prefix?: string) => {
   const data = getData(context, namespace, prefix);
   if (data) {
-    context.program.stateMap(XmlStateKeys.nsDeclaration).set(target, data);
+    if (validateNamespaceIsUri(context, data.namespace)) {
+      context.program.stateMap(XmlStateKeys.nsDeclaration).set(target, data);
+    }
   }
 };
 
@@ -80,6 +82,13 @@ function getData(
         });
         return undefined;
       }
+      if (prefix !== undefined) {
+        reportDiagnostic(context.program, {
+          code: "prefix-not-allowed",
+          target: context.getArgumentTarget(1)!,
+          format: { name: namespace.name },
+        });
+      }
       if (typeof namespace.value !== "string") {
         reportDiagnostic(context.program, {
           code: "invalid-ns-declaration-member",
@@ -91,5 +100,19 @@ function getData(
       return { namespace: namespace.value, prefix: namespace.name };
     default:
       return undefined;
+  }
+}
+
+function validateNamespaceIsUri(context: DecoratorContext, namespace: string) {
+  try {
+    new URL(namespace);
+    return true;
+  } catch {
+    reportDiagnostic(context.program, {
+      code: "ns-not-uri",
+      target: context.getArgumentTarget(0)!,
+      format: { namespace },
+    });
+    return false;
   }
 }

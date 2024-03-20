@@ -26,6 +26,18 @@ export const {
         default: "When using a string namespace you must provide a prefix as the 2nd argument.",
       },
     },
+    "prefix-not-allowed": {
+      severity: "error",
+      messages: {
+        default: "@ns decorator cannot have the prefix parameter set when using an enum member.",
+      },
+    },
+    "ns-not-uri": {
+      severity: "error",
+      messages: {
+        default: `Namespace ${"namespace"} is not a valid URI.`,
+      },
+    },
   },
   state: {
     attribute: { description: "Mark a model property as to be serialized as xml attribute" },
