@@ -1,7 +1,38 @@
-import { createTypeSpecLibrary } from "@typespec/compiler";
+import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
-export const libDef = {
+export const {
+  reportDiagnostic,
+  createStateSymbol,
+  stateKeys: XmlStateKeys,
+} = createTypeSpecLibrary({
   name: "@typespec/xml",
-  diagnostics: {},
-} as const;
-export const { reportDiagnostic, createStateSymbol } = createTypeSpecLibrary(libDef);
+  diagnostics: {
+    "ns-enum-not-declaration": {
+      severity: "error",
+      messages: {
+        default:
+          "Enum member used as namespace must be part of an enum marked with @nsDeclaration.",
+      },
+    },
+    "invalid-ns-declaration-member": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Enum member ${"name"} must have a value that is the XML namespace url.`,
+      },
+    },
+    "ns-missing-prefix": {
+      severity: "error",
+      messages: {
+        default: "When using a string namespace you must provide a prefix as the 2nd argument.",
+      },
+    },
+  },
+  state: {
+    attribute: { description: "Mark a model property as to be serialized as xml attribute" },
+    unwrapped: {
+      description: "Mark a model property as to be serialized without a node wrapping the content.",
+    },
+    ns: { description: "Namespace data" },
+    nsDeclaration: { description: "Mark an enum as declarting Xml Namespaces" },
+  },
+} as const);
