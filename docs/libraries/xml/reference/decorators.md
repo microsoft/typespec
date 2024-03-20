@@ -67,9 +67,9 @@ Provide the name of the XML element or attribute. This is just a syntactic sugar
 
 #### Parameters
 
-| Name | Type             | Description |
-| ---- | ---------------- | ----------- |
-| name | `valueof string` |             |
+| Name | Type             | Description                              |
+| ---- | ---------------- | ---------------------------------------- |
+| name | `valueof string` | The name of the XML element or attribute |
 
 #### Examples
 
@@ -107,10 +107,10 @@ Specify the XML namespace for this element. It can be used in 2 different ways:
 
 #### Parameters
 
-| Name   | Type                   | Description |
-| ------ | ---------------------- | ----------- |
-| ns     | `string \| EnumMember` |             |
-| prefix | `valueof string`       |             |
+| Name   | Type                   | Description                                                                  |
+| ------ | ---------------------- | ---------------------------------------------------------------------------- |
+| ns     | `string \| EnumMember` | Provide the namespace URI or the enum member where it is defined.            |
+| prefix | `valueof string`       | Provide the name prefix if the namespace parameter was provided as a string. |
 
 #### Examples
 
