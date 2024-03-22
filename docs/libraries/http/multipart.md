@@ -61,7 +61,7 @@ model Address {
 }
 op create(@header contentType: "multipart/form-data", address: Address): void;
 
-// Send multiple field - In this scenario each address is sent as an individual part
+// Send multiple fields - In this scenario each address is sent as an individual part
 model Address {
   street: string;
   city: string;
