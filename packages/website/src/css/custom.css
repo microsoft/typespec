@@ -179,6 +179,9 @@
   --ifm-navbar-background-color: var(--colorNeutralBackground3);
 }
 
+[data-theme="light"] {
+  --docsearch-muted-color: #6c727e !important;
+}
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme="dark"] {
   /* Change docusaurus Colors */

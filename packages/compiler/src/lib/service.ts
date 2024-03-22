@@ -1,8 +1,9 @@
+import { ServiceDecorator } from "../../generated-defs/TypeSpec.js";
 import { validateDecoratorUniqueOnNode } from "../core/decorator-utils.js";
-import { getTypeName, reportDeprecated } from "../core/index.js";
+import { Type, getTypeName, reportDeprecated } from "../core/index.js";
 import { reportDiagnostic } from "../core/messages.js";
 import { Program } from "../core/program.js";
-import { DecoratorContext, Model, Namespace } from "../core/types.js";
+import { DecoratorContext, Namespace } from "../core/types.js";
 
 export interface ServiceDetails {
   title?: string;
@@ -64,9 +65,21 @@ export function addService(
   serviceMap.set(namespace, { ...existing, ...details, type: namespace });
 }
 
-export function $service(context: DecoratorContext, target: Namespace, options?: Model) {
+export const $service: ServiceDecorator = (
+  context: DecoratorContext,
+  target: Namespace,
+  options?: Type
+) => {
   validateDecoratorUniqueOnNode(context, target, $service);
 
+  if (options && options.kind !== "Model") {
+    reportDiagnostic(context.program, {
+      code: "invalid-argument",
+      format: { value: options.kind, expected: "Model" },
+      target: context.getArgumentTarget(0)!,
+    });
+    return;
+  }
   const serviceDetails: ServiceDetails = {};
   const title = options?.properties.get("title")?.type;
   const versionProp = options?.properties.get("version");
@@ -101,4 +114,4 @@ export function $service(context: DecoratorContext, target: Namespace, options?:
   }
 
   addService(context.program, target, serviceDetails);
-}
+};
