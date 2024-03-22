@@ -238,9 +238,7 @@ The first step is to define how your library can be loaded from the test framewo
 1. Create a new file `./src/testing/index.ts` with the following content
 
 ```ts
-import { resolvePath } from "@typespec/compiler";
-import { createTestLibrary } from "@typespec/compiler/testing";
-import { fileURLToPath } from "url";
+import { createTestLibrary, findTestPackageRoot } from "@typespec/compiler/testing";
 
 export const MyTestLibrary = createTestLibrary({
   name: "<name-of-npm-pkg>",
@@ -279,7 +277,7 @@ Create a new file `test/test-host.js` (change `test` to be your test folder)
 
 ```ts
 import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { RestTestLibrary } from "/rest/testing";
+import { RestTestLibrary } from "@typespec/rest/testing";
 import { MyTestLibrary } from "../src/testing/index.js";
 
 export async function createMyTestHost() {
