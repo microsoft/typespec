@@ -458,6 +458,9 @@
           "include": "#token"
         },
         {
+          "include": "#type-parameters"
+        },
+        {
           "include": "#interface-heritage"
         },
         {
@@ -1156,6 +1159,9 @@
       "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
+          "include": "#token"
+        },
+        {
           "include": "#type-parameter-constraint"
         },
         {
@@ -1228,6 +1234,9 @@
       "patterns": [
         {
           "include": "#token"
+        },
+        {
+          "include": "#type-parameters"
         },
         {
           "include": "#expression"
