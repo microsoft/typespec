@@ -339,7 +339,8 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     }
 
     const refSchema = this.emitter.emitTypeReference(prop.type, {
-      referenceContext: isMultipart ? { contentType: "application/json" } : {},
+      referenceContext:
+        prop.type.kind !== "Union" && isMultipart ? { contentType: "application/json" } : {},
     });
 
     if (refSchema.kind !== "code") {
@@ -471,10 +472,16 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
     const schemaMembers: { schema: any; type: Type | null }[] = [];
     let nullable = false;
     const discriminator = getDiscriminator(program, union);
+    const isMultipart = this.#getContentType().startsWith("multipart/");
 
     for (const variant of variants) {
       if (isNullType(variant.type)) {
         nullable = true;
+        continue;
+      }
+
+      if (isMultipart && this.#isBytesKeptRaw(variant.type)) {
+        schemaMembers.push({ schema: { type: "string", format: "binary" }, type: variant.type });
         continue;
       }
 
@@ -491,7 +498,9 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
           literalVariantEnumByType[variant.type.kind].enum.push(variant.type.value);
         }
       } else {
-        const enumSchema = this.emitter.emitTypeReference(variant.type);
+        const enumSchema = this.emitter.emitTypeReference(variant.type, {
+          referenceContext: isMultipart ? { contentType: "application/json" } : {},
+        });
         compilerAssert(enumSchema.kind === "code", "Unexpected enum schema. Should be kind: code");
         schemaMembers.push({ schema: enumSchema.value, type: variant.type });
       }
