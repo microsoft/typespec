@@ -52,6 +52,5 @@ versionPolicies:
       - "typespec-vs"
       - "typespec-vscode"
       - "@typespec/library-linter"
-      - "@typespec/best-practices"
 
 changelog: ["@chronus/github/changelog", { repo: "microsoft/typespec" }]
