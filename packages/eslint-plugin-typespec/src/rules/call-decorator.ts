@@ -10,7 +10,7 @@ const messages = {
 export const callDecoratorRule = createRule<never[], keyof typeof messages>({
   create(context) {
     const parserServices = context.sourceCode.parserServices;
-    if (!parserServices.program) {
+    if (parserServices === undefined || !parserServices.program) {
       return {};
     }
     const checker = parserServices.program.getTypeChecker();
@@ -19,8 +19,10 @@ export const callDecoratorRule = createRule<never[], keyof typeof messages>({
         if (node.callee.type === TSESTree.AST_NODE_TYPES.Identifier) {
           const functionName = node.callee.name;
           if (functionName.startsWith("$")) {
-            const tsNode = parserServices.esTreeNodeToTSNodeMap.get(node);
-
+            const tsNode = parserServices.esTreeNodeToTSNodeMap?.get(node);
+            if (tsNode === undefined) {
+              return;
+            }
             const signature = checker.getResolvedSignature(tsNode);
             if (signature === undefined) {
               return;

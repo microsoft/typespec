@@ -6,14 +6,15 @@ parameters:
 
 steps:
   - task: NodeTool@0
-    inputs:
-      versionSpec: ${{ parameters.nodeVersion }}
     displayName: Install Node.js
     retryCountOnTaskFailure: 3
+    inputs:
+      versionSpec: ${{ parameters.nodeVersion }}
 
   - task: UseDotNet@2
+    displayName: Install .NET
     inputs:
-      version: 6.0.x
+      version: 8.0.x
 
   - script: npm install -g pnpm@8.13.1
     displayName: Install pnpm

@@ -13,6 +13,7 @@ describe("compiler: projected-names", () => {
   it("@projectName updates the name when running projection", async () => {
     const { expireAt } = (await runner.compile(`
       model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "exp")
         @test expireAt: int32;
       }
@@ -24,6 +25,7 @@ describe("compiler: projected-names", () => {
   it("@projectName doesn't affect a different target", async () => {
     const { expireAt } = (await runner.compile(`
       model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "exp")
         @test expireAt: int32;
       }
@@ -35,6 +37,7 @@ describe("compiler: projected-names", () => {
   it("can project to different targets", async () => {
     const { expireAt } = (await runner.compile(`
       model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "exp")
         @projectedName("csharp", "ExpireAtCS")
         @test expireAt: int32;
@@ -49,6 +52,7 @@ describe("compiler: projected-names", () => {
   it("can project a different target on top of a projected one", async () => {
     const { expireAt } = (await runner.compile(`
       model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "exp")
         @projectedName("csharp", "ExpireAtCS")
         @test expireAt: int32;
@@ -93,7 +97,9 @@ describe("compiler: projected-names", () => {
   it("projectedName overrides a previous renaming", async () => {
     const { expireAt, renamedProperty } = (await runner.compile(`
       model Foo {
+        #suppress "deprecated" "for testing"
         @projectedName("json", "jsonExpireAt") @test expireAt: int32;
+        #suppress "deprecated" "for testing"
         @projectedName("json", "jsonRenamedProperty") @test renamedProperty: string;
       }
 

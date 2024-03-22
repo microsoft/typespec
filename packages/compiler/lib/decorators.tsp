@@ -366,6 +366,7 @@ extern dec overload(target: Operation, overloadbase: Operation);
  * }
  * ```
  */
+#deprecated "Use `@encodedName` instead for changing the name over the wire."
 extern dec projectedName(
   target: unknown,
   targetName: valueof string,

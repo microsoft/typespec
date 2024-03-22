@@ -5,6 +5,7 @@ dictionaries:
   - node
   - typescript
 words:
+  - atrule
   - autorest
   - azsdk
   - azsdkengsys

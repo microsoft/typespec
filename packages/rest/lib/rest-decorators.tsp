@@ -130,6 +130,6 @@ namespace Private {
   extern dec resourceLocation(target: string, resourceType: Model);
   extern dec validateHasKey(target: unknown, value: unknown);
   extern dec validateIsError(target: unknown, value: unknown);
-  extern dec actionSegment(target: Operation, value: string);
+  extern dec actionSegment(target: Operation, value: valueof string);
   extern dec resourceTypeForKeyParam(entity: ModelProperty, resourceType: Model);
 }
