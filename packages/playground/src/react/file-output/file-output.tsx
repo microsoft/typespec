@@ -34,7 +34,7 @@ export const FileOutput: FunctionComponent<FileOutputProps> = ({ filename, conte
   return (
     <div className={style["file-output"]}>
       <div className={style["viewer-selector"]}>
-        <Select value={selected} onChange={handleSelected}>
+        <Select value={selected} onChange={handleSelected} aria-label="Select viewer">
           {viewers.map(({ key, label }) => (
             <option key={key} value={key}>
               {label}

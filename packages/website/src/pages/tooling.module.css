@@ -51,7 +51,7 @@
 }
 
 .formatter-illustration-unformatted .badge {
-  background-color: var(--colorStatusWarningBackground3);
+  background-color: var(--colorStatusWarningForeground1);
   animation: fade var(--animation-duration) infinite alternate-reverse;
 }
 .formatter-illustration-formatted .badge {
