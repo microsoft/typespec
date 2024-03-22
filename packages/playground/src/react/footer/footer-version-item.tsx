@@ -112,7 +112,7 @@ const VersionSelector = memo(({ versions, selected, latest, onChange }: VersionS
   return (
     <div>
       <Title3>Select release</Title3>
-      <Select value={selected} onChange={changeVersion}>
+      <Select value={selected} onChange={changeVersion} aria-label="Select version">
         {versions.map((version) => (
           <option key={version.name} value={version.name}>
             {version.label} {version.name === latest ? "(latest)" : ""}
