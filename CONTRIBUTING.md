@@ -104,6 +104,18 @@ reformatting anything using `pnpm check-format`.
 See also below for having this happen automatically in VS Code
 whenever you save.
 
+## Generate TypeScript signature for decorators
+
+For all packages except the compiler this will be done automatically as part of each package `build` script.
+
+If you want to regenerate decorator signatures without a full build you can run:
+
+```
+pnpm gen-extern-signature
+```
+
+**For the compiler you will need to run it manually or run the whole workspace build. This is because for the tool to run it needs the compiler to build first.**
+
 ## Generate changelogs
 
 ```bash
