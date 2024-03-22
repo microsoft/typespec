@@ -3,7 +3,7 @@ import {
   DiagnosticTarget,
   Enum,
   EnumMember,
-  getNamespaceFullName,
+  Interface,
   Model,
   ModelProperty,
   Namespace,
@@ -15,8 +15,16 @@ import {
   Type,
   Union,
   UnionVariant,
+  getNamespaceFullName,
 } from "@typespec/compiler";
-import { Interface } from "readline";
+import {
+  AddedDecorator,
+  MadeOptionalDecorator,
+  RenamedFromDecorator,
+  ReturnTypeChangedFromDecorator,
+  TypeChangedFromDecorator,
+  VersionedDecorator,
+} from "../generated-defs/TypeSpec.Versioning.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { Version, VersionResolution } from "./types.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
@@ -51,7 +59,7 @@ function checkIsVersion(
   return version;
 }
 
-export function $added(
+export const $added: AddedDecorator = (
   context: DecoratorContext,
   t:
     | Model
@@ -64,7 +72,7 @@ export function $added(
     | Scalar
     | Interface,
   v: EnumMember
-) {
+) => {
   const { program } = context;
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -79,7 +87,7 @@ export function $added(
   (record as Version[]).sort((a, b) => a.index - b.index);
 
   program.stateMap(addedOnKey).set(t as Type, record);
-}
+};
 
 export function $removed(
   context: DecoratorContext,
@@ -121,12 +129,12 @@ export function getTypeChangedFrom(p: Program, t: Type): Map<Version, Type> | un
   return p.stateMap(typeChangedFromKey).get(t) as Map<Version, Type>;
 }
 
-export function $typeChangedFrom(
+export const $typeChangedFrom: TypeChangedFromDecorator = (
   context: DecoratorContext,
   prop: ModelProperty,
   v: EnumMember,
   oldType: any
-) {
+) => {
   const { program } = context;
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -140,7 +148,7 @@ export function $typeChangedFrom(
   // ensure the map is sorted by version
   record = new Map([...record.entries()].sort((a, b) => a[0].index - b[0].index));
   program.stateMap(typeChangedFromKey).set(prop, record);
-}
+};
 
 /**
  * Returns the mapping of versions to old return type values, if applicable
@@ -152,12 +160,12 @@ export function getReturnTypeChangedFrom(p: Program, t: Type): Map<Version, Type
   return p.stateMap(returnTypeChangedFromKey).get(t) as Map<Version, Type>;
 }
 
-export function $returnTypeChangedFrom(
+export const $returnTypeChangedFrom: ReturnTypeChangedFromDecorator = (
   context: DecoratorContext,
   op: Operation,
   v: EnumMember,
-  oldReturnType: any
-) {
+  oldReturnType: Type
+) => {
   const { program } = context;
 
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
@@ -171,14 +179,14 @@ export function $returnTypeChangedFrom(
   // ensure the map is sorted by version
   record = new Map([...record.entries()].sort((a, b) => a[0].index - b[0].index));
   program.stateMap(returnTypeChangedFromKey).set(op, record);
-}
+};
 
 interface RenamedFrom {
   version: Version;
   oldName: string;
 }
 
-export function $renamedFrom(
+export const $renamedFrom: RenamedFromDecorator = (
   context: DecoratorContext,
   t:
     | Model
@@ -192,7 +200,7 @@ export function $renamedFrom(
     | Interface,
   v: EnumMember,
   oldName: string
-) {
+) => {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
@@ -213,16 +221,20 @@ export function $renamedFrom(
   record.sort((a, b) => a.version.index - b.version.index);
 
   program.stateMap(renamedFromKey).set(t as Type, record);
-}
+};
 
-export function $madeOptional(context: DecoratorContext, t: ModelProperty, v: EnumMember) {
+export const $madeOptional: MadeOptionalDecorator = (
+  context: DecoratorContext,
+  t: ModelProperty,
+  v: EnumMember
+) => {
   const { program } = context;
   const version = checkIsVersion(context.program, v, context.getArgumentTarget(0)!);
   if (!version) {
     return;
   }
   program.stateMap(madeOptionalKey).set(t, version);
-}
+};
 
 /**
  * @returns the array of RenamedFrom metadata if applicable.
@@ -338,9 +350,13 @@ export class VersionMap {
   }
 }
 
-export function $versioned(context: DecoratorContext, t: Namespace, versions: Enum) {
+export const $versioned: VersionedDecorator = (
+  context: DecoratorContext,
+  t: Namespace,
+  versions: Enum
+) => {
   context.program.stateMap(versionsKey).set(t, new VersionMap(t, versions));
-}
+};
 
 /**
  * Get the version map of the namespace.
