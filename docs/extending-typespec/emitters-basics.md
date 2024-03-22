@@ -13,7 +13,7 @@ TypeSpec is designed to support many protocol and many output formats. It is imp
 
 For example assuming a User wants to emit `openapi3` and `protobuf` but each API has a different set of operations and is split into different namespaces.
 
-It is important that there is a way for the openapi3 emitter and protobuf emitter to select only the part of the spec that applies to them. For instance the protobuf emitter shouldn't try to emit the http service namespace and fail because of missing annotations.
+It is important that there is a way for the openapi3 emitter and protobuf emitter to select only the part of the spec that applies to them. For instance, the protobuf emitter should not try to emit the http service namespace and fail because of missing annotations.
 
 ## Starting out
 
