@@ -9,7 +9,7 @@ TypeSpec emitters are libraries that utilize various TypeSpec compiler APIs to r
 
 ## Emitter design
 
-TypeSpec is designed to support many protocol and many output formats. It is important that an emitter is designed to select only the part of the TypeSpec spec that makes sense for them. Having emitters designed correctly will allow a user to defined multiple layers of their API in a single TypeSpec document allowing tools to view the entire picture of the service.
+TypeSpec is designed to support many protocols and many output formats. It is important that an emitter is designed to select only the part of the TypeSpec spec that makes sense for them. Having emitters designed correctly will allow a user to define multiple layers of their API in a single TypeSpec document, allowing tools to view the entire picture of the service.
 
 For example assuming a User wants to emit `openapi3` and `protobuf` but each API has a different set of operations and is split into different namespaces.
 
