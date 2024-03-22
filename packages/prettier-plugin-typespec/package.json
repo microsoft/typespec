@@ -21,8 +21,8 @@
     "@rollup/plugin-replace": "~5.0.5",
     "@typespec/compiler": "workspace:~",
     "@typespec/internal-build-utils": "workspace:~",
-    "rollup": "~4.9.6",
-    "vitest": "^1.2.2"
+    "rollup": "~4.13.0",
+    "vitest": "^1.4.0"
   },
   "files": [
     "dist/**/*",

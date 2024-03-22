@@ -23,7 +23,12 @@ export const EmitterDropdown: FunctionComponent<EmitterDropdownProps> = ({
     [onSelectedEmitterChange]
   );
   return (
-    <Select className="sample-dropdown" onChange={handleSelected} value={selectedEmitter}>
+    <Select
+      className="sample-dropdown"
+      onChange={handleSelected}
+      value={selectedEmitter}
+      aria-label="Select an emitter"
+    >
       <option value="" disabled>
         Select emitter...
       </option>
