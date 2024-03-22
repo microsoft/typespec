@@ -59,7 +59,6 @@ import { skipTrivia, skipWhiteSpace } from "../core/scanner.js";
 import { createSourceFile, getSourceFileKindFromExt } from "../core/source-file.js";
 import {
   AugmentDecoratorStatementNode,
-  CodeFix,
   CodeFixEdit,
   CompilerHost,
   DecoratorDeclarationStatementNode,
@@ -117,8 +116,6 @@ export function createServer(host: ServerHost): Server {
   });
   const currentDiagnosticIndex = new Map<number, Diagnostic>();
   let diagnosticIdCounter = 0;
-  const currentCodeFixesIndex = new Map<number, CodeFix>();
-  let codeFixCounter = 0;
   compileService.on("compileEnd", (result) => reportDiagnostics(result));
 
   let workspaceFolders: ServerWorkspaceFolder[] = [];
@@ -797,28 +794,25 @@ export function createServer(host: ServerHost): Server {
   }
 
   async function getCodeActions(params: CodeActionParams): Promise<CodeAction[]> {
-    currentCodeFixesIndex.clear();
     const actions = [];
     for (const vsDiag of params.context.diagnostics) {
       const tspDiag = currentDiagnosticIndex.get(vsDiag.data?.id);
       if (tspDiag === undefined || tspDiag.codefixes === undefined) continue;
 
       for (const fix of tspDiag.codefixes ?? []) {
-        const id = codeFixCounter++;
         const codeAction: CodeAction = {
           ...CodeAction.create(
             fix.label,
             {
               title: fix.label,
               command: Commands.APPLY_CODE_FIX,
-              arguments: [params.textDocument.uri, id],
+              arguments: [params.textDocument.uri, vsDiag.data?.id, fix.id],
             },
             CodeActionKind.QuickFix
           ),
           diagnostics: [vsDiag],
         };
         actions.push(codeAction);
-        currentCodeFixesIndex.set(id, fix);
       }
     }
 
@@ -827,9 +821,10 @@ export function createServer(host: ServerHost): Server {
 
   async function executeCommand(params: ExecuteCommandParams) {
     if (params.command === Commands.APPLY_CODE_FIX) {
-      const [documentUri, id] = params.arguments ?? [];
-      if (documentUri && id) {
-        const codeFix = currentCodeFixesIndex.get(id);
+      const [documentUri, diagId, fixId] = params.arguments ?? [];
+      if (documentUri && diagId && fixId) {
+        const diag = currentDiagnosticIndex.get(diagId);
+        const codeFix = diag?.codefixes?.find((x) => x.id === fixId);
         if (codeFix) {
           const edits = await resolveCodeFix(codeFix);
           const vsEdits = convertCodeFixEdits(edits);
