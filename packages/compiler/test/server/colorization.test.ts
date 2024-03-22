@@ -10,6 +10,7 @@ import { TypeSpecScope } from "../../src/server/tmlanguage.js";
 import { SemanticToken, SemanticTokenKind } from "../../src/server/types.js";
 import { createTestServerHost } from "../../src/testing/test-server-host.js";
 import { findTestPackageRoot } from "../../src/testing/test-utils.js";
+import { deepEquals } from "../../src/utils/index.js";
 
 const { parseRawGrammar, Registry } = vscode_textmate;
 const { createOnigScanner, createOnigString, loadWASM } = vscode_oniguruma;
@@ -1028,6 +1029,49 @@ function testColorization(description: string, tokenize: Tokenize) {
             Token.comment.block("          "),
             Token.comment.block("*/"),
           ]);
+        });
+
+        describe("in template parameters", () => {
+          it.each([
+            [
+              "alias",
+              `alias Foo<T // comment
+                > = T`,
+            ],
+            [
+              "model",
+              `model Foo<T // comment
+                > {}`,
+            ],
+            [
+              "union",
+              `union Foo<T // comment
+                > {}`,
+            ],
+            [
+              "interface",
+              `interface Foo<T // comment
+                > {}`,
+            ],
+            [
+              "operation",
+              `op foo<T // comment
+                >(): void;`,
+            ],
+          ])("%s", async () => {
+            const tokens = await tokenize(`alias Foo<T // comment
+            > = T`);
+
+            const index = tokens.findIndex((x) =>
+              deepEquals(x, Token.punctuation.typeParameters.begin)
+            );
+            deepStrictEqual(tokens.slice(index, index + 4), [
+              Token.punctuation.typeParameters.begin,
+              Token.identifiers.type("T"),
+              Token.comment.line("// comment"),
+              Token.punctuation.typeParameters.end,
+            ]);
+          });
         });
       });
     }
