@@ -1,5 +1,6 @@
 import {
   IntrinsicScalarName,
+  IntrinsicType,
   Model,
   ModelProperty,
   NoTarget,
@@ -7,6 +8,8 @@ import {
   Scalar,
   Type,
   getFriendlyName,
+  isNumericType,
+  isTemplateInstance,
 } from "@typespec/compiler";
 import { StringBuilder } from "@typespec/compiler/emitter-framework";
 import {
@@ -22,7 +25,16 @@ import {
 } from "@typespec/http";
 import { camelCase, pascalCase } from "change-case";
 import { getAttributes } from "./attributes.js";
-import { Attribute, CSharpType, NameCasingType } from "./interfaces.js";
+import {
+  Attribute,
+  BooleanValue,
+  CSharpType,
+  CSharpValue,
+  NameCasingType,
+  NullValue,
+  NumericValue,
+  StringValue,
+} from "./interfaces.js";
 import { reportDiagnostic } from "./lib.js";
 
 export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharpType {
@@ -46,138 +58,302 @@ export function getCSharpTypeForScalar(program: Program, scalar: Scalar): CSharp
   });
 }
 
+export const UnknownType: CSharpType = new CSharpType({
+  name: "JsonNode",
+  namespace: "System.Text.Json",
+  isValueType: false,
+  isBuiltIn: true,
+});
+export function getCSharpType(
+  program: Program,
+  type: Type,
+  namespace: string
+): { type: CSharpType; value?: CSharpValue } | undefined {
+  const known = getKnownType(program, type);
+  if (known !== undefined) return { type: known };
+  switch (type.kind) {
+    case "Boolean":
+      return { type: standardScalars.get("boolean")!, value: new BooleanValue(type.value) };
+    case "Number":
+      return { type: standardScalars.get("numeric")!, value: new NumericValue(type.value) };
+    case "String":
+      return { type: standardScalars.get("string")!, value: new StringValue(type.value) };
+    case "EnumMember":
+      const enumValue = type.value === undefined ? type.name : type.value;
+      if (typeof enumValue === "string")
+        return { type: standardScalars.get("string")!, value: new StringValue(enumValue) };
+      else return { type: standardScalars.get("numeric")!, value: new NumericValue(enumValue) };
+    case "Intrinsic":
+      return getCSharpTypeForIntrinsic(program, type);
+    case "Object":
+      return { type: UnknownType };
+    case "ModelProperty":
+      return getCSharpType(program, type.type, namespace);
+    case "Scalar":
+      return { type: getCSharpTypeForScalar(program, type) };
+    case "Tuple":
+      const resolvedItem = coalesceTypes(program, type.values, namespace);
+      const itemType = resolvedItem.type;
+      return {
+        type: new CSharpType({
+          name: `${itemType.name}[]`,
+          namespace: itemType.namespace,
+          isBuiltIn: itemType.isBuiltIn,
+          isValueType: false,
+        }),
+      };
+    case "UnionVariant":
+      return getCSharpType(program, type.type, namespace);
+    case "Union":
+      return coalesceTypes(
+        program,
+        [...type.variants.values()].map((v) => v.type),
+        namespace
+      );
+    case "Interface":
+      return {
+        type: new CSharpType({
+          name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
+          namespace: namespace,
+          isBuiltIn: false,
+          isValueType: false,
+        }),
+      };
+    case "Enum":
+      return {
+        type: new CSharpType({
+          name: ensureCSharpIdentifier(program, type, type.name, NameCasingType.Class),
+          namespace: `${namespace}.Models`,
+          isBuiltIn: false,
+          isValueType: false,
+        }),
+      };
+    case "Model":
+      if (type.indexer !== undefined && isNumericType(program, type.indexer?.key)) {
+        const resolvedItem = getCSharpType(program, type.indexer.value, namespace);
+        if (resolvedItem === undefined) return undefined;
+        const { type: itemType, value: _ } = resolvedItem;
+
+        return {
+          type: new CSharpType({
+            name: `${itemType.name}[]`,
+            namespace: itemType.namespace,
+            isBuiltIn: itemType.isBuiltIn,
+            isValueType: false,
+          }),
+        };
+      }
+      let name: string = type.name;
+      if (isTemplateInstance(type)) {
+        name = getFriendlyName(program, type);
+      }
+      return {
+        type: new CSharpType({
+          name: ensureCSharpIdentifier(program, type, name, NameCasingType.Class),
+          namespace: `${namespace}.Models`,
+          isBuiltIn: false,
+          isValueType: false,
+        }),
+      };
+    default:
+      return undefined;
+  }
+}
+
+export function coalesceTypes(
+  program: Program,
+  types: Type[],
+  namespace: string
+): { type: CSharpType; value?: CSharpValue } {
+  const visited = new Map<Type, { type: CSharpType; value?: CSharpValue }>();
+  let candidateType: CSharpType | undefined = undefined;
+  let candidateValue: CSharpValue | undefined = undefined;
+  for (const type of types) {
+    if (!visited.has(type)) {
+      const resolvedType = getCSharpType(program, type, namespace);
+      if (resolvedType === undefined) return { type: UnknownType };
+      if (resolvedType.type === UnknownType) return resolvedType;
+      if (candidateType === undefined) {
+        candidateType = resolvedType.type;
+        candidateValue = resolvedType.value;
+      } else {
+        if (candidateValue !== resolvedType.value) candidateValue = undefined;
+        if (candidateType !== resolvedType.type) return { type: UnknownType };
+      }
+      visited.set(type, resolvedType);
+    }
+  }
+
+  return { type: candidateType !== undefined ? candidateType : UnknownType, value: candidateValue };
+}
+
+export function getKnownType(program: Program, type: Type): CSharpType | undefined {
+  return undefined;
+}
+
+export function getCSharpTypeForIntrinsic(
+  program: Program,
+  type: IntrinsicType
+): { type: CSharpType; value?: CSharpValue } | undefined {
+  switch (type.name) {
+    case "unknown":
+      return { type: UnknownType };
+    case "void":
+      return {
+        type: new CSharpType({
+          name: "void",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: false,
+        }),
+      };
+    case "null":
+      return {
+        type: new CSharpType({
+          name: "object",
+          namespace: "System",
+          isBuiltIn: true,
+          isValueType: false,
+        }),
+        value: new NullValue(),
+      };
+    default:
+      return undefined;
+  }
+}
+
 type ExtendedIntrinsicScalarName = IntrinsicScalarName | "unixTimestamp32";
+const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
+  ExtendedIntrinsicScalarName,
+  CSharpType
+>([
+  [
+    "bytes",
+    new CSharpType({ name: "byte[]", namespace: "System", isBuiltIn: true, isValueType: false }),
+  ],
+  [
+    "int8",
+    new CSharpType({ name: "SByte", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "uint8",
+    new CSharpType({ name: "Byte", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "int16",
+    new CSharpType({ name: "Int16", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "uint16",
+    new CSharpType({ name: "UInt16", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "int16",
+    new CSharpType({ name: "Int16", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "uint16",
+    new CSharpType({ name: "UInt16", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "int32",
+    new CSharpType({ name: "int", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "uint32",
+    new CSharpType({ name: "UInt32", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "integer",
+    new CSharpType({ name: "long", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "int64",
+    new CSharpType({ name: "long", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "uint64",
+    new CSharpType({ name: "UInt64", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "safeint",
+    new CSharpType({ name: "long", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "float",
+    new CSharpType({ name: "double", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "float64",
+    new CSharpType({ name: "double", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "float32",
+    new CSharpType({ name: "float", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "string",
+    new CSharpType({ name: "string", namespace: "System", isBuiltIn: true, isValueType: false }),
+  ],
+  [
+    "boolean",
+    new CSharpType({ name: "bool", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "plainDate",
+    new CSharpType({ name: "DateTime", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "utcDateTime",
+    new CSharpType({
+      name: "DateTimeOffset",
+      namespace: "System",
+      isBuiltIn: true,
+      isValueType: true,
+    }),
+  ],
+  [
+    "offsetDateTime",
+    new CSharpType({
+      name: "DateTimeOffset",
+      namespace: "System",
+      isBuiltIn: true,
+      isValueType: true,
+    }),
+  ],
+  [
+    "unixTimestamp32",
+    new CSharpType({ name: "int", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "plainTime",
+    new CSharpType({ name: "DateTime", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "duration",
+    new CSharpType({ name: "TimeSpan", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "numeric",
+    new CSharpType({ name: "object", namespace: "System", isBuiltIn: true, isValueType: false }),
+  ],
+  [
+    "url",
+    new CSharpType({ name: "string", namespace: "System", isBuiltIn: true, isValueType: false }),
+  ],
+  [
+    "decimal",
+    new CSharpType({ name: "decimal", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+  [
+    "decimal128",
+    new CSharpType({ name: "decimal", namespace: "System", isBuiltIn: true, isValueType: true }),
+  ],
+]);
 export function getCSharpTypeForStdScalars(
   program: Program,
   scalar: Scalar & { name: ExtendedIntrinsicScalarName }
 ): CSharpType {
-  const standardScalars: Map<ExtendedIntrinsicScalarName, CSharpType> = new Map<
-    ExtendedIntrinsicScalarName,
-    CSharpType
-  >([
-    [
-      "bytes",
-      new CSharpType({ name: "byte[]", namespace: "System", isBuiltIn: true, isValueType: false }),
-    ],
-    [
-      "int8",
-      new CSharpType({ name: "SByte", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "uint8",
-      new CSharpType({ name: "Byte", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "int16",
-      new CSharpType({ name: "Int16", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "uint16",
-      new CSharpType({ name: "UInt16", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "int16",
-      new CSharpType({ name: "Int16", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "uint16",
-      new CSharpType({ name: "UInt16", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "int32",
-      new CSharpType({ name: "int", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "uint32",
-      new CSharpType({ name: "UInt32", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "integer",
-      new CSharpType({ name: "long", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "int64",
-      new CSharpType({ name: "long", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "uint64",
-      new CSharpType({ name: "UInt64", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "safeint",
-      new CSharpType({ name: "long", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "float",
-      new CSharpType({ name: "double", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "float64",
-      new CSharpType({ name: "double", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "float32",
-      new CSharpType({ name: "float", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "string",
-      new CSharpType({ name: "string", namespace: "System", isBuiltIn: true, isValueType: false }),
-    ],
-    [
-      "boolean",
-      new CSharpType({ name: "bool", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "plainDate",
-      new CSharpType({ name: "DateTime", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "utcDateTime",
-      new CSharpType({
-        name: "DateTimeOffset",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: true,
-      }),
-    ],
-    [
-      "offsetDateTime",
-      new CSharpType({
-        name: "DateTimeOffset",
-        namespace: "System",
-        isBuiltIn: true,
-        isValueType: true,
-      }),
-    ],
-    [
-      "unixTimestamp32",
-      new CSharpType({ name: "int", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "plainTime",
-      new CSharpType({ name: "DateTime", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "duration",
-      new CSharpType({ name: "TimeSpan", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "numeric",
-      new CSharpType({ name: "object", namespace: "System", isBuiltIn: true, isValueType: false }),
-    ],
-    [
-      "url",
-      new CSharpType({ name: "string", namespace: "System", isBuiltIn: true, isValueType: false }),
-    ],
-    [
-      "decimal",
-      new CSharpType({ name: "decimal", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-    [
-      "decimal128",
-      new CSharpType({ name: "decimal", namespace: "System", isBuiltIn: true, isValueType: true }),
-    ],
-  ]);
   const builtIn: CSharpType | undefined = standardScalars.get(scalar.name);
   if (builtIn !== undefined) {
     if (scalar.name === "numeric" || scalar.name === "integer" || scalar.name === "float") {
