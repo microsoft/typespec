@@ -534,6 +534,9 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
         if (i < validResponses.length) {
           builder.pushLiteralSegment("\n");
         }
+      }
+
+      for (const response of operation.responses) {
         this.emitter.emitType(response.type);
       }
 
