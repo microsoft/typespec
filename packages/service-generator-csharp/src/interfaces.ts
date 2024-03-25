@@ -1,5 +1,12 @@
 import { Model } from "@typespec/compiler";
-import { Context, Scope, SourceFile, StringBuilder } from "@typespec/compiler/emitter-framework";
+import {
+  AssetEmitter,
+  Context,
+  EmittedSourceFile,
+  EmitterOutput,
+  Scope,
+  SourceFile,
+} from "@typespec/compiler/emitter-framework";
 
 export const HelperNamespace: string = "Microsoft.TypeSpec.Service.Models";
 
@@ -87,6 +94,24 @@ export class NumericValue extends CSharpValue {
   }
 }
 
+export class BooleanValue extends CSharpValue {
+  value?: boolean;
+  public constructor(value?: boolean) {
+    super();
+    this.value = value;
+  }
+  public emitValue(scope?: Scope<string> | undefined): string {
+    return `${this.value}` ?? false;
+  }
+}
+
+export class NullValue extends CSharpValue {
+  value?: null;
+  public emitValue(scope?: Scope<string> | undefined): string {
+    return "null";
+  }
+}
+
 export class Parameter implements CSharpTypeMetadata {
   type: CSharpType;
   optional: boolean;
@@ -158,24 +183,46 @@ export class Attribute {
 }
 
 export abstract class CSharpDeclaration {
-  type?: CSharpType;
-  public abstract getDeclaration(scope: Scope<string>): string | StringBuilder;
+  type: CSharpType;
+  emitter: AssetEmitter<string, Record<string, never>>;
+  public abstract getDeclaration(scope: Scope<string>): EmitterOutput<string>;
+  constructor(type: CSharpType, emitter: AssetEmitter<string, Record<string, never>>) {
+    this.type = type;
+    this.emitter = emitter;
+  }
 }
 
 export class CSharpModel extends CSharpDeclaration {
-  public getDeclaration(scope: Scope<string>): string | StringBuilder {
+  constructor(
+    modelName: string,
+    modelNamespace: string,
+    emitter: AssetEmitter<string, Record<string, never>>
+  ) {
+    super(
+      new CSharpType({
+        name: modelName,
+        namespace: modelNamespace,
+        isBuiltIn: false,
+        isValueType: false,
+      }),
+      emitter
+    );
+  }
+  properties: Parameter[] = [];
+
+  public getDeclaration(scope: Scope<string>): EmitterOutput<string> {
     return "";
   }
 }
 
 export class CSharpEnum extends CSharpDeclaration {
-  public getDeclaration(scope: Scope<string>): string | StringBuilder {
+  public getDeclaration(scope: Scope<string>): EmitterOutput<string> {
     return "";
   }
 }
 
 export class CSharpController extends CSharpDeclaration {
-  public getDeclaration(scope: Scope<string>): string | StringBuilder {
+  public getDeclaration(scope: Scope<string>): EmitterOutput<string> {
     return "";
   }
 }
@@ -196,9 +243,7 @@ export enum CSharpSourceType {
   Model,
   Controller,
   RouteConstants,
-  OperationState,
-  OperationStatus,
-  ResourceOperationStatus,
+  Interface,
 }
 
 export enum NameCasingType {
@@ -209,4 +254,23 @@ export enum NameCasingType {
   Parameter,
   Property,
   Variable,
+}
+
+export class LibrarySourceFile {
+  constructor(params: {
+    filename: string;
+    getContents: () => string;
+    emitter: AssetEmitter<string, Record<string, never>>;
+  }) {
+    this.filename = params.filename;
+    this.source = params.emitter.createSourceFile(`lib/${this.filename}`);
+    this.emitted = {
+      path: this.source.path,
+      contents: params.getContents(),
+    };
+  }
+
+  filename: string;
+  source: SourceFile<string>;
+  emitted: EmittedSourceFile;
 }
