@@ -340,7 +340,11 @@ export class OpenAPI3SchemaEmitter extends TypeEmitter<
 
     const refSchema = this.emitter.emitTypeReference(prop.type, {
       referenceContext:
-        prop.type.kind !== "Union" && isMultipart ? { contentType: "application/json" } : {},
+        isMultipart &&
+        (prop.type.kind !== "Union" ||
+          ![...prop.type.variants.values()].some((x) => this.#isBytesKeptRaw(x.type)))
+          ? { contentType: "application/json" }
+          : {},
     });
 
     if (refSchema.kind !== "code") {
