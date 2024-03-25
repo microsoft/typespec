@@ -494,20 +494,24 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       const declParams = this.#emitHttpOperationParameters(httpOperation);
       return this.emitter.result.declaration(
         operation.name,
-        code`${doc ? `${formatComment(doc)}` : ""}
+        code`
+        ${doc ? `${formatComment(doc)}` : ""}
         [${getOperationVerbDecorator(httpOperation)}]
         [Route("${httpOperation.path}")]
         ${this.emitter.emitOperationReturnType(operation)}
-        public async Task<IActionResult> ${operationName}(${declParams})
+        public virtual async Task<IActionResult> ${operationName}(${declParams})
         {
-          var result = await On${operationName}Async(${this.#emitOperationCallParameters(
-            httpOperation
-          )});
-          return result;
-        }
-        
-        protected virtual Task<IActionResult> On${operationName}Async(${declParams}) {
-          return Task.FromResult<IActionResult>(Ok());
+          ${
+            httpOperation.verb !== "delete"
+              ? `var result = await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
+                  httpOperation
+                )});
+          return Ok(result);`
+              : `await ${this.emitter.getContext().resourceName}Impl.${operationName}Async(${this.#emitOperationCallParameters(
+                  httpOperation
+                )});
+          return NoContent();`
+          }
         }`
       );
     }
@@ -615,7 +619,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       operation: HttpOperation,
       httpParam: HttpOperationParameter
     ): EmitterOutput<string> {
-      const name = httpParam.name;
+      const name = httpParam.param.name;
       const parameter = httpParam.param;
       const emittedName = ensureCSharpIdentifier(
         this.emitter.getProgram(),
@@ -661,7 +665,7 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
       operation: HttpOperation,
       httpParam: HttpOperationParameter
     ): EmitterOutput<string> {
-      const name = httpParam.name;
+      const name = httpParam.param.name;
       const parameter = httpParam.param;
       const emittedName = ensureCSharpIdentifier(
         this.emitter.getProgram(),
