@@ -38,7 +38,7 @@ extends:
           ${{ if ne(pair.key, 'variables') }}:
             ${{ pair.key }}: ${{ pair.value }}
         variables:
-        - template: /eng/pipelines/template/variables/image.yml@self
+        - template: /eng/pipelines/templates/variables/image.yml@self
         - ${{ each variable in parameters.variables }}:
           - ${{ if in(variable.key, 'template', 'group') }}:
             - ${{ variable.key }}: ${{ variable.value }}
