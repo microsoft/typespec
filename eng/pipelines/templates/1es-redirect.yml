@@ -6,15 +6,15 @@ resources:
       ref: refs/tags/release
 
 parameters:
-- name: stages
-  type: stageList
-  default: []
-- name: variables
-  type: object
-  default: {}
-- name: Use1ESOfficial
-  type: boolean
-  default: true
+  - name: stages
+    type: stageList
+    default: []
+  - name: variables
+    type: object
+    default: {}
+  - name: Use1ESOfficial
+    type: boolean
+    default: true
 
 extends:
   ${{ if and(parameters.Use1ESOfficial, eq(variables['System.TeamProject'], 'internal')) }}:
@@ -35,25 +35,25 @@ extends:
         compiled: true
         break: true
     stages:
-    - ${{ each stage in parameters.stages }}:
-      - ${{ each pair in stage }}:
-          ${{ if ne(pair.key, 'variables') }}:
-            ${{ pair.key }}: ${{ pair.value }}
-        variables:
-        - template: /eng/pipelines/templates/variables/image.yml@self
-        - ${{ each variable in parameters.variables }}:
-          - ${{ if variable.key }}:
-            # turn objects into name/value lists
-            - name: ${{ variable.key }}
-              value: ${{ variable.value }}
-          - ${{ else }}:
-            # preserve all other variables
-            - ${{ variable }}
-        - ${{ each variable in stage.variables }}:
-          - ${{ if variable.key }}:
-            # turn objects into name/value lists
-            - name: ${{ variable.key }}
-              value: ${{ variable.value }}
-          - ${{ else }}:
-            # preserve all other variables
-            - ${{ variable }}
+      - ${{ each stage in parameters.stages }}:
+          - ${{ each pair in stage }}:
+              ${{ if ne(pair.key, 'variables') }}:
+                ${{ pair.key }}: ${{ pair.value }}
+            variables:
+              - template: /eng/pipelines/templates/variables/image.yml@self
+              - ${{ each variable in parameters.variables }}:
+                  - ${{ if variable.key }}:
+                      # turn objects into name/value lists
+                      - name: ${{ variable.key }}
+                        value: ${{ variable.value }}
+                  - ${{ else }}:
+                      # preserve all other variables
+                      - ${{ variable }}
+              - ${{ each variable in stage.variables }}:
+                  - ${{ if variable.key }}:
+                      # turn objects into name/value lists
+                      - name: ${{ variable.key }}
+                        value: ${{ variable.value }}
+                  - ${{ else }}:
+                      # preserve all other variables
+                      - ${{ variable }}

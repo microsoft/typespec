@@ -103,7 +103,7 @@ extends:
                   path: $(Build.ArtifactStagingDirectory)/vscode-extension
                   artifact: vscode-extension-unsigned
                   displayName: Publish VSCode extension(.vsix) as pipeline artifacts
-                
+
                 - output: pipelineArtifact
                   path: $(Build.ArtifactStagingDirectory)/vs-extension
                   artifact: vs-extension-unsigned

@@ -4,7 +4,6 @@ pr:
   - main
   - release/*
 
-
 extends:
   template: /eng/pipelines/templates/1es-redirect.yml
   parameters:

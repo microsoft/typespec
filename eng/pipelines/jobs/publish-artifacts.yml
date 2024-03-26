@@ -12,7 +12,6 @@ jobs:
       image: $(LINUXVMIMAGE)
       os: linux
 
-
     steps:
       - checkout: self
         submodules: true
