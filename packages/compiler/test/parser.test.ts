@@ -824,7 +824,7 @@ describe("compiler: parser", () => {
 
   describe("projections", () => {
     describe("selectors", () => {
-      const selectors = ["model", "op", "interface", "union", "someId"];
+      const selectors = ["model", "op", "interface", "union", "scalar", "someId"];
       const codes = selectors.map((s) => `projection ${s}#tag { }`);
       parseEach(codes);
     });
@@ -892,7 +892,10 @@ describe("compiler: parser", () => {
 
     describe("recovery", () => {
       parseErrorEach([
-        [`projection `, [/identifier, 'model', 'op', 'interface', 'union', or 'enum' expected/]],
+        [
+          `projection `,
+          [/identifier, 'model', 'op', 'interface', 'union', 'enum' or 'scalar' expected/],
+        ],
         [`projection x `, [/'#' expected/]],
         [`projection x#`, [/Identifier expected/]],
         [`projection x#f`, [/'{' expected/]],
