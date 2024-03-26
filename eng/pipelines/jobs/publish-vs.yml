@@ -28,8 +28,9 @@ jobs:
     displayName: Publish
     dependsOn: sign_vs
     pool:
-      name: azsdk-pool-mms-win-2022-general
-      vmImage: windows-2022
+      name: $(WINDOWSPOOL)
+      image: $(WINDOWSVMIMAGE)
+      os: windows
 
     steps:
       - download: current
