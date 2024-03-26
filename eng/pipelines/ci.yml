@@ -92,21 +92,22 @@ extends:
                       --source "./packages/playground-website/dist/" ^
                       --overwrite
 
-            outputs:
-              - output: pipelineArtifact
-                path: $(Build.SourcesDirectory)/temp/artifacts
-                artifact: packages
-                displayName: Publish packages(.tgz) as pipeline artifacts
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  path: $(Build.SourcesDirectory)/temp/artifacts
+                  artifact: packages
+                  displayName: Publish packages(.tgz) as pipeline artifacts
 
-              - output: pipelineArtifact
-                path: $(Build.ArtifactStagingDirectory)/vscode-extension
-                artifact: vscode-extension-unsigned
-                displayName: Publish VSCode extension(.vsix) as pipeline artifacts
-              
-              - output: pipelineArtifact
-                path: $(Build.ArtifactStagingDirectory)/vs-extension
-                artifact: vs-extension-unsigned
-                displayName: Publish VS extension(.vsix) as pipeline artifacts
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/vscode-extension
+                  artifact: vscode-extension-unsigned
+                  displayName: Publish VSCode extension(.vsix) as pipeline artifacts
+                
+                - output: pipelineArtifact
+                  path: $(Build.ArtifactStagingDirectory)/vs-extension
+                  artifact: vs-extension-unsigned
+                  displayName: Publish VS extension(.vsix) as pipeline artifacts
 
       - stage: publish_dev_npm
         displayName: Publish Dev Packages

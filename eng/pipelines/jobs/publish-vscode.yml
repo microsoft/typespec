@@ -17,11 +17,12 @@ jobs:
           path: $(Pipeline.Workspace)/vscode-extension-unsigned
           pattern: "*.vsix"
 
-    outputs:
-      - output: pipelineArtifact
-        path: $(Pipeline.Workspace)/vscode-extension-unsigned
-        artifact: vscode-extension-signed
-        displayName: Publish signed VSCode extension
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Pipeline.Workspace)/vscode-extension-unsigned
+          artifact: vscode-extension-signed
+          displayName: Publish signed VSCode extension
 
   - job: publish_vscode
     displayName: Publish

@@ -17,11 +17,12 @@ jobs:
           path: $(Pipeline.Workspace)/vs-extension-unsigned
           pattern: "*.vsix"
 
-    outputs:
-      - output: pipelineArtifact
-        path: $(Pipeline.Workspace)/vs-extension-unsigned
-        artifact: vs-extension-signed
-        displayName: Publish signed VS extension
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          path: $(Pipeline.Workspace)/vs-extension-unsigned
+          artifact: vs-extension-signed
+          displayName: Publish signed VS extension
         
   - job: publish_vs
     displayName: Publish
