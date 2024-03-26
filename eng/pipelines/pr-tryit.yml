@@ -8,7 +8,7 @@ extends:
   template: /eng/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
-      - template: /eng/pipelines/templates/variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml@self
     stages:
       - stage: publish_playground
         displayName: Publish playground
