@@ -1,6 +1,6 @@
 name: 🚀 New feature proposal
 description: Propose a new feature to be added to TypeSpec
-labels: ["enhancement: pending triage"]
+labels: []
 body:
   - type: markdown
     attributes:
@@ -19,7 +19,7 @@ body:
       label: Validations
       description: Before submitting the issue, please make sure you do the following
       options:
-        - label: Follow our [Code of Conduct](https://github.com/vitest-dev/vitest/blob/main/CODE_OF_CONDUCT.md)
+        - label: Follow our [Code of Conduct](https://github.com/microsoft/typespec/blob/main/CODE_OF_CONDUCT.md)
           required: true
 
         - label: Read the [docs](https://typespec.io/docs/).
