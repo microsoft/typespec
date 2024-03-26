@@ -894,7 +894,7 @@ describe("compiler: parser", () => {
       parseErrorEach([
         [
           `projection `,
-          [/identifier, 'model', 'op', 'interface', 'union', 'enum' or 'scalar' expected/],
+          [/identifier, 'model', 'op', 'interface', 'union', 'enum', or 'scalar' expected./],
         ],
         [`projection x `, [/'#' expected/]],
         [`projection x#`, [/Identifier expected/]],
