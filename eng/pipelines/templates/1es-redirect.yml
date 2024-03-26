@@ -25,6 +25,8 @@ extends:
     settings:
       skipBuildTagsForGitHubPullRequests: true
     sdl:
+      credscan:
+        suppressionsFile: $(Build.SourcesDirectory)/eng/CredScanSuppression.json
       sourceAnalysisPool:
         name: azsdk-pool-mms-win-2022-general
         image: azsdk-pool-mms-win-2022-1espt
