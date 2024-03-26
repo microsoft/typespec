@@ -28,15 +28,15 @@ body:
       required: true
 
   - type: checkboxes
-    id: terms
+    id: checklist
     attributes:
-      label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/microsoft/typespec/blob/main/CODE_OF_CONDUCT.md)
+      label: Checklist
+      description: Before submitting the issue, please make sure you do the following
       options:
-        - label: I agree to follow this project's Code of Conduct
+        - label: Follow our [Code of Conduct](https://github.com/microsoft/typespec/blob/main/CODE_OF_CONDUCT.md)
           required: true
 
-        - label: Check that there isn't already an issue that request the same feature to avoid creating a duplicate.
+        - label: Check that there isn't already an issue that request the same bug to avoid creating a duplicate.
           required: true
 
         - label: Check that this is a concrete bug. For Q&A open a [GitHub Discussion](https://github.com/Microsoft/typespec/discussions).

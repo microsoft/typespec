@@ -14,9 +14,9 @@ body:
       required: true
 
   - type: checkboxes
-    id: checkboxes
+    id: checklist
     attributes:
-      label: Validations
+      label: Checklist
       description: Before submitting the issue, please make sure you do the following
       options:
         - label: Follow our [Code of Conduct](https://github.com/microsoft/typespec/blob/main/CODE_OF_CONDUCT.md)
