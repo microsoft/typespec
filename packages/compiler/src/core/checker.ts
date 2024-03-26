@@ -325,6 +325,7 @@ export function createChecker(program: Program): Checker {
   const projectionsByTypeKind = new Map<Type["kind"], ProjectionStatementNode[]>([
     ["Model", []],
     ["ModelProperty", []],
+    ["Scalar", []],
     ["Union", []],
     ["UnionVariant", []],
     ["Operation", []],
@@ -4724,6 +4725,10 @@ export function createChecker(program: Program): Checker {
       case SyntaxKind.ProjectionModelPropertySelector:
         projectionsByTypeKind.get("ModelProperty")!.push(node);
         type.nodeByKind.set("ModelProperty", node);
+        break;
+      case SyntaxKind.ProjectionScalarSelector:
+        projectionsByTypeKind.get("Scalar")!.push(node);
+        type.nodeByKind.set("Scalar", node);
         break;
       case SyntaxKind.ProjectionOperationSelector:
         projectionsByTypeKind.get("Operation")!.push(node);
