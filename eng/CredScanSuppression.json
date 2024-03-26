@@ -3,9 +3,10 @@
   "suppressions": [
     {
       "placeholder": [
-        "abcdef12345"
+        "abcdef12345",
+        "Y0uW1llN3v3rGu3ss!"
       ],
-      "_justification": "Secret used by test code or documentation, it is fake."
+      "_justification": "Secrets used by test code or documentation, they are fake."
     },
     {
       "file": [
