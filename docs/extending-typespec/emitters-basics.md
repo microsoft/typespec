@@ -7,6 +7,14 @@ title: Emitters
 
 TypeSpec emitters are libraries that utilize various TypeSpec compiler APIs to reflect on the TypeSpec compilation process and generate artifacts. The TypeSpec standard library includes an emitter for OpenAPI version 3.0. However, you might want to emit TypeSpec to a different output format. One of the main advantages of TypeSpec is its ease of use as a single source of truth for all data shapes, and the simplicity of creating an emitter contributes significantly to this.
 
+## Emitter design
+
+TypeSpec is designed to support many protocols and many output formats. It is important that an emitter is designed to select only the part of the TypeSpec spec that makes sense for them. Having emitters designed correctly will allow a user to define multiple layers of their API in a single TypeSpec document, allowing tools to view the entire picture of the service.
+
+For example assuming a User wants to emit `openapi3` and `protobuf` but each API has a different set of operations and is split into different namespaces.
+
+It is important that there is a way for the openapi3 emitter and protobuf emitter to select only the part of the spec that applies to them. For instance, the protobuf emitter should not try to emit the http service namespace and fail because of missing annotations.
+
 ## Starting out
 
 TypeSpec emitters are a unique type of TypeSpec library, so they follow the same initial setup instructions.

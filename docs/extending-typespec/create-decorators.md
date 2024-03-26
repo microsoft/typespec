@@ -1,13 +1,13 @@
 ---
 id: create-decorators
-title: How to create TypeSpec decorators
+title: Decorators
 ---
 
-# How to create TypeSpec decorators
+# Decorators
 
 TypeSpec decorators are implemented as JavaScript functions. The process of creating a decorator can be divided into two parts:
 
-1. [(Optional) Declare the decorator signature in TypeSpec](#declare-the-decorator-signature)
+1. [Declare the decorator signature in TypeSpec](#declare-the-decorator-signature) (optional but recommended)
 2. [Implement the decorator in JavaScript](#implement-the-decorator-in-javascript)
 
 ## Declare the decorator signature
