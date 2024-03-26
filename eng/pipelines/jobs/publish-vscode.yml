@@ -12,7 +12,7 @@ jobs:
         artifact: vscode-extension-unsigned
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
 
-      - template: ../templates/sign-vsix.yml
+      - template: /eng/pipelines/templates/sign-vsix.yml
         parameters:
           path: $(Pipeline.Workspace)/vscode-extension-unsigned
           pattern: "*.vsix"
@@ -36,7 +36,7 @@ jobs:
         artifact: vscode-extension-signed
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
 
-      - template: ../templates/install.yml
+      - template: /eng/pipelines/templates/install.yml
 
       - script: npm run deploy -- --skip-duplicate --packagePath $(Pipeline.Workspace)/vscode-extension-signed/typespec-vscode-*.vsix
         displayName: Publish

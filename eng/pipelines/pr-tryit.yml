@@ -5,10 +5,10 @@ pr:
   - release/*
 
 extends:
-  template: templates/1es-redirect.yml
+  template: /eng/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
-      - template: templates/variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
     stages:
       - stage: publish_playground
         displayName: Publish playground
@@ -25,9 +25,9 @@ extends:
               - checkout: self
                 persistCredentials: true
 
-              - template: ./templates/install.yml
+              - template: /eng/pipelines/templates/install.yml
 
-              - template: ./templates/build.yml
+              - template: /eng/pipelines/templates/build.yml
 
               - task: AzureCLI@1
                 displayName: "Publish playground to PR endpoint"

@@ -17,10 +17,10 @@ jobs:
       - checkout: self
         submodules: true
 
-      - template: ../templates/install.yml
+      - template: /eng/pipelines/templates/install.yml
         parameters:
           nodeVersion: "20.x"
-      - template: ../templates/build.yml
+      - template: /eng/pipelines/templates/build.yml
 
       - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-pr . --pr $(System.PullRequest.PullRequestNumber) --buildNumber $(Build.BuildNumber)
         displayName: Bump version to prerelease targets

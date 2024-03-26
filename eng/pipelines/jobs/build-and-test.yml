@@ -5,23 +5,23 @@ parameters:
     type: string
 
 steps:
-  - template: ../templates/install.yml
+  - template: /eng/pipelines/templates/install.yml
     parameters:
       nodeVersion: ${{ parameters.nodeVersion }}
 
   # Only running UI test on linux
   - ${{ if ne(variables['Agent.OS'], 'Windows_NT') }}:
-      - template: ../templates/install-browsers.yml
+      - template: /eng/pipelines/templates/install-browsers.yml
 
   - script: pnpm run check-version-mismatch
     displayName: Check version mismatch
 
-  - template: ../templates/build.yml
+  - template: /eng/pipelines/templates/build.yml
 
   - script: pnpm run test-official
     displayName: Test
 
-  - template: ../templates/upload-coverage.yml
+  - template: /eng/pipelines/templates/upload-coverage.yml
 
   - script: pnpm run check-format
     displayName: Check Formatting

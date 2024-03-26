@@ -8,10 +8,10 @@ trigger:
 pr: none
 
 extends:
-  template: templates/1es-redirect.yml
+  template: /eng/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
-      - template: templates/variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
 
     stages:
       - stage: build
@@ -30,13 +30,13 @@ extends:
               TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
             steps:
-              - template: ./templates/install.yml
-              - template: ./templates/build.yml
+              - template: /eng/pipelines/templates/install.yml
+              - template: /eng/pipelines/templates/build.yml
 
               - script: pnpm run test-official
                 displayName: Test
 
-              - template: ./templates/upload-coverage.yml
+              - template: /eng/pipelines/templates/upload-coverage.yml
 
               - script: pnpm run pack:all
                 displayName: Pack packages
@@ -120,8 +120,8 @@ extends:
               TYPESPEC_SKIP_DOCUSAURUS_BUILD: true # Disable docusaurus build
 
             steps:
-              - template: ./templates/install.yml
-              - template: ./templates/build.yml
+              - template: /eng/pipelines/templates/install.yml
+              - template: /eng/pipelines/templates/build.yml
 
               - script: node ./packages/internal-build-utils/cmd/cli.js bump-version-preview .
                 displayName: Bump version to prerelease targets
@@ -147,13 +147,13 @@ extends:
         displayName: Publish VSCode extension
         dependsOn: build
         jobs:
-          - template: ./jobs/publish-vscode.yml
+          - template: /eng/pipelines/jobs/publish-vscode.yml
 
       - stage: publish_vs
         displayName: Publish VS extension
         dependsOn: build
         jobs:
-          - template: ./jobs/publish-vs.yml
+          - template: /eng/pipelines/jobs/publish-vs.yml
 
       - stage: docker
         displayName: Docker

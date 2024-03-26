@@ -6,10 +6,10 @@ pr:
 
 
 extends:
-  template: templates/1es-redirect.yml
+  template: /eng/pipelines/templates/1es-redirect.yml
   parameters:
     variables:
-      - template: templates/variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
     stages:
       - stage: Build
         jobs:
@@ -34,7 +34,7 @@ extends:
               os: windows
 
             steps:
-              - template: ./jobs/build-and-test.yml
+              - template: /eng/pipelines/jobs/build-and-test.yml
                 parameters:
                   nodeVersion: $(nodeVersion)
                   os: linux
@@ -60,12 +60,12 @@ extends:
               os: linux
 
             steps:
-              - template: ./jobs/build-and-test.yml
+              - template: /eng/pipelines/jobs/build-and-test.yml
                 parameters:
                   nodeVersion: $(nodeVersion)
                   os: linux
 
-          - template: ./jobs/publish-artifacts.yml
+          - template: /eng/pipelines/jobs/publish-artifacts.yml
 
           - job: docker_build
             pool:
