@@ -789,6 +789,7 @@ export enum SyntaxKind {
   ProjectionParameterDeclaration,
   ProjectionModelSelector,
   ProjectionModelPropertySelector,
+  ProjectionScalarSelector,
   ProjectionOperationSelector,
   ProjectionUnionSelector,
   ProjectionUnionVariantSelector,
@@ -902,6 +903,7 @@ export type Node =
   | ProjectionExpression
   | ProjectionModelSelectorNode
   | ProjectionModelPropertySelectorNode
+  | ProjectionScalarSelectorNode
   | ProjectionInterfaceSelectorNode
   | ProjectionOperationSelectorNode
   | ProjectionEnumSelectorNode
@@ -1443,6 +1445,10 @@ export interface ProjectionModelSelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionModelSelector;
 }
 
+export interface ProjectionScalarSelectorNode extends BaseNode {
+  readonly kind: SyntaxKind.ProjectionScalarSelector;
+}
+
 export interface ProjectionModelPropertySelectorNode extends BaseNode {
   readonly kind: SyntaxKind.ProjectionModelPropertySelector;
 }
@@ -1592,6 +1598,7 @@ export interface ProjectionStatementNode extends BaseNode, DeclarationNode {
   readonly selector:
     | ProjectionModelSelectorNode
     | ProjectionModelPropertySelectorNode
+    | ProjectionScalarSelectorNode
     | ProjectionInterfaceSelectorNode
     | ProjectionOperationSelectorNode
     | ProjectionUnionSelectorNode
