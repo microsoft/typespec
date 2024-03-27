@@ -44,8 +44,11 @@ words:
   - jsyaml
   - keyer
   - lifecyle
+  - LINUXOS
   - LINUXVMIMAGE
+  - LINUXNEXTVMIMAGE
   - lzutf
+  - MACVMIMAGE
   - mocharc
   - msbuild
   - MSRC
@@ -73,6 +76,7 @@ words:
   - protobuf
   - protoc
   - pwsh
+  - psscriptanalyzer
   - regen
   - respecify
   - rpaas
