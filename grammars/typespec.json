@@ -270,10 +270,13 @@
     },
     "enum-member": {
       "name": "meta.enum-member.typespec",
-      "begin": "(?:(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`))",
+      "begin": "(?:(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*(:?))",
       "beginCaptures": {
         "1": {
           "name": "variable.name.tsp"
+        },
+        "2": {
+          "name": "keyword.operator.type.annotation.tsp"
         }
       },
       "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
@@ -1346,9 +1349,6 @@
       "patterns": [
         {
           "include": "#token"
-        },
-        {
-          "include": "#type-annotation"
         },
         {
           "include": "#expression"

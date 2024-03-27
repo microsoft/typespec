@@ -508,9 +508,10 @@ const scalarStatement: BeginEndRule = {
 const enumMember: BeginEndRule = {
   key: "enum-member",
   scope: meta,
-  begin: `(?:(${identifier}))`,
+  begin: `(?:(${identifier})\\s*(:?))`,
   beginCaptures: {
     "1": { scope: "variable.name.tsp" },
+    "2": { scope: "keyword.operator.type.annotation.tsp" },
   },
   end: universalEnd,
   patterns: [token, typeAnnotation],
@@ -551,7 +552,7 @@ const namedUnionVariant: BeginEndRule = {
     "2": { scope: "keyword.operator.type.annotation.tsp" },
   },
   end: universalEnd,
-  patterns: [token, typeAnnotation, expression],
+  patterns: [token, expression],
 };
 
 const unionBody: BeginEndRule = {
