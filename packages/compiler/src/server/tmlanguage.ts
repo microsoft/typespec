@@ -952,7 +952,7 @@ const grammar: Grammar = {
   $schema: tm.schema,
   name: "TypeSpec",
   scopeName: "source.tsp",
-  fileTypes: [".tsp"],
+  fileTypes: ["tsp"],
   patterns: [statement],
 };
 

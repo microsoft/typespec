@@ -3,7 +3,7 @@
   "name": "TypeSpec",
   "scopeName": "source.tsp",
   "fileTypes": [
-    ".tsp"
+    "tsp"
   ],
   "patterns": [
     {
