@@ -31,6 +31,7 @@ words:
   - eastus
   - ecmarkup
   - esbuild
+  - espt
   - ESRP
   - fluentui
   - genproto
@@ -43,6 +44,7 @@ words:
   - jsyaml
   - keyer
   - lifecyle
+  - LINUXVMIMAGE
   - lzutf
   - mocharc
   - msbuild
@@ -102,6 +104,7 @@ words:
   - VSSDK
   - vswhere
   - westus
+  - WINDOWSVMIMAGE
   - xlarge
   - xplat
 ignorePaths:
