@@ -360,7 +360,10 @@ export class MarkdownRenderer {
     return section("Linter", [
       section("Usage", ["Add the following in `tspconfig.yaml`:", codeblock(setupExample, "yaml")]),
       refDoc.linter.ruleSets
-        ? section("RuleSets", ["Available ruleSets:", this.toc(refDoc.linter.ruleSets)])
+        ? section("RuleSets", [
+            "Available ruleSets:",
+            refDoc.linter.ruleSets.map((item) => ` - ${inlinecode(item.name)}`),
+          ])
         : [],
       section("Rules", this.linterRuleToc(refDoc.linter.rules)),
     ]);

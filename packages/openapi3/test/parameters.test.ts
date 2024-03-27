@@ -404,7 +404,7 @@ describe("openapi3: parameters", () => {
       });
     });
 
-    it("query named contentType doesn't get resolved as the content type parmaeter.", async () => {
+    it("query named contentType doesn't get resolved as the content type parameter.", async () => {
       const res = await openApiFor(
         `
         op test(

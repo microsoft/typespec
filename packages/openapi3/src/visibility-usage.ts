@@ -171,6 +171,9 @@ function navigateReferencedTypes(
     case "Model":
       callback(type, usage);
       navigateIterable(type.properties, usage, callback, visited);
+      if (type.baseModel) {
+        navigateReferencedTypes(type.baseModel, usage, callback, visited);
+      }
       navigateIterable(type.derivedModels, usage, callback, visited);
       if (type.baseModel) {
         navigateReferencedTypes(type.baseModel, usage, callback, visited);

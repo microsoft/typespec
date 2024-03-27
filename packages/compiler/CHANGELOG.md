@@ -481,7 +481,7 @@ Wed, 07 Dec 2022 17:21:52 GMT
 - Add new helper `validateDecoratorUniqueOnNode` that validate the decorator is not being used twice on the same node
 - Add variable interpolation functionality in the cadl-project.yaml
 - Add built-in `emitter-output-dir` options for all emitter.
-- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parmaeter.
+- **Api Breaking change** $onEmit signature was updated to take an EmitContext object as only parameter.
 - Fix typing and export format command
 - **Api Breaking** Multiple `@service` per specs are now allowed.
 - Add new `program.resolveTypeReference` helper to resolve a type in the cadl program using fully qualified name

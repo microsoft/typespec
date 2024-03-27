@@ -1,7 +1,7 @@
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
-import { renderMarkdowDoc } from "../../../src/ref-doc/utils/markdown.js";
-import { createMarkdownRenderer } from "../../test-utils.js";
+import { renderMarkdowDoc } from "../../../../src/ref-doc/utils/markdown.js";
+import { createMarkdownRenderer } from "../../../test-utils.js";
 
 async function renderModel(code: string) {
   const { renderer, refDoc } = await createMarkdownRenderer(`namespace Lib; ${code}`);

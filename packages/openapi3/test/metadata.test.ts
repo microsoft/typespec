@@ -1147,4 +1147,27 @@ describe("openapi3: metadata", () => {
       },
     });
   });
+
+  it("base models used in different visibility gets distinct names", async () => {
+    const res = await openApiFor(`
+      model Widget {
+        @visibility("read", "update")
+        @path
+        id: string;
+      
+        weight: int32;
+      }
+      
+      model CreatedWidget extends Widget {}
+      
+      @post op create(widget: Widget): CreatedWidget;
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), [
+      "CreatedWidget",
+      "CreatedWidgetCreate",
+      "Widget",
+      "WidgetCreate",
+    ]);
+  });
 });
