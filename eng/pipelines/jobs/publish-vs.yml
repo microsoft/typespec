@@ -8,7 +8,7 @@ jobs:
 
     steps:
       - checkout: self
-      
+
       - download: current
         artifact: vs-extension-unsigned
         displayName: Download VS extension(.vsix) from pipeline artifacts
@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - checkout: self
-      
+
       - download: current
         artifact: vs-extension-signed
         displayName: Download VS extension(.vsix) from pipeline artifacts

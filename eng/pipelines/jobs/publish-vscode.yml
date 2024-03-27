@@ -8,7 +8,7 @@ jobs:
 
     steps:
       - checkout: self
-      
+
       - download: current
         artifact: vscode-extension-unsigned
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
