@@ -1275,12 +1275,50 @@
         }
       ]
     },
+    "union-body": {
+      "name": "meta.union-body.typespec",
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.curlybrace.open.tsp"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.curlybrace.close.tsp"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#union-variant"
+        },
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#directive"
+        },
+        {
+          "include": "#decorator"
+        },
+        {
+          "include": "#expression"
+        },
+        {
+          "include": "#punctuation-comma"
+        }
+      ]
+    },
     "union-statement": {
       "name": "meta.union-statement.typespec",
-      "begin": "\\b(union)\\b",
+      "begin": "\\b(union)\\b\\s+(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)",
       "beginCaptures": {
         "1": {
           "name": "keyword.other.tsp"
+        },
+        "2": {
+          "name": "entity.name.type.tsp"
         }
       },
       "end": "(?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
@@ -1289,7 +1327,28 @@
           "include": "#token"
         },
         {
-          "include": "#type-parameters"
+          "include": "#union-body"
+        }
+      ]
+    },
+    "union-variant": {
+      "name": "meta.union-variant.typespec",
+      "begin": "(?:(\\b[_$[:alpha:]][_$[:alnum:]]*\\b|`(?:[^`\\\\]|\\\\.)*`)\\s*(:))",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.name.tsp"
+        },
+        "2": {
+          "name": "keyword.operator.type.annotation.tsp"
+        }
+      },
+      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "patterns": [
+        {
+          "include": "#token"
+        },
+        {
+          "include": "#type-annotation"
         },
         {
           "include": "#expression"

@@ -542,15 +542,42 @@ const enumStatement: BeginEndRule = {
   patterns: [token, enumBody],
 };
 
+const namedUnionVariant: BeginEndRule = {
+  key: "union-variant",
+  scope: meta,
+  begin: `(?:(${identifier})\\s*(:))`,
+  beginCaptures: {
+    "1": { scope: "variable.name.tsp" },
+    "2": { scope: "keyword.operator.type.annotation.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, typeAnnotation, expression],
+};
+
+const unionBody: BeginEndRule = {
+  key: "union-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [namedUnionVariant, token, directive, decorator, expression, punctuationComma],
+};
+
 const unionStatement: BeginEndRule = {
   key: "union-statement",
   scope: meta,
-  begin: "\\b(union)\\b",
+  begin: `\\b(union)\\b\\s+(${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
-  patterns: [token, typeParameters, expression],
+  patterns: [token, unionBody],
 };
 
 const aliasStatement: BeginEndRule = {
