@@ -58,7 +58,9 @@ const identifierStart = "[_$[:alpha:]]";
 // cspell:disable-next-line
 const identifierContinue = "[_$[:alnum:]]";
 const beforeIdentifier = `(?=${identifierStart})`;
-const identifier = `\\b${identifierStart}${identifierContinue}*\\b`;
+const escapedIdentifier = "`(?:[^`\\\\]|\\\\.)*`";
+const simpleIdentifier = `\\b${identifierStart}${identifierContinue}*\\b`;
+const identifier = `${simpleIdentifier}|${escapedIdentifier}`;
 const qualifiedIdentifier = `\\b${identifierStart}(${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const modifierKeyword = `\\b(?:extern)\\b`;
@@ -403,8 +405,8 @@ const modelProperty: BeginEndRule = {
   patterns: [token, typeAnnotation, operatorAssignment, expression],
 };
 
-const modelSpreadProperty: BeginEndRule = {
-  key: "model-spread-property",
+const spreadExpression: BeginEndRule = {
+  key: "spread-operator",
   scope: meta,
   begin: "\\.\\.\\.",
   beginCaptures: {
@@ -417,7 +419,7 @@ const modelSpreadProperty: BeginEndRule = {
 const directive: BeginEndRule = {
   key: "directive",
   scope: meta,
-  begin: `\\s*(#${identifier})`,
+  begin: `\\s*(#${simpleIdentifier})`,
   beginCaptures: {
     "1": { scope: "keyword.directive.name.tsp" },
   },
@@ -444,7 +446,7 @@ const modelExpression: BeginEndRule = {
     token,
     directive,
     decorator,
-    modelSpreadProperty,
+    spreadExpression,
     punctuationSemicolon,
   ],
 };
@@ -503,15 +505,41 @@ const scalarStatement: BeginEndRule = {
   ],
 };
 
+const enumMember: BeginEndRule = {
+  key: "enum-member",
+  scope: meta,
+  begin: `(?:(${identifier}))`,
+  beginCaptures: {
+    "1": { scope: "variable.name.tsp" },
+  },
+  end: universalEnd,
+  patterns: [token, typeAnnotation],
+};
+
+const enumBody: BeginEndRule = {
+  key: "enum-body",
+  scope: meta,
+  begin: "\\{",
+  beginCaptures: {
+    "0": { scope: "punctuation.curlybrace.open.tsp" },
+  },
+  end: "\\}",
+  endCaptures: {
+    "0": { scope: "punctuation.curlybrace.close.tsp" },
+  },
+  patterns: [enumMember, token, directive, decorator, punctuationComma],
+};
+
 const enumStatement: BeginEndRule = {
   key: "enum-statement",
   scope: meta,
-  begin: "\\b(enum)\\b",
+  begin: `\\b(enum)\\b\\s+(${identifier})`,
   beginCaptures: {
     "1": { scope: "keyword.other.tsp" },
+    "2": { scope: "entity.name.type.tsp" },
   },
   end: `(?<=\\})|${universalEnd}`,
-  patterns: [token, expression],
+  patterns: [token, enumBody],
 };
 
 const unionStatement: BeginEndRule = {
@@ -580,7 +608,7 @@ const operationParameters: BeginEndRule = {
   endCaptures: {
     "0": { scope: "punctuation.parenthesis.close.tsp" },
   },
-  patterns: [token, decorator, modelProperty, modelSpreadProperty, punctuationComma],
+  patterns: [token, decorator, modelProperty, spreadExpression, punctuationComma],
 };
 
 const operationHeritage: BeginEndRule = {
