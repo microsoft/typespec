@@ -33,6 +33,8 @@ jobs:
       os: windows
 
     steps:
+      - checkout: self
+      
       - download: current
         artifact: vs-extension-signed
         displayName: Download VS extension(.vsix) from pipeline artifacts

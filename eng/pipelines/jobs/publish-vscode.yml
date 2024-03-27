@@ -33,6 +33,8 @@ jobs:
       os: linux
 
     steps:
+      - checkout: self
+
       - download: current
         artifact: vscode-extension-signed
         displayName: Download VSCode extension(.vsix) from pipeline artifacts
