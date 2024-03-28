@@ -1,0 +1,13 @@
+{
+  "tool": "Credential Scanner",
+  "suppressions": [
+    {
+      "placeholder": ["abcdef12345", "Y0uW1llN3v3rGu3ss!"],
+      "_justification": "Secrets used by test code or documentation, they are fake."
+    },
+    {
+      "file": ["packages/website/docusaurus.config.ts"],
+      "_justification": "Files contains publicly disclosed application key."
+    }
+  ]
+}
